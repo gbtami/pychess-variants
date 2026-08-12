@@ -28,8 +28,7 @@ from const import (
     TRANSLATED_PAIRING_SYSTEM_NAMES,
     VARIANTEND,
 )
-from newid import new_id
-from pymongo import ReturnDocument
+from newid import id8, new_id
 
 from tournament.arena import ArenaTournament
 
@@ -80,7 +79,8 @@ log = logging.getLogger(__name__)
 WinnerEntry = tuple[str, str, str, str]
 ScheduledTournamentEntry = tuple[str, str, bool, datetime, int, str]
 TournamentTables = tuple[list[Tournament], list[Tournament], list[Tournament]]
-COMMUNITY_ARENA_CREATION_COOLDOWN = timedelta(days=1)
+COMMUNITY_ARENA_MAX_CREATIONS_PER_24H = 1
+COMMUNITY_ARENA_CREATION_WINDOW = timedelta(days=1)
 COMMUNITY_ARENA_MAX_SCHEDULE_AHEAD = timedelta(days=1)
 COMMUNITY_ARENA_SYSTEM_BUFFER = timedelta(minutes=15)
 COMMUNITY_ARENA_MIN_MINUTES = 20
@@ -600,39 +600,91 @@ def _validate_community_arena_schedule(
 
 async def _claim_community_arena_creation_slot(
     app_state: PychessGlobalAppState, username: str, now: datetime
-) -> None:
+) -> str | None:
     if app_state.db is None:
-        return
+        return None
+    if COMMUNITY_ARENA_MAX_CREATIONS_PER_24H < 1:
+        raise RuntimeError("COMMUNITY_ARENA_MAX_CREATIONS_PER_24H must be at least 1")
 
-    cutoff = now - COMMUNITY_ARENA_CREATION_COOLDOWN
-    user_doc = await app_state.db.user.find_one_and_update(
-        {
-            "_id": username,
-            "$or": [
-                {"lastArenaCreatedAt": {"$exists": False}},
-                {"lastArenaCreatedAt": {"$lte": cutoff}},
-            ],
-        },
-        {"$set": {"lastArenaCreatedAt": now}},
-        return_document=ReturnDocument.AFTER,
-    )
-    if user_doc is None:
-        account = await app_state.db.user.find_one({"_id": username}, {"_id": 1})
+    cutoff = now - COMMUNITY_ARENA_CREATION_WINDOW
+    claim_id = id8()
+    while True:
+        account = await app_state.db.user.find_one(
+            {"_id": username},
+            {"arenaCreationHistory": 1, "lastArenaCreatedAt": 1},
+        )
         if account is None:
             raise web.HTTPForbidden(text="Tournament creation requires a registered account.")
-        raise web.HTTPTooManyRequests(
-            text="Community Arena creation is limited to one tournament every 24 hours."
+
+        raw_history = account.get("arenaCreationHistory")
+        history_exists = "arenaCreationHistory" in account
+        if isinstance(raw_history, list):
+            current_history = list(raw_history)
+        elif history_exists:
+            current_history = []
+        else:
+            legacy_created_at = account.get("lastArenaCreatedAt")
+            current_history = (
+                [{"at": legacy_created_at, "id": "legacy"}]
+                if isinstance(legacy_created_at, datetime)
+                else []
+            )
+
+        recent_history = [
+            entry
+            for entry in current_history
+            if isinstance(entry, dict)
+            and isinstance(entry.get("at"), datetime)
+            and entry["at"] > cutoff
+        ]
+        if len(recent_history) >= COMMUNITY_ARENA_MAX_CREATIONS_PER_24H:
+            raise web.HTTPTooManyRequests(
+                text=(
+                    "Community Arena creation is limited to "
+                    f"{COMMUNITY_ARENA_MAX_CREATIONS_PER_24H} tournament"
+                    f"{'s' if COMMUNITY_ARENA_MAX_CREATIONS_PER_24H != 1 else ''} "
+                    "every 24 hours."
+                )
+            )
+
+        new_history = [
+            *recent_history,
+            {"at": now, "id": claim_id},
+        ][-COMMUNITY_ARENA_MAX_CREATIONS_PER_24H:]
+
+        if history_exists:
+            quota_filter: dict[str, object] = {
+                "_id": username,
+                "arenaCreationHistory": raw_history,
+            }
+        else:
+            quota_filter = {"_id": username, "arenaCreationHistory": {"$exists": False}}
+            legacy_created_at = account.get("lastArenaCreatedAt")
+            quota_filter["lastArenaCreatedAt"] = (
+                legacy_created_at if isinstance(legacy_created_at, datetime) else {"$exists": False}
+            )
+
+        result = await app_state.db.user.update_one(
+            quota_filter,
+            {
+                "$set": {"arenaCreationHistory": new_history},
+                "$unset": {"lastArenaCreatedAt": ""},
+            },
         )
+        if result.modified_count == 1:
+            return claim_id
+        # Another request changed the quota history between our read and write. Re-read it
+        # and either claim the next available slot or reject the now-full rolling window.
 
 
 async def _release_community_arena_creation_slot(
-    app_state: PychessGlobalAppState, username: str, claimed_at: datetime
+    app_state: PychessGlobalAppState, username: str, claim_id: str | None
 ) -> None:
-    if app_state.db is None:
+    if app_state.db is None or claim_id is None:
         return
     await app_state.db.user.update_one(
-        {"_id": username, "lastArenaCreatedAt": claimed_at},
-        {"$unset": {"lastArenaCreatedAt": ""}},
+        {"_id": username},
+        {"$pull": {"arenaCreationHistory": {"id": claim_id}}},
     )
 
 
@@ -882,11 +934,11 @@ async def create_or_update_tournament(
         if creator_is_director:
             tournament = await new_tournament(app_state, data)
         else:
-            await _claim_community_arena_creation_slot(app_state, username, now)
+            claim_id = await _claim_community_arena_creation_slot(app_state, username, now)
             try:
                 tournament = await new_tournament(app_state, data)
             except Exception:
-                await _release_community_arena_creation_slot(app_state, username, now)
+                await _release_community_arena_creation_slot(app_state, username, claim_id)
                 raise
     else:
         allow_started_position_edit = (

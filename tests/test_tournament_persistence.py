@@ -112,6 +112,82 @@ class TournamentPersistenceTestCase(TournamentTestCase):
                 creator_is_director=False,
             )
 
+        user_doc = await app_state.db.user.find_one({"_id": username})
+        history = list((user_doc or {}).get("arenaCreationHistory", []))
+        self.assertEqual(len(history), 1)
+        history[0]["at"] = datetime.now(UTC) - timedelta(hours=25)
+        await app_state.db.user.update_one(
+            {"_id": username},
+            {"$set": {"arenaCreationHistory": history}},
+        )
+        await create_or_update_tournament(
+            app_state,
+            username,
+            self._community_arena_form(name="Next Day Arena"),
+            creator_is_director=False,
+        )
+
+    async def test_community_arena_quota_constant_controls_rolling_24h_limit(self):
+        app_state = get_app_state(self.app)
+        username = f"CommunityQuota{id8()}"
+        await app_state.db.user.insert_one({"_id": username})
+
+        with patch("tournament.tournaments.COMMUNITY_ARENA_MAX_CREATIONS_PER_24H", 2):
+            for number in (1, 2):
+                before_ids = set(app_state.tournaments)
+                await create_or_update_tournament(
+                    app_state,
+                    username,
+                    self._community_arena_form(name=f"Quota Arena {number}"),
+                    creator_is_director=False,
+                )
+                tournament_id = (set(app_state.tournaments) - before_ids).pop()
+                await app_state.tournaments[tournament_id].abort()
+
+            with self.assertRaises(web.HTTPTooManyRequests):
+                await create_or_update_tournament(
+                    app_state,
+                    username,
+                    self._community_arena_form(name="Quota Arena 3"),
+                    creator_is_director=False,
+                )
+
+            user_doc = await app_state.db.user.find_one({"_id": username})
+            history = list((user_doc or {}).get("arenaCreationHistory", []))
+            self.assertEqual(len(history), 2)
+
+            history[0]["at"] = datetime.now(UTC) - timedelta(hours=25)
+            await app_state.db.user.update_one(
+                {"_id": username},
+                {"$set": {"arenaCreationHistory": history}},
+            )
+            await create_or_update_tournament(
+                app_state,
+                username,
+                self._community_arena_form(name="Quota Arena 3"),
+                creator_is_director=False,
+            )
+
+            user_doc = await app_state.db.user.find_one({"_id": username})
+            history = list((user_doc or {}).get("arenaCreationHistory", []))
+            self.assertEqual(len(history), 2)
+            self.assertGreater(history[0]["at"], datetime.now(UTC) - timedelta(hours=24))
+
+    async def test_community_arena_quota_migrates_legacy_timestamp(self):
+        app_state = get_app_state(self.app)
+        username = f"CommunityLegacyQuota{id8()}"
+        await app_state.db.user.insert_one(
+            {"_id": username, "lastArenaCreatedAt": datetime.now(UTC) - timedelta(hours=1)}
+        )
+
+        with self.assertRaises(web.HTTPTooManyRequests):
+            await create_or_update_tournament(
+                app_state,
+                username,
+                self._community_arena_form(name="Blocked Legacy Arena"),
+                creator_is_director=False,
+            )
+
         await app_state.db.user.update_one(
             {"_id": username},
             {"$set": {"lastArenaCreatedAt": datetime.now(UTC) - timedelta(hours=25)}},
@@ -119,7 +195,74 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         await create_or_update_tournament(
             app_state,
             username,
-            self._community_arena_form(name="Next Day Arena"),
+            self._community_arena_form(name="Migrated Legacy Arena"),
+            creator_is_director=False,
+        )
+
+        user_doc = await app_state.db.user.find_one({"_id": username})
+        self.assertNotIn("lastArenaCreatedAt", user_doc or {})
+        history = list((user_doc or {}).get("arenaCreationHistory", []))
+        self.assertEqual(len(history), 1)
+
+        raised_username = f"CommunityLegacyRaisedQuota{id8()}"
+        legacy_created_at = datetime.now(UTC) - timedelta(hours=1)
+        await app_state.db.user.insert_one(
+            {"_id": raised_username, "lastArenaCreatedAt": legacy_created_at}
+        )
+        with patch("tournament.tournaments.COMMUNITY_ARENA_MAX_CREATIONS_PER_24H", 2):
+            before_ids = set(app_state.tournaments)
+            await create_or_update_tournament(
+                app_state,
+                raised_username,
+                self._community_arena_form(name="Legacy Second Slot Arena"),
+                creator_is_director=False,
+            )
+            tournament_id = (set(app_state.tournaments) - before_ids).pop()
+            await app_state.tournaments[tournament_id].abort()
+
+            with self.assertRaises(web.HTTPTooManyRequests):
+                await create_or_update_tournament(
+                    app_state,
+                    raised_username,
+                    self._community_arena_form(name="Legacy Third Slot Arena"),
+                    creator_is_director=False,
+                )
+
+            raised_doc = await app_state.db.user.find_one({"_id": raised_username})
+            raised_history = list((raised_doc or {}).get("arenaCreationHistory", []))
+            self.assertEqual(len(raised_history), 2)
+            self.assertLess(
+                abs((raised_history[0]["at"] - legacy_created_at).total_seconds()),
+                0.001,
+            )
+            self.assertNotIn("lastArenaCreatedAt", raised_doc or {})
+
+    async def test_community_arena_failed_creation_releases_quota_claim(self):
+        app_state = get_app_state(self.app)
+        username = f"CommunityQuotaRollback{id8()}"
+        await app_state.db.user.insert_one({"_id": username})
+
+        with (
+            patch(
+                "tournament.tournaments.new_tournament",
+                new=AsyncMock(side_effect=RuntimeError("simulated creation failure")),
+            ),
+            self.assertRaisesRegex(RuntimeError, "simulated creation failure"),
+        ):
+            await create_or_update_tournament(
+                app_state,
+                username,
+                self._community_arena_form(name="Failed Quota Arena"),
+                creator_is_director=False,
+            )
+
+        user_doc = await app_state.db.user.find_one({"_id": username})
+        self.assertEqual((user_doc or {}).get("arenaCreationHistory"), [])
+
+        await create_or_update_tournament(
+            app_state,
+            username,
+            self._community_arena_form(name="Successful Quota Arena"),
             creator_is_director=False,
         )
 
@@ -186,6 +329,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         user_doc = await app_state.db.user.find_one({"_id": username})
         self.assertIsNotNone(user_doc)
         self.assertNotIn("lastArenaCreatedAt", user_doc or {})
+        self.assertNotIn("arenaCreationHistory", user_doc or {})
 
     async def test_regular_user_cannot_stack_active_arenas(self):
         app_state = get_app_state(self.app)
@@ -201,9 +345,13 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         )
         tournament_id = (set(app_state.tournaments) - before_ids).pop()
 
+        user_doc = await app_state.db.user.find_one({"_id": username})
+        history = list((user_doc or {}).get("arenaCreationHistory", []))
+        self.assertEqual(len(history), 1)
+        history[0]["at"] = datetime.now(UTC) - timedelta(hours=25)
         await app_state.db.user.update_one(
             {"_id": username},
-            {"$set": {"lastArenaCreatedAt": datetime.now(UTC) - timedelta(hours=25)}},
+            {"$set": {"arenaCreationHistory": history}},
         )
         with self.assertRaises(web.HTTPTooManyRequests):
             await create_or_update_tournament(

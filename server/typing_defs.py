@@ -32,6 +32,11 @@ class UserCount(TypedDict):
     rated: int
 
 
+class ArenaCreationHistoryEntry(TypedDict):
+    at: datetime
+    id: str
+
+
 class UserDocument(TypedDict, total=False):
     _id: str
     title: str
@@ -44,6 +49,7 @@ class UserDocument(TypedDict, total=False):
     swissBanGameId: str
     tournamentGameEffectIds: list[str]
     lastArenaCreatedAt: datetime
+    arenaCreationHistory: list[ArenaCreationHistoryEntry]
     perfs: PerfMap
     pperfs: PerfMap
     lang: str
@@ -427,6 +433,7 @@ class ViewContext(TypedDict, total=False):
     site_variants: Mapping[str, object]
     favorite_variants: Mapping[str, object]
     community_variants_for_tournaments: Mapping[str, object]
+    community_arena_max_creations_per_24h: int
     pm_friends_only: bool
     corr_push_enabled: bool
     menu_variant: str
