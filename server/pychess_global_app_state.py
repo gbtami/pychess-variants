@@ -115,6 +115,7 @@ TOURNAMENT_KEEP_TIME = 5 * 60  # retain an idle finished tournament after its la
 TOURNAMENT_ACTIVE_RECHECK_INTERVAL = 60  # never evict while a viewer socket is active
 REGISTERED_USER_CACHE_TTL = 30 * 60
 REGISTERED_USER_CACHE_SWEEP_INTERVAL = 5 * 60
+TOURNAMENT_EFFECT_RECOVERY_DELAY = 60
 T = TypeVar("T")
 USERNAME_LOWER_FIELD = "username_lower"
 
@@ -124,7 +125,10 @@ def _is_test_run() -> bool:
 
 
 async def recover_pending_tournament_game_side_effects(
-    app_state: PychessGlobalAppState, *, users_only: bool
+    app_state: PychessGlobalAppState,
+    *,
+    users_only: bool,
+    tournament_ids: list[str] | None = None,
 ) -> int:
     """Replay durable tournament result side effects left pending by a restart.
 
@@ -136,15 +140,21 @@ async def recover_pending_tournament_game_side_effects(
     """
     if app_state.db is None:
         return 0
+    if tournament_ids == []:
+        return 0
 
     recovered = 0
-    cursor = app_state.db.game.find(
-        {
-            "tid": {"$exists": True},
-            "fx": 1,
-            "s": {"$gt": STARTED},
-        }
-    ).sort([("d", 1), ("_id", 1)])
+    query: dict[str, object] = {
+        "tid": {"$exists": True} if tournament_ids is None else {"$in": tournament_ids},
+        "fx": 1,
+        "s": {"$gt": STARTED},
+    }
+    cursor = app_state.db.game.find(query).sort([("d", 1), ("_id", 1)])
+    if tournament_ids is not None:
+        # Startup recovery must use the existing tournament-game index. Without
+        # the hint MongoDB may choose a collection scan for the new, sparse ``fx``
+        # field before its background index has been built.
+        cursor.hint("tid_1")
     async for doc in cursor:
         game = await load_game_from_doc(app_state, doc, cache_finished=False)
         if not isinstance(game, Game):
@@ -330,8 +340,16 @@ class PychessGlobalAppState:
                 await init_catalogued_variants(self, db_collections)
 
             with startup.phase("recover tournament user result side effects"):
+                active_tournament_ids = [
+                    doc["_id"]
+                    async for doc in self.db.tournament.find(
+                        {"status": T_STARTED}, projection={"_id": 1}
+                    )
+                ]
                 recovered = await recover_pending_tournament_game_side_effects(
-                    self, users_only=True
+                    self,
+                    users_only=True,
+                    tournament_ids=active_tournament_ids,
                 )
                 if recovered:
                     log.warning(
@@ -368,15 +386,6 @@ class PychessGlobalAppState:
 
                 if "crosstable" not in db_collections:
                     await generate_crosstable(self)
-
-                recovered = await recover_pending_tournament_game_side_effects(
-                    self, users_only=False
-                )
-                if recovered:
-                    log.warning(
-                        "Completed result side effects for %s recovered tournament games",
-                        recovered,
-                    )
 
                 await refresh_lobby_leaderboard_cache(self)
                 await refresh_lobby_tournament_winners_cache(self)
@@ -759,6 +768,27 @@ class PychessGlobalAppState:
                 self.create_background_task(
                     load_correspondence_games_from_db(),
                     name="load-correspondence-games",
+                )
+
+            async def finish_tournament_effect_recovery() -> None:
+                # ``fx`` was introduced with durable tournament result recovery. Building
+                # its first index can scan the large game collection, so never make that
+                # one-time operation part of Heroku's boot deadline.
+                await asyncio.sleep(TOURNAMENT_EFFECT_RECOVERY_DELAY)
+                await self.db.game.create_index("fx", sparse=True)
+                recovered = await recover_pending_tournament_game_side_effects(
+                    self, users_only=False
+                )
+                if recovered:
+                    log.warning(
+                        "Completed result side effects for %s recovered tournament games",
+                        recovered,
+                    )
+
+            with startup.phase("schedule remaining tournament effect recovery"):
+                self.create_background_task(
+                    finish_tournament_effect_recovery(),
+                    name="finish-tournament-effect-recovery",
                 )
 
         except Exception:
