@@ -108,7 +108,9 @@ function initializeVariantPicker(variantSelect: HTMLSelectElement): void {
         const active = results.querySelector<HTMLElement>(`#form3-variant-option-${activeIndex}`);
         if (active) {
             search.setAttribute('aria-activedescendant', active.id);
-            active.scrollIntoView({ block: 'nearest' });
+            if (typeof active.scrollIntoView === 'function') {
+                active.scrollIntoView({ block: 'nearest' });
+            }
         }
     };
 
