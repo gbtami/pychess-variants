@@ -439,7 +439,41 @@ async def _load_game_from_doc(
         game.board.ply = len(mlist)
         game.board.color = WHITE if game.board.fen.split()[1] == "w" else BLACK
         game.lastmove = mlist[-1]
-        game.mct = doc.get("mct")
+
+    if game.manual_count:
+        raw_manual_count_toggled = doc.get("mct", [])
+        manual_count_toggled: list[tuple[int, int]] = []
+        if isinstance(raw_manual_count_toggled, list):
+            for interval in raw_manual_count_toggled:
+                if (
+                    isinstance(interval, (list, tuple))
+                    and len(interval) == 2
+                    and isinstance(interval[0], int)
+                    and isinstance(interval[1], int)
+                ):
+                    manual_count_toggled.append((interval[0], interval[1]))
+        game.manual_count_toggled = manual_count_toggled
+
+        active_count_started = doc.get("mc")
+        if isinstance(active_count_started, int) and game.status <= STARTED:
+            game.board.count_started = active_count_started
+            if active_count_started > 0:
+                count_start_ply = active_count_started - 1
+                moves_since_count_start = game.board.ply - count_start_ply
+                counting_color = game.board.color
+                if moves_since_count_start % 2 != 0:
+                    counting_color = BLACK if game.board.color == WHITE else WHITE
+                counting_player = game.wplayer if counting_color == WHITE else game.bplayer
+                game.draw_offers.add(counting_player.username)
+
+        # Replay wants closed intervals plus a synthetic end for an active
+        # interval at the current position. Keep manual_count_toggled itself
+        # free of that synthetic end so a later stop/game end can persist the
+        # real interval exactly once.
+        replay_manual_count_toggled = list(manual_count_toggled)
+        if game.board.count_started > 0 and game.status <= STARTED:
+            replay_manual_count_toggled.append((game.board.count_started, game.board.ply + 1))
+        game.mct = replay_manual_count_toggled
 
     game.counted_as_active = game.status == STARTED and game.board.ply > 0
 

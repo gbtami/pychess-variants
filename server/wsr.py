@@ -1397,6 +1397,7 @@ async def handle_count(
     if user.username == cur_player.username:
         if data["mode"] == "start":
             game.start_manual_count()
+            await game.save_manual_count_state()
             response = {
                 "type": "count",
                 "message": "Board's honor counting started",
@@ -1405,6 +1406,7 @@ async def handle_count(
             }
         elif data["mode"] == "stop":
             game.stop_manual_count()
+            await game.save_manual_count_state()
             response = {
                 "type": "count",
                 "message": "Board's honor counting stopped",

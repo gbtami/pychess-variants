@@ -263,6 +263,69 @@ class TournamentRestartSafetyTestCase(TournamentTestCase):
         self.assertTrue(reloaded.stopwatch.running)
         self.assertLessEqual(reloaded.stopwatch.secs, 0)
 
+    async def test_makruk_manual_count_state_survives_restart(self):
+        app_state = get_app_state(self.app)
+        white = self.add_user(f"makruk-w-{id8()}")
+        black = self.add_user(f"makruk-b-{id8()}")
+        game = Game(
+            app_state,
+            id8(),
+            "makruk",
+            "",
+            white,
+            black,
+            base=1,
+            inc=0,
+            rated=CASUAL,
+            tournamentId=id8(),
+        )
+        await insert_game_to_db(game, app_state)
+
+        game.start_manual_count()
+        await game.save_manual_count_state()
+        first_doc = await app_state.db.game.find_one({"_id": game.id})
+        assert first_doc is not None
+        self.assertEqual(first_doc["mc"], 1)
+        self.assertEqual(first_doc["mct"], [])
+
+        await game.stopwatch.cancel()
+        app_state.games.pop(game.id, None)
+        reloaded = await load_game_from_doc(app_state, first_doc)
+        self.assertIsInstance(reloaded, Game)
+        assert isinstance(reloaded, Game)
+        self.assertEqual(reloaded.board.count_started, 1)
+        self.assertIn(reloaded.wplayer.username, reloaded.draw_offers)
+        self.assertEqual(reloaded.manual_count_toggled, [])
+
+        # Stop one count interval, persist it, then start another one. After a
+        # second restart the closed interval must remain in the live history
+        # while the new active interval is restored separately.
+        reloaded.stop_manual_count()
+        await reloaded.save_manual_count_state()
+        reloaded.start_manual_count()
+        await reloaded.save_manual_count_state()
+        second_doc = await app_state.db.game.find_one({"_id": game.id})
+        assert second_doc is not None
+        self.assertEqual(second_doc["mc"], 1)
+        self.assertEqual(second_doc["mct"], [[1, 1]])
+
+        await reloaded.stopwatch.cancel()
+        app_state.games.pop(game.id, None)
+        reloaded_again = await load_game_from_doc(app_state, second_doc)
+        self.assertIsInstance(reloaded_again, Game)
+        assert isinstance(reloaded_again, Game)
+        self.assertEqual(reloaded_again.board.count_started, 1)
+        self.assertEqual(reloaded_again.manual_count_toggled, [(1, 1)])
+        self.assertEqual(reloaded_again.mct, [(1, 1), (1, 1)])
+
+        reloaded_again.stop_manual_count()
+        await reloaded_again.save_manual_count_state()
+        final_doc = await app_state.db.game.find_one({"_id": game.id})
+        assert final_doc is not None
+        self.assertEqual(final_doc["mc"], -1)
+        self.assertEqual(final_doc["mct"], [[1, 1], [1, 1]])
+        await reloaded_again.stopwatch.cancel()
+
     async def test_berserk_is_persisted_before_broadcast(self):
         app_state = get_app_state(self.app)
         game = await self.new_tournament_game()

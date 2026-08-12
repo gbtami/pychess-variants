@@ -182,6 +182,7 @@ GameDocument = TypedDict(
         "wj": NotRequired[list[str]],
         "l": NotRequired[datetime],
         "mct": NotRequired[list[tuple[int, int]]],
+        "mc": NotRequired[int],
         "ws": NotRequired[bool],
         "bs": NotRequired[bool],
         "fx": NotRequired[int],

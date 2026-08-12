@@ -897,6 +897,19 @@ class Game:
                 {"_id": self.id}, {"$set": self.byoyomi_state_document()}
             )
 
+    async def save_manual_count_state(self) -> None:
+        if not self.manual_count or not self.persist_to_db or self.app_state.db is None:
+            return
+        await self.app_state.db.game.update_one(
+            {"_id": self.id},
+            {
+                "$set": {
+                    "mc": self.board.count_started,
+                    "mct": self.manual_count_toggled,
+                }
+            },
+        )
+
     async def save_takeback_state(self) -> None:
         if self.app_state.db is None:
             return
@@ -1033,9 +1046,13 @@ class Game:
                     new_data["rn"] = round_no
 
             if self.manual_count:
+                manual_count_toggled = list(self.manual_count_toggled)
                 if self.board.count_started > 0:
-                    self.manual_count_toggled.append((self.board.count_started, self.board.ply + 1))
-                new_data["mct"] = self.manual_count_toggled
+                    manual_count_toggled.append((self.board.count_started, self.board.ply + 1))
+                new_data["mct"] = manual_count_toggled
+                # A finished game has no outstanding manual count, even if the
+                # count was active immediately before the result was recorded.
+                new_data["mc"] = -1
 
             if self.persist_to_db and self.app_state.db is not None:
                 # Persist the authoritative final game state before any external
