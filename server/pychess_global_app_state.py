@@ -164,6 +164,16 @@ async def recover_pending_tournament_game_side_effects(
     return recovered
 
 
+async def ensure_tournament_effect_recovery_index(game_collection: Any) -> None:
+    indexes = await game_collection.index_information()
+    has_fx_index = any(index.get("key") == [("fx", 1)] for index in indexes.values())
+    if not has_fx_index:
+        # Delay only the first build: it may scan the large game collection and
+        # must not compete with Heroku startup for database resources.
+        await asyncio.sleep(TOURNAMENT_EFFECT_RECOVERY_DELAY)
+    await game_collection.create_index("fx", sparse=True)
+
+
 # Local test cache retention; keep this small for test runs, but use the
 # production-like TTL for interactive localhost usage.
 LOCALHOST_CACHE_KEEP_TIME = 1 if _is_test_run() else TOURNAMENT_KEEP_TIME
@@ -774,8 +784,7 @@ class PychessGlobalAppState:
                 # ``fx`` was introduced with durable tournament result recovery. Building
                 # its first index can scan the large game collection, so never make that
                 # one-time operation part of Heroku's boot deadline.
-                await asyncio.sleep(TOURNAMENT_EFFECT_RECOVERY_DELAY)
-                await self.db.game.create_index("fx", sparse=True)
+                await ensure_tournament_effect_recovery_index(self.db.game)
                 recovered = await recover_pending_tournament_game_side_effects(
                     self, users_only=False
                 )
