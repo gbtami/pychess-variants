@@ -43,6 +43,7 @@ class UserDocument(TypedDict, total=False):
     swissBanHours: int
     swissBanGameId: str
     tournamentGameEffectIds: list[str]
+    lastArenaCreatedAt: datetime
     perfs: PerfMap
     pperfs: PerfMap
     lang: str

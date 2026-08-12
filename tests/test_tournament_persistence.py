@@ -45,6 +45,176 @@ def make_test_perfs():
 class TournamentPersistenceTestCase(TournamentTestCase):
     SHORT_SWISS_MINUTES = 0.08
 
+    @staticmethod
+    def _community_arena_form(**overrides: str) -> dict[str, str]:
+        form = {
+            "variant": "chess",
+            "rated": "1",
+            "clockTime": "3.0",
+            "clockIncrement": "2",
+            "byoyomiPeriod": "0",
+            "system": str(ArenaTournament.system),
+            "rounds": "0",
+            "roundInterval": "auto",
+            "entryMinRating": "0",
+            "entryMaxRating": "0",
+            "entryMinRatedGames": "0",
+            "entryMinAccountAgeDays": "0",
+            "forbiddenPairings": "",
+            "manualPairings": "",
+            "startDate": "",
+            "endDate": "",
+            "description": "",
+            "password": "",
+            "position": "",
+            "waitMinutes": "5",
+            "minutes": "45",
+            "name": "Community Arena",
+        }
+        form.update(overrides)
+        return form
+
+    async def test_regular_user_can_create_only_one_arena_per_24_hours(self):
+        app_state = get_app_state(self.app)
+        username = f"CommunityArena{id8()}"
+        await app_state.db.user.insert_one({"_id": username})
+
+        before_ids = set(app_state.tournaments)
+        discord_send = AsyncMock()
+        with patch.object(app_state.discord, "send_to_discord", new=discord_send):
+            await create_or_update_tournament(
+                app_state,
+                username,
+                self._community_arena_form(),
+                creator_is_director=False,
+            )
+        discord_send.assert_not_awaited()
+        new_ids = set(app_state.tournaments) - before_ids
+        self.assertEqual(len(new_ids), 1)
+        tournament = app_state.tournaments[new_ids.pop()]
+        self.assertEqual(tournament.system, ArenaTournament.system)
+
+        await create_or_update_tournament(
+            app_state,
+            username,
+            self._community_arena_form(name="Edited Community Arena"),
+            tournament,
+            creator_is_director=False,
+        )
+        self.assertEqual(tournament.name, "Edited Community Arena")
+
+        await tournament.abort()
+        with self.assertRaises(web.HTTPTooManyRequests):
+            await create_or_update_tournament(
+                app_state,
+                username,
+                self._community_arena_form(name="Second Arena"),
+                creator_is_director=False,
+            )
+
+        await app_state.db.user.update_one(
+            {"_id": username},
+            {"$set": {"lastArenaCreatedAt": datetime.now(UTC) - timedelta(hours=25)}},
+        )
+        await create_or_update_tournament(
+            app_state,
+            username,
+            self._community_arena_form(name="Next Day Arena"),
+            creator_is_director=False,
+        )
+
+    async def test_regular_user_arena_limits_and_system_conflict(self):
+        app_state = get_app_state(self.app)
+        username = f"CommunityLimits{id8()}"
+        await app_state.db.user.insert_one({"_id": username})
+
+        with self.assertRaises(web.HTTPForbidden):
+            await create_or_update_tournament(
+                app_state,
+                username,
+                self._community_arena_form(system="1"),
+                creator_is_director=False,
+            )
+
+        with self.assertRaises(web.HTTPBadRequest):
+            await create_or_update_tournament(
+                app_state,
+                username,
+                self._community_arena_form(minutes="150"),
+                creator_is_director=False,
+            )
+
+        with self.assertRaises(web.HTTPBadRequest):
+            await create_or_update_tournament(
+                app_state,
+                username,
+                self._community_arena_form(variant="bughouse"),
+                creator_is_director=False,
+            )
+
+        too_late = datetime.now(UTC) + timedelta(hours=25)
+        with self.assertRaises(web.HTTPBadRequest):
+            await create_or_update_tournament(
+                app_state,
+                username,
+                self._community_arena_form(startDate=too_late.isoformat()),
+                creator_is_director=False,
+            )
+
+        protected_start = datetime.now(UTC) + timedelta(minutes=30)
+        protected = ArenaTournament(
+            app_state,
+            id8(),
+            name="Weekly Chess Arena",
+            created_by="PyChess",
+            frequency=SHIELD,
+            starts_at=protected_start,
+            minutes=90,
+            with_clock=False,
+        )
+        app_state.tournaments[protected.id] = protected
+
+        conflict_start = protected_start - timedelta(minutes=20)
+        with self.assertRaises(web.HTTPBadRequest):
+            await create_or_update_tournament(
+                app_state,
+                username,
+                self._community_arena_form(startDate=conflict_start.isoformat()),
+                creator_is_director=False,
+            )
+
+        user_doc = await app_state.db.user.find_one({"_id": username})
+        self.assertIsNotNone(user_doc)
+        self.assertNotIn("lastArenaCreatedAt", user_doc or {})
+
+    async def test_regular_user_cannot_stack_active_arenas(self):
+        app_state = get_app_state(self.app)
+        username = f"CommunityActive{id8()}"
+        await app_state.db.user.insert_one({"_id": username})
+
+        before_ids = set(app_state.tournaments)
+        await create_or_update_tournament(
+            app_state,
+            username,
+            self._community_arena_form(),
+            creator_is_director=False,
+        )
+        tournament_id = (set(app_state.tournaments) - before_ids).pop()
+
+        await app_state.db.user.update_one(
+            {"_id": username},
+            {"$set": {"lastArenaCreatedAt": datetime.now(UTC) - timedelta(hours=25)}},
+        )
+        with self.assertRaises(web.HTTPTooManyRequests):
+            await create_or_update_tournament(
+                app_state,
+                username,
+                self._community_arena_form(name="Overlapping Arena"),
+                creator_is_director=False,
+            )
+
+        await app_state.tournaments[tournament_id].abort()
+
     async def test_only_curated_custom_start_tournaments_can_be_rated(self):
         app_state = get_app_state(self.app)
         base_form = {

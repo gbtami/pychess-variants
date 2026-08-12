@@ -4,6 +4,13 @@
     <main class="page-small">
         <div class="tour__form box box-pad">
             <h1>{% if edit %}Edit tournament{% else %}Create a new tournament{% endif %}</h1>
+            {% if not tournament_director %}
+            <p class="form-help">
+                Community Arenas are limited to one creation every 24 hours, 20–120 minutes duration,
+                and may start only within the next 24 hours. They must leave at least 15 minutes before and after
+                scheduled PyChess system tournaments.
+            </p>
+            {% endif %}
             {% if edit %}
             {% set t_name = tournament.name %}
             {% set t_rated = tournament.rated %}
@@ -142,11 +149,15 @@
                     <label class="form-label" for="form3-system">Tournament type</label>
                     <select id="form3-system" name="system" class="form-control"{% if edit %} disabled="disabled"{% endif %}>
                         <option value="0"{% if t_system == 0 %} selected="selected"{% endif %}>Arena</option>
+                        {% if tournament_director %}
                         <option value="1"{% if t_system == 1 %} selected="selected"{% endif %}{% if not dev and not edit %} disabled="disabled"{% endif %}>Round-Robin{% if not dev and not edit %} (DEV only){% endif %}</option>
                         <option value="2"{% if t_system == 2 %} selected="selected"{% endif %}{% if not dev and not edit %} disabled="disabled"{% endif %}>Swiss{% if not dev and not edit %} (DEV only){% endif %}</option>
+                        {% endif %}
                     </select>
                     <small id="form3-system-help" class="form-help">Arena runs continuously until the clock expires. Swiss and Round-Robin are fixed-round events.</small>
-                    {% if not dev and not edit %}
+                    {% if not tournament_director and not edit %}
+                    <small class="form-help">Regular users can create Arena tournaments only.</small>
+                    {% elif not dev and not edit %}
                     <small class="form-help">Round-Robin and Swiss creation stay disabled on production until they finish DEV validation.</small>
                     {% endif %}
                     {% if edit %}
@@ -328,6 +339,7 @@
                             <option value="100"{% if t_minutes == 100 %} selected="selected"{% endif %}>100 minutes</option>
                             <option value="110"{% if t_minutes == 110 %} selected="selected"{% endif %}>110 minutes</option>
                             <option value="120"{% if t_minutes == 120 %} selected="selected"{% endif %}>120 minutes</option>
+                            {% if tournament_director %}
                             <option value="150"{% if t_minutes == 150 %} selected="selected"{% endif %}>150 minutes</option>
                             <option value="180"{% if t_minutes == 180 %} selected="selected"{% endif %}>180 minutes</option>
                             <option value="210"{% if t_minutes == 210 %} selected="selected"{% endif %}>210 minutes</option>
@@ -341,6 +353,7 @@
                             <option value="540"{% if t_minutes == 540 %} selected="selected"{% endif %}>540 minutes</option>
                             <option value="600"{% if t_minutes == 600 %} selected="selected"{% endif %}>600 minutes</option>
                             <option value="720"{% if t_minutes == 720 %} selected="selected"{% endif %}>720 minutes</option>
+                            {% endif %}
                         </select>
                         <small id="form3-minutes-help" class="form-help">Arena uses this as a hard limit. Swiss and Round-Robin use it as an estimate only.</small>
                     </div>
@@ -470,7 +483,9 @@
                     <div class="form-group form-half">
                         <label class="form-label" for="startDate">Custom start date</label>
                         <input id="startDate" name="startDate" value="{{ t_starts_at }}" class="form-control flatpickr"/>
-                        <small class="form-help">In your own local timezone. This overrides the &quot;Time before tournament starts&quot; setting</small>
+                        <small class="form-help">In your own local timezone. This overrides the &quot;Time before tournament starts&quot; setting.
+                            {% if not tournament_director %}<br />Community Arenas can start at most 24 hours from now.{% endif %}
+                        </small>
                     </div>
                     <div id="form3-endDate-wrap" class="form-group form-half"{% if t_system != 1 %} style="display:none"{% endif %}>
                         <label class="form-label" for="endDate">Custom end date</label>
