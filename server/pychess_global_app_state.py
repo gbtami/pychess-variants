@@ -124,7 +124,7 @@ def _is_test_run() -> bool:
 
 
 async def recover_pending_tournament_game_side_effects(
-    app_state: "PychessGlobalAppState", *, users_only: bool
+    app_state: PychessGlobalAppState, *, users_only: bool
 ) -> int:
     """Replay durable tournament result side effects left pending by a restart.
 

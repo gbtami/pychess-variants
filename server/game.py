@@ -1377,9 +1377,7 @@ class Game:
             )
 
         if self.app_state.db is not None:
-            await self.app_state.db.game.update_one(
-                {"_id": self.id, "fx": 1}, {"$set": {"fx": 2}}
-            )
+            await self.app_state.db.game.update_one({"_id": self.id, "fx": 1}, {"$set": {"fx": 2}})
 
     async def apply_rating_update(self, new_white_rating: Rating, new_black_rating: Rating) -> None:
         chess960 = self.chess960
