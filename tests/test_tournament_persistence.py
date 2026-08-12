@@ -19,6 +19,7 @@ from tournament.auto_play_tournament import (
     SwissTestTournament,
 )
 from tournament.tournament import (
+    SCORE_SHIFT,
     SWISS_FINISH_REASON_NO_LEGAL_PAIRING,
     ByeGame,
     GameData,
@@ -995,11 +996,14 @@ class TournamentPersistenceTestCase(TournamentTestCase):
             {"$set": {"s": FLAG, "r": "a", "p": game.board.ply}},
         )
 
-        with patch.object(
-            self.tournament,
-            "db_update_arrangement",
-            AsyncMock(side_effect=RuntimeError("simulated restart")),
-        ), self.assertRaises(RuntimeError):
+        with (
+            patch.object(
+                self.tournament,
+                "db_update_arrangement",
+                AsyncMock(side_effect=RuntimeError("simulated restart")),
+            ),
+            self.assertRaises(RuntimeError),
+        ):
             await self.tournament.game_update(game)
 
         stale_arrangement_doc = await app_state.db.tournament_arrangement.find_one(
@@ -1416,11 +1420,14 @@ class TournamentPersistenceTestCase(TournamentTestCase):
                 return await original_insert_bye(*args, **kwargs)
             raise RuntimeError("simulated restart during late-join bye persistence")
 
-        with patch.object(
-            self.tournament,
-            "db_insert_bye_pairing",
-            side_effect=crash_during_late_join_byes,
-        ), self.assertRaises(RuntimeError):
+        with (
+            patch.object(
+                self.tournament,
+                "db_insert_bye_pairing",
+                side_effect=crash_during_late_join_byes,
+            ),
+            self.assertRaises(RuntimeError),
+        ):
             await self.tournament.join(late)
 
         player_doc = await app_state.db.tournament_player.find_one(

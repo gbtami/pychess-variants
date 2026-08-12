@@ -1022,13 +1022,13 @@ class Game:
                     if (not self.bot_game) and (not self.wplayer.anon) and (not self.bplayer.anon):
                         await self.save_crosstable()
 
-            if self.persist_to_db and self.app_state.db is not None:
-                if is_catalogued_variant(self.variant) and self.result in (
-                    "1-0",
-                    "0-1",
-                    "1/2-1/2",
-                ):
-                    await increment_catalogued_variant_game_count(self.app_state, self.variant)
+            if (
+                self.persist_to_db
+                and self.app_state.db is not None
+                and is_catalogued_variant(self.variant)
+                and self.result in ("1-0", "0-1", "1/2-1/2")
+            ):
+                await increment_catalogued_variant_game_count(self.app_state, self.variant)
 
             if self.tournamentId is not None:
                 try:
