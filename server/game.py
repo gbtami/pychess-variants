@@ -1885,8 +1885,11 @@ class Game:
             show_promoted=self.server_variant.show_promoted,
             legal_moves_need_history=self.server_variant.legal_moves_need_history,
         )
-        if self.board.jieqi_covered_pieces is not None:
-            replay_board.jieqi_covered_pieces = dict(self.board.jieqi_covered_pieces)
+        if self.board.jieqi_initial_covered_pieces is not None:
+            replay_board.jieqi_initial_covered_pieces = dict(
+                self.board.jieqi_initial_covered_pieces
+            )
+            replay_board.jieqi_covered_pieces = dict(self.board.jieqi_initial_covered_pieces)
 
         if should_use_legacy_capablanca_replay(
             self.variant,

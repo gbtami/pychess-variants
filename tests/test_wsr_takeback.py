@@ -6,6 +6,7 @@ import test_logger
 from aiohttp.test_utils import AioHTTPTestCase
 from const import CREATED, RATED, STARTED
 from fairy import BLACK
+from fairy.jieqi import BLACK_PIECES, RED_PIECES
 from game import Game
 from glicko2.glicko2 import new_default_perf_map
 from mongomock_motor import AsyncMongoMockClient
@@ -192,6 +193,38 @@ class TakebackBroadcastTestCase(AioHTTPTestCase):
         await handle_takeback(AsyncMock(), white, game)
 
         self.assertEqual(game.board.ply, 1)
+
+    async def test_reloaded_jieqi_takeback_replays_revealed_moves(self):
+        app_state = get_app_state(self.app)
+        white = User(app_state, username="jieqi-white", perfs=TEST_PLAYER_PERFS)
+        black = User(app_state, username="jieqi-black", perfs=TEST_PLAYER_PERFS)
+        app_state.users[white.username] = white
+        app_state.users[black.username] = black
+        game = Game(app_state, id8(), "jieqi", "", white, black, rated=False, create=True)
+        game.board.set_jieqi_initial_pieces(BLACK_PIECES, RED_PIECES)
+        await insert_game_to_db(game, app_state)
+
+        await game.play_move("c4c5")
+        expected_fen = game.board.fen
+        expected_mapping = dict(game.board.jieqi_covered_pieces)
+        await game.play_move("c7c6")
+
+        assert app_state.db is not None
+        persisted = await app_state.db.game.find_one({"_id": game.id})
+        assert persisted is not None
+        await game.stopwatch.cancel()
+        reloaded = await load_game_from_doc(app_state, persisted)
+        self.assertIsInstance(reloaded, Game)
+        assert isinstance(reloaded, Game)
+        reloaded.get_board(full=True)
+
+        await reloaded.takeback(reloaded.bplayer)
+
+        self.assertEqual(reloaded.board.ply, 1)
+        self.assertEqual(reloaded.board.fen, expected_fen)
+        self.assertEqual(reloaded.board.jieqi_covered_pieces, expected_mapping)
+        self.assertEqual(reloaded.board.move_stack, [game.board.move_stack[0]])
+        await reloaded.stopwatch.cancel()
 
     async def test_rated_game_rejects_takeback_server_side(self):
         app_state = get_app_state(self.app)

@@ -40,7 +40,6 @@ from fairy import (
     modded_variant,
     validate_fen,
 )
-from fairy.jieqi import make_initial_mapping
 from game import Game, StaleMovePersistenceError
 from newid import new_id
 from seek import (
@@ -296,7 +295,7 @@ async def _load_game_from_doc(
     )
 
     if variant == "jieqi":
-        game.board.jieqi_covered_pieces = make_initial_mapping(doc["bj"], doc["wj"])
+        game.board.set_jieqi_initial_pieces(doc["bj"], doc["wj"])
 
     game.usi_format = usi_format
 
