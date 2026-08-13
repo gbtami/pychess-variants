@@ -1353,7 +1353,7 @@ export const VARIANTS: Record<string, Variant> = {
 
     jieqi: variant({
         name: 'jieqi',
-        tooltip: 'Players can see the identity of the pieces after theirs first move.',
+        tooltip: 'Players can see the identity of the pieces after their first move.',
         startFen: 'r~n~b~a~ka~b~n~r~/9/1c~5c~1/p~1p~1p~1p~1p~/9/9/P~1P~1P~1P~1P~/1C~5C~1/9/R~N~B~A~KA~B~N~R~ w - - 0 1',
         hiddenInfo: true,
         hiddenInfoMode: 'covered_pieces',
