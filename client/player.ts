@@ -23,7 +23,7 @@ export function player(
             h('player', [
                 userLink(name, [
                     title !== '' ? h('player-title', title + ' ') : '',
-                    displayName + aiLevel(title, level),
+                    displayName + aiLevel(name, level),
                 ]),
                 h('rating', title !== 'BOT' ? rating : ''),
             ]),

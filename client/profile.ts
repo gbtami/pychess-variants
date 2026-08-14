@@ -153,7 +153,7 @@ export function renderGames(model: PyChessModel, games: Game[]) {
                                     : [
                                           userLink(game['us'][0], [
                                               h('player-title', game['wt'] ? ' ' + game['wt'] + ' ' : ''),
-                                              displayUsername(game['us'][0]) + aiLevel(game['wt'], game['x']),
+                                              displayUsername(game['us'][0]) + aiLevel(game['us'][0], game['x']),
                                           ]),
                                           h('br'),
                                           game['wb'] === true ? h('icon.icon-berserk') : '',
@@ -170,7 +170,7 @@ export function renderGames(model: PyChessModel, games: Game[]) {
                                     : [
                                           userLink(game['us'][1], [
                                               h('player-title', game['bt'] ? ' ' + game['bt'] + ' ' : ''),
-                                              displayUsername(game['us'][1]) + aiLevel(game['bt'], game['x']),
+                                              displayUsername(game['us'][1]) + aiLevel(game['us'][1], game['x']),
                                           ]),
                                           h('br'),
                                           game['bb'] === true ? h('icon.icon-berserk') : '',

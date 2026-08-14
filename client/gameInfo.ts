@@ -112,7 +112,7 @@ function playerInfo(model: PyChessModel, color: string) {
 
     return userLink(username, [
         title !== '' ? h('player-title', title + ' ') : '',
-        displayName + aiLevel(title, level) + (title !== 'BOT' ? ' (' + rating + ') ' : ''),
+        displayName + aiLevel(username, level) + (title !== 'BOT' ? ' (' + rating + ') ' : ''),
         model['status'] < 1 || model['rated'] !== '1' ? h('rdiff#' + color + 'rdiff') : renderRdiff(rdiff),
         berserk === 'True' ? h('icon.icon-berserk') : h('berserk#' + color + 'berserk'),
     ]);

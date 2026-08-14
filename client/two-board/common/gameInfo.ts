@@ -102,7 +102,7 @@ function playerInfo(seat: Seat, level: number) {
 
     return userLink(username, [
         h('player-title', ' ' + title + ' '),
-        displayName + aiLevel(title, level) + (title !== 'BOT' ? ' (' + rating + ') ' : ''),
+        displayName + aiLevel(username, level) + (title !== 'BOT' ? ' (' + rating + ') ' : ''),
         h('rdiff#' + color + 'rdiff'),
         h('berserk#' + color + 'berserk'),
     ]);
