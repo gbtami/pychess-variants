@@ -120,7 +120,7 @@ export class RoundController extends GameController {
     lastMaybeSentMsgMove: MsgMove | undefined;
     simulRoundHost?: SimulRoundHostController;
 
-    constructor(el: HTMLElement, model: PyChessModel) {
+    constructor(el: HTMLElement, model: PyChessModel, aliceBoardEl?: HTMLElement) {
         super(
             el,
             model,
@@ -128,6 +128,7 @@ export class RoundController extends GameController {
             document.getElementById('pocket0') as HTMLElement,
             document.getElementById('pocket1') as HTMLElement,
             '',
+            aliceBoardEl,
         );
         this.focus = !document.hidden;
         document.addEventListener('visibilitychange', () => {
@@ -1328,11 +1329,16 @@ export class RoundController extends GameController {
         if (this.spectator) {
             if (latestPly) {
                 this.chessground.set({
-                    fen: this.fog ? fogFen(this.fullfen) : this.fullfen,
+                    fen: this.fog ? fogFen(this.fullfen) : this.displayFen(this.fullfen),
                     turnColor: this.turnColor,
                     check: msg.check,
                     lastMove: this.fog ? undefined : lastMove,
                     movable: { color: undefined },
+                });
+                this.syncAliceSplitBoard(this.fullfen, {
+                    turnColor: this.turnColor,
+                    check: msg.check,
+                    lastMove,
                 });
                 animatePassMove(this.chessground, this.variant.rules.pass && !this.fog, lastMove);
             }
@@ -1351,7 +1357,7 @@ export class RoundController extends GameController {
             if (this.turnColor === this.mycolor) {
                 if (latestPly) {
                     this.chessground.set({
-                        fen: this.fog ? fogFen(this.fullfen) : this.fullfen,
+                        fen: this.fog ? fogFen(this.fullfen) : this.displayFen(this.fullfen),
                         turnColor: this.turnColor,
                         movable: {
                             free: false,
@@ -1359,6 +1365,11 @@ export class RoundController extends GameController {
                         },
                         check: msg.check,
                         lastMove: this.fog ? undefined : lastMove,
+                    });
+                    this.syncAliceSplitBoard(this.fullfen, {
+                        turnColor: this.turnColor,
+                        check: msg.check,
+                        lastMove,
                     });
                     animatePassMove(this.chessground, this.variant.rules.pass && !this.fog, lastMove);
 
@@ -1387,10 +1398,15 @@ export class RoundController extends GameController {
             } else {
                 this.chessground.set({
                     // giving fen here will place castling rooks to their destination in chess960 variants
-                    fen: this.fog ? fogFen(this.fullfen) : this.fullfen,
+                    fen: this.fog ? fogFen(this.fullfen) : this.displayFen(this.fullfen),
                     turnColor: this.turnColor,
                     check: msg.check,
                     lastMove: lastMove,
+                });
+                this.syncAliceSplitBoard(this.fullfen, {
+                    turnColor: this.turnColor,
+                    check: msg.check,
+                    lastMove,
                 });
                 animatePassMove(this.chessground, this.variant.rules.pass, lastMove);
 

@@ -196,6 +196,15 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('#game-controls')).not.toBeNull();
         expect(root.querySelector('#pgntext')).toBeNull();
     });
+
+    test('only the Alice round view includes the optional second board', () => {
+        const round = renderNodes(roundView(makeModel({ variant: 'alice', gameId: 'cPeP5Di1', status: -1 })));
+        expect(round.querySelector('.round-app.alice-round #aliceboard')).not.toBeNull();
+
+        document.body.innerHTML = '';
+        const analysis = renderNodes(analysisView(makeModel({ variant: 'alice', gameId: '', status: 1 })));
+        expect(analysis.querySelector('#aliceboard')).toBeNull();
+    });
 });
 
 describe('analysis tree movelist gating', () => {

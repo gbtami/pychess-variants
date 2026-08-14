@@ -7,6 +7,61 @@
     grid-column-gap: 2vmin;
 }
 
+#aliceboard {
+    display: none;
+    grid-area: alice-board;
+    position: relative;
+}
+
+.alice-split-icon {
+    font-size: 1.25em;
+    line-height: 1;
+}
+
+.round-app.alice-split #aliceboard {
+    display: block;
+    cursor: pointer;
+    animation: alice-board-separate 220ms ease-out;
+}
+
+.round-app.alice-split #mainboard::after,
+.round-app.alice-split #aliceboard::after {
+    content: attr(data-alice-board);
+    position: absolute;
+    top: 0.35rem;
+    left: 0.35rem;
+    z-index: 3;
+    min-width: 1.4rem;
+    padding: 0.1rem 0.25rem;
+    border-radius: 3px;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.6);
+    font-weight: bold;
+    text-align: center;
+    pointer-events: none;
+}
+
+.round-app.alice-split #mainboard {
+    box-shadow: 0 0 0 3px var(--good);
+}
+
+@keyframes alice-board-separate {
+    from {
+        opacity: 0;
+        transform: translateX(-25%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .round-app.alice-split #aliceboard {
+        animation: none;
+    }
+}
+
 @media (max-width: 799px) {
     /* Keep the current correspondence game's details above the other ongoing game boards. */
     #pychess-variants[data-view="round"][data-corr="True"] .round {
@@ -22,8 +77,26 @@
         grid-template-rows: auto auto auto 36px auto auto min-content 36px auto auto auto auto auto auto auto auto;
         grid-template-areas: 'move-controls' 'mat-top' 'pocket-top' 'user-top' 'clock-top' 'expi-top' 'board' 'user-bot' 'expi-bot' 'clock-bot' 'pocket-bot' 'mat-bot' 'game-controls' 'moves' 'uboard' 'uleft';
     }
+    .round-app.alice-split {
+        grid-template-rows: auto auto auto 36px auto auto min-content min-content 36px auto auto auto auto auto auto auto auto;
+        grid-template-areas: 'move-controls' 'mat-top' 'pocket-top' 'user-top' 'clock-top' 'expi-top' 'board' 'alice-board' 'user-bot' 'expi-bot' 'clock-bot' 'pocket-bot' 'mat-bot' 'game-controls' 'moves' 'uboard' 'uleft';
+    }
+    .round-app.alice-split #aliceboard {
+        animation-name: alice-board-separate-mobile;
+    }
     under-left {
         display: none;
+    }
+}
+
+@keyframes alice-board-separate-mobile {
+    from {
+        opacity: 0;
+        transform: translateY(-15%);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
@@ -32,6 +105,10 @@
         grid-template-columns: minmax(calc(70vmin * var(--board-scale)), calc(100vh * var(--board-scale) - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) minmax(240px, 400px);
         grid-template-rows: min-content auto auto min-content auto auto auto auto auto auto auto min-content auto auto min-content;
         grid-template-areas: 'board .' 'board mat-top' 'board pocket-top' 'board clock-top' 'board expi-top' 'board user-top' 'board move-controls' 'board moves' 'board game-controls' 'board user-bot' 'board expi-bot' 'board clock-bot' 'board pocket-bot' 'board mat-bot' 'board .';
+    }
+    .round-app.alice-split {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(240px, 400px);
+        grid-template-areas: 'board alice-board .' 'board alice-board mat-top' 'board alice-board pocket-top' 'board alice-board clock-top' 'board alice-board expi-top' 'board alice-board user-top' 'board alice-board move-controls' 'board alice-board moves' 'board alice-board game-controls' 'board alice-board user-bot' 'board alice-board expi-bot' 'board alice-board clock-bot' 'board alice-board pocket-bot' 'board alice-board mat-bot' 'board alice-board .';
     }
 }
 

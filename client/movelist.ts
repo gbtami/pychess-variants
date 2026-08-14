@@ -234,6 +234,21 @@ export function createMovelistButtons(ctrl: GameController) {
                 h('i.icon.icon-exchange'),
             ]),
         );
+        if (ctrl.aliceSplitBoard) {
+            buttons.push(
+                h(
+                    'button#alice-split',
+                    {
+                        attrs: { 'aria-pressed': String(ctrl.aliceSplitBoards) },
+                        on: { click: () => ctrl.toggleAliceSplitBoards() },
+                        props: {
+                            title: ctrl.aliceSplitBoards ? _('Show merged board (S)') : _('Show separate boards (S)'),
+                        },
+                    },
+                    [h('span.alice-split-icon', '▥')],
+                ),
+            );
+        }
     }
 
     if ('localEngine' in ctrl) {
