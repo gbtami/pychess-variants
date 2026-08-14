@@ -29,6 +29,7 @@ from glicko2.glicko2 import new_default_perf
 from mongomock_motor import AsyncMongoMockClient
 from pychess_global_app_state_utils import get_app_state
 from pymongo.errors import BulkWriteError
+from seek import BOT_CHALLENGE_DECLINED
 from settings import MONGO_DB_NAME
 from user import User
 from variants import VARIANTS, get_server_variant
@@ -748,6 +749,23 @@ class SSESubscribeErrorFallbackTestCase(unittest.IsolatedAsyncioTestCase):
         async def get(self, _username):
             return self.user
 
+    class _CapturingResponse:
+        def __init__(self):
+            self.connected = True
+            self.payloads = []
+
+        def is_connected(self):
+            return self.connected
+
+        async def send(self, payload):
+            self.payloads.append(payload)
+            self.connected = False
+
+    @staticmethod
+    @asynccontextmanager
+    async def _capturing_sse_response(response, _request):
+        yield response
+
     async def test_subscribe_notify_handles_sse_setup_error(self):
         notify_channels = self._TrackingSet()
         notify_user = SimpleNamespace(notify_channels=notify_channels)
@@ -774,8 +792,9 @@ class SSESubscribeErrorFallbackTestCase(unittest.IsolatedAsyncioTestCase):
         game_id = "abcd1234"
         invite_channels = self._TrackingSet()
         app_state = SimpleNamespace(
+            games={},
+            invites={},
             invite_channels={game_id: invite_channels},
-            invite_events={},
         )
         request = SimpleNamespace(app=object(), match_info={"gameId": game_id})
 
@@ -790,6 +809,62 @@ class SSESubscribeErrorFallbackTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(invite_channels.added.maxsize, game_api.SSE_SNAPSHOT_QUEUE_MAXSIZE)
         with self.assertRaises(asyncio.QueueShutDown):
             invite_channels.added.get_nowait()
+
+    async def test_subscribe_invites_replays_accepted_game(self):
+        game_id = "abcd1234"
+        app_state = SimpleNamespace(
+            games={game_id: object()},
+            invites={},
+            invite_channels={},
+        )
+        request = SimpleNamespace(app=object(), match_info={"gameId": game_id})
+        response = self._CapturingResponse()
+
+        with (
+            patch("game_api.get_app_state", return_value=app_state),
+            patch(
+                "game_api.sse_response",
+                lambda request: self._capturing_sse_response(response, request),
+            ),
+        ):
+            result = await game_api.subscribe_invites(request)
+
+        self.assertIs(result, response)
+        self.assertEqual(
+            [{"gameId": game_id, "accept": True}],
+            [json.loads(payload) for payload in response.payloads],
+        )
+
+    async def test_subscribe_invites_replays_bot_decline(self):
+        game_id = "abcd1234"
+        decline_reason = "I'm not willing to play this variant right now."
+        seek = SimpleNamespace(
+            is_bot_challenge=True,
+            bot_challenge_status=BOT_CHALLENGE_DECLINED,
+            bot_challenge_decline_reason=decline_reason,
+        )
+        app_state = SimpleNamespace(
+            games={},
+            invites={game_id: seek},
+            invite_channels={},
+        )
+        request = SimpleNamespace(app=object(), match_info={"gameId": game_id})
+        response = self._CapturingResponse()
+
+        with (
+            patch("game_api.get_app_state", return_value=app_state),
+            patch(
+                "game_api.sse_response",
+                lambda request: self._capturing_sse_response(response, request),
+            ),
+        ):
+            result = await game_api.subscribe_invites(request)
+
+        self.assertIs(result, response)
+        self.assertEqual(
+            [{"gameId": game_id, "accept": False, "declineReason": decline_reason}],
+            [json.loads(payload) for payload in response.payloads],
+        )
 
     async def test_subscribe_inbox_handles_sse_setup_error(self):
         inbox_channels = self._TrackingSet()
