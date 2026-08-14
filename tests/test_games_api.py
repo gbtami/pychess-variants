@@ -795,7 +795,6 @@ class SSESubscribeErrorFallbackTestCase(unittest.IsolatedAsyncioTestCase):
             games={},
             invites={},
             invite_channels={game_id: invite_channels},
-            invite_events={},
         )
         request = SimpleNamespace(app=object(), match_info={"gameId": game_id})
 
@@ -817,7 +816,6 @@ class SSESubscribeErrorFallbackTestCase(unittest.IsolatedAsyncioTestCase):
             games={game_id: object()},
             invites={},
             invite_channels={},
-            invite_events={},
         )
         request = SimpleNamespace(app=object(), match_info={"gameId": game_id})
         response = self._CapturingResponse()
@@ -849,7 +847,6 @@ class SSESubscribeErrorFallbackTestCase(unittest.IsolatedAsyncioTestCase):
             games={},
             invites={game_id: seek},
             invite_channels={},
-            invite_events={},
         )
         request = SimpleNamespace(app=object(), match_info={"gameId": game_id})
         response = self._CapturingResponse()

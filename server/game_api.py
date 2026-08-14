@@ -606,11 +606,6 @@ async def subscribe_invites(request: web.Request) -> web.StreamResponse:
     if snapshot is not None:
         enqueue_sse_payload(queue, snapshot, replace_pending=True)
 
-    # Signal challenge_accept/decline that the SSE channel is now ready.
-    event = app_state.invite_events.get(gameId)
-    if event is not None:
-        event.set()
-
     response: web.StreamResponse = web.Response(status=200)
     try:
         async with sse_response(request) as response:
