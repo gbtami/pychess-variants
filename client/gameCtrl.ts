@@ -257,10 +257,14 @@ export abstract class GameController extends ChessgroundController implements Ch
     }
 
     private refreshAliceBoards(): void {
-        this.chessground.set({ fen: this.displayFen(this.fullfen) as cg.FEN });
+        // Chessground stores the checked square, not just whether the side to move is in check.
+        // Preserve the logical check state while making both grounds recompute that square from
+        // their newly assigned pieces when boards A and B are switched.
+        const check = !!(this.chessground.state.check?.length || this.aliceSplitBoard?.state.check?.length);
+        this.chessground.set({ fen: this.displayFen(this.fullfen) as cg.FEN, check });
         if (this.aliceSplitBoard) {
             this.setDests();
-            this.syncAliceSplitBoard(this.fullfen);
+            this.syncAliceSplitBoard(this.fullfen, { check });
             this.updateAliceBoardLabels();
             requestAnimationFrame(() => this.aliceSplitBoard?.redrawAll());
         }
