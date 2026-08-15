@@ -1,8 +1,14 @@
 import { expect, jest, test } from '@jest/globals';
 import type { Api } from 'chessgroundx/api';
+import type { GameController as GameControllerType } from '../client/gameCtrl';
 
 import { aliceBoardFen } from '../client/aliceBoard';
-import { GameController } from '../client/gameCtrl';
+
+jest.unstable_mockModule('../client/chat', () => ({
+    chatMessage: jest.fn(),
+}));
+
+const { GameController } = await import('../client/gameCtrl');
 
 test('moves the Alice check marker with the checked king when switching boards', () => {
     const fen = '4|k3/8/8/8/8/8/8/4K3 w - - 0 1';
@@ -25,7 +31,7 @@ test('moves the Alice check marker with the checked king when switching boards',
             redrawAll,
         } as unknown as Api,
         setDests: jest.fn(),
-    }) as unknown as GameController;
+    }) as unknown as GameControllerType;
 
     const originalRequestAnimationFrame = window.requestAnimationFrame;
     window.requestAnimationFrame = jest.fn(() => 0);
