@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from unittest.mock import patch
 
 import test_logger
 from aiohttp.test_utils import AioHTTPTestCase
@@ -19,6 +20,13 @@ ONE_TEST_ONLY = False
 
 
 class TournamentTestCase(AioHTTPTestCase):
+    async def asyncSetUp(self):
+        # Tournament tests create the system tournaments they need explicitly.
+        # Loading the live calendar here makes unrelated tests depend on the
+        # wall clock whenever a community Arena overlaps a scheduled event.
+        with patch("pychess_global_app_state.new_scheduled_tournaments", return_value=[]):
+            await super().asyncSetUp()
+
     async def tearDownAsync(self):
         app_state = get_app_state(self.app)
         has_games = len(app_state.games) > 0
