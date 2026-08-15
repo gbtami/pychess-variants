@@ -493,6 +493,7 @@ class ViewContext(TypedDict, total=False):
     bot_challenge_status: str
     bot_challenge_decline_reason: str
     bot_challenge_opponent: str
+    bot_supported_variants: str
     lichess_id: str
     lishogi_id: str
     oauth_username_selection: Mapping[str, str | None] | None

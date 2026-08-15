@@ -112,6 +112,9 @@ function initModel(el: HTMLElement) {
         botChallengeStatus: el.getAttribute('data-bot-challenge-status') ?? '',
         botChallengeDeclineReason: el.getAttribute('data-bot-challenge-decline-reason') ?? '',
         botChallengeOpponent: el.getAttribute('data-bot-challenge-opponent') ?? '',
+        botSupportedVariants: JSON.parse(el.getAttribute('data-bot-supported-variants') || 'null') as
+            | string[]
+            | null,
         challengeId: el.getAttribute('data-challengeid') ?? '',
         ply: parseInt('' + el.getAttribute('data-ply')),
         initialFen: el.getAttribute('data-initialfen') ?? '',

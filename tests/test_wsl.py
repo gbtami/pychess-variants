@@ -13,6 +13,7 @@ from seek import Seek
 from user import User
 from variants import VARIANTS
 from wsl import (
+    BOT_UNSUPPORTED_VARIANT_MESSAGE,
     CATALOGUED_CASUAL_ONLY_MESSAGE,
     finally_logic,
     handle_accept_seek,
@@ -189,6 +190,7 @@ class LobbySocketCleanupTestCase(AioHTTPTestCase):
         app_state = get_app_state(self.app)
         engine = User(app_state, bot=True, username="engine-bot", perfs=PERFS)
         engine.online = True
+        engine.bot_supported_variants = {"chess"}
         challenger = User(app_state, username="human", perfs=PERFS)
         app_state.users[engine.username] = engine
         app_state.users[challenger.username] = challenger
@@ -217,3 +219,41 @@ class LobbySocketCleanupTestCase(AioHTTPTestCase):
         event = await engine.event_queue.get()
         self.assertIn('"rated":false', event)
         self.assertIn('"perf":{"name":"chess"}', event)
+
+    async def test_bot_challenge_checks_normal_and_960_capabilities_separately(self):
+        app_state = get_app_state(self.app)
+        engine = User(app_state, bot=True, username="shuffle-bot", perfs=PERFS)
+        engine.online = True
+        engine.bot_supported_variants = {"crazyhouse960"}
+        challenger = User(app_state, username="human-960", perfs=PERFS)
+        app_state.users[engine.username] = engine
+        app_state.users[challenger.username] = challenger
+
+        unsupported_ws = SimpleNamespace(send_str=AsyncMock())
+        challenge_data = {
+            "profileid": engine.username,
+            "variant": "crazyhouse",
+            "fen": "",
+            "color": "r",
+            "minutes": 5,
+            "increment": 3,
+            "byoyomiPeriod": 0,
+            "rated": False,
+            "chess960": False,
+            "target": "BOT_challenge",
+        }
+        await handle_create_bot_challenge(app_state, unsupported_ws, challenger, challenge_data)
+
+        self.assertIn(BOT_UNSUPPORTED_VARIANT_MESSAGE, unsupported_ws.send_str.call_args.args[0])
+        self.assertFalse(app_state.seeks)
+
+        supported_ws = SimpleNamespace(send_str=AsyncMock())
+        await handle_create_bot_challenge(
+            app_state,
+            supported_ws,
+            challenger,
+            challenge_data | {"chess960": True},
+        )
+
+        seek = next(iter(app_state.seeks.values()))
+        self.assertTrue(seek.chess960)

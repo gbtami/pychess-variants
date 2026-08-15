@@ -82,10 +82,18 @@ async def lobby(request: web.Request) -> ViewContext:
     )
     if opens_lobby_dialog:
         context["profile"] = profileId
-        context["profile_title"] = (
-            app_state.users[profileId].title
+        profile_user = (
+            app_state.users[profileId]
             if isinstance(profileId, str) and profileId in app_state.users
-            else ""
+            else None
+        )
+        context["profile_title"] = profile_user.title if profile_user is not None else ""
+        context["bot_supported_variants"] = json_dumps(
+            None
+            if profileId in ("Fairy-Stockfish", "Random-Mover")
+            else sorted(profile_user.bot_supported_variants or ())
+            if profile_user is not None and profile_user.bot
+            else None
         )
         context["view_css"] = "lobby.css"
         if user.anon and context["profile_title"] != "BOT" and profileId != "any#":

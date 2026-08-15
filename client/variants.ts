@@ -2804,12 +2804,24 @@ export function disabledVariantsForCreateMode(
     createMode: 'createGame' | 'playFriend' | 'playAI' | 'playBOT' | 'createHost',
     profileid: string,
     anon: boolean,
+    botSupportedVariants: ReadonlySet<string> | null = null,
 ): string[] {
     // Two-board variants are only supported by the dedicated multi-seat lobby flow.
     // Hide them whenever the dialog is being used for invites, profile challenges,
     // bot/AI games, or hosting, where the generic single-board flow is used.
     if (createMode === 'playAI') return [...new Set([...twoBoarsVariants, ...unsupportedAiVariants])];
-    if (['playBOT', 'createHost'].includes(createMode)) return twoBoarsVariants;
+    if (createMode === 'playBOT') {
+        const disabled = new Set(twoBoarsVariants);
+        if (botSupportedVariants !== null) {
+            Object.values(VARIANTS).forEach(variant => {
+                const supportsNormal = botSupportedVariants.has(variant.name);
+                const supports960 = variant.chess960 && botSupportedVariants.has(`${variant.name}960`);
+                if (!supportsNormal && !supports960) disabled.add(variant.name);
+            });
+        }
+        return [...disabled];
+    }
+    if (createMode === 'createHost') return twoBoarsVariants;
     if (createMode !== 'createGame') return twoBoarsVariants;
     return anon || profileid !== '' ? twoBoarsVariants : [];
 }

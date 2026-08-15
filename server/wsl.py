@@ -109,6 +109,7 @@ log = logging.getLogger(__name__)
 
 UNSUPPORTED_FSF_AI_VARIANTS = ("alice", "fogofwar", "jieqi")
 BOT_LOBBY_ACTION_MESSAGE = "BOT accounts cannot create or join lobby games."
+BOT_UNSUPPORTED_VARIANT_MESSAGE = "This BOT does not support the selected variant."
 CATALOGUED_CASUAL_ONLY_MESSAGE = (
     "Catalogued variants are casual-only and not available for auto-pairing."
 )
@@ -473,6 +474,13 @@ async def handle_create_bot_challenge(
     engine = await app_state.users.get(profileid)
 
     if (engine is None) or (not engine.online):
+        return
+
+    bot_variant = data["variant"] + ("960" if data["chess960"] else "")
+    if engine.username not in ("Fairy-Stockfish", "Random-Mover") and (
+        engine.bot_supported_variants is None or bot_variant not in engine.bot_supported_variants
+    ):
+        await ws_send_json(ws, {"type": "error", "message": BOT_UNSUPPORTED_VARIANT_MESSAGE})
         return
 
     log.debug("Creating BOT challenge from request: %s", data)

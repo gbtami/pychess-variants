@@ -53,6 +53,7 @@ export type PyChessModel = {
     botChallengeStatus: string;
     botChallengeDeclineReason: string;
     botChallengeOpponent: string;
+    botSupportedVariants: string[] | null;
     challengeId: string;
     ply: number;
     ct: CrossTable | string;
