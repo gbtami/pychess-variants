@@ -64,6 +64,7 @@ class FollowingPageTestCase(AioHTTPTestCase):
         self.assertIn("FM</player-title> friend00", html)
         self.assertIn("1875", html)
         self.assertIn("Chess", html)
+        self.assertIn('<a class="nav-link" href="/@/owner/following">Friends</a>', html)
         self.assertIn('href="/@/owner/following?page=2"', html)
         self.assertNotIn("friend30</a>", html)
 

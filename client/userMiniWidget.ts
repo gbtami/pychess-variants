@@ -7,6 +7,7 @@ import { timeago } from './datetime';
 import { sizeMiniBoardHost } from './miniBoard';
 import { getLastMoveFen, splitVariantKey, VARIANTS } from './variants';
 import { displayUsername } from './user';
+import { renderFollowButtonState } from './followButton';
 
 interface MiniPerf {
     variant: string;
@@ -491,11 +492,7 @@ class UserMiniWidget {
         const button = document.createElement('a');
         button.className = 'umw-action-btn umw-follow-btn btn-rack__btn relation-button text icon icon-thumbs-o-up';
         button.href = `/api/${encodeURIComponent(username)}/follow`;
-        button.title = _('Follow');
-        button.setAttribute('aria-label', _('Follow'));
-        const renderState = () => {
-            button.textContent = following ? _('Following') : _('Follow');
-        };
+        const renderState = () => renderFollowButtonState(button, following);
         renderState();
         button.addEventListener('click', event => {
             event.preventDefault();

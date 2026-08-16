@@ -70,7 +70,6 @@ function mainMenu(anon: boolean) {
         buttons.push(
             h('div.settings-menu-separator', { attrs: { role: 'separator' } }),
             h('button#btn-inbox-menu', { on: { click: gotoInbox } }, _('Inbox')),
-            h('button#btn-following', { on: { click: gotoFollowing } }, _('Following')),
             h('button#btn-privacy', { on: { click: showSubsettings } }, _('Privacy')),
             h('button#btn-account', { on: { click: gotoAccount } }, _('Account')),
             h('button#btn-logout', { on: { click: logoutDialog } }, _('Log out')),
@@ -82,11 +81,6 @@ function mainMenu(anon: boolean) {
 
 function gotoInbox() {
     window.location.href = '/inbox';
-}
-
-function gotoFollowing() {
-    const username = getDocumentData('username');
-    if (username !== null) window.location.href = `/@/${encodeURIComponent(username)}/following`;
 }
 
 function gotoAccount() {

@@ -46,6 +46,9 @@
                     <a class="nav-link" href="/players">{% trans %}Community{% endtrans %}</a>
                     <div class="drp" >
                         <a class="nav-link" href="/players">{% trans %}Players{% endtrans %}</a>
+                        {% if not anon %}
+                        <a class="nav-link" href="/@/{{ username }}/following">{% trans %}Friends{% endtrans %}</a>
+                        {% endif %}
                         <a class="nav-link" href="/variants/community">{% trans %}Variants{% endtrans %}</a>
                         <a class="nav-link" href="/forum">{% trans %}Forum{% endtrans %}</a>
                         <a class="nav-link" href="/blogs">{% trans %}Blog{% endtrans %}</a>
