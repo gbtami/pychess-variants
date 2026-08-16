@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 import aiohttp_session
 import logger
-from admin import shadowban, silence, unshadowban
+from admin import set_shadowban, silence
 from aiohttp import web
 from chat import chat_response
 from const import ANON_PREFIX, SHIELD
@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
     from user import User
     from ws_types import (
+        TournamentAbortMessage,
         TournamentGetGamesMessage,
         TournamentGetPlayersMessage,
         TournamentInboundMessage,
@@ -28,6 +29,7 @@ if TYPE_CHECKING:
         TournamentRRManagePlayerMessage,
         TournamentRRSetJoiningMessage,
         TournamentRRSetTimeMessage,
+        TournamentStartNextRoundMessage,
         TournamentUserConnectedRequest,
         TournamentWithdrawMessage,
     )
@@ -40,6 +42,10 @@ from ws_types import ChatLine, FullChatMessage, TournamentUserConnectedMessage
 from tournament.rr import RRTournament
 from tournament.tournament import T_CREATED, T_STARTED
 from tournament.tournaments import load_tournament
+
+TOURNAMENT_LIFECYCLE_COMMANDS_RETIRED_MESSAGE = (
+    "Tournament lifecycle commands moved to the tournament controls."
+)
 
 
 async def tournament_socket_handler(request):
@@ -110,6 +116,10 @@ async def process_message(
         await handle_pause(app_state, ws, user, data)
     elif data["type"] == "withdraw":
         await handle_withdraw(app_state, ws, user, data)
+    elif data["type"] == "start_next_round":
+        await handle_start_next_round(app_state, ws, user, data)
+    elif data["type"] == "abort_tournament":
+        await handle_abort_tournament(app_state, ws, user, data)
     elif data["type"] == "tournament_user_connected":
         await handle_user_connected(app_state, ws, user, data)
     elif data["type"] == "rr_challenge":
@@ -261,6 +271,51 @@ async def handle_withdraw(
             "ustatus": tournament.user_status(user),
         }
         await ws_send_json(ws, response)
+
+
+async def handle_start_next_round(
+    app: PychessGlobalAppState,
+    ws,
+    user: User,
+    data: TournamentStartNextRoundMessage,
+) -> None:
+    tournament = await load_tournament(app, data["tournamentId"])
+    if tournament is None:
+        await ws_send_json(ws, {"type": "error", "message": "Tournament not found"})
+        return
+
+    can_control_rounds = is_tournament_director(user, app) or user.username == tournament.creator
+    if not can_control_rounds:
+        await ws_send_json(ws, {"type": "error", "message": "Permission denied"})
+        return
+
+    if not await tournament.start_next_round_now():
+        await ws_send_json(
+            ws,
+            {"type": "error", "message": "The next round is not ready to start"},
+        )
+
+
+async def handle_abort_tournament(
+    app: PychessGlobalAppState,
+    ws,
+    user: User,
+    data: TournamentAbortMessage,
+) -> None:
+    tournament = await load_tournament(app, data["tournamentId"])
+    if tournament is None:
+        await ws_send_json(ws, {"type": "error", "message": "Tournament not found"})
+        return
+
+    if not is_tournament_director(user, app):
+        await ws_send_json(ws, {"type": "error", "message": "Permission denied"})
+        return
+
+    if tournament.status not in (T_CREATED, T_STARTED):
+        await ws_send_json(ws, {"type": "error", "message": "Tournament has already ended"})
+        return
+
+    await tournament.abort()
 
 
 async def handle_user_connected(
@@ -422,27 +477,31 @@ async def handle_lobbychat(
     is_shadowbanned = bool(getattr(user, "shadowban", False))
 
     director = is_tournament_director(user, app_state)
-    round_controller = director or user.username == tournament.creator
 
-    if round_controller and message.startswith("/startround"):
-        if await tournament.start_next_round_now():
-            return
+    if message.startswith(("/startround", "/abort")):
+        for socket in tuple(user.tournament_sockets.get(tournamentId, ())):
+            await ws_send_json(
+                socket,
+                {"type": "error", "message": TOURNAMENT_LIFECYCLE_COMMANDS_RETIRED_MESSAGE},
+            )
         return
 
     if director:
         if message.startswith("/silence"):
-            response = silence(app_state, message, tournament.tourneychat)
-            # silence message was already added to lobbychat in silence()
+            parts = message.split()
+            if len(parts) >= 2:
+                response = silence(app_state, parts[1], tournament.tourneychat)
+                # silence message was already added to lobbychat in silence()
 
         elif message.startswith("/shadowban"):
-            await shadowban(app_state, message)
+            parts = message.split()
+            if len(parts) == 2:
+                await set_shadowban(app_state, parts[1], True)
 
         elif message.startswith("/unshadowban"):
-            await unshadowban(app_state, message)
-
-        elif message.startswith("/abort"):
-            if tournament.status in (T_CREATED, T_STARTED):
-                await tournament.abort()
+            parts = message.split()
+            if len(parts) == 2:
+                await set_shadowban(app_state, parts[1], False)
 
         else:
             if app_state.chat_flood.allow_message(f"public:{user.username}", message):

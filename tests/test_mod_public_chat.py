@@ -68,6 +68,12 @@ class ModPublicChatTestCase(AioHTTPTestCase):
         self.assertIn("hello arena", body)
         self.assertIn("white vs black", body)
         self.assertIn("hello round", body)
+        self.assertIn(
+            'class="admin-nav__item active" href="/mod/public-chat"',
+            body,
+        )
+        self.assertIn('href="/admin/users"', body)
+        self.assertIn("admin.css", body)
 
     async def test_public_chat_timeout_lobby(self):
         app_state = get_app_state(self.app)

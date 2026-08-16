@@ -78,6 +78,7 @@ async def mod_public_chat(request: web.Request) -> ViewContext:
     context["view"] = "mod_public_chat"
     context["view_css"] = "mod_public_chat.css"
     context["admin"] = True
+    context["admin_section"] = "public-chat"
     context["lobby_lines"] = lobby_lines
     context["round_games"] = round_games
     context["tournaments"] = tournaments

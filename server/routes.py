@@ -18,6 +18,8 @@ from account_api import (
     account_reopen,
     account_reopen_post,
 )
+from admin_api import admin_user_action
+from admin_ops_api import admin_operation
 from aiohttp import web
 from bot_api import (
     account,
@@ -207,6 +209,9 @@ from views import (
     winners,
 )
 from views import (
+    admin as admin_view,
+)
+from views import (
     bot_challenge as bot_challenge_view,
 )
 from views import (
@@ -290,6 +295,9 @@ get_routes: tuple[RouteDef, ...] = (
     ("/report", report_view.report_form),
     ("/report/faq", report_faq.report_faq),
     ("/report/thanks", report_view.report_thanks),
+    ("/admin", admin_view.admin),
+    ("/admin/users", admin_view.admin_users),
+    ("/admin/operations", admin_view.admin_operations),
     ("/reports", reports_view.reports),
     ("/mod/public-chat", mod_public_chat_view.mod_public_chat),
     ("/challenges", get_header_challenges),
@@ -459,6 +467,8 @@ post_routes: tuple[RouteDef, ...] = (
     (r"/api/reports/{reportId:\w{8}}/close-account", report_close_account),
     (r"/api/reports/{reportId:\w{8}}/reopen", report_reopen),
     ("/api/mod/public-chat/timeout", public_chat_timeout),
+    ("/api/admin/users/{username}/{action}", admin_user_action),
+    ("/api/admin/operations/{action}", admin_operation),
     ("/api/catalogued-variants", upload_catalogued_variant),
     ("/api/catalogued-variants/check", check_catalogued_variant_rules),
     ("/api/catalogued-variants/{name}/piece-set", upload_catalogued_piece_set),

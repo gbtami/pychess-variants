@@ -254,6 +254,20 @@ class ReportApiTestCase(AioHTTPTestCase):
         denied = await self.client.get("/reports")
         self.assertEqual(denied.status, 403)
 
+    async def test_reports_page_uses_admin_navigation(self):
+        app_state = get_app_state(self.app)
+        app_state.users["mod"] = User(app_state, username="mod")
+
+        self.set_session_user("mod")
+        with patch("views.reports.ADMINS", ["mod"]):
+            response = await self.client.get("/reports?status=open")
+
+        self.assertEqual(response.status, 200)
+        body = await response.text()
+        self.assertIn('class="admin-nav__item active" href="/reports?status=open"', body)
+        self.assertIn('href="/admin/users"', body)
+        self.assertIn("admin.css", body)
+
 
 if __name__ == "__main__":
     import unittest

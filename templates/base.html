@@ -20,6 +20,9 @@
         <link rel="stylesheet" href={{ static("reconnecting.css") }}>
         <link rel="stylesheet" href={{ static("bughouse.css") }}>
         <link rel="stylesheet" href={{ static("piece/mono/mono.css") }}>
+        {% if admin_section and view_css != "admin.css" %}
+        <link rel="stylesheet" href={{ static("admin.css") }}>
+        {% endif %}
         <link rel="stylesheet" href={{ static(view_css) }}>
         {% if view in ["round", "tv", "analysis", "puzzle", "editor", "embed", "paste"] %}
         <link

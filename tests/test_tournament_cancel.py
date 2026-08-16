@@ -43,3 +43,19 @@ class TournamentCancelRedirectTestCase(AioHTTPTestCase):
         self.assertEqual(response.status, 302)
         self.assertEqual(response.headers["Location"], "/tournaments")
         self.assertEqual(app_state.tournaments[tournament_id].status, T_ABORTED)
+
+    async def test_tournament_page_exposes_director_permission_to_client(self):
+        app_state = get_app_state(self.app)
+        director = User(app_state, username="td-user")
+        app_state.users[director.username] = director
+        self.set_session_user(director.username)
+
+        tournament_id = id8()
+        tournament = SwissTestTournament(app_state, tournament_id, created_by="another-user")
+        app_state.tournaments[tournament_id] = tournament
+
+        with patch("views.tournament.is_tournament_director", return_value=True):
+            response = await self.client.get(f"/tournament/{tournament_id}")
+
+        self.assertEqual(response.status, 200)
+        self.assertIn('data-tournamentdirector="True"', await response.text())

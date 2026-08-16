@@ -1,7 +1,9 @@
 {% extends "template.html" %}
 {% block content %}
-<div id="main-wrap" class="mod-public-wrap">
-    <main id="communication" class="mod-public-page box box-pad">
+<div id="main-wrap" class="admin-shell mod-public-wrap">
+    <div class="admin-layout">
+        {% include "admin_nav.html" %}
+        <main id="communication" class="mod-public-page box box-pad">
         <a class="auto-refresh button active" href="#" id="auto-refresh-toggle">Auto refresh</a>
 
         <div>
@@ -72,7 +74,8 @@
                 {% endfor %}
             </div>
         </div>
-    </main>
+        </main>
+    </div>
 </div>
 
 <div id="timeout-modal-backdrop" class="timeout-modal-backdrop hidden"></div>

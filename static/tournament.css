@@ -27,6 +27,20 @@ under-chat {
 div.info0 {
     margin-bottom: 3vmin;
 }
+#pychess-variants .tour aside.sidebar-first > .tournament-lifecycle {
+    display: flex;
+    gap: 0.6rem;
+    margin: -1.5vmin 0 2vmin;
+}
+#pychess-variants .tour aside.sidebar-first > .tournament-lifecycle:empty {
+    display: none;
+}
+#pychess-variants .tour aside.sidebar-first > .tournament-lifecycle > button {
+    flex: 1 1 auto;
+    margin: 0;
+    padding: 0.7em 0.8em;
+    font-size: 0.85em;
+}
 .user-link {
     padding: 0;
 }

@@ -589,6 +589,14 @@ class TournamentWithdrawMessage(TournamentIdMessage):
     type: Literal["withdraw"]
 
 
+class TournamentStartNextRoundMessage(TournamentIdMessage):
+    type: Literal["start_next_round"]
+
+
+class TournamentAbortMessage(TournamentIdMessage):
+    type: Literal["abort_tournament"]
+
+
 class TournamentUserConnectedRequest(TournamentIdMessage):
     type: Literal["tournament_user_connected"]
     username: NotRequired[str]
@@ -613,6 +621,8 @@ TournamentInboundMessage = (
     | TournamentJoinMessage
     | TournamentPauseMessage
     | TournamentWithdrawMessage
+    | TournamentStartNextRoundMessage
+    | TournamentAbortMessage
     | TournamentUserConnectedRequest
     | TournamentLobbyChatMessage
 )

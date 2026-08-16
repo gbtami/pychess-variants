@@ -1,7 +1,9 @@
 {% extends "template.html" %}
 {% block content %}
-<div id="main-wrap" class="reports-wrap">
-    <main id="report_list" class="reports-page box">
+<div id="main-wrap" class="admin-shell reports-wrap">
+    <div class="admin-layout">
+        {% include "admin_nav.html" %}
+        <main id="report_list" class="reports-page box">
         <div class="header">
             <span class="icon icon-warning"></span>
             <span class="tabs">
@@ -9,7 +11,6 @@
                 <a href="/reports?status=open" class="{% if report_status == 'open' %}active{% endif %}">Open<count>{{ report_open_count }}</count></a>
                 <a href="/reports?status=processed" class="{% if report_status == 'processed' %}active{% endif %}">Processed<count>{{ report_processed_count }}</count></a>
             </span>
-            <a class="public-chat-link" href="/mod/public-chat">Public chats</a>
         </div>
 
         <table class="reports-table see">
@@ -116,7 +117,8 @@
                 {% endfor %}
             </tbody>
         </table>
-    </main>
+        </main>
+    </div>
 </div>
 <div id="timeout-modal-backdrop" class="timeout-modal-backdrop hidden"></div>
 <div id="timeout-modal" class="timeout-modal hidden" role="dialog" aria-modal="true" aria-labelledby="timeout-modal-title">

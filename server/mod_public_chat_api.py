@@ -44,7 +44,7 @@ async def public_chat_timeout(request: web.Request) -> web.Response:
     reason_text = TIMEOUT_REASONS[reason]
 
     if chan == "lobby":
-        fullchat = silence(app_state, f"/silence {target_user}", reason_text=reason_text)
+        fullchat = silence(app_state, target_user, reason_text=reason_text)
         if fullchat is None:
             return json_response(
                 {"type": "error", "message": "User must be online to timeout"},
@@ -62,7 +62,7 @@ async def public_chat_timeout(request: web.Request) -> web.Response:
 
         fullchat = silence(
             app_state,
-            f"/silence {target_user}",
+            target_user,
             tournament.tourneychat,
             reason_text=reason_text,
         )
@@ -84,7 +84,7 @@ async def public_chat_timeout(request: web.Request) -> web.Response:
 
         fullchat = silence(
             app_state,
-            f"/silence {target_user}",
+            target_user,
             game.messages,
             reason_text=reason_text,
         )

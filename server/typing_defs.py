@@ -454,6 +454,17 @@ class ViewContext(TypedDict, total=False):
     piece_sets: list[str]
     simuling: bool
     admin: bool
+    admin_section: str
+    admin_user_query: str
+    admin_user_error: str
+    admin_user_status: Mapping[str, object] | None
+    admin_action_notice: str
+    admin_timeout_reasons: Mapping[str, str]
+    admin_operations_anons_disabled: bool
+    admin_operations_streams: Sequence[Mapping[str, object]]
+    admin_operations_fishnet: Sequence[Mapping[str, object]]
+    admin_operations_variants: Sequence[Mapping[str, str]]
+    admin_operations_history: Sequence[Mapping[str, object]]
     mod_report_score: int
     vapid_public_key: str
     allusers: Sequence[User]

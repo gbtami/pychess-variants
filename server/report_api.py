@@ -333,7 +333,7 @@ async def report_silence(request: web.Request) -> web.Response:
             reason_key = posted_reason
     reason_text = TIMEOUT_REASONS[reason_key]
 
-    fullchat = silence(app_state, f"/silence {suspect}", reason_text=reason_text)
+    fullchat = silence(app_state, suspect, reason_text=reason_text)
     if fullchat is None:
         return json_response(
             {"type": "error", "message": "User must be online to silence"},
@@ -361,7 +361,7 @@ async def report_close_account(request: web.Request) -> web.Response:
     if suspect is None:
         return json_response({"type": "error", "message": "Report not found"}, status=404)
 
-    await ban(app_state, f"/ban {suspect}")
+    await ban(app_state, suspect)
     user_doc = await app_state.db.user.find_one({"_id": suspect}, projection={"enabled": 1})
     if user_doc is None:
         return json_response({"type": "error", "message": "User not found"}, status=404)

@@ -1,5 +1,4 @@
 import unittest
-from collections import deque
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
@@ -20,14 +19,6 @@ def eligible_user(**overrides: object) -> SimpleNamespace:
     }
     values.update(overrides)
     return SimpleNamespace(**values)
-
-
-class _TargetUser:
-    def __init__(self) -> None:
-        self.silenced = 0
-
-    def set_silence(self) -> None:
-        self.silenced += 1
 
 
 class LobbyChatFloodTestCase(unittest.IsolatedAsyncioTestCase):
@@ -77,40 +68,75 @@ class LobbyChatFloodTestCase(unittest.IsolatedAsyncioTestCase):
             "lobbychat", "visit [redacted]", "tester"
         )
 
-    async def test_admin_silence_matches_mixed_case_username(self) -> None:
-        spammer = _TargetUser()
+    async def test_retired_admin_commands_are_rejected_without_becoming_chat(self) -> None:
         app_state = SimpleNamespace(
             chat_flood=SimpleNamespace(allow_message=lambda source, text: True),
             lobby=SimpleNamespace(
-                lobbychat=deque(
-                    [
-                        {"type": "lobbychat", "user": "FrogTheBadass", "message": "spam"},
-                        {"type": "lobbychat", "user": "other", "message": "ok"},
-                    ]
-                ),
                 lobby_chat_save=AsyncMock(),
                 lobby_broadcast=AsyncMock(),
             ),
             discord=SimpleNamespace(send_to_discord=AsyncMock()),
-            users={"FrogTheBadass": spammer},
         )
-        admin_user = SimpleNamespace(username="admin", anon=False, silence=0)
+        admin_user = eligible_user(username="admin")
         ws = object()
-        payload = {"type": "lobbychat", "message": "/silence @frogthebadass"}
+        commands = (
+            "/silence target",
+            "/shadowban target",
+            "/unshadowban target",
+            "/disable_new_anons true",
+            "/stream add channel",
+            "/delete Ab123",
+            "/baninfo target",
+            "/ban target",
+            "/unban target",
+            "/highscore chess",
+            "/crosstable target",
+            "/fishnet add worker",
+        )
+
+        with (
+            patch("wsl.ADMINS", ["admin"]),
+            patch("wsl.ws_send_json", new=AsyncMock()) as send,
+        ):
+            for command in commands:
+                await handle_lobbychat(
+                    app_state,
+                    ws,
+                    admin_user,
+                    {"type": "lobbychat", "message": command},
+                )
+
+        self.assertEqual(len(commands), send.await_count)
+        for call in send.await_args_list:
+            sent_ws, sent_payload = call.args
+            self.assertIs(ws, sent_ws)
+            self.assertEqual("error", sent_payload["type"])
+            self.assertIn("/admin", sent_payload["message"])
+        app_state.lobby.lobby_chat_save.assert_not_awaited()
+        app_state.lobby.lobby_broadcast.assert_not_awaited()
+        app_state.discord.send_to_discord.assert_not_awaited()
+
+    async def test_admin_plain_message_still_uses_normal_chat_flow(self) -> None:
+        app_state = SimpleNamespace(
+            chat_flood=SimpleNamespace(allow_message=lambda source, text: True),
+            lobby=SimpleNamespace(
+                lobby_chat_save=AsyncMock(),
+                lobby_broadcast=AsyncMock(),
+            ),
+            discord=SimpleNamespace(send_to_discord=AsyncMock()),
+        )
+        admin_user = eligible_user(username="admin")
+        ws = object()
+        payload = {"type": "lobbychat", "message": "ordinary message"}
 
         with patch("wsl.ADMINS", ["admin"]):
             await handle_lobbychat(app_state, ws, admin_user, payload)
 
-        self.assertEqual(1, spammer.silenced)
-        app_state.lobby.lobby_chat_save.assert_not_awaited()
-        app_state.discord.send_to_discord.assert_not_awaited()
+        app_state.lobby.lobby_chat_save.assert_awaited_once()
         app_state.lobby.lobby_broadcast.assert_awaited_once()
-
-        sent = app_state.lobby.lobby_broadcast.await_args.args[0]
-        self.assertEqual("fullchat", sent["type"])
-        self.assertEqual("other", sent["lines"][0]["user"])
-        self.assertEqual("", sent["lines"][-1]["user"])
-        self.assertIn("FrogTheBadass was timed out 15 minutes", sent["lines"][-1]["message"])
+        app_state.discord.send_to_discord.assert_awaited_once_with(
+            "lobbychat", "ordinary message", "admin"
+        )
 
     async def test_shadowbanned_user_sees_only_their_own_lobby_message(self) -> None:
         app_state = SimpleNamespace(

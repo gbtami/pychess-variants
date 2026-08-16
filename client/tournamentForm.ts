@@ -475,7 +475,7 @@ export function initTournamentForm(): void {
         if (roundIntervalHelp) {
             roundIntervalHelp.textContent = isArena
                 ? 'Automatic is based on time control and clamped to 10s-1m.'
-                : 'Automatic is based on time control and clamped to 10s-1m. Manual start waits for the organizer to type /startround in tournament chat.';
+                : 'Automatic is based on time control and clamped to 10s-1m. With manual rounds, the organizer starts the next round from the tournament controls.';
         }
 
         if (minutesLabel) {

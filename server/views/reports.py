@@ -188,6 +188,7 @@ async def reports(request: web.Request) -> ViewContext:
     context["view"] = "reports"
     context["view_css"] = "reports.css"
     context["admin"] = True
+    context["admin_section"] = "reports"
     context["reports"] = report_docs
     context["report_status"] = status
     context["report_open_count"] = open_count

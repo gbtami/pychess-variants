@@ -7,11 +7,13 @@ import { JSONObject, PyChessModel } from './types';
 import { _ } from './i18n';
 import { patch } from './document';
 import { alertDialog } from './alertDialog';
+import { confirmDialog } from './confirmDialog';
 import { chatMessage, chatView, ChatController } from './chat';
 import { colorIcon } from './chess';
 import { getLastMoveFen, VARIANTS, Variant } from './variants';
 import { timeControlStr } from './view';
 import { initializeClock, localeOptions } from './tournamentClock';
+import { tournamentLifecycleView } from './tournamentLifecycle';
 import { gameType } from './result';
 import { boardSettings } from './boardSettings';
 import { MsgBoard, MsgChat, MsgFullChat, MsgSpectators, MsgGameEnd, MsgNewGame } from './messages';
@@ -70,6 +72,7 @@ export class TournamentController implements ChatController {
     tournamentId: string;
     readyState: number; // seems unused
     buttons: VNode;
+    lifecycleActions: VNode;
     system: number;
     rounds: number;
     currentRound: number;
@@ -101,10 +104,15 @@ export class TournamentController implements ChatController {
     username: string;
     anon: boolean;
     private: boolean;
+    isTournamentCreator: boolean;
+    isTournamentDirector: boolean;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         console.log('TournamentController constructor', el, model);
         this.tournamentId = model['tournamentId'];
+        this.username = model['username'];
+        this.isTournamentCreator = this.username === model['tournamentcreator'];
+        this.isTournamentDirector = model['tournamentDirector'];
         this.nbPlayers = 0;
         this.page = 1;
         this.rounds = model['rounds'] || 0;
@@ -139,6 +147,10 @@ export class TournamentController implements ChatController {
         this.rated = model['rated'];
 
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, 'lobbychat'));
+        this.lifecycleActions = patch(
+            document.getElementById('tournament-lifecycle') as HTMLElement,
+            this.renderLifecycleActions(),
+        );
         this.buttons = patch(document.getElementById('page-controls') as HTMLElement, this.renderButtons());
 
         if (this.tournamentStatus === 'created') {
@@ -158,7 +170,6 @@ export class TournamentController implements ChatController {
 
         this.vDuels = document.querySelector('div.duels') as HTMLElement;
 
-        this.username = model['username'];
         this.anon = model['anon'] === 'True';
 
         boardSettings.assetURL = model.assetURL;
@@ -210,6 +221,34 @@ export class TournamentController implements ChatController {
 
     withdraw() {
         this.doSend({ type: 'withdraw', tournamentId: this.tournamentId });
+    }
+
+    renderLifecycleActions() {
+        return tournamentLifecycleView(
+            {
+                status: this.tournamentStatus,
+                system: this.system,
+                manualNextRoundPending: this.manualNextRoundPending,
+                isCreator: this.isTournamentCreator,
+                isDirector: this.isTournamentDirector,
+            },
+            () => this.doSend({ type: 'start_next_round', tournamentId: this.tournamentId }),
+            () => void this.abortTournament(),
+        );
+    }
+
+    updateLifecycleActions() {
+        this.lifecycleActions = patch(this.lifecycleActions, this.renderLifecycleActions());
+    }
+
+    async abortTournament() {
+        const confirmed = await confirmDialog({
+            title: _('Abort tournament'),
+            text: _('This will end the tournament immediately. This action cannot be undone.'),
+            confirmText: _('Abort tournament'),
+            danger: true,
+        });
+        if (confirmed) this.doSend({ type: 'abort_tournament', tournamentId: this.tournamentId });
     }
 
     renderButtons() {
@@ -886,6 +925,7 @@ export class TournamentController implements ChatController {
         this.updateTournamentSystemLabel();
 
         this.updateActionButton();
+        this.updateLifecycleActions();
 
         if (!this.completed()) {
             initializeClock(this);
@@ -964,6 +1004,7 @@ export class TournamentController implements ChatController {
         }
         this.updateTournamentSystemLabel();
         this.updateActionButton();
+        this.updateLifecycleActions();
         const fixedRoundRoundStarted =
             this.system > 0 &&
             this.tournamentStatus === 'started' &&
@@ -1168,6 +1209,7 @@ export function tournamentView(model: PyChessModel): VNode[] {
                 h('div#startsAt'),
                 h('div#startFen'),
             ]),
+            h('div#tournament-lifecycle'),
             h('div#lobbychat'),
         ]),
         h(`div.players.${model['variant']}`, [

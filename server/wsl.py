@@ -6,20 +6,6 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 import aiohttp_session
-from admin import (
-    ban,
-    baninfo,
-    crosstable,
-    delete_puzzle,
-    disable_new_anons,
-    fishnet,
-    highscore,
-    shadowban,
-    silence,
-    stream,
-    unban,
-    unshadowban,
-)
 from aiohttp import web
 from aiohttp.web_ws import WebSocketResponse
 from auto_pair import (
@@ -113,6 +99,7 @@ BOT_UNSUPPORTED_VARIANT_MESSAGE = "This BOT does not support the selected varian
 CATALOGUED_CASUAL_ONLY_MESSAGE = (
     "Catalogued variants are casual-only and not available for auto-pairing."
 )
+LOBBY_ADMIN_COMMANDS_RETIRED_MESSAGE = "Lobby admin commands moved to /admin."
 
 
 async def _reject_bot_lobby_action(ws: WebSocketResponse, user: User) -> bool:
@@ -766,63 +753,19 @@ async def handle_lobbychat(
 
     message = sanitize_user_message(data["message"])
     response: Mapping[str, object] | None = None
-    admin_command = False
 
     is_shadowbanned = bool(getattr(user, "shadowban", False))
 
-    if is_admin:
-        admin_command = True
-        if message.startswith("/silence"):
-            response = silence(app_state, message)
-            # silence message was already added to lobbychat in silence()
+    # Do not let a mistyped retired command (especially one containing a key)
+    # become a public chat line during the migration to the Admin Console.
+    if is_admin and message.startswith("/"):
+        await ws_send_json(
+            ws,
+            {"type": "error", "message": LOBBY_ADMIN_COMMANDS_RETIRED_MESSAGE},
+        )
+        return
 
-        elif message.startswith("/shadowban"):
-            await shadowban(app_state, message)
-
-        elif message.startswith("/unshadowban"):
-            await unshadowban(app_state, message)
-
-        elif message.startswith("/disable_new_anons"):
-            disable_new_anons(app_state, message)
-
-        elif message.startswith("/stream"):
-            await stream(app_state, message)
-
-        elif message.startswith("/delete"):
-            await delete_puzzle(app_state, message)
-
-        elif message.startswith("/baninfo"):
-            answare = await baninfo(app_state, message)
-            await ws_send_json(ws, answare)
-
-        elif message.startswith("/unban"):
-            await unban(app_state, message)
-
-        elif message.startswith("/ban"):
-            await ban(app_state, message)
-
-        elif message.startswith("/highscore"):
-            await highscore(app_state, message)
-
-        elif message.startswith("/crosstable"):
-            await crosstable(app_state, message)
-
-        elif message.startswith("/fishnet"):
-            # Don't give it to the response variable to prevent broadcasting it
-            answare = await fishnet(app_state, message)
-            await ws_send_json(ws, answare)
-
-        else:
-            admin_command = False
-            if app_state.chat_flood.allow_message(f"public:{user.username}", message):
-                lobby_response = chat_response("lobbychat", user.username, message)
-                if is_shadowbanned:
-                    await ws_send_json_many(user.lobby_sockets, lobby_response)
-                else:
-                    response = lobby_response
-                    await app_state.lobby.lobby_chat_save(lobby_response)
-
-    elif user.anon and user.username != "Discord-Relay":
+    if user.anon and user.username != "Discord-Relay":
         pass
 
     else:
@@ -839,7 +782,7 @@ async def handle_lobbychat(
     if response is not None:
         await app_state.lobby.lobby_broadcast(response)
 
-    if response is not None and user.silence == 0 and not admin_command:
+    if response is not None and user.silence == 0:
         await app_state.discord.send_to_discord("lobbychat", message, user.username)
 
 

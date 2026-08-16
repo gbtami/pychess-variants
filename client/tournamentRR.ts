@@ -3,6 +3,7 @@ import { h, VNode } from 'snabbdom';
 import { _ } from './i18n';
 import { patch } from './document';
 import { alertDialog } from './alertDialog';
+import { confirmDialog } from './confirmDialog';
 import { chatView, chatMessage, ChatController } from './chat';
 import { timeago } from './datetime';
 import { JSONObject, PyChessModel } from './types';
@@ -10,6 +11,7 @@ import { newWebsocket } from '@/socket/webSocketUtils';
 import { displayUsername, userLink } from './user';
 import { timeControlStr } from './view';
 import { initializeClock, localeOptions } from './tournamentClock';
+import { tournamentLifecycleView } from './tournamentLifecycle';
 import { roundRobinFaq } from './tournamentFaq';
 import {
     MsgError,
@@ -150,6 +152,7 @@ export class TournamentRRController implements ChatController {
     creatorNode: VNode;
     minutesNode: VNode;
     manageNode: VNode;
+    lifecycleActions: VNode;
     bodyNode: VNode;
     modalNode: VNode;
     podiumNode: VNode;
@@ -158,10 +161,14 @@ export class TournamentRRController implements ChatController {
     gamesNode: VNode | null = null;
     boundHashChange: () => void;
     boundVisibilityChange: () => void;
+    isTournamentCreator: boolean;
+    isTournamentDirector: boolean;
 
     constructor(_el: HTMLElement, model: PyChessModel) {
         this.tournamentId = model.tournamentId;
         this.username = model.username;
+        this.isTournamentCreator = this.username === model.tournamentcreator;
+        this.isTournamentDirector = model.tournamentDirector;
         this.anon = model.anon === 'True';
         this.variant = VARIANTS[model.variant];
         this.chess960 = model.chess960 === 'True';
@@ -188,6 +195,10 @@ export class TournamentRRController implements ChatController {
         this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
 
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, 'lobbychat'));
+        this.lifecycleActions = patch(
+            document.getElementById('tournament-lifecycle') as HTMLElement,
+            this.renderLifecycleActions(),
+        );
         this.descriptionNode = patch(
             document.getElementById('description') as HTMLElement,
             h('div#description.description'),
@@ -210,6 +221,34 @@ export class TournamentRRController implements ChatController {
 
     doSend(message: JSONObject) {
         this.sock.send(JSON.stringify(message));
+    }
+
+    renderLifecycleActions() {
+        return tournamentLifecycleView(
+            {
+                status: this.tournamentStatus,
+                system: this.system,
+                manualNextRoundPending: this.manualNextRoundPending,
+                isCreator: this.isTournamentCreator,
+                isDirector: this.isTournamentDirector,
+            },
+            () => this.doSend({ type: 'start_next_round', tournamentId: this.tournamentId }),
+            () => void this.abortTournament(),
+        );
+    }
+
+    updateLifecycleActions() {
+        this.lifecycleActions = patch(this.lifecycleActions, this.renderLifecycleActions());
+    }
+
+    async abortTournament() {
+        const confirmed = await confirmDialog({
+            title: _('Abort tournament'),
+            text: _('This will end the tournament immediately. This action cannot be undone.'),
+            confirmText: _('Abort tournament'),
+            danger: true,
+        });
+        if (confirmed) this.doSend({ type: 'abort_tournament', tournamentId: this.tournamentId });
     }
 
     isHost() {
@@ -1635,7 +1674,10 @@ export class TournamentRRController implements ChatController {
         this.rounds = msg.rounds || this.rounds;
         this.tournamentStatus = T_STATUS[msg.tstatus as keyof typeof T_STATUS];
         this.roundOngoingGames = msg.roundOngoingGames || 0;
+        this.secondsToNextRound = msg.secondsToNextRound || 0;
+        this.manualNextRoundPending = msg.manualNextRound ?? false;
         this.renderInfo(msg);
+        this.updateLifecycleActions();
     }
 
     private onMsgTournamentStatus(msg: MsgTournamentStatus) {
@@ -1643,6 +1685,8 @@ export class TournamentRRController implements ChatController {
         this.rounds = msg.rounds || this.rounds;
         this.secondsToFinish = msg.secondsToFinish;
         this.roundOngoingGames = msg.roundOngoingGames || 0;
+        this.secondsToNextRound = msg.secondsToNextRound || 0;
+        this.manualNextRoundPending = msg.manualNextRound ?? false;
         this.summaryStats = {
             nbPlayers: msg.nbPlayers,
             sumRating: msg.sumRating,
@@ -1653,6 +1697,7 @@ export class TournamentRRController implements ChatController {
         };
         initializeClock(this as any);
         this.updateActionButton();
+        this.updateLifecycleActions();
         this.renderSummary();
     }
 
@@ -1819,6 +1864,7 @@ export function tournamentRRView(model: PyChessModel): VNode[] {
                 h('div#startsAt'),
                 h('div#rr-manage'),
             ]),
+            h('div#tournament-lifecycle'),
             h('div#lobbychat'),
         ]),
         h(`div.players.${model.variant}`, [

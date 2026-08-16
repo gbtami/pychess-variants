@@ -40,6 +40,7 @@ async def tournament(request: web.Request) -> ViewContext:
 
     tournament_name = await get_tournament_name(request, tournamentId)
     context["tournamentid"] = tournamentId
+    context["tournamentdirector"] = is_tournament_director(user, app_state)
     context["tournamentname"] = tournament_name
     context["tournamentcreator"] = tournament.creator
     context["description"] = tournament.description

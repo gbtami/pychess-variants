@@ -535,6 +535,12 @@ class PychessGlobalAppState:
                 await self.db.user_report.create_index("reporter")
                 await self.db.user_report.create_index("suspect")
 
+                if "mod_log" not in db_collections:
+                    await self.db.create_collection("mod_log")
+                await self.db.mod_log.create_index("createdAt")
+                await self.db.mod_log.create_index("mod")
+                await self.db.mod_log.create_index("user")
+
                 if "seek" not in db_collections:
                     await self.db.create_collection("seek")
                 await self.db.seek.create_index("expireAt", expireAfterSeconds=0)
