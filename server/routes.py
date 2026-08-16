@@ -141,6 +141,7 @@ from report_api import (
 from robots import robots
 from server_metrics import metrics_handler
 from simul.wss import simul_socket_handler
+from timeline import timeline_api
 from tournament.tournament_calendar import tournament_calendar
 from tournament.wst import tournament_socket_handler
 from twitch import twitch_request_handler
@@ -193,6 +194,7 @@ from views import (
     shields,
     stats,
     terms,
+    timeline,
     tournament,
     tournaments,
     tv,
@@ -243,6 +245,7 @@ get_routes: tuple[RouteDef, ...] = (
     ("/account/reopen", account_reopen),
     ("/select-username", select_username),
     ("/", lobby.lobby),
+    ("/timeline", timeline.timeline),
     ("/about", about.about),
     ("/authors", authors.authors),
     ("/api", api_docs.api_docs),
@@ -374,6 +377,7 @@ get_routes: tuple[RouteDef, ...] = (
     (r"/api/bot-challenges/{gameId:\w{8}}", subscribe_invites),
     ("/api/ongoing", subscribe_games),
     ("/api/inbox/unread", inbox_unread),
+    ("/api/timeline", timeline_api),
     ("/api/inbox/threads", inbox_threads),
     ("/api/inbox/thread/{contact}", inbox_thread),
     ("/api/forum/categs", forum_categs),

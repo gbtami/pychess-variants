@@ -1016,13 +1016,20 @@ async def follow_user(request: web.Request) -> web.StreamResponse:
     rel_id = _relation_id(user.username, profileId)
     try:
         if follow:
-            await app_state.db.relation.find_one_and_update(
+            previous_relation = await app_state.db.relation.find_one_and_update(
                 {"_id": rel_id},
                 {"$set": {"u1": user.username, "u2": profileId, "r": FOLLOW}},
                 upsert=True,
             )
             user.following.add(profileId)
             user.blocked.discard(profileId)
+            if previous_relation is None or previous_relation.get("r") != FOLLOW:
+                await app_state.timeline.publish(
+                    "follow",
+                    user,
+                    {"target": profileId},
+                    friends_only=True,
+                )
         else:
             await app_state.db.relation.delete_one({"_id": rel_id, "r": FOLLOW})
             user.following.discard(profileId)
@@ -1062,6 +1069,7 @@ async def block_user(request: web.Request) -> web.StreamResponse:
             )
             user.blocked.add(profileId)
             user.following.discard(profileId)
+            await app_state.timeline.remove_between(user.username, profileId)
         else:
             await app_state.db.relation.delete_one({"_id": rel_id, "r": BLOCK})
             user.blocked.discard(profileId)

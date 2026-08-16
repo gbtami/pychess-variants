@@ -840,6 +840,17 @@ async def update(request: web.Request) -> web.Response:
     if updated is None:
         raise web.HTTPNotFound()
 
+    if next_live and not bool(doc.get("live")):
+        await app_state.timeline.publish(
+            "ublog-post",
+            user,
+            {
+                "postId": post_id,
+                "slug": str(updated.get("slug") or ""),
+                "title": str(updated.get("title") or ""),
+            },
+        )
+
     if action == "view-post" and bool(updated.get("live")):
         raise web.HTTPFound(post_url(updated))
     raise web.HTTPFound(_blog_post_edit_url(profile_id, post_id))

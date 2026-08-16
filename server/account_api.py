@@ -244,6 +244,7 @@ async def _scrub_delete_owned_data(app_state: Any, user: Any, now: datetime) -> 
     await db.push_subscription.delete_many({"user": user.username})
     await db.account_reopen_token.delete_many({"username": user.username})
     await db.notify.delete_many({"notifies": user.username})
+    await app_state.timeline.erase_user(user.username)
     await _remove_active_seeks_for_user(app_state, user)
     await _scrub_authored_chat_history(app_state, user.username)
 
@@ -335,6 +336,9 @@ async def account_personal_data_export(request: web.Request) -> web.StreamRespon
     created_reports = await app_state.db.user_report.find({"reporter": user.username}).to_list(
         MAX_EXPORT_ROWS
     )
+    timeline_entries = await app_state.db.timeline_entry.find(
+        {"$or": [{"data.actor": user.username}, {"users": user.username}]}
+    ).to_list(MAX_EXPORT_ROWS)
 
     metadata = {
         "exportedAt": datetime.now(UTC),
@@ -354,6 +358,9 @@ async def account_personal_data_export(request: web.Request) -> web.StreamRespon
         _export_section("Blog posts by this account", ublog_posts),
         _export_section("Push subscriptions", push_subscriptions),
         _export_section("Reports created by this account", created_reports),
+        _export_section(
+            "Timeline activities authored or received by this account", timeline_entries
+        ),
         _export_section("End of export", {"ok": True}),
     ]
     payload = "\n".join(chunks)

@@ -451,6 +451,7 @@ class ViewContext(TypedDict, total=False):
     anon_online: int
     blog_tag: Callable[[str], str]
     blogs: list[object] | str
+    timeline: str
     site_tag: str
     site_tags: list[str]
     community_posts: list[object]

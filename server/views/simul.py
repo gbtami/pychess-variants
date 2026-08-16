@@ -318,6 +318,11 @@ async def simuls(request: web.Request) -> ViewContext:
         )
         app_state.simuls[simul_id] = simul
         await upsert_simul_to_db(simul, app_state)
+        await app_state.timeline.publish(
+            "simul-create",
+            user,
+            {"simulId": simul.id, "name": simul.name},
+        )
         raise web.HTTPFound(f"/simul/{simul_id}")
 
     created_simuls, started_simuls, finished_simuls = await get_latest_simuls(app_state)

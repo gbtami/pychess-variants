@@ -130,6 +130,16 @@ async def forum_topic_create(request: web.Request) -> web.Response:
         topic=topic_doc,
         post_id=post_id,
     )
+    await app_state.timeline.publish(
+        "forum-post",
+        me,
+        {
+            "categ": categ_id,
+            "slug": slug,
+            "topic": name,
+            "postId": post_id,
+        },
+    )
 
     return json_response({"ok": True, "topic": topic_doc, "redirect": f"/forum/{categ_id}/{slug}"})
 
@@ -210,6 +220,16 @@ async def forum_post_create(request: web.Request) -> web.Response:
             mentioner=username,
             topic=topic_doc,
             post_id=post_id,
+        )
+        await app_state.timeline.publish(
+            "forum-post",
+            me,
+            {
+                "categ": categ_id,
+                "slug": slug,
+                "topic": str(topic_doc.get("name") or ""),
+                "postId": post_id,
+            },
         )
     topic_nb_posts = int((topic_doc or {}).get("nbPosts", 1))
     page = page_count(topic_nb_posts, FORUM_POST_PER_PAGE)

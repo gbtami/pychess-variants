@@ -7,6 +7,7 @@ from catalogued_variants import catalogued_variant_client_doc_for_name
 from json_utils import json_dumps
 from puzzle import get_daily_puzzle
 from pychess_global_app_state_utils import get_app_state
+from timeline import TIMELINE_DISPLAY_MAX
 from tournament_director import is_tournament_director
 from typing_defs import ViewContext
 from utils import get_blogs
@@ -109,4 +110,9 @@ async def lobby(request: web.Request) -> ViewContext:
 
     blogs = await get_blogs(request, limit=3)
     context["blogs"] = json_dumps(blogs)
+    context["timeline"] = json_dumps(
+        []
+        if user.anon
+        else await app_state.timeline.entries_for(user.username, limit=TIMELINE_DISPLAY_MAX)
+    )
     return context

@@ -94,6 +94,7 @@ export type PyChessModel = {
     bratingB: string; // string, because can contain "?" suffix for provisional rating
 
     blogs: string;
+    timeline: string;
     corrGames: string;
     simulGames: string;
     simulHost: boolean;

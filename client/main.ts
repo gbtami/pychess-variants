@@ -59,6 +59,7 @@ import { gameSearchView, initGameSearch } from './gameSearch';
 import { initProfileActionOverflow } from './profileActionOverflow';
 import { initVariantAuthors } from './variantAuthors';
 import { initSearchBarDismissal } from './searchBar';
+import { timelinePageView } from './timeline';
 
 // redirect to correct URL except Heroku preview/dev apps
 if (
@@ -158,6 +159,7 @@ function initModel(el: HTMLElement) {
         assetURL: el.getAttribute('data-asset-url') ?? '',
         puzzle: el.getAttribute('data-puzzle') ?? '',
         blogs: el.getAttribute('data-blogs') ?? '',
+        timeline: el.getAttribute('data-timeline') ?? '[]',
         corrGames: el.getAttribute('data-corrgames') ?? '',
         simulGames: el.getAttribute('data-simulgames') ?? '',
         simulHost: el.getAttribute('data-simulhost') === 'True',
@@ -228,6 +230,8 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
             return h('div#main-wrap', [inboxView(model)]);
         case 'forum':
             return h('div#main-wrap', [forumView(model)]);
+        case 'timeline':
+            return h('div#main-wrap', [timelinePageView(model)]);
         case 'thanks':
             return h('div#main-wrap', h('h2', _('Thank you for your support!')));
         default:

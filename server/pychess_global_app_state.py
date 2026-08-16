@@ -81,6 +81,7 @@ from settings import (
 from simul.simul import Simul
 from simul.simuls import load_active_simuls
 from startup_timer import StartupTimer
+from timeline import TIMELINE_RETENTION_SECONDS, Timeline
 from tournament.scheduler import (
     MONTHLY_VARIANTS,
     NEW_MONTHLY_VARIANTS,
@@ -201,6 +202,7 @@ class PychessGlobalAppState:
             self.public_users = PublicUsers(self)
             self.disable_new_anons = False
             self.lobby = Lobby(self)
+            self.timeline = Timeline(self)
             self.catalogued_variants: dict[str, dict[str, Any]] = {}
             self.chat_flood = ChatFlood()
             # one dict per tournament! {tournamentId: {user.username: user.tournament_sockets, ...}, ...}
@@ -339,6 +341,21 @@ class PychessGlobalAppState:
                 await self.db.tournament_player.create_index("tid")
                 await self.db.tournament_pairing.create_index("tid")
                 await self.db.relation.create_index([("u1", 1), ("r", 1)], name="u1_r")
+                await self.db.relation.create_index([("u2", 1), ("r", 1)], name="u2_r")
+
+                if "timeline_entry" not in db_collections:
+                    await self.db.create_collection("timeline_entry")
+                await self.db.timeline_entry.create_index(
+                    [("users", 1), ("date", -1)], name="users_date"
+                )
+                await self.db.timeline_entry.create_index(
+                    [("type", 1), ("date", -1)], name="type_date"
+                )
+                await self.db.timeline_entry.create_index(
+                    "date",
+                    name="date_ttl",
+                    expireAfterSeconds=TIMELINE_RETENTION_SECONDS,
+                )
 
             with startup.phase("load catalogued casual variants"):
                 from catalogued_variants import init_catalogued_variants

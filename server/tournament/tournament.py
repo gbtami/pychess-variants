@@ -1483,6 +1483,13 @@ class Tournament(ABC):
         await self.db_update_player(player, "JOIN")
         await self._persist_player_join_side_data(player, player_data, is_new_player=is_new_player)
 
+        if is_new_player and not self.password:
+            await self.app_state.timeline.publish(
+                "tournament-join",
+                user,
+                {"tournamentId": self.id, "name": self.name},
+            )
+
         response = self.players_json(user=player)
         await self.broadcast(response)
 

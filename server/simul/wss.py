@@ -171,6 +171,11 @@ async def handle_join(
 
     if simul.join(user):
         await upsert_simul_to_db(simul, app_state)
+        await app_state.timeline.publish(
+            "simul-join",
+            user,
+            {"simulId": simul.id, "name": simul.name},
+        )
         await simul.broadcast({"type": "player_joined", "player": simul.player_json(user)})
 
 
