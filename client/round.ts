@@ -46,6 +46,7 @@ export function roundView(model: PyChessModel): VNode[] {
                               }),
                           ],
                       ),
+                h('div#janggi-setup-buttons'),
                 h('div.material.material-top.' + variant.pieceFamily + '.disabled'),
                 h('div.pocket-top', [
                     h('div.' + variant.pieceFamily + '.' + model['variant'], [
@@ -74,6 +75,6 @@ export function roundView(model: PyChessModel): VNode[] {
             ],
         ),
         h('under-left#spectators'),
-        h('under-board', [h('div#janggi-setup-buttons'), h('div.ctable-container'), h('div.games-container')]),
+        h('under-board', [h('div.ctable-container'), h('div.games-container')]),
     ];
 }
