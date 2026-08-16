@@ -1,0 +1,149 @@
+.following-page {
+    grid-area: main;
+    width: min(100%, 1000px);
+    margin: 2vh auto;
+    overflow: hidden;
+}
+
+.following-page__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 clamp(1rem, 5vw, 4rem);
+}
+
+.following-page__top h1 {
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+}
+
+.following-page .following-page__back {
+    color: var(--font-color);
+    font-size: 0.8em;
+    overflow: visible;
+}
+
+.following-page .following-page__back:hover {
+    color: var(--link-hover);
+}
+
+.following-page__count {
+    color: var(--time-text);
+    font-size: 1.2em;
+}
+
+.following-page__list {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.following-page__list tr:nth-child(even) {
+    background: var(--table-even);
+}
+
+.following-page__list td {
+    padding: 1rem clamp(0.75rem, 3vw, 2rem);
+    vertical-align: middle;
+}
+
+.following-page__user {
+    width: 42%;
+}
+
+.following-page .following-page__user .user-link {
+    padding-right: 0;
+    font-size: 1em;
+    font-weight: 400;
+}
+
+.following-page__status {
+    display: inline-block;
+    width: 1.5em;
+    color: var(--time-text);
+    text-align: center;
+}
+
+.following-page__status.online {
+    color: var(--green-switch);
+}
+
+.following-page__rating {
+    width: 28%;
+}
+
+.following-page__rating strong {
+    font-weight: 400;
+}
+
+.following-page__rating span,
+.following-page__games {
+    color: var(--time-text);
+}
+
+.following-page__rating span {
+    margin-left: 0.4em;
+    font-size: 0.9em;
+}
+
+.following-page__games {
+    text-align: right;
+}
+
+.following-page__empty {
+    padding: 2rem clamp(1rem, 5vw, 4rem);
+    color: var(--time-text);
+}
+
+.following-page__pagination {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1.5rem;
+}
+
+.following-page .following-page__pagination a {
+    padding: 0.7em 1.1em;
+    border-radius: 3px;
+    color: var(--font-color);
+    background: var(--bg-color2);
+}
+
+.following-page .following-page__pagination a:hover {
+    color: #fff;
+    background: var(--green-hover);
+}
+
+@media (max-width: 599px) {
+    .following-page {
+        margin: 0;
+        border-radius: 0;
+    }
+
+    .following-page__top {
+        padding: 0 1rem;
+    }
+
+    .following-page__list td {
+        padding: 0.85rem 0.75rem;
+    }
+
+    .following-page__user {
+        width: 55%;
+    }
+
+    .following-page__games {
+        display: none;
+    }
+
+    .following-page__rating {
+        width: 45%;
+        text-align: right;
+    }
+}
+
+@media (max-width: 399px) {
+    .following-page__rating span {
+        display: none;
+    }
+}

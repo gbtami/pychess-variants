@@ -1324,6 +1324,7 @@ button#btn-game-category:hover,
 button#btn-board:hover,
 button#btn-zen:hover,
 button#btn-inbox-menu:hover,
+button#btn-following:hover,
 button#btn-privacy:hover,
 button#btn-account:hover {
   background-color: var(--green-hover);

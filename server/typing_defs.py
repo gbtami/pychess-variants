@@ -83,6 +83,15 @@ class UserJson(TypedDict):
     simul: bool
 
 
+class FollowingUserRow(TypedDict):
+    username: str
+    title: str
+    games: int
+    rating: str
+    variant: str
+    online: bool
+
+
 class UserStatusJson(TypedDict):
     id: str
     status: bool
@@ -452,6 +461,11 @@ class ViewContext(TypedDict, total=False):
     blog_tag: Callable[[str], str]
     blogs: list[object] | str
     timeline: str
+    following_profile: str
+    following_users: list[FollowingUserRow]
+    following_total: int
+    following_prev_href: str
+    following_next_href: str
     site_tag: str
     site_tags: list[str]
     community_posts: list[object]
