@@ -2142,11 +2142,11 @@ button[disabled] i {
 }
 @media (max-width: 799px) and (orientation: portrait) {
   .info-wrap0 {
-    grid-area: 4 / 1 / 4 / 2;
+    grid-area: user-top;
     justify-self: flex-end;
   }
   .info-wrap1 {
-    grid-area: 8 / 1 / 8 / 2;
+    grid-area: user-bot;
     justify-self: flex-end;
   }
 }

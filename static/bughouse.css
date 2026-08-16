@@ -455,13 +455,13 @@ button.bugchat::-moz-focus-inner {
 }
 
 @media (max-width: 799px) and (orientation: portrait) {
-  .bug .info-wrap0, .info-wrap0 {
+  .round-app.bug .info-wrap0 {
     flex-direction: column-reverse;
     grid-area: clock-top;
     justify-self: flex-end;
     justify-content: right;
   }
-  .bug .info-wrap1, .info-wrap1 {
+  .round-app.bug .info-wrap1 {
     grid-area: clock-bot;
     justify-self: flex-end;
     justify-content: right;
