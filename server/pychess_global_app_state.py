@@ -356,6 +356,13 @@ class PychessGlobalAppState:
                     name="date_ttl",
                     expireAfterSeconds=TIMELINE_RETENTION_SECONDS,
                 )
+                if "timeline_unsub" not in db_collections:
+                    await self.db.create_collection("timeline_unsub")
+                await self.db.timeline_unsub.create_index(
+                    [("user", 1), ("channel", 1)],
+                    name="user_channel",
+                    unique=True,
+                )
 
             with startup.phase("load catalogued casual variants"):
                 from catalogued_variants import init_catalogued_variants

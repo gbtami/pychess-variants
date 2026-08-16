@@ -19,12 +19,14 @@ TIMELINE_DISPLAY_MAX = 10
 TIMELINE_PAGE_MAX = 30
 TIMELINE_MAX_AGE = timedelta(days=14)
 TIMELINE_RETENTION_SECONDS = int(TIMELINE_MAX_AGE.total_seconds())
+TIMELINE_FORUM_CHANNEL_PREFIX = "forum:"
 
 TIMELINE_EVENT_TYPES = frozenset(
     {
         "follow",
         "forum-post",
         "ublog-post",
+        "ublog-post-like",
         "simul-create",
         "simul-join",
         "tournament-join",
@@ -126,6 +128,68 @@ class Timeline:
             }
         return followers.intersection(following)
 
+    @staticmethod
+    def _can_unsubscribe(channel: str) -> bool:
+        if not channel.startswith(TIMELINE_FORUM_CHANNEL_PREFIX):
+            return False
+        topic_id = channel.removeprefix(TIMELINE_FORUM_CHANNEL_PREFIX)
+        return len(topic_id) == 8 and topic_id.isalnum()
+
+    async def channel_status(self, username: str, channel: str) -> bool | None:
+        """Return True when muted, False when applicable, and None when not applicable."""
+        if self.app_state.db is None or not username or not self._can_unsubscribe(channel):
+            return None
+
+        unsubscribed = await self.app_state.db.timeline_unsub.find_one(
+            {"user": username, "channel": channel}, projection={"_id": 1}
+        )
+        if unsubscribed is not None:
+            return True
+
+        recent_entry = await self.app_state.db.timeline_entry.find_one(
+            {
+                "users": username,
+                "channel": channel,
+                "date": {"$gt": datetime.now(UTC) - TIMELINE_MAX_AGE},
+            },
+            projection={"_id": 1},
+        )
+        return False if recent_entry is not None else None
+
+    async def set_channel_unsubscribed(
+        self, username: str, channel: str, unsubscribed: bool
+    ) -> bool:
+        if self.app_state.db is None or not username or not self._can_unsubscribe(channel):
+            return False
+
+        selector = {"user": username, "channel": channel}
+        if unsubscribed:
+            await self.app_state.db.timeline_unsub.update_one(
+                selector,
+                {"$set": selector},
+                upsert=True,
+            )
+        else:
+            await self.app_state.db.timeline_unsub.delete_one(selector)
+        return True
+
+    async def _filter_channel_unsubscribed(self, channel: str | None, recipients: set[str]) -> None:
+        if (
+            self.app_state.db is None
+            or not channel
+            or not recipients
+            or not self._can_unsubscribe(channel)
+        ):
+            return
+        cursor = self.app_state.db.timeline_unsub.find(
+            {"channel": channel, "user": {"$in": list(recipients)}},
+            projection={"_id": 0, "user": 1},
+        )
+        unsubscribed_users = {
+            str(doc["user"]) async for doc in cursor if isinstance(doc.get("user"), str)
+        }
+        recipients.difference_update(unsubscribed_users)
+
     async def publish(
         self,
         event_type: str,
@@ -133,6 +197,7 @@ class Timeline:
         data: Mapping[str, object],
         *,
         friends_only: bool = False,
+        channel: str | None = None,
         extra_users: Iterable[str] = (),
         exclude_users: Iterable[str] = (),
     ) -> None:
@@ -156,19 +221,21 @@ class Timeline:
             recipients.difference_update(str(username) for username in exclude_users)
             recipients.difference_update(await self._blocked_by(actor.username))
             recipients.discard(actor.username)
+            await self._filter_channel_unsubscribed(channel, recipients)
             if not recipients:
                 return
 
             event_data = {"actor": actor.username, **dict(data)}
-            await self.app_state.db.timeline_entry.insert_one(
-                {
-                    "_id": ObjectId(),
-                    "type": event_type,
-                    "data": event_data,
-                    "users": sorted(recipients),
-                    "date": datetime.now(UTC),
-                }
-            )
+            entry = {
+                "_id": ObjectId(),
+                "type": event_type,
+                "data": event_data,
+                "users": sorted(recipients),
+                "date": datetime.now(UTC),
+            }
+            if channel:
+                entry["channel"] = channel
+            await self.app_state.db.timeline_entry.insert_one(entry)
 
             sockets = [
                 ws
@@ -209,6 +276,7 @@ class Timeline:
                 {"users": username},
                 {"$pull": {"users": username}},
             )
+            await self.app_state.db.timeline_unsub.delete_many({"user": username})
         except Exception:
             log.exception("Failed to erase timeline activities for %s", username)
 
@@ -244,3 +312,21 @@ async def timeline_api(request: web.Request) -> web.Response:
         before=_before_from_request(request),
     )
     return json_response({"entries": entries})
+
+
+async def timeline_unsubscribe(request: web.Request) -> web.Response:
+    app_state = get_app_state(request.app)
+    session = await aiohttp_session.get_session(request)
+    username = session.get("user_name")
+    if not isinstance(username, str):
+        return json_response({"type": "error", "message": "Login required"}, status=403)
+    user = await app_state.users.get(username)
+    if user.anon:
+        return json_response({"type": "error", "message": "Login required"}, status=403)
+
+    data = await request.post()
+    channel = str(data.get("channel") or "")
+    unsubscribed = str(data.get("unsubscribed") or "").lower() == "true"
+    if not await app_state.timeline.set_channel_unsubscribed(user.username, channel, unsubscribed):
+        return json_response({"type": "error", "message": "Invalid timeline channel"}, status=400)
+    return json_response({"ok": True, "unsubscribed": unsubscribed})

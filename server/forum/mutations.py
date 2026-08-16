@@ -139,6 +139,7 @@ async def forum_topic_create(request: web.Request) -> web.Response:
             "topic": name,
             "postId": post_id,
         },
+        channel=f"forum:{topic_id}",
     )
 
     return json_response({"ok": True, "topic": topic_doc, "redirect": f"/forum/{categ_id}/{slug}"})
@@ -230,6 +231,7 @@ async def forum_post_create(request: web.Request) -> web.Response:
                 "topic": str(topic_doc.get("name") or ""),
                 "postId": post_id,
             },
+            channel=f"forum:{topic['_id']}",
         )
     topic_nb_posts = int((topic_doc or {}).get("nbPosts", 1))
     page = page_count(topic_nb_posts, FORUM_POST_PER_PAGE)

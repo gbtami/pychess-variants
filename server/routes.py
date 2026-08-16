@@ -141,7 +141,7 @@ from report_api import (
 from robots import robots
 from server_metrics import metrics_handler
 from simul.wss import simul_socket_handler
-from timeline import timeline_api
+from timeline import timeline_api, timeline_unsubscribe
 from tournament.tournament_calendar import tournament_calendar
 from tournament.wst import tournament_socket_handler
 from twitch import twitch_request_handler
@@ -439,6 +439,7 @@ post_routes: tuple[RouteDef, ...] = (
     ("/api/inbox/thread/{contact}", inbox_post),
     ("/api/inbox/thread/{contact}/read", inbox_read),
     ("/api/inbox/thread/{contact}/delete", inbox_delete),
+    ("/api/timeline/unsubscribe", timeline_unsubscribe),
     ("/push/subscribe", push_subscribe),
     ("/push/unsubscribe", push_unsubscribe),
     ("/api/forum/{categ}/topic", forum_topic_create),

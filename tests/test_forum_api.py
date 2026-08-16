@@ -3,7 +3,7 @@ import time
 from unittest.mock import patch
 
 from aiohttp.test_utils import AioHTTPTestCase
-from const import GAME_CATEGORY_ALL
+from const import FOLLOW, GAME_CATEGORY_ALL
 from forum.captcha import (
     _forum_captcha_challenge,
     _forum_captcha_payload,
@@ -99,6 +99,38 @@ class ForumApiTestCase(AioHTTPTestCase):
         participants_resp2 = await self.client.get(f"/api/forum/participants/{topic_id}")
         participants_payload2 = await participants_resp2.json()
         self.assertEqual(["alice", "bob"], participants_payload2["participants"])
+
+    async def test_topic_exposes_timeline_unsubscribe_only_after_delivery(self):
+        app_state = get_app_state(self.app)
+        self.add_user("alice")
+        self.add_user("bob")
+        await app_state.db.relation.insert_one(
+            {"_id": "bob/alice", "u1": "bob", "u2": "alice", "r": FOLLOW}
+        )
+
+        self.set_session_user("alice")
+        create_data = await self.with_forum_captcha(
+            {"name": "timeline topic", "text": "initial post"}
+        )
+        create_response = await self.client.post(
+            "/api/forum/general-chess-discussion/topic",
+            data=create_data,
+        )
+        create_payload = await create_response.json()
+        topic_id = create_payload["topic"]["_id"]
+        slug = create_payload["topic"]["slug"]
+
+        self.set_session_user("bob")
+        topic_response = await self.client.get(f"/api/forum/general-chess-discussion/{slug}")
+        self.assertEqual(False, (await topic_response.json())["timelineUnsubscribed"])
+
+        unsubscribe = await self.client.post(
+            "/api/timeline/unsubscribe",
+            data={"channel": f"forum:{topic_id}", "unsubscribed": "true"},
+        )
+        self.assertEqual(200, unsubscribe.status)
+        muted_topic = await self.client.get(f"/api/forum/general-chess-discussion/{slug}")
+        self.assertEqual(True, (await muted_topic.json())["timelineUnsubscribed"])
 
     async def test_forum_mention_does_not_cache_offline_recipient(self):
         app_state = get_app_state(self.app)

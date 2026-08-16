@@ -539,11 +539,22 @@ async def like(request: web.Request) -> web.StreamResponse:
         )
         liked = False
     else:
-        await app_state.db.ublog_post.update_one(
+        result = await app_state.db.ublog_post.update_one(
             {"_id": post_id, "author": profile_id},
             {"$addToSet": {"likes": user.username}},
         )
         liked = True
+        if result.modified_count > 0:
+            await app_state.timeline.publish(
+                "ublog-post-like",
+                user,
+                {
+                    "profile": profile_id,
+                    "slug": str(doc.get("slug") or ""),
+                    "postId": post_id,
+                    "title": str(doc.get("title") or ""),
+                },
+            )
 
     if wants_json:
         updated = await app_state.db.ublog_post.find_one(

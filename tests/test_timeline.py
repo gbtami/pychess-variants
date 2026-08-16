@@ -171,6 +171,92 @@ class TimelineTestCase(AioHTTPTestCase):
         self.assertEqual(200, response.status)
         self.assertEqual([], await app_state.timeline.entries_for("alice"))
 
+    async def test_forum_channel_can_be_unsubscribed_and_resubscribed(self):
+        app_state = get_app_state(self.app)
+        alice = User(app_state, username="alice")
+        bob = User(app_state, username="bob")
+        carol = User(app_state, username="carol")
+        app_state.users[alice.username] = alice
+        app_state.users[bob.username] = bob
+        app_state.users[carol.username] = carol
+        await app_state.db.relation.insert_many(
+            [
+                {"_id": "bob/alice", "u1": "bob", "u2": "alice", "r": FOLLOW},
+                {"_id": "carol/alice", "u1": "carol", "u2": "alice", "r": FOLLOW},
+            ]
+        )
+        channel = "forum:topic123"
+
+        await app_state.timeline.publish(
+            "forum-post",
+            alice,
+            {"topic": "Topic", "postId": "first"},
+            channel=channel,
+        )
+        self.assertFalse(await app_state.timeline.channel_status("bob", channel))
+
+        self.set_session_user("bob")
+        unsubscribe = await self.client.post(
+            "/api/timeline/unsubscribe",
+            data={"channel": channel, "unsubscribed": "true"},
+        )
+        self.assertEqual(200, unsubscribe.status)
+        self.assertEqual(
+            {"ok": True, "unsubscribed": True},
+            await unsubscribe.json(),
+        )
+        self.assertTrue(await app_state.timeline.channel_status("bob", channel))
+
+        await app_state.timeline.publish(
+            "forum-post",
+            alice,
+            {"topic": "Topic", "postId": "second"},
+            channel=channel,
+        )
+        self.assertEqual(
+            ["first"],
+            [entry["data"]["postId"] for entry in await app_state.timeline.entries_for("bob")],
+        )
+        self.assertEqual(
+            ["second", "first"],
+            [entry["data"]["postId"] for entry in await app_state.timeline.entries_for("carol")],
+        )
+
+        subscribe = await self.client.post(
+            "/api/timeline/unsubscribe",
+            data={"channel": channel, "unsubscribed": "false"},
+        )
+        self.assertEqual(200, subscribe.status)
+        self.assertFalse(await app_state.timeline.channel_status("bob", channel))
+
+        await app_state.timeline.publish(
+            "forum-post",
+            alice,
+            {"topic": "Topic", "postId": "third"},
+            channel=channel,
+        )
+        self.assertEqual(
+            ["third", "first"],
+            [entry["data"]["postId"] for entry in await app_state.timeline.entries_for("bob")],
+        )
+
+    async def test_timeline_unsubscribe_requires_login_and_a_forum_channel(self):
+        response = await self.client.post(
+            "/api/timeline/unsubscribe",
+            data={"channel": "forum:topic123", "unsubscribed": "true"},
+        )
+        self.assertEqual(403, response.status)
+
+        app_state = get_app_state(self.app)
+        bob = User(app_state, username="bob")
+        app_state.users[bob.username] = bob
+        self.set_session_user("bob")
+        invalid = await self.client.post(
+            "/api/timeline/unsubscribe",
+            data={"channel": "ublog:post123", "unsubscribed": "true"},
+        )
+        self.assertEqual(400, invalid.status)
+
 
 if __name__ == "__main__":
     import unittest

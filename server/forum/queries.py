@@ -165,6 +165,12 @@ async def forum_topic(request: web.Request) -> web.Response:
     if can_reply:
         schedule_forum_captcha_refresh(app_state, game_category)
 
+    timeline_unsubscribed = (
+        None
+        if username is None
+        else await app_state.timeline.channel_status(username, f"forum:{topic['_id']}")
+    )
+
     post_items: list[dict[str, object]] = []
     for post in posts:
         owner = str(post.get("user") or "")
@@ -213,6 +219,7 @@ async def forum_topic(request: web.Request) -> web.Response:
             "canReply": can_reply,
             "canClose": can_moderate_forum or (username == topic.get("user")),
             "canSticky": can_moderate_forum,
+            "timelineUnsubscribed": timeline_unsubscribed,
             "relocateTargets": relocate_targets,
             "captcha": forum_captcha_public_payload(game_category) if can_reply else None,
         }

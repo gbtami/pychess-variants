@@ -14,6 +14,12 @@ const entries: TimelineEntry[] = [
         data: { actor: 'bob', title: 'My new variant', slug: 'my-new-variant', postId: 'blog1234' },
         date: new Date(Date.now() - 120_000).toISOString(),
     },
+    {
+        id: 'three',
+        type: 'ublog-post-like',
+        data: { actor: 'carol', profile: 'alice', title: 'A liked post', slug: 'liked-post', postId: 'liked123' },
+        date: new Date(Date.now() - 180_000).toISOString(),
+    },
 ];
 
 test('renders timeline activity links and relative dates', () => {
@@ -23,9 +29,11 @@ test('renders timeline activity links and relative dates', () => {
 
     expect(document.body.textContent).toContain('alice posted in forum Interesting variants');
     expect(document.body.textContent).toContain('bob published My new variant');
+    expect(document.body.textContent).toContain('carol likes A liked post');
     expect(document.querySelector('a[href="/forum/redirect/post/post1234"]')).not.toBeNull();
     expect(document.querySelector('a[href="/blogs/@/bob/my-new-variant/blog1234"]')).not.toBeNull();
-    expect(document.querySelectorAll('info-date')).toHaveLength(2);
+    expect(document.querySelector('a[href="/blogs/@/alice/liked-post/liked123"]')).not.toBeNull();
+    expect(document.querySelectorAll('info-date')).toHaveLength(3);
 });
 
 test('shows a sign-in prompt instead of private activity to anonymous visitors', () => {
@@ -43,7 +51,7 @@ test('live refresh replaces the existing lobby timeline without duplicating it',
 
     const livePanel = new LiveTimelinePanel(document.getElementById('timeline')!);
     livePanel.update(entries);
-    livePanel.update(entries.slice(1));
+    livePanel.update(entries.slice(1, 2));
 
     expect(document.querySelectorAll('#timeline')).toHaveLength(1);
     expect(document.querySelectorAll('.timeline-entry')).toHaveLength(1);

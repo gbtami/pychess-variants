@@ -10,6 +10,7 @@ export type TimelineEventType =
     | 'follow'
     | 'forum-post'
     | 'ublog-post'
+    | 'ublog-post-like'
     | 'simul-create'
     | 'simul-join'
     | 'tournament-join';
@@ -64,6 +65,22 @@ function activity(entry: TimelineEntry): Array<VNode | string> | null {
                     {
                         attrs: {
                             href: `/blogs/@/${encodeURIComponent(entry.data.actor || '')}/${encodeURIComponent(
+                                entry.data.slug || '',
+                            )}/${encodeURIComponent(entry.data.postId || '')}`,
+                        },
+                    },
+                    entry.data.title || _('Blog post'),
+                ),
+            ];
+        case 'ublog-post-like':
+            return [
+                actorLink(entry),
+                ` ${_('likes')} `,
+                h(
+                    'a',
+                    {
+                        attrs: {
+                            href: `/blogs/@/${encodeURIComponent(entry.data.profile || '')}/${encodeURIComponent(
                                 entry.data.slug || '',
                             )}/${encodeURIComponent(entry.data.postId || '')}`,
                         },

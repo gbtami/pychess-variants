@@ -2,6 +2,7 @@ import json
 import time
 
 from aiohttp.test_utils import AioHTTPTestCase
+from const import FOLLOW
 from mongomock_motor import AsyncMongoMockClient
 from pychess_global_app_state_utils import get_app_state
 from user import User
@@ -91,6 +92,36 @@ class UblogEngagementTestCase(AioHTTPTestCase):
         app_state = get_app_state(self.app)
         post = await app_state.db.ublog_post.find_one({"_id": "post0001"})
         self.assertEqual(post["likes"], ["alice"])
+
+    async def test_new_like_is_published_to_followers_but_unlike_is_not(self):
+        app_state = get_app_state(self.app)
+        await self.add_user("alice")
+        await self.add_user("bob")
+        await self.add_post(title="Timeline post")
+        await app_state.db.relation.insert_one(
+            {"_id": "bob/alice", "u1": "bob", "u2": "alice", "r": FOLLOW}
+        )
+        self.set_session_user("alice")
+
+        like_response = await self.like()
+        self.assertEqual(like_response.status, 200)
+        entries = await app_state.timeline.entries_for("bob")
+        self.assertEqual(1, len(entries))
+        self.assertEqual("ublog-post-like", entries[0]["type"])
+        self.assertEqual(
+            {
+                "actor": "alice",
+                "profile": "author",
+                "slug": "post",
+                "postId": "post0001",
+                "title": "Timeline post",
+            },
+            entries[0]["data"],
+        )
+
+        unlike_response = await self.like()
+        self.assertEqual(unlike_response.status, 200)
+        self.assertEqual(1, len(await app_state.timeline.entries_for("bob")))
 
     async def test_anonymous_user_cannot_like(self):
         await self.add_post()
