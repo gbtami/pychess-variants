@@ -64,9 +64,7 @@ async def tournaments(request: web.Request) -> ViewContext:
                 or (tournament.system != ARENA and not tournament.team_id)
             )
         ):
-            raise web.HTTPForbidden(
-                text="This tournament cannot be edited by its creator."
-            )
+            raise web.HTTPForbidden(text="This tournament cannot be edited by its creator.")
 
         if TYPE_CHECKING:
             assert tournament is not None

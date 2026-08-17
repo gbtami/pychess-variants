@@ -11,17 +11,17 @@ from request_utils import read_post_data
 from team import (
     PERMISSION_ADMIN,
     PERMISSION_KICK,
-    PERMISSION_REQUESTS,
     PERMISSION_PUBLIC,
+    PERMISSION_REQUESTS,
     PERMISSION_SETTINGS,
     PERMISSION_TOURNAMENTS,
     PERMISSION_UPDATES,
+    TEAM_FORUM_ACCESS_NONE,
+    TEAM_FORUM_ACCESS_OPTIONS,
     TEAM_MAX_ADMINS,
     TEAM_MAX_CREATED_PER_7_DAYS,
     TEAM_MAX_JOINED,
     TEAM_MAX_LEADERS,
-    TEAM_FORUM_ACCESS_NONE,
-    TEAM_FORUM_ACCESS_OPTIONS,
     TEAM_PERMISSION_DEFINITIONS,
     TEAM_UPDATE_MAX_LENGTH,
     TEAM_UPDATE_MAX_PER_7_DAYS,
@@ -32,8 +32,8 @@ from team import (
     get_team_member,
     has_team_permission,
     join_or_request_team,
-    latest_team_update,
     kick_team_member,
+    latest_team_update,
     process_join_request,
     quit_team,
     send_team_update,
@@ -72,9 +72,7 @@ async def teams(request: web.Request) -> ViewContext:
     db = app_state.db
 
     cursor = (
-        db.team.find({"enabled": True})
-        .sort([("memberCount", -1), ("createdAt", -1)])
-        .limit(60)
+        db.team.find({"enabled": True}).sort([("memberCount", -1), ("createdAt", -1)]).limit(60)
     )
     context["teams"] = await cursor.to_list(length=60)
     context["my_team_ids"] = set()
@@ -133,9 +131,7 @@ async def team_show(request: web.Request) -> ViewContext:
         raise web.HTTPNotFound()
 
     member = (
-        None
-        if user.anon or user.bot
-        else await get_team_member(app_state, team_id, user.username)
+        None if user.anon or user.bot else await get_team_member(app_state, team_id, user.username)
     )
     members = (
         await db.team_member.find({"team": team_id})
@@ -303,9 +299,7 @@ async def team_request_process(request: web.Request) -> web.StreamResponse:
     team_id = request.match_info["teamId"]
     target = request.match_info["username"]
     decision = request.match_info["decision"]
-    await process_join_request(
-        get_app_state(request.app), team_id, user.username, target, decision
-    )
+    await process_join_request(get_app_state(request.app), team_id, user.username, target, decision)
     raise web.HTTPFound(f"/team/{team_id}")
 
 
@@ -378,9 +372,7 @@ async def team_update_new(request: web.Request) -> ViewContext:
             "team": team,
             "team_update_max_length": TEAM_UPDATE_MAX_LENGTH,
             "team_update_max_per_7_days": TEAM_UPDATE_MAX_PER_7_DAYS,
-            "team_update_quota_remaining": await team_update_quota_remaining(
-                app_state, team_id
-            ),
+            "team_update_quota_remaining": await team_update_quota_remaining(app_state, team_id),
             "title": f"New {team['name']} update • PyChess",
         }
     )
@@ -394,9 +386,7 @@ async def team_update_send(request: web.Request) -> web.StreamResponse:
     if data is None:
         raise web.HTTPNoContent()
     team_id = request.match_info["teamId"]
-    await send_team_update(
-        get_app_state(request.app), team_id, user.username, data.get("message")
-    )
+    await send_team_update(get_app_state(request.app), team_id, user.username, data.get("message"))
     raise web.HTTPFound(f"/team/{team_id}/updates")
 
 
@@ -429,9 +419,7 @@ async def team_leaders(request: web.Request) -> ViewContext:
         raise web.HTTPServiceUnavailable(text="Teams require database access.")
 
     leaders = (
-        await app_state.db.team_member.find(
-            {"team": team_id, "permissions.0": {"$exists": True}}
-        )
+        await app_state.db.team_member.find({"team": team_id, "permissions.0": {"$exists": True}})
         .sort("joinedAt", 1)
         .limit(TEAM_MAX_LEADERS + 1)
         .to_list(length=TEAM_MAX_LEADERS + 1)

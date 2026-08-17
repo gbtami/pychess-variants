@@ -600,14 +600,16 @@ class TournamentPersistenceTestCase(TournamentTestCase):
             }
         )
 
-        with patch("tournament.tournaments.DEV", False):
-            with self.assertRaises(web.HTTPForbidden):
-                await create_or_update_tournament(
-                    app_state,
-                    "tester",
-                    self._fixed_round_form("2", teamId=team_id),
-                    creator_is_director=False,
-                )
+        with (
+            patch("tournament.tournaments.DEV", False),
+            self.assertRaises(web.HTTPForbidden),
+        ):
+            await create_or_update_tournament(
+                app_state,
+                "tester",
+                self._fixed_round_form("2", teamId=team_id),
+                creator_is_director=False,
+            )
 
     async def test_rejects_past_custom_start_date(self):
         app_state = get_app_state(self.app)

@@ -211,7 +211,6 @@ from views import (
 from views import (
     admin as admin_view,
 )
-from views import team as team_view
 from views import (
     bot_challenge as bot_challenge_view,
 )
@@ -227,6 +226,7 @@ from views import (
 from views import (
     simul as simul_view,
 )
+from views import team as team_view
 from wsl import lobby_socket_handler
 from wsr import round_socket_handler
 

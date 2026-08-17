@@ -3,7 +3,6 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
-import forum.permissions as forum_permissions
 from team import (
     PERMISSION_MODERATION,
     TEAM_FORUM_ACCESS_EVERYONE,
@@ -13,6 +12,8 @@ from team import (
     get_team,
     get_team_member,
 )
+
+import forum.permissions as forum_permissions
 
 TEAM_FORUM_CATEG_PREFIX = "team-"
 

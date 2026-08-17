@@ -135,14 +135,15 @@ class Timeline:
             team_id = str(team.get("_id") or "")
             access = str(team.get("forumAccess") or "none")
             member = members.get(team_id)
-            if access == TEAM_FORUM_ACCESS_EVERYONE:
-                readable.add(team_id)
-            elif access == TEAM_FORUM_ACCESS_MEMBERS and member is not None:
-                readable.add(team_id)
-            elif (
-                access == TEAM_FORUM_ACCESS_LEADERS
+            if (
+                access == TEAM_FORUM_ACCESS_EVERYONE
+                or access == TEAM_FORUM_ACCESS_MEMBERS
                 and member is not None
-                and member.get("permissions")
+                or (
+                    access == TEAM_FORUM_ACCESS_LEADERS
+                    and member is not None
+                    and member.get("permissions")
+                )
             ):
                 readable.add(team_id)
         return readable
@@ -283,9 +284,7 @@ class Timeline:
             allowed = {str(member.get("user") or "") for member in memberships}
         elif access == TEAM_FORUM_ACCESS_LEADERS:
             allowed = {
-                str(member.get("user") or "")
-                for member in memberships
-                if member.get("permissions")
+                str(member.get("user") or "") for member in memberships if member.get("permissions")
             }
         else:
             allowed = set()

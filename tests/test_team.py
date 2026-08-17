@@ -93,9 +93,7 @@ class TeamTestCase(AioHTTPTestCase):
 
         joined = await self.client.post("/team/variant-fans/join", data={}, allow_redirects=False)
         self.assertEqual(302, joined.status)
-        self.assertIsNotNone(
-            await app_state.db.team_member.find_one({"_id": "bob@variant-fans"})
-        )
+        self.assertIsNotNone(await app_state.db.team_member.find_one({"_id": "bob@variant-fans"}))
         team = await app_state.db.team.find_one({"_id": "variant-fans"})
         self.assertEqual(2, team["memberCount"])
 
@@ -159,18 +157,14 @@ class TeamTestCase(AioHTTPTestCase):
         )
         self.assertEqual(302, requested.status)
         self.assertIsNone(await app_state.db.team_member.find_one({"_id": "bob@variant-fans"}))
-        self.assertIsNotNone(
-            await app_state.db.team_request.find_one({"_id": "bob@variant-fans"})
-        )
+        self.assertIsNotNone(await app_state.db.team_request.find_one({"_id": "bob@variant-fans"}))
 
         self.set_session_user("alice")
         accepted = await self.client.post(
             "/team/variant-fans/request/bob/accept", allow_redirects=False
         )
         self.assertEqual(302, accepted.status)
-        self.assertIsNotNone(
-            await app_state.db.team_member.find_one({"_id": "bob@variant-fans"})
-        )
+        self.assertIsNotNone(await app_state.db.team_member.find_one({"_id": "bob@variant-fans"}))
         self.assertIsNone(await app_state.db.team_request.find_one({"_id": "bob@variant-fans"}))
         team = await app_state.db.team.find_one({"_id": "variant-fans"})
         self.assertEqual(2, team["memberCount"])
@@ -225,9 +219,7 @@ class TeamTestCase(AioHTTPTestCase):
         self.assertTrue(request["declined"])
 
         self.set_session_user("bob")
-        rejoin = await self.client.post(
-            "/team/variant-fans/join", data={}, allow_redirects=False
-        )
+        rejoin = await self.client.post("/team/variant-fans/join", data={}, allow_redirects=False)
         self.assertEqual(403, rejoin.status)
 
         self.set_session_user("alice")
@@ -235,9 +227,7 @@ class TeamTestCase(AioHTTPTestCase):
             "/team/variant-fans/request/bob/accept", allow_redirects=False
         )
         self.assertEqual(302, restored.status)
-        self.assertIsNotNone(
-            await app_state.db.team_member.find_one({"_id": "bob@variant-fans"})
-        )
+        self.assertIsNotNone(await app_state.db.team_member.find_one({"_id": "bob@variant-fans"}))
         self.assertIsNone(await app_state.db.team_request.find_one({"_id": "bob@variant-fans"}))
 
     async def test_non_leader_cannot_edit_or_kick(self):
@@ -447,9 +437,7 @@ class TeamTestCase(AioHTTPTestCase):
             allow_redirects=False,
         )
         self.assertEqual(302, sent.status)
-        update = await app_state.db.team_update.find_one(
-            {"team": "variant-fans", "sender": "bob"}
-        )
+        update = await app_state.db.team_update.find_one({"team": "variant-fans", "sender": "bob"})
         self.assertIsNotNone(update)
 
     async def test_team_update_rate_limit_is_ten_per_seven_days(self):

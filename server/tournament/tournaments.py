@@ -728,11 +728,7 @@ async def create_or_update_tournament(
     except KeyError, TypeError, ValueError:
         raise web.HTTPBadRequest(text="Invalid tournament time control.") from None
     frequency = tournament.frequency if tournament is not None else ""
-    team_id = (
-        tournament.team_id
-        if tournament is not None
-        else str(form.get("teamId", "")).strip()
-    )
+    team_id = tournament.team_id if tournament is not None else str(form.get("teamId", "")).strip()
 
     if tournament is None:
         try:
@@ -907,9 +903,7 @@ async def create_or_update_tournament(
             or tournament.status != T_CREATED
             or (tournament.system in (RR, SWISS) and not tournament.team_id)
         ):
-            raise web.HTTPForbidden(
-                text="This tournament cannot be edited by its creator."
-            )
+            raise web.HTTPForbidden(text="This tournament cannot be edited by its creator.")
         if system == ARENA:
             _validate_community_arena_schedule(
                 app_state,

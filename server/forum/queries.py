@@ -6,6 +6,12 @@ from urllib.parse import quote, urlencode
 from aiohttp import web
 from const import GAME_CATEGORY_ALL, normalize_game_category
 from pychess_global_app_state_utils import get_app_state
+from team import (
+    TEAM_FORUM_ACCESS_EVERYONE,
+    TEAM_FORUM_ACCESS_LEADERS,
+    TEAM_FORUM_ACCESS_MEMBERS,
+    TEAM_MAX_JOINED,
+)
 
 from forum.access import (
     can_moderate_forum_categ,
@@ -32,12 +38,6 @@ from forum.utils import (
     post_page_for_index,
     session_username,
     to_utc,
-)
-from team import (
-    TEAM_FORUM_ACCESS_EVERYONE,
-    TEAM_FORUM_ACCESS_LEADERS,
-    TEAM_FORUM_ACCESS_MEMBERS,
-    TEAM_MAX_JOINED,
 )
 
 HIDDEN_FORUM_CATEG_IDS = {"community-blog-discussions"}
@@ -66,9 +66,12 @@ async def forum_categs(request: web.Request) -> web.Response:
             team_id = str(team.get("_id") or "")
             access = str(team.get("forumAccess") or "none")
             member = members.get(team_id)
-            if access in {TEAM_FORUM_ACCESS_EVERYONE, TEAM_FORUM_ACCESS_MEMBERS}:
-                visible_team_ids.append(team_id)
-            elif access == TEAM_FORUM_ACCESS_LEADERS and member and member.get("permissions"):
+            if (
+                access in {TEAM_FORUM_ACCESS_EVERYONE, TEAM_FORUM_ACCESS_MEMBERS}
+                or access == TEAM_FORUM_ACCESS_LEADERS
+                and member
+                and member.get("permissions")
+            ):
                 visible_team_ids.append(team_id)
 
     selector: dict[str, object] = {
@@ -242,11 +245,7 @@ async def forum_topic(request: web.Request) -> web.Response:
         )
 
     relocate_targets: list[dict[str, object]] = []
-    if (
-        me is not None
-        and can_moderate(me)
-        and team_id_from_forum_categ(categ) is None
-    ):
+    if me is not None and can_moderate(me) and team_id_from_forum_categ(categ) is None:
         rel_cursor = app_state.db.forum_categ.find(
             {"_id": {"$ne": categ_id}, "teamId": {"$exists": False}}
         )

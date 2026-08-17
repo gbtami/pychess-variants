@@ -1437,9 +1437,7 @@ class Tournament(ABC):
         return None
 
     async def user_is_team_member(self, user: User) -> bool:
-        return not self.team_id or await is_team_member(
-            self.app_state, self.team_id, user.username
-        )
+        return not self.team_id or await is_team_member(self.app_state, self.team_id, user.username)
 
     async def team_member_removed(self, user: User) -> None:
         if self.player_data_by_name(user.username) is not None:

@@ -5,6 +5,7 @@ from datetime import UTC, datetime
 from newid import new_id
 from notify import notify_by_username
 from pymongo.errors import DuplicateKeyError
+from team import get_team
 
 from forum.access import (
     can_read_forum_categ,
@@ -14,7 +15,6 @@ from forum.access import (
 )
 from forum.constants import DEFAULT_FORUM_CATEGS, FORUM_POST_PER_PAGE, KEY_TO_REACTION
 from forum.utils import extract_mentions, post_page_for_index
-from team import get_team
 
 
 async def ensure_categs(app_state) -> None:

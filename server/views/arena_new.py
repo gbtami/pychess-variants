@@ -60,9 +60,7 @@ async def arena_new(request: web.Request) -> ViewContext:
             or tournament.status != T_CREATED
             or (tournament.system != ARENA and not tournament.team_id)
         ):
-            raise web.HTTPForbidden(
-                text="This tournament cannot be edited by its creator."
-            )
+            raise web.HTTPForbidden(text="This tournament cannot be edited by its creator.")
         selected_team_id = tournament.team_id
         if selected_team_id and not any(
             str(team["_id"]) == selected_team_id for team in tournament_teams

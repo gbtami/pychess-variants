@@ -389,9 +389,7 @@ async def forum_topic_close(request: web.Request) -> web.Response:
     topic = await topic_by_tree(app_state, categ_id, slug)
     if topic is None:
         return json_response({"type": "error", "message": "Topic not found"})
-    if not (
-        await can_moderate_forum_categ(app_state, categ, me) or topic.get("user") == username
-    ):
+    if not (await can_moderate_forum_categ(app_state, categ, me) or topic.get("user") == username):
         return json_response({"type": "error", "message": "Not allowed"})
 
     next_closed = not bool(topic.get("closed", False))

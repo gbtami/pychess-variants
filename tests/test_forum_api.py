@@ -509,9 +509,7 @@ class ForumApiTestCase(AioHTTPTestCase):
         self.assertTrue(payload["canModerate"])
         welcome = payload["topics"][0]
 
-        sticky = await self.client.post(
-            f"/api/forum/{categ_id}/{welcome['slug']}/sticky"
-        )
+        sticky = await self.client.post(f"/api/forum/{categ_id}/{welcome['slug']}/sticky")
         self.assertTrue((await sticky.json()).get("sticky"))
         mod_feed = await self.client.get(f"/api/forum/{categ_id}/mod-feed")
         self.assertEqual(200, mod_feed.status)
@@ -576,9 +574,7 @@ class ForumApiTestCase(AioHTTPTestCase):
         self.assertEqual(0, (await search.json())["total"])
 
         self.set_session_user("charlie")
-        redirect = await self.client.get(
-            f"/forum/redirect/post/{post_id}", allow_redirects=False
-        )
+        redirect = await self.client.get(f"/forum/redirect/post/{post_id}", allow_redirects=False)
         self.assertEqual(302, redirect.status)
         self.assertEqual("/forum", redirect.headers["Location"])
         participants = await self.client.get(f"/api/forum/participants/{topic_id}")

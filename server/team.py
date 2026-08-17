@@ -97,9 +97,7 @@ def _clean_text(value: object, *, max_length: int, field: str, min_length: int =
     return text
 
 
-def _clean_optional_text(
-    value: object, *, min_length: int, max_length: int, field: str
-) -> str:
+def _clean_optional_text(value: object, *, min_length: int, max_length: int, field: str) -> str:
     text = _clean_text(value, max_length=max_length, field=field)
     if text and len(text) < min_length:
         raise web.HTTPBadRequest(text=f"{field} is too short.")
@@ -230,9 +228,9 @@ async def team_updates_for_user(
         return []
     team_ids = [str(member["team"]) for member in memberships]
     members_by_team = {str(member["team"]): member for member in memberships}
-    teams = await app_state.db.team.find(
-        {"_id": {"$in": team_ids}, "enabled": True}
-    ).to_list(length=len(team_ids))
+    teams = await app_state.db.team.find({"_id": {"$in": team_ids}, "enabled": True}).to_list(
+        length=len(team_ids)
+    )
     teams_by_id = {str(team["_id"]): team for team in teams}
     updates = await (
         app_state.db.team_update.find({"team": {"$in": list(teams_by_id)}})
@@ -288,9 +286,7 @@ async def team_updates_for_member(
     return decorated, not bool(member.get("updatesUnsubscribed"))
 
 
-async def team_update_quota_remaining(
-    app_state: PychessGlobalAppState, team_id: str
-) -> int:
+async def team_update_quota_remaining(app_state: PychessGlobalAppState, team_id: str) -> int:
     if app_state.db is None:
         return 0
     since = datetime.now(UTC) - timedelta(days=7)
@@ -311,9 +307,7 @@ async def _notify_team_update_subscribers(
         return
     from notify import notify_by_username
 
-    cursor = app_state.db.team_member.find(
-        {"team": team_id, "updatesUnsubscribed": {"$ne": True}}
-    )
+    cursor = app_state.db.team_member.find({"team": team_id, "updatesUnsubscribed": {"$ne": True}})
     async for member in cursor:
         username = str(member.get("user") or "")
         if not username or username == sender:
@@ -357,9 +351,12 @@ async def send_team_update(
             text=f"A team can send at most {TEAM_UPDATE_MAX_PER_7_DAYS} updates in seven days."
         )
     duplicate_since = now - timedelta(minutes=10)
-    if await app_state.db.team_update.find_one(
-        {"team": team_id, "text": text, "createdAt": {"$gte": duplicate_since}}
-    ) is not None:
+    if (
+        await app_state.db.team_update.find_one(
+            {"team": team_id, "text": text, "createdAt": {"$gte": duplicate_since}}
+        )
+        is not None
+    ):
         raise web.HTTPConflict(text="You already sent this team update recently.")
 
     update: dict[str, Any] = {
