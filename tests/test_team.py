@@ -34,7 +34,10 @@ class TeamTestCase(AioHTTPTestCase):
 
     def set_session_user(self, username: str) -> None:
         session_data = {"session": {"user_name": username}, "created": int(time.time())}
-        self.client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": json.dumps(session_data)})
+        self.client.session.cookie_jar.update_cookies(
+            {"AIOHTTP_SESSION": json.dumps(session_data)},
+            response_url=self.client.make_url("/"),
+        )
 
     async def create_team(
         self,

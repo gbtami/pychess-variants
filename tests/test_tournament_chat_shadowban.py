@@ -2,6 +2,7 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, Mock, patch
 
+from const import ARENA
 from tournament.wst import (
     TOURNAMENT_LIFECYCLE_COMMANDS_RETIRED_MESSAGE,
     handle_abort_tournament,
@@ -77,7 +78,9 @@ class TournamentChatShadowbanTestCase(unittest.IsolatedAsyncioTestCase):
         send.assert_not_awaited()
 
     async def test_creator_cannot_abort_without_director_permission(self) -> None:
-        tournament = SimpleNamespace(creator="creator", status=1, abort=AsyncMock())
+        tournament = SimpleNamespace(
+            creator="creator", system=ARENA, team_id=None, status=1, abort=AsyncMock()
+        )
         app_state = SimpleNamespace()
         creator = SimpleNamespace(username="creator")
         ws = object()
