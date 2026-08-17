@@ -225,6 +225,77 @@ class TeamTestCase(AioHTTPTestCase):
         team = await app_state.db.team.find_one({"_id": "variant-fans"})
         self.assertEqual(2, team["memberCount"])
 
+    async def test_global_join_requests_and_declined_requests_pages(self):
+        await self.create_team(request_required=True)
+        app_state = get_app_state(self.app)
+        self.add_live_user("bob")
+        self.set_session_user("bob")
+        await self.client.post(
+            "/team/variant-fans/join",
+            data={"message": "I would like to join this team and play variants."},
+            allow_redirects=False,
+        )
+
+        self.set_session_user("alice")
+        requests_page = await self.client.get("/team/requests")
+        self.assertEqual(200, requests_page.status)
+        requests_html = await requests_page.text()
+        self.assertIn("1 join request", requests_html)
+        self.assertIn('href="/team/variant-fans">Variant Fans</a>', requests_html)
+        self.assertIn('href="/@/bob">bob</a>', requests_html)
+        self.assertIn('class="active" href="/team/requests">Join requests</a>', requests_html)
+
+        declined = await self.client.post(
+            "/team/variant-fans/request/bob/decline",
+            data={"redirect": "/team/requests"},
+            allow_redirects=False,
+        )
+        self.assertEqual(302, declined.status)
+        self.assertEqual("/team/requests", declined.headers["Location"])
+        request_doc = await app_state.db.team_request.find_one({"_id": "bob@variant-fans"})
+        self.assertTrue(request_doc["declined"])
+
+        team_page = await self.client.get("/team/variant-fans")
+        team_html = await team_page.text()
+        self.assertIn('href="/team/variant-fans/declined-requests"', team_html)
+        self.assertNotIn('team-show__requests--declined', team_html)
+
+        declined_page = await self.client.get("/team/variant-fans/declined-requests")
+        self.assertEqual(200, declined_page.status)
+        declined_html = await declined_page.text()
+        self.assertIn("Declined requests", declined_html)
+        self.assertIn('href="/@/bob">bob</a>', declined_html)
+        self.assertIn('name="search"', declined_html)
+
+        searched = await self.client.get("/team/variant-fans/declined-requests?search=nobody")
+        self.assertEqual(200, searched.status)
+        self.assertIn("No declined requests found.", await searched.text())
+
+        restored = await self.client.post(
+            "/team/variant-fans/request/bob/accept",
+            data={"redirect": "/team/variant-fans/declined-requests?page=1"},
+            allow_redirects=False,
+        )
+        self.assertEqual(302, restored.status)
+        self.assertEqual(
+            "/team/variant-fans/declined-requests?page=1", restored.headers["Location"]
+        )
+        self.assertIsNotNone(
+            await app_state.db.team_member.find_one({"_id": "bob@variant-fans"})
+        )
+
+    async def test_declined_requests_page_requires_request_permission(self):
+        await self.create_team(request_required=True)
+        self.add_live_user("bob")
+        self.set_session_user("bob")
+        await self.client.post(
+            "/team/variant-fans/join",
+            data={"message": "I would like to join this team and play variants."},
+            allow_redirects=False,
+        )
+        denied = await self.client.get("/team/variant-fans/declined-requests")
+        self.assertEqual(403, denied.status)
+
     async def test_pending_request_can_be_cancelled(self):
         await self.create_team(request_required=True)
         app_state = get_app_state(self.app)
@@ -404,7 +475,9 @@ class TeamTestCase(AioHTTPTestCase):
         self.assertIn(".team-show__content {", css)
         self.assertIn(".team-show__content__col1 {\n    flex: 0 0 30%;", css)
         self.assertIn(".team-members-page {", css)
+        self.assertIn(".team-declined-requests-page,", css)
         self.assertIn(".team-requests {", css)
+        self.assertIn(".team-declined-request-search {", css)
         self.assertIn(".team-updates-page.team-update {", css)
         self.assertIn(".team-update__side {", css)
         self.assertIn(".team-update--all .team-update__convo,", css)
@@ -413,6 +486,10 @@ class TeamTestCase(AioHTTPTestCase):
         teams = (root / "templates" / "teams.html").read_text()
         team_show = (root / "templates" / "team-show.html").read_text()
         team_members = (root / "templates" / "team-members.html").read_text()
+        team_requests = (root / "templates" / "team-requests.html").read_text()
+        team_declined_requests = (
+            root / "templates" / "team-declined-requests.html"
+        ).read_text()
         team_join = (root / "templates" / "team-join.html").read_text()
         team_new = (root / "templates" / "team-new.html").read_text()
         team_edit = (root / "templates" / "team-edit.html").read_text()
@@ -428,6 +505,19 @@ class TeamTestCase(AioHTTPTestCase):
         self.assertIn('class="team-requests slist requests datatable"', team_show)
         self.assertIn('class="team-members-page page-small box"', team_members)
         self.assertIn('class="team-members slist slist-pad slist-invert"', team_members)
+        self.assertIn('class="team-requests-page teams-page page-menu"', team_requests)
+        self.assertIn(
+            'class="team-requests team-requests--global slist requests datatable"',
+            team_requests,
+        )
+        self.assertIn(
+            'class="team-declined-requests-page page-menu page-small"',
+            team_declined_requests,
+        )
+        self.assertIn(
+            'class="team-requests team-declined-requests slist"',
+            team_declined_requests,
+        )
         self.assertIn('class="team-form-page team-join-page page-menu page-small"', team_join)
         self.assertIn('class="team-form form3 team-join-form"', team_join)
         self.assertIn('class="team-show__join-action"', team_show)

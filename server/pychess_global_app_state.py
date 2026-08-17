@@ -514,6 +514,9 @@ class PychessGlobalAppState:
                 await self.db.team_request.create_index(
                     [("team", 1), ("declined", 1), ("createdAt", 1)]
                 )
+                await self.db.team_request.create_index(
+                    [("team", 1), ("declined", 1), ("processedAt", -1)]
+                )
                 await self.db.team_request.create_index("user")
 
                 if "forum_categ" not in db_collections:

@@ -502,7 +502,14 @@ class ViewContext(TypedDict, total=False):
     team_members_next_href: str | None
     team_leaders: Sequence[Mapping[str, object]]
     team_requests: Sequence[Mapping[str, object]]
+    team_request_teams: Mapping[str, Mapping[str, object]]
     team_declined_requests: Sequence[Mapping[str, object]]
+    team_declined_requests_total: int
+    team_declined_requests_page: int
+    team_declined_requests_search: str
+    team_declined_requests_prev_href: str | None
+    team_declined_requests_next_href: str | None
+    team_declined_requests_current_href: str
     team_pending_request: Mapping[str, object] | None
     team_declined_request: Mapping[str, object] | None
     team_request_min_length: int

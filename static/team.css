@@ -5,6 +5,7 @@
 .team-form-page,
 .team-show-page,
 .team-members-page,
+.team-declined-requests-page,
 .team-leaders-page,
 .team-updates-page,
 .team-update-form-page {
@@ -18,6 +19,7 @@
 /* Lichess-style team sub-navigation. */
 .teams-page.page-menu,
 .team-form-page.page-menu,
+.team-declined-requests-page.page-menu,
 .team-leaders-page.page-menu,
 .team-update-form-page.page-menu {
     grid-template-columns: 12.5rem minmax(0, 1fr);
@@ -348,6 +350,103 @@
     border-top: 0;
 }
 
+/* Global and declined join-request administration follows Lichess TeamRequestUi. */
+.team-requests-page .page-menu__content.box-pad {
+    padding: clamp(1.4rem, 3.5vw, 3rem) clamp(1.1rem, 4.5vw, 4rem);
+}
+
+.team-requests-page .box__top {
+    margin: 0 0 1.5rem;
+    padding: 0;
+    font-size: 2rem;
+    font-weight: 400;
+}
+
+.team-requests__empty {
+    margin: 0;
+    padding: 1.5rem 0;
+    text-align: center;
+}
+
+.team-requests.team-requests--global .team-request-user {
+    white-space: normal;
+}
+
+.team-request-team-separator {
+    margin: 0 .25rem;
+    opacity: .5;
+}
+
+.team-request-team {
+    color: var(--link-color-blue);
+    text-decoration: none;
+}
+
+.team-request-team:hover {
+    text-decoration: underline;
+}
+
+.team-declined-requests__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0 0 1.5rem;
+}
+
+.team-declined-requests__top h1 {
+    margin: 0;
+    padding: 0;
+    font-size: 1.7rem;
+    font-weight: 400;
+}
+
+.team-declined-requests__top h1 a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.team-declined-requests__top h1 a:hover {
+    color: var(--link-color-blue);
+}
+
+.team-declined-requests__top h1 span {
+    opacity: .72;
+}
+
+.team-declined-request-search {
+    display: flex;
+    align-items: stretch;
+    gap: .4rem;
+    min-width: min(22rem, 45%);
+}
+
+.team-declined-request-search input {
+    box-sizing: border-box;
+    min-width: 0;
+    flex: 1;
+    padding: .65rem .75rem;
+    border: 1px solid var(--input-border, var(--border-color));
+    border-radius: 4px;
+    background: var(--bg-color1);
+    color: inherit;
+    font: inherit;
+}
+
+.team-declined-request-search input:focus {
+    border-color: var(--link-color-blue);
+    outline: 2px solid color-mix(in srgb, var(--link-color-blue) 18%, transparent);
+    outline-offset: 0;
+}
+
+.team-declined-requests__pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
 /* Recent members follows Lichess's compact userlist on the team page. */
 .team-show__members .recent-members h2 a {
     text-decoration: none;
@@ -579,11 +678,13 @@
 
 /* Team create/edit/admin pages mirror Lichess's page-small + form3 layout. */
 .team-form-page.page-small,
+.team-declined-requests-page.page-small,
 .team-update-form-page.page-small {
     max-width: 1000px;
 }
 
 .team-form-page .page-menu__content.box-pad,
+.team-declined-requests-page .page-menu__content.box-pad,
 .team-update-form-page .page-menu__content.box-pad {
     padding: clamp(1.4rem, 3.5vw, 3rem) clamp(1.1rem, 4.5vw, 4rem);
 }
@@ -1139,6 +1240,7 @@
     .team-form-page,
     .team-show-page,
     .team-members-page,
+    .team-declined-requests-page,
     .team-leaders-page,
     .team-updates-page,
     .team-update-form-page {
@@ -1148,6 +1250,7 @@
 
     .teams-page.page-menu,
     .team-form-page.page-menu,
+    .team-declined-requests-page.page-menu,
     .team-leaders-page.page-menu,
     .team-update-form-page.page-menu {
         display: block;
@@ -1253,6 +1356,16 @@
         gap: .25rem;
     }
 
+    .team-declined-requests__top {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .team-declined-request-search {
+        width: 100%;
+        min-width: 0;
+    }
+
     .team-request-actions {
         width: 100%;
     }
@@ -1263,6 +1376,7 @@
     }
 
     .team-form-page .page-menu__content.box-pad,
+    .team-declined-requests-page .page-menu__content.box-pad,
     .team-update-form-page .page-menu__content.box-pad {
         padding: 1rem;
     }

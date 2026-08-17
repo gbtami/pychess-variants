@@ -1,4 +1,7 @@
 <nav class="page-menu__menu subnav">
+    {% if team_menu_active == 'requests' %}
+    <a class="active" href="/team/requests">Join requests</a>
+    {% endif %}
     {% if not anon %}
     <a{% if team_menu_active == 'mine' %} class="active"{% endif %} href="/team/me">My teams</a>
     <a{% if team_menu_active == 'updates' %} class="active"{% endif %} href="/team/updates">Team updates</a>

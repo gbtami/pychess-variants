@@ -87,6 +87,16 @@
                         <em>Manage leader permissions</em>
                     </a>
                     {% endif %}
+                    {% if team_can_manage_requests %}
+                    <a class="button team-action" href="/team/requests">
+                        <strong>Join requests</strong>
+                        <em>Review requests across your teams</em>
+                    </a>
+                    <a class="button team-action" href="/team/{{ team['_id'] }}/declined-requests">
+                        <strong>Declined requests</strong>
+                        <em>Restore previously declined requests</em>
+                    </a>
+                    {% endif %}
                 </div>
 
                 <section class="team-show__members">
@@ -131,29 +141,6 @@
                                             <form method="post" action="/team/{{ team['_id'] }}/request/{{ req['user'] }}/decline"><button class="button button-empty red" type="submit">Decline</button></form>
                                             <form method="post" action="/team/{{ team['_id'] }}/request/{{ req['user'] }}/accept"><button class="button" type="submit">Accept</button></form>
                                         </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-                {% endif %}
-
-                {% if team_can_manage_requests and team_declined_requests %}
-                <section class="team-show__requests team-show__requests--declined">
-                    <h2>Declined requests</h2>
-                    <div class="team-show__list-wrapper">
-                        <table class="team-requests slist requests datatable">
-                            <tbody>
-                                {% for req in team_declined_requests %}
-                                {% set request_date = req.get('processedAt') or req.get('createdAt') %}
-                                <tr>
-                                    <td class="team-request-user"><a class="user-link" href="/@/{{ req['user'] }}">{{ req['user'] }}</a></td>
-                                    <td class="team-request-message">{{ req.get('message', '') }}</td>
-                                    <td class="team-request-date"><info-date timestamp="{{ request_date.isoformat() if request_date else '' }}"></info-date></td>
-                                    <td class="process">
-                                        <form method="post" action="/team/{{ team['_id'] }}/request/{{ req['user'] }}/accept"><button class="button" type="submit">Accept</button></form>
                                     </td>
                                 </tr>
                                 {% endfor %}

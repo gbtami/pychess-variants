@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Any
+from urllib.parse import urlencode
 
 import aiohttp_jinja2
 from aiohttp import web
@@ -54,6 +55,7 @@ from views import get_user_context
 
 TEAM_SHOW_MEMBER_LIMIT = 10
 TEAM_MEMBERS_PAGE_SIZE = 50
+TEAM_REQUESTS_PAGE_SIZE = 50
 
 
 def _require_regular_user(user: Any) -> None:
@@ -66,6 +68,31 @@ def _require_regular_user(user: Any) -> None:
 def _team_context(context: ViewContext) -> None:
     context["view_css"] = "team.css"
     context["title"] = "Teams • PyChess"
+
+
+async def _request_manager_team_ids(app_state: Any, username: str) -> list[str]:
+    if app_state.db is None:
+        return []
+    cursor = app_state.db.team_member.find(
+        {"user": username, "permissions": PERMISSION_REQUESTS}
+    )
+    return [str(member["team"]) async for member in cursor]
+
+
+def _team_request_redirect(value: object, team_id: str) -> str:
+    fallback = f"/team/{team_id}"
+    redirect = str(value or "")
+    declined = f"{fallback}/declined-requests"
+    if redirect == "/team/requests" or redirect == declined or redirect.startswith(f"{declined}?"):
+        return redirect
+    return fallback
+
+
+def _declined_requests_href(team_id: str, page: int, search: str) -> str:
+    query: dict[str, str] = {"page": str(page)}
+    if search:
+        query["search"] = search
+    return f"/team/{team_id}/declined-requests?{urlencode(query)}"
 
 
 @aiohttp_jinja2.template("teams.html")
@@ -98,6 +125,36 @@ async def my_teams(request: web.Request) -> ViewContext:
     context["teams"] = mine
     context["my_team_ids"] = {str(team["_id"]) for team in mine}
     context["mine_only"] = True
+    return context
+
+
+@aiohttp_jinja2.template("team-requests.html")
+async def team_requests(request: web.Request) -> ViewContext:
+    user, context = await get_user_context(request)
+    _require_regular_user(user)
+    app_state = get_app_state(request.app)
+    _team_context(context)
+    if app_state.db is None:
+        raise web.HTTPServiceUnavailable(text="Teams require database access.")
+
+    team_ids = await _request_manager_team_ids(app_state, user.username)
+    requests: list[dict[str, Any]] = []
+    teams_by_id: dict[str, dict[str, Any]] = {}
+    if team_ids:
+        request_cursor = app_state.db.team_request.find(
+            {"team": {"$in": team_ids}, "declined": False}
+        ).sort("createdAt", 1)
+        requests = [item async for item in request_cursor]
+        team_cursor = app_state.db.team.find({"_id": {"$in": team_ids}, "enabled": True})
+        teams_by_id = {str(team["_id"]): team async for team in team_cursor}
+
+    context.update(
+        {
+            "team_requests": requests,
+            "team_request_teams": teams_by_id,
+            "title": f"{len(requests)} join requests • PyChess",
+        }
+    )
     return context
 
 
@@ -152,7 +209,6 @@ async def team_show(request: web.Request) -> ViewContext:
         .to_list(length=TEAM_MAX_LEADERS)
     )
     requests: list[dict[str, Any]] = []
-    declined_requests: list[dict[str, Any]] = []
     can_manage_requests = False
     can_kick = False
     can_edit = False
@@ -171,12 +227,6 @@ async def team_show(request: web.Request) -> ViewContext:
             requests = (
                 await db.team_request.find({"team": team_id, "declined": False})
                 .sort("createdAt", 1)
-                .limit(50)
-                .to_list(length=50)
-            )
-            declined_requests = (
-                await db.team_request.find({"team": team_id, "declined": True})
-                .sort("processedAt", -1)
                 .limit(50)
                 .to_list(length=50)
             )
@@ -222,7 +272,6 @@ async def team_show(request: web.Request) -> ViewContext:
             "team_members": members,
             "team_leaders": leaders,
             "team_requests": requests,
-            "team_declined_requests": declined_requests,
             "team_pending_request": pending_request,
             "team_declined_request": declined_request,
             "team_can_manage_requests": can_manage_requests,
@@ -282,6 +331,65 @@ async def team_members(request: web.Request) -> ViewContext:
             "team_members_prev_href": prev_href,
             "team_members_next_href": next_href,
             "title": f"{team['name']} • Members • PyChess",
+        }
+    )
+    return context
+
+
+@aiohttp_jinja2.template("team-declined-requests.html")
+async def team_declined_requests(request: web.Request) -> ViewContext:
+    user, context = await get_user_context(request)
+    _require_regular_user(user)
+    app_state = get_app_state(request.app)
+    _team_context(context)
+    if app_state.db is None:
+        raise web.HTTPServiceUnavailable(text="Teams require database access.")
+
+    team_id = request.match_info["teamId"]
+    team = await get_team(app_state, team_id)
+    if team is None:
+        raise web.HTTPNotFound()
+    if not await has_team_permission(app_state, team_id, user.username, PERMISSION_REQUESTS):
+        raise web.HTTPForbidden(text="You cannot manage join requests for this team.")
+
+    try:
+        page = max(1, int(request.rel_url.query.get("page", "1")))
+    except ValueError:
+        page = 1
+    search = request.rel_url.query.get("search", "").strip()
+    query: dict[str, Any] = {"team": team_id, "declined": True}
+    if search:
+        query["user"] = search
+
+    total = await app_state.db.team_request.count_documents(query)
+    skip = (page - 1) * TEAM_REQUESTS_PAGE_SIZE
+    requests = (
+        await app_state.db.team_request.find(query)
+        .sort([("processedAt", -1), ("createdAt", -1)])
+        .skip(skip)
+        .limit(TEAM_REQUESTS_PAGE_SIZE)
+        .to_list(length=TEAM_REQUESTS_PAGE_SIZE)
+    )
+    prev_href = (
+        None if page <= 1 else _declined_requests_href(team_id, page - 1, search)
+    )
+    next_href = (
+        _declined_requests_href(team_id, page + 1, search)
+        if skip + len(requests) < total
+        else None
+    )
+    current_href = _declined_requests_href(team_id, page, search)
+    context.update(
+        {
+            "team": team,
+            "team_declined_requests": requests,
+            "team_declined_requests_total": total,
+            "team_declined_requests_page": page,
+            "team_declined_requests_search": search,
+            "team_declined_requests_prev_href": prev_href,
+            "team_declined_requests_next_href": next_href,
+            "team_declined_requests_current_href": current_href,
+            "title": f"{team['name']} • Declined requests • PyChess",
         }
     )
     return context
@@ -395,11 +503,15 @@ async def team_update(request: web.Request) -> web.StreamResponse:
 async def team_request_process(request: web.Request) -> web.StreamResponse:
     user, _ = await get_user_context(request)
     _require_regular_user(user)
+    data = await read_post_data(request)
+    if data is None:
+        raise web.HTTPNoContent()
     team_id = request.match_info["teamId"]
     target = request.match_info["username"]
     decision = request.match_info["decision"]
     await process_join_request(get_app_state(request.app), team_id, user.username, target, decision)
-    raise web.HTTPFound(f"/team/{team_id}")
+    redirect = _team_request_redirect(data.get("redirect"), team_id)
+    raise web.HTTPFound(redirect)
 
 
 async def team_kick(request: web.Request) -> web.StreamResponse:
