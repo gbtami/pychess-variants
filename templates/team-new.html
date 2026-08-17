@@ -1,48 +1,60 @@
 {% extends "template.html" %}
 {% block content %}
 <div id="main-wrap">
-    <main class="team-form-page page-menu">
+    <main class="team-form-page page-menu page-small">
         {% set team_menu_active = 'new' %}
         {% include "team-menu.html" %}
         <div class="page-menu__content box box-pad">
-            <div class="team-form-heading">
-                <h1>Create a team</h1>
-                <p>You can create up to {{ team_max_created_per_7_days }} teams in seven days and join up to {{ team_max_joined }} teams.</p>
-            </div>
-            <form method="post" action="/team/new" class="team-form">
-                <label>
-                    <span>Team name</span>
-                    <input name="name" required minlength="3" maxlength="60" autocomplete="off">
-                </label>
-                <label>
-                    <span>Short introduction</span>
-                    <input name="intro" minlength="3" maxlength="200" autocomplete="off">
-                </label>
-                <label>
-                    <span>Description</span>
-                    <textarea name="description" required minlength="30" maxlength="4000" rows="8"></textarea>
-                </label>
-                <label>
-                    <span>Entry code <small>(optional)</small></span>
-                    <input name="entryCode" maxlength="60" autocomplete="new-password">
-                    <small>Players must know this code before they can join or send a join request.</small>
-                </label>
-                <label class="team-check">
-                    <input type="checkbox" name="requestRequired" value="1">
-                    <span>Require leader approval for new members</span>
-                </label>
-                <label>
-                    <span>Team forum</span>
-                    <select name="forumAccess">
+            <h1 class="box__top">Create a team</h1>
+            <p class="form-help team-form-limit">
+                You can create up to {{ team_max_created_per_7_days }} teams in seven days and join up to {{ team_max_joined }} teams.
+            </p>
+            <form method="post" action="/team/new" class="team-form form3">
+                <div class="form-group">
+                    <label class="form-label" for="team-name">Team name</label>
+                    <input class="form-control" id="team-name" name="name" required minlength="3" maxlength="60" autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="team-intro">Short introduction</label>
+                    <textarea class="form-control" id="team-intro" name="intro" minlength="3" maxlength="200" rows="2"></textarea>
+                    <small class="form-help">A short sentence shown in team lists and at the top of the team page.</small>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="team-description">Description</label>
+                    <textarea class="form-control" id="team-description" name="description" required minlength="30" maxlength="4000" rows="10"></textarea>
+                    <small class="form-help">Tell players what this team is about.</small>
+                </div>
+
+                <div class="form-split team-entry-fields">
+                    <div class="form-group form-half team-form-check-group">
+                        <label class="team-check form-check" for="team-request-required">
+                            <input id="team-request-required" type="checkbox" name="requestRequired" value="1">
+                            <span>Manually review admission requests</span>
+                        </label>
+                        <small class="form-help">New members must be approved by a team leader.</small>
+                    </div>
+                    <div class="form-group form-half">
+                        <label class="form-label" for="team-entry-code">Entry code</label>
+                        <input class="form-control" id="team-entry-code" name="entryCode" maxlength="60" autocomplete="new-password">
+                        <small class="form-help">Optional. Players must know this code before they can join or request membership.</small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="team-forum-access">Team forum</label>
+                    <select class="form-control" id="team-forum-access" name="forumAccess">
                         {% for value, label in team_forum_access_options %}
                         <option value="{{ value }}"{% if value == team_forum_access_none %} selected{% endif %}>{{ label }}</option>
                         {% endfor %}
                     </select>
-                    <small>Controls who can see the team forum. Only team members can post.</small>
-                </label>
-                <div class="team-form-actions">
-                    <button class="button" type="submit">Create team</button>
+                    <small class="form-help">Who can see the team forum on the team page. Only team members can post.</small>
+                </div>
+
+                <div class="form-actions">
                     <a href="/team">Cancel</a>
+                    <button class="button" type="submit">Create team</button>
                 </div>
             </form>
         </div>

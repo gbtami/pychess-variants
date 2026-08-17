@@ -473,85 +473,89 @@
     opacity: .72;
 }
 
-/* Forms and admin pages keep the polished box treatment from the first pass. */
+/* Team create/edit/admin pages mirror Lichess's page-small + form3 layout. */
+.team-form-page.page-small,
+.team-update-form-page.page-small {
+    max-width: 1000px;
+}
+
 .team-form-page .page-menu__content.box-pad,
-.team-leaders-page .page-menu__content.box-pad,
 .team-update-form-page .page-menu__content.box-pad {
     padding: clamp(1.4rem, 3.5vw, 3rem) clamp(1.1rem, 4.5vw, 4rem);
 }
 
-.teams-kicker {
-    margin: 0 0 .25rem;
+.team-form-page .box__top,
+.team-update-form-page .box__top,
+.team-leaders-page .box__top {
+    margin: 0 0 2rem;
     padding: 0;
-    opacity: .7;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-    font-size: .78rem;
+    font-size: 2rem;
+    font-weight: 400;
+    line-height: 1.2;
+}
+
+.team-form-page .box__top a,
+.team-update-form-page .box__top a,
+.team-leaders-page .box__top a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.team-form-page .box__top a:hover,
+.team-update-form-page .box__top a:hover,
+.team-leaders-page .box__top a:hover {
+    color: var(--link-color-blue);
+}
+
+.team-form-limit {
+    margin: -1.2rem 0 2.2rem;
+    color: var(--font-color);
+    font-size: .9rem;
+    line-height: 1.4;
+    opacity: .68;
+}
+
+.team-form.form3 {
+    display: block;
+}
+
+.team-form .form-group {
+    margin-bottom: 2.4rem;
+}
+
+.team-form .form-label {
+    display: inline-block;
+    margin-bottom: .5rem;
+    padding: 0;
     font-weight: 600;
+    cursor: text;
 }
 
-.teams-top,
-.team-form-actions {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-}
-
-.teams-top {
-    align-items: flex-start;
-    padding-bottom: 1.25rem;
-    margin-bottom: .35rem;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.teams-top h1,
-.team-form-heading h1,
-.team-leaders-page h2,
-.team-updates-page h2 {
-    margin-top: 0;
-    padding: 0;
-}
-
-.teams-actions {
-    display: flex;
-    gap: .6rem;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
-.team-form-heading {
-    padding-bottom: 1.25rem;
-    margin-bottom: 1.5rem;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.team-form {
-    display: grid;
-    gap: 1.1rem;
-}
-
-.team-form label:not(.team-check) {
-    display: grid;
-    gap: .35rem;
-}
-
-.team-form input,
-.team-form textarea,
-.team-form select {
+.team-form .form-control,
+.team-add-leader .form-control {
     box-sizing: border-box;
+    display: block;
     width: 100%;
-    padding: .7rem .8rem;
-    border-radius: 4px;
+    min-width: 0;
+    padding: .7rem .85rem;
     border: 1px solid var(--input-border, var(--border-color));
+    border-radius: 4px;
     background: var(--bg-color1);
     color: inherit;
     font: inherit;
 }
 
-.team-form input:focus,
-.team-form textarea:focus,
-.team-form select:focus,
+.team-form select.form-control {
+    min-height: calc(2.7em + 2px);
+}
+
+.team-form textarea.form-control {
+    height: auto;
+    resize: vertical;
+}
+
+.team-form .form-control:focus,
+.team-add-leader .form-control:focus,
 .team-show__join input:focus,
 .team-show__join textarea:focus {
     border-color: var(--link-color-blue);
@@ -559,49 +563,127 @@
     outline-offset: 0;
 }
 
-.team-check {
+.team-form .form-help,
+.team-add-leader .form-help,
+.team-permissions .form-help {
+    display: block;
+    margin-top: .3rem;
+    color: var(--font-color);
+    font-size: .9rem;
+    line-height: 1.4;
+    opacity: .68;
+}
+
+.team-form .form-help.error {
+    color: var(--bad, #b33);
+    opacity: 1;
+}
+
+.team-form .form-split {
     display: flex;
-    gap: .6rem;
+    flex-flow: row wrap;
+    align-items: inherit;
+    justify-content: space-between;
+    gap: 1.2rem;
+}
+
+.team-form .form-half {
+    flex: 1 1 46%;
+    min-width: 220px;
+}
+
+.team-entry-fields .form-group {
+    margin-bottom: 2.4rem;
+}
+
+.team-form-check-group {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.team-check.form-check,
+.team-clear-entry-code {
+    display: flex;
     align-items: center;
+    gap: .6rem;
+    cursor: pointer;
+}
+
+.team-check.form-check {
+    min-height: calc(2.7em + 2px);
+    font-weight: 600;
 }
 
 .team-check input {
+    flex: 0 0 auto;
     width: auto;
+    margin: 0;
 }
 
-.team-leader-add {
-    margin: 1.5rem 0 2rem;
-    padding: 1rem 1.2rem;
-    border: 1px solid var(--border-color);
-    border-radius: 5px;
-    background: var(--bg-color1);
+.team-clear-entry-code {
+    margin-top: .75rem;
+    font-size: .9rem;
 }
 
-.team-leader-add h2 {
-    margin-bottom: .7rem;
-}
-
-.team-leader-add-form {
+.team-form .form-actions,
+.team-permissions .form-actions {
     display: flex;
-    gap: .7rem;
     align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
 }
 
-.team-leader-add-form input {
-    min-width: 0;
-    flex: 1;
-    padding: .7rem .8rem;
-    border-radius: 4px;
-    border: 1px solid var(--input-border, var(--border-color));
-    background: var(--bg-color1);
-    color: inherit;
-    font: inherit;
+.team-form .form-actions a,
+.team-permissions .form-actions a {
+    color: var(--link-color-blue);
+    text-decoration: none;
 }
 
-.team-permissions-scroll {
+.team-form .form-actions a:hover,
+.team-permissions .form-actions a:hover {
+    text-decoration: underline;
+}
+
+/* Leaders page follows Lichess TeamAdminUi: unpadded box, padded add form, full-width table. */
+.team-leaders-page .page-menu__content.box {
+    min-height: 100%;
+}
+
+.team-leaders-page .box__top {
+    margin: 0;
+    padding: 1.6rem 2rem 1.3rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.team-leaders-page .box__pad {
+    padding-inline: 2rem;
+}
+
+.team-add-leader {
+    margin: 0 0 1.8rem;
+    padding-top: 1.6rem;
+}
+
+.team-add-leader__input {
+    display: flex;
+    align-items: stretch;
+}
+
+.team-add-leader__input .form-control {
+    border-radius: 4px 0 0 4px;
+}
+
+.team-add-leader__input .button {
+    flex: 0 0 auto;
+    border-radius: 0 4px 4px 0;
+}
+
+.team-permissions__table {
     overflow-x: auto;
-    border: 1px solid var(--border-color);
-    border-radius: 5px;
 }
 
 .team-permissions-table {
@@ -611,10 +693,15 @@
 
 .team-permissions-table th,
 .team-permissions-table td {
-    padding: .75rem;
+    padding: .9rem 1rem;
     border-top: 1px solid var(--border-color);
+    border-left: 1px solid var(--border-color);
     text-align: center;
     vertical-align: middle;
+}
+
+.team-permissions-table tr > :first-child {
+    border-left: 0;
 }
 
 .team-permissions-table thead th {
@@ -622,8 +709,9 @@
     background: var(--bg-color1);
 }
 
-.team-permissions-table tbody tr:hover {
-    background: var(--bg-color1);
+.team-permissions-table tbody tr:hover td,
+.team-permissions-table tbody tr:hover th {
+    background: color-mix(in srgb, var(--link-color-blue) 10%, var(--bg-color0));
 }
 
 .team-permissions-table th:first-child {
@@ -631,11 +719,19 @@
     text-align: left;
 }
 
-.team-permissions-table tbody th span {
+.team-permissions-table tbody th strong {
     display: block;
-    margin-top: .2rem;
+    color: var(--link-color-blue);
+    font-size: 1.08rem;
+    white-space: nowrap;
+}
+
+.team-permissions-table tbody th p {
+    margin: .2rem 0 0;
+    padding: 0;
     font-size: .85rem;
     font-weight: normal;
+    line-height: 1.35;
     opacity: .72;
 }
 
@@ -644,22 +740,15 @@
     height: 1.15rem;
 }
 
-.team-permissions-form .team-form-actions {
-    margin-top: 1rem;
+.team-permissions-help {
+    margin: 1.5rem 0 0 !important;
 }
 
-.team-panel-heading {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: .7rem;
-    flex-wrap: wrap;
+.team-permissions .form-actions.box__pad {
+    margin-top: 0;
+    padding-top: 1.5rem;
+    padding-bottom: 1.6rem;
 }
-
-.team-panel-heading h2 {
-    margin: 0;
-}
-
 
 /* Team updates deliberately follow Lichess's mailbox/conversation layout. */
 .team-updates-page.team-update {
@@ -1002,9 +1091,7 @@
 @media (max-width: 600px) {
     .team-list-top,
     .team-show__top,
-    .teams-top,
-    .team-request,
-    .team-form-actions {
+    .team-request {
         align-items: stretch;
         flex-direction: column;
     }
@@ -1046,14 +1133,18 @@
     }
 
     .team-form-page .page-menu__content.box-pad,
-    .team-leaders-page .page-menu__content.box-pad,
     .team-update-form-page .page-menu__content.box-pad {
         padding: 1rem;
     }
 
-    .team-leader-add-form {
+    .team-leaders-page .box__top,
+    .team-leaders-page .box__pad {
+        padding-inline: 1rem;
+    }
+
+    .team-form .form-actions,
+    .team-permissions .form-actions {
         align-items: stretch;
-        flex-direction: column;
     }
 
     .team-updates-page.team-update {
