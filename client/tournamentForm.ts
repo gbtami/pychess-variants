@@ -320,6 +320,8 @@ export function initTournamentForm(): void {
     if (!(form instanceof HTMLFormElement)) return;
 
     const system = document.getElementById('form3-system');
+    const teamWrap = document.getElementById('form3-team-wrap');
+    const teamSelect = document.getElementById('form3-team');
     const rated = document.getElementById('form3-rated');
     const variantSelect = document.getElementById('form3-variant');
     const systemHelp = document.getElementById('form3-system-help');
@@ -362,6 +364,10 @@ export function initTournamentForm(): void {
     const arenaFaq = document.getElementById('tour-faq-arena');
     const rrFaq = document.getElementById('tour-faq-rr');
     const swissFaq = document.getElementById('tour-faq-swiss');
+    const teamSelectInitiallyDisabled =
+        teamSelect instanceof HTMLSelectElement && teamSelect.disabled;
+    const teamSelectOptional =
+        teamSelect instanceof HTMLSelectElement && teamSelect.dataset.teamOptional === 'true';
 
     if (
         !(system instanceof HTMLSelectElement) ||
@@ -435,6 +441,11 @@ export function initTournamentForm(): void {
         rounds.disabled = isArena || isRR;
         rrMaxPlayers.disabled = !isRR;
         roundInterval.disabled = isArena;
+        setVisible(teamWrap, !isArena);
+        if (teamSelect instanceof HTMLSelectElement) {
+            teamSelect.disabled = isArena || teamSelectInitiallyDisabled;
+            teamSelect.required = !isArena && !teamSelectInitiallyDisabled && !teamSelectOptional;
+        }
 
         if (isArena) {
             rounds.value = '0';
@@ -452,10 +463,10 @@ export function initTournamentForm(): void {
                     'Arena runs continuously until the clock expires. Players rejoin from the lobby after each game.';
             } else if (isRR) {
                 systemHelp.textContent =
-                    'Round-Robin uses a maximum player cap. The joined field is frozen at start, then the full single-cycle round count is derived automatically.';
+                    'Round-Robin is team-owned and uses a maximum player cap. The joined field is frozen at start, then the full single-cycle round count is derived automatically.';
             } else {
                 systemHelp.textContent =
-                    'Swiss is a fixed-round event. Players are paired by score with color balancing and bye handling when needed.';
+                    'Swiss is team-owned and fixed-round. Players are paired by score with color balancing and bye handling when needed.';
             }
         }
 

@@ -116,6 +116,7 @@ TOURNAMENT_ACTIVE_RECHECK_INTERVAL = 60  # never evict while a viewer socket is 
 REGISTERED_USER_CACHE_TTL = 30 * 60
 REGISTERED_USER_CACHE_SWEEP_INTERVAL = 5 * 60
 TOURNAMENT_EFFECT_RECOVERY_DELAY = 60
+TEAM_UPDATE_RETENTION_SECONDS = 90 * 24 * 60 * 60
 T = TypeVar("T")
 USERNAME_LOWER_FIELD = "username_lower"
 
@@ -337,6 +338,7 @@ class PychessGlobalAppState:
 
                 await self.db.tournament.create_index("startsAt")
                 await self.db.tournament.create_index("status")
+                await self.db.tournament.create_index("teamId")
                 await self.db.tournament_player.create_index("tid")
                 await self.db.tournament_pairing.create_index("tid")
                 await self.db.relation.create_index([("u1", 1), ("r", 1)], name="u1_r")
@@ -484,6 +486,35 @@ class PychessGlobalAppState:
                 if "inbox_msg" not in db_collections:
                     await self.db.create_collection("inbox_msg")
                 await self.db.inbox_msg.create_index([("tid", 1), ("createdAt", 1)])
+
+                if "team" not in db_collections:
+                    await self.db.create_collection("team")
+                await self.db.team.create_index(
+                    [("enabled", 1), ("memberCount", -1), ("createdAt", -1)]
+                )
+                await self.db.team.create_index([("createdBy", 1), ("createdAt", -1)])
+
+                if "team_member" not in db_collections:
+                    await self.db.create_collection("team_member")
+                await self.db.team_member.create_index("team")
+                await self.db.team_member.create_index("user")
+                await self.db.team_member.create_index([("user", 1), ("permissions", 1)])
+
+                if "team_update" not in db_collections:
+                    await self.db.create_collection("team_update")
+                await self.db.team_update.create_index([("team", 1), ("createdAt", -1)])
+                await self.db.team_update.create_index(
+                    "createdAt",
+                    name="team_update_ttl",
+                    expireAfterSeconds=TEAM_UPDATE_RETENTION_SECONDS,
+                )
+
+                if "team_request" not in db_collections:
+                    await self.db.create_collection("team_request")
+                await self.db.team_request.create_index(
+                    [("team", 1), ("declined", 1), ("createdAt", 1)]
+                )
+                await self.db.team_request.create_index("user")
 
                 if "forum_categ" not in db_collections:
                     await self.db.create_collection("forum_categ")

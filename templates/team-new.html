@@ -29,6 +29,15 @@
                 <input type="checkbox" name="requestRequired" value="1">
                 <span>Require leader approval for new members</span>
             </label>
+            <label>
+                <span>Team forum</span>
+                <select name="forumAccess">
+                    {% for value, label in team_forum_access_options %}
+                    <option value="{{ value }}"{% if value == team_forum_access_none %} selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <small>Controls who can see the team forum. Only team members can post.</small>
+            </label>
             <div class="team-form-actions">
                 <button class="button" type="submit">Create team</button>
                 <a href="/team">Cancel</a>

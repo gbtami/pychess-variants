@@ -10,6 +10,7 @@
             <div class="teams-actions">
                 {% if not anon %}
                 {% if not mine_only %}<a class="button" href="/team/me">My teams</a>{% endif %}
+                {% if mine_only %}<a class="button" href="/team/updates">Team updates</a>{% endif %}
                 <a class="button icon icon-plus-square text" href="/team/new">New team</a>
                 {% endif %}
             </div>

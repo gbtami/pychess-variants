@@ -106,6 +106,7 @@ export class TournamentController implements ChatController {
     private: boolean;
     isTournamentCreator: boolean;
     isTournamentDirector: boolean;
+    isTeamTournament: boolean;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         console.log('TournamentController constructor', el, model);
@@ -113,6 +114,7 @@ export class TournamentController implements ChatController {
         this.username = model['username'];
         this.isTournamentCreator = this.username === model['tournamentcreator'];
         this.isTournamentDirector = model['tournamentDirector'];
+        this.isTeamTournament = !!model.tournamentteamid;
         this.nbPlayers = 0;
         this.page = 1;
         this.rounds = model['rounds'] || 0;
@@ -231,6 +233,7 @@ export class TournamentController implements ChatController {
                 manualNextRoundPending: this.manualNextRoundPending,
                 isCreator: this.isTournamentCreator,
                 isDirector: this.isTournamentDirector,
+                isTeamTournament: this.isTeamTournament,
             },
             () => this.doSend({ type: 'start_next_round', tournamentId: this.tournamentId }),
             () => void this.abortTournament(),
@@ -1192,6 +1195,17 @@ export function tournamentView(model: PyChessModel): VNode[] {
                             h('span#tminutes'),
                         ]),
                         h('div#tsystem'),
+                        model.tournamentteamid
+                            ? h('div.tournament-team', [
+                                  h('strong', _('Team')),
+                                  ' ',
+                                  h(
+                                      'a',
+                                      { attrs: { href: `/team/${model.tournamentteamid}` } },
+                                      model.tournamentteamname || model.tournamentteamid,
+                                  ),
+                              ])
+                            : null,
                         canEdit
                             ? h('a.icon-cog.edit-tournament', {
                                   attrs: {

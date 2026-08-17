@@ -171,11 +171,18 @@ class RRTournament(Tournament):
         ):
             return "Unknown round-robin player."
 
-        self.rr_pending_players.discard(username)
-        self.rr_denied_players.discard(username)
         user = await self.app_state.users.get(username)
         if user.username != username:
             return "Unknown round-robin player."
+        if not await self.user_is_team_member(user):
+            self.rr_pending_players.discard(username)
+            await self.save()
+            await self.send_rr_user_status_update(username)
+            await self.send_rr_management_update()
+            return "This player is no longer a member of the tournament team."
+
+        self.rr_pending_players.discard(username)
+        self.rr_denied_players.discard(username)
         await self._join_approved_user(user, player_data=player_data)
         await self.save()
         await self.send_rr_user_status_update(username)
@@ -233,6 +240,41 @@ class RRTournament(Tournament):
         await self.send_rr_settings_update()
         await self.send_rr_management_update()
         return None
+
+    async def team_member_removed(self, user: User) -> None:
+        username = user.username
+        self.rr_pending_players.discard(username)
+        self.rr_denied_players.discard(username)
+
+        await super().team_member_removed(user)
+
+        arrangements_changed = False
+        for arrangement in self.arrangements.values():
+            if not arrangement.involves(username) or arrangement.status in (
+                ARR_STATUS_STARTED,
+                ARR_STATUS_FINISHED,
+            ):
+                continue
+            if arrangement.invite_id is not None:
+                self.app_state.invites.pop(arrangement.invite_id, None)
+            arrangement.status = ARR_STATUS_PENDING
+            arrangement.invite_id = None
+            arrangement.challenger = None
+            arrangement.scheduled_at = None
+            arrangement.last_reminded_at = None
+            if arrangement.white == username:
+                arrangement.white_date = None
+            else:
+                arrangement.black_date = None
+            arrangement.date = datetime.now(UTC)
+            await self.db_update_arrangement(arrangement)
+            arrangements_changed = True
+
+        await self.save()
+        await self.send_rr_user_status_update(username)
+        await self.send_rr_management_update()
+        if arrangements_changed:
+            await self.broadcast_arrangements()
 
     def arrangement_list(self) -> list[RRArrangement]:
         if self.status == T_CREATED:
@@ -611,6 +653,8 @@ class RRTournament(Tournament):
     ) -> str | None:
         if self.status not in (T_CREATED, T_STARTED):
             return "Round-robin scheduling is not available for this tournament."
+        if not await self.user_is_team_member(user):
+            return "You must be a member of the tournament team to schedule games."
 
         arrangement = self.arrangement_by_id(arrangement_id)
         if arrangement is None:
@@ -701,6 +745,8 @@ class RRTournament(Tournament):
     async def create_arrangement_challenge(self, user: User, arrangement_id: str) -> str | None:
         if self.status not in (T_CREATED, T_STARTED):
             return "Round-robin challenges are not available for this tournament."
+        if not await self.user_is_team_member(user):
+            return "You must be a member of the tournament team to play this tournament."
 
         arrangement = self.arrangement_by_id(arrangement_id)
         if arrangement is None:
@@ -763,6 +809,11 @@ class RRTournament(Tournament):
         return None
 
     async def accept_arrangement_challenge(self, user: User, arrangement_id: str):
+        if not await self.user_is_team_member(user):
+            return {
+                "type": "error",
+                "message": "You must be a member of the tournament team to play this tournament.",
+            }
         arrangement = self.arrangement_by_id(arrangement_id)
         if arrangement is None:
             return {"type": "error", "message": "Unknown round-robin pairing."}

@@ -2,6 +2,7 @@ import aiohttp_jinja2
 from aiohttp import web
 from const import ARENA, T_CREATED
 from pychess_global_app_state_utils import get_app_state
+from team import get_team
 from tournament.tournaments import (
     get_tournament_name,
     load_tournament,
@@ -28,8 +29,8 @@ async def tournament(request: web.Request) -> ViewContext:
         not user.anon
         and not user.bot
         and tournament.creator == user.username
-        and tournament.system == ARENA
         and not tournament.frequency
+        and (tournament.system == ARENA or bool(tournament.team_id))
     )
     if can_cancel and tournament.status == T_CREATED and request.path.endswith("/cancel"):
         await tournament.abort()
@@ -43,6 +44,13 @@ async def tournament(request: web.Request) -> ViewContext:
     context["tournamentdirector"] = is_tournament_director(user, app_state)
     context["tournamentname"] = tournament_name
     context["tournamentcreator"] = tournament.creator
+    context["tournamentteamid"] = tournament.team_id
+    context["tournamentteamname"] = ""
+    if tournament.team_id:
+        team = await get_team(app_state, tournament.team_id)
+        context["tournamentteamname"] = (
+            str(team["name"]) if team is not None else tournament.team_id
+        )
     context["description"] = tournament.description
     context["variant"] = tournament.variant
     context["chess960"] = tournament.chess960

@@ -12,6 +12,7 @@ from forum.captcha import (
 from forum.constants import ERASED_POST_TEXT, ERASED_POST_USER
 from mongomock_motor import AsyncMongoMockClient
 from pychess_global_app_state_utils import get_app_state
+from team import PERMISSION_MODERATION
 from user import User
 
 from server import make_app
@@ -51,6 +52,24 @@ class ForumApiTestCase(AioHTTPTestCase):
         payload["gameId"] = game_id
         payload["move"] = str(solutions[0])
         return payload
+
+    async def create_team_with_forum(self, forum_access: str = "members") -> str:
+        self.set_session_user("alice")
+        response = await self.client.post(
+            "/team/new",
+            data={
+                "name": "Variant Fans",
+                "intro": "Play variants together",
+                "description": "A friendly team for people who enjoy chess variants together.",
+                "forumAccess": forum_access,
+            },
+            allow_redirects=False,
+        )
+        self.assertEqual(302, response.status)
+        self.assertEqual("/team/variant-fans", response.headers["Location"])
+        team_page = await self.client.get("/team/variant-fans")
+        self.assertEqual(200, team_page.status)
+        return "team-variant-fans"
 
     async def test_forum_topic_reply_mentions_and_participants(self):
         app_state = get_app_state(self.app)
@@ -405,6 +424,165 @@ class ForumApiTestCase(AioHTTPTestCase):
         await _refresh_forum_captcha_pool(
             _AppState(_DirectCursorGameCollection()), GAME_CATEGORY_ALL
         )
+
+    async def test_team_forum_members_and_everyone_access(self):
+        app_state = get_app_state(self.app)
+        self.add_user("alice")
+        self.add_user("bob")
+        self.add_user("charlie")
+        categ_id = await self.create_team_with_forum("members")
+
+        index_response = await self.client.get("/api/forum/categs")
+        index_payload = await index_response.json()
+        self.assertIn(categ_id, {categ["_id"] for categ in index_payload["categs"]})
+
+        self.set_session_user("charlie")
+        outsider_index = await self.client.get("/api/forum/categs")
+        self.assertNotIn(
+            categ_id, {categ["_id"] for categ in (await outsider_index.json())["categs"]}
+        )
+        denied_page = await self.client.get(f"/forum/{categ_id}")
+        self.assertEqual(403, denied_page.status)
+        denied = await self.client.get(f"/api/forum/{categ_id}/topics")
+        self.assertEqual(403, denied.status)
+
+        self.set_session_user("bob")
+        joined = await self.client.post("/team/variant-fans/join", data={}, allow_redirects=False)
+        self.assertEqual(302, joined.status)
+        member_view = await self.client.get(f"/api/forum/{categ_id}/topics")
+        self.assertEqual(200, member_view.status)
+        member_page = await self.client.get(f"/forum/{categ_id}")
+        self.assertEqual(200, member_page.status)
+        member_payload = await member_view.json()
+        self.assertTrue(member_payload["canWrite"])
+        self.assertEqual("variant-fans", member_payload["categ"]["teamId"])
+        self.assertEqual(1, member_payload["total"])
+
+        self.set_session_user("alice")
+        edited = await self.client.post(
+            "/team/variant-fans/edit",
+            data={
+                "intro": "Play variants together",
+                "description": "A friendly team for people who enjoy chess variants together.",
+                "forumAccess": "everyone",
+            },
+            allow_redirects=False,
+        )
+        self.assertEqual(302, edited.status)
+        team = await app_state.db.team.find_one({"_id": "variant-fans"})
+        self.assertEqual("everyone", team["forumAccess"])
+
+        self.set_session_user("charlie")
+        public_view = await self.client.get(f"/api/forum/{categ_id}/topics")
+        self.assertEqual(200, public_view.status)
+        public_payload = await public_view.json()
+        self.assertFalse(public_payload["canWrite"])
+        public_index = await self.client.get("/api/forum/categs")
+        self.assertNotIn(
+            categ_id, {categ["_id"] for categ in (await public_index.json())["categs"]}
+        )
+        create_data = await self.with_forum_captcha(
+            {"name": "outsider topic", "text": "outsiders still cannot post"}
+        )
+        outsider_post = await self.client.post(f"/api/forum/{categ_id}/topic", data=create_data)
+        self.assertEqual("error", (await outsider_post.json()).get("type"))
+
+    async def test_team_forum_leader_access_and_moderation(self):
+        app_state = get_app_state(self.app)
+        self.add_user("alice")
+        self.add_user("bob")
+        categ_id = await self.create_team_with_forum("leaders")
+
+        self.set_session_user("bob")
+        await self.client.post("/team/variant-fans/join", data={}, allow_redirects=False)
+        denied = await self.client.get(f"/api/forum/{categ_id}/topics")
+        self.assertEqual(403, denied.status)
+
+        await app_state.db.team_member.update_one(
+            {"_id": "bob@variant-fans"},
+            {"$set": {"permissions": [PERMISSION_MODERATION]}},
+        )
+        leader_view = await self.client.get(f"/api/forum/{categ_id}/topics")
+        self.assertEqual(200, leader_view.status)
+        payload = await leader_view.json()
+        self.assertTrue(payload["canWrite"])
+        self.assertTrue(payload["canModerate"])
+        welcome = payload["topics"][0]
+
+        sticky = await self.client.post(
+            f"/api/forum/{categ_id}/{welcome['slug']}/sticky"
+        )
+        self.assertTrue((await sticky.json()).get("sticky"))
+        mod_feed = await self.client.get(f"/api/forum/{categ_id}/mod-feed")
+        self.assertEqual(200, mod_feed.status)
+        self.assertEqual(1, (await mod_feed.json())["total"])
+
+    async def test_team_forum_privacy_covers_mentions_search_redirects_and_timeline(self):
+        app_state = get_app_state(self.app)
+        self.add_user("alice")
+        self.add_user("bob")
+        self.add_user("charlie")
+        categ_id = await self.create_team_with_forum("members")
+
+        self.set_session_user("bob")
+        await self.client.post("/team/variant-fans/join", data={}, allow_redirects=False)
+        await app_state.db.relation.insert_many(
+            [
+                {"_id": "bob/alice", "u1": "bob", "u2": "alice", "r": FOLLOW},
+                {"_id": "charlie/alice", "u1": "charlie", "u2": "alice", "r": FOLLOW},
+            ]
+        )
+
+        self.set_session_user("alice")
+        create_data = await self.with_forum_captcha(
+            {
+                "name": "private plans",
+                "text": "secret-team-phrase hello @bob and @charlie",
+            }
+        )
+        created = await self.client.post(f"/api/forum/{categ_id}/topic", data=create_data)
+        created_payload = await created.json()
+        self.assertTrue(created_payload.get("ok"), created_payload)
+        topic_id = created_payload["topic"]["_id"]
+        post_id = created_payload["topic"]["lastPostId"]
+
+        self.assertIsNotNone(
+            await app_state.db.notify.find_one(
+                {"notifies": "bob", "type": "forumMention", "content.id": post_id}
+            )
+        )
+        self.assertIsNone(
+            await app_state.db.notify.find_one(
+                {"notifies": "charlie", "type": "forumMention", "content.id": post_id}
+            )
+        )
+        timeline = await app_state.db.timeline_entry.find_one({"data.postId": post_id})
+        self.assertIsNotNone(timeline)
+        self.assertIn("bob", timeline["users"])
+        self.assertNotIn("charlie", timeline["users"])
+
+        self.set_session_user("bob")
+        before_leave = await self.client.get("/api/timeline?nb=30")
+        before_entries = (await before_leave.json())["entries"]
+        self.assertIn(post_id, {entry["data"].get("postId") for entry in before_entries})
+        left = await self.client.post("/team/variant-fans/quit", allow_redirects=False)
+        self.assertEqual(302, left.status)
+        after_leave = await self.client.get("/api/timeline?nb=30")
+        after_entries = (await after_leave.json())["entries"]
+        self.assertNotIn(post_id, {entry["data"].get("postId") for entry in after_entries})
+
+        self.set_session_user("alice")
+        search = await self.client.get("/api/forum/search?text=secret-team-phrase")
+        self.assertEqual(0, (await search.json())["total"])
+
+        self.set_session_user("charlie")
+        redirect = await self.client.get(
+            f"/forum/redirect/post/{post_id}", allow_redirects=False
+        )
+        self.assertEqual(302, redirect.status)
+        self.assertEqual("/forum", redirect.headers["Location"])
+        participants = await self.client.get(f"/api/forum/participants/{topic_id}")
+        self.assertEqual(403, participants.status)
 
     def test_forum_captcha_payload_includes_help_url_for_real_games_only(self):
         real_payload = _forum_captcha_payload(

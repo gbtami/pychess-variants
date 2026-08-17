@@ -39,6 +39,7 @@ from catalogued_variants import is_public_catalogued_variant
 from pychess_global_app_state_utils import get_app_state
 from rated_start import can_rate_start, can_rate_variant
 from settings import DEV
+from team import PERMISSION_TOURNAMENTS, get_team, has_team_permission
 from typing_defs import (
     TournamentArrangementDoc,
     TournamentCreateData,
@@ -727,6 +728,11 @@ async def create_or_update_tournament(
     except KeyError, TypeError, ValueError:
         raise web.HTTPBadRequest(text="Invalid tournament time control.") from None
     frequency = tournament.frequency if tournament is not None else ""
+    team_id = (
+        tournament.team_id
+        if tournament is not None
+        else str(form.get("teamId", "")).strip()
+    )
 
     if tournament is None:
         try:
@@ -735,12 +741,26 @@ async def create_or_update_tournament(
             system = ARENA
         if system not in (ARENA, RR, SWISS):
             system = ARENA
-        if not creator_is_director and system != ARENA:
-            raise web.HTTPForbidden(text="Only Arena tournaments can be created by regular users.")
-        if (not DEV) and system in (RR, SWISS):
-            raise web.HTTPBadRequest(
-                text="Round-Robin and Swiss tournament creation is disabled in production."
-            )
+        if system in (RR, SWISS):
+            if team_id:
+                team = await get_team(app_state, team_id)
+                if team is None:
+                    raise web.HTTPBadRequest(text="Tournament team not found.")
+                if not await has_team_permission(
+                    app_state, team_id, username, PERMISSION_TOURNAMENTS
+                ):
+                    raise web.HTTPForbidden(
+                        text=(
+                            "You need the tournament permission in this team "
+                            "to create this tournament."
+                        )
+                    )
+            elif not (creator_is_director and DEV):
+                raise web.HTTPBadRequest(
+                    text="Round-Robin and Swiss tournaments must belong to a team."
+                )
+        else:
+            team_id = ""
     else:
         # Editing keeps existing pairing type to avoid mutating tournament class behavior.
         system = tournament.system
@@ -871,9 +891,9 @@ async def create_or_update_tournament(
 
     if not creator_is_director:
         if base not in COMMUNITY_ARENA_CLOCK_TIMES or inc not in COMMUNITY_ARENA_CLOCK_INCREMENTS:
-            raise web.HTTPBadRequest(text="Invalid community Arena time control.")
+            raise web.HTTPBadRequest(text="Invalid tournament time control.")
         if bp not in (0, 1, 2, 3) or (base <= 0 and inc <= 0):
-            raise web.HTTPBadRequest(text="Invalid community Arena time control.")
+            raise web.HTTPBadRequest(text="Invalid tournament time control.")
         if len(submitted_name) > 30 or (submitted_name and len(submitted_name) < 2):
             raise web.HTTPBadRequest(text="Tournament name must be between 2 and 30 characters.")
         if len(description) > 1000:
@@ -883,20 +903,23 @@ async def create_or_update_tournament(
         if len(position) > 2048:
             raise web.HTTPBadRequest(text="Tournament starting position is too long.")
         if tournament is not None and (
-            tournament.system != ARENA or tournament.frequency or tournament.status != T_CREATED
+            tournament.frequency
+            or tournament.status != T_CREATED
+            or (tournament.system in (RR, SWISS) and not tournament.team_id)
         ):
             raise web.HTTPForbidden(
-                text="Regular users can only edit their own scheduled community Arena tournaments."
+                text="This tournament cannot be edited by its creator."
             )
-        _validate_community_arena_schedule(
-            app_state,
-            username,
-            tournament=tournament,
-            start_date=start_date,
-            wait_minutes=wait_minutes,
-            minutes=minutes,
-            now=now,
-        )
+        if system == ARENA:
+            _validate_community_arena_schedule(
+                app_state,
+                username,
+                tournament=tournament,
+                start_date=start_date,
+                wait_minutes=wait_minutes,
+                minutes=minutes,
+                now=now,
+            )
 
     if frequency == SHIELD:
         name = "%s Shield Arena" % server_variant.display_name.title()
@@ -928,10 +951,11 @@ async def create_or_update_tournament(
         "entryMinAccountAgeDays": entry_min_account_age_days,
         "forbiddenPairings": forbidden_pairings,
         "manualPairings": manual_pairings,
+        "teamId": team_id,
         "description": description,
     }
     if tournament is None:
-        if creator_is_director:
+        if creator_is_director or system != ARENA:
             tournament = await new_tournament(app_state, data)
         else:
             claim_id = await _claim_community_arena_creation_slot(app_state, username, now)
@@ -1000,6 +1024,7 @@ async def create_or_update_tournament(
         if tournament.status == T_CREATED or allow_started_position_edit:
             tournament.fen = data["fen"]
         tournament.description = data["description"]
+        tournament.team_id = data.get("teamId", "")
 
         # re-calculate created_at, starts_at, ends_at etc.
         tournament.initialize()
@@ -1061,6 +1086,7 @@ async def new_tournament(
         entry_titled_only=False,
         forbidden_pairings=data.get("forbiddenPairings", ""),
         manual_pairings=data.get("manualPairings", ""),
+        team_id=data.get("teamId", ""),
         created_by=data["createdBy"],
         before_start=data.get("beforeStart", 5),
         minutes=data.get("minutes", 45),
@@ -1233,6 +1259,7 @@ async def get_latest_tournaments(app_state: PychessGlobalAppState, lang: str) ->
                 entry_titled_only=False,
                 forbidden_pairings=tournament_doc.get("forbiddenPairings", ""),
                 manual_pairings=tournament_doc.get("manualPairings", ""),
+                team_id=tournament_doc.get("teamId", ""),
                 created_by=tournament_doc["createdBy"],
                 created_at=tournament_doc["createdAt"],
                 minutes=tournament_doc["minutes"],
@@ -1405,6 +1432,7 @@ async def load_tournament(
         entry_titled_only=False,
         forbidden_pairings=tournament_doc.get("forbiddenPairings", ""),
         manual_pairings=tournament_doc.get("manualPairings", ""),
+        team_id=tournament_doc.get("teamId", ""),
         created_by=tournament_doc.get("createdBy", "PyChess"),
         created_at=tournament_doc["createdAt"],
         before_start=tournament_doc.get("beforeStart", 0),

@@ -163,12 +163,14 @@ export class TournamentRRController implements ChatController {
     boundVisibilityChange: () => void;
     isTournamentCreator: boolean;
     isTournamentDirector: boolean;
+    isTeamTournament: boolean;
 
     constructor(_el: HTMLElement, model: PyChessModel) {
         this.tournamentId = model.tournamentId;
         this.username = model.username;
         this.isTournamentCreator = this.username === model.tournamentcreator;
         this.isTournamentDirector = model.tournamentDirector;
+        this.isTeamTournament = !!model.tournamentteamid;
         this.anon = model.anon === 'True';
         this.variant = VARIANTS[model.variant];
         this.chess960 = model.chess960 === 'True';
@@ -231,6 +233,7 @@ export class TournamentRRController implements ChatController {
                 manualNextRoundPending: this.manualNextRoundPending,
                 isCreator: this.isTournamentCreator,
                 isDirector: this.isTournamentDirector,
+                isTeamTournament: this.isTeamTournament,
             },
             () => this.doSend({ type: 'start_next_round', tournamentId: this.tournamentId }),
             () => void this.abortTournament(),
@@ -1857,6 +1860,17 @@ export function tournamentRRView(model: PyChessModel): VNode[] {
                                   })
                                 : null,
                         ]),
+                        model.tournamentteamid
+                            ? h('div.tournament-team', [
+                                  h('strong', _('Team')),
+                                  ' ',
+                                  h(
+                                      'a',
+                                      { attrs: { href: `/team/${model.tournamentteamid}` } },
+                                      model.tournamentteamname || model.tournamentteamid,
+                                  ),
+                              ])
+                            : null,
                         h('div#createdBy'),
                     ]),
                 ]),

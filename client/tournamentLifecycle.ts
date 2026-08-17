@@ -8,6 +8,7 @@ export interface TournamentLifecycleState {
     manualNextRoundPending: boolean;
     isCreator: boolean;
     isDirector: boolean;
+    isTeamTournament: boolean;
 }
 
 export function availableTournamentLifecycleActions(
@@ -22,7 +23,10 @@ export function availableTournamentLifecycleActions(
     ) {
         actions.push('start_next_round');
     }
-    if (state.isDirector && (state.status === 'created' || state.status === 'started')) {
+    if (
+        (state.isDirector || (state.isCreator && state.isTeamTournament && state.system > 0)) &&
+        (state.status === 'created' || state.status === 'started')
+    ) {
         actions.push('abort_tournament');
     }
     return actions;

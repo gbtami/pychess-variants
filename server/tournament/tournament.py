@@ -50,6 +50,7 @@ from pymongo import ReturnDocument
 from rated_start import can_rate_start
 from sortedcollections import ValueSortedDict
 from sortedcontainers import SortedKeysView
+from team import is_team_member
 from typing_defs import (
     TournamentDuelItem,
     TournamentDuelsResponse,
@@ -396,6 +397,7 @@ class Tournament(ABC):
         entry_titled_only: bool = False,
         forbidden_pairings: str = "",
         manual_pairings: str = "",
+        team_id: str = "",
     ) -> None:
         self.app_state: PychessGlobalAppState = app_state
         self.id: str = tournamentId
@@ -428,6 +430,7 @@ class Tournament(ABC):
         self.entry_titled_only: bool = entry_titled_only
         self.forbidden_pairings: str = forbidden_pairings
         self.manual_pairings: str = manual_pairings
+        self.team_id: str = team_id
         self.created_by: str = created_by
         self.starts_at: datetime = starts_at  # type: ignore[assignment]
         self.created_at: datetime = datetime.now(UTC) if created_at is None else created_at
@@ -1415,6 +1418,9 @@ class Tournament(ABC):
             return "BOT accounts cannot join tournaments."
         log.debug("JOIN: %s in tournament %s", user.username, self.id)
 
+        if not await self.user_is_team_member(user):
+            return "You must be a member of the tournament team to join."
+
         if self.password and self.password != password:
             return "401"
 
@@ -1429,6 +1435,15 @@ class Tournament(ABC):
 
         await self._join_approved_user(user, player_data=player_data)
         return None
+
+    async def user_is_team_member(self, user: User) -> bool:
+        return not self.team_id or await is_team_member(
+            self.app_state, self.team_id, user.username
+        )
+
+    async def team_member_removed(self, user: User) -> None:
+        if self.player_data_by_name(user.username) is not None:
+            await self.withdraw(user)
 
     async def _prepare_player_join(
         self, player: User, player_data: PlayerData, *, is_new_player: bool
@@ -2759,6 +2774,7 @@ async def upsert_tournament_to_db(tournament: Tournament, app_state: PychessGlob
         "entryMinAccountAgeDays": tournament.entry_min_account_age_days,
         "forbiddenPairings": tournament.forbidden_pairings,
         "manualPairings": tournament.manual_pairings,
+        "teamId": tournament.team_id,
         "nbPlayers": 0,
         "cr": tournament.current_round,
         "createdBy": tournament.created_by,
