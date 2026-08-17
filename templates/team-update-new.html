@@ -1,7 +1,10 @@
 {% extends "template.html" %}
 {% block content %}
 <div id="main-wrap">
-    <main class="team-update-form-page box box-pad">
+    <main class="team-update-form-page page-menu">
+        {% set team_menu_active = 'updates' %}
+        {% include "team-menu.html" %}
+        <div class="page-menu__content box box-pad">
         <div class="team-form-heading">
             <p class="teams-kicker">Team update</p>
             <h1>{{ team['name'] }}</h1>
@@ -28,6 +31,7 @@
                 {% endif %}
             </div>
         </form>
+        </div>
     </main>
 </div>
 {% endblock %}

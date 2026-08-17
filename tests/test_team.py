@@ -329,11 +329,27 @@ class TeamTestCase(AioHTTPTestCase):
         self.assertEqual(400, response.status)
 
     async def test_team_pages_have_main_grid_area_css(self):
-        css = (Path(__file__).parents[1] / "static" / "team.css").read_text()
+        root = Path(__file__).parents[1]
+        css = (root / "static" / "team.css").read_text()
         self.assertIn(".teams-page,\n.team-form-page,\n.team-show-page,\n.team-leaders-page", css)
         self.assertIn(".team-updates-page,\n.team-update-form-page", css)
         self.assertIn("grid-area: main;", css)
-        forum_css = (Path(__file__).parents[1] / "static" / "forum.css").read_text()
+        self.assertIn("width: min(1000px, calc(100vw - 2rem));", css)
+        self.assertIn("grid-template-columns: 12.5rem minmax(0, 1fr);", css)
+        self.assertIn(".team-show__content {", css)
+        self.assertIn(".team-show__content__col1 {\n    flex: 0 0 30%;", css)
+
+        team_menu = (root / "templates" / "team-menu.html").read_text()
+        teams = (root / "templates" / "teams.html").read_text()
+        team_show = (root / "templates" / "team-show.html").read_text()
+        self.assertIn('class="page-menu__menu subnav"', team_menu)
+        self.assertIn('class="team-list-page teams-page page-menu"', teams)
+        self.assertIn('class="team-slist slist slist-pad slist-invert"', teams)
+        self.assertIn('class="team-show team-show-page box"', team_show)
+        self.assertIn('class="team-show__content__col1"', team_show)
+        self.assertIn('class="team-show__content__col2"', team_show)
+
+        forum_css = (root / "static" / "forum.css").read_text()
         self.assertIn(".forum {\n  grid-area: main;", forum_css)
 
     async def test_team_updates_are_member_only_and_marked_read_on_team_feed(self):

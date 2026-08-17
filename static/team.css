@@ -1,34 +1,497 @@
+/* Teams deliberately follows the same page structure as Lichess:
+ * list/admin pages use page-menu + subnav, while a team page is one
+ * two-column team-show box. */
 .teams-page,
 .team-form-page,
 .team-show-page,
 .team-leaders-page,
 .team-updates-page,
 .team-update-form-page {
+    box-sizing: border-box;
     grid-area: main;
+    width: min(1000px, calc(100vw - 2rem));
+    max-width: none;
+    margin: 1.5rem auto 3rem;
 }
 
-.teams-page,
-.team-form-page,
-.team-hero,
-.team-membership,
-.team-panel,
-.team-leaders-page,
-.team-updates-page,
-.team-update-form-page {
-    max-width: 900px;
-    margin: 0 auto 1rem;
+/* Lichess-style team sub-navigation. */
+.teams-page.page-menu,
+.team-form-page.page-menu,
+.team-leaders-page.page-menu,
+.team-update-form-page.page-menu {
+    grid-template-columns: 12.5rem minmax(0, 1fr);
+    grid-template-areas: 'side content';
+    align-items: start;
 }
 
+.page-menu__menu.subnav {
+    grid-area: side;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 3px 0 0 3px;
+    background: var(--bg-color1);
+}
+
+.page-menu__menu.subnav a {
+    padding: .9rem 1.15rem;
+    color: var(--font-color);
+    text-decoration: none;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.page-menu__menu.subnav a:last-child {
+    border-bottom: 0;
+}
+
+.page-menu__menu.subnav a:hover {
+    background: var(--bg-color0);
+    color: var(--link-color-blue);
+}
+
+.page-menu__menu.subnav a.active {
+    background: var(--bg-color0);
+    color: var(--link-color-blue);
+    font-weight: 600;
+}
+
+.page-menu__content {
+    grid-area: content;
+    min-width: 0;
+    border-radius: 0 3px 3px 0;
+    overflow: hidden;
+}
+
+.team-list-top,
+.team-show__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.6rem 2rem 1.25rem;
+}
+
+.team-list-top h1,
+.team-show__top h1 {
+    margin: 0;
+    padding: 0;
+}
+
+/* Team list mirrors Lichess's slist table instead of a card grid. */
+.team-slist {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.team-slist td {
+    padding: 1rem 2rem;
+    border-top: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+.team-slist tbody tr:nth-child(even) {
+    background: var(--bg-color1);
+}
+
+.team-slist tbody tr:hover {
+    background: color-mix(in srgb, var(--link-color-blue) 6%, var(--bg-color0));
+}
+
+.team-slist .subject {
+    min-width: 0;
+}
+
+.team-name {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    width: fit-content;
+    max-width: 100%;
+    color: var(--font-color);
+    font-size: 1.35rem;
+    font-weight: 600;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+}
+
+.team-name:hover,
+.team-name.mine {
+    color: var(--link-color-blue);
+}
+
+.team-name em {
+    flex: 0 0 auto;
+    padding: .1rem .4rem;
+    border-radius: 3px;
+    background: var(--link-color-blue);
+    color: white;
+    font-size: .7rem;
+    font-style: normal;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.team-list-intro {
+    display: block;
+    margin-top: .3rem;
+    opacity: .75;
+    overflow-wrap: anywhere;
+}
+
+.team-slist .info {
+    width: 1%;
+    white-space: nowrap;
+    font-size: .9rem;
+    opacity: .75;
+}
+
+.team-slist .info p {
+    margin: 0;
+    padding: .12rem 0;
+    text-align: right;
+}
+
+.team-empty {
+    padding: 2rem !important;
+    text-align: center;
+    opacity: .75;
+}
+
+/* Single-box, two-column team page, following Lichess team-show. */
 .team-show-page {
-    width: min(94vw, 900px);
-    margin: 0 auto;
+    overflow: hidden;
+}
+
+.team-show__top {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.team-show__intro {
+    margin: .35rem 0 0;
+    padding: 0;
+    font-size: 1.05rem;
+    opacity: .75;
+}
+
+.team-show__member-count {
+    flex: 0 0 auto;
+    opacity: .72;
+}
+
+.team-show__content {
+    display: flex;
+    gap: 2rem;
+    padding: 1.8rem 2rem 2.2rem;
+}
+
+.team-show__content__col1 {
+    flex: 0 0 30%;
+    min-width: 0;
+}
+
+.team-show__content__col2 {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.team-show__meta {
+    margin-bottom: 1.5rem;
+    color: var(--font-color);
+    opacity: .78;
+}
+
+.team-show__meta p {
+    margin: 0 0 .45rem;
+    padding: 0;
+    line-height: 1.45;
+}
+
+.team-show__actions {
+    display: grid;
+    gap: .55rem;
+    margin-bottom: 2rem;
+}
+
+.team-show__actions form {
+    margin: 0;
+}
+
+.team-action.button {
+    box-sizing: border-box;
+    display: block;
+    width: 100%;
+    padding: .75rem .85rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-color1);
+    color: var(--font-color);
+    text-align: left;
+    text-decoration: none;
+    text-transform: none;
+    white-space: normal;
+    box-shadow: none;
+}
+
+.team-action.button:hover {
+    border-color: color-mix(in srgb, var(--link-color-blue) 55%, var(--border-color));
+    background: color-mix(in srgb, var(--link-color-blue) 7%, var(--bg-color1));
+    color: var(--link-color-blue);
+}
+
+.team-action strong,
+.team-action em {
+    display: block;
+}
+
+.team-action strong {
+    font-size: 1rem;
+}
+
+.team-action em {
+    margin-top: .12rem;
+    color: var(--font-color);
+    font-size: .82rem;
+    font-style: normal;
+    font-weight: normal;
+    opacity: .65;
+}
+
+.team-action--danger.button {
+    color: var(--bad, #b33);
+}
+
+.team-show__membership-state {
+    display: grid;
+    gap: .2rem;
+    padding: .6rem .2rem;
+}
+
+.team-show__membership-state span {
+    font-size: .9rem;
+    opacity: .7;
+}
+
+.team-show__join {
+    display: grid;
+    grid-column: 1 / -1;
+    gap: .55rem;
+    padding: .75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-color1);
+}
+
+.team-show__join input,
+.team-show__join textarea {
+    box-sizing: border-box;
+    width: 100%;
+    padding: .6rem .65rem;
+    border: 1px solid var(--input-border, var(--border-color));
+    border-radius: 4px;
+    background: var(--bg-color0);
+    color: inherit;
+    font: inherit;
+}
+
+.team-show__members {
+    margin-bottom: 1.5rem;
+}
+
+.team-show h2 {
+    margin: 0 0 .75rem;
+    padding: 0;
+    font-size: 1.35rem;
+    font-weight: 600;
+}
+
+.team-show h2 a {
+    color: inherit;
+}
+
+.team-show__desc {
+    margin-bottom: 2rem;
+    padding: 1rem 1.35rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-color1);
+    font-size: 1.05rem;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.team-show__events {
+    display: grid;
+    gap: 2rem;
+}
+
+.team-show__requests {
+    margin-bottom: 2rem;
+}
+
+.team-show__list-wrapper {
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+.team-request-list,
+.team-member-list,
+.team-tournament-list,
+.team-forum-topic-list {
+    display: grid;
+}
+
+.team-request,
+.team-member-row,
+.team-tournament-row,
+.team-forum-topic-row {
+    border-top: 1px solid var(--border-color);
+}
+
+.team-request:first-child,
+.team-member-row:first-child,
+.team-tournament-row:first-child,
+.team-forum-topic-row:first-child {
+    border-top: 0;
+}
+
+.team-request,
+.team-member-row {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .65rem .75rem;
+}
+
+.team-request {
+    justify-content: space-between;
+}
+
+.team-request p {
+    margin: .3rem 0 0;
+    padding: 0;
+    white-space: pre-wrap;
+}
+
+.team-request-actions {
+    display: flex;
+    gap: .45rem;
+    flex: 0 0 auto;
+}
+
+.team-request-actions form {
+    margin: 0;
+}
+
+.team-member-row {
+    padding-inline: .25rem;
+}
+
+.team-member-row .team-link-button {
+    margin-left: auto;
+}
+
+.team-member-badge {
+    display: inline-block;
+    flex: 0 0 auto;
+    padding: .1rem .45rem;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    background: var(--bg-color1);
+    font-size: .72rem;
+}
+
+.team-muted {
+    opacity: .7;
+}
+
+.team-link-button {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+    opacity: .7;
+}
+
+.team-tournament-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 1rem;
+    align-items: center;
+    padding: .75rem .9rem;
+    color: inherit;
+    text-decoration: none;
+}
+
+.team-forum-topic-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto auto;
+    gap: 1rem;
+    align-items: center;
+    padding: .75rem .9rem;
+    color: inherit;
+    text-decoration: none;
+}
+
+.team-tournament-row:hover,
+.team-forum-topic-row:hover {
+    background: var(--bg-color1);
+}
+
+.team-tournament-row span,
+.team-forum-topic-row span,
+.team-forum-topic-row info-date {
+    opacity: .7;
+}
+
+.team-show__more {
+    display: block;
+    margin-top: .6rem;
+    text-align: right;
+}
+
+.team-show__update__last {
+    display: grid;
+    gap: .8rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-color1);
+}
+
+.team-show__update__meta,
+.team-update-meta {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .75rem;
+    flex-wrap: wrap;
+    font-size: .9rem;
+    opacity: .72;
+}
+
+/* Forms and admin pages keep the polished box treatment from the first pass. */
+.team-form-page .page-menu__content.box-pad,
+.team-leaders-page .page-menu__content.box-pad,
+.team-update-form-page .page-menu__content.box-pad,
+.team-updates-page.box-pad {
+    padding: clamp(1.4rem, 3.5vw, 3rem) clamp(1.1rem, 4.5vw, 4rem);
+}
+
+.teams-kicker {
+    margin: 0 0 .25rem;
+    padding: 0;
+    opacity: .7;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    font-size: .78rem;
+    font-weight: 600;
 }
 
 .teams-top,
-.team-hero-top,
-.team-membership,
-.team-request,
-.team-member-row,
 .team-form-actions {
     display: flex;
     align-items: center;
@@ -36,71 +499,32 @@
     gap: 1rem;
 }
 
-.teams-kicker {
-    margin: 0 0 .25rem;
-    opacity: .7;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-    font-size: .78rem;
+.teams-top {
+    align-items: flex-start;
+    padding-bottom: 1.25rem;
+    margin-bottom: .35rem;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .teams-top h1,
-.team-hero h1,
-.team-form-heading h1 {
+.team-form-heading h1,
+.team-leaders-page h2,
+.team-updates-page h2 {
     margin-top: 0;
+    padding: 0;
 }
 
-.teams-actions,
-.team-request-actions {
+.teams-actions {
     display: flex;
     gap: .6rem;
     align-items: center;
     flex-wrap: wrap;
 }
 
-.team-list {
-    display: grid;
-    gap: .7rem;
-}
-
-.team-card {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    border-top: 1px solid rgba(128, 128, 128, .25);
-    padding: .9rem 0;
-}
-
-.team-card-main {
-    display: grid;
-    gap: .2rem;
-    flex: 1;
-    text-decoration: none;
-}
-
-.team-card-title {
-    font-size: 1.2rem;
-    font-weight: 700;
-}
-
-.team-card-intro,
-.team-card-meta,
-.team-meta,
-.team-muted {
-    opacity: .72;
-}
-
-.team-member-badge {
-    display: inline-block;
-    border-radius: 999px;
-    padding: .15rem .55rem;
-    font-size: .78rem;
-    background: rgba(128, 128, 128, .18);
-}
-
-.team-empty {
-    padding: 2rem 0;
-    text-align: center;
+.team-form-heading {
+    padding-bottom: 1.25rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .team-form {
@@ -115,17 +539,25 @@
 
 .team-form input,
 .team-form textarea,
-.team-form select,
-.team-join-form input,
-.team-join-form textarea {
+.team-form select {
     box-sizing: border-box;
     width: 100%;
     padding: .7rem .8rem;
     border-radius: 4px;
-    border: 1px solid rgba(128, 128, 128, .45);
-    background: rgba(255, 255, 255, .06);
+    border: 1px solid var(--input-border, var(--border-color));
+    background: var(--bg-color1);
     color: inherit;
     font: inherit;
+}
+
+.team-form input:focus,
+.team-form textarea:focus,
+.team-form select:focus,
+.team-show__join input:focus,
+.team-show__join textarea:focus {
+    border-color: var(--link-color-blue);
+    outline: 2px solid color-mix(in srgb, var(--link-color-blue) 18%, transparent);
+    outline-offset: 0;
 }
 
 .team-check {
@@ -138,147 +570,12 @@
     width: auto;
 }
 
-.team-description {
-    margin: 1rem 0;
-    white-space: pre-wrap;
-    line-height: 1.55;
-}
-
-.team-intro {
-    margin: .3rem 0 0;
-    font-size: 1.1rem;
-}
-
-.team-meta {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
-
-.team-join-form {
-    display: grid;
-    gap: .75rem;
-    width: 100%;
-}
-
-.team-join-form > div {
-    display: grid;
-    gap: .6rem;
-    flex: 1;
-}
-
-.team-request-list,
-.team-member-list,
-.team-tournament-list,
-.team-forum-topic-list {
-    display: grid;
-}
-
-.team-request,
-.team-member-row,
-.team-tournament-row {
-    border-top: 1px solid rgba(128, 128, 128, .25);
-    padding: .7rem 0;
-}
-
-.team-forum-topic-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto auto;
-    gap: 1rem;
-    align-items: center;
-    border-top: 1px solid rgba(128, 128, 128, .25);
-    padding: .7rem 0;
-    color: inherit;
-    text-decoration: none;
-}
-
-.team-forum-topic-row span,
-.team-forum-topic-row info-date {
-    opacity: .72;
-}
-
-.team-tournament-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    gap: 1rem;
-    align-items: center;
-    color: inherit;
-    text-decoration: none;
-}
-
-.team-tournament-row span {
-    opacity: .72;
-}
-
-.team-request p {
-    margin: .35rem 0 0;
-    white-space: pre-wrap;
-}
-
-.team-user-list {
-    display: flex;
-    gap: .7rem 1.2rem;
-    flex-wrap: wrap;
-}
-
-.team-member-row {
-    justify-content: flex-start;
-}
-
-.team-member-row .team-link-button {
-    margin-left: auto;
-}
-
-.team-link-button {
-    padding: 0;
-    border: 0;
-    background: none;
-    color: inherit;
-    text-decoration: underline;
-    cursor: pointer;
-    opacity: .8;
-}
-
-@media (max-width: 600px) {
-    .teams-top,
-    .team-hero-top,
-    .team-membership,
-    .team-request,
-    .team-form-actions {
-        align-items: stretch;
-        flex-direction: column;
-    }
-
-    .team-tournament-row {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: .25rem;
-    }
-
-    .team-forum-topic-row {
-        grid-template-columns: 1fr;
-        gap: .25rem;
-    }
-
-    .teams-actions,
-    .team-request-actions {
-        width: 100%;
-    }
-
-    .teams-actions form,
-    .teams-actions .button,
-    .team-request-actions form,
-    .team-request-actions .button {
-        flex: 1;
-    }
-
-    .teams-actions form .button {
-        width: 100%;
-    }
-}
-
 .team-leader-add {
     margin: 1.5rem 0 2rem;
+    padding: 1rem 1.2rem;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    background: var(--bg-color1);
 }
 
 .team-leader-add h2 {
@@ -296,14 +593,16 @@
     flex: 1;
     padding: .7rem .8rem;
     border-radius: 4px;
-    border: 1px solid rgba(128, 128, 128, .45);
-    background: rgba(255, 255, 255, .06);
+    border: 1px solid var(--input-border, var(--border-color));
+    background: var(--bg-color1);
     color: inherit;
     font: inherit;
 }
 
 .team-permissions-scroll {
     overflow-x: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
 }
 
 .team-permissions-table {
@@ -314,13 +613,18 @@
 .team-permissions-table th,
 .team-permissions-table td {
     padding: .75rem;
-    border-top: 1px solid rgba(128, 128, 128, .25);
+    border-top: 1px solid var(--border-color);
     text-align: center;
     vertical-align: middle;
 }
 
 .team-permissions-table thead th {
     border-top: 0;
+    background: var(--bg-color1);
+}
+
+.team-permissions-table tbody tr:hover {
+    background: var(--bg-color1);
 }
 
 .team-permissions-table th:first-child {
@@ -345,23 +649,12 @@
     margin-top: 1rem;
 }
 
-@media (max-width: 600px) {
-    .team-leader-add-form {
-        align-items: stretch;
-        flex-direction: column;
-    }
-}
-
-.team-panel-heading,
-.team-update-meta {
+.team-panel-heading {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: .7rem;
     flex-wrap: wrap;
-}
-
-.team-panel-heading {
-    justify-content: space-between;
 }
 
 .team-panel-heading h2 {
@@ -373,8 +666,8 @@
 }
 
 .team-update-row {
-    border-top: 1px solid rgba(128, 128, 128, .25);
-    padding: 1rem 0;
+    border-top: 1px solid var(--border-color);
+    padding: 1rem .5rem;
 }
 
 .team-update-row:first-child {
@@ -382,13 +675,12 @@
 }
 
 .team-update-unread {
+    background: color-mix(in srgb, var(--link-color-blue) 8%, transparent);
     font-weight: 500;
 }
 
 .team-update-meta {
     margin-bottom: .45rem;
-    font-size: .9rem;
-    opacity: .78;
 }
 
 .team-update-meta .team-member-badge {
@@ -403,4 +695,115 @@
 
 .team-updates-page .teams-actions form {
     margin: 0;
+}
+
+@media (max-width: 799px) {
+    .teams-page,
+    .team-form-page,
+    .team-show-page,
+    .team-leaders-page,
+    .team-updates-page,
+    .team-update-form-page {
+        width: min(100%, calc(100vw - 1rem));
+        margin-top: .75rem;
+    }
+
+    .teams-page.page-menu,
+    .team-form-page.page-menu,
+    .team-leaders-page.page-menu,
+    .team-update-form-page.page-menu {
+        display: block;
+    }
+
+    .page-menu__menu.subnav {
+        flex-direction: row;
+        overflow-x: auto;
+        border-radius: 3px 3px 0 0;
+    }
+
+    .page-menu__menu.subnav a {
+        flex: 0 0 auto;
+        border-right: 1px solid var(--border-color);
+        border-bottom: 0;
+    }
+
+    .page-menu__content {
+        border-radius: 0 0 3px 3px;
+    }
+
+    .team-show__content {
+        display: block;
+        padding: 1.25rem;
+    }
+
+    .team-show__content__col1 {
+        margin-bottom: 2rem;
+    }
+
+    .team-show__actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .team-show__members {
+        margin-bottom: 0;
+    }
+}
+
+@media (max-width: 600px) {
+    .team-list-top,
+    .team-show__top,
+    .teams-top,
+    .team-request,
+    .team-form-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .team-list-top,
+    .team-show__top {
+        padding: 1.2rem 1rem 1rem;
+    }
+
+    .team-slist td {
+        padding: .85rem 1rem;
+    }
+
+    .team-slist .info {
+        display: none;
+    }
+
+    .team-show__member-count {
+        align-self: flex-start;
+    }
+
+    .team-show__actions {
+        grid-template-columns: 1fr;
+    }
+
+    .team-tournament-row,
+    .team-forum-topic-row {
+        grid-template-columns: 1fr;
+        gap: .25rem;
+    }
+
+    .team-request-actions {
+        width: 100%;
+    }
+
+    .team-request-actions form,
+    .team-request-actions .button {
+        flex: 1;
+    }
+
+    .team-form-page .page-menu__content.box-pad,
+    .team-leaders-page .page-menu__content.box-pad,
+    .team-update-form-page .page-menu__content.box-pad,
+    .team-updates-page.box-pad {
+        padding: 1rem;
+    }
+
+    .team-leader-add-form {
+        align-items: stretch;
+        flex-direction: column;
+    }
 }

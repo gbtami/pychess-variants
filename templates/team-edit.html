@@ -1,49 +1,52 @@
 {% extends "template.html" %}
 {% block content %}
 <div id="main-wrap">
-    <main class="team-form-page box box-pad">
-        <div class="team-form-heading">
-            <p class="teams-kicker">Team settings</p>
-            <h1>Edit {{ team['name'] }}</h1>
-        </div>
-        <form method="post" action="/team/{{ team['_id'] }}/edit" class="team-form">
-            <label>
-                <span>Short introduction</span>
-                <input name="intro" minlength="3" maxlength="200" value="{{ team.get('intro', '') }}">
-            </label>
-            <label>
-                <span>Description</span>
-                <textarea name="description" required minlength="30" maxlength="4000" rows="8">{{ team.get('description', '') }}</textarea>
-            </label>
-            <label>
-                <span>New entry code <small>(leave blank to keep the current code)</small></span>
-                <input name="entryCode" maxlength="60" autocomplete="new-password">
-            </label>
-            {% if team.get('entryCodeHash') %}
-            <label class="team-check">
-                <input type="checkbox" name="clearEntryCode" value="1">
-                <span>Remove the current entry code</span>
-            </label>
-            {% endif %}
-            <label class="team-check">
-                <input type="checkbox" name="requestRequired" value="1"{% if team.get('requestRequired') %} checked{% endif %}>
-                <span>Require leader approval for new members</span>
-            </label>
-            <label>
-                <span>Team forum</span>
-                {% set current_forum_access = team.get('forumAccess', team_forum_access_none) %}
-                <select name="forumAccess">
-                    {% for value, label in team_forum_access_options %}
-                    <option value="{{ value }}"{% if value == current_forum_access %} selected{% endif %}>{{ label }}</option>
-                    {% endfor %}
-                </select>
-                <small>Controls who can see the team forum. Only team members can post.</small>
-            </label>
-            <div class="team-form-actions">
-                <button class="button" type="submit">Save changes</button>
-                <a href="/team/{{ team['_id'] }}">Cancel</a>
+    <main class="team-form-page page-menu team-edit">
+        {% set team_menu_active = '' %}
+        {% include "team-menu.html" %}
+        <div class="page-menu__content box box-pad">
+            <div class="team-form-heading">
+                <h1>Edit <a href="/team/{{ team['_id'] }}">{{ team['name'] }}</a></h1>
             </div>
-        </form>
+            <form method="post" action="/team/{{ team['_id'] }}/edit" class="team-form">
+                <label>
+                    <span>Short introduction</span>
+                    <input name="intro" minlength="3" maxlength="200" value="{{ team.get('intro', '') }}">
+                </label>
+                <label>
+                    <span>Description</span>
+                    <textarea name="description" required minlength="30" maxlength="4000" rows="8">{{ team.get('description', '') }}</textarea>
+                </label>
+                <label>
+                    <span>New entry code <small>(leave blank to keep the current code)</small></span>
+                    <input name="entryCode" maxlength="60" autocomplete="new-password">
+                </label>
+                {% if team.get('entryCodeHash') %}
+                <label class="team-check">
+                    <input type="checkbox" name="clearEntryCode" value="1">
+                    <span>Remove the current entry code</span>
+                </label>
+                {% endif %}
+                <label class="team-check">
+                    <input type="checkbox" name="requestRequired" value="1"{% if team.get('requestRequired') %} checked{% endif %}>
+                    <span>Require leader approval for new members</span>
+                </label>
+                <label>
+                    <span>Team forum</span>
+                    {% set current_forum_access = team.get('forumAccess', team_forum_access_none) %}
+                    <select name="forumAccess">
+                        {% for value, label in team_forum_access_options %}
+                        <option value="{{ value }}"{% if value == current_forum_access %} selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    <small>Controls who can see the team forum. Only team members can post.</small>
+                </label>
+                <div class="team-form-actions">
+                    <button class="button" type="submit">Save changes</button>
+                    <a href="/team/{{ team['_id'] }}">Cancel</a>
+                </div>
+            </form>
+        </div>
     </main>
 </div>
 {% endblock %}

@@ -1,48 +1,51 @@
 {% extends "template.html" %}
 {% block content %}
 <div id="main-wrap">
-    <main class="team-form-page box box-pad">
-        <div class="team-form-heading">
-            <p class="teams-kicker">Community</p>
-            <h1>Create a team</h1>
-            <p>You can create up to {{ team_max_created_per_7_days }} teams in seven days and join up to {{ team_max_joined }} teams.</p>
-        </div>
-        <form method="post" action="/team/new" class="team-form">
-            <label>
-                <span>Team name</span>
-                <input name="name" required minlength="3" maxlength="60" autocomplete="off">
-            </label>
-            <label>
-                <span>Short introduction</span>
-                <input name="intro" minlength="3" maxlength="200" autocomplete="off">
-            </label>
-            <label>
-                <span>Description</span>
-                <textarea name="description" required minlength="30" maxlength="4000" rows="8"></textarea>
-            </label>
-            <label>
-                <span>Entry code <small>(optional)</small></span>
-                <input name="entryCode" maxlength="60" autocomplete="new-password">
-                <small>Players must know this code before they can join or send a join request.</small>
-            </label>
-            <label class="team-check">
-                <input type="checkbox" name="requestRequired" value="1">
-                <span>Require leader approval for new members</span>
-            </label>
-            <label>
-                <span>Team forum</span>
-                <select name="forumAccess">
-                    {% for value, label in team_forum_access_options %}
-                    <option value="{{ value }}"{% if value == team_forum_access_none %} selected{% endif %}>{{ label }}</option>
-                    {% endfor %}
-                </select>
-                <small>Controls who can see the team forum. Only team members can post.</small>
-            </label>
-            <div class="team-form-actions">
-                <button class="button" type="submit">Create team</button>
-                <a href="/team">Cancel</a>
+    <main class="team-form-page page-menu">
+        {% set team_menu_active = 'new' %}
+        {% include "team-menu.html" %}
+        <div class="page-menu__content box box-pad">
+            <div class="team-form-heading">
+                <h1>Create a team</h1>
+                <p>You can create up to {{ team_max_created_per_7_days }} teams in seven days and join up to {{ team_max_joined }} teams.</p>
             </div>
-        </form>
+            <form method="post" action="/team/new" class="team-form">
+                <label>
+                    <span>Team name</span>
+                    <input name="name" required minlength="3" maxlength="60" autocomplete="off">
+                </label>
+                <label>
+                    <span>Short introduction</span>
+                    <input name="intro" minlength="3" maxlength="200" autocomplete="off">
+                </label>
+                <label>
+                    <span>Description</span>
+                    <textarea name="description" required minlength="30" maxlength="4000" rows="8"></textarea>
+                </label>
+                <label>
+                    <span>Entry code <small>(optional)</small></span>
+                    <input name="entryCode" maxlength="60" autocomplete="new-password">
+                    <small>Players must know this code before they can join or send a join request.</small>
+                </label>
+                <label class="team-check">
+                    <input type="checkbox" name="requestRequired" value="1">
+                    <span>Require leader approval for new members</span>
+                </label>
+                <label>
+                    <span>Team forum</span>
+                    <select name="forumAccess">
+                        {% for value, label in team_forum_access_options %}
+                        <option value="{{ value }}"{% if value == team_forum_access_none %} selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    <small>Controls who can see the team forum. Only team members can post.</small>
+                </label>
+                <div class="team-form-actions">
+                    <button class="button" type="submit">Create team</button>
+                    <a href="/team">Cancel</a>
+                </div>
+            </form>
+        </div>
     </main>
 </div>
 {% endblock %}

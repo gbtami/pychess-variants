@@ -1,7 +1,10 @@
 {% extends "template.html" %}
 {% block content %}
 <div id="main-wrap">
-    <main class="team-leaders-page box box-pad">
+    <main class="team-leaders-page page-menu">
+        {% set team_menu_active = '' %}
+        {% include "team-menu.html" %}
+        <div class="page-menu__content box box-pad">
         <div class="teams-top">
             <div>
                 <p class="teams-kicker">Team leaders</p>
@@ -63,6 +66,7 @@
                 <a href="/team/{{ team['_id'] }}">Cancel</a>
             </div>
         </form>
+        </div>
     </main>
 </div>
 {% endblock %}
