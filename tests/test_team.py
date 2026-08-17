@@ -466,10 +466,10 @@ class TeamTestCase(AioHTTPTestCase):
         css = (root / "static" / "team.css").read_text()
         team_page_selector = (
             ".teams-page,\n.team-form-page,\n.team-show-page,\n"
-            ".team-members-page,\n.team-leaders-page"
+            ".team-members-page,\n.team-declined-requests-page,\n.team-leaders-page,\n"
+            ".team-updates-page,\n.team-update-form-page"
         )
         self.assertIn(team_page_selector, css)
-        self.assertIn(".team-updates-page,\n.team-update-form-page", css)
         self.assertIn("grid-area: main;", css)
         self.assertIn("width: min(1000px, calc(100vw - 2rem));", css)
         self.assertIn("grid-template-columns: 12.5rem minmax(0, 1fr);", css)
@@ -599,20 +599,19 @@ class TeamTestCase(AioHTTPTestCase):
         member = await app_state.db.team_member.find_one({"_id": "bob@variant-fans"})
         self.assertTrue(member["updatesUnsubscribed"])
 
+        message = "This update should stay out of the combined feed."
         self.set_session_user("alice")
         await self.client.post(
             "/team/variant-fans/updates",
-            data={"message": "This update should stay out of Bob's combined feed."},
+            data={"message": message},
             allow_redirects=False,
         )
 
         self.set_session_user("bob")
         combined = await self.client.get("/team/updates")
-        self.assertNotIn(
-            "This update should stay out of Bob's combined feed.", await combined.text()
-        )
+        self.assertNotIn(message, await combined.text())
         team_feed = await self.client.get("/team/variant-fans/updates")
-        self.assertIn("This update should stay out of Bob's combined feed.", await team_feed.text())
+        self.assertIn(message, await team_feed.text())
 
         resubscribed = await self.client.post(
             "/team/variant-fans/subscribe",
@@ -623,7 +622,7 @@ class TeamTestCase(AioHTTPTestCase):
         member = await app_state.db.team_member.find_one({"_id": "bob@variant-fans"})
         self.assertNotIn("updatesUnsubscribed", member)
         combined = await self.client.get("/team/updates")
-        self.assertIn("This update should stay out of Bob's combined feed.", await combined.text())
+        self.assertIn(message, await combined.text())
 
     async def test_team_update_permission_can_be_delegated(self):
         await self.create_team()
