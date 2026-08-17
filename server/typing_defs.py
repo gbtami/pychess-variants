@@ -496,6 +496,10 @@ class ViewContext(TypedDict, total=False):
     team: Mapping[str, object]
     team_member: Mapping[str, object] | None
     team_members: Sequence[Mapping[str, object]]
+    team_members_total: int
+    team_members_page: int
+    team_members_prev_href: str | None
+    team_members_next_href: str | None
     team_leaders: Sequence[Mapping[str, object]]
     team_requests: Sequence[Mapping[str, object]]
     team_declined_requests: Sequence[Mapping[str, object]]

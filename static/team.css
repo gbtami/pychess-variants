@@ -4,6 +4,7 @@
 .teams-page,
 .team-form-page,
 .team-show-page,
+.team-members-page,
 .team-leaders-page,
 .team-updates-page,
 .team-update-form-page {
@@ -175,7 +176,14 @@
 
 .team-show__member-count {
     flex: 0 0 auto;
+    color: var(--font-color);
+    text-decoration: none;
     opacity: .72;
+}
+
+.team-show__member-count:hover {
+    color: var(--link-color-blue);
+    opacity: 1;
 }
 
 .team-show__content {
@@ -335,61 +343,97 @@
     border-radius: 4px;
 }
 
-.team-request-list,
-.team-member-list,
 .team-tournament-list,
 .team-forum-topic-list {
     display: grid;
 }
 
-.team-request,
-.team-member-row,
 .team-tournament-row,
 .team-forum-topic-row {
     border-top: 1px solid var(--border-color);
 }
 
-.team-request:first-child,
-.team-member-row:first-child,
 .team-tournament-row:first-child,
 .team-forum-topic-row:first-child {
     border-top: 0;
 }
 
-.team-request,
-.team-member-row {
+/* Recent members follows Lichess's compact userlist on the team page. */
+.team-show__members .recent-members h2 a {
+    text-decoration: none;
+}
+
+.team-show__members .userlist {
+    display: grid;
+}
+
+.team-member-row.paginated {
     display: flex;
     align-items: center;
-    gap: .6rem;
-    padding: .65rem .75rem;
+    gap: .5rem;
+    min-width: 0;
+    padding: .32rem .15rem;
 }
 
-.team-request {
-    justify-content: space-between;
-}
-
-.team-request p {
-    margin: .3rem 0 0;
-    padding: 0;
-    white-space: pre-wrap;
-}
-
-.team-request-actions {
-    display: flex;
-    gap: .45rem;
-    flex: 0 0 auto;
-}
-
-.team-request-actions form {
-    margin: 0;
-}
-
-.team-member-row {
-    padding-inline: .25rem;
+.team-member-row .user-link {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .team-member-row .team-link-button {
     margin-left: auto;
+}
+
+/* Join requests mirror Lichess's slist requests datatable. */
+.team-requests {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.team-requests td {
+    padding: .6rem .75rem;
+    border-top: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+.team-requests tr:first-child td {
+    border-top: 0;
+}
+
+.team-requests .team-request-user {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.team-requests .team-request-message {
+    width: 100%;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.team-requests .team-request-date {
+    width: 1%;
+    white-space: nowrap;
+    font-size: .88rem;
+    opacity: .7;
+}
+
+.team-requests .process {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.team-request-actions {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+}
+
+.team-request-actions form,
+.team-requests .process form {
+    margin: 0;
 }
 
 .team-member-badge {
@@ -471,6 +515,76 @@
     flex-wrap: wrap;
     font-size: .9rem;
     opacity: .72;
+}
+
+/* Dedicated members page follows Lichess's page-small + team-members slist. */
+.team-members-page {
+    width: min(760px, calc(100vw - 2rem));
+    overflow: hidden;
+}
+
+.team-members__top {
+    padding: 1.6rem 2rem 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.team-members__top h1 {
+    margin: 0;
+    padding: 0;
+    font-size: 1.6rem;
+    font-weight: 400;
+}
+
+.team-members__top h1 a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.team-members__top h1 a:hover {
+    color: var(--link-color-blue);
+}
+
+.team-members__top h1 span {
+    opacity: .72;
+}
+
+.team-members {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.team-members td {
+    padding: .85rem 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.team-members tr:first-child td {
+    border-top: 0;
+}
+
+.team-members tbody tr:nth-child(even) {
+    background: var(--bg-color1);
+}
+
+.team-members tbody tr:hover {
+    background: color-mix(in srgb, var(--link-color-blue) 6%, var(--bg-color0));
+}
+
+.team-members__joined {
+    width: 1%;
+    white-space: nowrap;
+    text-align: right;
+    font-size: .9rem;
+    opacity: .7;
+}
+
+.team-members__pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 2rem;
+    border-top: 1px solid var(--border-color);
 }
 
 /* Team create/edit/admin pages mirror Lichess's page-small + form3 layout. */
@@ -1036,6 +1150,7 @@
     .teams-page,
     .team-form-page,
     .team-show-page,
+    .team-members-page,
     .team-leaders-page,
     .team-updates-page,
     .team-update-form-page {
@@ -1080,7 +1195,29 @@
     }
 
     .team-show__members {
-        margin-bottom: 0;
+        display: none;
+    }
+
+    .team-requests td {
+        display: block;
+        width: auto !important;
+        border-top: 0;
+        padding: .3rem .75rem;
+        white-space: normal;
+    }
+
+    .team-requests tr {
+        display: block;
+        padding: .55rem 0;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .team-requests tr:first-child {
+        border-top: 0;
+    }
+
+    .team-requests .process {
+        padding-top: .55rem;
     }
 
     .team-update__side {
@@ -1090,8 +1227,7 @@
 
 @media (max-width: 600px) {
     .team-list-top,
-    .team-show__top,
-    .team-request {
+    .team-show__top {
         align-items: stretch;
         flex-direction: column;
     }
@@ -1101,8 +1237,14 @@
         padding: 1.2rem 1rem 1rem;
     }
 
-    .team-slist td {
+    .team-slist td,
+    .team-members td {
         padding: .85rem 1rem;
+    }
+
+    .team-members__top,
+    .team-members__pagination {
+        padding-inline: 1rem;
     }
 
     .team-slist .info {

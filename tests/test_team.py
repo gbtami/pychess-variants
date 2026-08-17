@@ -85,6 +85,25 @@ class TeamTestCase(AioHTTPTestCase):
         self.assertNotIn('href="/forum/team-variant-fans"', html)
         self.assertIn('href="/team">Teams</a>', html)
 
+    async def test_team_members_page_lists_members_and_links_from_team(self):
+        await self.create_team()
+        self.add_live_user("bob")
+        self.set_session_user("bob")
+        await self.client.post("/team/variant-fans/join", data={}, allow_redirects=False)
+
+        team_page = await self.client.get("/team/variant-fans")
+        team_html = await team_page.text()
+        self.assertIn('href="/team/variant-fans/members">2 members</a>', team_html)
+        self.assertIn('href="/team/variant-fans/members">Recent members</a>', team_html)
+
+        members_page = await self.client.get("/team/variant-fans/members")
+        self.assertEqual(200, members_page.status)
+        members_html = await members_page.text()
+        self.assertIn('class="team-members-page page-small box"', members_html)
+        self.assertIn('class="team-members slist slist-pad slist-invert"', members_html)
+        self.assertIn('href="/@/alice"', members_html)
+        self.assertIn('href="/@/bob"', members_html)
+
     async def test_open_team_join_and_leave(self):
         await self.create_team()
         app_state = get_app_state(self.app)
@@ -331,13 +350,19 @@ class TeamTestCase(AioHTTPTestCase):
     async def test_team_pages_have_main_grid_area_css(self):
         root = Path(__file__).parents[1]
         css = (root / "static" / "team.css").read_text()
-        self.assertIn(".teams-page,\n.team-form-page,\n.team-show-page,\n.team-leaders-page", css)
+        team_page_selector = (
+            ".teams-page,\n.team-form-page,\n.team-show-page,\n"
+            ".team-members-page,\n.team-leaders-page"
+        )
+        self.assertIn(team_page_selector, css)
         self.assertIn(".team-updates-page,\n.team-update-form-page", css)
         self.assertIn("grid-area: main;", css)
         self.assertIn("width: min(1000px, calc(100vw - 2rem));", css)
         self.assertIn("grid-template-columns: 12.5rem minmax(0, 1fr);", css)
         self.assertIn(".team-show__content {", css)
         self.assertIn(".team-show__content__col1 {\n    flex: 0 0 30%;", css)
+        self.assertIn(".team-members-page {", css)
+        self.assertIn(".team-requests {", css)
         self.assertIn(".team-updates-page.team-update {", css)
         self.assertIn(".team-update__side {", css)
         self.assertIn(".team-update--all .team-update__convo,", css)
@@ -345,6 +370,7 @@ class TeamTestCase(AioHTTPTestCase):
         team_menu = (root / "templates" / "team-menu.html").read_text()
         teams = (root / "templates" / "teams.html").read_text()
         team_show = (root / "templates" / "team-show.html").read_text()
+        team_members = (root / "templates" / "team-members.html").read_text()
         team_new = (root / "templates" / "team-new.html").read_text()
         team_edit = (root / "templates" / "team-edit.html").read_text()
         team_leaders = (root / "templates" / "team-leaders.html").read_text()
@@ -355,6 +381,10 @@ class TeamTestCase(AioHTTPTestCase):
         self.assertIn('class="team-show team-show-page box"', team_show)
         self.assertIn('class="team-show__content__col1"', team_show)
         self.assertIn('class="team-show__content__col2"', team_show)
+        self.assertIn("href=\"/team/{{ team['_id'] }}/members\">Recent members</a>", team_show)
+        self.assertIn('class="team-requests slist requests datatable"', team_show)
+        self.assertIn('class="team-members-page page-small box"', team_members)
+        self.assertIn('class="team-members slist slist-pad slist-invert"', team_members)
         self.assertIn('class="team-form-page page-menu page-small"', team_new)
         self.assertIn('class="team-form form3"', team_new)
         self.assertIn('class="form-split team-entry-fields"', team_new)
@@ -400,9 +430,7 @@ class TeamTestCase(AioHTTPTestCase):
         self.assertEqual(200, combined.status)
         combined_html = await combined.text()
         self.assertIn("The first team championship starts this weekend.", combined_html)
-        self.assertIn(
-            'class="team-update team-updates-page box team-update--all"', combined_html
-        )
+        self.assertIn('class="team-update team-updates-page box team-update--all"', combined_html)
         self.assertIn("team-update__side__team--unread", combined_html)
         self.assertIn('team-update__side__unread-count">1', combined_html)
         self.assertIn("team-update__convo__update--unread", combined_html)
@@ -410,9 +438,7 @@ class TeamTestCase(AioHTTPTestCase):
         team_feed = await self.client.get("/team/variant-fans/updates")
         self.assertEqual(200, team_feed.status)
         team_feed_html = await team_feed.text()
-        self.assertIn(
-            'class="team-update team-updates-page box team-update--team"', team_feed_html
-        )
+        self.assertIn('class="team-update team-updates-page box team-update--team"', team_feed_html)
         self.assertIn("team-update__side__team--active", team_feed_html)
         member = await app_state.db.team_member.find_one({"_id": "bob@variant-fans"})
         self.assertIsNotNone(member.get("updatesSeenAt"))

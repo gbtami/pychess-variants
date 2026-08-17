@@ -1,0 +1,33 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+    <main class="team-members-page page-small box">
+        <div class="team-members__top box__top">
+            <h1><a href="/team/{{ team['_id'] }}">{{ team['name'] }}</a> <span>• {{ team_members_total }} member{% if team_members_total != 1 %}s{% endif %}</span></h1>
+        </div>
+
+        <table class="team-members slist slist-pad slist-invert">
+            <tbody>
+                {% for member in team_members %}
+                <tr class="paginated">
+                    <td><a class="user-link" href="/@/{{ member['user'] }}">{{ member['user'] }}</a></td>
+                    <td class="team-members__joined">
+                        {% if member.get('joinedAt') %}<info-date timestamp="{{ member['joinedAt'].isoformat() }}"></info-date>{% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="2" class="team-empty">No members found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if team_members_prev_href or team_members_next_href %}
+        <nav class="team-members__pagination" aria-label="Pagination">
+            {% if team_members_prev_href %}<a class="button button-empty" href="{{ team_members_prev_href }}">← Previous</a>{% else %}<span></span>{% endif %}
+            <span>Page {{ team_members_page }}</span>
+            {% if team_members_next_href %}<a class="button button-empty" href="{{ team_members_next_href }}">Next →</a>{% endif %}
+        </nav>
+        {% endif %}
+    </main>
+</div>
+{% endblock %}

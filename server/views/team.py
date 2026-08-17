@@ -50,6 +50,9 @@ from typing_defs import ViewContext
 
 from views import get_user_context
 
+TEAM_SHOW_MEMBER_LIMIT = 10
+TEAM_MEMBERS_PAGE_SIZE = 50
+
 
 def _require_regular_user(user: Any) -> None:
     if user.anon:
@@ -136,9 +139,9 @@ async def team_show(request: web.Request) -> ViewContext:
     )
     members = (
         await db.team_member.find({"team": team_id})
-        .sort("joinedAt", 1)
-        .limit(100)
-        .to_list(length=100)
+        .sort("joinedAt", -1)
+        .limit(TEAM_SHOW_MEMBER_LIMIT)
+        .to_list(length=TEAM_SHOW_MEMBER_LIMIT)
     )
     leaders = (
         await db.team_member.find({"team": team_id, "permissions": PERMISSION_PUBLIC})
@@ -228,6 +231,50 @@ async def team_show(request: web.Request) -> ViewContext:
             "team_public_permission": PERMISSION_PUBLIC,
             "team_tournaments": team_tournaments,
             "title": f"{team['name']} • PyChess",
+        }
+    )
+    return context
+
+
+@aiohttp_jinja2.template("team-members.html")
+async def team_members(request: web.Request) -> ViewContext:
+    _, context = await get_user_context(request)
+    app_state = get_app_state(request.app)
+    _team_context(context)
+    if app_state.db is None:
+        raise web.HTTPServiceUnavailable(text="Teams require database access.")
+
+    team_id = request.match_info["teamId"]
+    team = await get_team(app_state, team_id)
+    if team is None:
+        raise web.HTTPNotFound()
+
+    try:
+        page = max(1, int(request.rel_url.query.get("page", "1")))
+    except ValueError:
+        page = 1
+
+    total = await app_state.db.team_member.count_documents({"team": team_id})
+    skip = (page - 1) * TEAM_MEMBERS_PAGE_SIZE
+    members = (
+        await app_state.db.team_member.find({"team": team_id})
+        .sort("joinedAt", -1)
+        .skip(skip)
+        .limit(TEAM_MEMBERS_PAGE_SIZE)
+        .to_list(length=TEAM_MEMBERS_PAGE_SIZE)
+    )
+
+    prev_href = None if page <= 1 else f"/team/{team_id}/members?page={page - 1}"
+    next_href = f"/team/{team_id}/members?page={page + 1}" if skip + len(members) < total else None
+    context.update(
+        {
+            "team": team,
+            "team_members": members,
+            "team_members_total": total,
+            "team_members_page": page,
+            "team_members_prev_href": prev_href,
+            "team_members_next_href": next_href,
+            "title": f"{team['name']} • Members • PyChess",
         }
     )
     return context

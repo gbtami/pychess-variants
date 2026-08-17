@@ -7,7 +7,7 @@
                 <h1>{{ team['name'] }}</h1>
                 {% if team.get('intro') %}<p class="team-show__intro">{{ team['intro'] }}</p>{% endif %}
             </div>
-            <span class="team-show__member-count">{{ team.get('memberCount', 0) }} member{% if team.get('memberCount', 0) != 1 %}s{% endif %}</span>
+            <a class="team-show__member-count" href="/team/{{ team['_id'] }}/members">{{ team.get('memberCount', 0) }} member{% if team.get('memberCount', 0) != 1 %}s{% endif %}</a>
         </div>
 
         <div class="team-show__content">
@@ -91,21 +91,25 @@
                 </div>
 
                 <section class="team-show__members">
-                    <h2>Members</h2>
-                    <div class="team-member-list">
-                        {% for member in team_members %}
-                        <div class="team-member-row">
-                            <a class="user-link" href="/@/{{ member['user'] }}">{{ member['user'] }}</a>
-                            {% if team_public_permission in member.get('permissions', []) %}<span class="team-member-badge">Leader</span>{% endif %}
-                            {% if team_can_kick and member['user'] != team['createdBy'] and member['user'] != username %}
-                            <form method="post" action="/team/{{ team['_id'] }}/kick/{{ member['user'] }}">
-                                <button class="team-link-button" type="submit">Kick</button>
-                            </form>
-                            {% endif %}
+                    <section class="recent-members">
+                        <h2><a href="/team/{{ team['_id'] }}/members">Recent members</a></h2>
+                        <div class="userlist">
+                            {% for member in team_members %}
+                            <div class="paginated team-member-row">
+                                <a class="user-link" href="/@/{{ member['user'] }}">{{ member['user'] }}</a>
+                                {% if team_public_permission in member.get('permissions', []) %}<span class="team-member-badge">Leader</span>{% endif %}
+                                {% if team_can_kick and member['user'] != team['createdBy'] and member['user'] != username %}
+                                <form method="post" action="/team/{{ team['_id'] }}/kick/{{ member['user'] }}">
+                                    <button class="team-link-button" type="submit">Kick</button>
+                                </form>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
                         </div>
-                        {% endfor %}
-                    </div>
-                    {% if team.get('memberCount', 0) > team_members|length %}<p class="team-muted">Showing the first {{ team_members|length }} members.</p>{% endif %}
+                        {% if team.get('memberCount', 0) > team_members|length %}
+                        <a class="team-show__more" href="/team/{{ team['_id'] }}/members">All {{ team.get('memberCount', 0) }} members »</a>
+                        {% endif %}
+                    </section>
                 </section>
             </div>
 
@@ -114,39 +118,48 @@
 
                 {% if team_can_manage_requests and team_requests %}
                 <section class="team-show__requests">
-                    <h2>Join requests</h2>
-                    <div class="team-request-list team-show__list-wrapper">
-                        {% for req in team_requests %}
-                        <article class="team-request">
-                            <div>
-                                <a class="user-link" href="/@/{{ req['user'] }}">{{ req['user'] }}</a>
-                                <p>{{ req.get('message', '') }}</p>
-                            </div>
-                            <div class="team-request-actions">
-                                <form method="post" action="/team/{{ team['_id'] }}/request/{{ req['user'] }}/accept"><button class="button" type="submit">Accept</button></form>
-                                <form method="post" action="/team/{{ team['_id'] }}/request/{{ req['user'] }}/decline"><button class="button red" type="submit">Decline</button></form>
-                            </div>
-                        </article>
-                        {% endfor %}
+                    <h2>{{ team_requests|length }} join request{% if team_requests|length != 1 %}s{% endif %}</h2>
+                    <div class="team-show__list-wrapper">
+                        <table class="team-requests slist requests datatable">
+                            <tbody>
+                                {% for req in team_requests %}
+                                <tr>
+                                    <td class="team-request-user"><a class="user-link" href="/@/{{ req['user'] }}">{{ req['user'] }}</a></td>
+                                    <td class="team-request-message">{{ req.get('message', '') }}</td>
+                                    <td class="team-request-date"><info-date timestamp="{{ req['createdAt'].isoformat() if req.get('createdAt') else '' }}"></info-date></td>
+                                    <td class="process">
+                                        <div class="team-request-actions">
+                                            <form method="post" action="/team/{{ team['_id'] }}/request/{{ req['user'] }}/decline"><button class="button button-empty red" type="submit">Decline</button></form>
+                                            <form method="post" action="/team/{{ team['_id'] }}/request/{{ req['user'] }}/accept"><button class="button" type="submit">Accept</button></form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </section>
                 {% endif %}
 
                 {% if team_can_manage_requests and team_declined_requests %}
-                <section class="team-show__requests">
+                <section class="team-show__requests team-show__requests--declined">
                     <h2>Declined requests</h2>
-                    <div class="team-request-list team-show__list-wrapper">
-                        {% for req in team_declined_requests %}
-                        <article class="team-request">
-                            <div>
-                                <a class="user-link" href="/@/{{ req['user'] }}">{{ req['user'] }}</a>
-                                <p>{{ req.get('message', '') }}</p>
-                            </div>
-                            <form method="post" action="/team/{{ team['_id'] }}/request/{{ req['user'] }}/accept">
-                                <button class="button" type="submit">Accept</button>
-                            </form>
-                        </article>
-                        {% endfor %}
+                    <div class="team-show__list-wrapper">
+                        <table class="team-requests slist requests datatable">
+                            <tbody>
+                                {% for req in team_declined_requests %}
+                                {% set request_date = req.get('processedAt') or req.get('createdAt') %}
+                                <tr>
+                                    <td class="team-request-user"><a class="user-link" href="/@/{{ req['user'] }}">{{ req['user'] }}</a></td>
+                                    <td class="team-request-message">{{ req.get('message', '') }}</td>
+                                    <td class="team-request-date"><info-date timestamp="{{ request_date.isoformat() if request_date else '' }}"></info-date></td>
+                                    <td class="process">
+                                        <form method="post" action="/team/{{ team['_id'] }}/request/{{ req['user'] }}/accept"><button class="button" type="submit">Accept</button></form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </section>
                 {% endif %}
