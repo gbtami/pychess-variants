@@ -1,0 +1,61 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+    <main class="team-updates-page box box-pad">
+        <div class="teams-top">
+            <div>
+                <p class="teams-kicker">Teams</p>
+                {% if updates_team %}
+                <h1>{{ updates_team['name'] }} updates</h1>
+                {% else %}
+                <h1>Team updates</h1>
+                {% endif %}
+            </div>
+            <div class="teams-actions">
+                {% if updates_team %}
+                    {% if team_can_send_update %}<a class="button" href="/team/{{ updates_team['_id'] }}/updates/new">New update</a>{% endif %}
+                    <form method="post" action="/team/{{ updates_team['_id'] }}/subscribe">
+                        {% if team_updates_subscribed %}
+                        <input type="hidden" name="subscribe" value="0">
+                        <button class="button" type="submit">Unsubscribe</button>
+                        {% else %}
+                        <input type="hidden" name="subscribe" value="1">
+                        <button class="button" type="submit">Subscribe</button>
+                        {% endif %}
+                    </form>
+                    <a class="button" href="/team/{{ updates_team['_id'] }}">Team page</a>
+                {% else %}
+                    <a class="button" href="/team/me">My teams</a>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if updates_team and not team_updates_subscribed %}
+        <p class="team-muted">You are unsubscribed from notifications and the combined Team updates feed for this team.</p>
+        {% endif %}
+
+        {% if team_updates %}
+        <div class="team-update-list">
+            {% for update in team_updates %}
+            <article class="team-update-row{% if update.get('unread') %} team-update-unread{% endif %}">
+                <div class="team-update-meta">
+                    {% if not updates_team %}
+                    <a href="/team/{{ update['team'] }}"><strong>{{ update['teamName'] }}</strong></a>
+                    {% endif %}
+                    <span>by <a class="user-link" href="/@/{{ update['sender'] }}">{{ update['sender'] }}</a></span>
+                    <info-date timestamp="{{ update['createdAt'].isoformat() if update.get('createdAt') else '' }}"></info-date>
+                    {% if update.get('unread') %}<span class="team-member-badge">New</span>{% endif %}
+                </div>
+                <div class="team-update-text">{{ update['text'] }}</div>
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="team-empty">
+            <h2>No team updates yet</h2>
+            {% if updates_team and team_can_send_update %}<p>You can send the first update to this team.</p>{% endif %}
+        </div>
+        {% endif %}
+    </main>
+</div>
+{% endblock %}

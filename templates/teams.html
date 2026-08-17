@@ -1,0 +1,43 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+    <main class="teams-page box box-pad">
+        <div class="teams-top">
+            <div>
+                <p class="teams-kicker">Community</p>
+                <h1>{% if mine_only %}My teams{% else %}Teams{% endif %}</h1>
+            </div>
+            <div class="teams-actions">
+                {% if not anon %}
+                {% if not mine_only %}<a class="button" href="/team/me">My teams</a>{% endif %}
+                <a class="button icon icon-plus-square text" href="/team/new">New team</a>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if teams %}
+        <div class="team-list">
+            {% for team in teams %}
+            <article class="team-card">
+                <a class="team-card-main" href="/team/{{ team['_id'] }}">
+                    <span class="team-card-title">{{ team['name'] }}</span>
+                    {% if team.get('intro') %}<span class="team-card-intro">{{ team['intro'] }}</span>{% endif %}
+                    <span class="team-card-meta">
+                        {{ team.get('memberCount', 0) }} member{% if team.get('memberCount', 0) != 1 %}s{% endif %}
+                        · by {{ team['createdBy'] }}
+                        {% if team.get('requestRequired') %} · approval required{% endif %}
+                    </span>
+                </a>
+                {% if team['_id'] in my_team_ids %}<span class="team-member-badge">Joined</span>{% endif %}
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="team-empty">
+            <h2>No teams yet</h2>
+            {% if not anon %}<p>Create the first one and invite other PyChess players.</p>{% endif %}
+        </div>
+        {% endif %}
+    </main>
+</div>
+{% endblock %}

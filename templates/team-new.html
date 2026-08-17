@@ -1,0 +1,39 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+    <main class="team-form-page box box-pad">
+        <div class="team-form-heading">
+            <p class="teams-kicker">Community</p>
+            <h1>Create a team</h1>
+            <p>You can create up to {{ team_max_created_per_7_days }} teams in seven days and join up to {{ team_max_joined }} teams.</p>
+        </div>
+        <form method="post" action="/team/new" class="team-form">
+            <label>
+                <span>Team name</span>
+                <input name="name" required minlength="3" maxlength="60" autocomplete="off">
+            </label>
+            <label>
+                <span>Short introduction</span>
+                <input name="intro" minlength="3" maxlength="200" autocomplete="off">
+            </label>
+            <label>
+                <span>Description</span>
+                <textarea name="description" required minlength="30" maxlength="4000" rows="8"></textarea>
+            </label>
+            <label>
+                <span>Entry code <small>(optional)</small></span>
+                <input name="entryCode" maxlength="60" autocomplete="new-password">
+                <small>Players must know this code before they can join or send a join request.</small>
+            </label>
+            <label class="team-check">
+                <input type="checkbox" name="requestRequired" value="1">
+                <span>Require leader approval for new members</span>
+            </label>
+            <div class="team-form-actions">
+                <button class="button" type="submit">Create team</button>
+                <a href="/team">Cancel</a>
+            </div>
+        </form>
+    </main>
+</div>
+{% endblock %}

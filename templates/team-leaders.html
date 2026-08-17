@@ -1,0 +1,68 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+    <main class="team-leaders-page box box-pad">
+        <div class="teams-top">
+            <div>
+                <p class="teams-kicker">Team leaders</p>
+                <h1><a href="/team/{{ team['_id'] }}">{{ team['name'] }}</a></h1>
+                <p>Leaders can have different permissions. Removing every permission removes leader status.</p>
+            </div>
+            <a class="button" href="/team/{{ team['_id'] }}">Back to team</a>
+        </div>
+
+        <section class="team-leader-add">
+            <h2>Add a leader</h2>
+            <form method="post" action="/team/{{ team['_id'] }}/leaders/add" class="team-leader-add-form">
+                <input name="username" required autocomplete="off" placeholder="Username">
+                <button class="button" type="submit">Add</button>
+            </form>
+            <p class="team-muted">The user must already be a team member. A team can have up to {{ team_max_leaders }} leaders.</p>
+        </section>
+
+        <form method="post" action="/team/{{ team['_id'] }}/permissions" class="team-permissions-form">
+            <div class="team-permissions-scroll">
+                <table class="team-permissions-table">
+                    <thead>
+                        <tr>
+                            <th>Permission</th>
+                            {% for leader in team_leaders %}
+                            <th>
+                                <a class="user-link" href="/@/{{ leader['user'] }}">{{ leader['user'] }}</a>
+                                <input type="hidden" name="leader" value="{{ leader['user'] }}">
+                            </th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for key, name, description in team_permission_definitions %}
+                        <tr>
+                            <th>
+                                <strong>{{ name }}</strong>
+                                <span>{{ description }}</span>
+                            </th>
+                            {% for leader in team_leaders %}
+                            <td data-label="{{ leader['user'] }}">
+                                <input
+                                    type="checkbox"
+                                    name="perm:{{ leader['user'] }}"
+                                    value="{{ key }}"
+                                    aria-label="{{ name }} for {{ leader['user'] }}"
+                                    {% if key in leader.get('permissions', []) %}checked{% endif %}
+                                >
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <p class="team-muted">The team creator must keep Admin permission. At least one Admin is always required, and a team can have at most {{ team_max_admins }} Admins.</p>
+            <div class="team-form-actions">
+                <button class="button" type="submit">Save permissions</button>
+                <a href="/team/{{ team['_id'] }}">Cancel</a>
+            </div>
+        </form>
+    </main>
+</div>
+{% endblock %}

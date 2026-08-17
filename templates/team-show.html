@@ -1,0 +1,125 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+    <main class="team-show-page">
+        <section class="team-hero box box-pad">
+            <div class="team-hero-top">
+                <div>
+                    <p class="teams-kicker">Team</p>
+                    <h1>{{ team['name'] }}</h1>
+                    {% if team.get('intro') %}<p class="team-intro">{{ team['intro'] }}</p>{% endif %}
+                </div>
+                <div class="teams-actions">
+                    {% if team_can_edit %}<a class="button" href="/team/{{ team['_id'] }}/edit">Settings</a>{% endif %}
+                    <a class="button" href="/team">All teams</a>
+                </div>
+            </div>
+            <div class="team-description">{{ team.get('description', '') }}</div>
+            <div class="team-meta">
+                <span>{{ team.get('memberCount', 0) }} member{% if team.get('memberCount', 0) != 1 %}s{% endif %}</span>
+                <span>Created by <a class="user-link" href="/@/{{ team['createdBy'] }}">{{ team['createdBy'] }}</a></span>
+            </div>
+        </section>
+
+        {% if not anon and not user.bot %}
+        <section class="team-membership box box-pad">
+            {% if team_member %}
+                <div>
+                    <h2>You are a member</h2>
+                    {% if team_member.get('permissions') %}<p>You are a team leader.</p>{% endif %}
+                </div>
+                {% if username != team['createdBy'] %}
+                <form method="post" action="/team/{{ team['_id'] }}/quit">
+                    <button class="button red" type="submit">Leave team</button>
+                </form>
+                {% endif %}
+            {% elif team_pending_request %}
+                <div><h2>Join request pending</h2><p>A team leader must approve your request.</p></div>
+                <form method="post" action="/team/{{ team['_id'] }}/cancel-request">
+                    <button class="button red" type="submit">Cancel request</button>
+                </form>
+            {% else %}
+                <form method="post" action="/team/{{ team['_id'] }}/join" class="team-join-form">
+                    <div>
+                        <h2>{% if team.get('requestRequired') %}Request to join{% else %}Join this team{% endif %}</h2>
+                        {% if team.get('requestRequired') %}
+                        <textarea name="message" required minlength="30" maxlength="2000" rows="4" placeholder="Tell the team leaders why you want to join"></textarea>
+                        {% endif %}
+                        {% if team.get('entryCodeHash') %}
+                        <input type="password" name="entryCode" required maxlength="60" autocomplete="off" placeholder="Team entry code">
+                        {% endif %}
+                    </div>
+                    <button class="button" type="submit">{% if team.get('requestRequired') %}Send request{% else %}Join team{% endif %}</button>
+                </form>
+            {% endif %}
+        </section>
+        {% endif %}
+
+        {% if team_can_manage_requests and team_requests %}
+        <section class="team-panel box box-pad">
+            <h2>Join requests</h2>
+            <div class="team-request-list">
+                {% for req in team_requests %}
+                <article class="team-request">
+                    <div>
+                        <a class="user-link" href="/@/{{ req['user'] }}">{{ req['user'] }}</a>
+                        <p>{{ req.get('message', '') }}</p>
+                    </div>
+                    <div class="team-request-actions">
+                        <form method="post" action="/team/{{ team['_id'] }}/request/{{ req['user'] }}/accept"><button class="button" type="submit">Accept</button></form>
+                        <form method="post" action="/team/{{ team['_id'] }}/request/{{ req['user'] }}/decline"><button class="button red" type="submit">Decline</button></form>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        {% if team_can_manage_requests and team_declined_requests %}
+        <section class="team-panel box box-pad">
+            <h2>Declined requests</h2>
+            <div class="team-request-list">
+                {% for req in team_declined_requests %}
+                <article class="team-request">
+                    <div>
+                        <a class="user-link" href="/@/{{ req['user'] }}">{{ req['user'] }}</a>
+                        <p>{{ req.get('message', '') }}</p>
+                    </div>
+                    <form method="post" action="/team/{{ team['_id'] }}/request/{{ req['user'] }}/accept">
+                        <button class="button" type="submit">Accept</button>
+                    </form>
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        <section class="team-panel box box-pad">
+            <h2>Leaders</h2>
+            <div class="team-user-list">
+                {% for member in team_leaders %}
+                <a class="user-link" href="/@/{{ member['user'] }}">{{ member['user'] }}</a>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="team-panel box box-pad">
+            <h2>Members</h2>
+            <div class="team-member-list">
+                {% for member in team_members %}
+                <div class="team-member-row">
+                    <a class="user-link" href="/@/{{ member['user'] }}">{{ member['user'] }}</a>
+                    {% if member.get('permissions') %}<span class="team-member-badge">Leader</span>{% endif %}
+                    {% if team_can_kick and member['user'] != team['createdBy'] and member['user'] != username %}
+                    <form method="post" action="/team/{{ team['_id'] }}/kick/{{ member['user'] }}">
+                        <button class="team-link-button" type="submit">Kick</button>
+                    </form>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% if team.get('memberCount', 0) > team_members|length %}<p class="team-muted">Showing the first {{ team_members|length }} members.</p>{% endif %}
+        </section>
+    </main>
+</div>
+{% endblock %}

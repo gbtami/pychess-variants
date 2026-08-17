@@ -1,0 +1,39 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+    <main class="team-form-page box box-pad">
+        <div class="team-form-heading">
+            <p class="teams-kicker">Team settings</p>
+            <h1>Edit {{ team['name'] }}</h1>
+        </div>
+        <form method="post" action="/team/{{ team['_id'] }}/edit" class="team-form">
+            <label>
+                <span>Short introduction</span>
+                <input name="intro" minlength="3" maxlength="200" value="{{ team.get('intro', '') }}">
+            </label>
+            <label>
+                <span>Description</span>
+                <textarea name="description" required minlength="30" maxlength="4000" rows="8">{{ team.get('description', '') }}</textarea>
+            </label>
+            <label>
+                <span>New entry code <small>(leave blank to keep the current code)</small></span>
+                <input name="entryCode" maxlength="60" autocomplete="new-password">
+            </label>
+            {% if team.get('entryCodeHash') %}
+            <label class="team-check">
+                <input type="checkbox" name="clearEntryCode" value="1">
+                <span>Remove the current entry code</span>
+            </label>
+            {% endif %}
+            <label class="team-check">
+                <input type="checkbox" name="requestRequired" value="1"{% if team.get('requestRequired') %} checked{% endif %}>
+                <span>Require leader approval for new members</span>
+            </label>
+            <div class="team-form-actions">
+                <button class="button" type="submit">Save changes</button>
+                <a href="/team/{{ team['_id'] }}">Cancel</a>
+            </div>
+        </form>
+    </main>
+</div>
+{% endblock %}

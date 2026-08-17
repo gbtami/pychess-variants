@@ -1,0 +1,217 @@
+.teams-page,
+.team-form-page,
+.team-hero,
+.team-membership,
+.team-panel {
+    max-width: 900px;
+    margin: 0 auto 1rem;
+}
+
+.team-show-page {
+    width: min(94vw, 900px);
+    margin: 0 auto;
+}
+
+.teams-top,
+.team-hero-top,
+.team-membership,
+.team-request,
+.team-member-row,
+.team-form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.teams-kicker {
+    margin: 0 0 .25rem;
+    opacity: .7;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    font-size: .78rem;
+}
+
+.teams-top h1,
+.team-hero h1,
+.team-form-heading h1 {
+    margin-top: 0;
+}
+
+.teams-actions,
+.team-request-actions {
+    display: flex;
+    gap: .6rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.team-list {
+    display: grid;
+    gap: .7rem;
+}
+
+.team-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-top: 1px solid rgba(128, 128, 128, .25);
+    padding: .9rem 0;
+}
+
+.team-card-main {
+    display: grid;
+    gap: .2rem;
+    flex: 1;
+    text-decoration: none;
+}
+
+.team-card-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.team-card-intro,
+.team-card-meta,
+.team-meta,
+.team-muted {
+    opacity: .72;
+}
+
+.team-member-badge {
+    display: inline-block;
+    border-radius: 999px;
+    padding: .15rem .55rem;
+    font-size: .78rem;
+    background: rgba(128, 128, 128, .18);
+}
+
+.team-empty {
+    padding: 2rem 0;
+    text-align: center;
+}
+
+.team-form {
+    display: grid;
+    gap: 1.1rem;
+}
+
+.team-form label:not(.team-check) {
+    display: grid;
+    gap: .35rem;
+}
+
+.team-form input,
+.team-form textarea,
+.team-join-form input,
+.team-join-form textarea {
+    box-sizing: border-box;
+    width: 100%;
+    padding: .7rem .8rem;
+    border-radius: 4px;
+    border: 1px solid rgba(128, 128, 128, .45);
+    background: rgba(255, 255, 255, .06);
+    color: inherit;
+    font: inherit;
+}
+
+.team-check {
+    display: flex;
+    gap: .6rem;
+    align-items: center;
+}
+
+.team-check input {
+    width: auto;
+}
+
+.team-description {
+    margin: 1rem 0;
+    white-space: pre-wrap;
+    line-height: 1.55;
+}
+
+.team-intro {
+    margin: .3rem 0 0;
+    font-size: 1.1rem;
+}
+
+.team-meta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.team-join-form {
+    display: grid;
+    gap: .75rem;
+    width: 100%;
+}
+
+.team-join-form > div {
+    display: grid;
+    gap: .6rem;
+    flex: 1;
+}
+
+.team-request-list,
+.team-member-list {
+    display: grid;
+}
+
+.team-request,
+.team-member-row {
+    border-top: 1px solid rgba(128, 128, 128, .25);
+    padding: .7rem 0;
+}
+
+.team-request p {
+    margin: .35rem 0 0;
+    white-space: pre-wrap;
+}
+
+.team-user-list {
+    display: flex;
+    gap: .7rem 1.2rem;
+    flex-wrap: wrap;
+}
+
+.team-member-row {
+    justify-content: flex-start;
+}
+
+.team-member-row .team-link-button {
+    margin-left: auto;
+}
+
+.team-link-button {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+    opacity: .8;
+}
+
+@media (max-width: 600px) {
+    .teams-top,
+    .team-hero-top,
+    .team-membership,
+    .team-request,
+    .team-form-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .teams-actions,
+    .team-request-actions {
+        width: 100%;
+    }
+
+    .teams-actions .button,
+    .team-request-actions form,
+    .team-request-actions .button {
+        flex: 1;
+    }
+}
