@@ -507,6 +507,10 @@ class ViewContext(TypedDict, total=False):
     team_can_manage_leaders: bool
     team_can_send_update: bool
     team_latest_update: Mapping[str, object] | None
+    team_can_see_forum: bool
+    team_forum_categ_id: str
+    team_forum_topics: Sequence[Mapping[str, object]]
+    team_public_permission: str
     team_tournaments: Sequence[Mapping[str, object]]
     team_updates: Sequence[Mapping[str, object]]
     updates_team: Mapping[str, object] | None
@@ -516,6 +520,9 @@ class ViewContext(TypedDict, total=False):
     team_update_quota_remaining: int
     team_max_joined: int
     team_max_created_per_7_days: int
+    team_permission_definitions: Sequence[tuple[str, str, str]]
+    team_max_admins: int
+    team_max_leaders: int
     reports: list[object]
     report_status: str
     report_open_count: int
