@@ -321,6 +321,7 @@ get_routes: tuple[RouteDef, ...] = (
     ("/team/{teamId}/edit", team_view.team_edit),
     ("/team/{teamId}/leaders", team_view.team_leaders),
     ("/team/{teamId}/members", team_view.team_members),
+    ("/team/{teamId}/join", team_view.team_join_form),
     ("/team/{teamId}", team_view.team_show),
     ("/tournaments", tournaments.tournaments),
     ("/tournaments/new", arena_new.arena_new),

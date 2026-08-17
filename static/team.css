@@ -279,26 +279,16 @@
     opacity: .7;
 }
 
-.team-show__join {
-    display: grid;
-    grid-column: 1 / -1;
-    gap: .55rem;
-    padding: .75rem;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    background: var(--bg-color1);
+.team-show__membership-state--declined {
+    color: var(--bad, #b33);
 }
 
-.team-show__join input,
-.team-show__join textarea {
-    box-sizing: border-box;
-    width: 100%;
-    padding: .6rem .65rem;
-    border: 1px solid var(--input-border, var(--border-color));
-    border-radius: 4px;
-    background: var(--bg-color0);
-    color: inherit;
-    font: inherit;
+.team-show__join-action {
+    margin: 0;
+}
+
+.team-join-page .team-show__desc {
+    margin-bottom: 2.4rem;
 }
 
 .team-show__members {
@@ -669,9 +659,7 @@
 }
 
 .team-form .form-control:focus,
-.team-add-leader .form-control:focus,
-.team-show__join input:focus,
-.team-show__join textarea:focus {
+.team-add-leader .form-control:focus {
     border-color: var(--link-color-blue);
     outline: 2px solid color-mix(in srgb, var(--link-color-blue) 18%, transparent);
     outline-offset: 0;

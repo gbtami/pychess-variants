@@ -504,6 +504,9 @@ class ViewContext(TypedDict, total=False):
     team_requests: Sequence[Mapping[str, object]]
     team_declined_requests: Sequence[Mapping[str, object]]
     team_pending_request: Mapping[str, object] | None
+    team_declined_request: Mapping[str, object] | None
+    team_request_min_length: int
+    team_request_max_length: int
     team_can_manage_requests: bool
     team_can_kick: bool
     team_can_edit: bool

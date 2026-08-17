@@ -23,6 +23,8 @@ from team import (
     TEAM_MAX_JOINED,
     TEAM_MAX_LEADERS,
     TEAM_PERMISSION_DEFINITIONS,
+    TEAM_REQUEST_MAX_LENGTH,
+    TEAM_REQUEST_MIN_LENGTH,
     TEAM_UPDATE_MAX_LENGTH,
     TEAM_UPDATE_MAX_PER_7_DAYS,
     add_team_leader,
@@ -180,10 +182,14 @@ async def team_show(request: web.Request) -> ViewContext:
             )
 
     pending_request = None
+    declined_request = None
     if not user.anon and not user.bot and member is None:
-        pending_request = await db.team_request.find_one(
-            {"_id": f"{user.username}@{team_id}", "declined": False}
-        )
+        my_request = await db.team_request.find_one({"_id": f"{user.username}@{team_id}"})
+        if my_request is not None:
+            if my_request.get("declined"):
+                declined_request = my_request
+            else:
+                pending_request = my_request
 
     latest_update = await latest_team_update(app_state, team_id) if member is not None else None
 
@@ -218,6 +224,7 @@ async def team_show(request: web.Request) -> ViewContext:
             "team_requests": requests,
             "team_declined_requests": declined_requests,
             "team_pending_request": pending_request,
+            "team_declined_request": declined_request,
             "team_can_manage_requests": can_manage_requests,
             "team_can_kick": can_kick,
             "team_can_edit": can_edit,
@@ -280,6 +287,42 @@ async def team_members(request: web.Request) -> ViewContext:
     return context
 
 
+@aiohttp_jinja2.template("team-join.html")
+async def team_join_form(request: web.Request) -> ViewContext:
+    user, context = await get_user_context(request)
+    _require_regular_user(user)
+    app_state = get_app_state(request.app)
+    _team_context(context)
+    if app_state.db is None:
+        raise web.HTTPServiceUnavailable(text="Teams require database access.")
+
+    team_id = request.match_info["teamId"]
+    team = await get_team(app_state, team_id)
+    if team is None:
+        raise web.HTTPNotFound()
+    if await get_team_member(app_state, team_id, user.username) is not None:
+        raise web.HTTPFound(f"/team/{team_id}")
+
+    existing_request = await app_state.db.team_request.find_one(
+        {"_id": f"{user.username}@{team_id}"}
+    )
+    if existing_request is not None:
+        raise web.HTTPFound(f"/team/{team_id}")
+
+    if not team.get("requestRequired") and not team.get("entryCodeHash"):
+        raise web.HTTPFound(f"/team/{team_id}")
+
+    context.update(
+        {
+            "team": team,
+            "team_request_min_length": TEAM_REQUEST_MIN_LENGTH,
+            "team_request_max_length": TEAM_REQUEST_MAX_LENGTH,
+            "title": f"Join {team['name']} • PyChess",
+        }
+    )
+    return context
+
+
 async def team_join(request: web.Request) -> web.StreamResponse:
     user, _ = await get_user_context(request)
     _require_regular_user(user)
@@ -291,6 +334,14 @@ async def team_join(request: web.Request) -> web.StreamResponse:
     data = await read_post_data(request)
     if data is None:
         raise web.HTTPNoContent()
+
+    needs_request_form = (
+        bool(team.get("requestRequired")) and not str(data.get("message") or "").strip()
+    )
+    needs_entry_code = bool(team.get("entryCodeHash")) and not str(data.get("entryCode") or "")
+    if needs_request_form or needs_entry_code:
+        raise web.HTTPFound(f"/team/{team_id}/join")
+
     await join_or_request_team(app_state, team, user.username, data)
     raise web.HTTPFound(f"/team/{team_id}")
 

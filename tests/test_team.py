@@ -104,6 +104,43 @@ class TeamTestCase(AioHTTPTestCase):
         self.assertIn('href="/@/alice"', members_html)
         self.assertIn('href="/@/bob"', members_html)
 
+    async def test_restricted_team_join_uses_dedicated_request_form(self):
+        await self.create_team(request_required=True, entry_code="secret")
+        app_state = get_app_state(self.app)
+        self.add_live_user("bob")
+        self.set_session_user("bob")
+
+        team_page = await self.client.get("/team/variant-fans")
+        team_html = await team_page.text()
+        self.assertIn('class="team-show__join-action"', team_html)
+        self.assertNotIn('name="message"', team_html)
+        self.assertNotIn('name="entryCode"', team_html)
+
+        join = await self.client.post("/team/variant-fans/join", data={}, allow_redirects=False)
+        self.assertEqual(302, join.status)
+        self.assertEqual("/team/variant-fans/join", join.headers["Location"])
+
+        join_form = await self.client.get("/team/variant-fans/join")
+        self.assertEqual(200, join_form.status)
+        join_html = await join_form.text()
+        self.assertIn('class="team-form-page team-join-page page-menu page-small"', join_html)
+        self.assertIn('class="team-form form3 team-join-form"', join_html)
+        self.assertIn('name="message"', join_html)
+        self.assertIn('name="entryCode"', join_html)
+        self.assertIn("A friendly team for people who enjoy chess variants together.", join_html)
+
+        requested = await self.client.post(
+            "/team/variant-fans/join",
+            data={
+                "message": "I would like to play variants with this team.",
+                "entryCode": "secret",
+            },
+            allow_redirects=False,
+        )
+        self.assertEqual(302, requested.status)
+        self.assertIsNone(await app_state.db.team_member.find_one({"_id": "bob@variant-fans"}))
+        self.assertIsNotNone(await app_state.db.team_request.find_one({"_id": "bob@variant-fans"}))
+
     async def test_open_team_join_and_leave(self):
         await self.create_team()
         app_state = get_app_state(self.app)
@@ -238,6 +275,11 @@ class TeamTestCase(AioHTTPTestCase):
         self.assertTrue(request["declined"])
 
         self.set_session_user("bob")
+        team_page = await self.client.get("/team/variant-fans")
+        team_html = await team_page.text()
+        self.assertIn("Join request declined", team_html)
+        self.assertNotIn('class="team-show__join-action"', team_html)
+
         rejoin = await self.client.post("/team/variant-fans/join", data={}, allow_redirects=False)
         self.assertEqual(403, rejoin.status)
 
@@ -371,6 +413,7 @@ class TeamTestCase(AioHTTPTestCase):
         teams = (root / "templates" / "teams.html").read_text()
         team_show = (root / "templates" / "team-show.html").read_text()
         team_members = (root / "templates" / "team-members.html").read_text()
+        team_join = (root / "templates" / "team-join.html").read_text()
         team_new = (root / "templates" / "team-new.html").read_text()
         team_edit = (root / "templates" / "team-edit.html").read_text()
         team_leaders = (root / "templates" / "team-leaders.html").read_text()
@@ -385,6 +428,9 @@ class TeamTestCase(AioHTTPTestCase):
         self.assertIn('class="team-requests slist requests datatable"', team_show)
         self.assertIn('class="team-members-page page-small box"', team_members)
         self.assertIn('class="team-members slist slist-pad slist-invert"', team_members)
+        self.assertIn('class="team-form-page team-join-page page-menu page-small"', team_join)
+        self.assertIn('class="team-form form3 team-join-form"', team_join)
+        self.assertIn('class="team-show__join-action"', team_show)
         self.assertIn('class="team-form-page page-menu page-small"', team_new)
         self.assertIn('class="team-form form3"', team_new)
         self.assertIn('class="form-split team-entry-fields"', team_new)

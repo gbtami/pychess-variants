@@ -44,16 +44,15 @@
                             <form method="post" action="/team/{{ team['_id'] }}/cancel-request">
                                 <button class="button team-action team-action--danger" type="submit"><strong>Cancel request</strong></button>
                             </form>
+                        {% elif team_declined_request %}
+                            <div class="team-show__membership-state team-show__membership-state--declined">
+                                <strong>Join request declined</strong>
+                                <span>You cannot request to join this team again unless a team leader restores your request.</span>
+                            </div>
+                            <button class="button team-action" type="button" disabled><strong>Join team</strong></button>
                         {% else %}
-                            <form method="post" action="/team/{{ team['_id'] }}/join" class="team-show__join">
-                                <strong>{% if team.get('requestRequired') %}Request to join{% else %}Join this team{% endif %}</strong>
-                                {% if team.get('requestRequired') %}
-                                <textarea name="message" required minlength="30" maxlength="2000" rows="4" placeholder="Tell the team leaders why you want to join"></textarea>
-                                {% endif %}
-                                {% if team.get('entryCodeHash') %}
-                                <input type="password" name="entryCode" required maxlength="60" autocomplete="off" placeholder="Team entry code">
-                                {% endif %}
-                                <button class="button team-action" type="submit"><strong>{% if team.get('requestRequired') %}Send request{% else %}Join team{% endif %}</strong></button>
+                            <form method="post" action="/team/{{ team['_id'] }}/join" class="team-show__join-action">
+                                <button class="button team-action" type="submit"><strong>Join team</strong></button>
                             </form>
                         {% endif %}
                     {% endif %}
