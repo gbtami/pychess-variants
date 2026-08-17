@@ -7,27 +7,6 @@
         <a class="auto-refresh button active" href="#" id="auto-refresh-toggle">Auto refresh</a>
 
         <div>
-            <h2>Lobby Chat</h2>
-            <div class="player_chats">
-                <div class="game" data-chan="lobby" data-room="lobby">
-                    <div class="title-time">
-                        <span class="title">/lobby</span>
-                    </div>
-                    <div class="chat">
-                        {% for line in lobby_lines %}
-                        <div class="line{% if line.user == '' %} lichess{% endif %}">
-                            <a class="user-link" href="/@/{{ line.user }}">{{ line.user }}</a>
-                            <span class="text">{{ line.message }}</span>
-                        </div>
-                        {% else %}
-                        <div class="line lichess"><span class="text">No lobby chat lines.</span></div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div>
             <h2>Round Chats</h2>
             <div class="player_chats">
                 {% for game in round_games %}

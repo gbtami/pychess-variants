@@ -24,16 +24,7 @@ class TournamentChatMessage(ChatMessage, total=False):
     _id: object
 
 
-class LobbyChatMessage(ChatMessage):
-    type: Literal["lobbychat"]
-    _id: NotRequired[object]
-
-
-class LobbyChatMessageDb(LobbyChatMessage):
-    pass
-
-
-ChatLine: TypeAlias = ChatMessage | LobbyChatMessage | TournamentChatMessage
+ChatLine: TypeAlias = ChatMessage | TournamentChatMessage
 
 
 class LobbyCountMessage(TypedDict):
@@ -523,7 +514,6 @@ LobbyInboundMessage = (
     | DeleteSeekMessage
     | LeaveSeekMessage
     | AcceptSeekMessage
-    | LobbyChatMessage
     | CreateAutoPairingMessage
     | CancelAutoPairingMessage
 )

@@ -61,7 +61,7 @@ export interface MsgShutdown {
 }
 
 export interface MsgChat {
-    room?: string; // Unlike "roundchat", "lobbychat" messages don't have such property and currently re-using same interface for them as well.
+    room?: string; // Tournament/simul "lobbychat" messages have no room property; round chat reuses this interface.
     user: string;
     message: string;
     time?: number;

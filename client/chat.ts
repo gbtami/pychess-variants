@@ -148,17 +148,8 @@ export function chatMessage(
     const messageNodes = linkifyNodes(message, 'chat-message-link');
 
     // Update active usernames set
-    if (user.length && user !== '_server' && user !== 'Discord-Relay') {
+    if (user.length && user !== '_server') {
         activeUsernames.add(displayUser);
-    }
-    // Special handling for Discord-Relay messages
-    let discordUser = '';
-    if (user === 'Discord-Relay') {
-        const colonIndex = message.indexOf(':');
-        if (colonIndex > 0) {
-            discordUser = message.substring(0, colonIndex);
-            activeUsernames.add(discordUser);
-        }
     }
     // Get color mapping
     const usernameColorMap = assignUsernameColors(Array.from(activeUsernames));
@@ -172,42 +163,6 @@ export function chatMessage(
                 h('li.message.server', [h('div.time', localTime), h('user', _('Server')), h('t', messageNodes)]),
             ]),
         );
-    } else if (user === 'Discord-Relay') {
-        const colonIndex = message.indexOf(':');
-        if (colonIndex > 0) {
-            discordUser = message.substring(0, colonIndex);
-            const discordMessage = message.substring(colonIndex + 2);
-            const discordMessageNodes = linkifyNodes(discordMessage, 'chat-message-link');
-            patch(
-                container,
-                h('div#messages', [
-                    h('li.message', [
-                        h('div.time', localTime),
-                        h(
-                            'div.discord-icon-container',
-                            h('img.icon-discord-icon', { attrs: { src: '/static/icons/discord.svg', alt: '' } }),
-                        ),
-                        h('user', { style: { color: usernameColorMap[discordUser] || '#aaa' } }, discordUser),
-                        h('t', discordMessageNodes),
-                    ]),
-                ]),
-            );
-        } else {
-            patch(
-                container,
-                h('div#messages', [
-                    h('li.message', [
-                        h('div.time', localTime),
-                        h(
-                            'div.discord-icon-container',
-                            h('img.icon-discord-icon', { attrs: { src: '/static/icons/discord.svg', alt: '' } }),
-                        ),
-                        h('user', { style: { color: '#aaa' } }, user),
-                        h('t', messageNodes),
-                    ]),
-                ]),
-            );
-        }
     } else {
         const userNode = isAnon
             ? h('span', { style: { color: usernameColorMap[displayUser] || '#aaa' } }, displayUser)

@@ -886,7 +886,6 @@ class TestUser:
                     try:
                         async with session.ws_connect(LOBBY_URL) as wsl:
                             # await wsl.send_json({"type": "lobby_user_connected", "username": self.username})
-                            await self.send_lobby_chat(wsl, "Hi all!")
                             # await wsl.send_json({"type": "get_seeks"})
                             loop_time = asyncio.get_running_loop().time
                             last_challenge_sent = loop_time()
@@ -1277,9 +1276,6 @@ class TestUser:
                 self.game_bot_profiles.pop(game_id, None)
                 self.game_challenge_sent_at.pop(game_id, None)
                 self.round_diag.pop(game_id, None)
-
-    async def send_lobby_chat(self, ws, message):
-        await ws_send_json(ws, {"type": "lobbychat", "user": self.username, "message": message})
 
     async def send_round_chat(self, ws, message, game_id, room):
         await ws_send_json(

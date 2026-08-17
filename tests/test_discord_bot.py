@@ -14,11 +14,10 @@ class DiscordBotTestCase(unittest.IsolatedAsyncioTestCase):
         self.addAsyncCleanup(bot.close)
 
         bot.wait_until_ready = AsyncMock()
-        bot.pychess_lobby_channel = cast(discord.abc.Messageable, AsyncMock())
-
         game_seek_channel = cast(discord.abc.Messageable, AsyncMock())
         game_seek_channel.id = 111
         bot.game_seek_channel = game_seek_channel
+        bot._channels_loaded = True
 
         bughouse_channel = cast(discord.abc.Messageable, AsyncMock())
         bughouse_channel.id = 222

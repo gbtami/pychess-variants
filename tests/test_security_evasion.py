@@ -2,7 +2,6 @@ import asyncio
 import json
 import time
 from datetime import UTC, datetime
-from unittest.mock import AsyncMock, patch
 
 import test_logger
 from admin import ban, set_shadowban, unban
@@ -15,7 +14,6 @@ from tournament.auto_play_tournament import ArenaTestTournament
 from tournament.tournament import upsert_tournament_to_db
 from tournament.tournaments import load_tournament
 from user import User
-from wsl import handle_lobbychat
 
 from server import make_app
 
@@ -271,25 +269,6 @@ class AdminBanUnbanSignalsTestCase(AioHTTPTestCase):
         unbanned_doc = await app_state.db.user.find_one({"_id": "cheater"})
         self.assertTrue(unbanned_doc.get("enabled", False))
         self.assertTrue(user.enabled)
-
-    async def test_retired_baninfo_command_does_not_ban_user(self):
-        app_state = get_app_state(self.app)
-        await app_state.db.user.insert_one({"_id": "target_user", "enabled": True, "security": {}})
-
-        admin_user = User(app_state, username="test_admin")
-        ws = object()
-        payload = {"type": "lobbychat", "message": "/baninfo target_user"}
-
-        with (
-            patch("wsl.ADMINS", ["test_admin"]),
-            patch("wsl.ws_send_json", new=AsyncMock()) as send,
-        ):
-            await handle_lobbychat(app_state, ws, admin_user, payload)
-
-        target_doc = await app_state.db.user.find_one({"_id": "target_user"})
-        self.assertTrue(target_doc.get("enabled", False))
-        send.assert_awaited_once()
-        self.assertIn("/admin", send.await_args.args[1]["message"])
 
     async def test_moderation_helpers_resolve_username_case_insensitively(self):
         app_state = get_app_state(self.app)

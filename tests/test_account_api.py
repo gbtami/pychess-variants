@@ -582,10 +582,6 @@ class AccountApiTestCase(AioHTTPTestCase):
             {"_id": "tour-hist", "createdBy": "alice", "status": 0}
         )
         await app_state.db.simul.insert_one({"_id": "sim-hist", "createdBy": "alice", "status": 0})
-        app_state.lobby.lobbychat = [
-            {"type": "lobbychat", "user": "alice", "message": "cached alice lobby"},
-            {"type": "lobbychat", "user": "bob", "message": "cached bob lobby"},
-        ]
         app_state.tournaments["tour1"] = SimpleNamespace(
             tourneychat=[
                 {"type": "lobbychat", "user": "alice", "message": "cached alice tournament"},
@@ -689,8 +685,6 @@ class AccountApiTestCase(AioHTTPTestCase):
         self.assertEqual(1, await app_state.db.tournament.count_documents({"_id": "tour-hist"}))
         self.assertEqual(1, await app_state.db.simul.count_documents({"_id": "sim-hist"}))
 
-        self.assertEqual(ERASED_POST_USER, app_state.lobby.lobbychat[0]["user"])
-        self.assertEqual("cached bob lobby", app_state.lobby.lobbychat[1]["message"])
         self.assertEqual(ERASED_POST_USER, app_state.tournaments["tour1"].tourneychat[0]["user"])
         self.assertEqual(
             "cached bob tournament", app_state.tournaments["tour1"].tourneychat[1]["message"]

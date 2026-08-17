@@ -94,38 +94,43 @@ async def set_shadowban(
     return True
 
 
+def timeout_user(
+    app_state: PychessGlobalAppState,
+    raw_username: str,
+) -> str | None:
+    username = _resolve_online_username(app_state.users, raw_username)
+    if username is None or is_protected_username(username):
+        return None
+
+    app_state.users[username].set_silence()
+    return username
+
+
 def silence(
     app_state: PychessGlobalAppState,
     raw_username: str,
-    chat: collections.deque[ChatLine] | list[ChatLine] | None = None,
+    chat: collections.deque[ChatLine] | list[ChatLine],
     reason_text: str = "spamming the chat",
 ) -> FullChatMessage | None:
-    response: FullChatMessage | None = None
-    spammer = _resolve_online_username(app_state.users, raw_username)
-    if spammer is not None and is_protected_username(spammer):
+    username = timeout_user(app_state, raw_username)
+    if username is None:
         return None
-    if spammer is not None:
-        chat_lines = app_state.lobby.lobbychat if chat is None else chat
-        users = app_state.users
 
-        users[spammer].set_silence()
+    if isinstance(chat, collections.deque):
+        kept_lines = [line for line in chat if line["user"] != username]
+        chat.clear()
+        chat.extend(kept_lines)
+    else:
+        chat[:] = [line for line in chat if line["user"] != username]
 
-        if isinstance(chat_lines, collections.deque):
-            kept_lines = [line for line in chat_lines if line["user"] != spammer]
-            chat_lines.clear()
-            chat_lines.extend(kept_lines)
-        else:
-            chat_lines[:] = [line for line in chat_lines if line["user"] != spammer]
-
-        chat_lines.append(
-            {
-                "type": "lobbychat",
-                "user": "",
-                "message": "%s was timed out 15 minutes for %s." % (spammer, reason_text),
-            }
-        )
-        response = {"type": "fullchat", "lines": list(chat_lines)}
-    return response
+    chat.append(
+        {
+            "type": "lobbychat",
+            "user": "",
+            "message": "%s was timed out 15 minutes for %s." % (username, reason_text),
+        }
+    )
+    return {"type": "fullchat", "lines": list(chat)}
 
 
 async def ban(app_state: PychessGlobalAppState, raw_username: str) -> bool:

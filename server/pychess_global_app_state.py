@@ -40,7 +40,6 @@ from const import (
     GAME_CATEGORIES,
     HTTP_ANON_USER,
     LANGUAGES,
-    MAX_CHAT_LINES,
     MONTHLY,
     NONE_USER,
     SCHEDULE_MAX_DAYS,
@@ -436,27 +435,6 @@ class PychessGlobalAppState:
                     cursor = self.db.dailypuzzle.find()
                     docs = await cursor.to_list(length=365 * len(GAME_CATEGORIES))
                     self.daily_puzzle_ids = {doc["_id"]: doc["puzzleId"] for doc in docs}
-
-                if "lobbychat" not in db_collections:
-                    try:
-                        await self.db.create_collection(
-                            "lobbychat", capped=True, size=100000, max=MAX_CHAT_LINES
-                        )
-                    except NotImplementedError:
-                        await self.db.create_collection("lobbychat")
-                else:
-                    cursor = self.db.lobbychat.find(
-                        projection={
-                            "_id": 0,
-                            "type": 1,
-                            "user": 1,
-                            "message": 1,
-                            "room": 1,
-                            "time": 1,
-                        }
-                    )
-                    docs = await cursor.to_list(length=MAX_CHAT_LINES)
-                    self.lobby.lobbychat = collections.deque(docs, MAX_CHAT_LINES)
 
                 await self.db.game.create_index("us")
                 await self.db.game.create_index("r")
@@ -1136,7 +1114,6 @@ class PychessGlobalAppState:
         result["PyChess"] = User(self, bot=True, username="PyChess")
         result["Random-Mover"] = User(self, bot=True, username="Random-Mover")
         result["Fairy-Stockfish"] = User(self, bot=True, username="Fairy-Stockfish")
-        result["Discord-Relay"] = User(self, anon=True, username="Discord-Relay")
         # Shared, stateless identity for ordinary anonymous HTTP page views.
         # It is reserved, so User.__init__ does not create a cleanup task.
         result[HTTP_ANON_USER] = User(self, anon=True, username=HTTP_ANON_USER)

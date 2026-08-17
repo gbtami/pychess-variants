@@ -170,11 +170,10 @@ These may include:
 - database providers, including DigitalOcean-managed MongoDB (EU region);
 - logging/monitoring providers used by our deployment platform and operational stack;
 - OAuth login providers, such as lichess, lishogi, Discord, and Google;
-- community platforms, including our Discord server integration used to relay public lobby chat messages in both directions (pychess.org lobby -> Discord and Discord -> pychess.org lobby);
+- community platforms, including our Discord server;
 - open-source software and dependencies used to run the service.
 
 When you sign in through an OAuth provider, that provider may process your data under its own privacy policy. We do not control those providers’ privacy practices.
-If Discord relay is enabled, relayed messages are also subject to Discord's own terms, privacy policy, and retention practices.
 
 ## 9. International transfers
 
@@ -193,12 +192,10 @@ Current retention rules:
 - **Session cookies:** kept until logout, expiry, or deletion by the browser.
 - **Technical logs:** kept for a limited period based on platform/provider retention and operational needs.
 - **Public games, moves, results, ratings, and public activity:** may be kept indefinitely as part of the public chess archive.
-- **Public chat:** currently stored as a capped history (latest ~100 lobby lines), with older lines rolling out automatically.
+- **Public chat:** game, tournament, and simul chat may be retained with the related game or event records and moderation data.
 - **Private messages:** currently have no automatic expiry in application code; user-side delete hides messages for that user, while moderation/legal records may be retained.
 - **Moderation and abuse-prevention records:** may be kept as long as necessary to protect the service and users.
 - **Closed or deleted accounts:** account access may be disabled and profile information may be deleted or anonymized, but public games and related public records may remain in the archive.
-
-If configured by operators, public lobby chat may be relayed to and from external community channels (for example Discord), where separate platform retention and policies apply.
 
 ## 11. Account deletion and data requests
 

@@ -35,10 +35,6 @@ async def mod_public_chat(request: web.Request) -> ViewContext:
 
     app_state = user.app_state
 
-    lobby_lines = [
-        line for line in app_state.lobby.lobbychat if str(line.get("user") or "").strip()
-    ]
-
     tournaments: list[dict[str, object]] = []
     for tournament in app_state.tournaments.values():
         lines = [line for line in tournament.tourneychat if str(line.get("user") or "").strip()]
@@ -79,7 +75,6 @@ async def mod_public_chat(request: web.Request) -> ViewContext:
     context["view_css"] = "mod_public_chat.css"
     context["admin"] = True
     context["admin_section"] = "public-chat"
-    context["lobby_lines"] = lobby_lines
     context["round_games"] = round_games
     context["tournaments"] = tournaments
     return context

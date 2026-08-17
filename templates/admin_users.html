@@ -91,7 +91,7 @@
                             data-admin-action="timeout"
                             data-action-url="/api/admin/users/{{ admin_user_status.username }}/timeout"
                             data-confirm-title="Apply chat timeout?"
-                            data-confirm-text="Apply a 15-minute timeout to {{ admin_user_status.username }} and remove their lobby chat lines."
+                            data-confirm-text="Apply a 15-minute public chat timeout to {{ admin_user_status.username }}."
                             data-needs-reason="true"
                             {% if not admin_user_status.online or admin_user_status.timed_out %}disabled{% endif %}
                             title="{% if admin_user_status.timed_out %}This user already has a chat timeout{% elif not admin_user_status.online %}The user must be online{% else %}Apply a 15-minute chat timeout{% endif %}"

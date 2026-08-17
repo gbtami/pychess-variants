@@ -664,7 +664,6 @@ export function updateMovelist(ctrl: TwoBoardController, full = true, activate =
                 const v = h('li.message', [
                     h('div.time', time),
                     h('user', userNode),
-                    /*h("div.discord-icon-container", h("img.icon-discord-icon", { attrs: { src: '/static/icons/discord.svg' } }))*/
                     x.message.indexOf('!bug') > -1 ? h('div.bugchat.' + m, []) : h('div', [x.message]),
                 ]);
 

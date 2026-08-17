@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-from collections.abc import Mapping
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
@@ -13,9 +12,7 @@ from auto_pair import (
     auto_pair,
     find_matching_user_for_seek,
 )
-from chat import chat_response
-from chat_permissions import lobby_chat_eligible
-from const import ANON_PREFIX, STARTED
+from const import STARTED
 from header_challenges import (
     broadcast_challenge_state,
     challenge_participants,
@@ -23,7 +20,6 @@ from header_challenges import (
     schedule_direct_challenge_offline,
     set_direct_challenge_status,
 )
-from link_filter import sanitize_user_message
 from newid import new_id
 
 if TYPE_CHECKING:
@@ -45,12 +41,10 @@ if TYPE_CHECKING:
         CreateSeekMessage,
         DeleteSeekMessage,
         DirectChallengeCreatedMessage,
-        FullChatMessage,
         GameInProgressMessage,
         HostCreatedMessage,
         InviteCreatedMessage,
         LeaveSeekMessage,
-        LobbyChatMessage,
         LobbyCountMessage,
         LobbyInboundMessage,
         LobbyLeaderboardMessage,
@@ -83,7 +77,6 @@ from seek import (
     is_targeted_two_board_seek,
     user_reached_seek_limit,
 )
-from settings import ADMINS
 from tournament.tournament_spotlights import tournament_spotlights
 from tournament_director import is_tournament_director
 from utils import join_seek, load_game, remove_seek, send_bot_game_start_unless_streaming
@@ -99,7 +92,6 @@ BOT_UNSUPPORTED_VARIANT_MESSAGE = "This BOT does not support the selected varian
 CATALOGUED_CASUAL_ONLY_MESSAGE = (
     "Catalogued variants are casual-only and not available for auto-pairing."
 )
-LOBBY_ADMIN_COMMANDS_RETIRED_MESSAGE = "Lobby admin commands moved to /admin."
 
 
 async def _reject_bot_lobby_action(ws: WebSocketResponse, user: User) -> bool:
@@ -257,8 +249,6 @@ async def process_message(
         await handle_leave_seek(app_state, ws, user, data)
     elif data["type"] == "accept_seek":
         await handle_accept_seek(app_state, ws, user, data)
-    elif data["type"] == "lobbychat":
-        await handle_lobbychat(app_state, ws, user, data)
     elif data["type"] == "create_auto_pairing":
         await handle_create_auto_pairing(app_state, ws, user, data)
     elif data["type"] == "cancel_auto_pairing":
@@ -675,12 +665,6 @@ async def send_lobby_user_connected(
     }
     await ws_send_json(ws, lobby_response)
 
-    fullchat_response: FullChatMessage = {
-        "type": "fullchat",
-        "lines": list(app_state.lobby.lobbychat),
-    }
-    await ws_send_json(ws, fullchat_response)
-
     # send game count
     game_count_response: LobbyCountMessage = {"type": "g_cnt", "cnt": app_state.g_cnt[0]}
     await ws_send_json(ws, game_count_response)
@@ -739,51 +723,6 @@ async def send_lobby_user_connected(
     )
     auto_pairing_response: AutoPairingStatusMessage = {"type": auto_pairing}
     await ws_send_json(ws, auto_pairing_response)
-
-
-async def handle_lobbychat(
-    app_state: PychessGlobalAppState, ws: WebSocketResponse, user: User, data: LobbyChatMessage
-) -> None:
-    if user.username.startswith(ANON_PREFIX):
-        return
-
-    is_admin = user.username in ADMINS
-    if not is_admin and user.username != "Discord-Relay" and not lobby_chat_eligible(user):
-        return
-
-    message = sanitize_user_message(data["message"])
-    response: Mapping[str, object] | None = None
-
-    is_shadowbanned = bool(getattr(user, "shadowban", False))
-
-    # Do not let a mistyped retired command (especially one containing a key)
-    # become a public chat line during the migration to the Admin Console.
-    if is_admin and message.startswith("/"):
-        await ws_send_json(
-            ws,
-            {"type": "error", "message": LOBBY_ADMIN_COMMANDS_RETIRED_MESSAGE},
-        )
-        return
-
-    if user.anon and user.username != "Discord-Relay":
-        pass
-
-    else:
-        if user.silence == 0 and app_state.chat_flood.allow_message(
-            f"public:{user.username}", message
-        ):
-            lobby_response = chat_response("lobbychat", user.username, message)
-            if is_shadowbanned:
-                await ws_send_json_many(user.lobby_sockets, lobby_response)
-            else:
-                response = lobby_response
-                await app_state.lobby.lobby_chat_save(lobby_response)
-
-    if response is not None:
-        await app_state.lobby.lobby_broadcast(response)
-
-    if response is not None and user.silence == 0:
-        await app_state.discord.send_to_discord("lobbychat", message, user.username)
 
 
 async def handle_cancel_auto_pairing(

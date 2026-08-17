@@ -491,7 +491,7 @@ async def handle_lobbychat(
             parts = message.split()
             if len(parts) >= 2:
                 response = silence(app_state, parts[1], tournament.tourneychat)
-                # silence message was already added to lobbychat in silence()
+                # silence message was already added to the tournament chat in silence()
 
         elif message.startswith("/shadowban"):
             parts = message.split()

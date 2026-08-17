@@ -1,22 +1,11 @@
 from __future__ import annotations
 
 from time import time
-from typing import Literal, overload
 
-from ws_types import ChatLine, ChatMessage, LobbyChatMessage
-
-
-@overload
-def chat_response(
-    msg_type: Literal["lobbychat"], username: str, message: str, room: str = ""
-) -> LobbyChatMessage: ...
+from ws_types import ChatMessage
 
 
-@overload
-def chat_response(msg_type: str, username: str, message: str, room: str = "") -> ChatMessage: ...
-
-
-def chat_response(msg_type: str, username: str, message: str, room: str = "") -> ChatLine:
+def chat_response(msg_type: str, username: str, message: str, room: str = "") -> ChatMessage:
     return {
         "type": msg_type,
         "user": username,

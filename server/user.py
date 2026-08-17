@@ -262,7 +262,7 @@ class User:
         # last game played
         self.tv: str | None = None
 
-        # lobby chat spammer time out (15 min)
+        # public chat spammer time out (15 min)
         self.silence: int = 0
 
         # purge inactive anon users after ANON_TIMEOUT sec

@@ -2379,20 +2379,6 @@ form#game-mode label {
   color: var(--time-text);
 }
 
-.chat .discord-icon-container {
-  display: inline-flex;
-  align-items: center;
-  margin-right: 3px;
-  width: 0.8em;
-  height: 0.55em;
-  background: white;
-  background-position: center;
-  transform: translateY(2px);
-}
-.chat .discord-icon {
-  fill: #5865f2;
-}
-
 user {
   padding-right: 6px;
   font-weight: bold;

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-from time import time
 from typing import TYPE_CHECKING
 
 import discord
@@ -9,7 +8,7 @@ from const import CATEGORIES
 from discord.ext.commands import Bot
 
 if TYPE_CHECKING:
-    from discord import Guild, Message, Role
+    from discord import Guild, Role
     from pychess_global_app_state import PychessGlobalAppState
 
 log = logging.getLogger("discord")
@@ -18,7 +17,6 @@ log.setLevel(logging.WARNING)
 # pychess-players Discord server
 SERVER_ID = 634298688663191582
 
-PYCHESS_LOBBY_CHANNEL_ID = 653203449927827456
 GAME_SEEK_CHANNEL_ID = 823862902648995910
 TOURNAMENT_CHANNEL_ID = 861234739820888074
 ANNOUNCEMENT_CHANNEL_ID = 865964574507008000
@@ -49,7 +47,7 @@ ROLES = {
     "bughouse": 1416061701966790716,
 }
 
-intents = discord.Intents(messages=True, guilds=True, message_content=True)
+intents = discord.Intents(guilds=True)
 
 
 class FakeDiscordBot:
@@ -63,30 +61,14 @@ class DiscordBot(Bot):
 
         self.app_state = app_state
 
-        self.pychess_lobby_channel: discord.abc.Messageable | None = None
         self.game_seek_channel: discord.abc.Messageable | None = None
         self.tournament_channel: discord.abc.Messageable | None = None
         self.announcement_channel: discord.abc.Messageable | None = None
         self.bughouse_channel: discord.abc.Messageable | None = None
         self._inaccessible_channel_ids: set[int] = set()
-
-    async def on_message(self, msg: Message) -> None:
-        log.debug("---on_message() %s", msg)
-        if msg.author.id == self.user.id or msg.channel.id != PYCHESS_LOBBY_CHANNEL_ID:
-            log.debug("---self.user msg OR other channel.id -> return")
-            return
-        await self.app_state.lobby.lobby_chat(
-            "Discord-Relay", "%s: %s" % (msg.author.display_name, msg.content), int(time())
-        )
+        self._channels_loaded = False
 
     def get_channels(self) -> None:
-        # Get the pychess-lobby channel
-        lobby_channel = self.get_channel(PYCHESS_LOBBY_CHANNEL_ID)
-        self.pychess_lobby_channel = (
-            lobby_channel if isinstance(lobby_channel, discord.abc.Messageable) else None
-        )
-        log.debug("pychess_lobby_channel is: %s", self.pychess_lobby_channel)
-
         game_seek_channel = self.get_channel(GAME_SEEK_CHANNEL_ID)
         self.game_seek_channel = (
             game_seek_channel if isinstance(game_seek_channel, discord.abc.Messageable) else None
@@ -112,25 +94,15 @@ class DiscordBot(Bot):
             bughouse_channel if isinstance(bughouse_channel, discord.abc.Messageable) else None
         )
         log.debug("bughouse_channel is: %s", self.bughouse_channel)
+        self._channels_loaded = True
 
     async def send_to_discord(self, msg_type: str, msg: str, user: str | None = None) -> None:
         await self.wait_until_ready()
 
-        if self.pychess_lobby_channel is None:
+        if not self._channels_loaded:
             self.get_channels()
 
-        if (
-            self.pychess_lobby_channel is not None
-            and msg_type == "lobbychat"
-            and user
-            and user != "Discord-Relay"
-        ):
-            log.debug("+++ lobbychat msg: %s %s", user, msg)
-            await self._safe_send(
-                self.pychess_lobby_channel, "**%s**: %s" % (user, msg), "lobbychat"
-            )
-
-        elif self.game_seek_channel is not None and msg_type in ("create_seek", "accept_seek"):
+        if self.game_seek_channel is not None and msg_type in ("create_seek", "accept_seek"):
             log.debug("+++ seek msg: %s", msg)
             await self._safe_send(self.game_seek_channel, "%s" % msg, "seek")
 

@@ -203,9 +203,6 @@ async def _scrub_authored_chat_history(app_state: Any, username: str) -> None:
     if db is None:
         return
 
-    for cached_line in getattr(getattr(app_state, "lobby", None), "lobbychat", ()):
-        _scrub_chat_line(cached_line, username)
-
     for tournament in getattr(app_state, "tournaments", {}).values():
         for cached_line in getattr(tournament, "tourneychat", ()):
             _scrub_chat_line(cached_line, username)
@@ -218,10 +215,13 @@ async def _scrub_authored_chat_history(app_state: Any, username: str) -> None:
         for cached_line in getattr(game, "messages", ()):
             _scrub_chat_line(cached_line, username)
 
-    await db.lobbychat.update_many(
-        {"user": username},
-        {"$set": {"user": ERASED_POST_USER, "message": ERASED_MESSAGE_TEXT}},
-    )
+    # Keep GDPR erasure compatible with the retired lobby-chat collection until
+    # operators choose to drop that historical collection from MongoDB.
+    if "lobbychat" in await db.list_collection_names():
+        await db.lobbychat.update_many(
+            {"user": username},
+            {"$set": {"user": ERASED_POST_USER, "message": ERASED_MESSAGE_TEXT}},
+        )
     await db.tournament_chat.update_many(
         {"user": username},
         {"$set": {"user": ERASED_POST_USER, "message": ERASED_MESSAGE_TEXT}},

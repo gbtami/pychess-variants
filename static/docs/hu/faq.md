@@ -84,13 +84,9 @@ You need to have a Lichess account. If you don't already, please go to [Lichess]
 
 No! That is done via OAuth and your password isn't revealed to Pychess, just like how you can log in to third-party websites with your Google or Facebook accounts.</details>
 
-<details><summary>Miért nem tudok üzenetet küldeni az előszoba csevegőjébe?</summary>
-
-Az előszoba csevegője az aktív Pychess-játékosok számára készült. Az íráshoz a fiókodnak legalább 24 órásnak kell lennie, legalább 10 játszmát be kell fejezned, és ezek közül legalább 5-nek a hagyományos sakktól eltérő változatban játszott értékelt játszmának kell lennie. A csevegőt továbbra is olvashatod, és ez a korlátozás nem érinti a játszmák vagy versenyek csevegőjét.</details>
-
 <details><summary>What's the best way to contact the developers?</summary>
 
-You can try the lobby chat, although the developers might not be on to answer. More reliably, we use [Discord](https://discord.gg/aPs8RKr).</details>
+The most reliable way is our [Discord](https://discord.gg/aPs8RKr), or you can open an issue on [GitHub](https://github.com/gbtami/pychess-variants/issues).</details>
 
 <details><summary>How is the site supported?</summary>
 

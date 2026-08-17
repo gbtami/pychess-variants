@@ -8,7 +8,7 @@ from admin import (
     is_protected_username,
     resolve_existing_username,
     set_shadowban,
-    silence,
+    timeout_user,
     unban,
 )
 from aiohttp import web
@@ -119,10 +119,8 @@ async def admin_user_action(request: web.Request) -> web.Response:
         if reason not in TIMEOUT_REASONS:
             return _error("Invalid timeout reason", 400)
 
-        fullchat = silence(app_state, target, reason_text=TIMEOUT_REASONS[reason])
-        if fullchat is None:
+        if timeout_user(app_state, target) is None:
             return _error("User must be online to timeout", 409)
-        await app_state.lobby.lobby_broadcast(fullchat)
         await record_mod_action(
             app_state,
             moderator,

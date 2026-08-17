@@ -1,7 +1,6 @@
 import asyncio
 import json
 import time
-from collections import deque
 from unittest.mock import patch
 
 from aiohttp.test_utils import AioHTTPTestCase
@@ -138,9 +137,6 @@ class AdminApiTestCase(AioHTTPTestCase):
             )
 
             target.challenge_channels.add(asyncio.Queue())
-            app_state.lobby.lobbychat = deque(
-                [{"type": "lobbychat", "user": "target", "message": "spam"}]
-            )
             online = await self.client.post(
                 "/api/admin/users/target/timeout", data={"reason": "spam"}
             )
@@ -152,7 +148,6 @@ class AdminApiTestCase(AioHTTPTestCase):
         self.assertEqual(online.status, 200)
         self.assertEqual(duplicate.status, 409)
         self.assertGreater(target.silence, 0)
-        self.assertNotIn("target", [line["user"] for line in app_state.lobby.lobbychat])
         log = await app_state.db.mod_log.find_one({"user": "target"})
         self.assertEqual("chat_timeout", log["action"])
         self.assertEqual("spamming the chat", log["details"])

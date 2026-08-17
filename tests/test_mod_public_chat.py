@@ -33,15 +33,9 @@ class ModPublicChatTestCase(AioHTTPTestCase):
             resp = await self.client.get("/mod/public-chat")
         self.assertEqual(resp.status, 403)
 
-    async def test_mod_public_chat_renders_lobby_and_tournament_lines(self):
+    async def test_mod_public_chat_renders_round_and_tournament_lines(self):
         app_state = get_app_state(self.app)
         app_state.users["mod"] = User(app_state, username="mod")
-        app_state.lobby.lobbychat = deque(
-            [
-                {"type": "lobbychat", "user": "bob", "message": "hello lobby"},
-                {"type": "lobbychat", "user": "", "message": "system"},
-            ]
-        )
         app_state.tournaments["t1234567"] = SimpleNamespace(
             id="t1234567",
             name="Arena One",
@@ -63,7 +57,7 @@ class ModPublicChatTestCase(AioHTTPTestCase):
         self.assertEqual(resp.status, 200)
         body = await resp.text()
         self.assertIn("Public Chats", body)
-        self.assertIn("hello lobby", body)
+        self.assertNotIn("Lobby Chat", body)
         self.assertIn("Arena One", body)
         self.assertIn("hello arena", body)
         self.assertIn("white vs black", body)
@@ -75,18 +69,12 @@ class ModPublicChatTestCase(AioHTTPTestCase):
         self.assertIn('href="/admin/users"', body)
         self.assertIn("admin.css", body)
 
-    async def test_public_chat_timeout_lobby(self):
+    async def test_public_chat_timeout_rejects_retired_lobby_channel(self):
         app_state = get_app_state(self.app)
-        mod = User(app_state, username="mod")
-        target = User(app_state, username="target")
-        app_state.users[mod.username] = mod
-        app_state.users[target.username] = target
-        app_state.lobby.lobbychat = deque(
-            [{"type": "lobbychat", "user": "target", "message": "spam message"}]
-        )
+        app_state.users["mod"] = User(app_state, username="mod")
 
         self.set_session_user("mod")
-        with patch("mod_public_chat_api.ADMINS", ["mod"]), patch("admin.ADMINS", ["mod"]):
+        with patch("mod_public_chat_api.ADMINS", ["mod"]):
             resp = await self.client.post(
                 "/api/mod/public-chat/timeout",
                 data={
@@ -94,13 +82,10 @@ class ModPublicChatTestCase(AioHTTPTestCase):
                     "roomId": "lobby",
                     "userId": "target",
                     "reason": "spam",
-                    "text": "spam message",
                 },
             )
 
-        self.assertEqual(resp.status, 200)
-        self.assertGreater(target.silence, 0)
-        self.assertIn("timed out 15 minutes", app_state.lobby.lobbychat[-1]["message"])
+        self.assertEqual(resp.status, 400)
 
     async def test_public_chat_timeout_tournament(self):
         app_state = get_app_state(self.app)
