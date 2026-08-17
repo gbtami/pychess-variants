@@ -2,6 +2,7 @@ import json
 import time
 from datetime import UTC, datetime
 from pathlib import Path
+from unittest.mock import patch
 
 from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
@@ -165,6 +166,135 @@ class TeamTestCase(AioHTTPTestCase):
         self.set_session_user("alice")
         creator_leave = await self.client.post("/team/variant-fans/quit", allow_redirects=False)
         self.assertEqual(403, creator_leave.status)
+
+    async def test_team_close_archives_members_and_clears_requests(self):
+        await self.create_team()
+        app_state = get_app_state(self.app)
+        self.add_live_user("bob")
+        self.add_live_user("charlie")
+
+        self.set_session_user("bob")
+        await self.client.post("/team/variant-fans/join", data={}, allow_redirects=False)
+        await app_state.db.team.update_one(
+            {"_id": "variant-fans"}, {"$set": {"requestRequired": True}}
+        )
+        self.set_session_user("charlie")
+        requested = await self.client.post(
+            "/team/variant-fans/join",
+            data={"message": "I would like to join this variant team please."},
+            allow_redirects=False,
+        )
+        self.assertEqual(302, requested.status)
+        self.assertIsNotNone(
+            await app_state.db.team_request.find_one({"_id": "charlie@variant-fans"})
+        )
+
+        self.set_session_user("alice")
+        closed = await self.client.post("/team/variant-fans/close", data={}, allow_redirects=False)
+        self.assertEqual(302, closed.status)
+        self.assertEqual("/team/variant-fans", closed.headers["Location"])
+
+        team = await app_state.db.team.find_one({"_id": "variant-fans"})
+        self.assertFalse(team["enabled"])
+        self.assertEqual(2, team["memberCount"])
+        self.assertEqual("alice", team["closedBy"])
+        self.assertIsNotNone(team.get("closedAt"))
+        self.assertIsNotNone(await app_state.db.team_member.find_one({"_id": "bob@variant-fans"}))
+        self.assertEqual(
+            0, await app_state.db.team_request.count_documents({"team": "variant-fans"})
+        )
+
+        listing = await self.client.get("/team")
+        self.assertNotIn('href="/team/variant-fans"', await listing.text())
+        page = await self.client.get("/team/variant-fans")
+        self.assertEqual(200, page.status)
+        html = await page.text()
+        self.assertIn("CLOSED", html)
+        self.assertIn("This team is closed", html)
+        self.assertNotIn("Team tournament", html)
+        self.assertNotIn("New team update", html)
+        self.assertNotIn(">Settings<", html)
+
+        self.set_session_user("charlie")
+        join = await self.client.post("/team/variant-fans/join", data={}, allow_redirects=False)
+        self.assertEqual(404, join.status)
+
+        log = await app_state.db.mod_log.find_one({"team": "variant-fans", "action": "close_team"})
+        self.assertIsNotNone(log)
+        self.assertEqual("alice", log["mod"])
+
+        self.set_session_user("bob")
+        left = await self.client.post("/team/variant-fans/quit", allow_redirects=False)
+        self.assertEqual(302, left.status)
+        self.assertIsNone(await app_state.db.team_member.find_one({"_id": "bob@variant-fans"}))
+        team = await app_state.db.team.find_one({"_id": "variant-fans"})
+        self.assertEqual(1, team["memberCount"])
+
+    async def test_closed_team_blocks_new_tournament_participation(self):
+        await self.create_team()
+        app_state = get_app_state(self.app)
+        self.add_live_user("bob")
+        self.set_session_user("bob")
+        await self.client.post("/team/variant-fans/join", data={}, allow_redirects=False)
+
+        tournament = SwissTestTournament(
+            app_state,
+            "team-swiss",
+            variant="chess",
+            rounds=5,
+            team_id="variant-fans",
+            created_by="alice",
+            with_clock=False,
+        )
+        self.set_session_user("alice")
+        await self.client.post("/team/variant-fans/close", data={}, allow_redirects=False)
+
+        self.assertEqual(
+            "You must be a member of the tournament team to join.",
+            await tournament.join(app_state.users["bob"]),
+        )
+
+    async def test_site_admin_can_reopen_closed_team_from_admin_console(self):
+        await self.create_team()
+        app_state = get_app_state(self.app)
+        await self.client.post("/team/variant-fans/close", data={}, allow_redirects=False)
+
+        creator_reopen = await self.client.post(
+            "/team/variant-fans/reopen", data={}, allow_redirects=False
+        )
+        self.assertEqual(403, creator_reopen.status)
+        denied_admin_page = await self.client.get("/admin/teams")
+        self.assertEqual(403, denied_admin_page.status)
+
+        self.add_live_user("siteadmin")
+        self.set_session_user("siteadmin")
+        with (
+            patch("views.admin.ADMINS", ("siteadmin",)),
+            patch("views.team.ADMINS", ("siteadmin",)),
+        ):
+            admin_page = await self.client.get("/admin/teams?status=closed")
+            self.assertEqual(200, admin_page.status)
+            admin_html = await admin_page.text()
+            self.assertIn("Variant Fans", admin_html)
+            self.assertIn("Reopen team", admin_html)
+
+            reopened = await self.client.post(
+                "/team/variant-fans/reopen",
+                data={"redirect": "/admin/teams", "reason": "Closure reviewed"},
+                allow_redirects=False,
+            )
+            self.assertEqual(302, reopened.status)
+            self.assertEqual("/admin/teams", reopened.headers["Location"])
+
+        team = await app_state.db.team.find_one({"_id": "variant-fans"})
+        self.assertTrue(team["enabled"])
+        self.assertNotIn("closedAt", team)
+        self.assertNotIn("closedBy", team)
+        self.assertEqual("siteadmin", team["reopenedBy"])
+        self.assertIsNotNone(await app_state.db.team_member.find_one({"_id": "alice@variant-fans"}))
+        log = await app_state.db.mod_log.find_one({"team": "variant-fans", "action": "reopen_team"})
+        self.assertIsNotNone(log)
+        self.assertEqual("Closure reviewed", log["details"])
 
     async def test_team_tournament_requires_membership_and_leave_withdraws_player(self):
         await self.create_team()
@@ -474,6 +604,8 @@ class TeamTestCase(AioHTTPTestCase):
         self.assertIn("width: min(1000px, calc(100vw - 2rem));", css)
         self.assertIn("grid-template-columns: 12.5rem minmax(0, 1fr);", css)
         self.assertIn(".team-show__content {", css)
+        self.assertIn(".team-show__closed-badge {", css)
+        self.assertIn(".team-lifecycle-danger {", css)
         self.assertIn(".team-show__content__col1 {\n    flex: 0 0 30%;", css)
         self.assertIn(".team-members-page {", css)
         self.assertIn(".team-declined-requests-page,", css)
@@ -498,6 +630,8 @@ class TeamTestCase(AioHTTPTestCase):
         self.assertIn('class="team-list-page teams-page page-menu"', teams)
         self.assertIn('class="team-slist slist slist-pad slist-invert"', teams)
         self.assertIn('class="team-show team-show-page box"', team_show)
+        self.assertIn('class="team-show__closed-badge"', team_show)
+        self.assertIn('/reopen"', team_show)
         self.assertIn('class="team-show__content__col1"', team_show)
         self.assertIn('class="team-show__content__col2"', team_show)
         self.assertIn("href=\"/team/{{ team['_id'] }}/members\">Recent members</a>", team_show)
@@ -525,6 +659,8 @@ class TeamTestCase(AioHTTPTestCase):
         self.assertIn('class="form-split team-entry-fields"', team_new)
         self.assertIn('name="intro" minlength="3" maxlength="200" rows="2"', team_new)
         self.assertIn('class="team-form-page page-menu page-small team-edit"', team_edit)
+        self.assertIn('class="team-lifecycle-danger"', team_edit)
+        self.assertIn('/close"', team_edit)
         self.assertIn('class="page-menu__content box"', team_leaders)
         self.assertIn('class="team-add-leader box__pad"', team_leaders)
         self.assertIn('class="team-permissions form3"', team_leaders)

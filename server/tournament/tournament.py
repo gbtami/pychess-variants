@@ -50,7 +50,7 @@ from pymongo import ReturnDocument
 from rated_start import can_rate_start
 from sortedcollections import ValueSortedDict
 from sortedcontainers import SortedKeysView
-from team import is_team_member
+from team import is_enabled_team_member
 from typing_defs import (
     TournamentDuelItem,
     TournamentDuelsResponse,
@@ -1437,7 +1437,9 @@ class Tournament(ABC):
         return None
 
     async def user_is_team_member(self, user: User) -> bool:
-        return not self.team_id or await is_team_member(self.app_state, self.team_id, user.username)
+        return not self.team_id or await is_enabled_team_member(
+            self.app_state, self.team_id, user.username
+        )
 
     async def team_member_removed(self, user: User) -> None:
         if self.player_data_by_name(user.username) is not None:

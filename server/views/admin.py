@@ -6,7 +6,7 @@ from typing import Any
 
 import aiohttp_jinja2
 from admin import is_protected_username
-from admin_api import MOD_ACTION_LABELS, MOD_LOG_COLLECTION, USER_LOG_ACTIONS
+from admin_api import MOD_ACTION_LABELS, MOD_LOG_COLLECTION, TEAM_LOG_ACTIONS, USER_LOG_ACTIONS
 from admin_ops_api import OPERATION_LOG_ACTIONS, fishnet_key_id
 from aiohttp import web
 from pychess_global_app_state_utils import get_app_state
@@ -127,6 +127,27 @@ async def _operations_history(app_state: Any) -> list[dict[str, object]]:
     ]
 
 
+async def _team_moderation_history(app_state: Any) -> list[dict[str, object]]:
+    collection = getattr(app_state.db, MOD_LOG_COLLECTION)
+    cursor = collection.find({"action": {"$in": list(TEAM_LOG_ACTIONS)}})
+    cursor.sort("createdAt", -1)
+    cursor.limit(20)
+    documents = await cursor.to_list(length=20)
+    return [
+        {
+            "action_label": MOD_ACTION_LABELS.get(
+                str(document.get("action") or ""),
+                str(document.get("action") or "").replace("_", " ").title(),
+            ),
+            "team": str(document.get("team") or ""),
+            "moderator": str(document.get("mod") or ""),
+            "details": str(document.get("details") or ""),
+            "created_at": document.get("createdAt"),
+        }
+        for document in documents
+    ]
+
+
 async def _user_status(app_state: Any, user_doc: UserDocument) -> dict[str, object]:
     username = str(user_doc["_id"])
     live_user = app_state.users.data.get(username)
@@ -195,6 +216,44 @@ async def admin_users(request: web.Request) -> ViewContext:
         return context
 
     context["admin_user_status"] = await _user_status(app_state, user_doc)
+    return context
+
+
+@aiohttp_jinja2.template("admin_teams.html")
+async def admin_teams(request: web.Request) -> ViewContext:
+    context = await _admin_context(request, "teams", "Teams")
+    app_state = get_app_state(request.app)
+    if app_state.db is None:
+        raise web.HTTPServiceUnavailable()
+
+    query_text = request.rel_url.query.get("q", "").strip()[:80]
+    status = request.rel_url.query.get("status", "all")
+    if status not in {"all", "open", "closed"}:
+        status = "all"
+
+    query: dict[str, object] = {}
+    if status == "open":
+        query["enabled"] = True
+    elif status == "closed":
+        query["enabled"] = False
+    if query_text:
+        pattern = {"$regex": re.escape(query_text), "$options": "i"}
+        query["$or"] = [{"_id": pattern}, {"name": pattern}, {"createdBy": pattern}]
+
+    teams = await (
+        app_state.db.team.find(query)
+        .sort([("updatedAt", -1), ("createdAt", -1)])
+        .limit(100)
+        .to_list(length=100)
+    )
+    context.update(
+        {
+            "admin_team_query": query_text,
+            "admin_team_status": status,
+            "admin_teams": teams,
+            "admin_team_history": await _team_moderation_history(app_state),
+        }
+    )
     return context
 
 

@@ -1,0 +1,81 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap" class="admin-shell">
+    <div class="admin-layout">
+        {% include "admin_nav.html" %}
+        <main class="admin-page box box-pad">
+            <h1>Teams</h1>
+            <p class="admin-page__intro">Find teams, close abusive or abandoned teams, and reopen archived teams.</p>
+
+            <form class="admin-team-search" method="get" action="/admin/teams">
+                <label>
+                    Search
+                    <input name="q" value="{{ admin_team_query }}" placeholder="Team name, ID, or creator">
+                </label>
+                <label>
+                    Status
+                    <select name="status">
+                        <option value="all"{% if admin_team_status == 'all' %} selected{% endif %}>All</option>
+                        <option value="open"{% if admin_team_status == 'open' %} selected{% endif %}>Open</option>
+                        <option value="closed"{% if admin_team_status == 'closed' %} selected{% endif %}>Closed</option>
+                    </select>
+                </label>
+                <button class="admin-action-button" type="submit">Search</button>
+            </form>
+
+            <div class="admin-team-list">
+                {% for team in admin_teams %}
+                <article class="admin-team-card">
+                    <header>
+                        <div>
+                            <a href="/team/{{ team['_id'] }}"><strong>{{ team['name'] }}</strong></a>
+                            <small>{{ team['_id'] }}</small>
+                        </div>
+                        {% if team.get('enabled', True) %}
+                        <span class="admin-status is-ok">Open</span>
+                        {% else %}
+                        <span class="admin-status is-danger">Closed</span>
+                        {% endif %}
+                    </header>
+                    <dl>
+                        <div><dt>Creator</dt><dd><a href="/@/{{ team['createdBy'] }}">{{ team['createdBy'] }}</a></dd></div>
+                        <div><dt>Members</dt><dd>{{ team.get('memberCount', 0) }}</dd></div>
+                        <div><dt>Created</dt><dd><info-date timestamp="{{ team['createdAt'].isoformat() if team.get('createdAt') else '' }}"></info-date></dd></div>
+                        <div><dt>Updated</dt><dd><info-date timestamp="{{ team['updatedAt'].isoformat() if team.get('updatedAt') else '' }}"></info-date></dd></div>
+                    </dl>
+                    <form class="admin-team-action-form" method="post" action="/team/{{ team['_id'] }}/{% if team.get('enabled', True) %}close{% else %}reopen{% endif %}">
+                        <input type="hidden" name="redirect" value="/admin/teams">
+                        <input name="reason" maxlength="500" placeholder="Moderation note (optional)">
+                        {% if team.get('enabled', True) %}
+                        <button class="admin-action-button is-danger" type="submit">Close team</button>
+                        {% else %}
+                        <button class="admin-action-button" type="submit">Reopen team</button>
+                        {% endif %}
+                    </form>
+                </article>
+                {% else %}
+                <p class="admin-ops-empty">No teams match this search.</p>
+                {% endfor %}
+            </div>
+
+            <section class="admin-team-history">
+                <h2>Recent team moderation</h2>
+                {% if admin_team_history %}
+                <ol>
+                    {% for entry in admin_team_history %}
+                    <li>
+                        <strong>{{ entry.action_label }}</strong>
+                        <a href="/team/{{ entry.team }}">{{ entry.team }}</a>
+                        <span>by {{ entry.moderator }}{% if entry.created_at %} · <info-date timestamp="{{ entry.created_at.isoformat() }}"></info-date>{% endif %}</span>
+                        {% if entry.details %}<small>{{ entry.details }}</small>{% endif %}
+                    </li>
+                    {% endfor %}
+                </ol>
+                {% else %}
+                <p class="admin-ops-empty">No team moderation actions recorded.</p>
+                {% endif %}
+            </section>
+        </main>
+    </div>
+</div>
+{% endblock %}

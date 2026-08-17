@@ -5,13 +5,18 @@
         <div class="team-show__top box__top">
             <div>
                 <h1>{{ team['name'] }}</h1>
-                {% if team.get('intro') %}<p class="team-show__intro">{{ team['intro'] }}</p>{% endif %}
+                {% if team.get('intro') and (not team_closed or team_is_site_admin) %}<p class="team-show__intro">{{ team['intro'] }}</p>{% endif %}
             </div>
+            {% if team_closed %}
+            <span class="team-show__closed-badge">CLOSED</span>
+            {% else %}
             <a class="team-show__member-count" href="/team/{{ team['_id'] }}/members">{{ team.get('memberCount', 0) }} member{% if team.get('memberCount', 0) != 1 %}s{% endif %}</a>
+            {% endif %}
         </div>
 
         <div class="team-show__content">
             <div class="team-show__content__col1">
+                {% if not team_closed or team_is_site_admin or (team_member and team_member.get('permissions')) %}
                 <section class="team-show__meta">
                     {% if team_leaders %}
                     <p>
@@ -23,9 +28,29 @@
                     {% endif %}
                     <p>Created by <a class="user-link" href="/@/{{ team['createdBy'] }}">{{ team['createdBy'] }}</a></p>
                 </section>
+                {% endif %}
 
                 <div class="team-show__actions">
-                    {% if not anon and not user.bot %}
+                    {% if team_closed %}
+                    <div class="team-show__membership-state team-show__membership-state--closed">
+                        <strong>Team closed</strong>
+                        <span>This team is archived and cannot accept new activity.</span>
+                    </div>
+                    {% if team_member and username != team['createdBy'] %}
+                    <form method="post" action="/team/{{ team['_id'] }}/quit">
+                        <button class="button team-action team-action--danger" type="submit"><strong>Leave team</strong></button>
+                    </form>
+                    {% endif %}
+                    {% if team_can_reopen %}
+                    <form method="post" action="/team/{{ team['_id'] }}/reopen">
+                        <button class="button team-action" type="submit">
+                            <strong>Reopen team</strong>
+                            <em>Site administrator action</em>
+                        </button>
+                    </form>
+                    {% endif %}
+                    {% else %}
+                    {% if not anon and not user.bot and (team_member or not team_is_site_admin) %}
                         {% if team_member %}
                             <div class="team-show__membership-state">
                                 <strong>You are a member</strong>
@@ -97,8 +122,18 @@
                         <em>Restore previously declined requests</em>
                     </a>
                     {% endif %}
+                    {% if team_can_close and team_is_site_admin %}
+                    <form method="post" action="/team/{{ team['_id'] }}/close">
+                        <button class="button team-action team-action--danger" type="submit">
+                            <strong>Close team</strong>
+                            <em>Site administrator action</em>
+                        </button>
+                    </form>
+                    {% endif %}
+                    {% endif %}
                 </div>
 
+                {% if not team_closed or team_is_site_admin %}
                 <section class="team-show__members">
                     <section class="recent-members">
                         <h2><a href="/team/{{ team['_id'] }}/members">Recent members</a></h2>
@@ -120,9 +155,11 @@
                         {% endif %}
                     </section>
                 </section>
+                {% endif %}
             </div>
 
             <div class="team-show__content__col2">
+                {% if not team_closed or team_is_site_admin %}
                 <section class="team-show__desc">{{ team.get('description', '') }}</section>
 
                 {% if team_can_manage_requests and team_requests %}
@@ -197,6 +234,12 @@
                     </section>
                     {% endif %}
                 </div>
+                {% else %}
+                <section class="team-show__closed-message">
+                    <h2>This team is closed</h2>
+                    <p>Memberships and historical content are preserved, but team activity is disabled.</p>
+                </section>
+                {% endif %}
             </div>
         </div>
     </main>

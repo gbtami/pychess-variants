@@ -1441,3 +1441,54 @@
         padding: 1rem;
     }
 }
+
+/* Team lifecycle state. Closing is archival: content stays in MongoDB but the
+ * public team features are disabled until a site administrator reopens it. */
+.team-show__closed-badge {
+    flex: 0 0 auto;
+    padding: .2rem .55rem;
+    border-radius: 3px;
+    background: color-mix(in srgb, var(--bad, #b33) 18%, var(--bg-color1));
+    color: var(--bad, #b33);
+    font-size: .8rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+}
+
+.team-show__membership-state--closed,
+.team-show__closed-message {
+    border-inline-start: 4px solid var(--bad, #b33);
+    background: color-mix(in srgb, var(--bad, #b33) 8%, var(--bg-color1));
+}
+
+.team-show__membership-state--closed {
+    padding: .7rem .8rem;
+}
+
+.team-show__closed-message {
+    padding: 1rem 1.2rem;
+}
+
+.team-show__closed-message h2 {
+    color: var(--bad, #b33);
+}
+
+.team-show__closed-message p {
+    margin: 0;
+}
+
+.team-lifecycle-danger {
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.team-lifecycle-danger h2 {
+    margin: 0 0 .5rem;
+    color: var(--bad, #b33);
+}
+
+.team-lifecycle-danger p {
+    max-width: 46rem;
+    color: var(--time-text);
+}

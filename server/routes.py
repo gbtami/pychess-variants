@@ -298,6 +298,7 @@ get_routes: tuple[RouteDef, ...] = (
     ("/report/thanks", report_view.report_thanks),
     ("/admin", admin_view.admin),
     ("/admin/users", admin_view.admin_users),
+    ("/admin/teams", admin_view.admin_teams),
     ("/admin/operations", admin_view.admin_operations),
     ("/reports", reports_view.reports),
     ("/mod/public-chat", mod_public_chat_view.mod_public_chat),
@@ -514,6 +515,8 @@ post_routes: tuple[RouteDef, ...] = (
     ("/team/{teamId}/join", team_view.team_join),
     ("/team/{teamId}/cancel-request", team_view.team_cancel_request),
     ("/team/{teamId}/quit", team_view.team_quit),
+    ("/team/{teamId}/close", team_view.team_close),
+    ("/team/{teamId}/reopen", team_view.team_reopen),
     (
         "/team/{teamId}/request/{username}/{decision}",
         team_view.team_request_process,

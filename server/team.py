@@ -144,6 +144,12 @@ def _request_id(team_id: str, username: str) -> str:
     return f"{username}@{team_id}"
 
 
+async def get_team_any(app_state: PychessGlobalAppState, team_id: str) -> Mapping[str, Any] | None:
+    if app_state.db is None:
+        return None
+    return await app_state.db.team.find_one({"_id": team_id})
+
+
 async def get_team(app_state: PychessGlobalAppState, team_id: str) -> Mapping[str, Any] | None:
     if app_state.db is None:
         return None
@@ -160,6 +166,14 @@ async def get_team_member(
 
 async def is_team_member(app_state: PychessGlobalAppState, team_id: str, username: str) -> bool:
     return await get_team_member(app_state, team_id, username) is not None
+
+
+async def is_enabled_team_member(
+    app_state: PychessGlobalAppState, team_id: str, username: str
+) -> bool:
+    if await get_team(app_state, team_id) is None:
+        return False
+    return await is_team_member(app_state, team_id, username)
 
 
 async def has_team_permission(
@@ -439,6 +453,8 @@ async def set_team_update_subscription(
 ) -> None:
     if app_state.db is None:
         raise web.HTTPServiceUnavailable(text="Teams require database access.")
+    if await get_team(app_state, team_id) is None:
+        raise web.HTTPNotFound(text="Team not found.")
     member = await get_team_member(app_state, team_id, username)
     if member is None:
         raise web.HTTPForbidden(text="You must be a team member to change update subscriptions.")
@@ -452,7 +468,15 @@ async def set_team_update_subscription(
 async def _joined_team_count(app_state: PychessGlobalAppState, username: str) -> int:
     if app_state.db is None:
         return 0
-    return await app_state.db.team_member.count_documents({"user": username})
+    memberships = await app_state.db.team_member.find(
+        {"user": username}, projection={"team": 1}
+    ).to_list(length=None)
+    team_ids = [str(member.get("team") or "") for member in memberships]
+    if not team_ids:
+        return 0
+    return await app_state.db.team.count_documents(
+        {"_id": {"$in": team_ids}, "enabled": True}
+    )
 
 
 async def _created_team_count_last_week(app_state: PychessGlobalAppState, username: str) -> int:
@@ -688,7 +712,7 @@ async def _remove_user_from_active_team_tournaments(
 
 
 async def quit_team(app_state: PychessGlobalAppState, team_id: str, username: str) -> None:
-    team = await get_team(app_state, team_id)
+    team = await get_team_any(app_state, team_id)
     if team is None:
         raise web.HTTPNotFound(text="Team not found.")
     if username == team.get("createdBy"):
@@ -772,6 +796,78 @@ async def kick_team_member(
     )
 
 
+async def close_team(
+    app_state: PychessGlobalAppState,
+    team_id: str,
+    username: str,
+    *,
+    site_admin: bool = False,
+) -> Mapping[str, Any]:
+    if app_state.db is None:
+        raise web.HTTPServiceUnavailable(text="Teams require database access.")
+    team = await get_team_any(app_state, team_id)
+    if team is None:
+        raise web.HTTPNotFound(text="Team not found.")
+    if not site_admin and username != str(team.get("createdBy") or ""):
+        raise web.HTTPForbidden(text="Only the team creator can close this team.")
+    if not bool(team.get("enabled", True)):
+        raise web.HTTPConflict(text="Team is already closed.")
+
+    now = datetime.now(UTC)
+    await app_state.db.team.update_one(
+        {"_id": team_id, "enabled": True},
+        {
+            "$set": {
+                "enabled": False,
+                "closedAt": now,
+                "closedBy": username,
+                "updatedAt": now,
+            }
+        },
+    )
+    # Lichess clears admission requests when a team is closed. Memberships and
+    # historical team content are preserved so a site admin can reopen it.
+    await app_state.db.team_request.delete_many({"team": team_id})
+    return {**team, "enabled": False, "closedAt": now, "closedBy": username, "updatedAt": now}
+
+
+async def reopen_team(
+    app_state: PychessGlobalAppState,
+    team_id: str,
+    username: str,
+    *,
+    site_admin: bool = False,
+) -> Mapping[str, Any]:
+    if not site_admin:
+        raise web.HTTPForbidden(text="Only a site administrator can reopen a closed team.")
+    if app_state.db is None:
+        raise web.HTTPServiceUnavailable(text="Teams require database access.")
+    team = await get_team_any(app_state, team_id)
+    if team is None:
+        raise web.HTTPNotFound(text="Team not found.")
+    if bool(team.get("enabled", True)):
+        raise web.HTTPConflict(text="Team is already open.")
+
+    now = datetime.now(UTC)
+    await app_state.db.team.update_one(
+        {"_id": team_id, "enabled": False},
+        {
+            "$set": {
+                "enabled": True,
+                "reopenedAt": now,
+                "reopenedBy": username,
+                "updatedAt": now,
+            },
+            "$unset": {"closedAt": "", "closedBy": ""},
+        },
+    )
+    reopened = dict(team)
+    reopened.update({"enabled": True, "reopenedAt": now, "reopenedBy": username, "updatedAt": now})
+    reopened.pop("closedAt", None)
+    reopened.pop("closedBy", None)
+    return reopened
+
+
 async def add_team_leader(
     app_state: PychessGlobalAppState,
     team_id: str,
@@ -782,6 +878,8 @@ async def add_team_leader(
         raise web.HTTPForbidden(text="You cannot manage team leaders.")
     if app_state.db is None:
         raise web.HTTPServiceUnavailable(text="Teams require database access.")
+    if await get_team(app_state, team_id) is None:
+        raise web.HTTPNotFound(text="Team not found.")
 
     username = username.strip()
     if not username:

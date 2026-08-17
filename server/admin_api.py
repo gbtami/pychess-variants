@@ -36,12 +36,15 @@ MOD_ACTION_LABELS: dict[str, str] = {
     "crosstable_regenerated": "Regenerate crosstable",
     "fishnet_key_created": "Create fishnet key",
     "fishnet_key_removed": "Remove fishnet key",
+    "close_team": "Close team",
+    "reopen_team": "Reopen team",
 }
 
 API_ACTIONS = {"timeout", "shadowban", "unshadowban", "close", "reopen"}
 USER_LOG_ACTIONS = frozenset(
     {"chat_timeout", "shadowban", "unshadowban", "close_account", "reopen_account"}
 )
+TEAM_LOG_ACTIONS = frozenset({"close_team", "reopen_team"})
 
 
 def _is_admin_username(username: str) -> bool:
@@ -67,6 +70,28 @@ async def record_mod_action(
         "_id": await new_id(collection),
         "mod": moderator,
         "user": target,
+        "action": action,
+        "createdAt": datetime.now(UTC),
+    }
+    if details:
+        document["details"] = details
+    await collection.insert_one(document)
+
+
+async def record_team_action(
+    app_state,
+    moderator: str,
+    team_id: str,
+    action: str,
+    details: str = "",
+) -> None:
+    if action not in TEAM_LOG_ACTIONS:
+        raise ValueError(f"Unknown team moderation action: {action}")
+    collection = getattr(app_state.db, MOD_LOG_COLLECTION)
+    document: dict[str, object] = {
+        "_id": await new_id(collection),
+        "mod": moderator,
+        "team": team_id,
         "action": action,
         "createdAt": datetime.now(UTC),
     }

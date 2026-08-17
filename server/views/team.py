@@ -4,11 +4,13 @@ from typing import Any
 from urllib.parse import urlencode
 
 import aiohttp_jinja2
+from admin_api import record_team_action
 from aiohttp import web
 from forum.access import can_read_forum_categ, team_forum_categ_id
 from forum.storage import ensure_team_forum
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
+from settings import ADMINS
 from team import (
     PERMISSION_ADMIN,
     PERMISSION_KICK,
@@ -30,8 +32,10 @@ from team import (
     TEAM_UPDATE_MAX_PER_7_DAYS,
     add_team_leader,
     cancel_join_request,
+    close_team,
     create_team,
     get_team,
+    get_team_any,
     get_team_member,
     has_team_permission,
     join_or_request_team,
@@ -39,6 +43,7 @@ from team import (
     latest_team_update,
     process_join_request,
     quit_team,
+    reopen_team,
     send_team_update,
     set_team_update_subscription,
     team_update_quota_remaining,
@@ -63,6 +68,11 @@ def _require_regular_user(user: Any) -> None:
         raise web.HTTPFound("/login")
     if user.bot:
         raise web.HTTPForbidden(text="BOT accounts cannot use teams.")
+
+
+def _is_site_admin_username(username: str) -> bool:
+    lowered = username.casefold()
+    return any(lowered == admin.casefold() for admin in ADMINS)
 
 
 def _team_context(context: ViewContext) -> None:
@@ -187,25 +197,31 @@ async def team_show(request: web.Request) -> ViewContext:
         raise web.HTTPServiceUnavailable(text="Teams require database access.")
     db = app_state.db
     team_id = request.match_info["teamId"]
-    team = await get_team(app_state, team_id)
+    team = await get_team_any(app_state, team_id)
     if team is None:
         raise web.HTTPNotFound()
+    team_closed = not bool(team.get("enabled", True))
+    site_admin = bool(context.get("admin"))
+    can_view_closed_details = not team_closed or site_admin
 
     member = (
         None if user.anon or user.bot else await get_team_member(app_state, team_id, user.username)
     )
-    members = (
-        await db.team_member.find({"team": team_id})
-        .sort("joinedAt", -1)
-        .limit(TEAM_SHOW_MEMBER_LIMIT)
-        .to_list(length=TEAM_SHOW_MEMBER_LIMIT)
-    )
-    leaders = (
-        await db.team_member.find({"team": team_id, "permissions": PERMISSION_PUBLIC})
-        .sort("joinedAt", 1)
-        .limit(TEAM_MAX_LEADERS)
-        .to_list(length=TEAM_MAX_LEADERS)
-    )
+    members: list[dict[str, Any]] = []
+    leaders: list[dict[str, Any]] = []
+    if can_view_closed_details:
+        members = (
+            await db.team_member.find({"team": team_id})
+            .sort("joinedAt", -1)
+            .limit(TEAM_SHOW_MEMBER_LIMIT)
+            .to_list(length=TEAM_SHOW_MEMBER_LIMIT)
+        )
+        leaders = (
+            await db.team_member.find({"team": team_id, "permissions": PERMISSION_PUBLIC})
+            .sort("joinedAt", 1)
+            .limit(TEAM_MAX_LEADERS)
+            .to_list(length=TEAM_MAX_LEADERS)
+        )
     requests: list[dict[str, Any]] = []
     can_manage_requests = False
     can_kick = False
@@ -213,7 +229,7 @@ async def team_show(request: web.Request) -> ViewContext:
     can_create_tournament = False
     can_manage_leaders = False
     can_send_update = False
-    if member is not None:
+    if member is not None and not team_closed:
         permissions = set(member.get("permissions") or ())
         can_manage_requests = PERMISSION_REQUESTS in permissions
         can_kick = PERMISSION_KICK in permissions
@@ -231,7 +247,7 @@ async def team_show(request: web.Request) -> ViewContext:
 
     pending_request = None
     declined_request = None
-    if not user.anon and not user.bot and member is None:
+    if not team_closed and not user.anon and not user.bot and member is None:
         my_request = await db.team_request.find_one({"_id": f"{user.username}@{team_id}"})
         if my_request is not None:
             if my_request.get("declined"):
@@ -239,13 +255,19 @@ async def team_show(request: web.Request) -> ViewContext:
             else:
                 pending_request = my_request
 
-    latest_update = await latest_team_update(app_state, team_id) if member is not None else None
+    latest_update = (
+        await latest_team_update(app_state, team_id)
+        if member is not None and not team_closed
+        else None
+    )
 
-    forum_categ = await ensure_team_forum(app_state, team)
+    forum_categ = await ensure_team_forum(app_state, team) if not team_closed else None
     forum_categ_id = team_forum_categ_id(team_id)
     viewer_username = None if user.anon else user.username
-    can_see_forum = forum_categ is not None and await can_read_forum_categ(
-        app_state, forum_categ, viewer_username
+    can_see_forum = (
+        not team_closed
+        and forum_categ is not None
+        and await can_read_forum_categ(app_state, forum_categ, viewer_username)
     )
     forum_topics: list[dict[str, Any]] = []
     if can_see_forum:
@@ -256,16 +278,24 @@ async def team_show(request: web.Request) -> ViewContext:
             .to_list(length=5)
         )
 
-    team_tournaments = (
-        await db.tournament.find({"teamId": team_id})
-        .sort("startsAt", -1)
-        .limit(20)
-        .to_list(length=20)
-    )
+    team_tournaments: list[dict[str, Any]] = []
+    if can_view_closed_details:
+        team_tournaments = (
+            await db.tournament.find({"teamId": team_id})
+            .sort("startsAt", -1)
+            .limit(20)
+            .to_list(length=20)
+        )
 
     context.update(
         {
             "team": team,
+            "team_closed": team_closed,
+            "team_is_site_admin": site_admin,
+            "team_can_close": not team_closed
+            and not user.anon
+            and (site_admin or user.username == str(team.get("createdBy") or "")),
+            "team_can_reopen": team_closed and site_admin,
             "team_member": member,
             "team_members": members,
             "team_leaders": leaders,
@@ -299,7 +329,11 @@ async def team_members(request: web.Request) -> ViewContext:
         raise web.HTTPServiceUnavailable(text="Teams require database access.")
 
     team_id = request.match_info["teamId"]
-    team = await get_team(app_state, team_id)
+    team = (
+        await get_team_any(app_state, team_id)
+        if context.get("admin")
+        else await get_team(app_state, team_id)
+    )
     if team is None:
         raise web.HTTPNotFound()
 
@@ -477,6 +511,9 @@ async def team_edit(request: web.Request) -> ViewContext:
         raise web.HTTPForbidden(text="You cannot edit this team.")
     _team_context(context)
     context["team"] = team
+    context["team_can_close"] = user.username == str(team.get("createdBy") or "") or bool(
+        context.get("admin")
+    )
     context["team_forum_access_options"] = TEAM_FORUM_ACCESS_OPTIONS
     context["team_forum_access_none"] = TEAM_FORUM_ACCESS_NONE
     context["title"] = f"Edit {team['name']} • PyChess"
@@ -515,6 +552,47 @@ async def team_kick(request: web.Request) -> web.StreamResponse:
     target = request.match_info["username"]
     await kick_team_member(get_app_state(request.app), team_id, user.username, target)
     raise web.HTTPFound(f"/team/{team_id}")
+
+
+def _team_lifecycle_redirect(value: object, team_id: str, *, site_admin: bool) -> str:
+    redirect = str(value or "")
+    if site_admin and (redirect == "/admin/teams" or redirect.startswith("/admin/teams?")):
+        return redirect
+    return f"/team/{team_id}"
+
+
+async def team_close(request: web.Request) -> web.StreamResponse:
+    user, _ = await get_user_context(request)
+    _require_regular_user(user)
+    data = await read_post_data(request)
+    if data is None:
+        raise web.HTTPNoContent()
+    app_state = get_app_state(request.app)
+    team_id = request.match_info["teamId"]
+    site_admin = _is_site_admin_username(user.username)
+    reason = str(data.get("reason") or "").strip()[:500]
+    await close_team(app_state, team_id, user.username, site_admin=site_admin)
+    await record_team_action(app_state, user.username, team_id, "close_team", reason)
+    raise web.HTTPFound(
+        _team_lifecycle_redirect(data.get("redirect"), team_id, site_admin=site_admin)
+    )
+
+
+async def team_reopen(request: web.Request) -> web.StreamResponse:
+    user, _ = await get_user_context(request)
+    _require_regular_user(user)
+    data = await read_post_data(request)
+    if data is None:
+        raise web.HTTPNoContent()
+    app_state = get_app_state(request.app)
+    team_id = request.match_info["teamId"]
+    site_admin = _is_site_admin_username(user.username)
+    reason = str(data.get("reason") or "").strip()[:500]
+    await reopen_team(app_state, team_id, user.username, site_admin=site_admin)
+    await record_team_action(app_state, user.username, team_id, "reopen_team", reason)
+    raise web.HTTPFound(
+        _team_lifecycle_redirect(data.get("redirect"), team_id, site_admin=site_admin)
+    )
 
 
 @aiohttp_jinja2.template("team-updates.html")

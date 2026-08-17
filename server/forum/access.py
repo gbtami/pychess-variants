@@ -110,5 +110,7 @@ async def can_moderate_forum_categ(
     team_id = team_id_from_forum_categ(categ)
     if team_id is None:
         return False
+    if await get_team(app_state, team_id) is None:
+        return False
     member = await get_team_member(app_state, team_id, user.username)
     return member is not None and PERMISSION_MODERATION in set(member.get("permissions") or ())

@@ -470,6 +470,10 @@ class ViewContext(TypedDict, total=False):
     admin_operations_fishnet: Sequence[Mapping[str, object]]
     admin_operations_variants: Sequence[Mapping[str, str]]
     admin_operations_history: Sequence[Mapping[str, object]]
+    admin_team_query: str
+    admin_team_status: str
+    admin_teams: Sequence[Mapping[str, object]]
+    admin_team_history: Sequence[Mapping[str, object]]
     mod_report_score: int
     vapid_public_key: str
     allusers: Sequence[User]
@@ -494,6 +498,10 @@ class ViewContext(TypedDict, total=False):
     my_team_ids: set[str]
     mine_only: bool
     team: Mapping[str, object]
+    team_closed: bool
+    team_is_site_admin: bool
+    team_can_close: bool
+    team_can_reopen: bool
     team_member: Mapping[str, object] | None
     team_members: Sequence[Mapping[str, object]]
     team_members_total: int
