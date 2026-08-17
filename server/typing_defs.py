@@ -512,6 +512,7 @@ class ViewContext(TypedDict, total=False):
     team_forum_topics: Sequence[Mapping[str, object]]
     team_public_permission: str
     team_tournaments: Sequence[Mapping[str, object]]
+    team_update_teams: Sequence[Mapping[str, object]]
     team_updates: Sequence[Mapping[str, object]]
     updates_team: Mapping[str, object] | None
     team_updates_subscribed: bool

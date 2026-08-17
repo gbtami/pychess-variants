@@ -338,6 +338,9 @@ class TeamTestCase(AioHTTPTestCase):
         self.assertIn("grid-template-columns: 12.5rem minmax(0, 1fr);", css)
         self.assertIn(".team-show__content {", css)
         self.assertIn(".team-show__content__col1 {\n    flex: 0 0 30%;", css)
+        self.assertIn(".team-updates-page.team-update {", css)
+        self.assertIn(".team-update__side {", css)
+        self.assertIn(".team-update--all .team-update__convo,", css)
 
         team_menu = (root / "templates" / "team-menu.html").read_text()
         teams = (root / "templates" / "teams.html").read_text()
@@ -379,16 +382,27 @@ class TeamTestCase(AioHTTPTestCase):
         self.assertEqual(200, combined.status)
         combined_html = await combined.text()
         self.assertIn("The first team championship starts this weekend.", combined_html)
-        self.assertIn('team-member-badge">New', combined_html)
+        self.assertIn(
+            'class="team-update team-updates-page box team-update--all"', combined_html
+        )
+        self.assertIn("team-update__side__team--unread", combined_html)
+        self.assertIn('team-update__side__unread-count">1', combined_html)
+        self.assertIn("team-update__convo__update--unread", combined_html)
 
         team_feed = await self.client.get("/team/variant-fans/updates")
         self.assertEqual(200, team_feed.status)
+        team_feed_html = await team_feed.text()
+        self.assertIn(
+            'class="team-update team-updates-page box team-update--team"', team_feed_html
+        )
+        self.assertIn("team-update__side__team--active", team_feed_html)
         member = await app_state.db.team_member.find_one({"_id": "bob@variant-fans"})
         self.assertIsNotNone(member.get("updatesSeenAt"))
 
         combined = await self.client.get("/team/updates")
         combined_html = await combined.text()
-        self.assertNotIn('team-member-badge">New', combined_html)
+        self.assertNotIn("team-update__side__team--unread", combined_html)
+        self.assertNotIn("team-update__convo__update--unread", combined_html)
 
     async def test_team_update_subscription_controls_combined_feed(self):
         await self.create_team()

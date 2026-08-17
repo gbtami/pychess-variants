@@ -32,6 +32,8 @@ TEAM_UPDATE_MIN_LENGTH = 3
 TEAM_UPDATE_MAX_LENGTH = 9000
 TEAM_UPDATE_MAX_PER_7_DAYS = 10
 TEAM_UPDATE_PAGE_SIZE = 150
+TEAM_UPDATE_SIDEBAR_DAYS = 30
+TEAM_UPDATE_SIDEBAR_LIMIT = TEAM_MAX_JOINED * TEAM_UPDATE_MAX_PER_7_DAYS * 6
 
 TEAM_FORUM_ACCESS_NONE = "none"
 TEAM_FORUM_ACCESS_LEADERS = "leaders"
@@ -253,6 +255,64 @@ async def team_updates_for_user(
             }
         )
     return result
+
+
+async def team_updates_by_team(
+    app_state: PychessGlobalAppState, username: str
+) -> list[dict[str, Any]]:
+    """Summarize recent team updates for the Lichess-style updates sidebar."""
+    if app_state.db is None:
+        return []
+
+    memberships = await app_state.db.team_member.find({"user": username}).to_list(
+        length=TEAM_MAX_JOINED
+    )
+    if not memberships:
+        return []
+
+    members_by_team = {str(member["team"]): member for member in memberships}
+    teams = await app_state.db.team.find(
+        {"_id": {"$in": list(members_by_team)}, "enabled": True}
+    ).to_list(length=len(members_by_team))
+    teams_by_id = {str(team["_id"]): team for team in teams}
+    if not teams_by_id:
+        return []
+
+    cutoff = datetime.now(UTC) - timedelta(days=TEAM_UPDATE_SIDEBAR_DAYS)
+    recent = await (
+        app_state.db.team_update.find(
+            {
+                "team": {"$in": list(teams_by_id)},
+                "createdAt": {"$gt": cutoff},
+            },
+            {"team": 1, "createdAt": 1},
+        )
+        .sort("createdAt", -1)
+        .limit(TEAM_UPDATE_SIDEBAR_LIMIT)
+        .to_list(length=TEAM_UPDATE_SIDEBAR_LIMIT)
+    )
+
+    summaries: dict[str, dict[str, Any]] = {}
+    for update in recent:
+        team_id = str(update.get("team") or "")
+        team = teams_by_id.get(team_id)
+        member = members_by_team.get(team_id)
+        created_at = update.get("createdAt")
+        if team is None or member is None or not isinstance(created_at, datetime):
+            continue
+        summary = summaries.get(team_id)
+        if summary is None:
+            summary = {
+                "team": team_id,
+                "teamName": str(team["name"]),
+                "last": created_at,
+                "unread": 0,
+            }
+            summaries[team_id] = summary
+        if _team_update_is_unread(update, member):
+            summary["unread"] = int(summary["unread"]) + 1
+
+    return list(summaries.values())
 
 
 async def team_updates_for_member(

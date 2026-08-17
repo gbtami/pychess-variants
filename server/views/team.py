@@ -39,6 +39,7 @@ from team import (
     send_team_update,
     set_team_update_subscription,
     team_update_quota_remaining,
+    team_updates_by_team,
     team_updates_for_member,
     team_updates_for_user,
     teams_for_user,
@@ -320,6 +321,7 @@ async def team_updates(request: web.Request) -> ViewContext:
     _team_context(context)
     context.update(
         {
+            "team_update_teams": await team_updates_by_team(app_state, user.username),
             "team_updates": await team_updates_for_user(app_state, user.username),
             "updates_team": None,
             "team_updates_subscribed": True,
@@ -339,10 +341,12 @@ async def team_updates_of(request: web.Request) -> ViewContext:
     team = await get_team(app_state, team_id)
     if team is None:
         raise web.HTTPNotFound()
+    update_teams = await team_updates_by_team(app_state, user.username)
     updates, subscribed = await team_updates_for_member(app_state, team_id, user.username)
     _team_context(context)
     context.update(
         {
+            "team_update_teams": update_teams,
             "team_updates": updates,
             "updates_team": team,
             "team_updates_subscribed": subscribed,

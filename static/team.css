@@ -476,8 +476,7 @@
 /* Forms and admin pages keep the polished box treatment from the first pass. */
 .team-form-page .page-menu__content.box-pad,
 .team-leaders-page .page-menu__content.box-pad,
-.team-update-form-page .page-menu__content.box-pad,
-.team-updates-page.box-pad {
+.team-update-form-page .page-menu__content.box-pad {
     padding: clamp(1.4rem, 3.5vw, 3rem) clamp(1.1rem, 4.5vw, 4rem);
 }
 
@@ -661,40 +660,287 @@
     margin: 0;
 }
 
-.team-update-list {
+
+/* Team updates deliberately follow Lichess's mailbox/conversation layout. */
+.team-updates-page.team-update {
+    display: flex;
+    flex-flow: row nowrap;
+    width: min(1200px, calc(100vw - 2rem));
+    height: min(760px, calc(100vh - 7rem));
+    min-height: 34rem;
+    padding: 0;
+    overflow: hidden;
+}
+
+.team-update__side {
+    display: flex;
+    flex: 0 0 20rem;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+    border-right: 1px solid var(--border-color);
+    background: var(--bg-color1);
+}
+
+.team-update__side__top,
+.team-update__convo__head {
+    box-sizing: border-box;
+    display: flex;
+    flex: 0 0 4rem;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    background: color-mix(in srgb, var(--bg-color1) 75%, var(--bg-color0));
+}
+
+.team-update__side__back {
+    display: flex;
+    align-items: center;
+    align-self: stretch;
+    padding: 0 1.2rem;
+    color: var(--font-color);
+    text-decoration: none;
+}
+
+.team-update__side__back:hover {
+    color: var(--link-color-blue);
+}
+
+.team-update__side__content {
+    overflow-y: auto;
+}
+
+.team-update__side__team {
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+    padding: .8rem 1rem;
+    color: var(--font-color);
+    text-decoration: none;
+}
+
+.team-update__side__team:hover {
+    background: color-mix(in srgb, var(--link-color-blue) 12%, var(--bg-color1));
+}
+
+.team-update__side__team--active {
+    background: color-mix(in srgb, var(--link-color-blue) 24%, var(--bg-color1));
+}
+
+.team-update__side__team--unread:not(.team-update__side__team--active) {
+    background: color-mix(in srgb, var(--link-color-blue) 8%, var(--bg-color1));
+}
+
+.team-update__side__team__icon {
     display: grid;
+    flex: 0 0 2.8rem;
+    width: 2.8rem;
+    height: 2.8rem;
+    place-items: center;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--font-color) 10%, var(--bg-color0));
+    color: var(--font-color);
+    font-size: 1.2rem;
+    font-weight: 600;
 }
 
-.team-update-row {
-    border-top: 1px solid var(--border-color);
-    padding: 1rem .5rem;
+.team-update__side__team__content {
+    min-width: 0;
+    flex: 1 1 auto;
 }
 
-.team-update-row:first-child {
-    border-top: 0;
-}
-
-.team-update-unread {
-    background: color-mix(in srgb, var(--link-color-blue) 8%, transparent);
+.team-update__side__team__name {
+    display: block;
+    overflow: hidden;
+    color: inherit;
+    font-size: 1.05rem;
     font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-.team-update-meta {
-    margin-bottom: .45rem;
+.team-update__side__team--active .team-update__side__team__name,
+.team-update__side__team--unread .team-update__side__team__name {
+    font-weight: 600;
 }
 
-.team-update-meta .team-member-badge {
+.team-update__side__team__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    margin-top: .18rem;
+    font-size: .8rem;
+    opacity: .7;
+}
+
+.team-update__side__unread-count {
+    display: inline-block;
+    min-width: 1.2rem;
+    padding: .08rem .35rem;
+    border-radius: 999px;
+    background: var(--link-color-blue);
+    color: white;
+    font-size: .72rem;
+    font-weight: 700;
+    line-height: 1.25;
+    text-align: center;
+}
+
+.team-update__side__empty {
+    padding: 1.5rem 1.2rem;
+    text-align: center;
+    opacity: .65;
+}
+
+.team-update__convo {
+    display: flex;
+    flex: 1 1 100%;
+    min-width: 0;
+    flex-direction: column;
+}
+
+.team-update__convo__head {
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0 1.3rem;
+}
+
+.team-update__convo__head h1 {
+    margin: 0;
+    padding: 0 .4rem;
+    font-size: 1.45rem;
+}
+
+.team-update__convo__head__title {
+    display: flex;
+    align-self: stretch;
+    min-width: 0;
+    align-items: center;
+}
+
+.team-update__convo__head__back {
+    display: flex;
+    align-items: center;
+    align-self: stretch;
+    padding: 0 .8rem 0 .2rem;
+    color: var(--font-color);
+    font-size: 1.7rem;
+    text-decoration: none;
+    opacity: .65;
+}
+
+.team-update__convo__head__back:hover {
+    color: var(--link-color-blue);
     opacity: 1;
 }
 
-.team-update-text {
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-    line-height: 1.55;
+.team-update__convo__team-link {
+    overflow: hidden;
+    color: var(--font-color);
+    font-size: 1.3rem;
+    font-weight: 500;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-.team-updates-page .teams-actions form {
+.team-update__convo__team-link:hover {
+    color: var(--link-color-blue);
+}
+
+.team-update__convo__head__actions {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: .55rem;
+}
+
+.team-update__convo__head__actions form {
     margin: 0;
+}
+
+.team-update__convo__head__actions .button {
+    padding: .5rem .7rem;
+    font-size: .88rem;
+}
+
+.team-update__convo__updates {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 1.4rem;
+    padding: 1.5rem;
+    overflow-y: auto;
+}
+
+.team-update__notice {
+    margin: 0;
+    padding: .8rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-color1);
+    font-size: .9rem;
+    opacity: .78;
+}
+
+.team-update__convo__update {
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+.team-update__convo__update--unread {
+    border-color: color-mix(in srgb, var(--link-color-blue) 70%, var(--border-color));
+}
+
+.team-update__convo__update__info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .8rem 1.2rem;
+}
+
+.team-update__convo__update__team {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--font-color);
+    font-weight: 600;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.team-update__convo__update__team:hover {
+    color: var(--link-color-blue);
+}
+
+.team-update__convo__update__meta {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 1.2rem;
+    font-size: .85rem;
+    opacity: .7;
+}
+
+.team-update__convo__update__body {
+    padding: 1.25rem 1.5rem;
+    background: var(--bg-color1);
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
+.team-update__empty {
+    margin: auto;
+    padding: 2rem;
+    text-align: center;
+    opacity: .7;
+}
+
+.team-update__empty h2 {
+    margin: 0 0 .5rem;
 }
 
 @media (max-width: 799px) {
@@ -747,6 +993,10 @@
     .team-show__members {
         margin-bottom: 0;
     }
+
+    .team-update__side {
+        flex-basis: 17rem;
+    }
 }
 
 @media (max-width: 600px) {
@@ -797,13 +1047,62 @@
 
     .team-form-page .page-menu__content.box-pad,
     .team-leaders-page .page-menu__content.box-pad,
-    .team-update-form-page .page-menu__content.box-pad,
-    .team-updates-page.box-pad {
+    .team-update-form-page .page-menu__content.box-pad {
         padding: 1rem;
     }
 
     .team-leader-add-form {
         align-items: stretch;
         flex-direction: column;
+    }
+
+    .team-updates-page.team-update {
+        width: min(100%, calc(100vw - .5rem));
+        height: calc(100vh - 5.5rem);
+        min-height: 28rem;
+        margin-top: .25rem;
+    }
+
+    .team-update--all .team-update__convo,
+    .team-update--team .team-update__side {
+        display: none;
+    }
+
+    .team-update--all .team-update__side,
+    .team-update--team .team-update__convo {
+        flex: 1 0 100%;
+    }
+
+    .team-update__convo__head {
+        padding: 0 .8rem;
+    }
+
+    .team-update__convo__head__actions {
+        gap: .35rem;
+    }
+
+    .team-update__convo__head__actions .button {
+        padding-inline: .55rem;
+        font-size: .82rem;
+    }
+
+    .team-update__convo__updates {
+        gap: 1rem;
+        padding: .8rem;
+    }
+
+    .team-update__convo__update__info {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: .3rem;
+        padding: .7rem .9rem;
+    }
+
+    .team-update__convo__update__meta {
+        gap: .8rem;
+    }
+
+    .team-update__convo__update__body {
+        padding: 1rem;
     }
 }
