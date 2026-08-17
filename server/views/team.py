@@ -73,9 +73,7 @@ def _team_context(context: ViewContext) -> None:
 async def _request_manager_team_ids(app_state: Any, username: str) -> list[str]:
     if app_state.db is None:
         return []
-    cursor = app_state.db.team_member.find(
-        {"user": username, "permissions": PERMISSION_REQUESTS}
-    )
+    cursor = app_state.db.team_member.find({"user": username, "permissions": PERMISSION_REQUESTS})
     return [str(member["team"]) async for member in cursor]
 
 
@@ -370,13 +368,9 @@ async def team_declined_requests(request: web.Request) -> ViewContext:
         .limit(TEAM_REQUESTS_PAGE_SIZE)
         .to_list(length=TEAM_REQUESTS_PAGE_SIZE)
     )
-    prev_href = (
-        None if page <= 1 else _declined_requests_href(team_id, page - 1, search)
-    )
+    prev_href = None if page <= 1 else _declined_requests_href(team_id, page - 1, search)
     next_href = (
-        _declined_requests_href(team_id, page + 1, search)
-        if skip + len(requests) < total
-        else None
+        _declined_requests_href(team_id, page + 1, search) if skip + len(requests) < total else None
     )
     current_href = _declined_requests_href(team_id, page, search)
     context.update(

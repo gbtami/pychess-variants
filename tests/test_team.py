@@ -261,7 +261,7 @@ class TeamTestCase(AioHTTPTestCase):
         team_page = await self.client.get("/team/variant-fans")
         team_html = await team_page.text()
         self.assertIn('href="/team/variant-fans/declined-requests"', team_html)
-        self.assertNotIn('team-show__requests--declined', team_html)
+        self.assertNotIn("team-show__requests--declined", team_html)
 
         declined_page = await self.client.get("/team/variant-fans/declined-requests")
         self.assertEqual(200, declined_page.status)
@@ -283,9 +283,7 @@ class TeamTestCase(AioHTTPTestCase):
         self.assertEqual(
             "/team/variant-fans/declined-requests?page=1", restored.headers["Location"]
         )
-        self.assertIsNotNone(
-            await app_state.db.team_member.find_one({"_id": "bob@variant-fans"})
-        )
+        self.assertIsNotNone(await app_state.db.team_member.find_one({"_id": "bob@variant-fans"}))
 
     async def test_declined_requests_page_requires_request_permission(self):
         await self.create_team(request_required=True)
@@ -490,9 +488,7 @@ class TeamTestCase(AioHTTPTestCase):
         team_show = (root / "templates" / "team-show.html").read_text()
         team_members = (root / "templates" / "team-members.html").read_text()
         team_requests = (root / "templates" / "team-requests.html").read_text()
-        team_declined_requests = (
-            root / "templates" / "team-declined-requests.html"
-        ).read_text()
+        team_declined_requests = (root / "templates" / "team-declined-requests.html").read_text()
         team_join = (root / "templates" / "team-join.html").read_text()
         team_new = (root / "templates" / "team-new.html").read_text()
         team_edit = (root / "templates" / "team-edit.html").read_text()
