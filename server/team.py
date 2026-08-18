@@ -892,9 +892,7 @@ async def remove_user_from_teams_on_account_disable(
             }
         },
     )
-    await app_state.db.notify.delete_many(
-        {"type": "teamUpdate", "content.sender": username}
-    )
+    await app_state.db.notify.delete_many({"type": "teamUpdate", "content.sender": username})
     for cached_user in app_state.users.values():
         if cached_user.notifications is None:
             continue

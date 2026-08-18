@@ -337,9 +337,7 @@ class TeamTestCase(AioHTTPTestCase):
         self.assertNotIn("closedAt", team)
         self.assertNotIn("closedBy", team)
         self.assertEqual("siteadmin", team["reopenedBy"])
-        creator_member = await app_state.db.team_member.find_one(
-            {"_id": "alice@variant-fans"}
-        )
+        creator_member = await app_state.db.team_member.find_one({"_id": "alice@variant-fans"})
         self.assertIsNotNone(creator_member)
         log = await app_state.db.mod_log.find_one({"team": "variant-fans", "action": "reopen_team"})
         self.assertIsNotNone(log)
@@ -350,9 +348,7 @@ class TeamTestCase(AioHTTPTestCase):
         app_state = get_app_state(self.app)
         await self.client.post("/team/variant-fans/close", data={}, allow_redirects=False)
         await app_state.db.team_member.delete_one({"_id": "alice@variant-fans"})
-        await app_state.db.team.update_one(
-            {"_id": "variant-fans"}, {"$set": {"memberCount": 0}}
-        )
+        await app_state.db.team.update_one({"_id": "variant-fans"}, {"$set": {"memberCount": 0}})
 
         self.add_live_user("siteadmin")
         self.set_session_user("siteadmin")
@@ -362,9 +358,7 @@ class TeamTestCase(AioHTTPTestCase):
             )
         self.assertEqual(302, reopened.status)
 
-        creator_member = await app_state.db.team_member.find_one(
-            {"_id": "alice@variant-fans"}
-        )
+        creator_member = await app_state.db.team_member.find_one({"_id": "alice@variant-fans"})
         self.assertIsNotNone(creator_member)
         self.assertEqual(TEAM_PERMISSIONS, frozenset(creator_member["permissions"]))
         team = await app_state.db.team.find_one({"_id": "variant-fans"})
@@ -605,9 +599,7 @@ class TeamTestCase(AioHTTPTestCase):
         self.assertNotIn('/kick/charlie"', html)
         self.assertIn('/kick/dave"', html)
 
-        denied = await self.client.post(
-            "/team/variant-fans/kick/charlie", allow_redirects=False
-        )
+        denied = await self.client.post("/team/variant-fans/kick/charlie", allow_redirects=False)
         self.assertEqual(403, denied.status)
         self.assertIsNotNone(
             await app_state.db.team_member.find_one({"_id": "charlie@variant-fans"})
@@ -624,12 +616,8 @@ class TeamTestCase(AioHTTPTestCase):
             "/team/variant-fans/kick/charlie", allow_redirects=False
         )
         self.assertEqual(302, kicked_leader.status)
-        self.assertIsNone(
-            await app_state.db.team_member.find_one({"_id": "charlie@variant-fans"})
-        )
-        kicked_request = await app_state.db.team_request.find_one(
-            {"_id": "charlie@variant-fans"}
-        )
+        self.assertIsNone(await app_state.db.team_member.find_one({"_id": "charlie@variant-fans"}))
+        kicked_request = await app_state.db.team_request.find_one({"_id": "charlie@variant-fans"})
         self.assertIsNotNone(kicked_request)
         self.assertTrue(kicked_request["declined"])
 
