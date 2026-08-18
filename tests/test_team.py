@@ -4,11 +4,13 @@ from datetime import UTC, datetime
 from pathlib import Path
 from unittest.mock import patch
 
+from aiohttp import web
 from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
 from multidict import MultiDict
 from pychess_global_app_state_utils import get_app_state
 from team import (
+    _add_member,
     PERMISSION_ADMIN,
     PERMISSION_KICK,
     PERMISSION_PUBLIC,
@@ -416,6 +418,43 @@ class TeamTestCase(AioHTTPTestCase):
         assert bob_data is not None
         self.assertTrue(bob_data.withdrawn)
         self.assertEqual(0, tournament.nb_players)
+
+    async def test_add_member_refuses_closed_team_and_rolls_back_close_race(self):
+        await self.create_team()
+        app_state = get_app_state(self.app)
+        self.add_live_user("bob")
+        self.add_live_user("charlie")
+
+        await app_state.db.team.update_one(
+            {"_id": "variant-fans"}, {"$set": {"enabled": False}}
+        )
+        with self.assertRaises(web.HTTPNotFound):
+            await _add_member(app_state, "variant-fans", "bob")
+        self.assertIsNone(await app_state.db.team_member.find_one({"_id": "bob@variant-fans"}))
+
+        await app_state.db.team.update_one(
+            {"_id": "variant-fans"}, {"$set": {"enabled": True}}
+        )
+        original_insert_one = app_state.db.team_member.insert_one
+
+        async def insert_then_close(member):
+            result = await original_insert_one(member)
+            await app_state.db.team.update_one(
+                {"_id": "variant-fans"}, {"$set": {"enabled": False}}
+            )
+            return result
+
+        with (
+            patch.object(app_state.db.team_member, "insert_one", side_effect=insert_then_close),
+            self.assertRaises(web.HTTPConflict),
+        ):
+            await _add_member(app_state, "variant-fans", "charlie")
+
+        self.assertIsNone(
+            await app_state.db.team_member.find_one({"_id": "charlie@variant-fans"})
+        )
+        team = await app_state.db.team.find_one({"_id": "variant-fans"})
+        self.assertEqual(1, team["memberCount"])
 
     async def test_join_request_can_be_accepted(self):
         await self.create_team(request_required=True)

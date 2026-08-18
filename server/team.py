@@ -644,6 +644,8 @@ async def update_team(
 async def _add_member(app_state: PychessGlobalAppState, team_id: str, username: str) -> bool:
     if app_state.db is None:
         return False
+    if await app_state.db.team.find_one({"_id": team_id, "enabled": True}, {"_id": 1}) is None:
+        raise web.HTTPNotFound(text="Team not found.")
     if await _joined_team_count(app_state, username) >= TEAM_MAX_JOINED:
         raise web.HTTPForbidden(text=f"You cannot join more than {TEAM_MAX_JOINED} teams.")
     member = {
@@ -657,7 +659,20 @@ async def _add_member(app_state: PychessGlobalAppState, team_id: str, username: 
         await app_state.db.team_member.insert_one(member)
     except DuplicateKeyError:
         return False
-    await app_state.db.team.update_one({"_id": team_id}, {"$inc": {"memberCount": 1}})
+
+    # The team can be closed between the initial read and this write. Make the
+    # member-count increment conditional on the team still being enabled; if
+    # closure won the race, remove the just-inserted membership again.
+    try:
+        result = await app_state.db.team.update_one(
+            {"_id": team_id, "enabled": True}, {"$inc": {"memberCount": 1}}
+        )
+    except PyMongoError:
+        await app_state.db.team_member.delete_one({"_id": member["_id"]})
+        raise
+    if not result.matched_count:
+        await app_state.db.team_member.delete_one({"_id": member["_id"]})
+        raise web.HTTPConflict(text="The team was closed before the member could be added.")
     return True
 
 

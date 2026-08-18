@@ -27,7 +27,7 @@ These items should be completed before merging the first Teams PR.
   tournaments into an unbounded tournament/database spam path. Team Round-Robin and Swiss
   creation is limited to five tournaments per user in a rolling 24-hour window; failed
   creations release their quota claim, and tournament directors remain exempt.
-- [ ] **Make enabled-Team membership an invariant of adding members.** `_add_member()`
+- [x] **Make enabled-Team membership an invariant of adding members.** `_add_member()`
   should itself refuse closed Teams so a concurrent close/request-accept race cannot add
   a member after closure.
 - [ ] **Run the full quality gates after the hardening fixes.** Ruff format/check, Pyright,
