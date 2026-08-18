@@ -86,6 +86,18 @@ class TeamTestCase(AioHTTPTestCase):
         self.assertIn("Play variants together", html)
         self.assertIn("You are a team leader", html)
         self.assertIn('href="/tournaments/new?team=variant-fans"', html)
+        self.assertIn("Create an Arena, Round-Robin, or Swiss", html)
+
+        tournament_form = await self.client.get("/tournaments/new?team=variant-fans")
+        tournament_html = await tournament_form.text()
+        self.assertIn(
+            '<option value="variant-fans" selected="selected">Variant Fans</option>',
+            tournament_html,
+        )
+        self.assertIn(
+            "Optional. Select a team to restrict this Arena to current team members.",
+            tournament_html,
+        )
         self.assertNotIn('href="/forum/team-variant-fans"', html)
         self.assertIn('href="/team">Teams</a>', html)
 

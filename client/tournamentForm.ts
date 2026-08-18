@@ -322,6 +322,7 @@ export function initTournamentForm(): void {
     const system = document.getElementById('form3-system');
     const teamWrap = document.getElementById('form3-team-wrap');
     const teamSelect = document.getElementById('form3-team');
+    const teamHelp = document.getElementById('form3-team-help');
     const rated = document.getElementById('form3-rated');
     const variantSelect = document.getElementById('form3-variant');
     const systemHelp = document.getElementById('form3-system-help');
@@ -441,10 +442,15 @@ export function initTournamentForm(): void {
         rounds.disabled = isArena || isRR;
         rrMaxPlayers.disabled = !isRR;
         roundInterval.disabled = isArena;
-        setVisible(teamWrap, !isArena);
+        setVisible(teamWrap, true);
         if (teamSelect instanceof HTMLSelectElement) {
-            teamSelect.disabled = isArena || teamSelectInitiallyDisabled;
+            teamSelect.disabled = teamSelectInitiallyDisabled;
             teamSelect.required = !isArena && !teamSelectInitiallyDisabled && !teamSelectOptional;
+        }
+        if (teamHelp) {
+            teamHelp.textContent = isArena
+                ? 'Optional. Select a team to restrict this Arena to current team members.'
+                : 'Required for production Round-Robin and Swiss. Only current team members can join team tournaments.';
         }
 
         if (isArena) {

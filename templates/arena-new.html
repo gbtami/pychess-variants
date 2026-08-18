@@ -6,7 +6,7 @@
             <h1>{% if edit %}Edit tournament{% else %}Create a new tournament{% endif %}</h1>
             {% if not tournament_director %}
             <p class="form-help">
-                Community Arenas are limited to {{ community_arena_max_creations_per_24h }} creation{% if community_arena_max_creations_per_24h != 1 %}s{% endif %}
+                User-created Arenas, including team Arenas, are limited to {{ community_arena_max_creations_per_24h }} creation{% if community_arena_max_creations_per_24h != 1 %}s{% endif %}
                 every 24 hours, 20–120 minutes duration,
                 and may start only within the next 24 hours. They must leave at least 15 minutes before and after
                 scheduled PyChess system tournaments.
@@ -158,9 +158,9 @@
                     </select>
                     <small id="form3-system-help" class="form-help">Arena runs continuously until the clock expires. Swiss and Round-Robin are fixed-round events.</small>
                     {% if not edit and tournament_teams %}
-                    <small class="form-help">Round-Robin and Swiss tournaments belong to a team and can be created by members with the team's tournament permission.</small>
+                    <small class="form-help">Team Arenas, Round-Robin, and Swiss tournaments can be created by members with the team's tournament permission.</small>
                     {% elif not edit and not (dev and tournament_director) %}
-                    <small class="form-help">Join or create a team and get its tournament permission to create Round-Robin or Swiss tournaments.</small>
+                    <small class="form-help">Join or create a team and get its tournament permission to create team Arenas, Round-Robin, or Swiss tournaments.</small>
                     {% elif not edit %}
                     <small class="form-help">DEV tournament directors may also create teamless fixed-round tournaments for testing.</small>
                     {% endif %}
@@ -169,19 +169,21 @@
                     <small class="form-help">Tournament type cannot be changed after creation.</small>
                     {% endif %}
                 </div>
+                {% if tournament_teams or t_team_id %}
                 <div id="form3-team-wrap" class="form-group form-half">
                     <label class="form-label" for="form3-team">Team</label>
                     <div>
                         <select id="form3-team" name="teamId" class="form-control" data-team-optional="{{ 'true' if dev and tournament_director else 'false' }}"{% if edit %} disabled="disabled"{% endif %}>
-                            <option value="">Select a team</option>
+                            <option value="">No team restriction</option>
                             {% for team in tournament_teams %}
                             <option value="{{ team['_id'] }}"{% if t_team_id == team['_id'] %} selected="selected"{% endif %}>{{ team['name'] }}</option>
                             {% endfor %}
                         </select>
-                        <small class="form-help">Required for production Round-Robin and Swiss. Only current team members can join team tournaments.</small>
+                        <small id="form3-team-help" class="form-help">{% if t_system == 0 %}Optional. Select a team to restrict this Arena to current team members.{% else %}Required for production Round-Robin and Swiss. Only current team members can join team tournaments.{% endif %}</small>
                         {% if edit %}<input type="hidden" name="teamId" value="{{ t_team_id }}" />{% endif %}
                     </div>
                 </div>
+                {% endif %}
                 <div class="form-split">
                     <div class="form-check form-group">
                         <div>

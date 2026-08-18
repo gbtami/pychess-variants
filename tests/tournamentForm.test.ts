@@ -8,6 +8,13 @@ function setupTournamentForm(): void {
     document.body.innerHTML = `
         <form id="tournament-form" method="post" action="/tournaments/new">
             <select id="form3-system"><option value="0">Arena</option><option value="1">Round-Robin</option></select>
+            <div id="form3-team-wrap">
+                <select id="form3-team" data-team-optional="false">
+                    <option value="">No team restriction</option>
+                    <option value="variant-fans" selected>Variant Fans</option>
+                </select>
+                <span id="form3-team-help"></span>
+            </div>
             <input id="form3-rated" type="checkbox" checked>
             <div id="form3-variant-picker">
                 <input id="form3-variant-search" type="search" aria-controls="form3-variant-results" aria-expanded="false">
@@ -87,6 +94,32 @@ describe('tournament schedule form', () => {
 
         expect(minutes.value).toBe('90');
         expect((document.querySelector('#endDate') as HTMLInputElement).value).toBe('');
+    });
+});
+
+describe('team tournament form', () => {
+    test('keeps an optional team restriction when switching Arena and fixed-round systems', () => {
+        initTournamentForm();
+
+        const system = document.querySelector('#form3-system') as HTMLSelectElement;
+        const teamWrap = document.querySelector('#form3-team-wrap') as HTMLElement;
+        const team = document.querySelector('#form3-team') as HTMLSelectElement;
+        const help = document.querySelector('#form3-team-help') as HTMLElement;
+
+        expect(teamWrap.style.display).toBe('');
+        expect(team.disabled).toBe(false);
+        expect(team.required).toBe(false);
+        expect(team.value).toBe('variant-fans');
+        expect(help.textContent).toContain('Optional');
+
+        changeValue(system, '1');
+        expect(team.required).toBe(true);
+        expect(team.value).toBe('variant-fans');
+        expect(help.textContent).toContain('Required');
+
+        changeValue(system, '0');
+        expect(team.required).toBe(false);
+        expect(team.value).toBe('variant-fans');
     });
 });
 

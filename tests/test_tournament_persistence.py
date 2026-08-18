@@ -529,42 +529,52 @@ class TournamentPersistenceTestCase(TournamentTestCase):
                         app_state, "tester", self._fixed_round_form(system)
                     )
 
-    async def test_team_tournament_permission_unlocks_fixed_round_creation(self):
+    async def test_team_tournament_permission_unlocks_all_pairing_systems(self):
         app_state = get_app_state(self.app)
+        username = f"TeamTournament{id8()}"
         team_id = f"team-{id8()}"
         now = datetime.now(UTC)
+        await app_state.db.user.insert_one({"_id": username})
         await app_state.db.team.insert_one(
             {
                 "_id": team_id,
                 "name": "Tournament Team",
                 "enabled": True,
                 "memberCount": 1,
-                "createdBy": "tester",
+                "createdBy": username,
                 "createdAt": now,
                 "updatedAt": now,
             }
         )
         await app_state.db.team_member.insert_one(
             {
-                "_id": f"tester@{team_id}",
+                "_id": f"{username}@{team_id}",
                 "team": team_id,
-                "user": "tester",
+                "user": username,
                 "joinedAt": now,
                 "permissions": [PERMISSION_TOURNAMENTS],
             }
         )
 
         with patch("tournament.tournaments.DEV", False):
-            for system in ("1", "2"):
+            for system in ("0", "1", "2"):
                 before_ids = set(app_state.tournaments)
-                await create_or_update_tournament(
-                    app_state,
-                    "tester",
-                    self._fixed_round_form(
+                form = (
+                    self._community_arena_form(
+                        teamId=team_id,
+                        name=f"Team Tournament {system}",
+                    )
+                    if system == "0"
+                    else self._fixed_round_form(
                         system,
                         teamId=team_id,
                         name=f"Team Tournament {system}",
-                    ),
+                    )
+                )
+                await create_or_update_tournament(
+                    app_state,
+                    username,
+                    form,
                     creator_is_director=False,
                 )
                 tournament_id = (set(app_state.tournaments) - before_ids).pop()
@@ -574,8 +584,9 @@ class TournamentPersistenceTestCase(TournamentTestCase):
                 self.assertIsNotNone(doc)
                 assert doc is not None
                 self.assertEqual(team_id, doc.get("teamId"))
+                await tournament.abort()
 
-    async def test_fixed_round_creation_rejects_team_without_tournament_permission(self):
+    async def test_team_tournament_creation_rejects_missing_tournament_permission(self):
         app_state = get_app_state(self.app)
         team_id = f"team-{id8()}"
         now = datetime.now(UTC)
@@ -600,14 +611,63 @@ class TournamentPersistenceTestCase(TournamentTestCase):
             }
         )
 
-        with (
-            patch("tournament.tournaments.DEV", False),
-            self.assertRaises(web.HTTPForbidden),
-        ):
+        with patch("tournament.tournaments.DEV", False):
+            for system in ("0", "1", "2"):
+                form = (
+                    self._community_arena_form(teamId=team_id)
+                    if system == "0"
+                    else self._fixed_round_form(system, teamId=team_id)
+                )
+                with self.assertRaises(web.HTTPForbidden):
+                    await create_or_update_tournament(
+                        app_state,
+                        "tester",
+                        form,
+                        creator_is_director=False,
+                    )
+
+    async def test_team_arena_uses_regular_user_arena_quota(self):
+        app_state = get_app_state(self.app)
+        username = f"TeamArenaQuota{id8()}"
+        team_id = f"team-{id8()}"
+        now = datetime.now(UTC)
+        await app_state.db.user.insert_one({"_id": username})
+        await app_state.db.team.insert_one(
+            {
+                "_id": team_id,
+                "name": "Arena Team",
+                "enabled": True,
+                "memberCount": 1,
+                "createdBy": username,
+                "createdAt": now,
+                "updatedAt": now,
+            }
+        )
+        await app_state.db.team_member.insert_one(
+            {
+                "_id": f"{username}@{team_id}",
+                "team": team_id,
+                "user": username,
+                "joinedAt": now,
+                "permissions": [PERMISSION_TOURNAMENTS],
+            }
+        )
+
+        before_ids = set(app_state.tournaments)
+        await create_or_update_tournament(
+            app_state,
+            username,
+            self._community_arena_form(teamId=team_id, name="Team Arena"),
+            creator_is_director=False,
+        )
+        tournament_id = (set(app_state.tournaments) - before_ids).pop()
+        await app_state.tournaments[tournament_id].abort()
+
+        with self.assertRaises(web.HTTPTooManyRequests):
             await create_or_update_tournament(
                 app_state,
-                "tester",
-                self._fixed_round_form("2", teamId=team_id),
+                username,
+                self._community_arena_form(name="Public Arena"),
                 creator_is_director=False,
             )
 
