@@ -263,41 +263,62 @@
     margin: 0;
 }
 
-/* Lichess action buttons are large neutral surfaces, not outlined cards. */
+/* Lichess uses button-empty + text actions here: icon on the left, label and
+ * optional explanation on the right, with the metal surface only on hover. */
 .team-action.button {
     box-sizing: border-box;
-    display: block;
+    display: grid;
+    grid-template-columns: 2.15rem minmax(0, 1fr);
+    grid-template-areas:
+        'icon label'
+        'icon hint';
+    align-items: center;
     width: 100%;
-    padding: .8rem .95rem;
+    padding: .72rem .8rem;
     border: 0;
     border-radius: 4px;
-    background: var(--bg-color2);
-    color: var(--font-color);
+    background: transparent;
+    color: var(--link-color-blue);
     text-align: left;
     text-decoration: none;
     text-transform: none;
     white-space: normal;
-    box-shadow: var(--btn-shadow);
-    transition: background-color .12s ease, color .12s ease;
+    box-shadow: none;
+    transition: background-color .12s ease, color .12s ease, box-shadow .12s ease;
 }
 
-.team-action.button:hover {
-    background: var(--team-hover-strong);
+.team-action.button::before {
+    grid-area: icon;
+    align-self: center;
+    justify-self: center;
+    margin: 0 .55rem 0 0;
+    color: currentColor;
+    font-size: 1.45rem;
+    opacity: .72;
+}
+
+.team-action.button:hover:not(:disabled) {
+    background: var(--bg-color2);
     color: var(--link-hover);
+    box-shadow: var(--btn-shadow);
 }
 
 .team-action strong,
 .team-action em {
     display: block;
+    min-width: 0;
 }
 
 .team-action strong {
+    grid-area: label;
+    color: inherit;
     font-size: 1rem;
     font-weight: 600;
 }
 
 .team-action em {
-    margin-top: .15rem;
+    grid-area: hint;
+    margin-top: .08rem;
     color: var(--team-dim);
     font-size: .82rem;
     font-style: normal;
@@ -305,12 +326,17 @@
     line-height: 1.35;
 }
 
+.team-action.button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
 .team-action--danger.button {
     color: var(--bad, #b33);
 }
 
-.team-action--danger.button:hover {
-    background: color-mix(in srgb, var(--bad, #b33) 10%, var(--bg-color2));
+.team-action--danger.button:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--bad, #b33) 8%, var(--bg-color2));
     color: var(--bad, #b33);
 }
 
@@ -355,6 +381,15 @@
 
 .team-show h2 a:hover {
     color: var(--link-hover);
+}
+
+/* Section icons mirror the icon-led headings used by Lichess TeamShowUi. */
+.team-show h2[class^="icon-"]::before,
+.team-show h2 a[class^="icon-"]::before {
+    margin-inline-end: .45rem;
+    color: var(--team-dim);
+    font-size: 1em;
+    opacity: .7;
 }
 
 .team-show__desc {

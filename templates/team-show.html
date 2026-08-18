@@ -38,12 +38,12 @@
                     </div>
                     {% if team_member and username != team['createdBy'] %}
                     <form method="post" action="/team/{{ team['_id'] }}/quit">
-                        <button class="button team-action team-action--danger" type="submit"><strong>Leave team</strong></button>
+                        <button class="button team-action team-action--danger icon-sign-out" type="submit"><strong>Leave team</strong></button>
                     </form>
                     {% endif %}
                     {% if team_can_reopen %}
                     <form method="post" action="/team/{{ team['_id'] }}/reopen">
-                        <button class="button team-action" type="submit">
+                        <button class="button team-action icon-unlock" type="submit">
                             <strong>Reopen team</strong>
                             <em>Site administrator action</em>
                         </button>
@@ -58,7 +58,7 @@
                             </div>
                             {% if username != team['createdBy'] %}
                             <form method="post" action="/team/{{ team['_id'] }}/quit">
-                                <button class="button team-action team-action--danger" type="submit"><strong>Leave team</strong></button>
+                                <button class="button team-action team-action--danger icon-sign-out" type="submit"><strong>Leave team</strong></button>
                             </form>
                             {% endif %}
                         {% elif team_pending_request %}
@@ -67,64 +67,64 @@
                                 <span>A team leader must approve your request.</span>
                             </div>
                             <form method="post" action="/team/{{ team['_id'] }}/cancel-request">
-                                <button class="button team-action team-action--danger" type="submit"><strong>Cancel request</strong></button>
+                                <button class="button team-action team-action--danger icon-abort" type="submit"><strong>Cancel request</strong></button>
                             </form>
                         {% elif team_declined_request %}
                             <div class="team-show__membership-state team-show__membership-state--declined">
                                 <strong>Join request declined</strong>
                                 <span>You cannot request to join this team again unless a team leader restores your request.</span>
                             </div>
-                            <button class="button team-action" type="button" disabled><strong>Join team</strong></button>
+                            <button class="button team-action icon-sign-in" type="button" disabled><strong>Join team</strong></button>
                         {% else %}
                             <form method="post" action="/team/{{ team['_id'] }}/join" class="team-show__join-action">
-                                <button class="button team-action" type="submit"><strong>Join team</strong></button>
+                                <button class="button team-action icon-sign-in" type="submit"><strong>Join team</strong></button>
                             </form>
                         {% endif %}
                     {% endif %}
 
                     {% if team_member %}
-                    <a class="button team-action" href="/team/{{ team['_id'] }}/updates">
+                    <a class="button team-action icon-bell-o" href="/team/{{ team['_id'] }}/updates">
                         <strong>Team updates</strong>
                         <em>Read team announcements</em>
                     </a>
                     {% endif %}
                     {% if team_can_send_update %}
-                    <a class="button team-action" href="/team/{{ team['_id'] }}/updates/new">
+                    <a class="button team-action icon-ink-pen" href="/team/{{ team['_id'] }}/updates/new">
                         <strong>New team update</strong>
                         <em>Message subscribed members</em>
                     </a>
                     {% endif %}
                     {% if team_can_create_tournament %}
-                    <a class="button team-action" href="/tournaments/new?team={{ team['_id'] }}">
+                    <a class="button team-action icon-trophy" href="/tournaments/new?team={{ team['_id'] }}">
                         <strong>Team tournament</strong>
                         <em>Create an Arena, Round-Robin, or Swiss</em>
                     </a>
                     {% endif %}
                     {% if team_can_edit %}
-                    <a class="button team-action" href="/team/{{ team['_id'] }}/edit">
+                    <a class="button team-action icon-cog" href="/team/{{ team['_id'] }}/edit">
                         <strong>Settings</strong>
                         <em>Edit team information and access</em>
                     </a>
                     {% endif %}
                     {% if team_can_manage_leaders %}
-                    <a class="button team-action" href="/team/{{ team['_id'] }}/leaders">
+                    <a class="button team-action icon-crown" href="/team/{{ team['_id'] }}/leaders">
                         <strong>Team leaders</strong>
                         <em>Manage leader permissions</em>
                     </a>
                     {% endif %}
                     {% if team_can_manage_requests %}
-                    <a class="button team-action" href="/team/requests">
+                    <a class="button team-action icon-list" href="/team/requests">
                         <strong>Join requests</strong>
                         <em>Review requests across your teams</em>
                     </a>
-                    <a class="button team-action" href="/team/{{ team['_id'] }}/declined-requests">
+                    <a class="button team-action icon-ban" href="/team/{{ team['_id'] }}/declined-requests">
                         <strong>Declined requests</strong>
                         <em>Restore previously declined requests</em>
                     </a>
                     {% endif %}
                     {% if team_can_close and team_is_site_admin %}
                     <form method="post" action="/team/{{ team['_id'] }}/close">
-                        <button class="button team-action team-action--danger" type="submit">
+                        <button class="button team-action team-action--danger icon-ban" type="submit">
                             <strong>Close team</strong>
                             <em>Site administrator action</em>
                         </button>
@@ -136,7 +136,7 @@
                 {% if not team_closed or team_is_site_admin %}
                 <section class="team-show__members">
                     <section class="recent-members">
-                        <h2><a href="/team/{{ team['_id'] }}/members">Recent members</a></h2>
+                        <h2><a class="icon-list" href="/team/{{ team['_id'] }}/members">Recent members</a></h2>
                         <div class="userlist">
                             {% for member in team_members %}
                             <div class="paginated team-member-row">
@@ -190,7 +190,7 @@
                 <div class="team-show__events">
                     {% if team_latest_update %}
                     <section class="team-show__update">
-                        <h2><a href="/team/{{ team['_id'] }}/updates">Latest team update</a></h2>
+                        <h2><a class="icon-bell-o" href="/team/{{ team['_id'] }}/updates">Latest team update</a></h2>
                         <div class="team-show__update__last">
                             <div class="team-update-text">{{ team_latest_update['text'] }}</div>
                             <div class="team-show__update__meta">
@@ -203,7 +203,7 @@
 
                     {% if team_tournaments %}
                     <section class="team-show__tour">
-                        <h2>Team tournaments</h2>
+                        <h2 class="icon-trophy">Team tournaments</h2>
                         <div class="team-show__list-wrapper team-tournament-list">
                             {% for tournament in team_tournaments %}
                             <a class="team-tournament-row" href="/tournament/{{ tournament['_id'] }}">
@@ -218,7 +218,7 @@
 
                     {% if team_can_see_forum %}
                     <section class="team-show__forum">
-                        <h2><a href="/forum/{{ team_forum_categ_id }}">Team forum</a></h2>
+                        <h2><a class="icon-bubbles4" href="/forum/{{ team_forum_categ_id }}">Team forum</a></h2>
                         <div class="team-show__list-wrapper team-forum-topic-list">
                             {% for topic in team_forum_topics %}
                             {% set replies = topic.get('nbPosts', 1) - 1 %}
