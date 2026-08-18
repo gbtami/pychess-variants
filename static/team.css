@@ -1,6 +1,7 @@
 /* Teams deliberately follows the same page structure as Lichess:
  * list/admin pages use page-menu + subnav, while a team page is one
- * two-column team-show box. */
+ * two-column team-show box. Keep the palette derived from PyChess theme
+ * variables so the same hierarchy works in both light and dark modes. */
 .teams-page,
 .team-form-page,
 .team-show-page,
@@ -9,14 +10,20 @@
 .team-leaders-page,
 .team-updates-page,
 .team-update-form-page {
+    --team-border: color-mix(in srgb, var(--font-color) 14%, transparent);
+    --team-zebra: color-mix(in srgb, var(--bg-color2) 78%, var(--bg-color0));
+    --team-hover: color-mix(in srgb, var(--link-hover) 8%, var(--bg-color0));
+    --team-hover-strong: color-mix(in srgb, var(--link-hover) 13%, var(--bg-color0));
+    --team-dim: color-mix(in srgb, var(--font-color) 68%, transparent);
     box-sizing: border-box;
     grid-area: main;
     width: min(1000px, calc(100vw - 2rem));
     max-width: none;
-    margin: 1.5rem auto 3rem;
+    margin: 1.25rem auto 3rem;
 }
 
-/* Lichess-style team sub-navigation. */
+/* Lichess-style team sub-navigation: the sidebar itself blends into the page;
+ * only the active entry uses the box surface. */
 .teams-page.page-menu,
 .team-form-page.page-menu,
 .team-declined-requests-page.page-menu,
@@ -24,6 +31,7 @@
 .team-update-form-page.page-menu {
     grid-template-columns: 12.5rem minmax(0, 1fr);
     grid-template-areas: 'side content';
+    column-gap: .7rem;
     align-items: start;
 }
 
@@ -31,37 +39,40 @@
     grid-area: side;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
-    border-radius: 3px 0 0 3px;
-    background: var(--bg-color1);
+    gap: .15rem;
+    overflow: visible;
+    background: transparent;
 }
 
 .page-menu__menu.subnav a {
-    padding: .9rem 1.15rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 2.6rem;
+    padding: .65rem .9rem;
+    border-radius: 3px;
     color: var(--font-color);
     text-decoration: none;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.page-menu__menu.subnav a:last-child {
-    border-bottom: 0;
+    white-space: nowrap;
 }
 
 .page-menu__menu.subnav a:hover {
-    background: var(--bg-color0);
-    color: var(--link-color-blue);
+    background: color-mix(in srgb, var(--font-color) 6%, transparent);
+    color: var(--link-hover);
 }
 
 .page-menu__menu.subnav a.active {
     background: var(--bg-color0);
-    color: var(--link-color-blue);
+    color: var(--font-color);
     font-weight: 600;
+    box-shadow: 0 1px 3px color-mix(in srgb, var(--font-color) 12%, transparent);
 }
 
 .page-menu__content {
     grid-area: content;
     min-width: 0;
-    border-radius: 0 3px 3px 0;
+    min-height: 100%;
+    border-radius: 3px;
     overflow: hidden;
 }
 
@@ -71,33 +82,38 @@
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    padding: 1.6rem 2rem 1.25rem;
+    padding: 1.7rem 2rem 1.2rem;
 }
 
 .team-list-top h1,
 .team-show__top h1 {
     margin: 0;
     padding: 0;
+    font-size: 2rem;
+    line-height: 1.15;
 }
 
-/* Team list mirrors Lichess's slist table instead of a card grid. */
+/* Team list mirrors Lichess's slist: roomy rows, zebra contrast, little chrome. */
 .team-slist {
     width: 100%;
     border-collapse: collapse;
 }
 
 .team-slist td {
-    padding: 1rem 2rem;
-    border-top: 1px solid var(--border-color);
+    padding: 1.15rem 2rem;
     vertical-align: middle;
 }
 
 .team-slist tbody tr:nth-child(even) {
-    background: var(--bg-color1);
+    background: var(--team-zebra);
+}
+
+.team-slist tbody tr {
+    transition: background-color .12s ease;
 }
 
 .team-slist tbody tr:hover {
-    background: color-mix(in srgb, var(--link-color-blue) 6%, var(--bg-color0));
+    background: var(--team-hover);
 }
 
 .team-slist .subject {
@@ -107,57 +123,65 @@
 .team-name {
     display: flex;
     align-items: center;
-    gap: .65rem;
+    gap: .75rem;
     width: fit-content;
     max-width: 100%;
     color: var(--font-color);
-    font-size: 1.35rem;
-    font-weight: 600;
+    font-size: 1.5rem;
+    font-weight: 500;
+    line-height: 1.2;
     text-decoration: none;
     overflow-wrap: anywhere;
 }
 
-.team-name:hover,
+.team-name:hover {
+    color: var(--link-hover);
+}
+
 .team-name.mine {
-    color: var(--link-color-blue);
+    color: var(--gold);
 }
 
 .team-name em {
     flex: 0 0 auto;
-    padding: .1rem .4rem;
+    padding: .12rem .45rem;
     border-radius: 3px;
-    background: var(--link-color-blue);
+    background: var(--link-hover);
     color: white;
     font-size: .7rem;
     font-style: normal;
-    font-weight: 600;
+    font-weight: 700;
+    letter-spacing: .02em;
     text-transform: uppercase;
 }
 
 .team-list-intro {
     display: block;
-    margin-top: .3rem;
-    opacity: .75;
+    max-width: 60ch;
+    margin-top: .35rem;
+    color: var(--team-dim);
+    line-height: 1.4;
     overflow-wrap: anywhere;
 }
 
 .team-slist .info {
     width: 1%;
+    color: var(--team-dim);
     white-space: nowrap;
     font-size: .9rem;
-    opacity: .75;
+    font-variant-numeric: tabular-nums;
 }
 
 .team-slist .info p {
     margin: 0;
-    padding: .12rem 0;
+    padding: .1rem 0;
     text-align: right;
 }
 
 .team-empty {
-    padding: 2rem !important;
+    padding: 2.4rem 2rem !important;
+    color: var(--team-dim);
     text-align: center;
-    opacity: .75;
 }
 
 /* Single-box, two-column team page, following Lichess team-show. */
@@ -166,32 +190,37 @@
 }
 
 .team-show__top {
-    border-bottom: 1px solid var(--border-color);
+    padding-bottom: .9rem;
 }
 
 .team-show__intro {
+    max-width: 70ch;
     margin: .35rem 0 0;
     padding: 0;
+    color: var(--team-dim);
     font-size: 1.05rem;
-    opacity: .75;
+    line-height: 1.4;
 }
 
 .team-show__member-count {
     flex: 0 0 auto;
-    color: var(--font-color);
+    color: var(--team-dim);
     text-decoration: none;
-    opacity: .72;
+    font-variant-numeric: tabular-nums;
+}
+
+.team-show__member-count strong {
+    color: var(--font-color);
 }
 
 .team-show__member-count:hover {
-    color: var(--link-color-blue);
-    opacity: 1;
+    color: var(--link-hover);
 }
 
 .team-show__content {
     display: flex;
     gap: 2rem;
-    padding: 1.8rem 2rem 2.2rem;
+    padding: 1.1rem 2rem 2.2rem;
 }
 
 .team-show__content__col1 {
@@ -205,9 +234,8 @@
 }
 
 .team-show__meta {
-    margin-bottom: 1.5rem;
-    color: var(--font-color);
-    opacity: .78;
+    margin-bottom: 1.6rem;
+    color: var(--team-dim);
 }
 
 .team-show__meta p {
@@ -216,9 +244,18 @@
     line-height: 1.45;
 }
 
+.team-show__meta a {
+    color: var(--font-color);
+}
+
+.team-show__meta a:hover {
+    color: var(--link-hover);
+}
+
 .team-show__actions {
     display: grid;
-    gap: .55rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(30ch, 100%), 1fr));
+    gap: .6rem;
     margin-bottom: 2rem;
 }
 
@@ -226,26 +263,27 @@
     margin: 0;
 }
 
+/* Lichess action buttons are large neutral surfaces, not outlined cards. */
 .team-action.button {
     box-sizing: border-box;
     display: block;
     width: 100%;
-    padding: .75rem .85rem;
-    border: 1px solid var(--border-color);
+    padding: .8rem .95rem;
+    border: 0;
     border-radius: 4px;
-    background: var(--bg-color1);
+    background: var(--bg-color2);
     color: var(--font-color);
     text-align: left;
     text-decoration: none;
     text-transform: none;
     white-space: normal;
-    box-shadow: none;
+    box-shadow: var(--btn-shadow);
+    transition: background-color .12s ease, color .12s ease;
 }
 
 .team-action.button:hover {
-    border-color: color-mix(in srgb, var(--link-color-blue) 55%, var(--border-color));
-    background: color-mix(in srgb, var(--link-color-blue) 7%, var(--bg-color1));
-    color: var(--link-color-blue);
+    background: var(--team-hover-strong);
+    color: var(--link-hover);
 }
 
 .team-action strong,
@@ -255,18 +293,24 @@
 
 .team-action strong {
     font-size: 1rem;
+    font-weight: 600;
 }
 
 .team-action em {
-    margin-top: .12rem;
-    color: var(--font-color);
+    margin-top: .15rem;
+    color: var(--team-dim);
     font-size: .82rem;
     font-style: normal;
     font-weight: normal;
-    opacity: .65;
+    line-height: 1.35;
 }
 
 .team-action--danger.button {
+    color: var(--bad, #b33);
+}
+
+.team-action--danger.button:hover {
+    background: color-mix(in srgb, var(--bad, #b33) 10%, var(--bg-color2));
     color: var(--bad, #b33);
 }
 
@@ -277,8 +321,8 @@
 }
 
 .team-show__membership-state span {
+    color: var(--team-dim);
     font-size: .9rem;
-    opacity: .7;
 }
 
 .team-show__membership-state--declined {
@@ -298,41 +342,47 @@
 }
 
 .team-show h2 {
-    margin: 0 0 .75rem;
+    margin: 0 0 1rem;
     padding: 0;
-    font-size: 1.35rem;
+    font-size: 1.45rem;
     font-weight: 600;
+    line-height: 1.25;
 }
 
 .team-show h2 a {
     color: inherit;
 }
 
+.team-show h2 a:hover {
+    color: var(--link-hover);
+}
+
 .team-show__desc {
-    margin-bottom: 2rem;
-    padding: 1rem 1.35rem;
-    border: 1px solid var(--border-color);
+    margin-bottom: 2.2rem;
+    padding: 1rem 1.5rem;
+    border: 1px solid var(--team-border);
     border-radius: 4px;
-    background: var(--bg-color1);
+    background: var(--team-zebra);
     font-size: 1.05rem;
-    line-height: 1.55;
+    line-height: 1.6;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
 }
 
 .team-show__events {
     display: grid;
-    gap: 2rem;
+    gap: 2.2rem;
 }
 
 .team-show__requests {
-    margin-bottom: 2rem;
+    margin-bottom: 2.2rem;
 }
 
 .team-show__list-wrapper {
     overflow: hidden;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--team-border);
     border-radius: 4px;
+    background: var(--bg-color0);
 }
 
 .team-tournament-list,
@@ -342,7 +392,7 @@
 
 .team-tournament-row,
 .team-forum-topic-row {
-    border-top: 1px solid var(--border-color);
+    border-top: 1px solid var(--team-border);
 }
 
 .team-tournament-row:first-child,
@@ -483,7 +533,7 @@
 
 .team-requests td {
     padding: .6rem .75rem;
-    border-top: 1px solid var(--border-color);
+    border-top: 1px solid var(--team-border);
     vertical-align: middle;
 }
 
@@ -529,24 +579,30 @@
     display: inline-block;
     flex: 0 0 auto;
     padding: .1rem .45rem;
-    border: 1px solid var(--border-color);
+    border: 1px solid color-mix(in srgb, var(--link-hover) 28%, var(--team-border));
     border-radius: 999px;
-    background: var(--bg-color1);
+    background: color-mix(in srgb, var(--link-hover) 8%, var(--bg-color0));
+    color: var(--link-hover);
     font-size: .72rem;
+    font-weight: 600;
 }
 
 .team-muted {
-    opacity: .7;
+    color: var(--team-dim);
 }
 
 .team-link-button {
     padding: 0;
     border: 0;
     background: none;
-    color: inherit;
-    text-decoration: underline;
+    color: var(--team-dim);
+    text-decoration: none;
     cursor: pointer;
-    opacity: .7;
+}
+
+.team-link-button:hover {
+    color: var(--link-hover);
+    text-decoration: underline;
 }
 
 .team-tournament-row {
@@ -554,7 +610,7 @@
     grid-template-columns: minmax(0, 1fr) auto auto;
     gap: 1rem;
     align-items: center;
-    padding: .75rem .9rem;
+    padding: .85rem 1rem;
     color: inherit;
     text-decoration: none;
 }
@@ -564,35 +620,40 @@
     grid-template-columns: minmax(0, 1fr) auto auto auto;
     gap: 1rem;
     align-items: center;
-    padding: .75rem .9rem;
+    padding: .85rem 1rem;
     color: inherit;
     text-decoration: none;
 }
 
 .team-tournament-row:hover,
 .team-forum-topic-row:hover {
-    background: var(--bg-color1);
+    background: var(--team-hover);
 }
 
 .team-tournament-row span,
 .team-forum-topic-row span,
 .team-forum-topic-row info-date {
-    opacity: .7;
+    color: var(--team-dim);
 }
 
 .team-show__more {
     display: block;
-    margin-top: .6rem;
+    margin-top: .7rem;
+    color: var(--team-dim);
     text-align: right;
+}
+
+.team-show__more:hover {
+    color: var(--link-hover);
 }
 
 .team-show__update__last {
     display: grid;
     gap: .8rem;
     padding: 1rem 1.25rem;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--team-border);
     border-radius: 4px;
-    background: var(--bg-color1);
+    background: var(--team-zebra);
 }
 
 .team-show__update__meta,
@@ -602,8 +663,8 @@
     justify-content: flex-end;
     gap: .75rem;
     flex-wrap: wrap;
+    color: var(--team-dim);
     font-size: .9rem;
-    opacity: .72;
 }
 
 /* Dedicated members page follows Lichess's page-small + team-members slist. */
@@ -613,8 +674,7 @@
 }
 
 .team-members__top {
-    padding: 1.6rem 2rem 1.25rem;
-    border-bottom: 1px solid var(--border-color);
+    padding: 1.7rem 2rem 1.2rem;
 }
 
 .team-members__top h1 {
@@ -643,8 +703,7 @@
 }
 
 .team-members td {
-    padding: .85rem 2rem;
-    border-top: 1px solid var(--border-color);
+    padding: 1rem 2rem;
 }
 
 .team-members tr:first-child td {
@@ -652,19 +711,19 @@
 }
 
 .team-members tbody tr:nth-child(even) {
-    background: var(--bg-color1);
+    background: var(--team-zebra);
 }
 
 .team-members tbody tr:hover {
-    background: color-mix(in srgb, var(--link-color-blue) 6%, var(--bg-color0));
+    background: var(--team-hover);
 }
 
 .team-members__joined {
     width: 1%;
     white-space: nowrap;
     text-align: right;
+    color: var(--team-dim);
     font-size: .9rem;
-    opacity: .7;
 }
 
 .team-members__pagination {
@@ -673,7 +732,7 @@
     justify-content: space-between;
     gap: 1rem;
     padding: 1rem 2rem;
-    border-top: 1px solid var(--border-color);
+    border-top: 1px solid var(--team-border);
 }
 
 /* Team create/edit/admin pages mirror Lichess's page-small + form3 layout. */
@@ -1258,18 +1317,44 @@
 
     .page-menu__menu.subnav {
         flex-direction: row;
+        gap: .15rem;
         overflow-x: auto;
-        border-radius: 3px 3px 0 0;
+        overflow-y: hidden;
+        padding: 0 .35rem;
+        border-radius: 0;
+        scrollbar-width: none;
+    }
+
+    .page-menu__menu.subnav::-webkit-scrollbar {
+        display: none;
     }
 
     .page-menu__menu.subnav a {
         flex: 0 0 auto;
-        border-right: 1px solid var(--border-color);
-        border-bottom: 0;
+        min-height: 2.8rem;
+        padding: .7rem;
+        border-radius: 0;
+    }
+
+    .page-menu__menu.subnav a.active {
+        background: transparent;
+        box-shadow: none;
+    }
+
+    .page-menu__menu.subnav a.active::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        height: 3px;
+        border-radius: 999px 999px 0 0;
+        background: var(--link-hover);
     }
 
     .page-menu__content {
-        border-radius: 0 0 3px 3px;
+        margin-top: .25rem;
+        border-radius: 3px;
     }
 
     .team-show__content {

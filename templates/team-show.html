@@ -10,7 +10,7 @@
             {% if team_closed %}
             <span class="team-show__closed-badge">CLOSED</span>
             {% else %}
-            <a class="team-show__member-count" href="/team/{{ team['_id'] }}/members">{{ team.get('memberCount', 0) }} member{% if team.get('memberCount', 0) != 1 %}s{% endif %}</a>
+            <a class="team-show__member-count" href="/team/{{ team['_id'] }}/members"><strong>{{ team.get('memberCount', 0) }}</strong> member{% if team.get('memberCount', 0) != 1 %}s{% endif %}</a>
             {% endif %}
         </div>
 
