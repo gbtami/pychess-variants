@@ -431,17 +431,15 @@ class TeamTestCase(AioHTTPTestCase):
         self.assertIsNone(await app_state.db.team_member.find_one({"_id": "bob@variant-fans"}))
 
         await app_state.db.team.update_one({"_id": "variant-fans"}, {"$set": {"enabled": True}})
-        original_insert_one = app_state.db.team_member.insert_one
 
-        async def insert_then_close(member):
-            result = await original_insert_one(member)
+        async def count_then_close(_app_state, _username):
             await app_state.db.team.update_one(
                 {"_id": "variant-fans"}, {"$set": {"enabled": False}}
             )
-            return result
+            return 0
 
         with (
-            patch.object(app_state.db.team_member, "insert_one", side_effect=insert_then_close),
+            patch("team._joined_team_count", side_effect=count_then_close),
             self.assertRaises(web.HTTPConflict),
         ):
             await _add_member(app_state, "variant-fans", "charlie")
