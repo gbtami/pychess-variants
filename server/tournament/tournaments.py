@@ -741,13 +741,10 @@ async def create_or_update_tournament(
             team = await get_team(app_state, team_id)
             if team is None:
                 raise web.HTTPBadRequest(text="Tournament team not found.")
-            if not await has_team_permission(
-                app_state, team_id, username, PERMISSION_TOURNAMENTS
-            ):
+            if not await has_team_permission(app_state, team_id, username, PERMISSION_TOURNAMENTS):
                 raise web.HTTPForbidden(
                     text=(
-                        "You need the tournament permission in this team "
-                        "to create this tournament."
+                        "You need the tournament permission in this team to create this tournament."
                     )
                 )
         elif system in (RR, SWISS) and not (creator_is_director and DEV):
