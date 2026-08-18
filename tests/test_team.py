@@ -750,6 +750,31 @@ class TeamTestCase(AioHTTPTestCase):
         )
         self.assertEqual(400, response.status)
 
+    async def test_team_pages_load_standard_site_javascript(self):
+        root = Path(__file__).parents[1]
+        team_base = (root / "templates" / "team-base.html").read_text()
+        self.assertIn('{% extends "template.html" %}', team_base)
+        self.assertIn('<script src="{{ js }}"></script>', team_base)
+
+        for template_name in (
+            "teams.html",
+            "team-show.html",
+            "team-new.html",
+            "team-edit.html",
+            "team-join.html",
+            "team-leaders.html",
+            "team-members.html",
+            "team-requests.html",
+            "team-declined-requests.html",
+            "team-updates.html",
+            "team-update-new.html",
+        ):
+            template = (root / "templates" / template_name).read_text()
+            self.assertTrue(
+                template.startswith('{% extends "team-base.html" %}'),
+                f"{template_name} must extend team-base.html so standard header JS is loaded",
+            )
+
     async def test_team_pages_have_main_grid_area_css(self):
         root = Path(__file__).parents[1]
         css = (root / "static" / "team.css").read_text()
