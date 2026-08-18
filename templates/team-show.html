@@ -142,7 +142,7 @@
                             <div class="paginated team-member-row">
                                 <a class="user-link" href="/@/{{ member['user'] }}">{{ member['user'] }}</a>
                                 {% if team_public_permission in member.get('permissions', []) %}<span class="team-member-badge">Leader</span>{% endif %}
-                                {% if team_can_kick and member['user'] != team['createdBy'] and member['user'] != username %}
+                                {% if team_can_kick and member['user'] != team['createdBy'] and member['user'] != username and (not member.get('permissions') or team_can_manage_leaders) %}
                                 <form method="post" action="/team/{{ team['_id'] }}/kick/{{ member['user'] }}">
                                     <button class="team-link-button" type="submit">Kick</button>
                                 </form>

@@ -800,13 +800,14 @@ async def kick_team_member(
     if app_state.db is None:
         raise web.HTTPServiceUnavailable(text="Teams require database access.")
 
-    result = await app_state.db.team_member.delete_one({"_id": _member_id(team_id, username)})
-    if not result.deleted_count:
+    target = await get_team_member(app_state, team_id, username)
+    if target is None:
         raise web.HTTPNotFound(text="Team member not found.")
-    await app_state.db.team.update_one(
-        {"_id": team_id}, {"$inc": {"memberCount": -1}, "$set": {"updatedAt": datetime.now(UTC)}}
-    )
-    await _remove_user_from_active_team_tournaments(app_state, team_id, username)
+    if target.get("permissions") and not await has_team_permission(
+        app_state, team_id, moderator, PERMISSION_ADMIN
+    ):
+        raise web.HTTPForbidden(text="Only a team Admin can kick another leader.")
+
     now = datetime.now(UTC)
     await app_state.db.team_request.update_one(
         {"_id": _request_id(team_id, username)},
@@ -822,6 +823,13 @@ async def kick_team_member(
         },
         upsert=True,
     )
+    result = await app_state.db.team_member.delete_one({"_id": _member_id(team_id, username)})
+    if not result.deleted_count:
+        raise web.HTTPNotFound(text="Team member not found.")
+    await app_state.db.team.update_one(
+        {"_id": team_id}, {"$inc": {"memberCount": -1}, "$set": {"updatedAt": now}}
+    )
+    await _remove_user_from_active_team_tournaments(app_state, team_id, username)
 
 
 async def close_team(

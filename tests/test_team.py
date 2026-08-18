@@ -10,6 +10,7 @@ from multidict import MultiDict
 from pychess_global_app_state_utils import get_app_state
 from team import (
     PERMISSION_ADMIN,
+    PERMISSION_KICK,
     PERMISSION_PUBLIC,
     PERMISSION_TOURNAMENTS,
     PERMISSION_UPDATES,
@@ -537,6 +538,56 @@ class TeamTestCase(AioHTTPTestCase):
         self.assertEqual(302, restored.status)
         self.assertIsNotNone(await app_state.db.team_member.find_one({"_id": "bob@variant-fans"}))
         self.assertIsNone(await app_state.db.team_request.find_one({"_id": "bob@variant-fans"}))
+
+    async def test_kick_only_leader_cannot_kick_another_leader(self):
+        await self.create_team()
+        app_state = get_app_state(self.app)
+        for username in ("bob", "charlie", "dave"):
+            self.add_live_user(username)
+            self.set_session_user(username)
+            await self.client.post("/team/variant-fans/join", data={}, allow_redirects=False)
+
+        await app_state.db.team_member.update_one(
+            {"_id": "bob@variant-fans"}, {"$set": {"permissions": [PERMISSION_KICK]}}
+        )
+        await app_state.db.team_member.update_one(
+            {"_id": "charlie@variant-fans"},
+            {"$set": {"permissions": [PERMISSION_PUBLIC]}},
+        )
+
+        self.set_session_user("bob")
+        page = await self.client.get("/team/variant-fans")
+        html = await page.text()
+        self.assertNotIn('/kick/charlie"', html)
+        self.assertIn('/kick/dave"', html)
+
+        denied = await self.client.post(
+            "/team/variant-fans/kick/charlie", allow_redirects=False
+        )
+        self.assertEqual(403, denied.status)
+        self.assertIsNotNone(
+            await app_state.db.team_member.find_one({"_id": "charlie@variant-fans"})
+        )
+
+        kicked_member = await self.client.post(
+            "/team/variant-fans/kick/dave", allow_redirects=False
+        )
+        self.assertEqual(302, kicked_member.status)
+        self.assertIsNone(await app_state.db.team_member.find_one({"_id": "dave@variant-fans"}))
+
+        self.set_session_user("alice")
+        kicked_leader = await self.client.post(
+            "/team/variant-fans/kick/charlie", allow_redirects=False
+        )
+        self.assertEqual(302, kicked_leader.status)
+        self.assertIsNone(
+            await app_state.db.team_member.find_one({"_id": "charlie@variant-fans"})
+        )
+        kicked_request = await app_state.db.team_request.find_one(
+            {"_id": "charlie@variant-fans"}
+        )
+        self.assertIsNotNone(kicked_request)
+        self.assertTrue(kicked_request["declined"])
 
     async def test_non_leader_cannot_edit_or_kick(self):
         await self.create_team()
