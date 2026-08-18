@@ -5,7 +5,10 @@ from const import ARENA, T_CREATED
 from pychess_global_app_state import PychessGlobalAppState
 from settings import ADMINS
 from team import PERMISSION_TOURNAMENTS, get_team, teams_for_user
-from tournament.tournaments import COMMUNITY_ARENA_MAX_CREATIONS_PER_24H
+from tournament.tournaments import (
+    COMMUNITY_ARENA_MAX_CREATIONS_PER_24H,
+    FIXED_ROUND_MAX_CREATIONS_PER_24H,
+)
 from tournament_director import is_tournament_director
 from typedefs import pychess_global_app_state_key as app_state_key
 from typing_defs import ViewContext
@@ -45,6 +48,7 @@ async def arena_new(request: web.Request) -> ViewContext:
     context["admin"] = user.username in ADMINS
     context["tournament_director"] = director
     context["community_arena_max_creations_per_24h"] = COMMUNITY_ARENA_MAX_CREATIONS_PER_24H
+    context["fixed_round_max_creations_per_24h"] = FIXED_ROUND_MAX_CREATIONS_PER_24H
     tournament_teams = await teams_for_user(
         app_state, user.username, permission=PERMISSION_TOURNAMENTS
     )

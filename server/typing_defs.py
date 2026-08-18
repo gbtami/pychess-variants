@@ -50,6 +50,7 @@ class UserDocument(TypedDict, total=False):
     tournamentGameEffectIds: list[str]
     lastArenaCreatedAt: datetime
     arenaCreationHistory: list[ArenaCreationHistoryEntry]
+    fixedRoundCreationHistory: list[ArenaCreationHistoryEntry]
     perfs: PerfMap
     pperfs: PerfMap
     lang: str
@@ -447,6 +448,7 @@ class ViewContext(TypedDict, total=False):
     favorite_variants: Mapping[str, object]
     community_variants_for_tournaments: Mapping[str, object]
     community_arena_max_creations_per_24h: int
+    fixed_round_max_creations_per_24h: int
     tournament_teams: Sequence[Mapping[str, object]]
     selected_tournament_team_id: str
     pm_friends_only: bool

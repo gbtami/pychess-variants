@@ -671,6 +671,138 @@ class TournamentPersistenceTestCase(TournamentTestCase):
                 creator_is_director=False,
             )
 
+    async def test_team_fixed_round_quota_is_shared_and_rolling(self):
+        app_state = get_app_state(self.app)
+        username = f"TeamFixedQuota{id8()}"
+        team_id = f"team-{id8()}"
+        now = datetime.now(UTC)
+        await app_state.db.user.insert_one({"_id": username})
+        await app_state.db.team.insert_one(
+            {
+                "_id": team_id,
+                "name": "Fixed Round Quota Team",
+                "enabled": True,
+                "memberCount": 1,
+                "createdBy": username,
+                "createdAt": now,
+                "updatedAt": now,
+            }
+        )
+        await app_state.db.team_member.insert_one(
+            {
+                "_id": f"{username}@{team_id}",
+                "team": team_id,
+                "user": username,
+                "joinedAt": now,
+                "permissions": [PERMISSION_TOURNAMENTS],
+            }
+        )
+
+        with patch("tournament.tournaments.FIXED_ROUND_MAX_CREATIONS_PER_24H", 2):
+            for number, system in enumerate(("1", "2"), start=1):
+                before_ids = set(app_state.tournaments)
+                await create_or_update_tournament(
+                    app_state,
+                    username,
+                    self._fixed_round_form(
+                        system,
+                        teamId=team_id,
+                        name=f"Fixed Round {number}",
+                    ),
+                    creator_is_director=False,
+                )
+                tournament_id = (set(app_state.tournaments) - before_ids).pop()
+                await app_state.tournaments[tournament_id].abort()
+
+            with self.assertRaises(web.HTTPTooManyRequests):
+                await create_or_update_tournament(
+                    app_state,
+                    username,
+                    self._fixed_round_form("1", teamId=team_id, name="Blocked Fixed Round"),
+                    creator_is_director=False,
+                )
+
+            user_doc = await app_state.db.user.find_one({"_id": username})
+            history = list((user_doc or {}).get("fixedRoundCreationHistory", []))
+            self.assertEqual(len(history), 2)
+
+            history[0]["at"] = datetime.now(UTC) - timedelta(hours=25)
+            await app_state.db.user.update_one(
+                {"_id": username},
+                {"$set": {"fixedRoundCreationHistory": history}},
+            )
+
+            before_ids = set(app_state.tournaments)
+            await create_or_update_tournament(
+                app_state,
+                username,
+                self._fixed_round_form("2", teamId=team_id, name="Next Day Fixed Round"),
+                creator_is_director=False,
+            )
+            tournament_id = (set(app_state.tournaments) - before_ids).pop()
+            await app_state.tournaments[tournament_id].abort()
+
+            user_doc = await app_state.db.user.find_one({"_id": username})
+            history = list((user_doc or {}).get("fixedRoundCreationHistory", []))
+            self.assertEqual(len(history), 2)
+            self.assertGreater(history[0]["at"], datetime.now(UTC) - timedelta(hours=24))
+
+    async def test_team_fixed_round_failed_creation_releases_quota_claim(self):
+        app_state = get_app_state(self.app)
+        username = f"TeamFixedRollback{id8()}"
+        team_id = f"team-{id8()}"
+        now = datetime.now(UTC)
+        await app_state.db.user.insert_one({"_id": username})
+        await app_state.db.team.insert_one(
+            {
+                "_id": team_id,
+                "name": "Fixed Round Rollback Team",
+                "enabled": True,
+                "memberCount": 1,
+                "createdBy": username,
+                "createdAt": now,
+                "updatedAt": now,
+            }
+        )
+        await app_state.db.team_member.insert_one(
+            {
+                "_id": f"{username}@{team_id}",
+                "team": team_id,
+                "user": username,
+                "joinedAt": now,
+                "permissions": [PERMISSION_TOURNAMENTS],
+            }
+        )
+
+        with (
+            patch("tournament.tournaments.FIXED_ROUND_MAX_CREATIONS_PER_24H", 1),
+            patch(
+                "tournament.tournaments.new_tournament",
+                new=AsyncMock(side_effect=RuntimeError("simulated fixed-round creation failure")),
+            ),
+            self.assertRaisesRegex(RuntimeError, "simulated fixed-round creation failure"),
+        ):
+            await create_or_update_tournament(
+                app_state,
+                username,
+                self._fixed_round_form("2", teamId=team_id),
+                creator_is_director=False,
+            )
+
+        user_doc = await app_state.db.user.find_one({"_id": username})
+        self.assertEqual((user_doc or {}).get("fixedRoundCreationHistory"), [])
+
+        with patch("tournament.tournaments.FIXED_ROUND_MAX_CREATIONS_PER_24H", 1):
+            before_ids = set(app_state.tournaments)
+            await create_or_update_tournament(
+                app_state,
+                username,
+                self._fixed_round_form("2", teamId=team_id),
+                creator_is_director=False,
+            )
+            tournament_id = (set(app_state.tournaments) - before_ids).pop()
+            await app_state.tournaments[tournament_id].abort()
+
     async def test_rejects_past_custom_start_date(self):
         app_state = get_app_state(self.app)
         past_start = (datetime.now(UTC) - timedelta(minutes=5)).isoformat()

@@ -10,6 +10,8 @@
                 every 24 hours, 20–120 minutes duration,
                 and may start only within the next 24 hours. They must leave at least 15 minutes before and after
                 scheduled PyChess system tournaments.
+                Team Round-Robin and Swiss tournaments are limited to {{ fixed_round_max_creations_per_24h }} creation{% if fixed_round_max_creations_per_24h != 1 %}s{% endif %}
+                per user every 24 hours.
             </p>
             {% endif %}
             {% if edit %}

@@ -82,6 +82,8 @@ ScheduledTournamentEntry = tuple[str, str, bool, datetime, int, str]
 TournamentTables = tuple[list[Tournament], list[Tournament], list[Tournament]]
 COMMUNITY_ARENA_MAX_CREATIONS_PER_24H = 1
 COMMUNITY_ARENA_CREATION_WINDOW = timedelta(days=1)
+FIXED_ROUND_MAX_CREATIONS_PER_24H = 5
+FIXED_ROUND_CREATION_WINDOW = timedelta(days=1)
 COMMUNITY_ARENA_MAX_SCHEDULE_AHEAD = timedelta(days=1)
 COMMUNITY_ARENA_SYSTEM_BUFFER = timedelta(minutes=15)
 COMMUNITY_ARENA_MIN_MINUTES = 20
@@ -689,6 +691,74 @@ async def _release_community_arena_creation_slot(
     )
 
 
+async def _claim_fixed_round_creation_slot(
+    app_state: PychessGlobalAppState, username: str, now: datetime
+) -> str | None:
+    if app_state.db is None:
+        return None
+    if FIXED_ROUND_MAX_CREATIONS_PER_24H < 1:
+        raise RuntimeError("FIXED_ROUND_MAX_CREATIONS_PER_24H must be at least 1")
+
+    cutoff = now - FIXED_ROUND_CREATION_WINDOW
+    claim_id = id8()
+    while True:
+        account = await app_state.db.user.find_one(
+            {"_id": username},
+            {"fixedRoundCreationHistory": 1},
+        )
+        if account is None:
+            raise web.HTTPForbidden(text="Tournament creation requires a registered account.")
+
+        raw_history = account.get("fixedRoundCreationHistory")
+        history_exists = "fixedRoundCreationHistory" in account
+        current_history = list(raw_history) if isinstance(raw_history, list) else []
+        recent_history = [
+            entry
+            for entry in current_history
+            if isinstance(entry, dict)
+            and isinstance(entry.get("at"), datetime)
+            and entry["at"] > cutoff
+        ]
+        if len(recent_history) >= FIXED_ROUND_MAX_CREATIONS_PER_24H:
+            raise web.HTTPTooManyRequests(
+                text=(
+                    "Team Round-Robin/Swiss tournament creation is limited to "
+                    f"{FIXED_ROUND_MAX_CREATIONS_PER_24H} tournament"
+                    f"{'s' if FIXED_ROUND_MAX_CREATIONS_PER_24H != 1 else ''} "
+                    "every 24 hours per user."
+                )
+            )
+
+        new_history = [
+            *recent_history,
+            {"at": now, "id": claim_id},
+        ][-FIXED_ROUND_MAX_CREATIONS_PER_24H:]
+
+        quota_filter: dict[str, object] = {"_id": username}
+        quota_filter["fixedRoundCreationHistory"] = (
+            raw_history if history_exists else {"$exists": False}
+        )
+        result = await app_state.db.user.update_one(
+            quota_filter,
+            {"$set": {"fixedRoundCreationHistory": new_history}},
+        )
+        if result.modified_count == 1:
+            return claim_id
+        # Another request changed the quota history between our read and write. Re-read it
+        # and either claim the next available slot or reject the now-full rolling window.
+
+
+async def _release_fixed_round_creation_slot(
+    app_state: PychessGlobalAppState, username: str, claim_id: str | None
+) -> None:
+    if app_state.db is None or claim_id is None:
+        return
+    await app_state.db.user.update_one(
+        {"_id": username},
+        {"$pull": {"fixedRoundCreationHistory": {"id": claim_id}}},
+    )
+
+
 async def create_or_update_tournament(
     app_state: PychessGlobalAppState,
     username: str,
@@ -943,14 +1013,21 @@ async def create_or_update_tournament(
         "description": description,
     }
     if tournament is None:
-        if creator_is_director or system != ARENA:
+        if creator_is_director:
             tournament = await new_tournament(app_state, data)
-        else:
+        elif system == ARENA:
             claim_id = await _claim_community_arena_creation_slot(app_state, username, now)
             try:
                 tournament = await new_tournament(app_state, data)
             except Exception:
                 await _release_community_arena_creation_slot(app_state, username, claim_id)
+                raise
+        else:
+            claim_id = await _claim_fixed_round_creation_slot(app_state, username, now)
+            try:
+                tournament = await new_tournament(app_state, data)
+            except Exception:
+                await _release_fixed_round_creation_slot(app_state, username, claim_id)
                 raise
     else:
         allow_started_position_edit = (
