@@ -188,6 +188,36 @@ async def has_team_permission(
     return permission in set(member.get("permissions") or ())
 
 
+async def profile_teams_for_user(
+    app_state: PychessGlobalAppState, username: str
+) -> list[dict[str, Any]]:
+    """Return enabled teams suitable for display on a user profile."""
+    if app_state.db is None:
+        return []
+
+    memberships = await app_state.db.team_member.find(
+        {"user": username}, projection={"team": 1, "permissions": 1}
+    ).to_list(length=None)
+    team_ids = [str(member["team"]) for member in memberships]
+    if not team_ids:
+        return []
+
+    teams = await app_state.db.team.find({"_id": {"$in": team_ids}, "enabled": True}).to_list(
+        length=len(team_ids)
+    )
+    by_id = {str(team["_id"]): team for team in teams}
+    rows: list[dict[str, Any]] = [
+        {
+            "team": by_id[team_id],
+            "leader": PERMISSION_PUBLIC in set(member.get("permissions") or ()),
+        }
+        for member in memberships
+        if (team_id := str(member["team"])) in by_id
+    ]
+    rows.sort(key=lambda row: str(row["team"].get("name") or "").casefold())
+    return rows
+
+
 async def teams_for_user(
     app_state: PychessGlobalAppState,
     username: str,
@@ -199,7 +229,7 @@ async def teams_for_user(
     member_filter: dict[str, object] = {"user": username}
     if permission is not None:
         member_filter["permissions"] = permission
-    memberships = await app_state.db.team_member.find(member_filter).to_list(length=TEAM_MAX_JOINED)
+    memberships = await app_state.db.team_member.find(member_filter).to_list(length=None)
     team_ids = [str(member["team"]) for member in memberships]
     if not team_ids:
         return []
@@ -474,9 +504,7 @@ async def _joined_team_count(app_state: PychessGlobalAppState, username: str) ->
     team_ids = [str(member.get("team") or "") for member in memberships]
     if not team_ids:
         return 0
-    return await app_state.db.team.count_documents(
-        {"_id": {"$in": team_ids}, "enabled": True}
-    )
+    return await app_state.db.team.count_documents({"_id": {"$in": team_ids}, "enabled": True})
 
 
 async def _created_team_count_last_week(app_state: PychessGlobalAppState, username: str) -> int:

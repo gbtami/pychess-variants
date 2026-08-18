@@ -97,6 +97,17 @@
                 </div>
             </div>
         </div>
+        {% if profile_teams %}
+        <div class="player-teams teams col2">
+            <strong>Teams</strong>
+            {% for profile_team in profile_teams %}
+            <a href="/team/{{ profile_team['team']['_id'] }}">
+                <span class="profile-team__name">{{ profile_team['team']['name'] }}</span>
+                {% if profile_team['leader'] %}<span class="profile-team__leader">leader</span>{% endif %}
+            </a>
+            {% endfor %}
+        </div>
+        {% endif %}
         {% if ublog_posts %}
         <section class="player-ublog box">
             <div class="ublog-cards">

@@ -89,6 +89,39 @@ class TeamTestCase(AioHTTPTestCase):
         self.assertNotIn('href="/forum/team-variant-fans"', html)
         self.assertIn('href="/team">Teams</a>', html)
 
+    async def test_profiles_show_enabled_teams_and_only_public_leadership(self):
+        await self.create_team()
+        app_state = get_app_state(self.app)
+
+        self.add_live_user("bob")
+        self.set_session_user("bob")
+        await self.client.post("/team/variant-fans/join", data={}, allow_redirects=False)
+        await app_state.db.team_member.update_one(
+            {"_id": "bob@variant-fans"}, {"$set": {"permissions": [PERMISSION_TOURNAMENTS]}}
+        )
+
+        self.set_session_user("alice")
+        alice_profile = await self.client.get("/@/alice")
+        alice_html = await alice_profile.text()
+        self.assertIn('class="player-teams teams col2"', alice_html)
+        self.assertIn('href="/team/variant-fans"', alice_html)
+        self.assertIn('class="profile-team__leader">leader</span>', alice_html)
+
+        bob_profile = await self.client.get("/@/bob")
+        bob_html = await bob_profile.text()
+        self.assertIn('href="/team/variant-fans"', bob_html)
+        self.assertNotIn('class="profile-team__leader">leader</span>', bob_html)
+
+        self.client.session.cookie_jar.clear()
+        anonymous_profile = await self.client.get("/@/alice")
+        self.assertNotIn('class="player-teams teams col2"', await anonymous_profile.text())
+
+        self.set_session_user("alice")
+        closed = await self.client.post("/team/variant-fans/close", data={}, allow_redirects=False)
+        self.assertEqual(302, closed.status)
+        closed_profile = await self.client.get("/@/alice")
+        self.assertNotIn('href="/team/variant-fans"', await closed_profile.text())
+
     async def test_team_members_page_lists_members_and_links_from_team(self):
         await self.create_team()
         self.add_live_user("bob")

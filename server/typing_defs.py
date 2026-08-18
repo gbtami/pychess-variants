@@ -594,6 +594,7 @@ class ViewContext(TypedDict, total=False):
     new_bot_token: str
     online_users: Sequence[User]
     profile: str | None
+    profile_teams: Sequence[Mapping[str, object]]
     profile_title: str
     profile_restricted: bool
     ublog_posts: list[object]
