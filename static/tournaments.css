@@ -107,6 +107,14 @@ td .icon {
 .slist td:last-child {
     text-align: right;
 }
+.slist .nb-players {
+    white-space: nowrap;
+}
+.slist .nb-players .icon {
+    margin-right: 0.35em;
+    opacity: 0.75;
+    font-size: 1em;
+}
 td a {
     display: block;
     color: var(--font-color);
