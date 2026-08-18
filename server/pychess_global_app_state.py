@@ -503,6 +503,7 @@ class PychessGlobalAppState:
                 if "team_update" not in db_collections:
                     await self.db.create_collection("team_update")
                 await self.db.team_update.create_index([("team", 1), ("createdAt", -1)])
+                await self.db.team_update.create_index("sender")
                 await self.db.team_update.create_index(
                     "createdAt",
                     name="team_update_ttl",

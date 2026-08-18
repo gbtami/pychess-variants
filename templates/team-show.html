@@ -26,7 +26,7 @@
                         {% endfor %}
                     </p>
                     {% endif %}
-                    <p>Created by <a class="user-link" href="/@/{{ team['createdBy'] }}">{{ team['createdBy'] }}</a></p>
+                    <p>Created by {% if team.get('creatorErasedAt') %}&lt;erased&gt;{% else %}<a class="user-link" href="/@/{{ team['createdBy'] }}">{{ team['createdBy'] }}</a>{% endif %}</p>
                 </section>
                 {% endif %}
 

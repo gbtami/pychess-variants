@@ -34,6 +34,8 @@ TEAM_UPDATE_MAX_PER_7_DAYS = 10
 TEAM_UPDATE_PAGE_SIZE = 150
 TEAM_UPDATE_SIDEBAR_DAYS = 30
 TEAM_UPDATE_SIDEBAR_LIMIT = TEAM_MAX_JOINED * TEAM_UPDATE_MAX_PER_7_DAYS * 6
+TEAM_ERASED_USER = "<erased>"
+TEAM_ERASED_UPDATE_TEXT = "[deleted by account deletion request]"
 
 TEAM_FORUM_ACCESS_NONE = "none"
 TEAM_FORUM_ACCESS_LEADERS = "leaders"
@@ -420,7 +422,7 @@ async def _notify_team_update_subscribers(
             app_state,
             username,
             "teamUpdate",
-            {"team": team_id, "name": team_name, "text": text[:160]},
+            {"team": team_id, "name": team_name, "text": text[:160], "sender": sender},
         )
 
 
@@ -832,6 +834,97 @@ async def kick_team_member(
     await _remove_user_from_active_team_tournaments(app_state, team_id, username)
 
 
+async def remove_user_from_teams_on_account_disable(
+    app_state: PychessGlobalAppState,
+    username: str,
+    *,
+    erase: bool = False,
+    remove_from_tournaments: bool = True,
+) -> None:
+    """Remove a disabled account from Teams and anonymize Team-authored data on erase.
+
+    PyChess currently treats the original creator as the permanent Team owner/Admin.
+    Therefore an enabled Team created by an account that disappears is archived rather
+    than left open with an unreachable owner. A site admin may reopen it after a
+    non-erased creator is enabled again; GDPR-erased creators cannot be restored.
+    """
+    if app_state.db is None:
+        return
+
+    now = datetime.now(UTC)
+    memberships = await app_state.db.team_member.find(
+        {"user": username}, projection={"team": 1}
+    ).to_list(length=None)
+    team_ids = sorted({str(member.get("team") or "") for member in memberships} - {""})
+
+    owned_enabled = await app_state.db.team.find(
+        {"createdBy": username, "enabled": True}, projection={"_id": 1}
+    ).to_list(length=None)
+    for team_doc in owned_enabled:
+        team_id = str(team_doc.get("_id") or "")
+        if team_id:
+            await close_team(app_state, team_id, username, site_admin=True)
+
+    # Requests, including declined/kicked markers, are personal membership state and
+    # must not survive account closure or banning.
+    await app_state.db.team_request.delete_many({"user": username})
+    await app_state.db.team_member.delete_many({"user": username})
+
+    for team_id in team_ids:
+        member_count = await app_state.db.team_member.count_documents({"team": team_id})
+        await app_state.db.team.update_one(
+            {"_id": team_id},
+            {"$set": {"memberCount": member_count, "updatedAt": now}},
+        )
+        if remove_from_tournaments:
+            await _remove_user_from_active_team_tournaments(app_state, team_id, username)
+
+    if not erase:
+        return
+
+    await app_state.db.team_update.update_many(
+        {"sender": username},
+        {
+            "$set": {
+                "sender": TEAM_ERASED_USER,
+                "text": TEAM_ERASED_UPDATE_TEXT,
+                "erasedAt": now,
+            }
+        },
+    )
+    await app_state.db.notify.delete_many(
+        {"type": "teamUpdate", "content.sender": username}
+    )
+    for cached_user in app_state.users.values():
+        if cached_user.notifications is None:
+            continue
+        cached_user.notifications = [
+            notification
+            for notification in cached_user.notifications
+            if not (
+                notification.get("type") == "teamUpdate"
+                and notification.get("content", {}).get("sender") == username
+            )
+        ]
+    await app_state.db.team.update_many(
+        {"createdBy": username},
+        {
+            "$set": {
+                "createdBy": TEAM_ERASED_USER,
+                "creatorErasedAt": now,
+                "enabled": False,
+                "updatedAt": now,
+            }
+        },
+    )
+    await app_state.db.team.update_many(
+        {"closedBy": username}, {"$set": {"closedBy": TEAM_ERASED_USER}}
+    )
+    await app_state.db.team.update_many(
+        {"reopenedBy": username}, {"$set": {"reopenedBy": TEAM_ERASED_USER}}
+    )
+
+
 async def close_team(
     app_state: PychessGlobalAppState,
     team_id: str,
@@ -884,12 +977,31 @@ async def reopen_team(
     if bool(team.get("enabled", True)):
         raise web.HTTPConflict(text="Team is already open.")
 
+    creator = str(team.get("createdBy") or "")
+    if creator == TEAM_ERASED_USER or team.get("creatorErasedAt") is not None:
+        raise web.HTTPConflict(text="A team whose creator was erased cannot be reopened.")
+    creator_user = await app_state.users.get(creator)
+    if creator_user.anon or not creator_user.enabled:
+        raise web.HTTPConflict(text="The team creator account must be enabled before reopening.")
+
     now = datetime.now(UTC)
+    if await get_team_member(app_state, team_id, creator) is None:
+        await app_state.db.team_member.insert_one(
+            {
+                "_id": _member_id(team_id, creator),
+                "team": team_id,
+                "user": creator,
+                "joinedAt": now,
+                "permissions": sorted(TEAM_PERMISSIONS),
+            }
+        )
+    member_count = await app_state.db.team_member.count_documents({"team": team_id})
     await app_state.db.team.update_one(
         {"_id": team_id, "enabled": False},
         {
             "$set": {
                 "enabled": True,
+                "memberCount": member_count,
                 "reopenedAt": now,
                 "reopenedBy": username,
                 "updatedAt": now,

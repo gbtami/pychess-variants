@@ -295,7 +295,9 @@ async def team_show(request: web.Request) -> ViewContext:
             "team_can_close": not team_closed
             and not user.anon
             and (site_admin or user.username == str(team.get("createdBy") or "")),
-            "team_can_reopen": team_closed and site_admin,
+            "team_can_reopen": team_closed
+            and site_admin
+            and team.get("creatorErasedAt") is None,
             "team_member": member,
             "team_members": members,
             "team_leaders": leaders,

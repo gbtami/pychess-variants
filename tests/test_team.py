@@ -337,10 +337,54 @@ class TeamTestCase(AioHTTPTestCase):
         self.assertNotIn("closedAt", team)
         self.assertNotIn("closedBy", team)
         self.assertEqual("siteadmin", team["reopenedBy"])
-        self.assertIsNotNone(await app_state.db.team_member.find_one({"_id": "alice@variant-fans"}))
+        creator_member = await app_state.db.team_member.find_one(
+            {"_id": "alice@variant-fans"}
+        )
+        self.assertIsNotNone(creator_member)
         log = await app_state.db.mod_log.find_one({"team": "variant-fans", "action": "reopen_team"})
         self.assertIsNotNone(log)
         self.assertEqual("Closure reviewed", log["details"])
+
+    async def test_reopen_restores_missing_creator_membership_and_rejects_erased_creator(self):
+        await self.create_team()
+        app_state = get_app_state(self.app)
+        await self.client.post("/team/variant-fans/close", data={}, allow_redirects=False)
+        await app_state.db.team_member.delete_one({"_id": "alice@variant-fans"})
+        await app_state.db.team.update_one(
+            {"_id": "variant-fans"}, {"$set": {"memberCount": 0}}
+        )
+
+        self.add_live_user("siteadmin")
+        self.set_session_user("siteadmin")
+        with patch("views.team.ADMINS", ("siteadmin",)):
+            reopened = await self.client.post(
+                "/team/variant-fans/reopen", data={}, allow_redirects=False
+            )
+        self.assertEqual(302, reopened.status)
+
+        creator_member = await app_state.db.team_member.find_one(
+            {"_id": "alice@variant-fans"}
+        )
+        self.assertIsNotNone(creator_member)
+        self.assertEqual(TEAM_PERMISSIONS, frozenset(creator_member["permissions"]))
+        team = await app_state.db.team.find_one({"_id": "variant-fans"})
+        self.assertEqual(1, team["memberCount"])
+
+        await app_state.db.team.update_one(
+            {"_id": "variant-fans"},
+            {
+                "$set": {
+                    "enabled": False,
+                    "createdBy": "<erased>",
+                    "creatorErasedAt": datetime.now(UTC),
+                }
+            },
+        )
+        with patch("views.team.ADMINS", ("siteadmin",)):
+            denied = await self.client.post(
+                "/team/variant-fans/reopen", data={}, allow_redirects=False
+            )
+        self.assertEqual(409, denied.status)
 
     async def test_team_tournament_requires_membership_and_leave_withdraws_player(self):
         await self.create_team()

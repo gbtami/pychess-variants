@@ -38,7 +38,7 @@
                         {% endif %}
                     </header>
                     <dl>
-                        <div><dt>Creator</dt><dd><a href="/@/{{ team['createdBy'] }}">{{ team['createdBy'] }}</a></dd></div>
+                        <div><dt>Creator</dt><dd>{% if team.get('creatorErasedAt') %}&lt;erased&gt;{% else %}<a href="/@/{{ team['createdBy'] }}">{{ team['createdBy'] }}</a>{% endif %}</dd></div>
                         <div><dt>Members</dt><dd>{{ team.get('memberCount', 0) }}</dd></div>
                         <div><dt>Created</dt><dd><info-date timestamp="{{ team['createdAt'].isoformat() if team.get('createdAt') else '' }}"></info-date></dd></div>
                         <div><dt>Updated</dt><dd><info-date timestamp="{{ team['updatedAt'].isoformat() if team.get('updatedAt') else '' }}"></info-date></dd></div>
@@ -48,6 +48,8 @@
                         <input name="reason" maxlength="500" placeholder="Moderation note (optional)">
                         {% if team.get('enabled', True) %}
                         <button class="admin-action-button is-danger" type="submit">Close team</button>
+                        {% elif team.get('creatorErasedAt') %}
+                        <button class="admin-action-button" type="button" disabled>Creator erased — cannot reopen</button>
                         {% else %}
                         <button class="admin-action-button" type="submit">Reopen team</button>
                         {% endif %}

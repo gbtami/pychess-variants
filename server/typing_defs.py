@@ -416,6 +416,7 @@ class NotificationContent(TypedDict, total=False):
     team: str
     name: str
     text: str
+    sender: str
     date: str
     win: bool | None
 

@@ -13,6 +13,7 @@ from security_evasion import (
     remove_ban_signals_from_user,
 )
 from settings import ADMINS
+from team import remove_user_from_teams_on_account_disable
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -145,6 +146,9 @@ async def ban(app_state: PychessGlobalAppState, raw_username: str) -> bool:
     username = resolved_username
 
     await app_state.db.user.find_one_and_update({"_id": username}, {"$set": {"enabled": False}})
+    await remove_user_from_teams_on_account_disable(
+        app_state, username, remove_from_tournaments=False
+    )
     banned_user = None
     if username in app_state.users:
         banned_user = await app_state.users.get(username)
