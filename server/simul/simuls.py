@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 from const import MAX_CHAT_LINES, STARTED, T_CREATED, T_FINISHED, T_STARTED, TStatus
 from game import Game
+from startup_timer import StartupTimer
 from typing_defs import SimulDoc, SimulUpdateData
 from user import User
 from utils import load_game
@@ -271,21 +272,36 @@ async def load_active_simuls(app_state: PychessGlobalAppState) -> None:
     if app_state.db is None:
         return
 
-    await app_state.db.simul.create_index("status")
-    await app_state.db.simul.create_index("createdAt")
-
-    cursor = app_state.db.simul.find({"status": {"$in": [T_CREATED, T_STARTED]}})
+    startup = StartupTimer(log, "restore active simuls")
     try:
-        cursor.sort("createdAt", -1)
-    except AttributeError:
-        # unittest mocks may not support sort()
-        pass
+        with startup.phase("ensure status index"):
+            await app_state.db.simul.create_index("status")
 
-    async for doc in cursor:
-        simul_id = doc.get("_id")
-        if not isinstance(simul_id, str):
-            continue
-        await load_simul(app_state, simul_id, simul_doc=doc)
+        with startup.phase("ensure createdAt index"):
+            await app_state.db.simul.create_index("createdAt")
+
+        with startup.phase("query active simul docs"):
+            cursor = app_state.db.simul.find({"status": {"$in": [T_CREATED, T_STARTED]}})
+            try:
+                cursor.sort("createdAt", -1)
+            except AttributeError:
+                # unittest mocks may not support sort()
+                pass
+            docs = await cursor.to_list(length=None)
+
+        with startup.phase(f"load {len(docs)} active simuls"):
+            for doc in docs:
+                simul_id = doc.get("_id")
+                if not isinstance(simul_id, str):
+                    continue
+                per_simul = StartupTimer(log, f"restore active simul {simul_id}")
+                try:
+                    with per_simul.phase("load simul state"):
+                        await load_simul(app_state, simul_id, simul_doc=doc)
+                finally:
+                    per_simul.log_summary()
+    finally:
+        startup.log_summary()
 
 
 async def get_latest_simuls(
