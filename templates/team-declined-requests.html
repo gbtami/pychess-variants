@@ -24,7 +24,7 @@
                         <td class="process">
                             <form method="post" action="/team/{{ team['_id'] }}/request/{{ req['user'] }}/accept">
                                 <input type="hidden" name="redirect" value="{{ team_declined_requests_current_href }}">
-                                <button class="button" type="submit">Accept</button>
+                                <button class="button team-request-action team-request-action--accept" type="submit">Accept</button>
                             </form>
                         </td>
                     </tr>

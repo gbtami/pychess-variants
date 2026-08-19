@@ -15,6 +15,9 @@
     --team-hover: color-mix(in srgb, var(--link-hover) 8%, var(--bg-color0));
     --team-hover-strong: color-mix(in srgb, var(--link-hover) 13%, var(--bg-color0));
     --team-dim: color-mix(in srgb, var(--font-color) 68%, transparent);
+    --team-control-bg: var(--bg-input, var(--bg-color1));
+    --team-control-border: color-mix(in srgb, var(--font-color) 22%, transparent);
+    --team-control-focus: color-mix(in srgb, var(--link-hover) 28%, transparent);
     box-sizing: border-box;
     grid-area: main;
     width: min(1000px, calc(100vw - 2rem));
@@ -437,11 +440,11 @@
 
 /* Global and declined join-request administration follows Lichess TeamRequestUi. */
 .team-requests-page .page-menu__content.box-pad {
-    padding: clamp(1.4rem, 3.5vw, 3rem) clamp(1.1rem, 4.5vw, 4rem);
+    padding: clamp(1.6rem, 4vw, 3rem) clamp(1.25rem, 5vw, 4rem);
 }
 
 .team-requests-page .box__top {
-    margin: 0 0 1.5rem;
+    margin: 0 0 2rem;
     padding: 0;
     font-size: 2rem;
     font-weight: 400;
@@ -449,7 +452,8 @@
 
 .team-requests__empty {
     margin: 0;
-    padding: 1.5rem 0;
+    padding: 2.25rem 1rem;
+    color: var(--team-dim);
     text-align: center;
 }
 
@@ -459,11 +463,11 @@
 
 .team-request-team-separator {
     margin: 0 .25rem;
-    opacity: .5;
+    color: var(--team-dim);
 }
 
 .team-request-team {
-    color: var(--link-color-blue);
+    color: var(--link-hover);
     text-decoration: none;
 }
 
@@ -475,11 +479,12 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem;
-    margin: 0 0 1.5rem;
+    gap: 1.5rem;
+    margin: 0 0 2rem;
 }
 
 .team-declined-requests__top h1 {
+    min-width: 0;
     margin: 0;
     padding: 0;
     font-size: 1.7rem;
@@ -492,36 +497,43 @@
 }
 
 .team-declined-requests__top h1 a:hover {
-    color: var(--link-color-blue);
+    color: var(--link-hover);
 }
 
 .team-declined-requests__top h1 span {
-    opacity: .72;
+    color: var(--team-dim);
 }
 
 .team-declined-request-search {
     display: flex;
     align-items: stretch;
-    gap: .4rem;
-    min-width: min(22rem, 45%);
+    min-width: min(23rem, 48%);
 }
 
 .team-declined-request-search input {
     box-sizing: border-box;
     min-width: 0;
     flex: 1;
-    padding: .65rem .75rem;
-    border: 1px solid var(--input-border, var(--border-color));
-    border-radius: 4px;
-    background: var(--bg-color1);
+    padding: .72rem .85rem;
+    border: 1px solid var(--team-control-border);
+    border-right: 0;
+    border-radius: 4px 0 0 4px;
+    background: var(--team-control-bg);
     color: inherit;
     font: inherit;
+    box-shadow: inset 0 1px 3px color-mix(in srgb, #000 9%, transparent);
 }
 
 .team-declined-request-search input:focus {
-    border-color: var(--link-color-blue);
-    outline: 2px solid color-mix(in srgb, var(--link-color-blue) 18%, transparent);
+    position: relative;
+    z-index: 1;
+    border-color: var(--link-hover);
+    outline: 2px solid var(--team-control-focus);
     outline-offset: 0;
+}
+
+.team-declined-request-search .button {
+    border-radius: 0 4px 4px 0;
 }
 
 .team-declined-requests__pagination {
@@ -529,7 +541,10 @@
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    margin-top: 1.5rem;
+    margin-top: 1.8rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--team-border);
+    color: var(--team-dim);
 }
 
 /* Recent members follows Lichess's compact userlist on the team page. */
@@ -566,32 +581,44 @@
     border-collapse: collapse;
 }
 
-.team-requests td {
-    padding: .6rem .75rem;
-    border-top: 1px solid var(--team-border);
-    vertical-align: middle;
+.team-requests tr:nth-child(even) {
+    background: var(--team-zebra);
 }
 
-.team-requests tr:first-child td {
+.team-requests tr {
+    transition: background-color .12s ease;
+}
+
+.team-requests tr:hover {
+    background: var(--team-hover);
+}
+
+.team-requests td {
+    padding: 1rem .85rem;
     border-top: 0;
+    vertical-align: middle;
 }
 
 .team-requests .team-request-user {
     width: 1%;
     white-space: nowrap;
+    font-size: 1.05rem;
+    font-weight: 600;
 }
 
 .team-requests .team-request-message {
     width: 100%;
+    color: var(--team-dim);
+    line-height: 1.4;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
 }
 
 .team-requests .team-request-date {
     width: 1%;
+    color: var(--team-dim);
     white-space: nowrap;
-    font-size: .88rem;
-    opacity: .7;
+    font-size: .84rem;
 }
 
 .team-requests .process {
@@ -602,12 +629,39 @@
 .team-request-actions {
     display: flex;
     align-items: center;
-    gap: .4rem;
+    gap: .35rem;
 }
 
 .team-request-actions form,
 .team-requests .process form {
     margin: 0;
+}
+
+.team-request-action.button {
+    min-width: 5.2rem;
+    padding: .48rem .7rem;
+    border: 0;
+    font-size: .86rem;
+    font-weight: 600;
+}
+
+.team-request-action--accept.button {
+    background: var(--green-hover);
+    color: white;
+}
+
+.team-request-action--accept.button:hover {
+    filter: brightness(1.08);
+}
+
+.team-request-action--decline.button.button-empty {
+    background: transparent;
+    color: var(--bad, #b33);
+    box-shadow: none;
+}
+
+.team-request-action--decline.button.button-empty:hover {
+    background: color-mix(in srgb, var(--bad, #b33) 10%, transparent);
 }
 
 .team-member-badge {
@@ -875,13 +929,13 @@
 .team-form-page .page-menu__content.box-pad,
 .team-declined-requests-page .page-menu__content.box-pad,
 .team-update-form-page .page-menu__content.box-pad {
-    padding: clamp(1.4rem, 3.5vw, 3rem) clamp(1.1rem, 4.5vw, 4rem);
+    padding: clamp(1.7rem, 4.5vw, 3.4rem) clamp(1.3rem, 5.5vw, 4.2rem);
 }
 
 .team-form-page .box__top,
 .team-update-form-page .box__top,
 .team-leaders-page .box__top {
-    margin: 0 0 2rem;
+    margin: 0 0 2.4rem;
     padding: 0;
     font-size: 2rem;
     font-weight: 400;
@@ -898,15 +952,14 @@
 .team-form-page .box__top a:hover,
 .team-update-form-page .box__top a:hover,
 .team-leaders-page .box__top a:hover {
-    color: var(--link-color-blue);
+    color: var(--link-hover);
 }
 
 .team-form-limit {
-    margin: -1.2rem 0 2.2rem;
-    color: var(--font-color);
+    margin: -1.45rem 0 2.6rem;
+    color: var(--team-dim);
     font-size: .9rem;
-    line-height: 1.4;
-    opacity: .68;
+    line-height: 1.45;
 }
 
 .team-form.form3 {
@@ -914,14 +967,14 @@
 }
 
 .team-form .form-group {
-    margin-bottom: 2.4rem;
+    margin-bottom: 3rem;
 }
 
 .team-form .form-label {
     display: inline-block;
     margin-bottom: .5rem;
     padding: 0;
-    font-weight: 600;
+    font-weight: 700;
     cursor: text;
 }
 
@@ -931,12 +984,15 @@
     display: block;
     width: 100%;
     min-width: 0;
-    padding: .7rem .85rem;
-    border: 1px solid var(--input-border, var(--border-color));
-    border-radius: 4px;
-    background: var(--bg-color1);
+    min-height: calc(2.7em + 2px);
+    padding: .72rem .9rem;
+    border: 1px solid var(--team-control-border);
+    border-radius: 3px;
+    background: var(--team-control-bg);
     color: inherit;
     font: inherit;
+    box-shadow: inset 0 1px 3px color-mix(in srgb, #000 9%, transparent);
+    transition: border-color .12s ease, box-shadow .12s ease;
 }
 
 .team-form select.form-control {
@@ -945,30 +1001,31 @@
 
 .team-form textarea.form-control {
     height: auto;
+    line-height: 1.45;
     resize: vertical;
 }
 
 .team-form .form-control:focus,
 .team-add-leader .form-control:focus {
-    border-color: var(--link-color-blue);
-    outline: 2px solid color-mix(in srgb, var(--link-color-blue) 18%, transparent);
-    outline-offset: 0;
+    border-color: var(--link-hover);
+    outline: 0;
+    box-shadow:
+        0 0 0 2px var(--team-control-focus),
+        inset 0 1px 3px color-mix(in srgb, #000 9%, transparent);
 }
 
 .team-form .form-help,
 .team-add-leader .form-help,
 .team-permissions .form-help {
     display: block;
-    margin-top: .3rem;
-    color: var(--font-color);
+    margin-top: .35rem;
+    color: var(--team-dim);
     font-size: .9rem;
-    line-height: 1.4;
-    opacity: .68;
+    line-height: 1.45;
 }
 
 .team-form .form-help.error {
     color: var(--bad, #b33);
-    opacity: 1;
 }
 
 .team-form .form-split {
@@ -976,16 +1033,16 @@
     flex-flow: row wrap;
     align-items: inherit;
     justify-content: space-between;
-    gap: 1.2rem;
+    gap: 1.5rem;
 }
 
 .team-form .form-half {
-    flex: 1 1 46%;
+    flex: 1 1 48%;
     min-width: 220px;
 }
 
 .team-entry-fields .form-group {
-    margin-bottom: 2.4rem;
+    margin-bottom: 3rem;
 }
 
 .team-form-check-group {
@@ -998,24 +1055,32 @@
 .team-clear-entry-code {
     display: flex;
     align-items: center;
-    gap: .6rem;
+    gap: .65rem;
     cursor: pointer;
 }
 
 .team-check.form-check {
     min-height: calc(2.7em + 2px);
-    font-weight: 600;
+    font-weight: 700;
 }
 
-.team-check input {
+.team-check input,
+.team-permissions-table input[type="checkbox"] {
     flex: 0 0 auto;
-    width: auto;
+    width: 1.15rem;
+    height: 1.15rem;
     margin: 0;
+    accent-color: var(--green-hover);
 }
 
 .team-clear-entry-code {
-    margin-top: .75rem;
+    margin-top: .8rem;
+    color: var(--team-dim);
     font-size: .9rem;
+}
+
+.team-clear-entry-code:hover {
+    color: var(--font-color);
 }
 
 .team-form .form-actions,
@@ -1024,20 +1089,31 @@
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    margin-top: 1.5rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--border-color);
+    margin-top: 1.7rem;
+    padding-top: 1.7rem;
+    border-top: 1px solid var(--team-border);
 }
 
 .team-form .form-actions a,
 .team-permissions .form-actions a {
-    color: var(--link-color-blue);
+    color: var(--team-dim);
     text-decoration: none;
 }
 
 .team-form .form-actions a:hover,
 .team-permissions .form-actions a:hover {
-    text-decoration: underline;
+    color: var(--link-hover);
+}
+
+.team-form .form-actions .button,
+.team-permissions .form-actions .button {
+    min-width: 8.5rem;
+    padding: .7rem 1.2rem;
+    font-weight: 600;
+}
+
+.team-join-page .team-show__desc {
+    margin-bottom: 2.8rem;
 }
 
 /* Leaders page follows Lichess TeamAdminUi: unpadded box, padded add form, full-width table. */
@@ -1047,8 +1123,8 @@
 
 .team-leaders-page .box__top {
     margin: 0;
-    padding: 1.6rem 2rem 1.3rem;
-    border-bottom: 1px solid var(--border-color);
+    padding: 1.8rem 2rem 1.5rem;
+    border-bottom: 1px solid var(--team-border);
 }
 
 .team-leaders-page .box__pad {
@@ -1056,22 +1132,31 @@
 }
 
 .team-add-leader {
-    margin: 0 0 1.8rem;
-    padding-top: 1.6rem;
+    margin: 0;
+    padding-top: 1.8rem;
+    padding-bottom: 1.8rem;
+    background: var(--team-zebra);
 }
 
 .team-add-leader__input {
     display: flex;
     align-items: stretch;
+    max-width: 34rem;
 }
 
 .team-add-leader__input .form-control {
-    border-radius: 4px 0 0 4px;
+    border-radius: 3px 0 0 3px;
 }
 
 .team-add-leader__input .button {
     flex: 0 0 auto;
-    border-radius: 0 4px 4px 0;
+    min-width: 5rem;
+    border-radius: 0 3px 3px 0;
+    font-weight: 600;
+}
+
+.team-add-leader .form-help {
+    max-width: 42rem;
 }
 
 .team-permissions__table {
@@ -1085,35 +1170,42 @@
 
 .team-permissions-table th,
 .team-permissions-table td {
-    padding: .9rem 1rem;
-    border-top: 1px solid var(--border-color);
-    border-left: 1px solid var(--border-color);
+    padding: 1rem 1.1rem;
+    border-top: 1px solid var(--team-border);
     text-align: center;
     vertical-align: middle;
-}
-
-.team-permissions-table tr > :first-child {
-    border-left: 0;
 }
 
 .team-permissions-table thead th {
     border-top: 0;
     background: var(--bg-color1);
+    color: var(--team-dim);
+    font-size: .9rem;
+    font-weight: 600;
+}
+
+.team-permissions-table thead th:not(:first-child),
+.team-permissions-table tbody td {
+    border-left: 1px solid var(--team-border);
+}
+
+.team-permissions-table tbody tr:nth-child(even) {
+    background: var(--team-zebra);
 }
 
 .team-permissions-table tbody tr:hover td,
 .team-permissions-table tbody tr:hover th {
-    background: color-mix(in srgb, var(--link-color-blue) 10%, var(--bg-color0));
+    background: var(--team-hover-strong);
 }
 
 .team-permissions-table th:first-child {
-    min-width: 14rem;
+    min-width: 15rem;
     text-align: left;
 }
 
 .team-permissions-table tbody th strong {
     display: block;
-    color: var(--link-color-blue);
+    color: var(--gold);
     font-size: 1.08rem;
     white-space: nowrap;
 }
@@ -1121,25 +1213,20 @@
 .team-permissions-table tbody th p {
     margin: .2rem 0 0;
     padding: 0;
+    color: var(--team-dim);
     font-size: .85rem;
     font-weight: normal;
     line-height: 1.35;
-    opacity: .72;
-}
-
-.team-permissions-table input[type="checkbox"] {
-    width: 1.15rem;
-    height: 1.15rem;
 }
 
 .team-permissions-help {
-    margin: 1.5rem 0 0 !important;
+    margin: 1.8rem 0 0 !important;
 }
 
 .team-permissions .form-actions.box__pad {
     margin-top: 0;
-    padding-top: 1.5rem;
-    padding-bottom: 1.6rem;
+    padding-top: 1.6rem;
+    padding-bottom: 1.8rem;
 }
 
 /* Team updates deliberately follow Lichess's mailbox/conversation layout. */
@@ -1720,4 +1807,16 @@
 .team-lifecycle-danger p {
     max-width: 46rem;
     color: var(--time-text);
+}
+
+/* Edit-page destructive action stays visually secondary until the user chooses it. */
+.team-lifecycle-danger__button.button.button-empty {
+    padding: .55rem .75rem;
+    background: transparent;
+    color: var(--bad, #b33);
+    box-shadow: none;
+}
+
+.team-lifecycle-danger__button.button.button-empty:hover {
+    background: color-mix(in srgb, var(--bad, #b33) 10%, transparent);
 }

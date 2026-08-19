@@ -61,7 +61,7 @@
                 <h2>Close team</h2>
                 <p>Closing archives the team. Members and historical content are kept, but joining, updates, forums, and new team tournament participation are disabled. Only a site administrator can reopen it.</p>
                 <form method="post" action="/team/{{ team['_id'] }}/close">
-                    <button class="button button-empty red" type="submit">Close team</button>
+                    <button class="button button-empty red team-lifecycle-danger__button" type="submit">Close team</button>
                 </form>
             </section>
             {% endif %}

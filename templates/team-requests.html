@@ -24,11 +24,11 @@
                             <div class="team-request-actions">
                                 <form method="post" action="/team/{{ req['team'] }}/request/{{ req['user'] }}/decline">
                                     <input type="hidden" name="redirect" value="/team/requests">
-                                    <button class="button button-empty red" type="submit">Decline</button>
+                                    <button class="button button-empty red team-request-action team-request-action--decline" type="submit">Decline</button>
                                 </form>
                                 <form method="post" action="/team/{{ req['team'] }}/request/{{ req['user'] }}/accept">
                                     <input type="hidden" name="redirect" value="/team/requests">
-                                    <button class="button" type="submit">Accept</button>
+                                    <button class="button team-request-action team-request-action--accept" type="submit">Accept</button>
                                 </form>
                             </div>
                         </td>

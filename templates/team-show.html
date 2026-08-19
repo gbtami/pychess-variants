@@ -175,8 +175,8 @@
                                     <td class="team-request-date"><info-date timestamp="{{ req['createdAt'].isoformat() if req.get('createdAt') else '' }}"></info-date></td>
                                     <td class="process">
                                         <div class="team-request-actions">
-                                            <form method="post" action="/team/{{ team['_id'] }}/request/{{ req['user'] }}/decline"><button class="button button-empty red" type="submit">Decline</button></form>
-                                            <form method="post" action="/team/{{ team['_id'] }}/request/{{ req['user'] }}/accept"><button class="button" type="submit">Accept</button></form>
+                                            <form method="post" action="/team/{{ team['_id'] }}/request/{{ req['user'] }}/decline"><button class="button button-empty red team-request-action team-request-action--decline" type="submit">Decline</button></form>
+                                            <form method="post" action="/team/{{ team['_id'] }}/request/{{ req['user'] }}/accept"><button class="button team-request-action team-request-action--accept" type="submit">Accept</button></form>
                                         </div>
                                     </td>
                                 </tr>
