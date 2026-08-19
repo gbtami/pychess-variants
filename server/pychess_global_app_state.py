@@ -4,7 +4,7 @@ import asyncio
 import collections
 import gettext
 import os
-from collections.abc import Coroutine
+from collections.abc import Coroutine, Iterable, Mapping
 from datetime import UTC, date, datetime, timedelta
 from operator import neg
 from time import monotonic
@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING, Any, TypeVar
 import aiohttp_jinja2
 from aiohttp import web
 from aiohttp.web_ws import WebSocketResponse
+from pymongo import UpdateOne
 from pythongettext.msgfmt import Msgfmt, PoSyntaxError
 from sortedcollections import ValueSortedDict
 from tenacity import (
@@ -123,6 +124,31 @@ USERNAME_LOWER_FIELD = "username_lower"
 
 def _is_test_run() -> bool:
     return any("pytest" in arg for arg in sys.argv) or any("unittest" in arg for arg in sys.argv)
+
+
+async def _upsert_static_docs(collection: Any, docs: Iterable[Mapping[str, Any]]) -> int:
+    static_docs = [doc for doc in docs if doc.get("_id") is not None]
+    if not static_docs:
+        return 0
+
+    if _is_test_run():
+        # mongomock 4.3.0 is not compatible with modern PyMongo UpdateOne
+        # bulk writes. Keep test startup semantics equivalent without exercising
+        # that third-party incompatibility; the bulk path has a focused unit test.
+        for doc in static_docs:
+            doc_id = doc["_id"]
+            update = {key: value for key, value in doc.items() if key != "_id"}
+            await collection.update_one({"_id": doc_id}, {"$set": update}, upsert=True)
+        return len(static_docs)
+
+    operations = []
+    for doc in static_docs:
+        doc_id = doc["_id"]
+        update = {key: value for key, value in doc.items() if key != "_id"}
+        operations.append(UpdateOne({"_id": doc_id}, {"$set": update}, upsert=True))
+
+    await collection.bulk_write(operations, ordered=False)
+    return len(static_docs)
 
 
 async def recover_pending_tournament_game_side_effects(
@@ -309,14 +335,6 @@ class PychessGlobalAppState:
             log.debug("[startup] PychessGlobalAppState.init_from_db skipped: no database")
             startup.log_summary()
             return
-
-        async def upsert_static_docs(collection, docs):
-            for doc in docs:
-                doc_id = doc.get("_id")
-                if doc_id is None:
-                    continue
-                update = {key: value for key, value in doc.items() if key != "_id"}
-                await collection.update_one({"_id": doc_id}, {"$set": update}, upsert=True)
 
         # Read tournaments, users and highscore from db
         try:
@@ -721,42 +739,63 @@ class PychessGlobalAppState:
                     self.correspondence_games_loaded.set()
 
             with startup.phase("restore simuls + static content"):
-                await load_active_simuls(self)
+                static_startup = StartupTimer(log, "restore simuls + static content")
+                try:
+                    with static_startup.phase("restore active simuls"):
+                        await load_active_simuls(self)
 
-                await upsert_static_docs(self.db.video, VIDEOS)
-                if "ublog_post" not in db_collections:
-                    await self.db.create_collection("ublog_post")
-                await self.db.ublog_post.create_index(
-                    [("author", 1), ("live", 1), ("publishedAt", -1)]
-                )
-                await self.db.ublog_post.create_index(
-                    [("live", 1), ("sticky", -1), ("publishedAt", -1)]
-                )
-                await self.db.ublog_post.create_index(
-                    [("live", 1), ("blogType", 1), ("publishedAt", -1)]
-                )
-                await self.db.ublog_post.create_index([("author", 1), ("slug", 1)])
-                await self.db.ublog_post.create_index("legacyBlogId")
-                await self.db.ublog_post.create_index("topics")
+                    with static_startup.phase("sync static videos"):
+                        video_count = await _upsert_static_docs(self.db.video, VIDEOS)
+                        log.debug("[startup] synced %s static video documents", video_count)
 
-                if os.getenv("LEGACY_BLOG_BOOTSTRAP", "1") == "1":
-                    # Run legacy bootstrap only for an empty target collection.
-                    # This keeps first deploy fully automatic while preventing rewrites
-                    # of migrated posts on every subsequent restart.
-                    ublog_post_count = await self.db.ublog_post.count_documents({}, limit=1)
-                    if ublog_post_count == 0:
-                        from legacy_blog_migration import build_legacy_ublog_docs
+                    with static_startup.phase("ensure ublog collection"):
+                        if "ublog_post" not in db_collections:
+                            await self.db.create_collection("ublog_post")
 
-                        legacy_blog_author_policy = os.getenv("LEGACY_BLOG_AUTHOR_POLICY", "keep")
-                        if legacy_blog_author_policy not in ("keep", "official-as-pychess"):
-                            legacy_blog_author_policy = "keep"
-                        await upsert_static_docs(
-                            self.db.ublog_post,
-                            build_legacy_ublog_docs(
-                                author_policy=legacy_blog_author_policy,
-                                strip_preamble=True,
-                            ),
+                    with static_startup.phase("ensure ublog indexes"):
+                        await self.db.ublog_post.create_index(
+                            [("author", 1), ("live", 1), ("publishedAt", -1)]
                         )
+                        await self.db.ublog_post.create_index(
+                            [("live", 1), ("sticky", -1), ("publishedAt", -1)]
+                        )
+                        await self.db.ublog_post.create_index(
+                            [("live", 1), ("blogType", 1), ("publishedAt", -1)]
+                        )
+                        await self.db.ublog_post.create_index([("author", 1), ("slug", 1)])
+                        await self.db.ublog_post.create_index("legacyBlogId")
+                        await self.db.ublog_post.create_index("topics")
+
+                    with static_startup.phase("check/bootstrap legacy blog"):
+                        if os.getenv("LEGACY_BLOG_BOOTSTRAP", "1") == "1":
+                            # Run legacy bootstrap only for an empty target collection.
+                            # This keeps first deploy fully automatic while preventing
+                            # rewrites of migrated posts on every subsequent restart.
+                            ublog_post_count = await self.db.ublog_post.count_documents({}, limit=1)
+                            if ublog_post_count == 0:
+                                from legacy_blog_migration import build_legacy_ublog_docs
+
+                                legacy_blog_author_policy = os.getenv(
+                                    "LEGACY_BLOG_AUTHOR_POLICY", "keep"
+                                )
+                                if legacy_blog_author_policy not in (
+                                    "keep",
+                                    "official-as-pychess",
+                                ):
+                                    legacy_blog_author_policy = "keep"
+                                legacy_count = await _upsert_static_docs(
+                                    self.db.ublog_post,
+                                    build_legacy_ublog_docs(
+                                        author_policy=legacy_blog_author_policy,
+                                        strip_preamble=True,
+                                    ),
+                                )
+                                log.info(
+                                    "[startup] bootstrapped %s legacy blog documents",
+                                    legacy_count,
+                                )
+                finally:
+                    static_startup.log_summary()
 
             with startup.phase("restore fishnet + config + user migrations"):
                 if "fishnet" in db_collections:
