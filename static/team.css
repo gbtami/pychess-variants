@@ -1229,25 +1229,28 @@
     padding-bottom: 1.8rem;
 }
 
-/* Team updates deliberately follow Lichess's mailbox/conversation layout. */
+/* Team updates follow Lichess's mailbox/conversation layout. Keep this view
+ * denser than the ordinary team pages and let the side list read as a mailbox,
+ * not as another stack of cards. */
 .team-updates-page.team-update {
     display: flex;
     flex-flow: row nowrap;
     width: min(1200px, calc(100vw - 2rem));
-    height: min(760px, calc(100vh - 7rem));
+    height: min(calc(100vh - var(--site-header-height) - var(--site-header-margin) - 1rem), 900px);
     min-height: 34rem;
+    margin: .5rem auto 0;
     padding: 0;
     overflow: hidden;
 }
 
 .team-update__side {
     display: flex;
-    flex: 0 0 20rem;
+    flex: 0 0 50ch;
     flex-direction: column;
     min-width: 0;
     overflow: hidden;
-    border-right: 1px solid var(--border-color);
-    background: var(--bg-color1);
+    border-right: 1px solid var(--team-border);
+    background: var(--team-zebra);
 }
 
 .team-update__side__top,
@@ -1256,8 +1259,8 @@
     display: flex;
     flex: 0 0 4rem;
     align-items: center;
-    border-bottom: 1px solid var(--border-color);
-    background: color-mix(in srgb, var(--bg-color1) 75%, var(--bg-color0));
+    border-bottom: 1px solid var(--team-border);
+    background: color-mix(in srgb, var(--team-zebra) 72%, var(--bg-color2));
 }
 
 .team-update__side__back {
@@ -1269,46 +1272,59 @@
     text-decoration: none;
 }
 
+.team-update__side__back::before {
+    margin-right: .55rem;
+    color: var(--team-dim);
+}
+
 .team-update__side__back:hover {
-    color: var(--link-color-blue);
+    color: var(--link-hover);
 }
 
 .team-update__side__content {
+    flex: 1 1 auto;
     overflow-y: auto;
+    scrollbar-color: var(--team-control-border) transparent;
 }
 
 .team-update__side__team {
     display: flex;
+    min-height: 4.7rem;
     align-items: center;
-    gap: .85rem;
-    padding: .8rem 1rem;
+    gap: .4rem;
+    padding: .8rem 1.2rem;
     color: var(--font-color);
     text-decoration: none;
-}
-
-.team-update__side__team:hover {
-    background: color-mix(in srgb, var(--link-color-blue) 12%, var(--bg-color1));
-}
-
-.team-update__side__team--active {
-    background: color-mix(in srgb, var(--link-color-blue) 24%, var(--bg-color1));
+    transition: background-color .12s ease;
 }
 
 .team-update__side__team--unread:not(.team-update__side__team--active) {
-    background: color-mix(in srgb, var(--link-color-blue) 8%, var(--bg-color1));
+    background: color-mix(in srgb, var(--gold) 18%, var(--team-zebra));
+}
+
+.team-update__side__team:hover {
+    background: color-mix(in srgb, var(--link-hover) 15%, var(--team-zebra));
+}
+
+.team-update__side__team:active,
+.team-update__side__team--active {
+    background: color-mix(in srgb, var(--link-hover) 28%, var(--team-zebra));
 }
 
 .team-update__side__team__icon {
     display: grid;
-    flex: 0 0 2.8rem;
-    width: 2.8rem;
-    height: 2.8rem;
+    flex: 0 0 4.6rem;
+    width: 4.6rem;
     place-items: center;
-    border-radius: 50%;
-    background: color-mix(in srgb, var(--font-color) 10%, var(--bg-color0));
+    color: var(--team-dim);
+    font-size: 2.2rem;
+    font-weight: 400;
+    line-height: 1;
+}
+
+.team-update__side__team--active .team-update__side__team__icon,
+.team-update__side__team--unread .team-update__side__team__icon {
     color: var(--font-color);
-    font-size: 1.2rem;
-    font-weight: 600;
 }
 
 .team-update__side__team__content {
@@ -1319,9 +1335,10 @@
 .team-update__side__team__name {
     display: block;
     overflow: hidden;
-    color: inherit;
-    font-size: 1.05rem;
-    font-weight: 500;
+    color: var(--font-color);
+    font-size: 1.15rem;
+    font-weight: 400;
+    line-height: 1.25;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
@@ -1333,20 +1350,22 @@
 
 .team-update__side__team__meta {
     display: flex;
+    min-width: 0;
     align-items: center;
     justify-content: space-between;
-    gap: .5rem;
-    margin-top: .18rem;
-    font-size: .8rem;
-    opacity: .7;
+    gap: .6rem;
+    margin-top: .22rem;
+    color: var(--team-dim);
+    font-size: .82rem;
+    line-height: 1.25;
 }
 
 .team-update__side__unread-count {
     display: inline-block;
-    min-width: 1.2rem;
+    min-width: 1.25rem;
     padding: .08rem .35rem;
-    border-radius: 999px;
-    background: var(--link-color-blue);
+    border-radius: 3px;
+    background: var(--link-hover);
     color: white;
     font-size: .72rem;
     font-weight: 700;
@@ -1355,9 +1374,9 @@
 }
 
 .team-update__side__empty {
-    padding: 1.5rem 1.2rem;
+    padding: 2rem 1.2rem;
+    color: var(--team-dim);
     text-align: center;
-    opacity: .65;
 }
 
 .team-update__convo {
@@ -1365,47 +1384,58 @@
     flex: 1 1 100%;
     min-width: 0;
     flex-direction: column;
+    background: var(--bg-color0);
 }
 
 .team-update__convo__head {
     justify-content: space-between;
     gap: 1rem;
-    padding: 0 1.3rem;
+    padding: 0 2rem 0 1rem;
 }
 
 .team-update__convo__head h1 {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
     margin: 0;
-    padding: 0 .4rem;
-    font-size: 1.45rem;
+    padding: 0 0 0 1rem;
+    font-size: 1.5rem;
+    font-weight: 400;
+}
+
+.team-update__convo__head h1::before {
+    color: var(--team-dim);
+    font-size: 1.15em;
 }
 
 .team-update__convo__head__title {
     display: flex;
     align-self: stretch;
     min-width: 0;
-    align-items: center;
+    align-items: stretch;
 }
 
 .team-update__convo__head__back {
     display: flex;
     align-items: center;
     align-self: stretch;
-    padding: 0 .8rem 0 .2rem;
-    color: var(--font-color);
-    font-size: 1.7rem;
+    padding: 0 1rem;
+    color: var(--team-dim);
+    font-size: 1.5rem;
     text-decoration: none;
-    opacity: .65;
 }
 
 .team-update__convo__head__back:hover {
-    color: var(--link-color-blue);
-    opacity: 1;
+    color: var(--link-hover);
 }
 
 .team-update__convo__team-link {
+    display: flex;
+    min-width: 0;
+    align-items: center;
     overflow: hidden;
     color: var(--font-color);
-    font-size: 1.3rem;
+    font-size: 1.35rem;
     font-weight: 500;
     text-decoration: none;
     text-overflow: ellipsis;
@@ -1413,14 +1443,14 @@
 }
 
 .team-update__convo__team-link:hover {
-    color: var(--link-color-blue);
+    color: var(--link-hover);
 }
 
 .team-update__convo__head__actions {
     display: flex;
     flex: 0 0 auto;
     align-items: center;
-    gap: .55rem;
+    gap: .35rem;
 }
 
 .team-update__convo__head__actions form {
@@ -1428,73 +1458,92 @@
 }
 
 .team-update__convo__head__actions .button {
-    padding: .5rem .7rem;
-    font-size: .88rem;
+    min-height: 2.1rem;
+    padding: .4rem .65rem;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    color: var(--team-dim);
+    font-size: .84rem;
+}
+
+.team-update__convo__head__actions .button:hover {
+    background: color-mix(in srgb, var(--link-hover) 10%, transparent);
+    color: var(--link-hover);
+}
+
+.team-update__convo__head__actions .team-update__new-action {
+    color: var(--link-color-blue);
 }
 
 .team-update__convo__updates {
     display: flex;
     flex: 1 1 auto;
     flex-direction: column;
-    gap: 1.4rem;
-    padding: 1.5rem;
+    gap: 2rem;
+    padding: 2rem;
     overflow-y: auto;
+    scrollbar-color: var(--team-control-border) transparent;
 }
 
 .team-update__notice {
     margin: 0;
     padding: .8rem 1rem;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    background: var(--bg-color1);
+    border: 1px solid var(--team-border);
+    border-radius: 3px;
+    background: var(--team-zebra);
+    color: var(--team-dim);
     font-size: .9rem;
-    opacity: .78;
 }
 
 .team-update__convo__update {
     overflow: hidden;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
+    border: 1px solid var(--team-border);
+    border-radius: 3px;
+    background: var(--bg-color0);
 }
 
 .team-update__convo__update--unread {
-    border-color: color-mix(in srgb, var(--link-color-blue) 70%, var(--border-color));
+    border-color: var(--gold);
+    box-shadow: inset 3px 0 0 color-mix(in srgb, var(--gold) 75%, transparent);
 }
 
 .team-update__convo__update__info {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem;
-    padding: .8rem 1.2rem;
+    gap: .5rem;
+    padding: 1rem 2rem;
 }
 
 .team-update__convo__update__team {
     min-width: 0;
     overflow: hidden;
     color: var(--font-color);
-    font-weight: 600;
+    font-size: 1.02rem;
+    font-weight: 500;
     text-decoration: none;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
 .team-update__convo__update__team:hover {
-    color: var(--link-color-blue);
+    color: var(--link-hover);
 }
 
 .team-update__convo__update__meta {
     display: flex;
     flex: 0 0 auto;
     align-items: center;
-    gap: 1.2rem;
-    font-size: .85rem;
-    opacity: .7;
+    gap: 2rem;
+    color: var(--team-dim);
+    font-size: .84rem;
 }
 
 .team-update__convo__update__body {
-    padding: 1.25rem 1.5rem;
-    background: var(--bg-color1);
+    padding: 1.5rem 2rem;
+    background: var(--team-zebra);
+    font-size: 1rem;
     line-height: 1.55;
     overflow-wrap: anywhere;
     white-space: pre-wrap;
@@ -1503,12 +1552,14 @@
 .team-update__empty {
     margin: auto;
     padding: 2rem;
+    color: var(--team-dim);
     text-align: center;
-    opacity: .7;
 }
 
 .team-update__empty h2 {
     margin: 0 0 .5rem;
+    color: var(--font-color);
+    font-weight: 400;
 }
 
 @media (max-width: 799px) {
@@ -1614,7 +1665,7 @@
     }
 
     .team-update__side {
-        flex-basis: 17rem;
+        flex-basis: 40ch;
     }
 }
 
@@ -1709,9 +1760,9 @@
 
     .team-updates-page.team-update {
         width: min(100%, calc(100vw - .5rem));
-        height: calc(100vh - 5.5rem);
+        height: calc(100vh - var(--site-header-height) - var(--site-header-margin));
         min-height: 28rem;
-        margin-top: .25rem;
+        margin-top: 0;
     }
 
     .team-update--all .team-update__convo,
@@ -1725,7 +1776,7 @@
     }
 
     .team-update__convo__head {
-        padding: 0 .8rem;
+        padding: 0 .8rem 0 .2rem;
     }
 
     .team-update__convo__head__actions {
@@ -1733,20 +1784,20 @@
     }
 
     .team-update__convo__head__actions .button {
-        padding-inline: .55rem;
-        font-size: .82rem;
+        padding-inline: .5rem;
+        font-size: .8rem;
     }
 
     .team-update__convo__updates {
         gap: 1rem;
-        padding: .8rem;
+        padding: 1rem .8rem;
     }
 
     .team-update__convo__update__info {
         align-items: flex-start;
         flex-direction: column;
-        gap: .3rem;
-        padding: .7rem .9rem;
+        gap: .35rem;
+        padding: .8rem 1rem;
     }
 
     .team-update__convo__update__meta {
@@ -1754,7 +1805,7 @@
     }
 
     .team-update__convo__update__body {
-        padding: 1rem;
+        padding: 1.1rem 1rem;
     }
 }
 
