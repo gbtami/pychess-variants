@@ -204,67 +204,78 @@ async def load_simul(
     simul.ends_at = _as_datetime(doc.get("endsAt"))
     simul.status = _parse_status(doc.get("status"))
 
+    detail_timer = StartupTimer(log, f"restore simul state {simul_id} details")
+
     players = _as_str_list(doc.get("players"))
     if created_by not in players:
         players.insert(0, created_by)
 
-    for username in players:
-        simul.players[username] = await _recover_user(app_state, username)
+    with detail_timer.phase(f"recover {len(players)} simul players"):
+        for username in players:
+            simul.players[username] = await _recover_user(app_state, username)
 
     pending_players = _as_str_list(doc.get("pendingPlayers"))
-    for username in pending_players:
-        if username == created_by or username in simul.players:
-            continue
-        simul.pending_players[username] = await _recover_user(app_state, username)
+    with detail_timer.phase(f"recover {len(pending_players)} pending players"):
+        for username in pending_players:
+            if username == created_by or username in simul.players:
+                continue
+            simul.pending_players[username] = await _recover_user(app_state, username)
 
-    cursor = app_state.db.game.find({"sid": simul_id})
-    try:
-        cursor.sort("d", 1)
-    except AttributeError:
-        # unittest mocks may not support sort()
-        pass
+    with detail_timer.phase("restore simul games"):
+        # Games are only created after a simul transitions from T_CREATED to T_STARTED.
+        # Avoid scanning the game collection for a simul that has never started.
+        if simul.status != T_CREATED:
+            cursor = app_state.db.game.find({"sid": simul_id})
+            try:
+                cursor.sort("d", 1)
+            except AttributeError:
+                # unittest mocks may not support sort()
+                pass
 
-    async for game_doc in cursor:
-        game_id = game_doc.get("_id")
-        if not isinstance(game_id, str):
-            continue
-        loaded_game = await load_game(app_state, game_id)
-        if loaded_game is None or not isinstance(loaded_game, Game):
-            continue
-        game = loaded_game
-        simul.games[game_id] = game
-        if game.status <= STARTED:
-            simul.ongoing_games.add(game)
+            async for game_doc in cursor:
+                game_id = game_doc.get("_id")
+                if not isinstance(game_id, str):
+                    continue
+                loaded_game = await load_game(app_state, game_id)
+                if loaded_game is None or not isinstance(loaded_game, Game):
+                    continue
+                game = loaded_game
+                simul.games[game_id] = game
+                if game.status <= STARTED:
+                    simul.ongoing_games.add(game)
 
-    chat_cursor = app_state.db.simul_chat.find(
-        {"sid": simul.id},
-        projection={
-            "_id": 0,
-            "type": 1,
-            "user": 1,
-            "message": 1,
-            "room": 1,
-            "time": 1,
-        },
-    )
-    docs: list[ChatLine] = await chat_cursor.to_list(length=MAX_CHAT_LINES)
-    simul.tourneychat = docs
+    with detail_timer.phase("load simul chat"):
+        chat_cursor = app_state.db.simul_chat.find(
+            {"sid": simul.id},
+            projection={
+                "_id": 0,
+                "type": 1,
+                "user": 1,
+                "message": 1,
+                "room": 1,
+                "time": 1,
+            },
+        )
+        docs: list[ChatLine] = await chat_cursor.to_list(length=MAX_CHAT_LINES)
+        simul.tourneychat = docs
 
-    if simul.status == T_STARTED and len(simul.games) == 0:
-        simul.status = T_CREATED
-        simul.starts_at = None
-        await upsert_simul_to_db(simul, app_state)
+    with detail_timer.phase("reconcile simul status"):
+        if simul.status == T_STARTED and len(simul.games) == 0:
+            simul.status = T_CREATED
+            simul.starts_at = None
+            await upsert_simul_to_db(simul, app_state)
 
-    if simul.status == T_STARTED and len(simul.ongoing_games) == 0 and len(simul.games) > 0:
-        simul.status = T_FINISHED
-        if simul.ends_at is None:
-            simul.ends_at = datetime.now(UTC)
-        await upsert_simul_to_db(simul, app_state)
+        if simul.status == T_STARTED and len(simul.ongoing_games) == 0 and len(simul.games) > 0:
+            simul.status = T_FINISHED
+            if simul.ends_at is None:
+                simul.ends_at = datetime.now(UTC)
+            await upsert_simul_to_db(simul, app_state)
 
-    if simul.status == T_STARTED and len(simul.ongoing_games) > 0:
-        simul.clock_task = asyncio.create_task(simul.clock(), name=f"simul-clock-{simul.id}")
+        if simul.status == T_STARTED and len(simul.ongoing_games) > 0:
+            simul.clock_task = asyncio.create_task(simul.clock(), name=f"simul-clock-{simul.id}")
 
     app_state.simuls[simul_id] = simul
+    detail_timer.log_summary()
     return simul
 
 

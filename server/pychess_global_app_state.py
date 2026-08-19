@@ -463,6 +463,9 @@ class PychessGlobalAppState:
                 await self.db.game.create_index("by")
                 await self.db.game.create_index("c")
                 await self.db.game.create_index("tid")
+                # Only simul games have sid, so keep this index sparse. It avoids a full
+                # game-collection scan when restoring a started simul after restart.
+                await self.db.game.create_index("sid", sparse=True)
 
                 # Advanced search needs some indexes to be able to respond in reasonable times
                 await self.db.game.create_index([("d", -1), ("_id", -1)], name="d_id_desc")
