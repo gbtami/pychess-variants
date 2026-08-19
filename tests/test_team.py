@@ -145,7 +145,7 @@ class TeamTestCase(AioHTTPTestCase):
 
         team_page = await self.client.get("/team/variant-fans")
         team_html = await team_page.text()
-        self.assertIn('href="/team/variant-fans/members">2 members</a>', team_html)
+        self.assertIn('href="/team/variant-fans/members"><strong>2</strong> members</a>', team_html)
         self.assertIn('href="/team/variant-fans/members">Recent members</a>', team_html)
 
         members_page = await self.client.get("/team/variant-fans/members")
