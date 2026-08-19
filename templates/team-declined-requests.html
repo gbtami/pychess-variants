@@ -1,0 +1,47 @@
+{% extends "team-base.html" %}
+{% block content %}
+<div id="main-wrap">
+    <main class="team-declined-requests-page page-menu page-small">
+        {% set team_menu_active = '' %}
+        {% include "team-menu.html" %}
+        <div class="page-menu__content box box-pad">
+            <div class="box__top team-declined-requests__top">
+                <h1><a href="/team/{{ team['_id'] }}">{{ team['name'] }}</a> <span>• Declined requests</span></h1>
+                <form class="team-declined-request-search" method="get" action="/team/{{ team['_id'] }}/declined-requests">
+                    <input type="search" name="search" value="{{ team_declined_requests_search }}" placeholder="Search user" autocomplete="off">
+                    <button class="button icon-search" type="submit" aria-label="Search"></button>
+                </form>
+            </div>
+
+            <table class="team-requests team-declined-requests slist">
+                <tbody>
+                    {% for req in team_declined_requests %}
+                    {% set request_date = req.get('processedAt') or req.get('createdAt') %}
+                    <tr>
+                        <td class="team-request-user"><a class="user-link" href="/@/{{ req['user'] }}">{{ req['user'] }}</a></td>
+                        <td class="team-request-message">{{ req.get('message', '') }}</td>
+                        <td class="team-request-date"><info-date timestamp="{{ request_date.isoformat() if request_date else '' }}"></info-date></td>
+                        <td class="process">
+                            <form method="post" action="/team/{{ team['_id'] }}/request/{{ req['user'] }}/accept">
+                                <input type="hidden" name="redirect" value="{{ team_declined_requests_current_href }}">
+                                <button class="button team-request-action team-request-action--accept" type="submit">Accept</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="4" class="team-empty">No declined requests found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            {% if team_declined_requests_prev_href or team_declined_requests_next_href %}
+            <nav class="team-declined-requests__pagination" aria-label="Pagination">
+                {% if team_declined_requests_prev_href %}<a class="button button-empty team-page-nav icon-left" href="{{ team_declined_requests_prev_href }}">Previous</a>{% else %}<span></span>{% endif %}
+                <span class="team-page-number">Page {{ team_declined_requests_page }}</span>
+                {% if team_declined_requests_next_href %}<a class="button button-empty team-page-nav team-page-nav--next icon-right" href="{{ team_declined_requests_next_href }}">Next</a>{% endif %}
+            </nav>
+            {% endif %}
+        </div>
+    </main>
+</div>
+{% endblock %}

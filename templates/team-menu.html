@@ -1,0 +1,13 @@
+<nav class="page-menu__menu subnav">
+    {% if team_menu_active == 'requests' %}
+    <a class="active" href="/team/requests">Join requests</a>
+    {% endif %}
+    {% if not anon %}
+    <a{% if team_menu_active == 'mine' %} class="active"{% endif %} href="/team/me">My teams</a>
+    <a{% if team_menu_active == 'updates' %} class="active"{% endif %} href="/team/updates">Team updates</a>
+    {% endif %}
+    <a{% if team_menu_active == 'all' %} class="active"{% endif %} href="/team">All teams</a>
+    {% if not anon %}
+    <a{% if team_menu_active == 'new' %} class="active"{% endif %} href="/team/new">New team</a>
+    {% endif %}
+</nav>

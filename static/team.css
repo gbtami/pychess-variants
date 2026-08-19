@@ -1,0 +1,2040 @@
+/* Teams deliberately follows the same page structure as Lichess:
+ * list/admin pages use page-menu + subnav, while a team page is one
+ * two-column team-show box. Keep the palette derived from PyChess theme
+ * variables so the same hierarchy works in both light and dark modes. */
+.teams-page,
+.team-form-page,
+.team-show-page,
+.team-members-page,
+.team-declined-requests-page,
+.team-leaders-page,
+.team-updates-page,
+.team-update-form-page {
+    --team-border: color-mix(in srgb, var(--font-color) 14%, transparent);
+    --team-zebra: color-mix(in srgb, var(--bg-color2) 78%, var(--bg-color0));
+    --team-hover: color-mix(in srgb, var(--link-hover) 8%, var(--bg-color0));
+    --team-hover-strong: color-mix(in srgb, var(--link-hover) 13%, var(--bg-color0));
+    --team-dim: color-mix(in srgb, var(--font-color) 68%, transparent);
+    --team-control-bg: var(--bg-input, var(--bg-color1));
+    --team-control-border: color-mix(in srgb, var(--font-color) 22%, transparent);
+    --team-control-focus: color-mix(in srgb, var(--link-hover) 28%, transparent);
+    box-sizing: border-box;
+    grid-area: main;
+    width: min(1000px, calc(100vw - 2rem));
+    max-width: none;
+    margin: 1.25rem auto 3rem;
+}
+
+/* Lichess-style team sub-navigation: the sidebar itself blends into the page;
+ * only the active entry uses the box surface. */
+.teams-page.page-menu,
+.team-form-page.page-menu,
+.team-declined-requests-page.page-menu,
+.team-leaders-page.page-menu,
+.team-update-form-page.page-menu {
+    grid-template-columns: 12.5rem minmax(0, 1fr);
+    grid-template-areas: 'side content';
+    column-gap: .7rem;
+    align-items: start;
+}
+
+.page-menu__menu.subnav {
+    grid-area: side;
+    display: flex;
+    flex-direction: column;
+    gap: .15rem;
+    overflow: visible;
+    background: transparent;
+}
+
+.page-menu__menu.subnav a {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 2.6rem;
+    padding: .65rem .9rem;
+    border-radius: 3px;
+    color: var(--font-color);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.page-menu__menu.subnav a:hover {
+    background: color-mix(in srgb, var(--font-color) 6%, transparent);
+    color: var(--link-hover);
+}
+
+.page-menu__menu.subnav a.active {
+    background: var(--bg-color0);
+    color: var(--font-color);
+    font-weight: 600;
+    box-shadow: 0 1px 3px color-mix(in srgb, var(--font-color) 12%, transparent);
+}
+
+.page-menu__content {
+    grid-area: content;
+    min-width: 0;
+    min-height: 100%;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.team-list-top,
+.team-show__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.7rem 2rem 1.2rem;
+}
+
+.team-list-top h1,
+.team-show__top h1 {
+    margin: 0;
+    padding: 0;
+    font-size: 2rem;
+    line-height: 1.15;
+}
+
+/* Team list mirrors Lichess's slist: compact rows, left-anchored group icon, little chrome. */
+.team-slist {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.team-slist td {
+    padding: .8rem 2rem;
+    vertical-align: middle;
+}
+
+.team-slist tbody tr:nth-child(even) {
+    background: var(--team-zebra);
+}
+
+.team-slist tbody tr {
+    transition: background-color .12s ease;
+}
+
+.team-slist tbody tr:hover {
+    background: var(--team-hover);
+}
+
+.team-slist .subject {
+    min-width: 0;
+    text-align: left;
+}
+
+.team-name {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    width: fit-content;
+    max-width: 100%;
+    color: var(--link-color-blue);
+    font-size: 1.5rem;
+    font-weight: 500;
+    line-height: 1.2;
+    text-align: left;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+}
+
+.team-icon {
+    flex: 0 0 auto;
+    width: 1.35em;
+    height: 1.35em;
+    background: currentColor;
+    -webkit-mask: url('/static/images/team.svg') center / contain no-repeat;
+    mask: url('/static/images/team.svg') center / contain no-repeat;
+}
+
+.team-name__label {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.team-name:hover {
+    color: var(--link-hover);
+}
+
+.team-name.mine {
+    color: var(--gold);
+}
+
+.team-name em {
+    flex: 0 0 auto;
+    padding: .12rem .45rem;
+    border-radius: 3px;
+    background: var(--link-hover);
+    color: white;
+    font-size: .7rem;
+    font-style: normal;
+    font-weight: 700;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+}
+
+.team-list-intro {
+    display: block;
+    max-width: 60ch;
+    margin-top: .2rem;
+    color: var(--team-dim);
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+}
+
+.team-slist .info {
+    width: 1%;
+    color: var(--team-dim);
+    white-space: nowrap;
+    font-size: .9rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.team-slist .info p {
+    margin: 0;
+    padding: .1rem 0;
+    text-align: right;
+}
+
+.team-empty {
+    padding: 2.4rem 2rem !important;
+    color: var(--team-dim);
+    text-align: center;
+}
+
+/* Single-box, two-column team page, following Lichess team-show. */
+.team-show-page {
+    overflow: hidden;
+}
+
+.team-show__top {
+    padding-bottom: .9rem;
+}
+
+.team-show__top h1 {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+}
+
+.team-show__top h1 .team-icon {
+    width: 1.35em;
+    height: 1.35em;
+}
+
+.team-show__intro {
+    max-width: 70ch;
+    margin: .35rem 0 0;
+    padding: 0;
+    color: var(--team-dim);
+    font-size: 1.05rem;
+    line-height: 1.4;
+}
+
+.team-show__member-count {
+    flex: 0 0 auto;
+    color: var(--team-dim);
+    text-decoration: none;
+    font-variant-numeric: tabular-nums;
+}
+
+.team-show__member-count strong {
+    color: var(--font-color);
+}
+
+.team-show__member-count:hover {
+    color: var(--link-hover);
+}
+
+.team-show__content {
+    display: flex;
+    gap: clamp(1.8rem, 3vw, 2.8rem);
+    padding: .65rem 2rem 2.35rem;
+}
+
+.team-show__content__col1 {
+    flex: 0 0 30%;
+    min-width: 0;
+}
+
+.team-show__content__col2 {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding-top: .15rem;
+}
+
+.team-show__meta {
+    margin-bottom: 1.6rem;
+    color: var(--team-dim);
+}
+
+.team-show__meta p {
+    margin: 0 0 .45rem;
+    padding: 0;
+    line-height: 1.45;
+}
+
+.team-show__meta a {
+    color: var(--font-color);
+}
+
+.team-show__meta a:hover {
+    color: var(--link-hover);
+}
+
+.team-show__actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(30ch, 100%), 1fr));
+    gap: .6rem;
+    margin-bottom: 2rem;
+}
+
+.team-show__actions form {
+    margin: 0;
+}
+
+/* Lichess uses button-empty + text actions here: icon on the left, label and
+ * optional explanation on the right, with the metal surface only on hover. */
+.team-action.button {
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: 2.15rem minmax(0, 1fr);
+    grid-template-areas:
+        'icon label'
+        'icon hint';
+    align-items: center;
+    width: 100%;
+    padding: .72rem .8rem;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--link-color-blue);
+    text-align: left;
+    text-decoration: none;
+    text-transform: none;
+    white-space: normal;
+    box-shadow: none;
+    transition: background-color .12s ease, color .12s ease, box-shadow .12s ease;
+}
+
+.team-action.button::before {
+    grid-area: icon;
+    align-self: center;
+    justify-self: center;
+    margin: 0 .55rem 0 0;
+    color: currentColor;
+    font-size: 1.45rem;
+    opacity: .72;
+}
+
+.team-action.button:hover:not(:disabled) {
+    background: var(--bg-color2);
+    color: var(--link-hover);
+    box-shadow: var(--btn-shadow);
+}
+
+.team-action strong,
+.team-action em {
+    display: block;
+    min-width: 0;
+}
+
+.team-action strong {
+    grid-area: label;
+    color: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.team-action em {
+    grid-area: hint;
+    margin-top: .08rem;
+    color: var(--team-dim);
+    font-size: .82rem;
+    font-style: normal;
+    font-weight: normal;
+    line-height: 1.35;
+}
+
+.team-action.button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.team-action--danger.button {
+    color: var(--bad, #b33);
+}
+
+.team-action--danger.button:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--bad, #b33) 8%, var(--bg-color2));
+    color: var(--bad, #b33);
+}
+
+.team-show__membership-state {
+    display: grid;
+    gap: .2rem;
+    padding: .6rem .2rem;
+}
+
+.team-show__membership-state span {
+    color: var(--team-dim);
+    font-size: .9rem;
+}
+
+.team-show__membership-state--declined {
+    color: var(--bad, #b33);
+}
+
+.team-show__join-action {
+    margin: 0;
+}
+
+.team-join-page .team-show__desc {
+    margin-bottom: 2.4rem;
+}
+
+.team-show__members {
+    margin-bottom: 1.5rem;
+}
+
+.team-show h2 {
+    margin: 0 0 1rem;
+    padding: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.team-show h2 a {
+    color: inherit;
+}
+
+.team-show h2 a:hover {
+    color: var(--link-hover);
+}
+
+/* Section icons mirror the icon-led headings used by Lichess TeamShowUi. */
+.team-show h2[class^="icon-"]::before,
+.team-show h2 a[class^="icon-"]::before {
+    margin-inline-end: .45rem;
+    color: var(--team-dim);
+    font-size: 1em;
+    opacity: .7;
+}
+
+.team-show__desc {
+    margin-bottom: clamp(2rem, 4vh, 3rem);
+    padding: .8rem 2rem;
+    border: 1px solid var(--team-border);
+    border-radius: 3px;
+    background: var(--team-zebra);
+    font-size: 1.1rem;
+    line-height: 1.6;
+    text-align: start;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.team-show__events {
+    display: grid;
+    gap: clamp(1.8rem, 3vh, 2.5rem);
+}
+
+.team-show__requests {
+    margin-bottom: 2.2rem;
+}
+
+.team-show__requests h2,
+.team-show__requests table {
+    margin: 0;
+}
+
+.team-show__requests h2 {
+    margin-bottom: .75rem;
+}
+
+.team-show__requests .team-requests td {
+    padding: .55rem .7rem;
+}
+
+.team-show__requests .team-request-user {
+    font-size: 1rem;
+}
+
+.team-show__requests .team-request-action.button {
+    min-width: 0;
+    padding: .38rem .58rem;
+    font-size: .8rem;
+}
+
+.team-show__list-wrapper {
+    overflow: hidden;
+    border: 1px solid var(--team-border);
+    border-radius: 3px;
+    background: var(--bg-color0);
+}
+
+.team-tournament-list,
+.team-forum-topic-list {
+    display: grid;
+}
+
+.team-tournament-row {
+    border-top: 1px solid var(--team-border);
+}
+
+.team-tournament-row:first-child {
+    border-top: 0;
+}
+
+/* Global and declined join-request administration follows Lichess TeamRequestUi. */
+.team-requests-page .page-menu__content.box-pad {
+    padding: clamp(1.6rem, 4vw, 3rem) clamp(1.25rem, 5vw, 4rem);
+}
+
+.team-requests-page .box__top {
+    margin: 0 0 2rem;
+    padding: 0;
+    font-size: 2rem;
+    font-weight: 400;
+}
+
+.team-requests__empty {
+    margin: 0;
+    padding: 2.25rem 1rem;
+    color: var(--team-dim);
+    text-align: center;
+}
+
+.team-requests.team-requests--global .team-request-user {
+    white-space: normal;
+}
+
+.team-request-team-separator {
+    margin: 0 .25rem;
+    color: var(--team-dim);
+}
+
+.team-request-team {
+    color: var(--team-dim);
+    font-size: .9rem;
+    text-decoration: none;
+}
+
+.team-request-team:hover {
+    color: var(--link-hover);
+    text-decoration: underline;
+}
+
+.team-declined-requests__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin: 0 0 2rem;
+}
+
+.team-declined-requests__top h1 {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    font-size: 1.7rem;
+    font-weight: 400;
+}
+
+.team-declined-requests__top h1 a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.team-declined-requests__top h1 a:hover {
+    color: var(--link-hover);
+}
+
+.team-declined-requests__top h1 span {
+    color: var(--team-dim);
+}
+
+.team-declined-request-search {
+    display: flex;
+    align-items: stretch;
+    min-width: min(23rem, 48%);
+}
+
+.team-declined-request-search input {
+    box-sizing: border-box;
+    min-width: 0;
+    flex: 1;
+    padding: .72rem .85rem;
+    border: 1px solid var(--team-control-border);
+    border-right: 0;
+    border-radius: 4px 0 0 4px;
+    background: var(--team-control-bg);
+    color: inherit;
+    font: inherit;
+    box-shadow: inset 0 1px 3px color-mix(in srgb, #000 9%, transparent);
+}
+
+.team-declined-request-search input:focus {
+    position: relative;
+    z-index: 1;
+    border-color: var(--link-hover);
+    outline: 2px solid var(--team-control-focus);
+    outline-offset: 0;
+}
+
+.team-declined-request-search .button {
+    border-radius: 0 4px 4px 0;
+}
+
+.team-declined-request-search .button.icon-search {
+    width: 3rem;
+    min-width: 3rem;
+    padding-inline: 0;
+    font-size: 1rem;
+}
+
+.team-declined-requests__pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 3.25rem;
+    margin-top: 1.8rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--team-border);
+    color: var(--team-dim);
+}
+
+/* Recent members follows Lichess's compact userlist on the team page. */
+.team-show__members .recent-members h2 {
+    margin-bottom: .65rem;
+}
+
+.team-show__members .recent-members h2 a {
+    text-decoration: none;
+}
+
+.team-show__members .userlist {
+    display: grid;
+    gap: 0;
+}
+
+.team-member-row.paginated {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    min-width: 0;
+    min-height: 2rem;
+    padding: .3rem .2rem;
+    border-radius: 3px;
+    transition: background-color .12s ease;
+}
+
+.team-member-row.paginated:hover,
+.team-member-row.paginated:focus-within {
+    background: var(--team-hover);
+}
+
+.team-member-row .user-link {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.team-member-row .team-link-button {
+    margin-left: auto;
+}
+
+/* Join requests mirror Lichess's slist requests datatable. */
+.team-requests {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.team-requests tr:nth-child(even) {
+    background: var(--team-zebra);
+}
+
+.team-requests tr {
+    transition: background-color .12s ease;
+}
+
+.team-requests tr:hover {
+    background: var(--team-hover);
+}
+
+.team-requests td {
+    padding: 1rem .85rem;
+    border-top: 0;
+    vertical-align: middle;
+}
+
+.team-requests .team-request-user {
+    width: 1%;
+    white-space: nowrap;
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+.team-requests .team-request-message {
+    width: 100%;
+    color: var(--font-color);
+    font-size: .95rem;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.team-requests .team-request-date {
+    width: 1%;
+    color: var(--team-dim);
+    white-space: nowrap;
+    font-size: .84rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.team-requests .process {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.team-request-actions {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+}
+
+.team-request-actions form,
+.team-requests .process form {
+    margin: 0;
+}
+
+.team-request-action.button {
+    min-width: 5.2rem;
+    padding: .48rem .7rem;
+    border: 0;
+    font-size: .86rem;
+    font-weight: 600;
+}
+
+.team-request-action--accept.button {
+    background: var(--green-hover);
+    color: white;
+}
+
+.team-request-action--accept.button:hover {
+    filter: brightness(1.08);
+}
+
+.team-request-action--decline.button.button-empty {
+    background: transparent;
+    color: var(--bad, #b33);
+    box-shadow: none;
+}
+
+.team-request-action--decline.button.button-empty:hover {
+    background: color-mix(in srgb, var(--bad, #b33) 10%, transparent);
+}
+
+.team-member-badge {
+    display: inline-block;
+    flex: 0 0 auto;
+    padding: .05rem .35rem;
+    border: 1px solid color-mix(in srgb, var(--link-hover) 22%, var(--team-border));
+    border-radius: 999px;
+    background: transparent;
+    color: var(--link-hover);
+    font-size: .66rem;
+    font-weight: 600;
+    letter-spacing: .015em;
+    text-transform: uppercase;
+}
+
+.team-muted {
+    color: var(--team-dim);
+}
+
+.team-link-button {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--team-dim);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.team-link-button:hover {
+    color: var(--link-hover);
+    text-decoration: underline;
+}
+
+.team-member-row .team-link-button {
+    color: var(--bad, #b33);
+    font-size: .8rem;
+    opacity: 0;
+    transition: opacity .12s ease, color .12s ease;
+}
+
+.team-member-row:hover .team-link-button,
+.team-member-row:focus-within .team-link-button {
+    opacity: .75;
+}
+
+.team-member-row .team-link-button:hover {
+    color: var(--bad, #b33);
+    opacity: 1;
+}
+
+.team-tournament-row {
+    display: grid;
+    grid-template-columns: 2.2rem minmax(0, 1fr) auto;
+    align-items: center;
+    gap: .8rem;
+    padding: .7rem 1rem;
+    color: inherit;
+    text-decoration: none;
+}
+
+.team-tournament-row:nth-child(odd) {
+    background: var(--team-zebra);
+}
+
+.team-tournament-row:hover {
+    background: var(--team-hover);
+}
+
+.team-tournament-row__icon {
+    width: 2.2rem;
+    color: var(--team-dim);
+    text-align: center;
+}
+
+.team-tournament-row__icon::before {
+    font-size: 1.55rem;
+    opacity: .7;
+}
+
+.team-tournament-row__main {
+    display: grid;
+    min-width: 0;
+}
+
+.team-tournament-row__main strong {
+    color: var(--font-color);
+    font-size: 1.2rem;
+    font-weight: 400;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+}
+
+.team-tournament-row:hover .team-tournament-row__main strong {
+    color: var(--link-hover);
+}
+
+.team-tournament-row__setup,
+.team-tournament-row__date {
+    color: var(--team-dim);
+    font-size: .9rem;
+}
+
+.team-tournament-row__date {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+/* Our topic preview has no post excerpt, so keep it denser than Lichess's
+ * full post preview while retaining the same title + metadata hierarchy. */
+.team-forum-topic-row {
+    display: block;
+    padding: .7rem 1.25rem;
+    color: inherit;
+    text-decoration: none;
+}
+
+.team-forum-topic-row:nth-child(odd) {
+    background: var(--team-zebra);
+}
+
+.team-forum-topic-row:hover {
+    background: var(--team-hover);
+}
+
+.team-forum-topic-row__meta {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    min-width: 0;
+    margin-bottom: 0;
+    font-size: .9rem;
+}
+
+.team-forum-topic-row__meta strong {
+    min-width: 0;
+    color: var(--font-color);
+    font-size: 1.3rem;
+    font-weight: 400;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+}
+
+.team-forum-topic-row:hover .team-forum-topic-row__meta strong {
+    color: var(--link-hover);
+}
+
+.team-forum-topic-row__meta > span,
+.team-forum-topic-row__meta info-date {
+    color: var(--team-dim);
+}
+
+.team-forum-topic-row__meta > span {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+.team-forum-topic-row__separator {
+    margin: 0 .35rem;
+    opacity: .55;
+}
+
+.team-show__more {
+    display: block;
+    margin-top: .7rem;
+    color: var(--team-dim);
+    text-align: right;
+}
+
+.team-show__more:hover {
+    color: var(--link-hover);
+}
+
+.team-show__update__last {
+    display: grid;
+    gap: 1rem;
+    padding: 1rem 2rem;
+    border: 1px solid var(--team-border);
+    border-radius: 3px;
+    background: var(--team-zebra);
+}
+
+.team-show__update__meta,
+.team-show__update__more,
+.team-update-meta {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .75rem;
+    flex-wrap: wrap;
+    color: var(--team-dim);
+    font-size: .9rem;
+}
+
+.team-show__update__body {
+    line-height: 1.55;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.team-show__update__more {
+    justify-self: end;
+    color: var(--team-dim);
+    text-decoration: none;
+}
+
+.team-show__update__more:hover {
+    color: var(--link-hover);
+}
+
+/* Dedicated members page follows Lichess's page-small + team-members slist. */
+.team-members-page {
+    width: min(880px, calc(100vw - 2rem));
+    overflow: hidden;
+}
+
+.team-members__top {
+    padding: 1.8rem 2rem 1.25rem;
+}
+
+.team-members__top h1 {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .34em;
+    font-size: 1.8rem;
+    font-weight: 400;
+    line-height: 1.2;
+}
+
+.team-members__top h1 .team-icon {
+    width: 1.12em;
+    height: 1.12em;
+    color: var(--link-color-blue);
+    position: relative;
+    top: .02em;
+}
+
+.team-members__top h1 a {
+    color: var(--link-color-blue);
+    text-decoration: none;
+}
+
+.team-members__top h1 a:hover {
+    color: color-mix(in srgb, var(--link-color-blue) 84%, white);
+}
+
+.team-members__top h1 span {
+    color: var(--team-dim);
+    font-size: .86em;
+}
+
+.team-members {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.team-members td {
+    padding: 1.15rem 2rem;
+    border-top: 0;
+}
+
+.team-members .user-link {
+    font-size: 1.05rem;
+    font-weight: 500;
+}
+
+.team-members tr:first-child td {
+    border-top: 0;
+}
+
+.team-members tbody tr:nth-child(even) {
+    background: var(--team-zebra);
+}
+
+.team-members tbody tr:hover {
+    background: var(--team-hover);
+}
+
+.team-members__joined {
+    width: 1%;
+    white-space: nowrap;
+    text-align: right;
+    color: var(--team-dim);
+    font-size: .85rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.team-members__pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 3.25rem;
+    padding: 1rem 2rem;
+    border-top: 1px solid var(--team-border);
+}
+
+.team-page-nav.button.button-empty {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .45rem .65rem;
+    color: var(--team-dim);
+    box-shadow: none;
+}
+
+.team-page-nav.button.button-empty:hover {
+    background: var(--team-hover);
+    color: var(--link-hover);
+}
+
+.team-page-nav::before {
+    margin-inline-end: .25rem;
+    font-size: .8em;
+}
+
+.team-page-nav--next {
+    flex-direction: row-reverse;
+}
+
+.team-page-nav--next::before {
+    margin-inline: .25rem 0;
+}
+
+.team-page-number {
+    color: var(--team-dim);
+    font-size: .86rem;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Team create/edit/admin pages mirror Lichess's page-small + form3 layout. */
+.team-form-page.page-small,
+.team-declined-requests-page.page-small,
+.team-update-form-page.page-small {
+    max-width: 1000px;
+}
+
+.team-form-page .page-menu__content.box-pad,
+.team-declined-requests-page .page-menu__content.box-pad,
+.team-update-form-page .page-menu__content.box-pad {
+    padding: clamp(1.7rem, 4.5vw, 3.4rem) clamp(1.3rem, 5.5vw, 4.2rem);
+}
+
+.team-form-page .box__top,
+.team-update-form-page .box__top,
+.team-leaders-page .box__top {
+    margin: 0 0 2.4rem;
+    padding: 0;
+    font-size: 2rem;
+    font-weight: 400;
+    line-height: 1.2;
+}
+
+.team-form-page .box__top a,
+.team-update-form-page .box__top a,
+.team-leaders-page .box__top a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.team-form-page .box__top a:hover,
+.team-update-form-page .box__top a:hover,
+.team-leaders-page .box__top a:hover {
+    color: var(--link-hover);
+}
+
+.team-form-limit {
+    margin: -1.45rem 0 2.6rem;
+    color: var(--team-dim);
+    font-size: .9rem;
+    line-height: 1.45;
+}
+
+.team-form.form3 {
+    display: block;
+}
+
+.team-form .form-group {
+    margin-bottom: 3rem;
+}
+
+.team-form .form-label {
+    display: inline-block;
+    margin-bottom: .5rem;
+    padding: 0;
+    font-weight: 700;
+    cursor: text;
+}
+
+.team-form .form-control,
+.team-add-leader .form-control {
+    box-sizing: border-box;
+    display: block;
+    width: 100%;
+    min-width: 0;
+    min-height: calc(2.7em + 2px);
+    padding: .72rem .9rem;
+    border: 1px solid var(--team-control-border);
+    border-radius: 3px;
+    background: var(--team-control-bg);
+    color: inherit;
+    font: inherit;
+    box-shadow: inset 0 1px 3px color-mix(in srgb, #000 9%, transparent);
+    transition: border-color .12s ease, box-shadow .12s ease;
+}
+
+.team-form select.form-control {
+    min-height: calc(2.7em + 2px);
+}
+
+.team-form textarea.form-control {
+    height: auto;
+    line-height: 1.45;
+    resize: vertical;
+}
+
+.team-form .form-control:focus,
+.team-add-leader .form-control:focus {
+    border-color: var(--link-hover);
+    outline: 0;
+    box-shadow:
+        0 0 0 2px var(--team-control-focus),
+        inset 0 1px 3px color-mix(in srgb, #000 9%, transparent);
+}
+
+.team-form .form-help,
+.team-add-leader .form-help,
+.team-permissions .form-help {
+    display: block;
+    margin-top: .35rem;
+    color: var(--team-dim);
+    font-size: .9rem;
+    line-height: 1.45;
+}
+
+.team-form .form-help.error {
+    color: var(--bad, #b33);
+}
+
+.team-form .form-split {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: inherit;
+    justify-content: space-between;
+    gap: 1.5rem;
+}
+
+.team-form .form-half {
+    flex: 1 1 48%;
+    min-width: 220px;
+}
+
+.team-entry-fields .form-group {
+    margin-bottom: 3rem;
+}
+
+.team-form-check-group {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.team-check.form-check,
+.team-clear-entry-code {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    cursor: pointer;
+}
+
+.team-check.form-check {
+    min-height: calc(2.7em + 2px);
+    font-weight: 700;
+}
+
+.team-check input,
+.team-permissions-table input[type="checkbox"] {
+    flex: 0 0 auto;
+    width: 1.15rem;
+    height: 1.15rem;
+    margin: 0;
+    accent-color: var(--green-hover);
+}
+
+.team-clear-entry-code {
+    margin-top: .8rem;
+    color: var(--team-dim);
+    font-size: .9rem;
+}
+
+.team-clear-entry-code:hover {
+    color: var(--font-color);
+}
+
+.team-form .form-actions,
+.team-permissions .form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1.7rem;
+    padding-top: 1.7rem;
+    border-top: 1px solid var(--team-border);
+}
+
+.team-form .form-actions a,
+.team-permissions .form-actions a {
+    color: var(--team-dim);
+    text-decoration: none;
+}
+
+.team-form .form-actions a:hover,
+.team-permissions .form-actions a:hover {
+    color: var(--link-hover);
+}
+
+.team-form .form-actions .button,
+.team-permissions .form-actions .button {
+    min-width: 8.5rem;
+    padding: .7rem 1.2rem;
+    font-weight: 600;
+}
+
+.team-join-page .team-show__desc {
+    margin-bottom: 2.8rem;
+}
+
+/* Leaders page follows Lichess TeamAdminUi: unpadded box, padded add form, full-width table. */
+.team-leaders-page .page-menu__content.box {
+    min-height: 100%;
+}
+
+.team-leaders-page .box__top {
+    margin: 0;
+    padding: 1.8rem 2rem 1.5rem;
+    border-bottom: 1px solid var(--team-border);
+}
+
+.team-leaders-page .box__pad {
+    padding-inline: 2rem;
+}
+
+.team-add-leader {
+    margin: 0;
+    padding-top: 1.8rem;
+    padding-bottom: 1.8rem;
+    background: var(--team-zebra);
+}
+
+.team-add-leader__input {
+    display: flex;
+    align-items: stretch;
+    max-width: 34rem;
+}
+
+.team-add-leader__input .form-control {
+    border-radius: 3px 0 0 3px;
+}
+
+.team-add-leader__input .button {
+    flex: 0 0 auto;
+    min-width: 5rem;
+    border-radius: 0 3px 3px 0;
+    font-weight: 600;
+}
+
+.team-add-leader .form-help {
+    max-width: 42rem;
+}
+
+.team-permissions__table {
+    overflow-x: auto;
+}
+
+.team-permissions-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.team-permissions-table th,
+.team-permissions-table td {
+    padding: 1rem 1.1rem;
+    border-top: 1px solid var(--team-border);
+    text-align: center;
+    vertical-align: middle;
+}
+
+.team-permissions-table thead th {
+    border-top: 0;
+    background: var(--bg-color1);
+    color: var(--team-dim);
+    font-size: .9rem;
+    font-weight: 600;
+}
+
+.team-permissions-table thead th:not(:first-child),
+.team-permissions-table tbody td {
+    border-left: 1px solid var(--team-border);
+}
+
+.team-permissions-table tbody tr:nth-child(even) {
+    background: var(--team-zebra);
+}
+
+.team-permissions-table tbody tr:hover td,
+.team-permissions-table tbody tr:hover th {
+    background: var(--team-hover-strong);
+}
+
+.team-permissions-table th:first-child {
+    min-width: 15rem;
+    text-align: left;
+}
+
+.team-permissions-table tbody th strong {
+    display: block;
+    color: var(--gold);
+    font-size: 1.08rem;
+    white-space: nowrap;
+}
+
+.team-permissions-table tbody th p {
+    margin: .2rem 0 0;
+    padding: 0;
+    color: var(--team-dim);
+    font-size: .85rem;
+    font-weight: normal;
+    line-height: 1.35;
+}
+
+.team-permissions-help {
+    margin: 1.8rem 0 0 !important;
+}
+
+.team-permissions .form-actions.box__pad {
+    margin-top: 0;
+    padding-top: 1.6rem;
+    padding-bottom: 1.8rem;
+}
+
+/* Team updates follow Lichess's mailbox/conversation layout. Keep this view
+ * denser than the ordinary team pages and let the side list read as a mailbox,
+ * not as another stack of cards. */
+.team-updates-page.team-update {
+    display: flex;
+    flex-flow: row nowrap;
+    width: min(1200px, calc(100vw - 2rem));
+    height: min(calc(100vh - var(--site-header-height) - var(--site-header-margin) - 1rem), 900px);
+    min-height: 34rem;
+    margin: .5rem auto 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.team-update__side {
+    display: flex;
+    flex: 0 0 50ch;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+    border-right: 1px solid var(--team-border);
+    background: var(--team-zebra);
+}
+
+.team-update__side__top,
+.team-update__convo__head {
+    box-sizing: border-box;
+    display: flex;
+    flex: 0 0 4rem;
+    align-items: center;
+    border-bottom: 1px solid var(--team-border);
+    background: color-mix(in srgb, var(--team-zebra) 72%, var(--bg-color2));
+}
+
+.team-update__side__back {
+    display: flex;
+    align-items: center;
+    align-self: stretch;
+    padding: 0 1.2rem;
+    color: var(--font-color);
+    text-decoration: none;
+}
+
+.team-update__side__back::before {
+    margin-right: .55rem;
+    color: var(--team-dim);
+}
+
+.team-update__side__back:hover {
+    color: var(--link-hover);
+}
+
+.team-update__side__content {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    scrollbar-color: var(--team-control-border) transparent;
+}
+
+.team-update__side__team {
+    display: flex;
+    min-height: 4.7rem;
+    align-items: center;
+    gap: .4rem;
+    padding: .8rem 1.2rem;
+    color: var(--font-color);
+    text-decoration: none;
+    transition: background-color .12s ease;
+}
+
+.team-update__side__team--unread:not(.team-update__side__team--active) {
+    background: color-mix(in srgb, var(--gold) 18%, var(--team-zebra));
+}
+
+.team-update__side__team:hover {
+    background: color-mix(in srgb, var(--link-hover) 15%, var(--team-zebra));
+}
+
+.team-update__side__team:active,
+.team-update__side__team--active {
+    background: color-mix(in srgb, var(--link-hover) 28%, var(--team-zebra));
+}
+
+.team-update__side__team__icon {
+    display: grid;
+    flex: 0 0 4.6rem;
+    width: 4.6rem;
+    place-items: center;
+    color: var(--team-dim);
+    font-size: 2.2rem;
+    font-weight: 400;
+    line-height: 1;
+}
+
+.team-update__side__team--active .team-update__side__team__icon,
+.team-update__side__team--unread .team-update__side__team__icon {
+    color: var(--font-color);
+}
+
+.team-update__side__team__content {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.team-update__side__team__name {
+    display: block;
+    overflow: hidden;
+    color: var(--font-color);
+    font-size: 1.15rem;
+    font-weight: 400;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.team-update__side__team--active .team-update__side__team__name,
+.team-update__side__team--unread .team-update__side__team__name {
+    font-weight: 600;
+}
+
+.team-update__side__team__meta {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: .6rem;
+    margin-top: .22rem;
+    color: var(--team-dim);
+    font-size: .82rem;
+    line-height: 1.25;
+}
+
+.team-update__side__unread-count {
+    display: inline-block;
+    min-width: 1.25rem;
+    padding: .08rem .35rem;
+    border-radius: 3px;
+    background: var(--link-hover);
+    color: white;
+    font-size: .72rem;
+    font-weight: 700;
+    line-height: 1.25;
+    text-align: center;
+}
+
+.team-update__side__empty {
+    padding: 2rem 1.2rem;
+    color: var(--team-dim);
+    text-align: center;
+}
+
+.team-update__convo {
+    display: flex;
+    flex: 1 1 100%;
+    min-width: 0;
+    flex-direction: column;
+    background: var(--bg-color0);
+}
+
+.team-update__convo__head {
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0 2rem 0 1rem;
+}
+
+.team-update__convo__head h1 {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    margin: 0;
+    padding: 0 0 0 1rem;
+    font-size: 1.5rem;
+    font-weight: 400;
+}
+
+.team-update__convo__head h1::before {
+    color: var(--team-dim);
+    font-size: 1.15em;
+}
+
+.team-update__convo__head__title {
+    display: flex;
+    align-self: stretch;
+    min-width: 0;
+    align-items: stretch;
+}
+
+.team-update__convo__head__back {
+    display: flex;
+    align-items: center;
+    align-self: stretch;
+    padding: 0 1rem;
+    color: var(--team-dim);
+    font-size: 1.5rem;
+    text-decoration: none;
+}
+
+.team-update__convo__head__back:hover {
+    color: var(--link-hover);
+}
+
+.team-update__convo__team-link {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    overflow: hidden;
+    color: var(--font-color);
+    font-size: 1.35rem;
+    font-weight: 500;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.team-update__convo__team-link:hover {
+    color: var(--link-hover);
+}
+
+.team-update__convo__head__actions {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: .35rem;
+}
+
+.team-update__convo__head__actions form {
+    margin: 0;
+}
+
+.team-update__convo__head__actions .button {
+    min-height: 2.1rem;
+    padding: .4rem .65rem;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    color: var(--team-dim);
+    font-size: .84rem;
+}
+
+.team-update__convo__head__actions .button:hover {
+    background: color-mix(in srgb, var(--link-hover) 10%, transparent);
+    color: var(--link-hover);
+}
+
+.team-update__convo__head__actions .team-update__new-action {
+    color: var(--link-color-blue);
+}
+
+.team-update__convo__updates {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 2rem;
+    overflow-y: auto;
+    scrollbar-color: var(--team-control-border) transparent;
+}
+
+.team-update__notice {
+    margin: 0;
+    padding: .8rem 1rem;
+    border: 1px solid var(--team-border);
+    border-radius: 3px;
+    background: var(--team-zebra);
+    color: var(--team-dim);
+    font-size: .9rem;
+}
+
+.team-update__convo__update {
+    overflow: hidden;
+    border: 1px solid var(--team-border);
+    border-radius: 3px;
+    background: var(--bg-color0);
+}
+
+.team-update__convo__update--unread {
+    border-color: var(--gold);
+    box-shadow: inset 3px 0 0 color-mix(in srgb, var(--gold) 75%, transparent);
+}
+
+.team-update__convo__update__info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    padding: 1rem 2rem;
+}
+
+.team-update__convo__update__team {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--font-color);
+    font-size: 1.02rem;
+    font-weight: 500;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.team-update__convo__update__team:hover {
+    color: var(--link-hover);
+}
+
+.team-update__convo__update__meta {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 2rem;
+    color: var(--team-dim);
+    font-size: .84rem;
+}
+
+.team-update__convo__update__body {
+    padding: 1.5rem 2rem;
+    background: var(--team-zebra);
+    font-size: 1rem;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
+.team-update__empty {
+    margin: auto;
+    padding: 2rem;
+    color: var(--team-dim);
+    text-align: center;
+}
+
+.team-update__empty h2 {
+    margin: 0 0 .5rem;
+    color: var(--font-color);
+    font-weight: 400;
+}
+
+@media (max-width: 799px) {
+    .teams-page,
+    .team-form-page,
+    .team-show-page,
+    .team-members-page,
+    .team-declined-requests-page,
+    .team-leaders-page,
+    .team-updates-page,
+    .team-update-form-page {
+        width: min(100%, calc(100vw - 1rem));
+        margin-top: .75rem;
+    }
+
+    .teams-page.page-menu,
+    .team-form-page.page-menu,
+    .team-declined-requests-page.page-menu,
+    .team-leaders-page.page-menu,
+    .team-update-form-page.page-menu {
+        display: block;
+    }
+
+    .page-menu__menu.subnav {
+        flex-direction: row;
+        gap: .15rem;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: 0 .35rem;
+        border-radius: 0;
+        scrollbar-width: none;
+    }
+
+    .page-menu__menu.subnav::-webkit-scrollbar {
+        display: none;
+    }
+
+    .page-menu__menu.subnav a {
+        flex: 0 0 auto;
+        min-height: 2.8rem;
+        padding: .7rem;
+        border-radius: 0;
+    }
+
+    .page-menu__menu.subnav a.active {
+        background: transparent;
+        box-shadow: none;
+    }
+
+    .page-menu__menu.subnav a.active::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        height: 3px;
+        border-radius: 999px 999px 0 0;
+        background: var(--link-hover);
+    }
+
+    .page-menu__content {
+        margin-top: .25rem;
+        border-radius: 3px;
+    }
+
+    .team-show__content {
+        display: block;
+        padding: 1.25rem;
+    }
+
+    .team-show__content__col1 {
+        margin-bottom: 2rem;
+    }
+
+    .team-show__actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .team-show__members {
+        display: none;
+    }
+
+    .team-member-row .team-link-button {
+        opacity: .75;
+    }
+
+    .team-requests td {
+        display: block;
+        width: auto !important;
+        border-top: 0;
+        padding: .3rem .75rem;
+        white-space: normal;
+    }
+
+    .team-requests tr {
+        display: block;
+        padding: .55rem 0;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .team-requests tr:first-child {
+        border-top: 0;
+    }
+
+    .team-requests .process {
+        padding-top: .55rem;
+    }
+
+    .team-update__side {
+        flex-basis: 40ch;
+    }
+}
+
+@media (max-width: 600px) {
+    .team-list-top,
+    .team-show__top {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .team-list-top,
+    .team-show__top {
+        padding: 1.2rem 1rem 1rem;
+    }
+
+    .team-slist td {
+        padding: .7rem 1rem;
+    }
+
+    .team-members td {
+        padding: .85rem 1rem;
+    }
+
+    .team-members__top,
+    .team-members__pagination {
+        padding-inline: 1rem;
+    }
+
+    .team-members-page {
+        width: min(100%, calc(100vw - 1rem));
+    }
+
+    .team-page-nav.button.button-empty {
+        padding-inline: .4rem;
+    }
+
+    .team-slist .info {
+        display: none;
+    }
+
+    .team-show__member-count {
+        align-self: flex-start;
+    }
+
+    .team-show__actions {
+        grid-template-columns: 1fr;
+    }
+
+    .team-tournament-row {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: .3rem;
+    }
+
+    .team-forum-topic-row {
+        padding-inline: 1rem;
+    }
+
+    .team-forum-topic-row__meta {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: .25rem;
+    }
+
+    .team-forum-topic-row__meta > span {
+        white-space: normal;
+    }
+
+    .team-declined-requests__top {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .team-declined-request-search {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .team-request-actions {
+        width: 100%;
+    }
+
+    .team-request-actions form,
+    .team-request-actions .button {
+        flex: 1;
+    }
+
+    .team-form-page .page-menu__content.box-pad,
+    .team-declined-requests-page .page-menu__content.box-pad,
+    .team-update-form-page .page-menu__content.box-pad {
+        padding: 1rem;
+    }
+
+    .team-leaders-page .box__top,
+    .team-leaders-page .box__pad {
+        padding-inline: 1rem;
+    }
+
+    .team-form .form-actions,
+    .team-permissions .form-actions {
+        align-items: stretch;
+    }
+
+    .team-updates-page.team-update {
+        width: min(100%, calc(100vw - .5rem));
+        height: calc(100vh - var(--site-header-height) - var(--site-header-margin));
+        min-height: 28rem;
+        margin-top: 0;
+    }
+
+    .team-update--all .team-update__convo,
+    .team-update--team .team-update__side {
+        display: none;
+    }
+
+    .team-update--all .team-update__side,
+    .team-update--team .team-update__convo {
+        flex: 1 0 100%;
+    }
+
+    .team-update__convo__head {
+        padding: 0 .8rem 0 .2rem;
+    }
+
+    .team-update__convo__head__actions {
+        gap: .35rem;
+    }
+
+    .team-update__convo__head__actions .button {
+        padding-inline: .5rem;
+        font-size: .8rem;
+    }
+
+    .team-update__convo__updates {
+        gap: 1rem;
+        padding: 1rem .8rem;
+    }
+
+    .team-update__convo__update__info {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: .35rem;
+        padding: .8rem 1rem;
+    }
+
+    .team-update__convo__update__meta {
+        gap: .8rem;
+    }
+
+    .team-update__convo__update__body {
+        padding: 1.1rem 1rem;
+    }
+}
+
+/* Team lifecycle state. Closing is archival: content stays in MongoDB but the
+ * public team features are disabled until a site administrator reopens it. */
+.team-show__closed-badge {
+    flex: 0 0 auto;
+    padding: .2rem .55rem;
+    border-radius: 3px;
+    background: color-mix(in srgb, var(--bad, #b33) 18%, var(--bg-color1));
+    color: var(--bad, #b33);
+    font-size: .8rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+}
+
+.team-show__membership-state--closed,
+.team-show__closed-message {
+    border-inline-start: 4px solid var(--bad, #b33);
+    background: color-mix(in srgb, var(--bad, #b33) 8%, var(--bg-color1));
+}
+
+.team-show__membership-state--closed {
+    padding: .7rem .8rem;
+}
+
+.team-show__closed-message {
+    padding: 1rem 1.2rem;
+}
+
+.team-show__closed-message h2 {
+    color: var(--bad, #b33);
+}
+
+.team-show__closed-message p {
+    margin: 0;
+}
+
+.team-lifecycle-danger {
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.team-lifecycle-danger h2 {
+    margin: 0 0 .5rem;
+    color: var(--bad, #b33);
+}
+
+.team-lifecycle-danger p {
+    max-width: 46rem;
+    color: var(--time-text);
+}
+
+/* Edit-page destructive action stays visually secondary until the user chooses it. */
+.team-lifecycle-danger__button.button.button-empty {
+    padding: .55rem .75rem;
+    background: transparent;
+    color: var(--bad, #b33);
+    box-shadow: none;
+}
+
+.team-lifecycle-danger__button.button.button-empty:hover {
+    background: color-mix(in srgb, var(--bad, #b33) 10%, transparent);
+}

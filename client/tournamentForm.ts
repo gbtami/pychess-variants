@@ -259,7 +259,7 @@ function initializeFlatpickr(): void {
             altInput: true,
             altFormat: 'Y-m-d h:i K',
             minDate,
-            maxDate: new Date(Date.now() + 1000 * 3600 * 24 * 31 * 3),
+            maxDate: new Date(Date.now() + 1000 * 3600 * 24 * 31 * 6),
             monthSelectorType: 'static',
             disableMobile: true,
         });
@@ -320,6 +320,9 @@ export function initTournamentForm(): void {
     if (!(form instanceof HTMLFormElement)) return;
 
     const system = document.getElementById('form3-system');
+    const teamWrap = document.getElementById('form3-team-wrap');
+    const teamSelect = document.getElementById('form3-team');
+    const teamHelp = document.getElementById('form3-team-help');
     const rated = document.getElementById('form3-rated');
     const variantSelect = document.getElementById('form3-variant');
     const systemHelp = document.getElementById('form3-system-help');
@@ -362,6 +365,10 @@ export function initTournamentForm(): void {
     const arenaFaq = document.getElementById('tour-faq-arena');
     const rrFaq = document.getElementById('tour-faq-rr');
     const swissFaq = document.getElementById('tour-faq-swiss');
+    const teamSelectInitiallyDisabled =
+        teamSelect instanceof HTMLSelectElement && teamSelect.disabled;
+    const teamSelectOptional =
+        teamSelect instanceof HTMLSelectElement && teamSelect.dataset.teamOptional === 'true';
 
     if (
         !(system instanceof HTMLSelectElement) ||
@@ -435,6 +442,16 @@ export function initTournamentForm(): void {
         rounds.disabled = isArena || isRR;
         rrMaxPlayers.disabled = !isRR;
         roundInterval.disabled = isArena;
+        setVisible(teamWrap, true);
+        if (teamSelect instanceof HTMLSelectElement) {
+            teamSelect.disabled = teamSelectInitiallyDisabled;
+            teamSelect.required = !isArena && !teamSelectInitiallyDisabled && !teamSelectOptional;
+        }
+        if (teamHelp) {
+            teamHelp.textContent = isArena
+                ? 'Optional. Select a team to restrict this Arena to current team members.'
+                : 'Required for production Round-Robin and Swiss. Only current team members can join team tournaments.';
+        }
 
         if (isArena) {
             rounds.value = '0';
@@ -452,10 +469,10 @@ export function initTournamentForm(): void {
                     'Arena runs continuously until the clock expires. Players rejoin from the lobby after each game.';
             } else if (isRR) {
                 systemHelp.textContent =
-                    'Round-Robin uses a maximum player cap. The joined field is frozen at start, then the full single-cycle round count is derived automatically.';
+                    'Round-Robin is team-owned and uses a maximum player cap. The joined field is frozen at start, then the full single-cycle round count is derived automatically.';
             } else {
                 systemHelp.textContent =
-                    'Swiss is a fixed-round event. Players are paired by score with color balancing and bye handling when needed.';
+                    'Swiss is team-owned and fixed-round. Players are paired by score with color balancing and bye handling when needed.';
             }
         }
 

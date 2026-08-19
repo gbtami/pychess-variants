@@ -4,7 +4,7 @@ import asyncio
 import collections
 import gettext
 import os
-from collections.abc import Coroutine
+from collections.abc import Coroutine, Iterable, Mapping
 from datetime import UTC, date, datetime, timedelta
 from operator import neg
 from time import monotonic
@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING, Any, TypeVar
 import aiohttp_jinja2
 from aiohttp import web
 from aiohttp.web_ws import WebSocketResponse
+from pymongo import UpdateOne
 from pythongettext.msgfmt import Msgfmt, PoSyntaxError
 from sortedcollections import ValueSortedDict
 from tenacity import (
@@ -116,12 +117,38 @@ TOURNAMENT_ACTIVE_RECHECK_INTERVAL = 60  # never evict while a viewer socket is 
 REGISTERED_USER_CACHE_TTL = 30 * 60
 REGISTERED_USER_CACHE_SWEEP_INTERVAL = 5 * 60
 TOURNAMENT_EFFECT_RECOVERY_DELAY = 60
+TEAM_UPDATE_RETENTION_SECONDS = 90 * 24 * 60 * 60
 T = TypeVar("T")
 USERNAME_LOWER_FIELD = "username_lower"
 
 
 def _is_test_run() -> bool:
     return any("pytest" in arg for arg in sys.argv) or any("unittest" in arg for arg in sys.argv)
+
+
+async def _upsert_static_docs(collection: Any, docs: Iterable[Mapping[str, Any]]) -> int:
+    static_docs = [doc for doc in docs if doc.get("_id") is not None]
+    if not static_docs:
+        return 0
+
+    if _is_test_run():
+        # mongomock 4.3.0 is not compatible with modern PyMongo UpdateOne
+        # bulk writes. Keep test startup semantics equivalent without exercising
+        # that third-party incompatibility; the bulk path has a focused unit test.
+        for doc in static_docs:
+            doc_id = doc["_id"]
+            update = {key: value for key, value in doc.items() if key != "_id"}
+            await collection.update_one({"_id": doc_id}, {"$set": update}, upsert=True)
+        return len(static_docs)
+
+    operations = []
+    for doc in static_docs:
+        doc_id = doc["_id"]
+        update = {key: value for key, value in doc.items() if key != "_id"}
+        operations.append(UpdateOne({"_id": doc_id}, {"$set": update}, upsert=True))
+
+    await collection.bulk_write(operations, ordered=False)
+    return len(static_docs)
 
 
 async def recover_pending_tournament_game_side_effects(
@@ -309,14 +336,6 @@ class PychessGlobalAppState:
             startup.log_summary()
             return
 
-        async def upsert_static_docs(collection, docs):
-            for doc in docs:
-                doc_id = doc.get("_id")
-                if doc_id is None:
-                    continue
-                update = {key: value for key, value in doc.items() if key != "_id"}
-                await collection.update_one({"_id": doc_id}, {"$set": update}, upsert=True)
-
         # Read tournaments, users and highscore from db
         try:
             with startup.phase("preflight collections + tournament indexes"):
@@ -337,6 +356,7 @@ class PychessGlobalAppState:
 
                 await self.db.tournament.create_index("startsAt")
                 await self.db.tournament.create_index("status")
+                await self.db.tournament.create_index("teamId")
                 await self.db.tournament_player.create_index("tid")
                 await self.db.tournament_pairing.create_index("tid")
                 await self.db.relation.create_index([("u1", 1), ("r", 1)], name="u1_r")
@@ -443,6 +463,9 @@ class PychessGlobalAppState:
                 await self.db.game.create_index("by")
                 await self.db.game.create_index("c")
                 await self.db.game.create_index("tid")
+                # Only simul games have sid, so keep this index sparse. It avoids a full
+                # game-collection scan when restoring a started simul after restart.
+                await self.db.game.create_index("sid", sparse=True)
 
                 # Advanced search needs some indexes to be able to respond in reasonable times
                 await self.db.game.create_index([("d", -1), ("_id", -1)], name="d_id_desc")
@@ -484,6 +507,39 @@ class PychessGlobalAppState:
                 if "inbox_msg" not in db_collections:
                     await self.db.create_collection("inbox_msg")
                 await self.db.inbox_msg.create_index([("tid", 1), ("createdAt", 1)])
+
+                if "team" not in db_collections:
+                    await self.db.create_collection("team")
+                await self.db.team.create_index(
+                    [("enabled", 1), ("memberCount", -1), ("createdAt", -1)]
+                )
+                await self.db.team.create_index([("createdBy", 1), ("createdAt", -1)])
+
+                if "team_member" not in db_collections:
+                    await self.db.create_collection("team_member")
+                await self.db.team_member.create_index("team")
+                await self.db.team_member.create_index("user")
+                await self.db.team_member.create_index([("user", 1), ("permissions", 1)])
+
+                if "team_update" not in db_collections:
+                    await self.db.create_collection("team_update")
+                await self.db.team_update.create_index([("team", 1), ("createdAt", -1)])
+                await self.db.team_update.create_index("sender")
+                await self.db.team_update.create_index(
+                    "createdAt",
+                    name="team_update_ttl",
+                    expireAfterSeconds=TEAM_UPDATE_RETENTION_SECONDS,
+                )
+
+                if "team_request" not in db_collections:
+                    await self.db.create_collection("team_request")
+                await self.db.team_request.create_index(
+                    [("team", 1), ("declined", 1), ("createdAt", 1)]
+                )
+                await self.db.team_request.create_index(
+                    [("team", 1), ("declined", 1), ("processedAt", -1)]
+                )
+                await self.db.team_request.create_index("user")
 
                 if "forum_categ" not in db_collections:
                     await self.db.create_collection("forum_categ")
@@ -686,42 +742,63 @@ class PychessGlobalAppState:
                     self.correspondence_games_loaded.set()
 
             with startup.phase("restore simuls + static content"):
-                await load_active_simuls(self)
+                static_startup = StartupTimer(log, "restore simuls + static content")
+                try:
+                    with static_startup.phase("restore active simuls"):
+                        await load_active_simuls(self)
 
-                await upsert_static_docs(self.db.video, VIDEOS)
-                if "ublog_post" not in db_collections:
-                    await self.db.create_collection("ublog_post")
-                await self.db.ublog_post.create_index(
-                    [("author", 1), ("live", 1), ("publishedAt", -1)]
-                )
-                await self.db.ublog_post.create_index(
-                    [("live", 1), ("sticky", -1), ("publishedAt", -1)]
-                )
-                await self.db.ublog_post.create_index(
-                    [("live", 1), ("blogType", 1), ("publishedAt", -1)]
-                )
-                await self.db.ublog_post.create_index([("author", 1), ("slug", 1)])
-                await self.db.ublog_post.create_index("legacyBlogId")
-                await self.db.ublog_post.create_index("topics")
+                    with static_startup.phase("sync static videos"):
+                        video_count = await _upsert_static_docs(self.db.video, VIDEOS)
+                        log.debug("[startup] synced %s static video documents", video_count)
 
-                if os.getenv("LEGACY_BLOG_BOOTSTRAP", "1") == "1":
-                    # Run legacy bootstrap only for an empty target collection.
-                    # This keeps first deploy fully automatic while preventing rewrites
-                    # of migrated posts on every subsequent restart.
-                    ublog_post_count = await self.db.ublog_post.count_documents({}, limit=1)
-                    if ublog_post_count == 0:
-                        from legacy_blog_migration import build_legacy_ublog_docs
+                    with static_startup.phase("ensure ublog collection"):
+                        if "ublog_post" not in db_collections:
+                            await self.db.create_collection("ublog_post")
 
-                        legacy_blog_author_policy = os.getenv("LEGACY_BLOG_AUTHOR_POLICY", "keep")
-                        if legacy_blog_author_policy not in ("keep", "official-as-pychess"):
-                            legacy_blog_author_policy = "keep"
-                        await upsert_static_docs(
-                            self.db.ublog_post,
-                            build_legacy_ublog_docs(
-                                author_policy=legacy_blog_author_policy,
-                                strip_preamble=True,
-                            ),
+                    with static_startup.phase("ensure ublog indexes"):
+                        await self.db.ublog_post.create_index(
+                            [("author", 1), ("live", 1), ("publishedAt", -1)]
                         )
+                        await self.db.ublog_post.create_index(
+                            [("live", 1), ("sticky", -1), ("publishedAt", -1)]
+                        )
+                        await self.db.ublog_post.create_index(
+                            [("live", 1), ("blogType", 1), ("publishedAt", -1)]
+                        )
+                        await self.db.ublog_post.create_index([("author", 1), ("slug", 1)])
+                        await self.db.ublog_post.create_index("legacyBlogId")
+                        await self.db.ublog_post.create_index("topics")
+
+                    with static_startup.phase("check/bootstrap legacy blog"):
+                        if os.getenv("LEGACY_BLOG_BOOTSTRAP", "1") == "1":
+                            # Run legacy bootstrap only for an empty target collection.
+                            # This keeps first deploy fully automatic while preventing
+                            # rewrites of migrated posts on every subsequent restart.
+                            ublog_post_count = await self.db.ublog_post.count_documents({}, limit=1)
+                            if ublog_post_count == 0:
+                                from legacy_blog_migration import build_legacy_ublog_docs
+
+                                legacy_blog_author_policy = os.getenv(
+                                    "LEGACY_BLOG_AUTHOR_POLICY", "keep"
+                                )
+                                if legacy_blog_author_policy not in (
+                                    "keep",
+                                    "official-as-pychess",
+                                ):
+                                    legacy_blog_author_policy = "keep"
+                                legacy_count = await _upsert_static_docs(
+                                    self.db.ublog_post,
+                                    build_legacy_ublog_docs(
+                                        author_policy=legacy_blog_author_policy,
+                                        strip_preamble=True,
+                                    ),
+                                )
+                                log.info(
+                                    "[startup] bootstrapped %s legacy blog documents",
+                                    legacy_count,
+                                )
+                finally:
+                    static_startup.log_summary()
 
             with startup.phase("restore fishnet + config + user migrations"):
                 if "fishnet" in db_collections:

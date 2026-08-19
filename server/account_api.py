@@ -21,6 +21,7 @@ from forum.storage import recompute_categ_summary, recompute_topic_summary
 from login import logout
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
+from team import remove_user_from_teams_on_account_disable
 from typedefs import REQUEST_NEW_SESSION_KEY
 from typing_defs import UserDocument, ViewContext
 from user_stats import DEFAULT_USER_COUNT
@@ -238,6 +239,9 @@ async def _scrub_delete_owned_data(app_state: Any, user: Any, now: datetime) -> 
     if db is None:
         return
 
+    await remove_user_from_teams_on_account_disable(
+        app_state, user.username, erase=True, remove_from_tournaments=True
+    )
     await _erase_forum_posts_by_user(app_state, user.username, now)
     await db.ublog_post.delete_many({"author": user.username})
     await db.bot_token.delete_many({"user": user.username})
@@ -339,6 +343,18 @@ async def account_personal_data_export(request: web.Request) -> web.StreamRespon
     timeline_entries = await app_state.db.timeline_entry.find(
         {"$or": [{"data.actor": user.username}, {"users": user.username}]}
     ).to_list(MAX_EXPORT_ROWS)
+    team_memberships = await app_state.db.team_member.find({"user": user.username}).to_list(
+        MAX_EXPORT_ROWS
+    )
+    team_requests = await app_state.db.team_request.find({"user": user.username}).to_list(
+        MAX_EXPORT_ROWS
+    )
+    team_updates = await app_state.db.team_update.find({"sender": user.username}).to_list(
+        MAX_EXPORT_ROWS
+    )
+    teams_created = await app_state.db.team.find({"createdBy": user.username}).to_list(
+        MAX_EXPORT_ROWS
+    )
 
     metadata = {
         "exportedAt": datetime.now(UTC),
@@ -361,6 +377,10 @@ async def account_personal_data_export(request: web.Request) -> web.StreamRespon
         _export_section(
             "Timeline activities authored or received by this account", timeline_entries
         ),
+        _export_section("Team memberships", team_memberships),
+        _export_section("Team join requests", team_requests),
+        _export_section("Team updates authored by this account", team_updates),
+        _export_section("Teams created by this account", teams_created),
         _export_section("End of export", {"ok": True}),
     ]
     payload = "\n".join(chunks)
@@ -461,6 +481,7 @@ async def account_close_post(request: web.Request) -> web.StreamResponse:
             }
         },
     )
+    await remove_user_from_teams_on_account_disable(app_state, user.username)
     user.enabled = False
     _clear_public_user_cache(app_state, user.username)
     return await logout(request)

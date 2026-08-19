@@ -59,14 +59,12 @@ async def tournaments(request: web.Request) -> ViewContext:
             and not director
             and (
                 not regular_creator
-                or tournament.system != ARENA
                 or tournament.frequency
                 or tournament.status != T_CREATED
+                or (tournament.system != ARENA and not tournament.team_id)
             )
         ):
-            raise web.HTTPForbidden(
-                text="Regular users can only edit their own scheduled community Arena tournaments."
-            )
+            raise web.HTTPForbidden(text="This tournament cannot be edited by its creator.")
 
         if TYPE_CHECKING:
             assert tournament is not None

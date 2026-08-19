@@ -4,7 +4,11 @@ from catalogued_variants import public_catalogued_variants_for_forms
 from const import ARENA, T_CREATED
 from pychess_global_app_state import PychessGlobalAppState
 from settings import ADMINS
-from tournament.tournaments import COMMUNITY_ARENA_MAX_CREATIONS_PER_24H
+from team import PERMISSION_TOURNAMENTS, get_team, teams_for_user
+from tournament.tournaments import (
+    COMMUNITY_ARENA_MAX_CREATIONS_PER_24H,
+    FIXED_ROUND_MAX_CREATIONS_PER_24H,
+)
 from tournament_director import is_tournament_director
 from typedefs import pychess_global_app_state_key as app_state_key
 from typing_defs import ViewContext
@@ -44,6 +48,11 @@ async def arena_new(request: web.Request) -> ViewContext:
     context["admin"] = user.username in ADMINS
     context["tournament_director"] = director
     context["community_arena_max_creations_per_24h"] = COMMUNITY_ARENA_MAX_CREATIONS_PER_24H
+    context["fixed_round_max_creations_per_24h"] = FIXED_ROUND_MAX_CREATIONS_PER_24H
+    tournament_teams = await teams_for_user(
+        app_state, user.username, permission=PERMISSION_TOURNAMENTS
+    )
+    selected_team_id = request.rel_url.query.get("team", "")
     if tournamentId is None:
         context["rated"] = True
     else:
@@ -51,11 +60,25 @@ async def arena_new(request: web.Request) -> ViewContext:
         if tournament is None or user.username != tournament.creator:
             raise web.HTTPNotFound()
         if not director and (
-            tournament.system != ARENA or tournament.frequency or tournament.status != T_CREATED
+            tournament.frequency
+            or tournament.status != T_CREATED
+            or (tournament.system != ARENA and not tournament.team_id)
         ):
-            raise web.HTTPForbidden(
-                text="Regular users can only edit their own scheduled community Arena tournaments."
-            )
+            raise web.HTTPForbidden(text="This tournament cannot be edited by its creator.")
+        selected_team_id = tournament.team_id
+        if selected_team_id and not any(
+            str(team["_id"]) == selected_team_id for team in tournament_teams
+        ):
+            team = await get_team(app_state, selected_team_id)
+            if team is not None:
+                tournament_teams.append(team)
         context["tournament"] = tournament
+
+    if selected_team_id and not any(
+        str(team["_id"]) == selected_team_id for team in tournament_teams
+    ):
+        selected_team_id = ""
+    context["tournament_teams"] = tournament_teams
+    context["selected_tournament_team_id"] = selected_team_id
 
     return context

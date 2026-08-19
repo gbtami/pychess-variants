@@ -624,7 +624,7 @@
 
   #pychess-variants .admin-shell .admin-nav {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
   }
 
   #pychess-variants .admin-shell .admin-nav__title {
@@ -688,5 +688,135 @@
   #pychess-variants .admin-shell .admin-ops-config-note {
     max-width: none;
     text-align: start;
+  }
+}
+
+#pychess-variants .admin-shell .admin-team-search {
+  display: grid;
+  grid-template-columns: minmax(14rem, 1fr) 10rem auto;
+  gap: 0.65rem;
+  align-items: end;
+  margin: 1rem 0 1.5rem;
+}
+
+#pychess-variants .admin-shell .admin-team-search label {
+  display: grid;
+  gap: 0.3rem;
+  color: var(--time-text);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+#pychess-variants .admin-shell .admin-team-search input,
+#pychess-variants .admin-shell .admin-team-search select,
+#pychess-variants .admin-shell .admin-team-action-form input {
+  width: 100%;
+  min-width: 0;
+  border-color: var(--border-color);
+  background: var(--bg-color2);
+  color: var(--font-color);
+}
+
+#pychess-variants .admin-shell .admin-team-list {
+  display: grid;
+  gap: 0.8rem;
+}
+
+#pychess-variants .admin-shell .admin-team-card {
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--bg-color1);
+}
+
+#pychess-variants .admin-shell .admin-team-card > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  background: var(--bg-color2);
+}
+
+#pychess-variants .admin-shell .admin-team-card > header > div {
+  min-width: 0;
+}
+
+#pychess-variants .admin-shell .admin-team-card > header strong {
+  font-size: 1.1rem;
+}
+
+#pychess-variants .admin-shell .admin-team-card > header small {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--time-text);
+}
+
+#pychess-variants .admin-shell .admin-team-card dl {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+}
+
+#pychess-variants .admin-shell .admin-team-card dl > div {
+  padding: 0.7rem 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+#pychess-variants .admin-shell .admin-team-card dt {
+  color: var(--time-text);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+#pychess-variants .admin-shell .admin-team-card dd {
+  margin: 0.2rem 0 0;
+}
+
+#pychess-variants .admin-shell .admin-team-action-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.6rem;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+#pychess-variants .admin-shell .admin-team-history {
+  margin-top: 2rem;
+}
+
+#pychess-variants .admin-shell .admin-team-history ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#pychess-variants .admin-shell .admin-team-history li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.5rem;
+  padding: 0.55rem 0;
+  border-top: 1px solid var(--border-color);
+}
+
+#pychess-variants .admin-shell .admin-team-history li > span,
+#pychess-variants .admin-shell .admin-team-history li > small {
+  color: var(--time-text);
+}
+
+#pychess-variants .admin-shell .admin-team-history li > small {
+  flex-basis: 100%;
+}
+
+@media (max-width: 750px) {
+  #pychess-variants .admin-shell .admin-team-search,
+  #pychess-variants .admin-shell .admin-team-action-form {
+    grid-template-columns: 1fr;
+  }
+
+  #pychess-variants .admin-shell .admin-team-card dl {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

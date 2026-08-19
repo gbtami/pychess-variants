@@ -126,6 +126,6 @@ def captcha_moves_map(legal_moves: list[str]) -> dict[str, str]:
     return {orig: "".join(dests) for orig, dests in grouped.items()}
 
 
-def json_response(payload: dict[str, object]) -> web.Response:
+def json_response(payload: dict[str, object], *, status: int = 200) -> web.Response:
     """Serialize API payloads with datetime ISO formatting."""
-    return msgspec_json_response(payload)
+    return msgspec_json_response(payload, status=status)

@@ -8,11 +8,22 @@ const baseState = {
     manualNextRoundPending: true,
     isCreator: false,
     isDirector: false,
+    isTeamTournament: false,
 };
 
 describe('tournament lifecycle controls', () => {
-    test('lets the creator start a pending manual round without exposing abort', () => {
+    test('lets a non-team creator start a pending manual round without exposing abort', () => {
         expect(availableTournamentLifecycleActions({ ...baseState, isCreator: true })).toEqual(['start_next_round']);
+    });
+
+    test('lets a team tournament creator abort their fixed-round tournament', () => {
+        expect(
+            availableTournamentLifecycleActions({
+                ...baseState,
+                isCreator: true,
+                isTeamTournament: true,
+            }),
+        ).toEqual(['start_next_round', 'abort_tournament']);
     });
 
     test('lets a tournament director start a round and abort an active tournament', () => {

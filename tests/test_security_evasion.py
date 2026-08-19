@@ -254,6 +254,61 @@ class AdminBanUnbanSignalsTestCase(AioHTTPTestCase):
             }
         )
 
+        await app_state.db.team.insert_many(
+            [
+                {
+                    "_id": "cheater-team",
+                    "name": "Cheater Team",
+                    "createdBy": "cheater",
+                    "enabled": True,
+                    "memberCount": 2,
+                },
+                {
+                    "_id": "other-team",
+                    "name": "Other Team",
+                    "createdBy": "bob",
+                    "enabled": True,
+                    "memberCount": 2,
+                },
+            ]
+        )
+        await app_state.db.team_member.insert_many(
+            [
+                {
+                    "_id": "cheater@cheater-team",
+                    "team": "cheater-team",
+                    "user": "cheater",
+                    "permissions": ["admin"],
+                },
+                {
+                    "_id": "bob@cheater-team",
+                    "team": "cheater-team",
+                    "user": "bob",
+                    "permissions": [],
+                },
+                {
+                    "_id": "cheater@other-team",
+                    "team": "other-team",
+                    "user": "cheater",
+                    "permissions": [],
+                },
+                {
+                    "_id": "bob@other-team",
+                    "team": "other-team",
+                    "user": "bob",
+                    "permissions": ["admin"],
+                },
+            ]
+        )
+        await app_state.db.team_request.insert_one(
+            {
+                "_id": "cheater@third-team",
+                "team": "third-team",
+                "user": "cheater",
+                "message": "pending",
+            }
+        )
+
         await ban(app_state, "cheater")
         banned_doc = await app_state.db.user.find_one({"_id": "cheater"})
         self.assertFalse(banned_doc.get("enabled", True))
@@ -264,6 +319,15 @@ class AdminBanUnbanSignalsTestCase(AioHTTPTestCase):
         self.assertIn("ip", kinds)
         self.assertIn("fp", kinds)
         self.assertIn("ipfp", kinds)
+
+        self.assertEqual(0, await app_state.db.team_member.count_documents({"user": "cheater"}))
+        self.assertEqual(0, await app_state.db.team_request.count_documents({"user": "cheater"}))
+        owned_team = await app_state.db.team.find_one({"_id": "cheater-team"})
+        other_team = await app_state.db.team.find_one({"_id": "other-team"})
+        self.assertFalse(owned_team.get("enabled", True))
+        self.assertEqual(1, owned_team.get("memberCount"))
+        self.assertTrue(other_team.get("enabled", False))
+        self.assertEqual(1, other_team.get("memberCount"))
 
         await unban(app_state, "cheater")
         unbanned_doc = await app_state.db.user.find_one({"_id": "cheater"})

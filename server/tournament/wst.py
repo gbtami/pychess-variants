@@ -33,7 +33,7 @@ if TYPE_CHECKING:
         TournamentUserConnectedRequest,
         TournamentWithdrawMessage,
     )
-from const import RR
+from const import RR, SWISS
 from pychess_global_app_state_utils import get_app_state
 from tournament_director import is_tournament_director
 from websocket_utils import get_user, process_ws, ws_send_json
@@ -307,7 +307,12 @@ async def handle_abort_tournament(
         await ws_send_json(ws, {"type": "error", "message": "Tournament not found"})
         return
 
-    if not is_tournament_director(user, app):
+    can_abort = is_tournament_director(user, app) or (
+        user.username == tournament.creator
+        and tournament.system in (RR, SWISS)
+        and bool(tournament.team_id)
+    )
+    if not can_abort:
         await ws_send_json(ws, {"type": "error", "message": "Permission denied"})
         return
 

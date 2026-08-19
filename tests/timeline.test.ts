@@ -60,3 +60,30 @@ test('live refresh replaces the existing lobby timeline without duplicating it',
     expect(document.body.textContent).not.toContain('alice posted in forum Interesting variants');
     expect(document.body.textContent).toContain('bob published My new variant');
 });
+
+test('renders team creation and join activity with team links and icons', () => {
+    const root = document.createElement('div');
+    document.body.append(root);
+    const teamEntries: TimelineEntry[] = [
+        {
+            id: 'team-create',
+            type: 'team-create',
+            data: { actor: 'alice', teamId: 'variant-fans', name: 'Variant Fans' },
+            date: new Date(Date.now() - 60_000).toISOString(),
+        },
+        {
+            id: 'team-join',
+            type: 'team-join',
+            data: { actor: 'bob', teamId: 'variant-fans', name: 'Variant Fans' },
+            date: new Date(Date.now() - 120_000).toISOString(),
+        },
+    ];
+
+    patch(root, timelineEntriesView(teamEntries));
+
+    expect(document.body.textContent).toContain('alice created team Variant Fans');
+    expect(document.body.textContent).toContain('bob joined team Variant Fans');
+    expect(document.querySelectorAll('a[href="/team/variant-fans"]')).toHaveLength(2);
+    expect(document.querySelectorAll('.timeline-team-icon')).toHaveLength(2);
+});
+

@@ -29,6 +29,8 @@ TIMELINE_EVENT_TYPES = frozenset(
         "ublog-post-like",
         "simul-create",
         "simul-join",
+        "team-create",
+        "team-join",
         "tournament-join",
     }
 )
@@ -75,10 +77,15 @@ class Timeline:
         if before is not None:
             date_filter["$lt"] = before
 
-        cursor = self.app_state.db.timeline_entry.find(
-            {"users": username, "date": date_filter},
-            projection={"users": 0},
-        )
+        query: dict[str, object] = {"users": username, "date": date_filter}
+        readable_team_ids = await self._readable_team_forum_ids(username, date_filter)
+        if readable_team_ids is not None:
+            query["$or"] = [
+                {"teamId": {"$exists": False}},
+                {"teamId": {"$in": sorted(readable_team_ids)}},
+            ]
+
+        cursor = self.app_state.db.timeline_entry.find(query, projection={"users": 0})
         cursor.sort("date", -1).limit(max(0, min(limit, TIMELINE_PAGE_MAX)))
         docs = await cursor.to_list(length=TIMELINE_PAGE_MAX)
         entries: list[dict[str, object]] = []
@@ -87,6 +94,61 @@ class Timeline:
             if entry is not None:
                 entries.append(entry)
         return entries
+
+    async def _readable_team_forum_ids(
+        self, username: str, date_filter: Mapping[str, datetime]
+    ) -> set[str] | None:
+        """Return current team-forum access for team-scoped timeline entries.
+
+        ``None`` means no team filter is needed (site admin).
+        """
+        if self.app_state.db is None:
+            return set()
+
+        from forum.permissions import is_admin
+        from team import (
+            TEAM_FORUM_ACCESS_EVERYONE,
+            TEAM_FORUM_ACCESS_LEADERS,
+            TEAM_FORUM_ACCESS_MEMBERS,
+        )
+
+        if is_admin(username):
+            return None
+
+        team_ids = await self.app_state.db.timeline_entry.distinct(
+            "teamId", {"users": username, "date": dict(date_filter)}
+        )
+        team_ids = [team_id for team_id in team_ids if isinstance(team_id, str) and team_id]
+        if not team_ids:
+            return set()
+
+        teams = await self.app_state.db.team.find(
+            {"_id": {"$in": team_ids}, "enabled": True},
+            projection={"_id": 1, "forumAccess": 1},
+        ).to_list(length=len(team_ids))
+        memberships = await self.app_state.db.team_member.find(
+            {"team": {"$in": team_ids}, "user": username},
+            projection={"_id": 0, "team": 1, "permissions": 1},
+        ).to_list(length=len(team_ids))
+        members = {str(member["team"]): member for member in memberships}
+
+        readable: set[str] = set()
+        for team in teams:
+            team_id = str(team.get("_id") or "")
+            access = str(team.get("forumAccess") or "none")
+            member = members.get(team_id)
+            if (
+                access == TEAM_FORUM_ACCESS_EVERYONE
+                or access == TEAM_FORUM_ACCESS_MEMBERS
+                and member is not None
+                or (
+                    access == TEAM_FORUM_ACCESS_LEADERS
+                    and member is not None
+                    and member.get("permissions")
+                )
+            ):
+                readable.add(team_id)
+        return readable
 
     async def _followers_of(self, username: str) -> set[str]:
         if self.app_state.db is None:
@@ -190,6 +252,47 @@ class Timeline:
         }
         recipients.difference_update(unsubscribed_users)
 
+    async def _filter_team_forum_access(self, team_id: str | None, recipients: set[str]) -> None:
+        if self.app_state.db is None or not team_id or not recipients:
+            return
+
+        from forum.permissions import is_admin
+        from team import (
+            TEAM_FORUM_ACCESS_EVERYONE,
+            TEAM_FORUM_ACCESS_LEADERS,
+            TEAM_FORUM_ACCESS_MEMBERS,
+            TEAM_FORUM_ACCESS_NONE,
+            get_team,
+        )
+
+        team = await get_team(self.app_state, team_id)
+        admins = {username for username in recipients if is_admin(username)}
+        if team is None:
+            recipients.intersection_update(admins)
+            return
+
+        access = str(team.get("forumAccess") or TEAM_FORUM_ACCESS_NONE)
+        if access == TEAM_FORUM_ACCESS_EVERYONE:
+            return
+        if access == TEAM_FORUM_ACCESS_NONE:
+            recipients.intersection_update(admins)
+            return
+
+        memberships = await self.app_state.db.team_member.find(
+            {"team": team_id, "user": {"$in": list(recipients)}},
+            projection={"_id": 0, "user": 1, "permissions": 1},
+        ).to_list(length=len(recipients))
+        if access == TEAM_FORUM_ACCESS_MEMBERS:
+            allowed = {str(member.get("user") or "") for member in memberships}
+        elif access == TEAM_FORUM_ACCESS_LEADERS:
+            allowed = {
+                str(member.get("user") or "") for member in memberships if member.get("permissions")
+            }
+        else:
+            allowed = set()
+        allowed.update(admins)
+        recipients.intersection_update(allowed)
+
     async def publish(
         self,
         event_type: str,
@@ -200,6 +303,7 @@ class Timeline:
         channel: str | None = None,
         extra_users: Iterable[str] = (),
         exclude_users: Iterable[str] = (),
+        team_id: str | None = None,
     ) -> None:
         if (
             self.app_state.db is None
@@ -221,6 +325,7 @@ class Timeline:
             recipients.difference_update(str(username) for username in exclude_users)
             recipients.difference_update(await self._blocked_by(actor.username))
             recipients.discard(actor.username)
+            await self._filter_team_forum_access(team_id, recipients)
             await self._filter_channel_unsubscribed(channel, recipients)
             if not recipients:
                 return
@@ -235,6 +340,8 @@ class Timeline:
             }
             if channel:
                 entry["channel"] = channel
+            if team_id:
+                entry["teamId"] = team_id
             await self.app_state.db.timeline_entry.insert_one(entry)
 
             sockets = [

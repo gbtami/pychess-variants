@@ -1,0 +1,45 @@
+{% extends "team-base.html" %}
+{% block content %}
+<div id="main-wrap">
+    <main class="team-requests-page teams-page page-menu">
+        {% set team_menu_active = 'requests' %}
+        {% include "team-menu.html" %}
+        <div class="page-menu__content box box-pad">
+            <h1 class="box__top">{{ team_requests|length }} join request{% if team_requests|length != 1 %}s{% endif %}</h1>
+
+            {% if team_requests %}
+            <table class="team-requests team-requests--global slist requests datatable">
+                <tbody>
+                    {% for req in team_requests %}
+                    {% set req_team = team_request_teams.get(req['team']) %}
+                    <tr>
+                        <td class="team-request-user">
+                            <a class="user-link" href="/@/{{ req['user'] }}">{{ req['user'] }}</a>
+                            <span class="team-request-team-separator">•</span>
+                            <a class="team-request-team" href="/team/{{ req['team'] }}">{{ req_team['name'] if req_team else req['team'] }}</a>
+                        </td>
+                        <td class="team-request-message">{{ req.get('message', '') }}</td>
+                        <td class="team-request-date"><info-date timestamp="{{ req['createdAt'].isoformat() if req.get('createdAt') else '' }}"></info-date></td>
+                        <td class="process">
+                            <div class="team-request-actions">
+                                <form method="post" action="/team/{{ req['team'] }}/request/{{ req['user'] }}/decline">
+                                    <input type="hidden" name="redirect" value="/team/requests">
+                                    <button class="button button-empty red team-request-action team-request-action--decline" type="submit">Decline</button>
+                                </form>
+                                <form method="post" action="/team/{{ req['team'] }}/request/{{ req['user'] }}/accept">
+                                    <input type="hidden" name="redirect" value="/team/requests">
+                                    <button class="button team-request-action team-request-action--accept" type="submit">Accept</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="team-empty team-requests__empty">No pending join requests.</p>
+            {% endif %}
+        </div>
+    </main>
+</div>
+{% endblock %}

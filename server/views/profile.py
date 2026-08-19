@@ -7,6 +7,7 @@ from custom_trophy_owners import CUSTOM_TROPHY_OWNERS
 from glicko2.glicko2 import PROVISIONAL_PHI
 from pychess_global_app_state_utils import get_app_state
 from settings import ADMINS
+from team import profile_teams_for_user
 from typedefs import REQUEST_PROFILE_RESTRICTED_KEY
 from typing_defs import ViewContext
 from ublog import display_date, image_src, post_url, summary_from_markdown
@@ -185,9 +186,12 @@ async def profile(request: web.Request) -> ViewContext:
     context["lishogi_id"] = (
         profile_user.oauth_id if profile_user.oauth_provider == "lishogi" else ""
     )
+    context["profile_teams"] = []
     context["ublog_posts"] = []
     context["ublog_post_count"] = 0
     if app_state.db is not None and not profile_restricted:
+        if not user.anon:
+            context["profile_teams"] = await profile_teams_for_user(app_state, profileId)
         context["ublog_post_count"] = await app_state.db.ublog_post.count_documents(
             {"author": profileId, "live": True}
         )

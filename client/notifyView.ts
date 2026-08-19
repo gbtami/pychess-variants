@@ -17,6 +17,9 @@ interface Message {
         topic?: string;
         slug?: string;
         categ?: string;
+        team?: string;
+        name?: string;
+        text?: string;
         date?: string;
         win?: boolean | null;
         san?: string;
@@ -146,6 +149,21 @@ function messageView(message: Message) {
                             'span',
                             `${_('Your scheduled pairing with')} ${content.opp} ${_('is coming up at')} ${content.date ? new Date(content.date).toLocaleString() : ''}.`,
                         ),
+                    ]),
+                ],
+            );
+        case 'teamUpdate':
+            return h(
+                `a.notification.corr${read}`,
+                { attrs: { href: `/team/${encodeURIComponent(content.team || '')}/updates` } },
+                [
+                    h('div.icon.icon-bullhorn'),
+                    h('span.content', [
+                        h('span', [
+                            h('strong', content.name || _('Team update')),
+                            h('info.date', { attrs: { timestamp: message.createdAt } }, timeago(message.createdAt)),
+                        ]),
+                        h('span', content.text || _('New team update')),
                     ]),
                 ],
             );

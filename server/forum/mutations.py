@@ -8,6 +8,12 @@ from newid import new_id
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
 
+from forum.access import (
+    can_moderate_forum_categ,
+    can_read_forum_categ,
+    can_write_forum_categ,
+    team_id_from_forum_categ,
+)
 from forum.captcha import forum_captcha_is_valid
 from forum.constants import (
     EDIT_WINDOW_HOURS,
@@ -20,8 +26,9 @@ from forum.constants import (
     REACTION_TO_KEY,
     SLUG_RE,
 )
-from forum.permissions import can_moderate, can_write
+from forum.permissions import can_moderate
 from forum.storage import (
+    forum_categ_by_id,
     notify_mentions,
     recompute_categ_summary,
     recompute_topic_summary,
@@ -50,12 +57,11 @@ async def forum_topic_create(request: web.Request) -> web.Response:
         return json_response({"type": "error", "message": "Invalid category"})
 
     me = await app_state.users.get(username)
-    if not can_write(me):
-        return json_response({"type": "error", "message": "You cannot post yet"})
-
-    categ = await app_state.db.forum_categ.find_one({"_id": categ_id})
+    categ = await forum_categ_by_id(app_state, categ_id)
     if categ is None:
         return json_response({"type": "error", "message": "Category not found"})
+    if not await can_write_forum_categ(app_state, categ, me):
+        return json_response({"type": "error", "message": "You cannot post in this forum"})
 
     data = await read_post_data(request)
     if data is None:
@@ -140,6 +146,7 @@ async def forum_topic_create(request: web.Request) -> web.Response:
             "postId": post_id,
         },
         channel=f"forum:{topic_id}",
+        team_id=team_id_from_forum_categ(categ),
     )
 
     return json_response({"ok": True, "topic": topic_doc, "redirect": f"/forum/{categ_id}/{slug}"})
@@ -158,8 +165,11 @@ async def forum_post_create(request: web.Request) -> web.Response:
         return json_response({"type": "error", "message": "Invalid topic"})
 
     me = await app_state.users.get(username)
-    if not can_write(me):
-        return json_response({"type": "error", "message": "You cannot post yet"})
+    categ = await forum_categ_by_id(app_state, categ_id)
+    if categ is None:
+        return json_response({"type": "error", "message": "Category not found"})
+    if not await can_write_forum_categ(app_state, categ, me):
+        return json_response({"type": "error", "message": "You cannot post in this forum"})
 
     topic = await topic_by_tree(app_state, categ_id, slug)
     if topic is None:
@@ -232,6 +242,7 @@ async def forum_post_create(request: web.Request) -> web.Response:
                 "postId": post_id,
             },
             channel=f"forum:{topic['_id']}",
+            team_id=team_id_from_forum_categ(categ),
         )
     topic_nb_posts = int((topic_doc or {}).get("nbPosts", 1))
     page = page_count(topic_nb_posts, FORUM_POST_PER_PAGE)
@@ -257,9 +268,12 @@ async def forum_post_edit(request: web.Request) -> web.Response:
     if post is None:
         return json_response({"type": "error", "message": "Post not found"})
 
+    categ = await forum_categ_by_id(app_state, str(post.get("categId") or ""))
     me = await app_state.users.get(username)
+    if categ is None or not await can_read_forum_categ(app_state, categ, username):
+        return json_response({"type": "error", "message": "Not allowed"})
     is_owner = post.get("user") == username
-    is_mod = can_moderate(me)
+    is_mod = await can_moderate_forum_categ(app_state, categ, me)
     if not is_owner and not is_mod:
         return json_response({"type": "error", "message": "Not allowed"})
 
@@ -303,9 +317,13 @@ async def forum_post_delete(request: web.Request) -> web.Response:
     if post is None:
         return json_response({"type": "error", "message": "Post not found"})
 
+    categ = await forum_categ_by_id(app_state, str(post.get("categId") or ""))
     me = await app_state.users.get(username)
+    if categ is None or not await can_read_forum_categ(app_state, categ, username):
+        return json_response({"type": "error", "message": "Not allowed"})
     is_owner = post.get("user") == username
-    if not (can_moderate(me) or is_owner):
+    is_mod = await can_moderate_forum_categ(app_state, categ, me)
+    if not (is_mod or is_owner):
         return json_response({"type": "error", "message": "Not allowed"})
 
     topic = await app_state.db.forum_topic.find_one({"_id": post.get("topicId")})
@@ -364,12 +382,14 @@ async def forum_topic_close(request: web.Request) -> web.Response:
     if username is None or app_state.db is None:
         return json_response({"type": "error", "message": "Login required"})
 
+    categ = await forum_categ_by_id(app_state, categ_id)
+    me = await app_state.users.get(username)
+    if categ is None or not await can_read_forum_categ(app_state, categ, username):
+        return json_response({"type": "error", "message": "Not allowed"})
     topic = await topic_by_tree(app_state, categ_id, slug)
     if topic is None:
         return json_response({"type": "error", "message": "Topic not found"})
-
-    me = await app_state.users.get(username)
-    if not (can_moderate(me) or topic.get("user") == username):
+    if not (await can_moderate_forum_categ(app_state, categ, me) or topic.get("user") == username):
         return json_response({"type": "error", "message": "Not allowed"})
 
     next_closed = not bool(topic.get("closed", False))
@@ -389,8 +409,13 @@ async def forum_topic_sticky(request: web.Request) -> web.Response:
     if username is None or app_state.db is None:
         return json_response({"type": "error", "message": "Login required"})
 
+    categ = await forum_categ_by_id(app_state, categ_id)
     me = await app_state.users.get(username)
-    if not can_moderate(me):
+    if (
+        categ is None
+        or not await can_read_forum_categ(app_state, categ, username)
+        or not await can_moderate_forum_categ(app_state, categ, me)
+    ):
         return json_response({"type": "error", "message": "Not allowed"})
 
     topic = await topic_by_tree(app_state, categ_id, slug)
@@ -422,7 +447,8 @@ async def forum_post_react(request: web.Request) -> web.Response:
         return json_response({"type": "error", "message": "Invalid reaction"})
 
     me = await app_state.users.get(username)
-    if not can_write(me):
+    categ = await forum_categ_by_id(app_state, categ_id)
+    if categ is None or not await can_write_forum_categ(app_state, categ, me):
         return json_response({"type": "error", "message": "Not allowed"})
 
     post = await app_state.db.forum_post.find_one({"_id": post_id, "categId": categ_id})
@@ -470,6 +496,9 @@ async def forum_post_relocate(request: web.Request) -> web.Response:
     topic = await app_state.db.forum_topic.find_one({"_id": post.get("topicId")})
     if topic is None:
         return json_response({"type": "error", "message": "Topic not found"})
+    source_categ = await forum_categ_by_id(app_state, str(topic.get("categId") or ""))
+    if source_categ is None or team_id_from_forum_categ(source_categ) is not None:
+        return json_response({"type": "error", "message": "Team forum topics cannot be relocated"})
 
     first_post = await app_state.db.forum_post.find_one(
         {"topicId": topic["_id"]},
@@ -489,9 +518,11 @@ async def forum_post_relocate(request: web.Request) -> web.Response:
         return json_response({"type": "error", "message": "Invalid target category"})
     if to_categ == topic.get("categId"):
         return json_response({"type": "error", "message": "Already in that category"})
-    target = await app_state.db.forum_categ.find_one({"_id": to_categ})
+    target = await forum_categ_by_id(app_state, to_categ)
     if target is None:
         return json_response({"type": "error", "message": "Target category not found"})
+    if team_id_from_forum_categ(target) is not None:
+        return json_response({"type": "error", "message": "Team forum topics cannot be relocated"})
 
     new_slug = str(topic.get("slug") or "")
     if await topic_by_tree(app_state, to_categ, new_slug) is not None:

@@ -20,6 +20,7 @@ interface ForumCategory {
     _id: string;
     name: string;
     desc: string;
+    teamId?: string;
     nbTopics: number;
     nbPosts: number;
     lastPostAt?: string | null;
@@ -1173,9 +1174,16 @@ export function forumView(model: PyChessModel) {
             );
         }
 
+        const backHref = categData?.teamId
+            ? `/team/${encodeURIComponent(categData.teamId)}`
+            : '/forum';
         return h('main.forum.forum-categ.box', [
             h('div.box__top', [
-                h('h1', [h('a.text', { attrs: { href: '/forum' } }, '‹'), ` ${categData?.name || _('Forum')}`]),
+                h('h1', [
+                    h('a.text', { attrs: { href: backHref } }, '‹'),
+                    ...(categData?.teamId ? [h('span.team-icon.forum-team-icon', { attrs: { 'aria-hidden': 'true' } })] : []),
+                    h('span.forum-categ__title', categData?.name || _('Forum')),
+                ]),
                 h('div.box__top__actions', actions),
             ]),
             h('table.topics.slist.slist-pad', [

@@ -1,0 +1,36 @@
+{% extends "team-base.html" %}
+{% block content %}
+<div id="main-wrap">
+    <main class="team-form-page team-join-page page-menu page-small">
+        {% set team_menu_active = '' %}
+        {% include "team-menu.html" %}
+        <div class="page-menu__content box box-pad">
+            <h1 class="box__top">Join team <a href="/team/{{ team['_id'] }}">{{ team['name'] }}</a></h1>
+
+            <section class="team-show__desc">{{ team.get('description', '') }}</section>
+
+            <form method="post" action="/team/{{ team['_id'] }}/join" class="team-form form3 team-join-form">
+                {% if team.get('requestRequired') %}
+                <div class="form-group">
+                    <label class="form-label" for="team-join-message">Message</label>
+                    <textarea class="form-control" id="team-join-message" name="message" required minlength="{{ team_request_min_length }}" maxlength="{{ team_request_max_length }}" rows="6" autofocus></textarea>
+                    <small class="form-help">Tell the team leaders why you want to join. Your request will be reviewed before you become a member.</small>
+                </div>
+                {% endif %}
+
+                {% if team.get('entryCodeHash') %}
+                <div class="form-group">
+                    <label class="form-label" for="team-join-entry-code">Entry code</label>
+                    <input class="form-control" id="team-join-entry-code" type="password" name="entryCode" required maxlength="60" autocomplete="new-password"{% if not team.get('requestRequired') %} autofocus{% endif %}>
+                </div>
+                {% endif %}
+
+                <div class="form-actions">
+                    <a href="/team/{{ team['_id'] }}">Cancel</a>
+                    <button class="button" type="submit">Join team</button>
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
+{% endblock %}

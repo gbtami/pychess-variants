@@ -50,6 +50,7 @@ class UserDocument(TypedDict, total=False):
     tournamentGameEffectIds: list[str]
     lastArenaCreatedAt: datetime
     arenaCreationHistory: list[ArenaCreationHistoryEntry]
+    fixedRoundCreationHistory: list[ArenaCreationHistoryEntry]
     perfs: PerfMap
     pperfs: PerfMap
     lang: str
@@ -413,6 +414,10 @@ class NotificationContent(TypedDict, total=False):
     topic: str
     slug: str
     categ: str
+    team: str
+    name: str
+    text: str
+    sender: str
     date: str
     win: bool | None
 
@@ -443,6 +448,9 @@ class ViewContext(TypedDict, total=False):
     favorite_variants: Mapping[str, object]
     community_variants_for_tournaments: Mapping[str, object]
     community_arena_max_creations_per_24h: int
+    fixed_round_max_creations_per_24h: int
+    tournament_teams: Sequence[Mapping[str, object]]
+    selected_tournament_team_id: str
     pm_friends_only: bool
     corr_push_enabled: bool
     menu_variant: str
@@ -465,6 +473,10 @@ class ViewContext(TypedDict, total=False):
     admin_operations_fishnet: Sequence[Mapping[str, object]]
     admin_operations_variants: Sequence[Mapping[str, str]]
     admin_operations_history: Sequence[Mapping[str, object]]
+    admin_team_query: str
+    admin_team_status: str
+    admin_teams: Sequence[Mapping[str, object]]
+    admin_team_history: Sequence[Mapping[str, object]]
     mod_report_score: int
     vapid_public_key: str
     allusers: Sequence[User]
@@ -485,6 +497,58 @@ class ViewContext(TypedDict, total=False):
     community_variants: dict[str, object]
     community_prev_href: str
     community_next_href: str
+    teams: Sequence[Mapping[str, object]]
+    my_team_ids: set[str]
+    mine_only: bool
+    team: Mapping[str, object]
+    team_closed: bool
+    team_is_site_admin: bool
+    team_can_close: bool
+    team_can_reopen: bool
+    team_member: Mapping[str, object] | None
+    team_members: Sequence[Mapping[str, object]]
+    team_members_total: int
+    team_members_page: int
+    team_members_prev_href: str | None
+    team_members_next_href: str | None
+    team_leaders: Sequence[Mapping[str, object]]
+    team_requests: Sequence[Mapping[str, object]]
+    team_request_teams: Mapping[str, Mapping[str, object]]
+    team_declined_requests: Sequence[Mapping[str, object]]
+    team_declined_requests_total: int
+    team_declined_requests_page: int
+    team_declined_requests_search: str
+    team_declined_requests_prev_href: str | None
+    team_declined_requests_next_href: str | None
+    team_declined_requests_current_href: str
+    team_pending_request: Mapping[str, object] | None
+    team_declined_request: Mapping[str, object] | None
+    team_request_min_length: int
+    team_request_max_length: int
+    team_can_manage_requests: bool
+    team_can_kick: bool
+    team_can_edit: bool
+    team_can_create_tournament: bool
+    team_can_manage_leaders: bool
+    team_can_send_update: bool
+    team_latest_update: Mapping[str, object] | None
+    team_can_see_forum: bool
+    team_forum_categ_id: str
+    team_forum_topics: Sequence[Mapping[str, object]]
+    team_public_permission: str
+    team_tournaments: Sequence[Mapping[str, object]]
+    team_update_teams: Sequence[Mapping[str, object]]
+    team_updates: Sequence[Mapping[str, object]]
+    updates_team: Mapping[str, object] | None
+    team_updates_subscribed: bool
+    team_update_max_length: int
+    team_update_max_per_7_days: int
+    team_update_quota_remaining: int
+    team_max_joined: int
+    team_max_created_per_7_days: int
+    team_permission_definitions: Sequence[tuple[str, str, str]]
+    team_max_admins: int
+    team_max_leaders: int
     reports: list[object]
     report_status: str
     report_open_count: int
@@ -533,6 +597,7 @@ class ViewContext(TypedDict, total=False):
     new_bot_token: str
     online_users: Sequence[User]
     profile: str | None
+    profile_teams: Sequence[Mapping[str, object]]
     profile_title: str
     profile_restricted: bool
     ublog_posts: list[object]
@@ -610,6 +675,8 @@ class ViewContext(TypedDict, total=False):
     tournamentid: str
     tournamentname: str
     tournamentcreator: str
+    tournamentteamid: str
+    tournamentteamname: str
     description: str
     before_start: int
     minutes: int
@@ -644,6 +711,7 @@ class TournamentCreateData(TypedDict):
     entryTitledOnly: NotRequired[bool]
     forbiddenPairings: NotRequired[str]
     manualPairings: NotRequired[str]
+    teamId: NotRequired[str]
     startDate: NotRequired[datetime | None]
     frequency: NotRequired[str]
     description: NotRequired[str]
@@ -739,6 +807,7 @@ class TournamentDoc(TypedDict):
     entryTitledOnly: NotRequired[bool]
     forbiddenPairings: NotRequired[str]
     manualPairings: NotRequired[str]
+    teamId: NotRequired[str]
     nbPlayers: int
     cr: NotRequired[int]
     pairingInProgressRound: NotRequired[int]
@@ -783,6 +852,7 @@ class TournamentUpdateData(TypedDict, total=False):
     entryTitledOnly: bool
     forbiddenPairings: str
     manualPairings: str
+    teamId: str
     nbPlayers: int
     cr: int
     pairingInProgressRound: int | None

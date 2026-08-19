@@ -226,6 +226,7 @@ from views import (
 from views import (
     simul as simul_view,
 )
+from views import team as team_view
 from wsl import lobby_socket_handler
 from wsr import round_socket_handler
 
@@ -297,6 +298,7 @@ get_routes: tuple[RouteDef, ...] = (
     ("/report/thanks", report_view.report_thanks),
     ("/admin", admin_view.admin),
     ("/admin/users", admin_view.admin_users),
+    ("/admin/teams", admin_view.admin_teams),
     ("/admin/operations", admin_view.admin_operations),
     ("/reports", reports_view.reports),
     ("/mod/public-chat", mod_public_chat_view.mod_public_chat),
@@ -311,6 +313,19 @@ get_routes: tuple[RouteDef, ...] = (
     (r"/invite/{gameId:\w{8}}", invite.invite),
     (r"/invite/{gameId:\w{8}}/{player:player[1-2]}", invite.invite),
     (r"/embed/{gameId:\w{8}}", embed.embed),
+    ("/team", team_view.teams),
+    ("/team/new", team_view.team_new),
+    ("/team/me", team_view.my_teams),
+    ("/team/requests", team_view.team_requests),
+    ("/team/updates", team_view.team_updates),
+    ("/team/{teamId}/updates/new", team_view.team_update_new),
+    ("/team/{teamId}/updates", team_view.team_updates_of),
+    ("/team/{teamId}/edit", team_view.team_edit),
+    ("/team/{teamId}/leaders", team_view.team_leaders),
+    ("/team/{teamId}/members", team_view.team_members),
+    ("/team/{teamId}/declined-requests", team_view.team_declined_requests),
+    ("/team/{teamId}/join", team_view.team_join_form),
+    ("/team/{teamId}", team_view.team_show),
     ("/tournaments", tournaments.tournaments),
     ("/tournaments/new", arena_new.arena_new),
     (r"/tournaments/{tournamentId:\w{8}}/edit", arena_new.arena_new),
@@ -491,6 +506,22 @@ post_routes: tuple[RouteDef, ...] = (
     ("/simul", simul_view.simuls),
     ("/simuls/simul", simul_view.simuls),
     (r"/simul/{simulId:\w{8}}/edit", simul_view.update_simul),
+    ("/team/new", team_view.team_create),
+    ("/team/{teamId}/edit", team_view.team_update),
+    ("/team/{teamId}/leaders/add", team_view.team_leader_add),
+    ("/team/{teamId}/permissions", team_view.team_permissions_update),
+    ("/team/{teamId}/updates", team_view.team_update_send),
+    ("/team/{teamId}/subscribe", team_view.team_update_subscribe),
+    ("/team/{teamId}/join", team_view.team_join),
+    ("/team/{teamId}/cancel-request", team_view.team_cancel_request),
+    ("/team/{teamId}/quit", team_view.team_quit),
+    ("/team/{teamId}/close", team_view.team_close),
+    ("/team/{teamId}/reopen", team_view.team_reopen),
+    (
+        "/team/{teamId}/request/{username}/{decision}",
+        team_view.team_request_process,
+    ),
+    ("/team/{teamId}/kick/{username}", team_view.team_kick),
     ("/tournaments/new", tournaments.tournaments),
     (r"/tournaments/{tournamentId:\w{8}}/edit", tournaments.tournaments),
     ("/blogs/@/{profileId}/create", ublog.create),

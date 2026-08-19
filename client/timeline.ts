@@ -13,6 +13,8 @@ export type TimelineEventType =
     | 'ublog-post-like'
     | 'simul-create'
     | 'simul-join'
+    | 'team-create'
+    | 'team-join'
     | 'tournament-join';
 
 export interface TimelineEntry {
@@ -38,6 +40,18 @@ function parseTimelineEntries(raw: string): TimelineEntry[] {
 function actorLink(entry: TimelineEntry): VNode {
     const actor = entry.data.actor || '';
     return userLink(actor, displayUsername(actor));
+}
+
+function teamLink(entry: TimelineEntry): VNode {
+    const teamId = entry.data.teamId || '';
+    return h(
+        'a.timeline-team-link',
+        { attrs: { href: `/team/${encodeURIComponent(teamId)}` } },
+        [
+            h('span.timeline-team-icon', { attrs: { 'aria-hidden': 'true' } }),
+            entry.data.name || _('Team'),
+        ],
+    );
 }
 
 function activity(entry: TimelineEntry): Array<VNode | string> | null {
@@ -108,6 +122,10 @@ function activity(entry: TimelineEntry): Array<VNode | string> | null {
                     entry.data.name || _('Simultaneous exhibition'),
                 ),
             ];
+        case 'team-create':
+            return [actorLink(entry), ` ${_('created team')} `, teamLink(entry)];
+        case 'team-join':
+            return [actorLink(entry), ` ${_('joined team')} `, teamLink(entry)];
         case 'tournament-join':
             return [
                 actorLink(entry),

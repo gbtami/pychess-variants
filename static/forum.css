@@ -81,6 +81,29 @@ main.forum p {
   background: none;
 }
 
+
+.forum.forum-categ .box__top h1 {
+  display: flex;
+  align-items: center;
+  gap: 0.42em;
+  line-height: 1.12;
+}
+
+.forum .forum-team-icon {
+  flex: 0 0 auto;
+  width: 1.04em;
+  height: 1.04em;
+  background: var(--forum-primary);
+  -webkit-mask: url('/static/images/team.svg') center / contain no-repeat;
+  mask: url('/static/images/team.svg') center / contain no-repeat;
+  position: relative;
+  top: 0.02em;
+}
+
+.forum .forum-categ__title {
+  color: var(--forum-primary);
+}
+
 .forum .slist .subject {
   unicode-bidi: plaintext;
 }

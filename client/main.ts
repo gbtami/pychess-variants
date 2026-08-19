@@ -109,6 +109,8 @@ function initModel(el: HTMLElement) {
         simulId: el.getAttribute('data-simulid') ?? '',
         simulname: el.getAttribute('data-simulname') ?? '',
         tournamentcreator: el.getAttribute('data-tournamentcreator') ?? '',
+        tournamentteamid: el.getAttribute('data-tournamentteamid') ?? '',
+        tournamentteamname: el.getAttribute('data-tournamentteamname') ?? '',
         inviter: el.getAttribute('data-inviter') ?? '',
         botChallengeStatus: el.getAttribute('data-bot-challenge-status') ?? '',
         botChallengeDeclineReason: el.getAttribute('data-bot-challenge-decline-reason') ?? '',
