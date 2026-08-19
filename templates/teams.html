@@ -16,15 +16,14 @@
                     <tr class="team-list-row">
                         <td class="subject">
                             <a class="team-name{% if team['_id'] in my_team_ids %} mine{% endif %}" href="/team/{{ team['_id'] }}">
-                                {{ team['name'] }}
+                                <span class="team-icon" aria-hidden="true"></span>
+                                <span class="team-name__label">{{ team['name'] }}</span>
                                 {% if team['_id'] in my_team_ids %}<em>joined</em>{% endif %}
                             </a>
                             {% if team.get('intro') %}<span class="team-list-intro">{{ team['intro'] }}</span>{% endif %}
                         </td>
                         <td class="info">
                             <p>{{ team.get('memberCount', 0) }} member{% if team.get('memberCount', 0) != 1 %}s{% endif %}</p>
-                            <p>by {{ team['createdBy'] }}</p>
-                            {% if team.get('requestRequired') %}<p>approval required</p>{% endif %}
                         </td>
                     </tr>
                     {% endfor %}

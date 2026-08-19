@@ -96,14 +96,14 @@
     line-height: 1.15;
 }
 
-/* Team list mirrors Lichess's slist: roomy rows, zebra contrast, little chrome. */
+/* Team list mirrors Lichess's slist: compact rows, left-anchored group icon, little chrome. */
 .team-slist {
     width: 100%;
     border-collapse: collapse;
 }
 
 .team-slist td {
-    padding: 1.15rem 2rem;
+    padding: .8rem 2rem;
     vertical-align: middle;
 }
 
@@ -121,19 +121,35 @@
 
 .team-slist .subject {
     min-width: 0;
+    text-align: left;
 }
 
 .team-name {
     display: flex;
     align-items: center;
-    gap: .75rem;
+    gap: .55rem;
     width: fit-content;
     max-width: 100%;
-    color: var(--font-color);
+    color: var(--link-color-blue);
     font-size: 1.5rem;
     font-weight: 500;
     line-height: 1.2;
+    text-align: left;
     text-decoration: none;
+    overflow-wrap: anywhere;
+}
+
+.team-icon {
+    flex: 0 0 auto;
+    width: 1.35em;
+    height: 1.35em;
+    background: currentColor;
+    -webkit-mask: url('/static/images/team.svg') center / contain no-repeat;
+    mask: url('/static/images/team.svg') center / contain no-repeat;
+}
+
+.team-name__label {
+    min-width: 0;
     overflow-wrap: anywhere;
 }
 
@@ -161,9 +177,9 @@
 .team-list-intro {
     display: block;
     max-width: 60ch;
-    margin-top: .35rem;
+    margin-top: .2rem;
     color: var(--team-dim);
-    line-height: 1.4;
+    line-height: 1.3;
     overflow-wrap: anywhere;
 }
 
@@ -1798,7 +1814,10 @@
         padding: 1.2rem 1rem 1rem;
     }
 
-    .team-slist td,
+    .team-slist td {
+        padding: .7rem 1rem;
+    }
+
     .team-members td {
         padding: .85rem 1rem;
     }
