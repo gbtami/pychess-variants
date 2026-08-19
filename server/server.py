@@ -201,9 +201,13 @@ async def init_state(app: Application) -> None:
         await ensure_categs(app_state)
 
     with startup.phase("start logging config refresh"):
-        refresh_task = await logger.start_config_refresh_timer(app[db_key])
-        if refresh_task is not None:
-            app_state.track_background_task(refresh_task)
+        # Test apps use the quiet logger configured by tests/test_logger.py.
+        # Do not immediately replace it with the production DEBUG config from
+        # the mock database, nor start a periodic production-only refresh task.
+        if not is_test_run():
+            refresh_task = await logger.start_config_refresh_timer(app[db_key])
+            if refresh_task is not None:
+                app_state.track_background_task(refresh_task)
 
     with startup.phase("schedule forum captcha refresher"):
         from forum import forum_captcha_refresher

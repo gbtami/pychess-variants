@@ -1,6 +1,7 @@
 import asyncio
 import gc
 from datetime import UTC, datetime, timedelta
+from time import monotonic
 from unittest.mock import AsyncMock, patch
 
 from aiohttp import web
@@ -9,13 +10,11 @@ from fairy.cwda import CWDA_START_FENS
 from glicko2.glicko2 import new_default_perf_map
 from newid import id8
 from pychess_global_app_state import (
-    LOCALHOST_CACHE_KEEP_TIME,
     TOURNAMENT_KEEP_TIME,
     recover_pending_tournament_game_side_effects,
 )
 from pychess_global_app_state_utils import get_app_state
 from rated_start import CHESS_NO_CASTLE_FEN
-from settings import LOCALHOST, URI
 from team import PERMISSION_TOURNAMENTS
 from tournament.arena import ArenaTournament
 from tournament.auto_play_tournament import (
@@ -3179,14 +3178,16 @@ class TournamentPersistenceTestCase(TournamentTestCase):
                 break
         self.assertIsNotNone(game_data)
 
-        app_state.schedule_tournament_cache_removal(loaded)
+        # Simulate an already-expired cache entry instead of waiting for the
+        # real keep interval. Scheduling behavior has focused coverage in
+        # test_cache_cleanup; this test verifies persisted tournaments evict.
+        app_state.tournament_cache_access[tid] = monotonic() - TOURNAMENT_KEEP_TIME - 1
 
         loaded = None
         player_data = None
         game_data = None
 
-        delay = LOCALHOST_CACHE_KEEP_TIME if URI == LOCALHOST else TOURNAMENT_KEEP_TIME
-        await asyncio.sleep(delay + 0.2)
+        await app_state.remove_tournament_from_cache(tid)
         gc.collect()
 
         self.assertNotIn(tid, app_state.tournaments)

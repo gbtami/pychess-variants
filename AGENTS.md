@@ -35,6 +35,7 @@ Use `pychess-testing` after code changes. The required baseline is:
 - Run Python commands through `uv run` unless the project virtualenv is already active.
 - The project runtime and Ruff lint target are Python 3.14, but always run the Ruff formatter with `--target-version py313`. Ruff 0.15+ otherwise removes parentheses from multi-exception `except` clauses under `py314`, producing syntax that Python 3.13-based tooling cannot parse. Parenthesized exception tuples remain fully valid on Python 3.14.
 - Keep existing `from __future__ import annotations` imports that preserve Python 3.13 tooling compatibility for modules with forward-reference annotations. The production/runtime target remains Python 3.14; these imports exist so 3.13-based tooling can import the modules instead of failing while evaluating annotations eagerly.
+- Python tests default application logging to `WARNING` to keep CI output and I/O small. Set `PYCHESS_TEST_LOG_LEVEL=DEBUG` for a run when verbose server logs are needed.
 
 ## Generated Piece CSS
 

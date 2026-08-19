@@ -122,10 +122,14 @@ class ServerMetricsDiagnosticsTestCase(AioHTTPTestCase):
         anon_default = User(app_state, anon=True)
         app_state.users[anon_default.username] = anon_default
 
-        response = await self.client.get(
-            "/metrics?inspect=True",
-            headers={"Authorization": "Bearer test"},
-        )
+        # memory_stats() has focused coverage below. Avoid a real whole-heap
+        # traversal here; this test is about assembling endpoint diagnostics.
+        with patch("server_metrics.memory_stats", return_value=([], [], [], {})) as stats_mock:
+            response = await self.client.get(
+                "/metrics?inspect=True",
+                headers={"Authorization": "Bearer test"},
+            )
+        stats_mock.assert_called_once_with(15, True)
         self.assertEqual(response.status, 200)
         payload = await response.json()
 

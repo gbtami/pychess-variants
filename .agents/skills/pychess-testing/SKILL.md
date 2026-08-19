@@ -43,14 +43,18 @@ Use `server` only for discovery:
 env PYTHONPATH=server uv run python -m unittest discover -s tests
 ```
 
-When a justified full run is noisy, redirect its complete output and inspect the summary:
+Python tests configure application logging at `WARNING` by default to avoid DEBUG-log I/O dominating CI. When diagnosing a failure, opt back into verbose application logs for that run:
+
+```bash
+env PYCHESS_TEST_LOG_LEVEL=DEBUG PYTHONPATH=server:tests uv run python -m unittest tests.some_test_module
+```
+
+For a justified full run, redirect output when you want to preserve the complete warning/error log and inspect the summary separately:
 
 ```bash
 env PYTHONPATH=server uv run python -m unittest discover -s tests > /tmp/unittest_full.log 2>&1
-rg -n "^Ran [0-9]+ tests|^OK$|^FAILED \\(|^ERROR:|^FAIL:" /tmp/unittest_full.log
+rg -n "^Ran [0-9]+ tests|^OK$|^FAILED \(|^ERROR:|^FAIL:" /tmp/unittest_full.log
 ```
-
-Do not rely on `unittest -q` or `-b` for quiet output; application logger initialization remains noisy.
 
 For browser tests:
 
