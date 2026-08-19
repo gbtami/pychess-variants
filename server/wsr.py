@@ -241,6 +241,9 @@ async def process_message(
     elif data["type"] == "byoyomi":
         await handle_byoyomi(user, data, game)
     elif data["type"] == "takeback":
+        if not game.server_variant.two_boards and game.simulId is not None:
+            await ws_send_json(ws, {"type": "error", "message": "Takebacks are disabled in simuls"})
+            return
         await handle_takeback(ws, user, game)
     elif data["type"] == "reject_takeback":
         await handle_reject_takeback(user, game)

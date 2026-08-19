@@ -138,6 +138,8 @@ class Simul:
         return False
 
     def entry_condition_error(self, user: User) -> str | None:
+        if user.anon:
+            return "Anonymous users cannot join simuls."
         if user.bot:
             return "BOT accounts cannot join simuls."
 

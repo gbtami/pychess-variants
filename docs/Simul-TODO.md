@@ -1,0 +1,98 @@
+# Simul roadmap
+
+The simultaneous-exhibition feature is implemented behind `SIMULING = DEV` and has not
+yet been enabled on the production server. This roadmap tracks the production-readiness
+and Lichess-parity work identified in the post-Teams review.
+
+## Already in good shape
+
+- Simuls are always casual and create one normal game per accepted opponent.
+- Create/edit/cancel flows, host color, estimated start time, description, host extra
+  initial time, and host extra time per accepted player are implemented.
+- Minimum/maximum rating, minimum rated games, and account-age entry conditions are
+  enforced server-side.
+- Candidate/accepted-player management, random candidate acceptance, start flow, live
+  mini-boards, results, chat, and host auto-skip between games are implemented.
+- Rematches and adding time are disabled for simul games; the round UI already hides
+  takebacks.
+- `simul-create` and `simul-join` are published to the main timeline.
+- Simul/game/chat state is persisted, started simuls survive server restart, finished
+  games are recovered, and simul games use the sparse `game.sid` index.
+- Two-board variants are intentionally excluded. Public catalogued PyChess variants are
+  supported in addition to site variants.
+
+## Production-readiness hardening
+
+- [x] **Authentication and BOT hosting.** Reject anonymous websocket joins and prevent
+  BOT accounts from hosting simuls, matching Lichess's authenticated non-BOT flow.
+- [x] **Takeback enforcement.** Reject forged server-side takeback requests in simul
+  games as well as hiding the UI control.
+- [ ] **Created-simul lifetime and restart loading.** Avoid treating every historical
+  `T_CREATED` simul as permanently active. Lichess only features recently active hosts;
+  PyChess should define a host-presence/staleness policy and avoid preloading abandoned
+  created simuls on every restart.
+- [ ] **Home-list queries.** Query created, started, and finished simuls independently.
+  The current single newest-N scan can hide a still-created or running simul behind more
+  recent finished records. Add a signed-in user's pending/accepted simuls section similar
+  to Lichess.
+- [ ] **Participant/game cap.** Put an explicit upper bound on accepted opponents before
+  one host can create an excessive number of simultaneous live games. Lichess ties simul
+  admission to its realtime-playing capacity.
+- [ ] **Applicant persistence and explicit withdraw.** Do not silently remove a pending or
+  accepted player merely because their last simul-page websocket disconnects. Lichess
+  keeps applicants registered until they withdraw or the host rejects them. Persist that
+  state across navigation/reconnect and add an explicit Withdraw action.
+- [ ] **Account deletion / GDPR.** Anonymize simul host/player references when an account
+  is erased. Simul chat is already scrubbed; the simul documents themselves are not.
+- [ ] **Moderator controls.** Allow the appropriate site moderators/admins to edit or
+  abort an abusive/stuck simul without impersonating the host. Decide whether the host
+  should also receive local moderation controls for their simul chat.
+- [ ] **Recovery tests and cleanup.** Add coverage for interrupted/partial start, stale
+  created simuls, and host navigation after restart. Remove temporary detailed startup
+  timing once production restart behavior is confirmed.
+
+## High-value Lichess parity
+
+- [ ] **Clock choices and defaults.** Lichess currently defaults to 20+60 and offers
+  initial times from 5 through 180 minutes plus increments up to 180 seconds. PyChess's
+  form currently defaults to 3+0 and exposes only 1-15 minutes / 0-5 seconds despite the
+  server already accepting the wider range.
+- [ ] **Minimum start size.** Require at least two accepted opponents before starting,
+  matching Lichess. PyChess currently allows a one-opponent "simul".
+- [ ] **Team membership condition.** Now that PyChess Teams exist, add an optional
+  team-members-only entry condition comparable to Lichess.
+- [ ] **Multiple variants.** Lichess lets a host offer multiple variants and each
+  applicant chooses one. PyChess currently creates a single-variant simul. This is the
+  largest remaining functional parity item.
+- [ ] **Custom starting position.** Lichess can host a simul from a supplied FEN. Decide
+  how this should interact with PyChess variants and custom/catalogued variants before
+  implementing it.
+- [ ] **Host current-board presence.** Track and expose which game the host is currently
+  viewing so spectators can see the active board, as Lichess does.
+- [ ] **Hosted-simul history.** Add a paginated "simuls hosted by this user" view and
+  profile integration when useful.
+
+## Optional parity / polish
+
+- [ ] Consider Lichess-style featured/featurable simuls for titled or moderator-approved
+  hosts if the public list becomes busy.
+- [ ] Consider a public simul-list API only if clients or bots have a concrete use for it.
+- [ ] Revisit name defaults/limits and title-spoof protection; Lichess pre-fills the
+  host's name and allows up to 40 characters.
+- [ ] Do a final visual/mobile comparison against Lichess after the behavior and data
+  model are settled.
+
+## Intentional PyChess differences
+
+- **No two-board simuls.** Bughouse-style two-board variants do not fit the current simul
+  game/host-navigation model and remain excluded.
+- **Public catalogued variants are supported.** This is a PyChess extension beyond
+  Lichess's built-in variant set and should remain.
+- **Minimum rated games is retained.** PyChess already supports this useful extra entry
+  condition even though current Lichess simul conditions focus on rating, account age,
+  and optional team membership.
+
+## Production switch
+
+Keep `SIMULING = DEV` until the production-readiness items above are resolved and the
+normal Python/TypeScript quality gates have passed on the final branch.

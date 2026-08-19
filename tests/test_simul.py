@@ -9,6 +9,7 @@ from unittest.mock import AsyncMock, patch
 import aiohttp
 import pytest
 import test_logger
+import wsr as round_wss
 from const import ABORTED, CASUAL, MATE, T_CREATED, T_FINISHED, T_STARTED
 from mongomock_motor import AsyncMongoMockClient
 from newid import id8
@@ -478,6 +479,69 @@ class TestGUI:
             await simul_wss.handle_join(app_state, bot_user, ws, {"type": "join", "simulId": "sid"})
 
         assert "BOT accounts cannot join simuls" in ws.send_str.call_args.args[0]
+
+    async def test_anonymous_user_cannot_join_simul(self, aiohttp_server):
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
+        await aiohttp_server(app, host="127.0.0.1")
+        app_state = get_app_state(app)
+        anon_user = User(app_state, anon=True, username="Anon-simul")
+        ws = SimpleNamespace(send_str=AsyncMock())
+        simul = Simul(app_state, "sid", name="Test Simul", created_by="host")
+
+        with patch.object(simul_wss, "get_simul", new=AsyncMock(return_value=simul)):
+            await simul_wss.handle_join(
+                app_state, anon_user, ws, {"type": "join", "simulId": "sid"}
+            )
+
+        assert "Anonymous users cannot join simuls" in ws.send_str.call_args.args[0]
+        assert anon_user.username not in simul.pending_players
+
+    async def test_bot_user_cannot_host_simul(self, aiohttp_server):
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+        server = await aiohttp_server(app, host="127.0.0.1")
+        app_state = get_app_state(app)
+        bot_user = User(app_state, bot=True, username="bot-host")
+        app_state.users[bot_user.username] = bot_user
+        session = await self._session_for_user(bot_user.username)
+
+        try:
+            response = await session.get(f"http://127.0.0.1:{server.port}/simul")
+            assert response.status == 200
+            html = await response.text()
+            assert "HOST A NEW SIMUL" not in html
+            assert 'href="/simul/new"' not in html
+
+            response = await session.get(f"http://127.0.0.1:{server.port}/simul/new")
+            assert response.status == 403
+
+            response = await session.post(f"http://127.0.0.1:{server.port}/simul", data={})
+            assert response.status == 403
+            assert len(app_state.simuls) == 0
+        finally:
+            await session.close()
+
+    async def test_simul_takeback_is_rejected_server_side(self, aiohttp_server):
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
+        await aiohttp_server(app, host="127.0.0.1")
+        app_state = get_app_state(app)
+        user = User(app_state, username="simul-player")
+        ws = SimpleNamespace(send_str=AsyncMock())
+        game = SimpleNamespace(
+            server_variant=SimpleNamespace(two_boards=False),
+            simulId="sid",
+        )
+
+        with patch.object(round_wss, "handle_takeback", new=AsyncMock()) as handle_takeback:
+            await round_wss.process_message(
+                app_state,
+                user,
+                ws,
+                {"type": "takeback", "gameId": "game"},
+                game,
+            )
+
+        handle_takeback.assert_not_awaited()
+        assert "Takebacks are disabled in simuls" in ws.send_str.call_args.args[0]
 
     async def test_simul_host_extra_time_applies_only_to_host(self, aiohttp_server):
         app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
