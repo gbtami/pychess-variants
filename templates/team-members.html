@@ -3,7 +3,11 @@
 <div id="main-wrap">
     <main class="team-members-page page-small box">
         <div class="team-members__top box__top">
-            <h1><a href="/team/{{ team['_id'] }}">{{ team['name'] }}</a> <span>• {{ team_members_total }} member{% if team_members_total != 1 %}s{% endif %}</span></h1>
+            <h1>
+                <span class="team-icon" aria-hidden="true"></span>
+                <a href="/team/{{ team['_id'] }}">{{ team['name'] }}</a>
+                <span>• {{ team_members_total }} member{% if team_members_total != 1 %}s{% endif %}</span>
+            </h1>
         </div>
 
         <table class="team-members slist slist-pad slist-invert">

@@ -961,18 +961,30 @@
 .team-members__top h1 {
     margin: 0;
     padding: 0;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .34em;
     font-size: 1.8rem;
     font-weight: 400;
     line-height: 1.2;
 }
 
+.team-members__top h1 .team-icon {
+    width: 1.12em;
+    height: 1.12em;
+    color: var(--link-color-blue);
+    position: relative;
+    top: .02em;
+}
+
 .team-members__top h1 a {
-    color: inherit;
+    color: var(--link-color-blue);
     text-decoration: none;
 }
 
 .team-members__top h1 a:hover {
-    color: var(--link-color-blue);
+    color: color-mix(in srgb, var(--link-color-blue) 84%, white);
 }
 
 .team-members__top h1 span {

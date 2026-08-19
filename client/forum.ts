@@ -1181,7 +1181,8 @@ export function forumView(model: PyChessModel) {
             h('div.box__top', [
                 h('h1', [
                     h('a.text', { attrs: { href: backHref } }, '‹'),
-                    ` ${categData?.name || _('Forum')}`,
+                    ...(categData?.teamId ? [h('span.team-icon.forum-team-icon', { attrs: { 'aria-hidden': 'true' } })] : []),
+                    h('span.forum-categ__title', categData?.name || _('Forum')),
                 ]),
                 h('div.box__top__actions', actions),
             ]),
