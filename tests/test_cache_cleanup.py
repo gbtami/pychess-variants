@@ -624,8 +624,9 @@ class CacheCleanupTestCase(AioHTTPTestCase):
         self.assertIn((user.username, user), list(app_state.users.items()))
         self.assertEqual(100, app_state.users.cache_access[user.username])
 
-        self.assertIs(user, app_state.users[user.username])
-        self.assertGreater(app_state.users.cache_access[user.username], 100)
+        with patch("users.monotonic", return_value=200):
+            self.assertIs(user, app_state.users[user.username])
+        self.assertEqual(200, app_state.users.cache_access[user.username])
 
     async def test_registered_user_cache_protects_players_in_cached_finished_game(self):
         app_state = get_app_state(self.app)
