@@ -7,9 +7,9 @@
             {% if not tournament_director %}
             <p class="form-help">
                 User-created Arenas, including team Arenas, are limited to {{ community_arena_max_creations_per_24h }} creation{% if community_arena_max_creations_per_24h != 1 %}s{% endif %}
-                every 24 hours, 20–120 minutes duration,
-                and may start only within the next 24 hours. They must leave at least 15 minutes before and after
-                scheduled PyChess system tournaments.
+                every 24 hours and 20–120 minutes duration. Public Community Arenas may start only within the next
+                24 hours and must leave at least 15 minutes before and after scheduled PyChess system tournaments.
+                Team Arenas may be scheduled farther ahead and are not restricted by the public Arena schedule.
                 Team Round-Robin and Swiss tournaments are limited to {{ fixed_round_max_creations_per_24h }} creation{% if fixed_round_max_creations_per_24h != 1 %}s{% endif %}
                 per user every 24 hours.
             </p>
@@ -537,7 +537,7 @@
                         <label class="form-label" for="startDate">Custom start date</label>
                         <input id="startDate" name="startDate" value="{{ t_starts_at }}" class="form-control flatpickr"/>
                         <small class="form-help">In your own local timezone. This overrides the &quot;Time before tournament starts&quot; setting.
-                            {% if not tournament_director %}<br />Community Arenas can start at most 24 hours from now.{% endif %}
+                            {% if not tournament_director %}<br />Public Community Arenas can start at most 24 hours from now. Team tournaments may be scheduled farther ahead.{% endif %}
                         </small>
                     </div>
                     <div id="form3-endDate-wrap" class="form-group form-half"{% if t_system != 1 %} style="display:none"{% endif %}>

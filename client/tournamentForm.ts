@@ -259,7 +259,7 @@ function initializeFlatpickr(): void {
             altInput: true,
             altFormat: 'Y-m-d h:i K',
             minDate,
-            maxDate: new Date(Date.now() + 1000 * 3600 * 24 * 31 * 3),
+            maxDate: new Date(Date.now() + 1000 * 3600 * 24 * 31 * 6),
             monthSelectorType: 'static',
             disableMobile: true,
         });

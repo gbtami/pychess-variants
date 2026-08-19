@@ -671,6 +671,87 @@ class TournamentPersistenceTestCase(TournamentTestCase):
                 creator_is_director=False,
             )
 
+    async def test_team_arena_can_be_scheduled_far_ahead_despite_public_arena_conflicts(self):
+        app_state = get_app_state(self.app)
+        username = f"TeamArenaSchedule{id8()}"
+        team_id = f"team-{id8()}"
+        now = datetime.now(UTC)
+        future_start = now + timedelta(days=2)
+        await app_state.db.user.insert_one({"_id": username})
+        await app_state.db.team.insert_one(
+            {
+                "_id": team_id,
+                "name": "Scheduled Arena Team",
+                "enabled": True,
+                "memberCount": 1,
+                "createdBy": username,
+                "createdAt": now,
+                "updatedAt": now,
+            }
+        )
+        await app_state.db.team_member.insert_one(
+            {
+                "_id": f"{username}@{team_id}",
+                "team": team_id,
+                "user": username,
+                "joinedAt": now,
+                "permissions": [PERMISSION_TOURNAMENTS],
+            }
+        )
+
+        existing = ArenaTournament(
+            app_state,
+            id8(),
+            name="Existing Community Arena",
+            created_by=username,
+            starts_at=now + timedelta(minutes=5),
+            minutes=45,
+            with_clock=False,
+        )
+        protected = ArenaTournament(
+            app_state,
+            id8(),
+            name="Future PyChess Arena",
+            created_by="PyChess",
+            frequency=SHIELD,
+            starts_at=future_start,
+            minutes=90,
+            with_clock=False,
+        )
+        app_state.tournaments[existing.id] = existing
+        app_state.tournaments[protected.id] = protected
+
+        with self.assertRaises(web.HTTPBadRequest):
+            await create_or_update_tournament(
+                app_state,
+                username,
+                self._community_arena_form(
+                    teamId=team_id,
+                    startDate=future_start.isoformat(),
+                    minutes="150",
+                ),
+                creator_is_director=False,
+            )
+
+        before_ids = set(app_state.tournaments)
+        await create_or_update_tournament(
+            app_state,
+            username,
+            self._community_arena_form(
+                teamId=team_id,
+                name="Future Team Arena",
+                startDate=future_start.isoformat(),
+            ),
+            creator_is_director=False,
+        )
+        tournament_id = (set(app_state.tournaments) - before_ids).pop()
+        tournament = app_state.tournaments[tournament_id]
+        self.assertEqual(team_id, tournament.team_id)
+        self.assertEqual(future_start, tournament.starts_at)
+        await tournament.abort()
+        app_state.tournaments.pop(existing.id, None)
+        app_state.tournaments.pop(protected.id, None)
+
     async def test_team_fixed_round_quota_is_shared_and_rolling(self):
         app_state = get_app_state(self.app)
         username = f"TeamFixedQuota{id8()}"

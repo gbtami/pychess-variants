@@ -537,10 +537,11 @@ def _community_arena_start_time(
     return now + timedelta(minutes=wait_minutes)
 
 
-def _validate_community_arena_schedule(
+def _validate_user_arena_schedule(
     app_state: PychessGlobalAppState,
     username: str,
     *,
+    team_id: str,
     tournament: Tournament | None,
     start_date: datetime | None,
     wait_minutes: int,
@@ -550,13 +551,20 @@ def _validate_community_arena_schedule(
     if minutes < COMMUNITY_ARENA_MIN_MINUTES or minutes > COMMUNITY_ARENA_MAX_MINUTES:
         raise web.HTTPBadRequest(
             text=(
-                f"Community Arenas must last between {COMMUNITY_ARENA_MIN_MINUTES} and "
+                f"User-created Arenas must last between {COMMUNITY_ARENA_MIN_MINUTES} and "
                 f"{COMMUNITY_ARENA_MAX_MINUTES} minutes."
             )
         )
 
     if wait_minutes not in COMMUNITY_ARENA_WAIT_MINUTES:
         raise web.HTTPBadRequest(text="Invalid Arena start delay.")
+
+    # Team Arenas keep the normal Arena validity and daily creation limits, but they are
+    # intentionally exempt from public Community Arena scheduling protections. Team leaders
+    # need to be able to announce events days or weeks in advance without blocking themselves
+    # from creating another Arena or having to avoid the site-wide system tournament schedule.
+    if team_id:
+        return
 
     proposed_start = _community_arena_start_time(
         tournament=tournament,
@@ -969,9 +977,10 @@ async def create_or_update_tournament(
         ):
             raise web.HTTPForbidden(text="This tournament cannot be edited by its creator.")
         if system == ARENA:
-            _validate_community_arena_schedule(
+            _validate_user_arena_schedule(
                 app_state,
                 username,
+                team_id=team_id,
                 tournament=tournament,
                 start_date=start_date,
                 wait_minutes=wait_minutes,
