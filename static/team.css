@@ -418,6 +418,29 @@
     margin-bottom: 2.2rem;
 }
 
+.team-show__requests h2,
+.team-show__requests table {
+    margin: 0;
+}
+
+.team-show__requests h2 {
+    margin-bottom: .75rem;
+}
+
+.team-show__requests .team-requests td {
+    padding: .55rem .7rem;
+}
+
+.team-show__requests .team-request-user {
+    font-size: 1rem;
+}
+
+.team-show__requests .team-request-action.button {
+    min-width: 0;
+    padding: .38rem .58rem;
+    font-size: .8rem;
+}
+
 .team-show__list-wrapper {
     overflow: hidden;
     border: 1px solid var(--team-border);
@@ -467,11 +490,13 @@
 }
 
 .team-request-team {
-    color: var(--link-hover);
+    color: var(--team-dim);
+    font-size: .9rem;
     text-decoration: none;
 }
 
 .team-request-team:hover {
+    color: var(--link-hover);
     text-decoration: underline;
 }
 
@@ -536,11 +561,19 @@
     border-radius: 0 4px 4px 0;
 }
 
+.team-declined-request-search .button.icon-search {
+    width: 3rem;
+    min-width: 3rem;
+    padding-inline: 0;
+    font-size: 1rem;
+}
+
 .team-declined-requests__pagination {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
+    min-height: 3.25rem;
     margin-top: 1.8rem;
     padding-top: 1.2rem;
     border-top: 1px solid var(--team-border);
@@ -548,12 +581,17 @@
 }
 
 /* Recent members follows Lichess's compact userlist on the team page. */
+.team-show__members .recent-members h2 {
+    margin-bottom: .65rem;
+}
+
 .team-show__members .recent-members h2 a {
     text-decoration: none;
 }
 
 .team-show__members .userlist {
     display: grid;
+    gap: 0;
 }
 
 .team-member-row.paginated {
@@ -561,7 +599,15 @@
     align-items: center;
     gap: .5rem;
     min-width: 0;
-    padding: .32rem .15rem;
+    min-height: 2rem;
+    padding: .3rem .2rem;
+    border-radius: 3px;
+    transition: background-color .12s ease;
+}
+
+.team-member-row.paginated:hover,
+.team-member-row.paginated:focus-within {
+    background: var(--team-hover);
 }
 
 .team-member-row .user-link {
@@ -608,7 +654,8 @@
 
 .team-requests .team-request-message {
     width: 100%;
-    color: var(--team-dim);
+    color: var(--font-color);
+    font-size: .95rem;
     line-height: 1.4;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
@@ -619,6 +666,7 @@
     color: var(--team-dim);
     white-space: nowrap;
     font-size: .84rem;
+    font-variant-numeric: tabular-nums;
 }
 
 .team-requests .process {
@@ -667,13 +715,15 @@
 .team-member-badge {
     display: inline-block;
     flex: 0 0 auto;
-    padding: .1rem .45rem;
-    border: 1px solid color-mix(in srgb, var(--link-hover) 28%, var(--team-border));
+    padding: .05rem .35rem;
+    border: 1px solid color-mix(in srgb, var(--link-hover) 22%, var(--team-border));
     border-radius: 999px;
-    background: color-mix(in srgb, var(--link-hover) 8%, var(--bg-color0));
+    background: transparent;
     color: var(--link-hover);
-    font-size: .72rem;
+    font-size: .66rem;
     font-weight: 600;
+    letter-spacing: .015em;
+    text-transform: uppercase;
 }
 
 .team-muted {
@@ -692,6 +742,23 @@
 .team-link-button:hover {
     color: var(--link-hover);
     text-decoration: underline;
+}
+
+.team-member-row .team-link-button {
+    color: var(--bad, #b33);
+    font-size: .8rem;
+    opacity: 0;
+    transition: opacity .12s ease, color .12s ease;
+}
+
+.team-member-row:hover .team-link-button,
+.team-member-row:focus-within .team-link-button {
+    opacity: .75;
+}
+
+.team-member-row .team-link-button:hover {
+    color: var(--bad, #b33);
+    opacity: 1;
 }
 
 .team-tournament-row {
@@ -853,19 +920,20 @@
 
 /* Dedicated members page follows Lichess's page-small + team-members slist. */
 .team-members-page {
-    width: min(760px, calc(100vw - 2rem));
+    width: min(880px, calc(100vw - 2rem));
     overflow: hidden;
 }
 
 .team-members__top {
-    padding: 1.7rem 2rem 1.2rem;
+    padding: 1.8rem 2rem 1.25rem;
 }
 
 .team-members__top h1 {
     margin: 0;
     padding: 0;
-    font-size: 1.6rem;
+    font-size: 1.8rem;
     font-weight: 400;
+    line-height: 1.2;
 }
 
 .team-members__top h1 a {
@@ -878,7 +946,8 @@
 }
 
 .team-members__top h1 span {
-    opacity: .72;
+    color: var(--team-dim);
+    font-size: .86em;
 }
 
 .team-members {
@@ -887,7 +956,13 @@
 }
 
 .team-members td {
-    padding: 1rem 2rem;
+    padding: 1.15rem 2rem;
+    border-top: 0;
+}
+
+.team-members .user-link {
+    font-size: 1.05rem;
+    font-weight: 500;
 }
 
 .team-members tr:first-child td {
@@ -907,7 +982,8 @@
     white-space: nowrap;
     text-align: right;
     color: var(--team-dim);
-    font-size: .9rem;
+    font-size: .85rem;
+    font-variant-numeric: tabular-nums;
 }
 
 .team-members__pagination {
@@ -915,8 +991,42 @@
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
+    min-height: 3.25rem;
     padding: 1rem 2rem;
     border-top: 1px solid var(--team-border);
+}
+
+.team-page-nav.button.button-empty {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .45rem .65rem;
+    color: var(--team-dim);
+    box-shadow: none;
+}
+
+.team-page-nav.button.button-empty:hover {
+    background: var(--team-hover);
+    color: var(--link-hover);
+}
+
+.team-page-nav::before {
+    margin-inline-end: .25rem;
+    font-size: .8em;
+}
+
+.team-page-nav--next {
+    flex-direction: row-reverse;
+}
+
+.team-page-nav--next::before {
+    margin-inline: .25rem 0;
+}
+
+.team-page-number {
+    color: var(--team-dim);
+    font-size: .86rem;
+    font-variant-numeric: tabular-nums;
 }
 
 /* Team create/edit/admin pages mirror Lichess's page-small + form3 layout. */
@@ -1642,6 +1752,10 @@
         display: none;
     }
 
+    .team-member-row .team-link-button {
+        opacity: .75;
+    }
+
     .team-requests td {
         display: block;
         width: auto !important;
@@ -1689,6 +1803,14 @@
     .team-members__top,
     .team-members__pagination {
         padding-inline: 1rem;
+    }
+
+    .team-members-page {
+        width: min(100%, calc(100vw - 1rem));
+    }
+
+    .team-page-nav.button.button-empty {
+        padding-inline: .4rem;
     }
 
     .team-slist .info {

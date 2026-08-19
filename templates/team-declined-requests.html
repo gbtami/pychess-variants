@@ -9,7 +9,7 @@
                 <h1><a href="/team/{{ team['_id'] }}">{{ team['name'] }}</a> <span>• Declined requests</span></h1>
                 <form class="team-declined-request-search" method="get" action="/team/{{ team['_id'] }}/declined-requests">
                     <input type="search" name="search" value="{{ team_declined_requests_search }}" placeholder="Search user" autocomplete="off">
-                    <button class="button" type="submit">Search</button>
+                    <button class="button icon-search" type="submit" aria-label="Search"></button>
                 </form>
             </div>
 
@@ -36,9 +36,9 @@
 
             {% if team_declined_requests_prev_href or team_declined_requests_next_href %}
             <nav class="team-declined-requests__pagination" aria-label="Pagination">
-                {% if team_declined_requests_prev_href %}<a class="button button-empty" href="{{ team_declined_requests_prev_href }}">← Previous</a>{% else %}<span></span>{% endif %}
-                <span>Page {{ team_declined_requests_page }}</span>
-                {% if team_declined_requests_next_href %}<a class="button button-empty" href="{{ team_declined_requests_next_href }}">Next →</a>{% endif %}
+                {% if team_declined_requests_prev_href %}<a class="button button-empty team-page-nav icon-left" href="{{ team_declined_requests_prev_href }}">Previous</a>{% else %}<span></span>{% endif %}
+                <span class="team-page-number">Page {{ team_declined_requests_page }}</span>
+                {% if team_declined_requests_next_href %}<a class="button button-empty team-page-nav team-page-nav--next icon-right" href="{{ team_declined_requests_next_href }}">Next</a>{% endif %}
             </nav>
             {% endif %}
         </div>
