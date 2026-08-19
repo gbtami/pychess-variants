@@ -52,6 +52,8 @@ dev = [
 
 [tool.ruff]
 line-length = 100
+# Keep linting on the real runtime target. Formatting is intentionally invoked with
+# `--target-version py313` to preserve 3.13-parseable parenthesized multi-exception clauses.
 target-version = "py314"
 
 [tool.ruff.lint]

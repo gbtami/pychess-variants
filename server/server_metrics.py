@@ -153,7 +153,7 @@ def _proc_status_memory_kib() -> dict[str, int]:
                 if not separator or name not in wanted:
                     continue
                 values[name] = int(raw_value.split()[0])
-    except OSError, ValueError, IndexError:
+    except (OSError, ValueError, IndexError):
         pass
     return values
 

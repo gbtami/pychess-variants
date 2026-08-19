@@ -35,7 +35,7 @@ jobs:
         ruff check server tests
     - name: Format check with ruff
       run: |
-        ruff format --check server tests
+        ruff format --check --target-version py313 server tests
     - name: Typecheck with pyright
       run: |
         pyright

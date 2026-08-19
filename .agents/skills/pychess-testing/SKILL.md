@@ -13,7 +13,7 @@ Work from the repository root. Match verification effort to the files and behavi
 2. Run targeted tests by default. Find the closest existing test module, class, or case before considering broad discovery.
 3. Use the following gates:
    - TypeScript, CSS, or static UI only: run `yarn typecheck` and `yarn test`. Skip Python gates.
-   - Python or server code: run `uv run ruff format .`, `uv run ruff check .`, and `uv run pyright`, plus targeted Python tests.
+   - Python or server code: run `uv run ruff format --target-version py313 .`, `uv run ruff check .`, and `uv run pyright`, plus targeted Python tests.
    - Mixed frontend and server changes: run both sets.
    - Browser workflows or rendered behavior: add the relevant Playwright or manual browser verification.
 4. Run the full Python suite only for broad or cross-cutting changes, when targeted coverage cannot provide enough confidence, or when the user explicitly requests it.
@@ -21,10 +21,11 @@ Work from the repository root. Match verification effort to the files and behavi
 
 ## Commands
 
-Run Python tooling through the project environment:
+Run Python tooling through the project environment. The project runtime and Ruff lint target stay at Python 3.14, but the formatter must use `--target-version py313`. Ruff 0.15+ removes parentheses from multi-exception `except` clauses when formatting as `py314`; using `py313` formatting preserves the parenthesized form, which is valid on Python 3.14 and remains parseable by Python 3.13-based tooling.
+Keep existing `from __future__ import annotations` imports in modules that need forward-reference compatibility with Python 3.13-based tooling. They do not change the project runtime target; they prevent 3.13 from eagerly evaluating those annotations during import.
 
 ```bash
-uv run ruff format .
+uv run ruff format --target-version py313 .
 uv run ruff check .
 uv run pyright
 ```

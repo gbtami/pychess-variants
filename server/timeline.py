@@ -395,7 +395,7 @@ def _before_from_request(request: web.Request) -> datetime | None:
     try:
         milliseconds = int(raw)
         return datetime.fromtimestamp(milliseconds / 1000, tz=UTC)
-    except ValueError, OverflowError, OSError:
+    except (ValueError, OverflowError, OSError):
         return None
 
 

@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import annotations
+
 import abc
 import asyncio
 import collections
@@ -1662,7 +1664,7 @@ class UciOptionMap(MutableMapping[str, T]):
                     return False
 
             return True
-        except TypeError, AttributeError:
+        except (TypeError, AttributeError):
             return NotImplemented
 
     def copy(self) -> UciOptionMap[T]:

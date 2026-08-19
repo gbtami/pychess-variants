@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 #
 # This file is part of the python-chess library.
 # Copyright (C) 2016-2019 Niklas Fiekas <niklas.fiekas@backscattering.de>

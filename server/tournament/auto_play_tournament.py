@@ -161,10 +161,27 @@ class TestTournament(Tournament):
             self.app_state.games[game.id] = game
             await self._auto_complete_janggi_setup(game)
             game.random_mover = True
-            game.legal_moves = game.board.legal_moves()
-            self.game_tasks.add(asyncio.create_task(self.play_random(game)))
+            if self.id == AUTO_PLAY_TOURNAMENT_ID:
+                # Keep the optional developer autoplay tournament realistic.
+                game.legal_moves = game.board.legal_moves()
+                self.game_tasks.add(asyncio.create_task(self.play_random(game)))
+            elif self.with_clock and game.wplayer.title == "TEST" and game.bplayer.title == "TEST":
+                self.game_tasks.add(asyncio.create_task(self.finish_test_game(game)))
 
         return pairing, games
+
+    async def finish_test_game(self, game) -> None:
+        """Finish synthetic TEST-vs-TEST games through the real game-end path."""
+        if game.status == BYEGAME:  # ByeGame
+            return
+
+        # Tournament tests exercise pairing, scoring, persistence, and lifecycle
+        # behavior. Replaying dozens of random legal moves per synthetic game makes
+        # those tests needlessly slow; the move engine has dedicated tests. A real
+        # resignation still runs Game.save_game() and Tournament.game_update().
+        game.status = max(game.status, STARTED)
+        loser = game.wplayer if sum(game.id.encode()) % 2 == 0 else game.bplayer
+        await game.game_ended(loser, "resign")
 
     # @timeit
     async def play_random(self, game):

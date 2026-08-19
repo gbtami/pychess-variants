@@ -65,7 +65,7 @@ def _ws_json_loads(
             if decoder is not None:
                 try:
                     return decoder.decode(message)
-                except msgspec.DecodeError, msgspec.ValidationError:
+                except (msgspec.DecodeError, msgspec.ValidationError):
                     pass
     return _WS_JSON_DECODER.decode(message)
 
@@ -220,7 +220,7 @@ async def process_ws(
                 break
             else:
                 log.debug("%s ws other msg.type %s %s", request.rel_url.path, msg.type, msg)
-    except TimeoutError, OSError:
+    except (TimeoutError, OSError):
         # Disconnected or stale.
         pass
     except Exception:
@@ -240,7 +240,7 @@ async def ws_send_str(ws: WebSocketResponse, msg: str) -> bool:
     try:
         await asyncio.wait_for(ws.send_str(msg), timeout=_SEND_TIMEOUT_SECS)
         return True
-    except TimeoutError, ConnectionResetError, ClientConnectionResetError, RuntimeError:
+    except (TimeoutError, ConnectionResetError, ClientConnectionResetError, RuntimeError):
         # Peer disconnected between scheduling and actual send.
         return False
 
@@ -258,7 +258,7 @@ async def ws_send_str_many(ws_set: Iterable[WebSocketResponse | None], msg: str)
             try:
                 await asyncio.wait_for(ws.send_str(msg), timeout=_SEND_TIMEOUT_SECS)
                 return True
-            except TimeoutError, ConnectionResetError, ClientConnectionResetError, RuntimeError:
+            except (TimeoutError, ConnectionResetError, ClientConnectionResetError, RuntimeError):
                 return False
             except Exception:
                 return False
@@ -274,7 +274,7 @@ async def ws_send_json(ws: WebSocketResponse | None, msg: Mapping[str, object] |
     try:
         await asyncio.wait_for(ws.send_str(_ws_json_dumps(msg)), timeout=_SEND_TIMEOUT_SECS)
         return True
-    except TimeoutError, ConnectionResetError, ClientConnectionResetError, RuntimeError:
+    except (TimeoutError, ConnectionResetError, ClientConnectionResetError, RuntimeError):
         # Peer disconnected between scheduling and actual send.
         return False
     except Exception:

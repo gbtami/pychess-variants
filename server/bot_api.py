@@ -115,7 +115,7 @@ def _enqueue_bot_ping_if_idle(queue: asyncio.Queue[str]) -> bool:
     try:
         queue.put_nowait(BOT_STREAM_PING)
         return True
-    except asyncio.QueueFull, asyncio.QueueShutDown:
+    except (asyncio.QueueFull, asyncio.QueueShutDown):
         return False
 
 

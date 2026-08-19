@@ -222,7 +222,7 @@ def _parse_round_interval(
 
     try:
         interval = int(value)
-    except TypeError, ValueError:
+    except (TypeError, ValueError):
         return default_value
 
     if interval in ROUND_INTERVAL_SECONDS:
@@ -233,7 +233,7 @@ def _parse_round_interval(
 def _parse_rr_max_players(value: Any, *, default_value: int) -> int:
     try:
         rr_max_players = int(value)
-    except TypeError, ValueError:
+    except (TypeError, ValueError):
         rr_max_players = default_value
 
     return max(3, min(RR_MAX_SUPPORTED_PLAYERS, rr_max_players))
@@ -803,7 +803,7 @@ async def create_or_update_tournament(
         base = float(form["clockTime"])
         inc = int(form["clockIncrement"])
         bp = int(form["byoyomiPeriod"])
-    except KeyError, TypeError, ValueError:
+    except (KeyError, TypeError, ValueError):
         raise web.HTTPBadRequest(text="Invalid tournament time control.") from None
     frequency = tournament.frequency if tournament is not None else ""
     team_id = tournament.team_id if tournament is not None else str(form.get("teamId", "")).strip()
@@ -811,7 +811,7 @@ async def create_or_update_tournament(
     if tournament is None:
         try:
             system = int(form.get("system", ARENA))
-        except TypeError, ValueError:
+        except (TypeError, ValueError):
             system = ARENA
         if system not in (ARENA, RR, SWISS):
             system = ARENA
@@ -835,7 +835,7 @@ async def create_or_update_tournament(
 
     try:
         rounds = int(form.get("rounds", 0))
-    except TypeError, ValueError:
+    except (TypeError, ValueError):
         rounds = 0
     if system == ARENA:
         rounds = 0
@@ -874,15 +874,15 @@ async def create_or_update_tournament(
 
     try:
         entry_min_rating = int(form.get("entryMinRating", 0) or 0)
-    except TypeError, ValueError:
+    except (TypeError, ValueError):
         entry_min_rating = 0
     try:
         entry_max_rating = int(form.get("entryMaxRating", 0) or 0)
-    except TypeError, ValueError:
+    except (TypeError, ValueError):
         entry_max_rating = 0
     try:
         entry_min_rated_games = int(form.get("entryMinRatedGames", 0) or 0)
-    except TypeError, ValueError:
+    except (TypeError, ValueError):
         entry_min_rated_games = 0
     if not can_rate_variant(variant_name, variant960):
         entry_min_rating = 0
@@ -890,7 +890,7 @@ async def create_or_update_tournament(
         entry_min_rated_games = 0
     try:
         entry_min_account_age_days = int(form.get("entryMinAccountAgeDays", 0) or 0)
-    except TypeError, ValueError:
+    except (TypeError, ValueError):
         entry_min_account_age_days = 0
     forbidden_pairings = (form.get("forbiddenPairings", "") or "").replace("\r\n", "\n").strip()
     manual_pairings = (form.get("manualPairings", "") or "").replace("\r\n", "\n").strip()
@@ -931,7 +931,7 @@ async def create_or_update_tournament(
     try:
         minutes = int(form["minutes"])
         wait_minutes = int(form["waitMinutes"])
-    except KeyError, TypeError, ValueError:
+    except (KeyError, TypeError, ValueError):
         raise web.HTTPBadRequest(text="Invalid tournament duration or start delay.") from None
     effective_start_date = start_date
     if end_date is not None:

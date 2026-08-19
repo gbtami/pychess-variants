@@ -21,6 +21,8 @@ opening book probing, PGN reading and writing, Gaviota tablebase probing,
 Syzygy tablebase probing and XBoard/UCI engine communication.
 """
 
+from __future__ import annotations
+
 __author__ = "Niklas Fiekas"
 
 __email__ = "niklas.fiekas@backscattering.de"
@@ -4050,7 +4052,7 @@ class SquareSet:
     def __eq__(self, other: object) -> bool:
         try:
             return self.mask == SquareSet(other).mask  # type: ignore
-        except TypeError, ValueError:
+        except (TypeError, ValueError):
             return NotImplemented
 
     def __lshift__(self, shift: int) -> SquareSet:

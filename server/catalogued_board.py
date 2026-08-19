@@ -207,11 +207,11 @@ def catalogued_start_board_preview(doc: Mapping[str, Any]) -> CataloguedStartBoa
 
     try:
         width = int(doc.get("width") or 0)
-    except TypeError, ValueError:
+    except (TypeError, ValueError):
         width = 0
     try:
         height = int(doc.get("height") or 0)
-    except TypeError, ValueError:
+    except (TypeError, ValueError):
         height = 0
 
     if width <= 0 or height <= 0:

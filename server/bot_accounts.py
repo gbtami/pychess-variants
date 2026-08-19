@@ -46,7 +46,7 @@ def user_game_count(user_doc: UserDocument | None) -> int:
     count = {} if user_doc is None else (user_doc.get("count") or {})
     try:
         return int(count.get("game", 0))
-    except TypeError, ValueError:
+    except (TypeError, ValueError):
         return 0
 
 
