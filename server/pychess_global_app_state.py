@@ -121,8 +121,11 @@ TEAM_UPDATE_RETENTION_SECONDS = 90 * 24 * 60 * 60
 T = TypeVar("T")
 USERNAME_LOWER_FIELD = "username_lower"
 
+_TEST_TRANSLATIONS_CACHE: dict[str, gettext.NullTranslations] | None = None
+_TEST_TOURNEYNAMES_CACHE: dict[str, dict[Any, str]] | None = None
 
-def _is_test_run() -> bool:
+
+def is_test_run() -> bool:
     return any("pytest" in arg for arg in sys.argv) or any("unittest" in arg for arg in sys.argv)
 
 
@@ -131,7 +134,7 @@ async def _upsert_static_docs(collection: Any, docs: Iterable[Mapping[str, Any]]
     if not static_docs:
         return 0
 
-    if _is_test_run():
+    if is_test_run():
         # mongomock 4.3.0 is not compatible with modern PyMongo UpdateOne
         # bulk writes. Keep test startup semantics equivalent without exercising
         # that third-party incompatibility; the bulk path has a focused unit test.
@@ -203,7 +206,7 @@ async def ensure_tournament_effect_recovery_index(game_collection: Any) -> None:
 
 # Local test cache retention; keep this small for test runs, but use the
 # production-like TTL for interactive localhost usage.
-LOCALHOST_CACHE_KEEP_TIME = 1 if _is_test_run() else TOURNAMENT_KEEP_TIME
+LOCALHOST_CACHE_KEEP_TIME = 1 if is_test_run() else TOURNAMENT_KEEP_TIME
 
 
 class PychessGlobalAppState:
@@ -384,9 +387,12 @@ class PychessGlobalAppState:
                 )
 
             with startup.phase("load catalogued casual variants"):
-                from catalogued_variants import init_catalogued_variants
+                if is_test_run():
+                    self.catalogued_variants = {}
+                else:
+                    from catalogued_variants import init_catalogued_variants
 
-                await init_catalogued_variants(self, db_collections)
+                    await init_catalogued_variants(self, db_collections)
 
             with startup.phase("recover tournament user result side effects"):
                 active_tournament_ids = [
@@ -419,9 +425,10 @@ class PychessGlobalAppState:
                 self.tournaments_loaded.set()
 
             with startup.phase("create missing scheduled tournaments"):
-                already_scheduled = await get_scheduled_tournaments(self)
-                new_tournaments_data = new_scheduled_tournaments(already_scheduled)
-                await create_scheduled_tournaments(self, new_tournaments_data)
+                if not is_test_run():
+                    already_scheduled = await get_scheduled_tournaments(self)
+                    new_tournaments_data = new_scheduled_tournaments(already_scheduled)
+                    await create_scheduled_tournaments(self, new_tournaments_data)
 
             with startup.phase("restore highscore + lobby caches"):
                 self.create_background_task(generate_shield(self), name="generate-shield")
@@ -748,8 +755,9 @@ class PychessGlobalAppState:
                         await load_active_simuls(self)
 
                     with static_startup.phase("sync static videos"):
-                        video_count = await _upsert_static_docs(self.db.video, VIDEOS)
-                        log.debug("[startup] synced %s static video documents", video_count)
+                        if not is_test_run():
+                            video_count = await _upsert_static_docs(self.db.video, VIDEOS)
+                            log.debug("[startup] synced %s static video documents", video_count)
 
                     with static_startup.phase("ensure ublog collection"):
                         if "ublog_post" not in db_collections:
@@ -770,7 +778,7 @@ class PychessGlobalAppState:
                         await self.db.ublog_post.create_index("topics")
 
                     with static_startup.phase("check/bootstrap legacy blog"):
-                        if os.getenv("LEGACY_BLOG_BOOTSTRAP", "1") == "1":
+                        if not is_test_run() and os.getenv("LEGACY_BLOG_BOOTSTRAP", "1") == "1":
                             # Run legacy bootstrap only for an empty target collection.
                             # This keeps first deploy fully automatic while preventing
                             # rewrites of migrated posts on every subsequent restart.
@@ -888,47 +896,68 @@ class PychessGlobalAppState:
             startup.log_summary()
 
     def __init_translations(self):
-        base = os.path.dirname(__file__)
-        for lang in LANGUAGES:
-            # Generate compiled mo file
-            folder = os.path.join(base, "../lang/", lang, "LC_MESSAGES")
-            poname = os.path.join(folder, "server.po")
-            moname = os.path.join(folder, "server.mo")
-            try:
-                with open(poname, "rb") as po_file:
-                    po_lines = [line for line in po_file if line[:8] != b"#, fuzzy"]
-                    mo = Msgfmt(po_lines).get()
-                    with open(moname, "wb") as mo_file:
-                        mo_file.write(mo)
-            except PoSyntaxError:
-                log.error("PoSyntaxError in %s", poname)
+        global _TEST_TOURNEYNAMES_CACHE, _TEST_TRANSLATIONS_CACHE
 
-            # Create translation class
-            try:
-                translation = gettext.translation("server", localedir="lang", languages=[lang])
-            except FileNotFoundError:
-                log.warning("Missing translations file for lang %s", lang)
-                translation = gettext.NullTranslations()
+        use_test_cache = is_test_run()
+        if (
+            not use_test_cache
+            or _TEST_TRANSLATIONS_CACHE is None
+            or _TEST_TOURNEYNAMES_CACHE is None
+        ):
+            translations: dict[str, gettext.NullTranslations] = {}
+            tourney_names: dict[str, dict[Any, str]] = {lang: {} for lang in LANGUAGES}
+            base = os.path.dirname(__file__)
+            for lang in LANGUAGES:
+                # Generate compiled mo file once per process. Rebuilding every
+                # aiohttp test application dominated Python test startup time.
+                folder = os.path.join(base, "../lang/", lang, "LC_MESSAGES")
+                poname = os.path.join(folder, "server.po")
+                moname = os.path.join(folder, "server.mo")
+                try:
+                    with open(poname, "rb") as po_file:
+                        po_lines = [line for line in po_file if line[:8] != b"#, fuzzy"]
+                        mo = Msgfmt(po_lines).get()
+                        with open(moname, "wb") as mo_file:
+                            mo_file.write(mo)
+                except PoSyntaxError:
+                    log.error("PoSyntaxError in %s", poname)
 
-            self.translations[lang] = translation
+                try:
+                    translation = gettext.translation("server", localedir="lang", languages=[lang])
+                except FileNotFoundError:
+                    log.warning("Missing translations file for lang %s", lang)
+                    translation = gettext.NullTranslations()
 
-            translation.install()
+                translations[lang] = translation
+                translation.install()
 
-            for variant in tuple(VARIANTS.keys()) + PAUSED_MONTHLY_VARIANTS:
-                if (
-                    variant in MONTHLY_VARIANTS
-                    or variant in NEW_MONTHLY_VARIANTS
-                    or variant in SEATURDAY
-                    or variant in PAUSED_MONTHLY_VARIANTS
-                ):
-                    tname = translated_tournament_name(variant, MONTHLY, ARENA, translation)
-                    self.tourneynames[lang][(variant, MONTHLY, ARENA)] = tname
-                if variant in SEATURDAY or variant in WEEKLY_VARIANTS:
-                    tname = translated_tournament_name(variant, WEEKLY, ARENA, translation)
-                    self.tourneynames[lang][(variant, WEEKLY, ARENA)] = tname
-                if variant in SHIELDS:
-                    tname = translated_tournament_name(variant, SHIELD, ARENA, translation)
-                    self.tourneynames[lang][(variant, SHIELD, ARENA)] = tname
+                for variant in tuple(VARIANTS.keys()) + PAUSED_MONTHLY_VARIANTS:
+                    if (
+                        variant in MONTHLY_VARIANTS
+                        or variant in NEW_MONTHLY_VARIANTS
+                        or variant in SEATURDAY
+                        or variant in PAUSED_MONTHLY_VARIANTS
+                    ):
+                        tname = translated_tournament_name(variant, MONTHLY, ARENA, translation)
+                        tourney_names[lang][(variant, MONTHLY, ARENA)] = tname
+                    if variant in SEATURDAY or variant in WEEKLY_VARIANTS:
+                        tname = translated_tournament_name(variant, WEEKLY, ARENA, translation)
+                        tourney_names[lang][(variant, WEEKLY, ARENA)] = tname
+                    if variant in SHIELDS:
+                        tname = translated_tournament_name(variant, SHIELD, ARENA, translation)
+                        tourney_names[lang][(variant, SHIELD, ARENA)] = tname
+
+            if use_test_cache:
+                _TEST_TRANSLATIONS_CACHE = translations
+                _TEST_TOURNEYNAMES_CACHE = tourney_names
+        else:
+            translations = _TEST_TRANSLATIONS_CACHE
+            tourney_names = _TEST_TOURNEYNAMES_CACHE
+
+        self.translations = translations
+        # Tournament ids are added dynamically to this mapping, so each app
+        # gets its own copy while test apps share the immutable base translations.
+        self.tourneynames = {lang: names.copy() for lang, names in tourney_names.items()}
 
         # https://github.com/aio-libs/aiohttp-jinja2/issues/187#issuecomment-2519831516
         class _Translations:

@@ -11,7 +11,11 @@ test_logger.init_test_logger()
 
 class OpenApiSpecTestCase(AioHTTPTestCase):
     async def get_application(self):
-        return make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+        return make_app(
+            db_client=AsyncMongoMockClient(tz_aware=True),
+            simple_cookie_storage=True,
+            with_openapi=True,
+        )
 
     async def tearDownAsync(self):
         await self.client.close()

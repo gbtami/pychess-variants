@@ -126,7 +126,7 @@ class TournamentFlowTestCase(TournamentTestCase):
         app_state = get_app_state(self.app)
         tid = id8()
         self.tournament = self._accelerate_arena_clock(
-            ArenaTestTournament(app_state, tid, before_start=0, minutes=2.0 / 60.0)
+            ArenaTestTournament(app_state, tid, before_start=0, minutes=0.2 / 60.0)
         )
         app_state.tournaments[tid] = self.tournament
 
@@ -167,7 +167,7 @@ class TournamentFlowTestCase(TournamentTestCase):
         NB_PLAYERS = 15
         tid = id8()
         self.tournament = self._accelerate_arena_clock(
-            ArenaTestTournament(app_state, tid, before_start=0.01, minutes=0.08)
+            ArenaTestTournament(app_state, tid, before_start=0.001, minutes=0.01)
         )
         app_state.tournaments[tid] = self.tournament
         await self.tournament.join_players(NB_PLAYERS)
@@ -233,7 +233,7 @@ class TournamentFlowTestCase(TournamentTestCase):
         NB_PLAYERS = 15
         tid = id8()
         self.tournament = self._accelerate_arena_clock(
-            ArenaTestTournament(app_state, tid, before_start=0.01, minutes=0.08)
+            ArenaTestTournament(app_state, tid, before_start=0.001, minutes=0.01)
         )
         app_state.tournaments[tid] = self.tournament
         await self.tournament.join_players(NB_PLAYERS)

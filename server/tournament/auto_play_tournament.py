@@ -97,6 +97,8 @@ async def create_auto_play_tournament(app):
 
 
 class TestTournament(Tournament):
+    clock_interval = 0.02
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.game_tasks = set()

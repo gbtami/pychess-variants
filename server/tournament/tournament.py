@@ -346,6 +346,7 @@ class Tournament(ABC):
     They have to implement create_pairing() for waiting_players"""
 
     system: ClassVar[int] = ARENA
+    clock_interval: ClassVar[float] = 1.0
     beforeStart: int
     bp: int
     round_interval: int
@@ -1112,7 +1113,7 @@ class Tournament(ABC):
                             )
                         )
 
-                await asyncio.sleep(1)
+                await asyncio.sleep(self.clock_interval)
         except Exception as exc:
             log.critical("".join(traceback.format_exception(exc)))
         finally:

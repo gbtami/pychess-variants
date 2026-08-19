@@ -619,7 +619,7 @@ class RRTournament(Tournament):
                     if self.all_arrangements_finished() or now >= self.ends_at:
                         await self.finish()
                         break
-                await asyncio.sleep(1)
+                await asyncio.sleep(self.clock_interval)
         finally:
             self.clock_task = None
 
