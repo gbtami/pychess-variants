@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 from aiohttp import web
 from aiohttp.test_utils import AioHTTPTestCase
+from const import FOLLOW
 from mongomock_motor import AsyncMongoMockClient
 from multidict import MultiDict
 from pychess_global_app_state_utils import get_app_state
@@ -103,6 +104,33 @@ class TeamTestCase(AioHTTPTestCase):
         )
         self.assertNotIn('href="/forum/team-variant-fans"', html)
         self.assertIn('href="/team">Teams</a>', html)
+
+    async def test_team_create_and_join_publish_timeline_events_to_followers(self):
+        app_state = get_app_state(self.app)
+        await app_state.db.relation.insert_many(
+            [
+                {"_id": "bob/alice", "u1": "bob", "u2": "alice", "r": FOLLOW},
+                {"_id": "dave/charlie", "u1": "dave", "u2": "charlie", "r": FOLLOW},
+            ]
+        )
+
+        created = await self.create_team()
+        self.assertEqual(302, created.status)
+        create_entries = await app_state.timeline.entries_for("bob")
+        self.assertEqual(1, len(create_entries))
+        self.assertEqual("team-create", create_entries[0]["type"])
+        self.assertEqual("variant-fans", create_entries[0]["data"]["teamId"])
+        self.assertEqual("Variant Fans", create_entries[0]["data"]["name"])
+
+        self.add_live_user("charlie")
+        self.set_session_user("charlie")
+        joined = await self.client.post("/team/variant-fans/join", data={}, allow_redirects=False)
+        self.assertEqual(302, joined.status)
+        join_entries = await app_state.timeline.entries_for("dave")
+        self.assertEqual(1, len(join_entries))
+        self.assertEqual("team-join", join_entries[0]["type"])
+        self.assertEqual("variant-fans", join_entries[0]["data"]["teamId"])
+        self.assertEqual("Variant Fans", join_entries[0]["data"]["name"])
 
     async def test_profiles_show_enabled_teams_and_only_public_leadership(self):
         await self.create_team()

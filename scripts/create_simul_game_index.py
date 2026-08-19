@@ -60,9 +60,7 @@ async def main() -> None:
         if matching_key is not None:
             existing_name = str(matching_key.get("name", "<unnamed>"))
             if matching_key.get("sparse") is True:
-                print(
-                    f"Sparse game.sid index already exists as '{existing_name}'; nothing to do."
-                )
+                print(f"Sparse game.sid index already exists as '{existing_name}'; nothing to do.")
                 return
 
             raise SystemExit(
@@ -78,10 +76,7 @@ async def main() -> None:
             )
 
         if args.dry_run:
-            print(
-                f"Would create sparse index '{INDEX_NAME}' on "
-                f"{args.mongo_db}.game: {{'sid': 1}}"
-            )
+            print(f"Would create sparse index '{INDEX_NAME}' on {args.mongo_db}.game: {{'sid': 1}}")
             return
 
         print(

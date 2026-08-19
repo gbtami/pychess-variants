@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import logging
 import re
 import unicodedata
 from collections.abc import Mapping
@@ -14,6 +15,8 @@ from pymongo.errors import DuplicateKeyError, PyMongoError
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
+
+log = logging.getLogger(__name__)
 
 TEAM_MAX_JOINED = 50
 TEAM_MAX_CREATED_PER_7_DAYS = 3
@@ -518,6 +521,25 @@ async def _created_team_count_last_week(app_state: PychessGlobalAppState, userna
     )
 
 
+async def _publish_team_timeline(
+    app_state: PychessGlobalAppState,
+    event_type: Literal["team-create", "team-join"],
+    username: str,
+    team: Mapping[str, Any],
+) -> None:
+    """Publish non-critical public team activity to the user's followers."""
+    try:
+        actor = await app_state.users.get(username)
+        await app_state.timeline.publish(
+            event_type,
+            actor,
+            {"teamId": str(team["_id"]), "name": str(team.get("name") or team["_id"])},
+        )
+    except Exception:
+        # Timeline delivery must never make team creation or joining fail.
+        log.exception("Failed to publish %s timeline activity for %s", event_type, username)
+
+
 async def create_team(
     app_state: PychessGlobalAppState,
     username: str,
@@ -589,6 +611,7 @@ async def create_team(
     except PyMongoError:
         await app_state.db.team.delete_one({"_id": team_id})
         raise
+    await _publish_team_timeline(app_state, "team-create", username, team)
     return team
 
 
@@ -644,7 +667,10 @@ async def update_team(
 async def _add_member(app_state: PychessGlobalAppState, team_id: str, username: str) -> bool:
     if app_state.db is None:
         return False
-    if await app_state.db.team.find_one({"_id": team_id, "enabled": True}, {"_id": 1}) is None:
+    team = await app_state.db.team.find_one(
+        {"_id": team_id, "enabled": True}, {"_id": 1, "name": 1}
+    )
+    if team is None:
         raise web.HTTPNotFound(text="Team not found.")
     if await _joined_team_count(app_state, username) >= TEAM_MAX_JOINED:
         raise web.HTTPForbidden(text=f"You cannot join more than {TEAM_MAX_JOINED} teams.")
@@ -673,6 +699,7 @@ async def _add_member(app_state: PychessGlobalAppState, team_id: str, username: 
     if not result.matched_count:
         await app_state.db.team_member.delete_one({"_id": member["_id"]})
         raise web.HTTPConflict(text="The team was closed before the member could be added.")
+    await _publish_team_timeline(app_state, "team-join", username, team)
     return True
 
 

@@ -29,6 +29,8 @@ TIMELINE_EVENT_TYPES = frozenset(
         "ublog-post-like",
         "simul-create",
         "simul-join",
+        "team-create",
+        "team-join",
         "tournament-join",
     }
 )
