@@ -4,7 +4,7 @@
     <main class="team-show team-show-page box">
         <div class="team-show__top box__top">
             <div>
-                <h1>{{ team['name'] }}</h1>
+                <h1><span class="team-icon" aria-hidden="true"></span><span>{{ team['name'] }}</span></h1>
                 {% if team.get('intro') and (not team_closed or team_is_site_admin) %}<p class="team-show__intro">{{ team['intro'] }}</p>{% endif %}
             </div>
             {% if team_closed %}

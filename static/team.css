@@ -212,6 +212,17 @@
     padding-bottom: .9rem;
 }
 
+.team-show__top h1 {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+}
+
+.team-show__top h1 .team-icon {
+    width: 1.35em;
+    height: 1.35em;
+}
+
 .team-show__intro {
     max-width: 70ch;
     margin: .35rem 0 0;
