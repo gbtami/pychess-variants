@@ -190,13 +190,14 @@
                 <div class="team-show__events">
                     {% if team_latest_update %}
                     <section class="team-show__update">
-                        <h2><a class="icon-bell-o" href="/team/{{ team['_id'] }}/updates">Latest team update</a></h2>
+                        <h2><a class="icon-bell-o" href="/team/{{ team['_id'] }}/updates">Team updates</a></h2>
                         <div class="team-show__update__last">
-                            <div class="team-update-text">{{ team_latest_update['text'] }}</div>
                             <div class="team-show__update__meta">
-                                <span>by <a class="user-link" href="/@/{{ team_latest_update['sender'] }}">{{ team_latest_update['sender'] }}</a></span>
                                 <info-date timestamp="{{ team_latest_update['createdAt'].isoformat() if team_latest_update.get('createdAt') else '' }}"></info-date>
+                                <span>by <a class="user-link" href="/@/{{ team_latest_update['sender'] }}">{{ team_latest_update['sender'] }}</a></span>
                             </div>
+                            <div class="team-show__update__body">{{ team_latest_update['text'] }}</div>
+                            <a class="team-show__update__more" href="/team/{{ team['_id'] }}/updates">More »</a>
                         </div>
                     </section>
                     {% endif %}
@@ -207,9 +208,11 @@
                         <div class="team-show__list-wrapper team-tournament-list">
                             {% for tournament in team_tournaments %}
                             <a class="team-tournament-row" href="/tournament/{{ tournament['_id'] }}">
-                                <strong>{{ tournament['name'] }}</strong>
-                                <span>{% if tournament['system'] == 1 %}Round-Robin{% elif tournament['system'] == 2 %}Swiss{% else %}Arena{% endif %}</span>
-                                <span>{{ tournament.get('startsAt', '') }}</span>
+                                <span class="team-tournament-row__main">
+                                    <strong>{{ tournament['name'] }}</strong>
+                                    <span class="team-tournament-row__setup">{% if tournament['system'] == 1 %}Round-Robin{% elif tournament['system'] == 2 %}Swiss{% else %}Arena{% endif %}</span>
+                                </span>
+                                <span class="team-tournament-row__date">{{ tournament.get('startsAt', '') }}</span>
                             </a>
                             {% endfor %}
                         </div>
@@ -223,10 +226,15 @@
                             {% for topic in team_forum_topics %}
                             {% set replies = topic.get('nbPosts', 1) - 1 %}
                             <a class="team-forum-topic-row" href="/forum/{{ team_forum_categ_id }}/{{ topic['slug'] }}">
-                                <strong>{{ topic['name'] }}</strong>
-                                <span>{{ replies }} {% if replies == 1 %}reply{% else %}replies{% endif %}</span>
-                                <span>by {{ topic.get('lastPostUser', topic.get('user', '')) }}</span>
-                                <info-date timestamp="{{ topic['lastPostAt'].isoformat() if topic.get('lastPostAt') else '' }}"></info-date>
+                                <span class="team-forum-topic-row__meta">
+                                    <strong>{{ topic['name'] }}</strong>
+                                    <span>
+                                        by {{ topic.get('lastPostUser', topic.get('user', '')) }}
+                                        <span class="team-forum-topic-row__separator">•</span>
+                                        <info-date timestamp="{{ topic['lastPostAt'].isoformat() if topic.get('lastPostAt') else '' }}"></info-date>
+                                    </span>
+                                </span>
+                                <span class="team-forum-topic-row__replies">{{ replies }} {% if replies == 1 %}reply{% else %}replies{% endif %}</span>
                             </a>
                             {% endfor %}
                         </div>

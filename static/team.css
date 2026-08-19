@@ -219,8 +219,8 @@
 
 .team-show__content {
     display: flex;
-    gap: 2rem;
-    padding: 1.1rem 2rem 2.2rem;
+    gap: clamp(1.8rem, 3vw, 2.8rem);
+    padding: .65rem 2rem 2.35rem;
 }
 
 .team-show__content__col1 {
@@ -231,6 +231,7 @@
 .team-show__content__col2 {
     flex: 1 1 auto;
     min-width: 0;
+    padding-top: .15rem;
 }
 
 .team-show__meta {
@@ -370,8 +371,8 @@
 .team-show h2 {
     margin: 0 0 1rem;
     padding: 0;
-    font-size: 1.45rem;
-    font-weight: 600;
+    font-size: 1.5rem;
+    font-weight: 700;
     line-height: 1.25;
 }
 
@@ -393,20 +394,21 @@
 }
 
 .team-show__desc {
-    margin-bottom: 2.2rem;
-    padding: 1rem 1.5rem;
+    margin-bottom: clamp(2rem, 4vh, 3rem);
+    padding: .8rem 2rem;
     border: 1px solid var(--team-border);
-    border-radius: 4px;
+    border-radius: 3px;
     background: var(--team-zebra);
-    font-size: 1.05rem;
+    font-size: 1.1rem;
     line-height: 1.6;
+    text-align: start;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
 }
 
 .team-show__events {
     display: grid;
-    gap: 2.2rem;
+    gap: clamp(1.8rem, 3vh, 2.5rem);
 }
 
 .team-show__requests {
@@ -416,7 +418,7 @@
 .team-show__list-wrapper {
     overflow: hidden;
     border: 1px solid var(--team-border);
-    border-radius: 4px;
+    border-radius: 3px;
     background: var(--bg-color0);
 }
 
@@ -425,13 +427,11 @@
     display: grid;
 }
 
-.team-tournament-row,
-.team-forum-topic-row {
+.team-tournament-row {
     border-top: 1px solid var(--team-border);
 }
 
-.team-tournament-row:first-child,
-.team-forum-topic-row:first-child {
+.team-tournament-row:first-child {
     border-top: 0;
 }
 
@@ -641,34 +641,112 @@
 }
 
 .team-tournament-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    gap: 1rem;
+    display: flex;
     align-items: center;
-    padding: .85rem 1rem;
+    justify-content: space-between;
+    gap: 1.25rem;
+    padding: .75rem 1rem;
     color: inherit;
     text-decoration: none;
 }
 
+.team-tournament-row:nth-child(odd) {
+    background: var(--team-zebra);
+}
+
+.team-tournament-row:hover {
+    background: var(--team-hover);
+}
+
+.team-tournament-row__main {
+    display: grid;
+    min-width: 0;
+}
+
+.team-tournament-row__main strong {
+    color: var(--font-color);
+    font-size: 1.2rem;
+    font-weight: 400;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+}
+
+.team-tournament-row:hover .team-tournament-row__main strong {
+    color: var(--link-hover);
+}
+
+.team-tournament-row__setup,
+.team-tournament-row__date {
+    color: var(--team-dim);
+    font-size: .9rem;
+}
+
+.team-tournament-row__date {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+/* Lichess renders recent team forum activity as roomy post-like rows rather
+ * than a dense four-column table. Keep the same hierarchy with the topic
+ * title first, author/time metadata underneath, and replies as secondary text. */
 .team-forum-topic-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto auto;
-    gap: 1rem;
-    align-items: center;
-    padding: .85rem 1rem;
+    display: block;
+    padding: 1rem 2rem;
     color: inherit;
     text-decoration: none;
 }
 
-.team-tournament-row:hover,
+.team-forum-topic-row:nth-child(odd) {
+    background: var(--team-zebra);
+}
+
 .team-forum-topic-row:hover {
     background: var(--team-hover);
 }
 
-.team-tournament-row span,
-.team-forum-topic-row span,
-.team-forum-topic-row info-date {
+.team-forum-topic-row__meta {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    min-width: 0;
+    margin-bottom: .45rem;
+    font-size: .9rem;
+}
+
+.team-forum-topic-row__meta strong {
+    min-width: 0;
+    color: var(--font-color);
+    font-size: 1.3rem;
+    font-weight: 400;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+}
+
+.team-forum-topic-row:hover .team-forum-topic-row__meta strong {
+    color: var(--link-hover);
+}
+
+.team-forum-topic-row__meta > span,
+.team-forum-topic-row__meta info-date,
+.team-forum-topic-row__replies {
     color: var(--team-dim);
+}
+
+.team-forum-topic-row__meta > span {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+.team-forum-topic-row__separator {
+    margin: 0 .35rem;
+    opacity: .55;
+}
+
+.team-forum-topic-row__replies {
+    display: block;
+    font-size: .95rem;
+    line-height: 1.35;
 }
 
 .team-show__more {
@@ -684,14 +762,15 @@
 
 .team-show__update__last {
     display: grid;
-    gap: .8rem;
-    padding: 1rem 1.25rem;
+    gap: 1rem;
+    padding: 1rem 2rem;
     border: 1px solid var(--team-border);
-    border-radius: 4px;
+    border-radius: 3px;
     background: var(--team-zebra);
 }
 
 .team-show__update__meta,
+.team-show__update__more,
 .team-update-meta {
     display: flex;
     align-items: center;
@@ -700,6 +779,22 @@
     flex-wrap: wrap;
     color: var(--team-dim);
     font-size: .9rem;
+}
+
+.team-show__update__body {
+    line-height: 1.55;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.team-show__update__more {
+    justify-self: end;
+    color: var(--team-dim);
+    text-decoration: none;
+}
+
+.team-show__update__more:hover {
+    color: var(--link-hover);
 }
 
 /* Dedicated members page follows Lichess's page-small + team-members slist. */
@@ -1470,10 +1565,24 @@
         grid-template-columns: 1fr;
     }
 
-    .team-tournament-row,
+    .team-tournament-row {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: .3rem;
+    }
+
     .team-forum-topic-row {
-        grid-template-columns: 1fr;
+        padding-inline: 1rem;
+    }
+
+    .team-forum-topic-row__meta {
+        align-items: flex-start;
+        flex-direction: column;
         gap: .25rem;
+    }
+
+    .team-forum-topic-row__meta > span {
+        white-space: normal;
     }
 
     .team-declined-requests__top {
