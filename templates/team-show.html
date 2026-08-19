@@ -208,11 +208,12 @@
                         <div class="team-show__list-wrapper team-tournament-list">
                             {% for tournament in team_tournaments %}
                             <a class="team-tournament-row" href="/tournament/{{ tournament['_id'] }}">
+                                <span class="team-tournament-row__icon icon" data-icon="{{ tournament.get('variantIcon', '') }}" aria-hidden="true"></span>
                                 <span class="team-tournament-row__main">
                                     <strong>{{ tournament['name'] }}</strong>
                                     <span class="team-tournament-row__setup">{% if tournament['system'] == 1 %}Round-Robin{% elif tournament['system'] == 2 %}Swiss{% else %}Arena{% endif %}</span>
                                 </span>
-                                <span class="team-tournament-row__date">{{ tournament.get('startsAt', '') }}</span>
+                                <span class="team-tournament-row__date"><info-date timestamp="{{ tournament['startsAt'].isoformat() if tournament.get('startsAt') else '' }}"></info-date></span>
                             </a>
                             {% endfor %}
                         </div>
@@ -232,9 +233,10 @@
                                         by {{ topic.get('lastPostUser', topic.get('user', '')) }}
                                         <span class="team-forum-topic-row__separator">•</span>
                                         <info-date timestamp="{{ topic['lastPostAt'].isoformat() if topic.get('lastPostAt') else '' }}"></info-date>
+                                        <span class="team-forum-topic-row__separator">•</span>
+                                        {{ replies }} {% if replies == 1 %}reply{% else %}replies{% endif %}
                                     </span>
                                 </span>
-                                <span class="team-forum-topic-row__replies">{{ replies }} {% if replies == 1 %}reply{% else %}replies{% endif %}</span>
                             </a>
                             {% endfor %}
                         </div>

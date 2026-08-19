@@ -382,6 +382,28 @@ class TeamTestCase(AioHTTPTestCase):
             )
         self.assertEqual(409, denied.status)
 
+    async def test_team_page_tournaments_use_variant_icon_and_info_date(self):
+        await self.create_team()
+        app_state = get_app_state(self.app)
+        starts_at = datetime(2026, 8, 19, 18, 30, tzinfo=UTC)
+        await app_state.db.tournament.insert_one(
+            {
+                "_id": "team-arena",
+                "teamId": "variant-fans",
+                "name": "Variant Night",
+                "system": 0,
+                "v": "n",
+                "z": 0,
+                "startsAt": starts_at,
+            }
+        )
+
+        page = await self.client.get("/team/variant-fans")
+        html = await page.text()
+        self.assertIn('class="team-tournament-row__icon icon" data-icon="M"', html)
+        self.assertIn('timestamp="2026-08-19T18:30:00+00:00"', html)
+        self.assertNotIn("2026-08-19 18:30:00+00:00", html)
+
     async def test_team_tournament_requires_membership_and_leave_withdraws_player(self):
         await self.create_team()
         app_state = get_app_state(self.app)

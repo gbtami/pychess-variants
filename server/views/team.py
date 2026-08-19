@@ -55,6 +55,7 @@ from team import (
     update_team_leader_permissions,
 )
 from typing_defs import ViewContext
+from variants import C2V, CATALOGUED_VARIANT_ICON, get_server_variant
 
 from views import get_user_context
 
@@ -286,6 +287,17 @@ async def team_show(request: web.Request) -> ViewContext:
             .limit(20)
             .to_list(length=20)
         )
+        for tournament in team_tournaments:
+            variant_code = str(tournament.get("v") or "")
+            variant_name = C2V.get(variant_code, variant_code)
+            try:
+                tournament["variantIcon"] = get_server_variant(
+                    variant_name, bool(tournament.get("z"))
+                ).icon
+            except KeyError:
+                # Keep historical tournaments readable if a catalogued variant
+                # has since been archived or removed from the runtime catalogue.
+                tournament["variantIcon"] = CATALOGUED_VARIANT_ICON
 
     context.update(
         {

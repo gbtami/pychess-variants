@@ -762,11 +762,11 @@
 }
 
 .team-tournament-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: 2.2rem minmax(0, 1fr) auto;
     align-items: center;
-    justify-content: space-between;
-    gap: 1.25rem;
-    padding: .75rem 1rem;
+    gap: .8rem;
+    padding: .7rem 1rem;
     color: inherit;
     text-decoration: none;
 }
@@ -777,6 +777,17 @@
 
 .team-tournament-row:hover {
     background: var(--team-hover);
+}
+
+.team-tournament-row__icon {
+    width: 2.2rem;
+    color: var(--team-dim);
+    text-align: center;
+}
+
+.team-tournament-row__icon::before {
+    font-size: 1.55rem;
+    opacity: .7;
 }
 
 .team-tournament-row__main {
@@ -807,12 +818,11 @@
     white-space: nowrap;
 }
 
-/* Lichess renders recent team forum activity as roomy post-like rows rather
- * than a dense four-column table. Keep the same hierarchy with the topic
- * title first, author/time metadata underneath, and replies as secondary text. */
+/* Our topic preview has no post excerpt, so keep it denser than Lichess's
+ * full post preview while retaining the same title + metadata hierarchy. */
 .team-forum-topic-row {
     display: block;
-    padding: 1rem 2rem;
+    padding: .7rem 1.25rem;
     color: inherit;
     text-decoration: none;
 }
@@ -831,7 +841,7 @@
     justify-content: space-between;
     gap: 1rem;
     min-width: 0;
-    margin-bottom: .45rem;
+    margin-bottom: 0;
     font-size: .9rem;
 }
 
@@ -849,8 +859,7 @@
 }
 
 .team-forum-topic-row__meta > span,
-.team-forum-topic-row__meta info-date,
-.team-forum-topic-row__replies {
+.team-forum-topic-row__meta info-date {
     color: var(--team-dim);
 }
 
@@ -862,12 +871,6 @@
 .team-forum-topic-row__separator {
     margin: 0 .35rem;
     opacity: .55;
-}
-
-.team-forum-topic-row__replies {
-    display: block;
-    font-size: .95rem;
-    line-height: 1.35;
 }
 
 .team-show__more {
