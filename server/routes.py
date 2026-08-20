@@ -143,6 +143,7 @@ from report_api import (
 from robots import robots
 from server_metrics import metrics_handler
 from simul.wss import simul_socket_handler
+from system_messages_api import system_message_send
 from timeline import timeline_api, timeline_unsubscribe
 from tournament.tournament_calendar import tournament_calendar
 from tournament.wst import tournament_socket_handler
@@ -210,6 +211,9 @@ from views import (
 )
 from views import (
     admin as admin_view,
+)
+from views import (
+    admin_system_messages as admin_system_messages_view,
 )
 from views import (
     bot_challenge as bot_challenge_view,
@@ -299,6 +303,7 @@ get_routes: tuple[RouteDef, ...] = (
     ("/admin", admin_view.admin),
     ("/admin/users", admin_view.admin_users),
     ("/admin/teams", admin_view.admin_teams),
+    ("/admin/system-messages", admin_system_messages_view.admin_system_messages),
     ("/admin/operations", admin_view.admin_operations),
     ("/reports", reports_view.reports),
     ("/mod/public-chat", mod_public_chat_view.mod_public_chat),
@@ -483,6 +488,7 @@ post_routes: tuple[RouteDef, ...] = (
     (r"/api/reports/{reportId:\w{8}}/reopen", report_reopen),
     ("/api/mod/public-chat/timeout", public_chat_timeout),
     ("/api/admin/users/{username}/{action}", admin_user_action),
+    ("/api/admin/system-messages/send", system_message_send),
     ("/api/admin/operations/{action}", admin_operation),
     ("/api/catalogued-variants", upload_catalogued_variant),
     ("/api/catalogued-variants/check", check_catalogued_variant_rules),

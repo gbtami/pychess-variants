@@ -16,12 +16,13 @@ TEST_PREFIX = "Test" + DASH
 
 NONE_USER = "None" + DASH + "User"
 HTTP_ANON_USER = ANON_PREFIX + "HTTP"
+SYSTEM_USER = "PyChess"
 
 RESERVED_USERS = (
     "Random-Mover",
     "Fairy-Stockfish",
     "Invite-friend",
-    "PyChess",
+    SYSTEM_USER,
     NONE_USER,
     HTTP_ANON_USER,
 )

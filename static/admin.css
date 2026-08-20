@@ -624,7 +624,7 @@
 
   #pychess-variants .admin-shell .admin-nav {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 
   #pychess-variants .admin-shell .admin-nav__title {
@@ -819,4 +819,52 @@
   #pychess-variants .admin-shell .admin-team-card dl {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+
+#pychess-variants .admin-shell .admin-system-messages .admin-ops-card {
+  max-width: 58rem;
+}
+
+#pychess-variants .admin-shell .admin-system-messages .admin-ops-form textarea {
+  width: 100%;
+  min-width: 0;
+  resize: vertical;
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  background: var(--bg-color2);
+  color: var(--font-color);
+  padding: 0.65rem;
+}
+
+#pychess-variants .admin-shell .admin-system-messages .admin-ops-form label small {
+  color: var(--time-text);
+  font-weight: normal;
+}
+
+#pychess-variants .admin-shell .admin-system-message-audience {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0.8rem;
+  border: 1px solid var(--border-color);
+}
+
+#pychess-variants .admin-shell .admin-system-message-audience legend {
+  padding: 0 0.3rem;
+  font-weight: 600;
+}
+
+#pychess-variants .admin-shell .admin-system-message-audience label {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 0.55rem;
+  color: var(--font-color);
+  font-size: 0.95rem;
+  font-weight: normal;
+}
+
+#pychess-variants .admin-shell .admin-system-message-audience input {
+  width: auto;
+  margin-top: 0.18rem;
 }

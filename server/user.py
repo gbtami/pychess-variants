@@ -26,6 +26,7 @@ from const import (
     GAME_CATEGORY_ALL,
     MAX_USER_BLOCK,
     STARTED,
+    SYSTEM_USER,
     TEST_PREFIX,
     normalize_game_category,
     reserved,
@@ -1006,7 +1007,7 @@ async def follow_user(request: web.Request) -> web.StreamResponse:
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
     user = await app_state.users.get(session_user)
-    if user.anon or profileId == user.username:
+    if user.anon or profileId == user.username or profileId.casefold() == SYSTEM_USER.casefold():
         return web.Response(status=403)
 
     post_data = await read_post_data(request)
@@ -1047,7 +1048,7 @@ async def block_user(request: web.Request) -> web.StreamResponse:
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
     user = await app_state.users.get(session_user)
-    if user.anon or profileId == user.username:
+    if user.anon or profileId == user.username or profileId.casefold() == SYSTEM_USER.casefold():
         return web.Response(status=403)
 
     post_data = await read_post_data(request)

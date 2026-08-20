@@ -60,6 +60,7 @@ import { initProfileActionOverflow } from './profileActionOverflow';
 import { initVariantAuthors } from './variantAuthors';
 import { initSearchBarDismissal } from './searchBar';
 import { timelinePageView } from './timeline';
+import { initAdminSystemMessages } from './adminSystemMessages';
 
 // redirect to correct URL except Heroku preview/dev apps
 if (
@@ -299,6 +300,7 @@ function start() {
 
     renderTimeago();
     initTournamentForm();
+    initAdminSystemMessages();
 
     // searchbar
     const searchIcon = document.querySelector('.search-icon') as HTMLElement;

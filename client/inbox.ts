@@ -12,6 +12,7 @@ interface ThreadSummary {
     user: string;
     title: string;
     online?: boolean;
+    system?: boolean;
     updatedAt: string;
     unread: boolean;
     lastMsg: {
@@ -35,6 +36,7 @@ interface ThreadResponse {
         name: string;
         title: string;
         online?: boolean;
+        system?: boolean;
         canMessage?: boolean;
         blockedByMe?: boolean;
         blockedByThem?: boolean;
@@ -102,6 +104,7 @@ export function inboxView(model: PyChessModel) {
     let contact = model.profileid || '';
     let contactTitle = '';
     let contactOnline = false;
+    let contactSystem = false;
     let contactCanMessage = true;
     let blockedUsers = new Set<string>();
     let contactBlocked = false;
@@ -211,6 +214,7 @@ export function inboxView(model: PyChessModel) {
                             contact = '';
                             contactTitle = '';
                             contactOnline = false;
+                            contactSystem = false;
                             contactCanMessage = true;
                             contactBlocked = false;
                             contactBlockedByThem = false;
@@ -235,6 +239,7 @@ export function inboxView(model: PyChessModel) {
                         contact = data.contact.name;
                         contactTitle = data.contact.title || '';
                         contactOnline = Boolean(data.contact.online);
+                        contactSystem = Boolean(data.contact.system);
                         contactCanMessage = data.contact.canMessage !== false;
                         contactBlocked = Boolean(data.contact.blockedByMe);
                         contactBlockedByThem = Boolean(data.contact.blockedByThem);
@@ -367,6 +372,7 @@ export function inboxView(model: PyChessModel) {
                     contact = '';
                     contactTitle = '';
                     contactOnline = false;
+                    contactSystem = false;
                     loading = false;
                     history.replaceState({}, '', '/inbox');
                 }
@@ -406,7 +412,7 @@ export function inboxView(model: PyChessModel) {
 
     function renderThreadItem(thread: ThreadSummary) {
         const isSelected = thread.user === contact;
-        const statusClass = thread.online ? '.online' : '';
+        const statusClass = thread.system ? '.system' : thread.online ? '.online' : '';
         return h(
             `button.inbox-thread${isSelected ? '.active' : ''}${thread.unread ? '.unread' : ''}`,
             {
@@ -509,18 +515,20 @@ export function inboxView(model: PyChessModel) {
                 h('div.inbox-convo-head', [
                     thread
                         ? h('h2', [
-                              h(
-                                  `a.user-link.ulpt.inbox-user${contactOnline ? '.online' : ''}`,
-                                  {
-                                      attrs: { href: `/@/${encodeURIComponent(thread.user)}` },
-                                  },
-                                  titleAndName(thread.title || contactTitle, thread.user),
-                              ),
+                              contactSystem
+                                  ? h('span.inbox-user.system', thread.user)
+                                  : h(
+                                        `a.user-link.ulpt.inbox-user${contactOnline ? '.online' : ''}`,
+                                        {
+                                            attrs: { href: `/@/${encodeURIComponent(thread.user)}` },
+                                        },
+                                        titleAndName(thread.title || contactTitle, thread.user),
+                                    ),
                           ])
                         : h('h2', _('Select a conversation')),
                     h(
                         'div.inbox-convo-actions',
-                        hasContact
+                        hasContact && !contactSystem
                             ? [
                                   ...(challengeBlocked
                                       ? []
@@ -560,58 +568,60 @@ export function inboxView(model: PyChessModel) {
                     },
                     loading ? h('div.inbox-empty', _('Loading...')) : (convoBodyNodes.filter(Boolean) as VNode[]),
                 ),
-                h(
-                    'form.inbox-convo-post',
-                    {
-                        on: {
-                            submit: (event: Event) => {
-                                event.preventDefault();
-                                sendMessage();
-                            },
-                        },
-                    },
-                    [
-                        h('textarea.inbox-convo-post-text', {
-                            attrs: {
-                                // The server keeps existing conversation access visible, but can
-                                // still lock composing if the recipient only accepts friend PMs.
-                                placeholder: !contact
-                                    ? _('Select a conversation first')
-                                    : contactBlocked || contactBlockedByThem
-                                      ? _('This conversation is blocked')
-                                      : contactCanMessage
-                                        ? _('Write a message...')
-                                        : _('This user only accepts messages from friends'),
-                                rows: 1,
-                                enterkeyhint: 'send',
-                                disabled: !contact || sending || !contactCanMessage,
-                            },
-                            props: { value: draft },
-                            on: {
-                                input: (e: Event) => {
-                                    draft = (e.target as HTMLTextAreaElement).value;
-                                    redraw();
-                                },
-                                keydown: (e: KeyboardEvent) => {
-                                    if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
-                                        e.preventDefault();
-                                        sendMessage();
-                                    }
-                                },
-                            },
-                        }),
-                        h(
-                            'button.inbox-convo-post-submit.button',
-                            {
-                                props: {
-                                    type: 'submit',
-                                    disabled: !contact || sending || !contactCanMessage || !draft.trim(),
-                                },
-                            },
-                            sending ? _('Sending...') : _('Send'),
-                        ),
-                    ],
-                ),
+                contactSystem
+                    ? h('div.inbox-convo-readonly', _("PyChess doesn't accept new messages."))
+                    : h(
+                          'form.inbox-convo-post',
+                          {
+                              on: {
+                                  submit: (event: Event) => {
+                                      event.preventDefault();
+                                      sendMessage();
+                                  },
+                              },
+                          },
+                          [
+                              h('textarea.inbox-convo-post-text', {
+                                  attrs: {
+                                      // The server keeps existing conversation access visible, but can
+                                      // still lock composing if the recipient only accepts friend PMs.
+                                      placeholder: !contact
+                                          ? _('Select a conversation first')
+                                          : contactBlocked || contactBlockedByThem
+                                            ? _('This conversation is blocked')
+                                            : contactCanMessage
+                                              ? _('Write a message...')
+                                              : _('This user only accepts messages from friends'),
+                                      rows: 1,
+                                      enterkeyhint: 'send',
+                                      disabled: !contact || sending || !contactCanMessage,
+                                  },
+                                  props: { value: draft },
+                                  on: {
+                                      input: (e: Event) => {
+                                          draft = (e.target as HTMLTextAreaElement).value;
+                                          redraw();
+                                      },
+                                      keydown: (e: KeyboardEvent) => {
+                                          if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
+                                              e.preventDefault();
+                                              sendMessage();
+                                          }
+                                      },
+                                  },
+                              }),
+                              h(
+                                  'button.inbox-convo-post-submit.button',
+                                  {
+                                      props: {
+                                          type: 'submit',
+                                          disabled: !contact || sending || !contactCanMessage || !draft.trim(),
+                                      },
+                                  },
+                                  sending ? _('Sending...') : _('Send'),
+                              ),
+                          ],
+                      ),
             ]),
         ]);
     }

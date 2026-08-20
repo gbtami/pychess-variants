@@ -473,6 +473,8 @@ class ViewContext(TypedDict, total=False):
     admin_operations_fishnet: Sequence[Mapping[str, object]]
     admin_operations_variants: Sequence[Mapping[str, str]]
     admin_operations_history: Sequence[Mapping[str, object]]
+    admin_system_message_active_days: int
+    admin_system_message_history: Sequence[Mapping[str, object]]
     admin_team_query: str
     admin_team_status: str
     admin_teams: Sequence[Mapping[str, object]]
