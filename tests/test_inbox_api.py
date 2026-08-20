@@ -1,6 +1,7 @@
 import json
 import time
 from datetime import UTC, datetime
+from unittest.mock import patch
 
 from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
@@ -146,29 +147,30 @@ class InboxApiTestCase(AioHTTPTestCase):
         app_state.users[bob.username] = bob
         app_state.chat_flood.allow_message = lambda source, text: True
 
-        self.set_session_user("alice")
-        for idx in range(105):
-            resp = await self.client.post("/api/inbox/thread/bob", data={"text": f"m{idx}"})
-            self.assertEqual(resp.status, 200)
+        with patch("inbox_api.THREAD_MSG_PAGE_SIZE", 5):
+            self.set_session_user("alice")
+            for idx in range(7):
+                resp = await self.client.post("/api/inbox/thread/bob", data={"text": f"m{idx}"})
+                self.assertEqual(resp.status, 200)
 
-        self.set_session_user("bob")
-        page1_resp = await self.client.get("/api/inbox/thread/alice")
-        self.assertEqual(page1_resp.status, 200)
-        page1 = await page1_resp.json()
-        self.assertEqual(100, len(page1["messages"]))
-        self.assertTrue(page1["hasMore"])
+            self.set_session_user("bob")
+            page1_resp = await self.client.get("/api/inbox/thread/alice")
+            self.assertEqual(page1_resp.status, 200)
+            page1 = await page1_resp.json()
+            self.assertEqual(5, len(page1["messages"]))
+            self.assertTrue(page1["hasMore"])
 
-        oldest_page1 = page1["messages"][0]["createdAt"]
-        oldest_dt = datetime.fromisoformat(oldest_page1)
-        if oldest_dt.tzinfo is None:
-            oldest_dt = oldest_dt.replace(tzinfo=UTC)
-        before_ms = int(oldest_dt.timestamp() * 1000)
+            oldest_page1 = page1["messages"][0]["createdAt"]
+            oldest_dt = datetime.fromisoformat(oldest_page1)
+            if oldest_dt.tzinfo is None:
+                oldest_dt = oldest_dt.replace(tzinfo=UTC)
+            before_ms = int(oldest_dt.timestamp() * 1000)
 
-        page2_resp = await self.client.get(f"/api/inbox/thread/alice?before={before_ms}")
-        self.assertEqual(page2_resp.status, 200)
-        page2 = await page2_resp.json()
-        self.assertEqual(5, len(page2["messages"]))
-        self.assertFalse(page2["hasMore"])
+            page2_resp = await self.client.get(f"/api/inbox/thread/alice?before={before_ms}")
+            self.assertEqual(page2_resp.status, 200)
+            page2 = await page2_resp.json()
+            self.assertEqual(2, len(page2["messages"]))
+            self.assertFalse(page2["hasMore"])
 
     async def test_inbox_post_sanitizes_blacklisted_links(self):
         app_state = get_app_state(self.app)

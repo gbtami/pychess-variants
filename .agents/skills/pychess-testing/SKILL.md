@@ -41,7 +41,10 @@ Use `server` only for discovery:
 
 ```bash
 env PYTHONPATH=server uv run python -m unittest discover -s tests
+env PYTHONPATH=server uv run python -m pytest tests/test_simul.py
 ```
+
+`test_simul.py` uses pytest fixtures and is not collected by `unittest discover`; both commands make up the Python CI coverage.
 
 Python tests configure application logging at `WARNING` by default to avoid DEBUG-log I/O dominating CI. When diagnosing a failure, opt back into verbose application logs for that run:
 
@@ -62,6 +65,7 @@ For browser tests:
 uv run python -m playwright install
 env PYTHONPATH=server uv run python -m pytest tests/test_e2e.py
 env PYTHONPATH=server uv run python -m pytest tests/test_gui.py
+env PYTHONPATH=server uv run python -m pytest tests/test_bughouse_lobby_flow.py
 ```
 
 Avoid Playwright `--with-deps` unless provisioning a fresh host with sudo access. The tests need permission to bind local sockets. Use `uv run server/server.py -a` when an authenticated-flow check can use anonymous test users.

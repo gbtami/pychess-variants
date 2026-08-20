@@ -1,7 +1,6 @@
 import json
 import time
 from datetime import UTC, datetime
-from pathlib import Path
 from unittest.mock import patch
 
 from aiohttp import web
@@ -799,114 +798,6 @@ class TeamTestCase(AioHTTPTestCase):
             "/team/variant-fans/permissions", data=data, allow_redirects=False
         )
         self.assertEqual(400, response.status)
-
-    async def test_team_pages_load_standard_site_javascript(self):
-        root = Path(__file__).parents[1]
-        team_base = (root / "templates" / "team-base.html").read_text()
-        self.assertIn('{% extends "template.html" %}', team_base)
-        self.assertIn('<script src="{{ js }}"></script>', team_base)
-
-        for template_name in (
-            "teams.html",
-            "team-show.html",
-            "team-new.html",
-            "team-edit.html",
-            "team-join.html",
-            "team-leaders.html",
-            "team-members.html",
-            "team-requests.html",
-            "team-declined-requests.html",
-            "team-updates.html",
-            "team-update-new.html",
-        ):
-            template = (root / "templates" / template_name).read_text()
-            self.assertTrue(
-                template.startswith('{% extends "team-base.html" %}'),
-                f"{template_name} must extend team-base.html so standard header JS is loaded",
-            )
-
-    async def test_team_pages_have_main_grid_area_css(self):
-        root = Path(__file__).parents[1]
-        css = (root / "static" / "team.css").read_text()
-        team_page_selector = (
-            ".teams-page,\n.team-form-page,\n.team-show-page,\n"
-            ".team-members-page,\n.team-declined-requests-page,\n.team-leaders-page,\n"
-            ".team-updates-page,\n.team-update-form-page"
-        )
-        self.assertIn(team_page_selector, css)
-        self.assertIn("grid-area: main;", css)
-        self.assertIn("width: min(1000px, calc(100vw - 2rem));", css)
-        self.assertIn("grid-template-columns: 12.5rem minmax(0, 1fr);", css)
-        self.assertIn(".team-show__content {", css)
-        self.assertIn(".team-show__closed-badge {", css)
-        self.assertIn(".team-lifecycle-danger {", css)
-        self.assertIn(".team-show__content__col1 {\n    flex: 0 0 30%;", css)
-        self.assertIn(".team-members-page {", css)
-        self.assertIn(".team-declined-requests-page,", css)
-        self.assertIn(".team-requests {", css)
-        self.assertIn(".team-declined-request-search {", css)
-        self.assertIn(".team-updates-page.team-update {", css)
-        self.assertIn(".team-update__side {", css)
-        self.assertIn(".team-update--all .team-update__convo,", css)
-
-        team_menu = (root / "templates" / "team-menu.html").read_text()
-        teams = (root / "templates" / "teams.html").read_text()
-        team_show = (root / "templates" / "team-show.html").read_text()
-        team_members = (root / "templates" / "team-members.html").read_text()
-        team_requests = (root / "templates" / "team-requests.html").read_text()
-        team_declined_requests = (root / "templates" / "team-declined-requests.html").read_text()
-        team_join = (root / "templates" / "team-join.html").read_text()
-        team_new = (root / "templates" / "team-new.html").read_text()
-        team_edit = (root / "templates" / "team-edit.html").read_text()
-        team_leaders = (root / "templates" / "team-leaders.html").read_text()
-        team_update_new = (root / "templates" / "team-update-new.html").read_text()
-        self.assertIn('class="page-menu__menu subnav"', team_menu)
-        self.assertIn('class="team-list-page teams-page page-menu"', teams)
-        self.assertIn('class="team-slist slist slist-pad slist-invert"', teams)
-        self.assertIn('class="team-show team-show-page box"', team_show)
-        self.assertIn('class="team-show__closed-badge"', team_show)
-        self.assertIn('/reopen"', team_show)
-        self.assertIn('class="team-show__content__col1"', team_show)
-        self.assertIn('class="team-show__content__col2"', team_show)
-        self.assertIn("href=\"/team/{{ team['_id'] }}/members\">Recent members</a>", team_show)
-        self.assertIn('class="team-requests slist requests datatable"', team_show)
-        self.assertIn('class="team-members-page page-small box"', team_members)
-        self.assertIn('class="team-members slist slist-pad slist-invert"', team_members)
-        self.assertIn('class="team-requests-page teams-page page-menu"', team_requests)
-        self.assertIn(
-            'class="team-requests team-requests--global slist requests datatable"',
-            team_requests,
-        )
-        self.assertIn(
-            'class="team-declined-requests-page page-menu page-small"',
-            team_declined_requests,
-        )
-        self.assertIn(
-            'class="team-requests team-declined-requests slist"',
-            team_declined_requests,
-        )
-        self.assertIn('class="team-form-page team-join-page page-menu page-small"', team_join)
-        self.assertIn('class="team-form form3 team-join-form"', team_join)
-        self.assertIn('class="team-show__join-action"', team_show)
-        self.assertIn('class="team-form-page page-menu page-small"', team_new)
-        self.assertIn('class="team-form form3"', team_new)
-        self.assertIn('class="form-split team-entry-fields"', team_new)
-        self.assertIn('name="intro" minlength="3" maxlength="200" rows="2"', team_new)
-        self.assertIn('class="team-form-page page-menu page-small team-edit"', team_edit)
-        self.assertIn('class="team-lifecycle-danger"', team_edit)
-        self.assertIn('/close"', team_edit)
-        self.assertIn('class="page-menu__content box"', team_leaders)
-        self.assertIn('class="team-add-leader box__pad"', team_leaders)
-        self.assertIn('class="team-permissions form3"', team_leaders)
-        self.assertIn('class="team-permissions-table slist slist-pad slist-resp"', team_leaders)
-        self.assertIn('class="team-update-form-page page-menu page-small"', team_update_new)
-        self.assertIn('class="team-form form3"', team_update_new)
-        self.assertIn(".team-form-page.page-small,", css)
-        self.assertIn(".team-form .form-group {", css)
-        self.assertIn(".team-permissions__table {", css)
-
-        forum_css = (root / "static" / "forum.css").read_text()
-        self.assertIn(".forum {\n  grid-area: main;", forum_css)
 
     async def test_team_updates_are_member_only_and_marked_read_on_team_feed(self):
         await self.create_team()

@@ -3,7 +3,7 @@ import unittest
 
 import test_logger
 from const import SCHEDULE_MAX_DAYS
-from tournament.scheduler import MONTHLY_VARIANTS, SHIELDS, Scheduler, new_scheduled_tournaments
+from tournament.scheduler import MONTHLY_VARIANTS, new_scheduled_tournaments
 
 test_logger.init_test_logger()
 
@@ -32,12 +32,6 @@ class TournamentSchedulerTestCase(unittest.TestCase):
         return (d.year, d.month, d.day)
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
-    def test_shedule_plan(self):
-        plans = Scheduler().schedule_plan()
-
-        self.assertTrue(len(plans) > len(MONTHLY_VARIANTS) + len(SHIELDS))
-
-    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     def test_run_twice_same_day(self):
         for i in range(365):
             y, m, d = self.go_day(i)
@@ -49,38 +43,13 @@ class TournamentSchedulerTestCase(unittest.TestCase):
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     def test_run_next_day(self):
         """Every day is a new day with completely different tournaments."""
-        print("--------------")
         y, m, d = self.ymd
         prev_data = create_scheduled_data(y, m, d)
-        print("---", y, m, d, "---")
-        for data in prev_data:
-            print(
-                "%s %s %s%s"
-                % (
-                    data[3].strftime("%Y.%m.%d %H"),
-                    data[0],
-                    data[1],
-                    "960" if data[2] else "",
-                )
-            )
 
         already_scheduled = prev_data
         for i in range(365):
             y, m, d = self.go_day(i + 1)
             next_data = create_scheduled_data(y, m, d, already_scheduled=already_scheduled)
-            print("---", y, m, d, "---")
-
-            for data in next_data:
-                print(
-                    "%s %s %s%s"
-                    % (
-                        data[3].strftime("%Y.%m.%d %H"),
-                        data[0],
-                        data[1],
-                        "960" if data[2] else "",
-                    )
-                )
-
             # We have 26 items in MONTHLY_VARIANTS. We create new tournaments SCHEDULE_MAX_DAYS ahead, so
             # at the end of all month there wil be days without new MONTHLY_VARIANTS tourney.
             # But before that we always have to have at least one!

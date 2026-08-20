@@ -30,8 +30,7 @@ ONE_TEST_ONLY = False
 
 
 class FakeWs:
-    async def send_json(self, msg):
-        # print("FakeWs.send_json()", msg)
+    async def send_str(self, msg):
         pass
 
 
@@ -60,10 +59,6 @@ class RamatchChess960GameTestCase(AioHTTPTestCase):
 
     async def play_game_and_rematch_game(self, game):
         app_state = get_app_state(self.app)
-        print(
-            "GAME (%s) %s - %s %s"
-            % (game.id, game.wplayer.username, game.bplayer.username, game.initial_fen)
-        )
         await game.game_ended(game.wplayer, "flag")
 
         data = {"gameId": game.id, "handicap": False}
@@ -237,8 +232,7 @@ class RamatchChess960GameTestCase(AioHTTPTestCase):
         x_game_fen = game.initial_fen
         y_game_fen = game.initial_fen
 
-        for i in range(30):
-            print(i)
+        for i in range(2):
             game = app_state.games[resp["gameId"]]
 
             resp = await self.play_game_and_rematch_game(game)

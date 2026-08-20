@@ -31,6 +31,7 @@ Use `pychess-testing` after code changes. The required baseline is:
 | Rendered/browser behavior | Add relevant browser or Playwright verification |
 
 - Run targeted Python tests by default. Reserve the full suite for broad or cross-cutting changes, explicit requests, or when targeted coverage is insufficient.
+- Full Python CI includes both `python -m unittest discover -s tests` and the pytest-only Simul suite `python -m pytest tests/test_simul.py`; unittest discovery does not collect those Simul tests.
 - Run tournament tests only when tournament code changed, shared code can affect tournaments, or the task explicitly requires tournament coverage.
 - Run Python commands through `uv run` unless the project virtualenv is already active.
 - The project runtime and Ruff lint target are Python 3.14, but always run the Ruff formatter with `--target-version py313`. Ruff 0.15+ otherwise removes parentheses from multi-exception `except` clauses under `py314`, producing syntax that Python 3.13-based tooling cannot parse. Parenthesized exception tuples remain fully valid on Python 3.14.

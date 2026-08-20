@@ -1,4 +1,5 @@
 import asyncio
+import unittest
 from datetime import UTC, datetime, timedelta
 from unittest.mock import patch
 
@@ -14,6 +15,31 @@ from user import User
 from server import make_app
 
 test_logger.init_test_logger()
+
+
+class ServerMetricsMemoryStatsTestCase(unittest.TestCase):
+    def test_full_queue_diagnostics_do_not_serialize_payloads(self):
+        queue = asyncio.Queue[str](maxsize=4)
+        queue.put_nowait("sensitive-payload")
+
+        with patch("server_metrics.gc.get_objects", return_value=[queue]):
+            _stats, _tasks, queues, _counts = memory_stats()
+
+        self.assertEqual(
+            queues,
+            [
+                {
+                    "id": id(queue),
+                    "name": "Queue",
+                    "size": 1,
+                    "maxsize": 4,
+                    "full": False,
+                    "file": "-",
+                    "source": "-",
+                }
+            ],
+        )
+        self.assertNotIn("sensitive-payload", str(queues))
 
 
 class ServerMetricsDiagnosticsTestCase(AioHTTPTestCase):
@@ -85,29 +111,6 @@ class ServerMetricsDiagnosticsTestCase(AioHTTPTestCase):
         self.assertGreaterEqual(streams["bot_game_queued_messages"], 0)
         self.assertGreaterEqual(streams["bot_max_queue"], 0)
 
-    async def test_full_queue_diagnostics_do_not_serialize_payloads(self):
-        queue = asyncio.Queue[str](maxsize=4)
-        queue.put_nowait("sensitive-payload")
-
-        with patch("server_metrics.gc.get_objects", return_value=[queue]):
-            _stats, _tasks, queues, _counts = memory_stats()
-
-        self.assertEqual(
-            queues,
-            [
-                {
-                    "id": id(queue),
-                    "name": "Queue",
-                    "size": 1,
-                    "maxsize": 4,
-                    "full": False,
-                    "file": "-",
-                    "source": "-",
-                }
-            ],
-        )
-        self.assertNotIn("sensitive-payload", str(queues))
-
     async def test_metrics_anon_summary_has_bucket_and_detached_diagnostics(self):
         app_state = get_app_state(self.app)
 
@@ -122,7 +125,7 @@ class ServerMetricsDiagnosticsTestCase(AioHTTPTestCase):
         anon_default = User(app_state, anon=True)
         app_state.users[anon_default.username] = anon_default
 
-        # memory_stats() has focused coverage below. Avoid a real whole-heap
+        # memory_stats() has focused coverage above. Avoid a real whole-heap
         # traversal here; this test is about assembling endpoint diagnostics.
         with patch("server_metrics.memory_stats", return_value=([], [], [], {})) as stats_mock:
             response = await self.client.get(

@@ -1,6 +1,7 @@
 import json
 import time
 from datetime import UTC, datetime
+from unittest.mock import patch
 
 from aiohttp.test_utils import AioHTTPTestCase
 from const import FOLLOW
@@ -30,7 +31,7 @@ class FollowingPageTestCase(AioHTTPTestCase):
 
         relations = []
         users = []
-        for index in range(31):
+        for index in range(4):
             username = f"friend{index:02d}"
             relations.append(
                 {"_id": f"owner/{username}", "u1": "owner", "u2": username, "r": FOLLOW}
@@ -57,23 +58,24 @@ class FollowingPageTestCase(AioHTTPTestCase):
         await app_state.db.relation.insert_many(relations)
         await app_state.db.user.insert_many(users)
 
-        response = await self.client.get("/@/owner/following")
-        self.assertEqual(200, response.status)
-        html = await response.text()
-        self.assertEqual(30, html.count('class="user-link ulpt"'))
-        self.assertIn("FM</player-title> friend00", html)
-        self.assertIn("1875", html)
-        self.assertIn("Chess", html)
-        self.assertIn('<a class="nav-link" href="/@/owner/following">Friends</a>', html)
-        self.assertIn('href="/@/owner/following?page=2"', html)
-        self.assertNotIn("friend30</a>", html)
+        with patch("views.following.FOLLOWING_PAGE_SIZE", 3):
+            response = await self.client.get("/@/owner/following")
+            self.assertEqual(200, response.status)
+            html = await response.text()
+            self.assertEqual(3, html.count('class="user-link ulpt"'))
+            self.assertIn("FM</player-title> friend00", html)
+            self.assertIn("1875", html)
+            self.assertIn("Chess", html)
+            self.assertIn('<a class="nav-link" href="/@/owner/following">Friends</a>', html)
+            self.assertIn('href="/@/owner/following?page=2"', html)
+            self.assertNotIn("friend03</a>", html)
 
-        response = await self.client.get("/@/owner/following?page=2")
-        self.assertEqual(200, response.status)
-        html = await response.text()
-        self.assertEqual(1, html.count('class="user-link ulpt"'))
-        self.assertIn("friend30</a>", html)
-        self.assertIn('href="/@/owner/following"', html)
+            response = await self.client.get("/@/owner/following?page=2")
+            self.assertEqual(200, response.status)
+            html = await response.text()
+            self.assertEqual(1, html.count('class="user-link ulpt"'))
+            self.assertIn("friend03</a>", html)
+            self.assertIn('href="/@/owner/following"', html)
 
     async def test_other_users_following_page_redirects_to_own(self):
         app_state = get_app_state(self.app)
