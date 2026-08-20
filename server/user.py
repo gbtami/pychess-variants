@@ -1007,7 +1007,7 @@ async def follow_user(request: web.Request) -> web.StreamResponse:
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
     user = await app_state.users.get(session_user)
-    if user.anon or profileId == user.username or profileId.casefold() == SYSTEM_USER.casefold():
+    if user.anon or profileId == user.username:
         return web.Response(status=403)
 
     post_data = await read_post_data(request)

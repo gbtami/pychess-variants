@@ -39,6 +39,16 @@
             <div class="profile-actions">
                 <div class="btn-rack profile-actions__rack">
 
+            {% if profile_system %}
+            {% if (profile != username) and (not anon) %}
+            {% if (can_follow) and (is_following) %}
+                <a id="unfollow"></a>
+            {% elif can_follow %}
+                <a id="follow"></a>
+            {% endif %}
+            {% endif %}
+            <a class="icon icon-bubble-convo" href="/blogs/@/{{ profile }}" title="User blogs">Blogs</a>
+            {% else %}
             <a class="icon icon-tv" href="/@/{{ profile }}/tv" title="{% trans %}Watch games{% endtrans %}">{% trans %}Watch{% endtrans %}</a>
 
             {% if (profile != username) and (not anon) and (profile_title != "BOT") %}
@@ -80,6 +90,7 @@
             {% endif %}
             {% if (lishogi_id) %}
             <a class="icon icon-at" href="https://lishogi.org/@/{{ lishogi_id }}" rel="noopener" target="_blank" title="{% trans %}Lishogi profile{% endtrans %}">{% trans %}Lishogi{% endtrans %}</a>
+            {% endif %}
             {% endif %}
             {% endif %}
                     <div class="profile-actions__dropdown" hidden>

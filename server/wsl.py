@@ -12,7 +12,7 @@ from auto_pair import (
     auto_pair,
     find_matching_user_for_seek,
 )
-from const import STARTED
+from const import STARTED, SYSTEM_USER
 from header_challenges import (
     broadcast_challenge_state,
     challenge_participants,
@@ -141,6 +141,8 @@ async def direct_challenge_block_message(
     if not is_direct_challenge_target(target):
         return None
     challenge_target = target or ""
+    if challenge_target == SYSTEM_USER:
+        return DIRECT_CHALLENGE_BLOCKED_MESSAGE
     target_profile = await app_state.public_users.get_profile(challenge_target)
     if target_profile is None:
         return None

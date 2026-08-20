@@ -46,6 +46,7 @@ from const import (
     SCHEDULE_MAX_DAYS,
     SHIELD,
     STARTED,
+    SYSTEM_USER,
     T_CREATED,
     T_STARTED,
     TEST_PREFIX,
@@ -1217,7 +1218,7 @@ class PychessGlobalAppState:
 
     def __init_users(self) -> Users:
         result = Users(self)
-        result["PyChess"] = User(self, bot=True, username="PyChess")
+        result[SYSTEM_USER] = User(self, username=SYSTEM_USER, perfs={})
         result["Random-Mover"] = User(self, bot=True, username="Random-Mover")
         result["Fairy-Stockfish"] = User(self, bot=True, username="Fairy-Stockfish")
         # Shared, stateless identity for ordinary anonymous HTTP page views.

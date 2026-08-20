@@ -2,7 +2,7 @@ from urllib.parse import urlsplit
 
 import aiohttp_jinja2
 from aiohttp import web
-from const import DASH, IMPORTED, RATED, TROPHIES
+from const import DASH, IMPORTED, RATED, SYSTEM_USER, TROPHIES
 from custom_trophy_owners import CUSTOM_TROPHY_OWNERS
 from glicko2.glicko2 import PROVISIONAL_PHI
 from pychess_global_app_state_utils import get_app_state
@@ -77,6 +77,9 @@ async def profile(request: web.Request) -> ViewContext:
     elif request.path[-3:] == "/me":
         rated = -1
 
+    profile_system = profileId == SYSTEM_USER
+    context["profile_system"] = profile_system
+
     if profile_restricted:
         # A direct anonymous profile request is likely to be enumeration
         # traffic. Render public identity/rating data, but avoid relationship
@@ -88,37 +91,45 @@ async def profile(request: web.Request) -> ViewContext:
         context["can_challenge"] = False
         context["can_export_games"] = False
     else:
-        follow_allowed = (profileId not in user.blocked) and (
-            user.username not in profile_user.blocked
-        )
-        context["can_block"] = profileId not in user.blocked
-        context["can_follow"] = follow_allowed
-        context["is_following"] = profileId in user.following
-        can_message = (
-            (profileId not in user.blocked)
-            and (user.username not in profile_user.blocked)
-            and ((not profile_user.pm_friends_only) or (profileId in user.following))
-        )
-        if (
-            (not can_message)
-            and profile_user.pm_friends_only
-            and follow_allowed
-            and (app_state.db is not None)
-        ):
-            existing = await app_state.db.inbox_thread.find_one(
-                {"_id": _thread_id(user.username, profileId), "deletedBy": {"$ne": profileId}},
-                projection={"_id": 1},
+        if profile_system:
+            context["can_block"] = False
+            context["can_follow"] = (not user.anon) and profileId != user.username
+            context["is_following"] = profileId in user.following
+            context["can_message"] = False
+            context["can_challenge"] = False
+            context["can_export_games"] = False
+        else:
+            follow_allowed = (profileId not in user.blocked) and (
+                user.username not in profile_user.blocked
             )
-            can_message = existing is not None
-        context["can_message"] = can_message
-        context["can_challenge"] = (profileId not in user.blocked) and (
-            user.username not in profile_user.blocked
-        )
-        context["can_export_games"] = (
-            (not user.anon)
-            and (not profile_user.bot)
-            and (profileId == user.username or user.username in ADMINS)
-        )
+            context["can_block"] = profileId not in user.blocked
+            context["can_follow"] = follow_allowed
+            context["is_following"] = profileId in user.following
+            can_message = (
+                (profileId not in user.blocked)
+                and (user.username not in profile_user.blocked)
+                and ((not profile_user.pm_friends_only) or (profileId in user.following))
+            )
+            if (
+                (not can_message)
+                and profile_user.pm_friends_only
+                and follow_allowed
+                and (app_state.db is not None)
+            ):
+                existing = await app_state.db.inbox_thread.find_one(
+                    {"_id": _thread_id(user.username, profileId), "deletedBy": {"$ne": profileId}},
+                    projection={"_id": 1},
+                )
+                can_message = existing is not None
+            context["can_message"] = can_message
+            context["can_challenge"] = (profileId not in user.blocked) and (
+                user.username not in profile_user.blocked
+            )
+            context["can_export_games"] = (
+                (not user.anon)
+                and (not profile_user.bot)
+                and (profileId == user.username or user.username in ADMINS)
+            )
 
     allowed_variants = context["category_variant_set"]
 

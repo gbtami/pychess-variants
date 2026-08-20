@@ -570,6 +570,7 @@ class ViewContext(TypedDict, total=False):
     is_following: bool
     can_message: bool
     can_challenge: bool
+    profile_system: bool
     corr_games: str
     simul_games: str
     simulhost: bool

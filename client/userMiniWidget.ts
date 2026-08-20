@@ -31,6 +31,7 @@ interface MiniPlaying {
 
 interface MiniPayload {
     username: string;
+    system?: boolean;
     title: string;
     online: boolean;
     canMessage?: boolean;
@@ -451,6 +452,13 @@ class UserMiniWidget {
     private renderActions(payload: MiniPayload): HTMLElement | undefined {
         const actions = document.createElement('div');
         actions.className = 'umw-actions upt__actions btn-rack';
+
+        if (payload.system) {
+            if (!this.isAnon && payload.username !== this.currentUsername && payload.canFollow) {
+                actions.appendChild(this.makeFollowButton(payload.username, payload.following === true));
+            }
+            return actions.childElementCount > 0 ? actions : undefined;
+        }
 
         const watchLink = this.makeActionLink(
             'icon icon-tv',

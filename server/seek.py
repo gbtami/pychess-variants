@@ -9,7 +9,7 @@ from catalogued_variants import (
     can_create_catalogued_seek,
     catalogued_variant_games_are_persisted,
 )
-from const import CORR_SEEK_EXPIRE_WEEKS, INVITE_SEEK_EXPIRE
+from const import CORR_SEEK_EXPIRE_WEEKS, INVITE_SEEK_EXPIRE, SYSTEM_USER
 from json_utils import json_dumps
 from misc import time_control_str
 from newid import new_id
@@ -604,6 +604,9 @@ async def create_seek(
 
     target = data.get("target", "")
     if is_direct_challenge_target(target):
+        if target == SYSTEM_USER:
+            log.info("Rejecting direct challenge to system account %s by %s", target, user.username)
+            return None
         target_profile = await user.app_state.public_users.get_profile(target)
         if target_profile is None:
             return None
