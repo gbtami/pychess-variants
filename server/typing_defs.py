@@ -96,7 +96,6 @@ class FollowingUserRow(TypedDict):
 class UserStatusJson(TypedDict):
     id: str
     status: bool
-    online: bool
 
 
 class UserBlocksResponse(TypedDict):

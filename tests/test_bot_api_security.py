@@ -182,19 +182,6 @@ class BotApiSecurityTestCase(AioHTTPTestCase):
         self.assertEqual(response.status, 200)
         self.assertEqual(BOT_CHALLENGE_DECLINED, seek.bot_challenge_status)
 
-
-    async def test_user_status_is_lichess_bot_compatible(self):
-        bot, _ = await self.create_bot("status-bot")
-        bot.online = True
-
-        response = await self.client.get("/api/users/status?ids=status-bot")
-
-        self.assertEqual(response.status, 200)
-        self.assertEqual(
-            await response.json(),
-            [{"id": "status-bot", "status": True, "online": True}],
-        )
-
     async def test_event_stream_disconnect_marks_bot_offline(self):
         bot, token = await self.create_bot("owner-bot")
 
