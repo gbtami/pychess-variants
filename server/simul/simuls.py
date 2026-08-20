@@ -226,7 +226,11 @@ async def load_simul(
         entry_titled_only=False,
     )
     simul.created_at = _as_datetime(doc.get("createdAt")) or datetime.now(UTC)
-    simul.host_seen_at = _as_datetime(doc.get("hostSeenAt")) or simul.created_at
+    host_seen_at = _as_datetime(doc.get("hostSeenAt"))
+    if host_seen_at is None:
+        log.error("Skipping simul %s with invalid hostSeenAt", simul_id)
+        return None
+    simul.host_seen_at = host_seen_at
     simul.starts_at = _as_datetime(doc.get("startsAt"))
     simul.ends_at = _as_datetime(doc.get("endsAt"))
     simul.status = _parse_status(doc.get("status"))
@@ -327,16 +331,7 @@ async def load_active_simuls(app_state: PychessGlobalAppState) -> None:
                 {
                     "$or": [
                         {"status": T_STARTED},
-                        {
-                            "status": T_CREATED,
-                            "$or": [
-                                {"hostSeenAt": {"$gte": created_cutoff}},
-                                {
-                                    "hostSeenAt": {"$exists": False},
-                                    "createdAt": {"$gte": created_cutoff},
-                                },
-                            ],
-                        },
+                        {"status": T_CREATED, "hostSeenAt": {"$gte": created_cutoff}},
                     ]
                 }
             )

@@ -747,7 +747,7 @@ class SimulDoc(TypedDict):
     entryTitledOnly: bool
     createdBy: str
     createdAt: datetime
-    hostSeenAt: NotRequired[datetime]
+    hostSeenAt: datetime
     estimatedStartAt: NotRequired[datetime | None]
     startsAt: NotRequired[datetime | None]
     endsAt: NotRequired[datetime | None]

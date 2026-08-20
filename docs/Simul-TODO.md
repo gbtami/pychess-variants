@@ -29,10 +29,9 @@ and Lichess-parity work identified in the post-Teams review.
   games as well as hiding the UI control.
 - [x] **Created-simul lifetime and restart loading.** Persist `hostSeenAt` whenever the
   host opens a created simul. On restart, always restore `T_STARTED` simuls but preload
-  `T_CREATED` simuls only when the host was seen within the previous hour (with
-  `createdAt` as the compatibility fallback for legacy documents). Stale created simuls
-  remain in MongoDB and still load on demand from their URL instead of consuming startup
-  memory forever.
+  `T_CREATED` simuls only when the host was seen within the previous hour. Stale created
+  simuls remain in MongoDB and still load on demand from their URL instead of consuming
+  startup memory forever.
 - [ ] **Home-list queries.** Query created, started, and finished simuls independently.
   The current single newest-N scan can hide a still-created or running simul behind more
   recent finished records. Add a signed-in user's pending/accepted simuls section similar

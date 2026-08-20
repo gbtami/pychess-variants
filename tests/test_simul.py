@@ -738,22 +738,12 @@ class TestGUI:
         stale.host_seen_at = now - timedelta(hours=2)
         await upsert_simul_to_db(stale, app_state)
 
-        legacy_sid = id8()
-        legacy = await Simul.create(
-            app_state, legacy_sid, name="Legacy Recent Simul", created_by=host_username
-        )
-        legacy.created_at = now - timedelta(minutes=20)
-        await upsert_simul_to_db(legacy, app_state)
-        assert app_state.db is not None
-        await app_state.db.simul.update_one({"_id": legacy_sid}, {"$unset": {"hostSeenAt": ""}})
-
         restarted_app = make_app(db_client=db_client)
         restarted_app[pychess_global_app_state_key] = PychessGlobalAppState(restarted_app)
         restarted_state = get_app_state(restarted_app)
         await load_active_simuls(restarted_state)
 
         assert recent_sid in restarted_state.simuls
-        assert legacy_sid in restarted_state.simuls
         assert stale_sid not in restarted_state.simuls
 
         loaded_stale = await load_simul(restarted_state, stale_sid)
