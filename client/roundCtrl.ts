@@ -12,6 +12,7 @@ import { patch } from './document';
 import { boardSettings } from './boardSettings';
 import { Clock } from './clock';
 import { sound } from './sound';
+import { redirectFirst } from './tournamentAlerts';
 import { fogFen } from './variants';
 import { WHITE, BLACK, uci2LastMove, getCounting, isHandicap } from './chess';
 import { crosstableView } from './crosstable';
@@ -956,7 +957,10 @@ export class RoundController extends GameController {
     };
 
     private onMsgNewGame = (msg: MsgNewGame) => {
-        window.location.assign(this.home + '/' + msg['gameId']);
+        redirectFirst(msg.gameId, () => {
+            sound.genericNotify();
+            window.setTimeout(() => window.location.assign(this.home + '/' + msg.gameId), 700);
+        });
     };
 
     private onMsgViewRematch = (msg: MsgViewRematch) => {

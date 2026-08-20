@@ -12,7 +12,7 @@ import { chatMessage, chatView, ChatController } from './chat';
 import { colorIcon } from './chess';
 import { getLastMoveFen, VARIANTS, Variant } from './variants';
 import { timeControlStr } from './view';
-import { initializeClock, localeOptions } from './tournamentClock';
+import { initializeClock, localeOptions, syncTournamentStartAlerts } from './tournamentClock';
 import { tournamentLifecycleView } from './tournamentLifecycle';
 import { gameType } from './result';
 import { boardSettings } from './boardSettings';
@@ -32,6 +32,8 @@ import {
 import { newWebsocket } from '@/socket/webSocketUtils';
 import { faq, roundRobinFaq, swissFaq } from './tournamentFaq';
 import { displayUsername, userLink } from './user';
+import { sound } from './sound';
+import { redirectFirst } from './tournamentAlerts';
 
 interface Duel {
     id: string; // game id
@@ -828,7 +830,12 @@ export class TournamentController implements ChatController {
     }
 
     private onMsgNewGame(msg: MsgNewGame) {
-        window.location.assign('/' + msg.gameId);
+        redirectFirst(msg.gameId, () => {
+            sound.genericNotify();
+            // Give the short notification sound time to become audible before
+            // unloading this tab, like lila's beeping redirect does.
+            window.setTimeout(() => window.location.assign('/' + msg.gameId), 700);
+        });
     }
 
     private onMsgGameUpdate() {
@@ -882,6 +889,7 @@ export class TournamentController implements ChatController {
         const tminutes = document.getElementById('tminutes') as Element;
         patch(tminutes, h('span#tminutes', this.durationString(msg.tminutes)));
 
+        this.startDate = msg.startsAt;
         const startsAtDate = new Date(msg.startsAt);
         const startsAt = document.getElementById('startsAt') as Element;
         if (startsAt) patch(startsAt, h('date', startsAtDate.toLocaleString('default', localeOptions)));
@@ -966,6 +974,7 @@ export class TournamentController implements ChatController {
 
     private onMsgUserStatus(msg: MsgUserStatus) {
         this.userStatus = msg.ustatus;
+        syncTournamentStartAlerts(this);
         this.updateActionButton();
     }
 

@@ -63,9 +63,13 @@ class Sounds {
     };
 
     tracks: { [key: string]: Howl };
+    private countDownTracks: { [key: number]: Howl };
+    private assetURL: string;
 
     constructor() {
         this.tracks = {};
+        this.countDownTracks = {};
+        this.assetURL = '';
     }
 
     updateVolume() {
@@ -73,6 +77,7 @@ class Sounds {
         Object.keys(this.tracks).forEach(key => {
             this.tracks[key].volume(volume);
         });
+        Object.values(this.countDownTracks).forEach(track => track.volume(volume));
     }
 
     buildBugChatSounds(assetURL: string) {
@@ -82,6 +87,8 @@ class Sounds {
     }
 
     updateSoundTheme(assetURL: string) {
+        this.assetURL = assetURL;
+        this.countDownTracks = {};
         const soundTheme = soundThemeSettings.value;
         Object.keys(Sounds.trackNames).forEach((key: keyof typeof Sounds.trackNames) => {
             this.tracks[key] = this.buildSound(assetURL, soundTheme, Sounds.trackNames[key]);
@@ -107,6 +114,27 @@ class Sounds {
 
     private audio() {
         return soundThemeSettings.value !== 'silent';
+    }
+
+    private countDownTrack(count: number): Howl {
+        if (!(count in this.countDownTracks)) {
+            // The NES sound set only ships CountDown0. Match the lila-style
+            // countdown without producing missing-asset requests by falling
+            // back to the complete standard set for that theme.
+            const theme = soundThemeSettings.value === 'nes' ? 'standard' : soundThemeSettings.value;
+            this.countDownTracks[count] = this.buildSound(this.assetURL, theme, `CountDown${count}`);
+        }
+        return this.countDownTracks[count];
+    }
+
+    preloadCountDown() {
+        if (!this.audio()) return;
+        for (let count = 10; count >= 0; count--) this.countDownTrack(count);
+    }
+
+    countDown(count: number) {
+        if (!this.audio()) return;
+        this.countDownTrack(count).play();
     }
 
     genericNotify() {

@@ -10,7 +10,7 @@ import { JSONObject, PyChessModel } from './types';
 import { newWebsocket } from '@/socket/webSocketUtils';
 import { displayUsername, userLink } from './user';
 import { timeControlStr } from './view';
-import { initializeClock, localeOptions } from './tournamentClock';
+import { initializeClock, localeOptions, syncTournamentStartAlerts } from './tournamentClock';
 import { tournamentLifecycleView } from './tournamentLifecycle';
 import { roundRobinFaq } from './tournamentFaq';
 import {
@@ -30,6 +30,8 @@ import {
     TournamentPlayer,
 } from './tournamentType';
 import { VARIANTS } from './variants';
+import { sound } from './sound';
+import { redirectFirst } from './tournamentAlerts';
 
 type RRFlatpickrOptions = {
     enableTime: boolean;
@@ -1759,11 +1761,15 @@ export class TournamentRRController implements ChatController {
 
     private onMsgUserStatus(msg: MsgUserStatus) {
         this.userStatus = msg.ustatus;
+        syncTournamentStartAlerts(this as any);
         this.updateActionButton();
     }
 
     private onMsgNewGame(msg: any) {
-        window.location.assign('/' + msg.gameId);
+        redirectFirst(msg.gameId, () => {
+            sound.genericNotify();
+            window.setTimeout(() => window.location.assign('/' + msg.gameId), 700);
+        });
     }
 
     private onMsgError(msg: MsgError) {
