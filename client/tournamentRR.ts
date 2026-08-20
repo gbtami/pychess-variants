@@ -448,9 +448,9 @@ export class TournamentRRController implements ChatController {
                 `/api/users/status?ids=${encodeURIComponent(cell.white)},${encodeURIComponent(cell.black)}`,
             );
             if (!response.ok) return;
-            const payload = (await response.json()) as Array<{ id: string; status?: boolean }>;
+            const payload = (await response.json()) as Array<{ id: string; online?: boolean }>;
             payload.forEach(entry => {
-                this.onlineByUsername[entry.id] = entry.status;
+                this.onlineByUsername[entry.id] = entry.online;
             });
             this.renderModal();
         } catch {

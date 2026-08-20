@@ -1110,7 +1110,7 @@ async def get_status(request: web.Request) -> web.StreamResponse:
     status_list: list[UserStatusJson] = []
     for uid in ids:
         user = await app_state.users.get(uid)
-        status_entry: UserStatusJson = {"status": user.online, "id": uid}
+        status_entry: UserStatusJson = {"online": user.online, "id": uid}
         status_list.append(status_entry)
 
     return json_response(status_list)
