@@ -116,6 +116,17 @@ class TestGUI:
         assert simul.deny(host_username) is False
         assert host_username in simul.players
 
+        assert simul.join(player2) is True
+        assert simul.withdraw(player2) is True
+        assert player2.username not in simul.pending_players
+
+        assert simul.join(player2) is True
+        assert simul.approve(player2.username) is True
+        assert simul.withdraw(player2) is True
+        assert player2.username not in simul.players
+        assert simul.withdraw(host) is False
+        assert host_username in simul.players
+
     async def test_simul_participant_cap(self, aiohttp_server):
         app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         await aiohttp_server(app, host="127.0.0.1")
@@ -275,29 +286,72 @@ class TestGUI:
                 assert host_username in simul_doc["players"]
                 assert abs((simul_doc["hostSeenAt"] - simul.host_seen_at).total_seconds()) < 0.001
 
-            await host_ws.send_json(
-                {"type": "approve_player", "simulId": sid, "username": player2.username}
-            )
-            msg = await self._receive_until_type(host_ws, "player_approved")
-            assert msg["type"] == "player_approved"
-            assert msg["player"]["name"] == player2.username
-            assert player2.username in simul.players
-            assert player2.username not in simul.pending_players
-            if app_state.db is not None:
-                simul_doc = await app_state.db.simul.find_one({"_id": sid})
-                assert simul_doc is not None
-                assert player2.username in simul_doc["players"]
-                assert player2.username not in simul_doc["pendingPlayers"]
-
             await player_ws.close()
-            msg = await self._receive_until_type(host_ws, "player_disconnected")
-            assert msg["username"] == player2.username
-            assert player2.username not in simul.players
+            await asyncio.sleep(0)
+            assert player2.username in simul.pending_players
             if app_state.db is not None:
                 simul_doc = await app_state.db.simul.find_one({"_id": sid})
                 assert simul_doc is not None
-                assert player2.username not in simul_doc["players"]
-                assert player2.username not in simul_doc["pendingPlayers"]
+                assert player2.username in simul_doc["pendingPlayers"]
+
+            reconnect_session, reconnect_ws = await self._connect_ws(player2.username, server.port)
+            try:
+                await reconnect_ws.send_json(
+                    {"type": "simul_user_connected", "username": player2.username, "simulId": sid}
+                )
+                msg = await reconnect_ws.receive_json()
+                assert msg["type"] == "simul_user_connected"
+                assert player2.username in {player["name"] for player in msg["pendingPlayers"]}
+
+                await host_ws.send_json(
+                    {"type": "approve_player", "simulId": sid, "username": player2.username}
+                )
+                msg = await self._receive_until_type(host_ws, "player_approved")
+                assert msg["type"] == "player_approved"
+                assert msg["player"]["name"] == player2.username
+                assert player2.username in simul.players
+                assert player2.username not in simul.pending_players
+                if app_state.db is not None:
+                    simul_doc = await app_state.db.simul.find_one({"_id": sid})
+                    assert simul_doc is not None
+                    assert player2.username in simul_doc["players"]
+                    assert player2.username not in simul_doc["pendingPlayers"]
+
+                await reconnect_ws.close()
+                await asyncio.sleep(0)
+                assert player2.username in simul.players
+
+                withdraw_session, withdraw_ws = await self._connect_ws(
+                    player2.username, server.port
+                )
+                try:
+                    await withdraw_ws.send_json(
+                        {
+                            "type": "simul_user_connected",
+                            "username": player2.username,
+                            "simulId": sid,
+                        }
+                    )
+                    msg = await withdraw_ws.receive_json()
+                    assert msg["type"] == "simul_user_connected"
+                    assert player2.username in {player["name"] for player in msg["players"]}
+
+                    await withdraw_ws.send_json({"type": "withdraw", "simulId": sid})
+                    msg = await self._receive_until_type(host_ws, "player_withdrawn")
+                    assert msg["username"] == player2.username
+                    assert player2.username not in simul.players
+                    assert player2.username not in simul.pending_players
+                    if app_state.db is not None:
+                        simul_doc = await app_state.db.simul.find_one({"_id": sid})
+                        assert simul_doc is not None
+                        assert player2.username not in simul_doc["players"]
+                        assert player2.username not in simul_doc["pendingPlayers"]
+                finally:
+                    await withdraw_ws.close()
+                    await withdraw_session.close()
+            finally:
+                await reconnect_ws.close()
+                await reconnect_session.close()
         finally:
             await host_ws.close()
             await host_session.close()
@@ -1104,9 +1158,7 @@ class TestGUI:
         assert len(simul.ongoing_games) == 0
         assert simul.status == T_FINISHED
 
-    async def test_simul_disconnect_cleanup_does_not_block_on_broadcast(
-        self, aiohttp_server, monkeypatch
-    ):
+    async def test_simul_disconnect_only_cleans_socket_presence(self, aiohttp_server, monkeypatch):
         app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         await aiohttp_server(app, host="127.0.0.1")
         app_state = get_app_state(app)
@@ -1116,7 +1168,9 @@ class TestGUI:
         host = User(app_state, username=host_username)
         app_state.users[host.username] = host
 
-        simul = await Simul.create(app_state, sid, name="Cleanup Simul", created_by=host_username)
+        simul = await Simul.create(
+            app_state, sid, name="Persistent Simul", created_by=host_username
+        )
         app_state.simuls[sid] = simul
 
         player = User(app_state, username="TestUser_2")
@@ -1127,26 +1181,15 @@ class TestGUI:
 
         fake_ws = object()
         player.simul_sockets[sid] = {fake_ws}
+        upsert = AsyncMock()
+        broadcast = AsyncMock()
+        monkeypatch.setattr(simul_wss, "upsert_simul_to_db", upsert)
+        monkeypatch.setattr(simul, "broadcast", broadcast)
 
-        async def fake_upsert(*_args, **_kwargs):
-            return None
+        await simul_wss.finally_logic(app_state, fake_ws, player)
 
-        broadcast_started = asyncio.Event()
-        release_broadcast = asyncio.Event()
-
-        async def blocking_broadcast(_response):
-            broadcast_started.set()
-            await release_broadcast.wait()
-
-        monkeypatch.setattr(simul_wss, "upsert_simul_to_db", fake_upsert)
-        monkeypatch.setattr(simul, "broadcast", blocking_broadcast)
-
-        await asyncio.wait_for(simul_wss.finally_logic(app_state, fake_ws, player), timeout=0.2)
-        await asyncio.sleep(0)
-
-        assert player.username not in simul.players
+        assert player.username in simul.players
         assert sid not in player.simul_sockets
-        assert broadcast_started.is_set()
-
-        release_broadcast.set()
-        await asyncio.sleep(0)
+        assert player not in simul.spectators
+        upsert.assert_not_awaited()
+        broadcast.assert_not_awaited()

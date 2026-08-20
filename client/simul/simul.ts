@@ -93,10 +93,9 @@ interface MsgPlayerDenied {
     username: string;
 }
 
-interface MsgPlayerDisconnected {
-    type: 'player_disconnected';
+interface MsgPlayerWithdrawn {
+    type: 'player_withdrawn';
     username: string;
-    group: 'pending' | 'approved';
 }
 
 interface MsgError {
@@ -123,7 +122,7 @@ type SimulInboundMessage =
     | MsgPlayerJoined
     | MsgPlayerApproved
     | MsgPlayerDenied
-    | MsgPlayerDisconnected
+    | MsgPlayerWithdrawn
     | MsgChat
     | MsgFullChat
     | MsgError
@@ -224,8 +223,8 @@ export class SimulController implements ChatController {
             case 'player_denied':
                 this.onMsgPlayerDenied(msg);
                 break;
-            case 'player_disconnected':
-                this.onMsgPlayerDisconnected(msg);
+            case 'player_withdrawn':
+                this.onMsgPlayerWithdrawn(msg);
                 break;
             case 'lobbychat':
                 this.onMsgChat(msg);
@@ -336,7 +335,7 @@ export class SimulController implements ChatController {
         this.redraw();
     }
 
-    onMsgPlayerDisconnected(msg: MsgPlayerDisconnected) {
+    onMsgPlayerWithdrawn(msg: MsgPlayerWithdrawn) {
         this.pendingPlayers = this.pendingPlayers.filter(player => player.name !== msg.username);
         this.players = this.players.filter(player => player.name !== msg.username);
         this.redraw();
@@ -371,6 +370,12 @@ export class SimulController implements ChatController {
     joinSimul() {
         this.lastError = '';
         this.doSend({ type: 'join', simulId: this.simulId });
+        this.redraw();
+    }
+
+    withdrawSimul() {
+        this.lastError = '';
+        this.doSend({ type: 'withdraw', simulId: this.simulId });
         this.redraw();
     }
 
@@ -538,7 +543,11 @@ export class SimulController implements ChatController {
                     ),
                 );
             }
-        } else if (!alreadyJoined) {
+        } else if (alreadyJoined) {
+            buttons.push(
+                h('button.button.simul__cta', { on: { click: () => this.withdrawSimul() } }, 'Withdraw'),
+            );
+        } else {
             buttons.push(h('button.button.text.simul__cta', { on: { click: () => this.joinSimul() } }, 'Join'));
         }
 

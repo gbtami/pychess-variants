@@ -212,24 +212,16 @@ class Simul:
             return True
         return False
 
-    def leave(self, user: User):
-        if user.username in self.players:
-            del self.players[user.username]
-        if user.username in self.pending_players:
-            del self.pending_players[user.username]
-
-    def remove_disconnected_player(self, user: User) -> str | None:
+    def withdraw(self, user: User) -> bool:
         if self.status != T_CREATED or user.username == self.created_by:
-            return None
-        if self.id in user.simul_sockets:
-            return None
+            return False
         if user.username in self.pending_players:
             del self.pending_players[user.username]
-            return "pending"
+            return True
         if user.username in self.players:
             del self.players[user.username]
-            return "approved"
-        return None
+            return True
+        return False
 
     def add_spectator(self, user: User):
         self.spectators.add(user)

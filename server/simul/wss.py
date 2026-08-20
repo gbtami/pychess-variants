@@ -23,6 +23,7 @@ if TYPE_CHECKING:
         SimulLobbyChatMessage,
         SimulStartRequest,
         SimulUserConnectedRequest,
+        SimulWithdrawRequest,
     )
 
 
@@ -48,21 +49,6 @@ async def finally_logic(app_state: PychessGlobalAppState, ws, user: User):
                     simul = app_state.simuls.get(simul_id)
                     if simul:
                         simul.remove_spectator(user)
-                        removed_group = simul.remove_disconnected_player(user)
-                        if removed_group is not None:
-                            await upsert_simul_to_db(simul, app_state)
-                            # Do not block websocket teardown on fan-out send:
-                            # this path can stall if one spectator socket is slow.
-                            app_state.create_background_task(
-                                simul.broadcast(
-                                    {
-                                        "type": "player_disconnected",
-                                        "username": user.username,
-                                        "group": removed_group,
-                                    }
-                                ),
-                                name=f"simul-disconnect-broadcast-{simul_id}-{user.username}",
-                            )
                 break
 
 
@@ -77,6 +63,8 @@ async def process_message(
         await handle_start_simul(app_state, ws, user, data)
     elif data["type"] == "join":
         await handle_join(app_state, user, ws, data)
+    elif data["type"] == "withdraw":
+        await handle_withdraw(app_state, user, data)
     elif data["type"] == "approve_player":
         await handle_approve_player(app_state, ws, user, data)
     elif data["type"] == "deny_player":
@@ -187,6 +175,19 @@ async def handle_join(
             {"simulId": simul.id, "name": simul.name},
         )
         await simul.broadcast({"type": "player_joined", "player": simul.player_json(user)})
+
+
+async def handle_withdraw(
+    app_state: PychessGlobalAppState, user: User, data: SimulWithdrawRequest
+) -> None:
+    simulId = data["simulId"]
+    simul = await get_simul(app_state, simulId)
+    if simul is None:
+        return
+
+    if simul.withdraw(user):
+        await upsert_simul_to_db(simul, app_state)
+        await simul.broadcast({"type": "player_withdrawn", "username": user.username})
 
 
 async def handle_approve_player(

@@ -40,10 +40,10 @@ and Lichess-parity work identified in the post-Teams review.
   new applicants enter, when the host accepts a candidate, and again immediately before
   game creation. Lichess uses its global realtime-playing capacity (currently 100); the
   lower PyChess cap is intentionally conservative for the production server.
-- [ ] **Applicant persistence and explicit withdraw.** Do not silently remove a pending or
-  accepted player merely because their last simul-page websocket disconnects. Lichess
-  keeps applicants registered until they withdraw or the host rejects them. Persist that
-  state across navigation/reconnect and add an explicit Withdraw action.
+- [x] **Applicant persistence and explicit withdraw.** Pending and accepted applicants
+  remain registered when their last simul-page websocket disconnects, matching Lichess.
+  Registration survives navigation/reconnect and is removed only when the player uses the
+  explicit Withdraw action or the host rejects/removes them.
 - [ ] **Account deletion / GDPR.** Anonymize simul host/player references when an account
   is erased. Simul chat is already scrubbed; the simul documents themselves are not.
 - [ ] **Moderator controls.** Allow the appropriate site moderators/admins to edit or

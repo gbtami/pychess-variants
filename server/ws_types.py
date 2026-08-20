@@ -640,6 +640,10 @@ class SimulJoinRequest(SimulIdMessage):
     type: Literal["join"]
 
 
+class SimulWithdrawRequest(SimulIdMessage):
+    type: Literal["withdraw"]
+
+
 class SimulApprovePlayerRequest(SimulIdMessage):
     type: Literal["approve_player"]
     username: NotRequired[str]
@@ -655,6 +659,7 @@ SimulInboundMessage = (
     | SimulLobbyChatMessage
     | SimulStartRequest
     | SimulJoinRequest
+    | SimulWithdrawRequest
     | SimulApprovePlayerRequest
     | SimulDenyPlayerRequest
 )
