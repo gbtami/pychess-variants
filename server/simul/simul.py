@@ -16,6 +16,13 @@ if TYPE_CHECKING:
     from ws_types import ChatLine
 
 
+# Lichess ties simul admission to its general realtime-playing capacity (100).
+# PyChess runs on a much smaller server, so keep one host from creating more than
+# 50 live games at once. Keep this as a single explicit constant so it can be
+# raised later if production measurements show that is safe.
+MAX_SIMUL_OPPONENTS = 50
+
+
 class Simul:
     """
     Standalone Simul class
@@ -126,17 +133,27 @@ class Simul:
     def all_games_json(self) -> list[dict[str, object]]:
         return [self.game_json(game) for game in self.games.values()]
 
+    @property
+    def opponent_count(self) -> int:
+        return max(0, len(self.players) - (self.created_by in self.players))
+
+    def capacity_error(self) -> str | None:
+        if self.opponent_count >= MAX_SIMUL_OPPONENTS:
+            return f"This simul already has the maximum of {MAX_SIMUL_OPPONENTS} accepted players."
+        return None
+
     def join(self, user: User) -> bool:
         if self.status != T_CREATED:
             return False
         if (
-            user.username != self.created_by
-            and user.username not in self.players
-            and user.username not in self.pending_players
+            user.username == self.created_by
+            or user.username in self.players
+            or user.username in self.pending_players
+            or self.capacity_error() is not None
         ):
-            self.pending_players[user.username] = user
-            return True
-        return False
+            return False
+        self.pending_players[user.username] = user
+        return True
 
     def entry_condition_error(self, user: User) -> str | None:
         if user.anon:
@@ -173,7 +190,7 @@ class Simul:
         return None
 
     def approve(self, username: str | None) -> bool:
-        if self.status != T_CREATED:
+        if self.status != T_CREATED or self.capacity_error() is not None:
             return False
         if username in self.pending_players:
             user = self.pending_players[username]
@@ -299,12 +316,19 @@ class Simul:
             await self.broadcast(response)
         return created_games
 
+    def start_error(self) -> str | None:
+        if self.status != T_CREATED:
+            return "This simul has already started"
+        if self.opponent_count < 1:
+            return "Cannot start simul without opponents"
+        if self.opponent_count > MAX_SIMUL_OPPONENTS:
+            return f"Cannot start simul with more than {MAX_SIMUL_OPPONENTS} opponents"
+        if not self.host_extra_time_valid():
+            return "Invalid host extra time for this clock setup"
+        return None
+
     async def start(self) -> bool:
-        if self.status == T_CREATED:
-            if len(self.players) < 2:
-                return False
-            if not self.host_extra_time_valid():
-                return False
+        if self.start_error() is None:
             self.status = T_STARTED
             self.starts_at = datetime.now(UTC)
             self.host_extra_time += (len(self.players) - 1) * self.host_extra_time_per_player

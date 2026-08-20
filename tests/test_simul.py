@@ -16,7 +16,7 @@ from newid import id8
 from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
 from simul import wss as simul_wss
-from simul.simul import Simul
+from simul.simul import MAX_SIMUL_OPPONENTS, Simul
 from simul.simuls import (
     get_simul_home_lists,
     load_active_simuls,
@@ -115,6 +115,76 @@ class TestGUI:
 
         assert simul.deny(host_username) is False
         assert host_username in simul.players
+
+    async def test_simul_participant_cap(self, aiohttp_server):
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
+        await aiohttp_server(app, host="127.0.0.1")
+        app_state = get_app_state(app)
+        host = User(app_state, username="TestUser_host")
+        app_state.users[host.username] = host
+        simul = await Simul.create(app_state, id8(), name="Capped Simul", created_by=host.username)
+
+        for i in range(MAX_SIMUL_OPPONENTS - 1):
+            player = User(app_state, username=f"Accepted_{i}")
+            assert simul.join(player) is True
+            assert simul.approve(player.username) is True
+
+        last_accepted = User(app_state, username="Accepted_last")
+        waiting = User(app_state, username="Still_waiting")
+        assert simul.join(last_accepted) is True
+        assert simul.join(waiting) is True
+        assert simul.approve(last_accepted.username) is True
+        assert simul.opponent_count == MAX_SIMUL_OPPONENTS
+
+        assert simul.approve(waiting.username) is False
+        assert waiting.username in simul.pending_players
+
+        late_player = User(app_state, username="Too_late")
+        assert simul.join(late_player) is False
+        assert late_player.username not in simul.pending_players
+
+        simul.players[waiting.username] = simul.pending_players.pop(waiting.username)
+        assert simul.opponent_count == MAX_SIMUL_OPPONENTS + 1
+        with patch.object(simul, "create_games", new=AsyncMock()) as create_games:
+            assert await simul.start() is False
+        create_games.assert_not_awaited()
+        assert simul.status == T_CREATED
+
+    async def test_simul_capacity_errors_are_sent_to_joiner_and_host(self, aiohttp_server):
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
+        await aiohttp_server(app, host="127.0.0.1")
+        app_state = get_app_state(app)
+        host = User(app_state, username="TestUser_host")
+        app_state.users[host.username] = host
+        simul = await Simul.create(app_state, "sid", name="Capped Simul", created_by=host.username)
+
+        for i in range(MAX_SIMUL_OPPONENTS):
+            player = User(app_state, username=f"Accepted_{i}")
+            simul.pending_players[player.username] = player
+            simul.players[player.username] = simul.pending_players.pop(player.username)
+
+        waiting = User(app_state, username="Still_waiting")
+        simul.pending_players[waiting.username] = waiting
+        late_player = User(app_state, username="Too_late")
+        join_ws = SimpleNamespace(send_str=AsyncMock())
+        host_ws = SimpleNamespace(send_str=AsyncMock())
+
+        with patch.object(simul_wss, "get_simul", new=AsyncMock(return_value=simul)):
+            await simul_wss.handle_join(
+                app_state, late_player, join_ws, {"type": "join", "simulId": simul.id}
+            )
+            await simul_wss.handle_approve_player(
+                app_state,
+                host_ws,
+                host,
+                {"type": "approve_player", "simulId": simul.id, "username": waiting.username},
+            )
+
+        expected = f"maximum of {MAX_SIMUL_OPPONENTS} accepted players"
+        assert expected in join_ws.send_str.call_args.args[0]
+        assert expected in host_ws.send_str.call_args.args[0]
+        assert waiting.username in simul.pending_players
+        assert waiting.username not in simul.players
 
     async def test_simul_cannot_start_without_opponents(self, aiohttp_server):
         app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))

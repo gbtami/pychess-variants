@@ -78,7 +78,7 @@ async def process_message(
     elif data["type"] == "join":
         await handle_join(app_state, user, ws, data)
     elif data["type"] == "approve_player":
-        await handle_approve_player(app_state, user, data)
+        await handle_approve_player(app_state, ws, user, data)
     elif data["type"] == "deny_player":
         await handle_deny_player(app_state, user, data)
 
@@ -154,10 +154,10 @@ async def handle_start_simul(
 
     started = await simul.start()
     if not started:
-        message = "Cannot start simul without opponents"
-        if len(simul.players) >= 2 and not simul.host_extra_time_valid():
-            message = "Invalid host extra time for this clock setup"
-        await ws_send_json(ws, {"type": "error", "message": message})
+        await ws_send_json(
+            ws,
+            {"type": "error", "message": simul.start_error() or "Cannot start simul"},
+        )
 
 
 async def handle_join(
@@ -169,6 +169,12 @@ async def handle_join(
         return
 
     error = simul.entry_condition_error(user)
+    if (
+        error is None
+        and user.username not in simul.players
+        and user.username not in simul.pending_players
+    ):
+        error = simul.capacity_error()
     if error is not None:
         await ws_send_json(ws, {"type": "error", "message": error})
         return
@@ -184,7 +190,7 @@ async def handle_join(
 
 
 async def handle_approve_player(
-    app_state: PychessGlobalAppState, user: User, data: SimulApprovePlayerRequest
+    app_state: PychessGlobalAppState, ws, user: User, data: SimulApprovePlayerRequest
 ) -> None:
     simulId = data["simulId"]
     simul = await get_simul(app_state, simulId)
@@ -195,6 +201,10 @@ async def handle_approve_player(
         return
 
     username = data.get("username")
+    if username in simul.pending_players and simul.capacity_error() is not None:
+        await ws_send_json(ws, {"type": "error", "message": simul.capacity_error()})
+        return
+
     if simul.approve(username):
         await upsert_simul_to_db(simul, app_state)
         if username is None:

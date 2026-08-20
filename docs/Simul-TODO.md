@@ -36,9 +36,10 @@ and Lichess-parity work identified in the post-Teams review.
   recent finished records cannot hide a still-created or running simul. Created listings
   use the same recent-host window as restart preloading, finished listings sort by finish
   time, and signed-in participants get a pending/accepted simuls section.
-- [ ] **Participant/game cap.** Put an explicit upper bound on accepted opponents before
-  one host can create an excessive number of simultaneous live games. Lichess ties simul
-  admission to its realtime-playing capacity.
+- [x] **Participant/game cap.** Limit one simul to 50 accepted opponents, enforced when
+  new applicants enter, when the host accepts a candidate, and again immediately before
+  game creation. Lichess uses its global realtime-playing capacity (currently 100); the
+  lower PyChess cap is intentionally conservative for the production server.
 - [ ] **Applicant persistence and explicit withdraw.** Do not silently remove a pending or
   accepted player merely because their last simul-page websocket disconnects. Lichess
   keeps applicants registered until they withdraw or the host rejects them. Persist that

@@ -514,5 +514,9 @@ async def start_simul(request: web.Request) -> web.Response:
     if user.username != simul.created_by:
         raise web.HTTPForbidden(text="Only the host can start the simul")
 
+    start_error = simul.start_error()
+    if start_error is not None:
+        raise web.HTTPBadRequest(text=start_error)
+
     await simul.start()
     return web.Response(text="Simul started")
