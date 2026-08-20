@@ -575,6 +575,7 @@ class ViewContext(TypedDict, total=False):
     simul_games: str
     simulhost: bool
     created_simuls: Sequence[object]
+    my_simuls: Sequence[object]
     ct: str
     cup: Mapping[str, tuple[str, str]]
     edit: bool

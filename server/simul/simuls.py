@@ -29,6 +29,10 @@ log = logging.getLogger(__name__)
 # because PyChess records presence on websocket connect rather than periodic
 # host pings.
 CREATED_SIMUL_RESTART_WINDOW = timedelta(hours=1)
+SIMUL_HOME_CREATED_LIMIT = 50
+SIMUL_HOME_STARTED_LIMIT = 50
+SIMUL_HOME_FINISHED_LIMIT = 20
+SIMUL_HOME_MINE_LIMIT = 50
 
 
 @dataclass
@@ -44,6 +48,7 @@ class SimulListEntry:
     estimated_start_at: datetime | None
     status: TStatus
     players_count: int
+    participation: str | None = None
 
     @property
     def display_date(self) -> datetime | None:
@@ -357,61 +362,128 @@ async def load_active_simuls(app_state: PychessGlobalAppState) -> None:
         startup.log_summary()
 
 
-async def get_latest_simuls(
-    app_state: PychessGlobalAppState, limit: int = 30
-) -> tuple[list[SimulListEntry], list[SimulListEntry], list[SimulListEntry]]:
-    created: list[SimulListEntry] = []
-    started: list[SimulListEntry] = []
-    finished: list[SimulListEntry] = []
+def _simul_list_entry(simul_doc: SimulDoc, username: str | None = None) -> SimulListEntry | None:
+    simul_id = simul_doc.get("_id")
+    created_by = simul_doc.get("createdBy")
+    variant = simul_doc.get("variant")
+    name = simul_doc.get("name")
+    if (
+        not isinstance(simul_id, str)
+        or not isinstance(created_by, str)
+        or not isinstance(variant, str)
+    ):
+        return None
+    if not isinstance(name, str):
+        name = "Simul"
 
+    players = _as_str_list(simul_doc.get("players"))
+    participation = None
+    if username is not None and username != created_by:
+        if username in _as_str_list(simul_doc.get("pendingPlayers")):
+            participation = "pending"
+        elif username in players:
+            participation = "accepted"
+
+    return SimulListEntry(
+        id=simul_id,
+        name=name,
+        variant=variant,
+        chess960=bool(simul_doc.get("chess960", False)),
+        base=_parse_int(simul_doc.get("base"), 1),
+        inc=_parse_int(simul_doc.get("inc"), 0),
+        created_by=created_by,
+        starts_at=_as_datetime(simul_doc.get("startsAt")),
+        estimated_start_at=_as_datetime(simul_doc.get("estimatedStartAt")),
+        status=_parse_status(simul_doc.get("status")),
+        players_count=len(players),
+        participation=participation,
+    )
+
+
+async def _query_simul_list(
+    app_state: PychessGlobalAppState,
+    selector: dict[str, object],
+    *,
+    sort_field: str,
+    limit: int,
+    username: str | None = None,
+) -> list[SimulListEntry]:
     if app_state.db is None:
-        return created, started, finished
+        return []
 
-    cursor = app_state.db.simul.find()
+    cursor = app_state.db.simul.find(selector)
     try:
-        cursor.sort("createdAt", -1)
+        cursor.sort(sort_field, -1)
+        cursor.limit(limit)
     except AttributeError:
         pass
+    docs = await cursor.to_list(length=None)
 
-    count = 0
-    async for doc in cursor:
-        simul_doc: SimulDoc = doc
-        count += 1
-        if count > limit:
-            break
+    entries: list[SimulListEntry] = []
+    for doc in docs:
+        entry = _simul_list_entry(doc, username=username)
+        if entry is not None:
+            entries.append(entry)
+    return entries
 
-        simul_id = simul_doc.get("_id")
-        created_by = simul_doc.get("createdBy")
-        variant = simul_doc.get("variant")
-        name = simul_doc.get("name")
-        if (
-            not isinstance(simul_id, str)
-            or not isinstance(created_by, str)
-            or not isinstance(variant, str)
-        ):
-            continue
-        if not isinstance(name, str):
-            name = "Simul"
 
-        entry = SimulListEntry(
-            id=simul_id,
-            name=name,
-            variant=variant,
-            chess960=bool(simul_doc.get("chess960", False)),
-            base=_parse_int(simul_doc.get("base"), 1),
-            inc=_parse_int(simul_doc.get("inc"), 0),
-            created_by=created_by,
-            starts_at=_as_datetime(simul_doc.get("startsAt")),
-            estimated_start_at=_as_datetime(simul_doc.get("estimatedStartAt")),
-            status=_parse_status(simul_doc.get("status")),
-            players_count=len(_as_str_list(simul_doc.get("players"))),
+async def get_simul_home_lists(
+    app_state: PychessGlobalAppState, username: str | None = None
+) -> tuple[
+    list[SimulListEntry],
+    list[SimulListEntry],
+    list[SimulListEntry],
+    list[SimulListEntry],
+]:
+    if app_state.db is None:
+        return [], [], [], []
+
+    created_cutoff = datetime.now(UTC) - CREATED_SIMUL_RESTART_WINDOW
+    active_created_selector: dict[str, object] = {
+        "status": T_CREATED,
+        "hostSeenAt": {"$gte": created_cutoff},
+    }
+
+    created_query = _query_simul_list(
+        app_state,
+        active_created_selector,
+        sort_field="createdAt",
+        limit=SIMUL_HOME_CREATED_LIMIT,
+    )
+    started_query = _query_simul_list(
+        app_state,
+        {"status": T_STARTED},
+        sort_field="startsAt",
+        limit=SIMUL_HOME_STARTED_LIMIT,
+    )
+    finished_query = _query_simul_list(
+        app_state,
+        {"status": T_FINISHED},
+        sort_field="endsAt",
+        limit=SIMUL_HOME_FINISHED_LIMIT,
+    )
+
+    if username is None:
+        created, started, finished = await asyncio.gather(
+            created_query, started_query, finished_query
         )
+        return [], created, started, finished
 
-        if entry.status == T_STARTED:
-            started.append(entry)
-        elif entry.status == T_CREATED:
-            created.append(entry)
-        else:
-            finished.append(entry)
-
-    return created, started, finished
+    my_query = _query_simul_list(
+        app_state,
+        {
+            **active_created_selector,
+            "createdBy": {"$ne": username},
+            "$or": [
+                {"pendingPlayers": username},
+                {"players": username},
+            ],
+        },
+        sort_field="createdAt",
+        limit=SIMUL_HOME_MINE_LIMIT,
+        username=username,
+    )
+    my_simuls, created, started, finished = await asyncio.gather(
+        my_query, created_query, started_query, finished_query
+    )
+    return my_simuls, created, started, finished

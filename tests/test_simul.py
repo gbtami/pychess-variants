@@ -17,7 +17,12 @@ from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
 from simul import wss as simul_wss
 from simul.simul import Simul
-from simul.simuls import get_latest_simuls, load_active_simuls, load_simul, upsert_simul_to_db
+from simul.simuls import (
+    get_simul_home_lists,
+    load_active_simuls,
+    load_simul,
+    upsert_simul_to_db,
+)
 from typedefs import pychess_global_app_state_key
 from user import User
 
@@ -828,13 +833,176 @@ class TestGUI:
         restarted_app[pychess_global_app_state_key] = PychessGlobalAppState(restarted_app)
         restarted_state = get_app_state(restarted_app)
 
-        created_simuls, started_simuls, finished_simuls = await get_latest_simuls(restarted_state)
+        my_simuls, created_simuls, started_simuls, finished_simuls = await get_simul_home_lists(
+            restarted_state
+        )
 
+        assert my_simuls == []
         assert created_simuls == []
         assert started_simuls == []
         assert any(
             entry.id == sid and entry.name == "Restart Visible Simul" for entry in finished_simuls
         )
+
+    async def test_simul_home_queries_statuses_independently(self):
+        db_client = AsyncMongoMockClient(tz_aware=True)
+        app = make_app(db_client=db_client)
+        app[pychess_global_app_state_key] = PychessGlobalAppState(app)
+        app_state = get_app_state(app)
+        now = datetime.now(UTC)
+
+        created_id = "created1"
+        started_id = "started1"
+        stale_id = "stale001"
+        await app_state.db.simul.insert_many(
+            [
+                {
+                    "_id": created_id,
+                    "name": "Older Active Created",
+                    "createdBy": "host-created",
+                    "variant": "chess",
+                    "base": 5,
+                    "inc": 3,
+                    "createdAt": now - timedelta(hours=3),
+                    "hostSeenAt": now - timedelta(minutes=5),
+                    "status": T_CREATED,
+                    "players": ["host-created"],
+                    "pendingPlayers": [],
+                },
+                {
+                    "_id": started_id,
+                    "name": "Older Running Simul",
+                    "createdBy": "host-started",
+                    "variant": "chess",
+                    "base": 5,
+                    "inc": 3,
+                    "createdAt": now - timedelta(hours=4),
+                    "hostSeenAt": now - timedelta(hours=4),
+                    "startsAt": now - timedelta(hours=2),
+                    "status": T_STARTED,
+                    "players": ["host-started", "player"],
+                    "pendingPlayers": [],
+                },
+                {
+                    "_id": stale_id,
+                    "name": "Stale Created",
+                    "createdBy": "host-stale",
+                    "variant": "chess",
+                    "base": 5,
+                    "inc": 3,
+                    "createdAt": now - timedelta(hours=5),
+                    "hostSeenAt": now - timedelta(hours=2),
+                    "status": T_CREATED,
+                    "players": ["host-stale"],
+                    "pendingPlayers": [],
+                },
+            ]
+        )
+
+        finished_docs = []
+        for i in range(35):
+            finished_docs.append(
+                {
+                    "_id": f"f{i:07d}",
+                    "name": f"Finished {i}",
+                    "createdBy": "host-finished",
+                    "variant": "chess",
+                    "base": 3,
+                    "inc": 0,
+                    "createdAt": now - timedelta(minutes=i),
+                    "hostSeenAt": now - timedelta(hours=1),
+                    "startsAt": now - timedelta(minutes=70 - i),
+                    "endsAt": now - timedelta(minutes=35 - i),
+                    "status": T_FINISHED,
+                    "players": ["host-finished", "player"],
+                    "pendingPlayers": [],
+                }
+            )
+        await app_state.db.simul.insert_many(finished_docs)
+
+        my_simuls, created, started, finished = await get_simul_home_lists(app_state)
+
+        assert my_simuls == []
+        assert [entry.id for entry in created] == [created_id]
+        assert [entry.id for entry in started] == [started_id]
+        assert len(finished) == 20
+        assert finished[0].id == "f0000034"
+        assert stale_id not in {entry.id for entry in created}
+
+    async def test_simul_home_lists_signed_in_players_pending_and_accepted(self, aiohttp_server):
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+        server = await aiohttp_server(app, host="127.0.0.1")
+        app_state = get_app_state(app)
+        username = "TestUser_2"
+        app_state.users[username] = User(app_state, username=username)
+        now = datetime.now(UTC)
+
+        await app_state.db.simul.insert_many(
+            [
+                {
+                    "_id": "pending1",
+                    "name": "Pending Application",
+                    "createdBy": "TestUser_1",
+                    "variant": "chess",
+                    "base": 5,
+                    "inc": 3,
+                    "createdAt": now - timedelta(minutes=10),
+                    "hostSeenAt": now,
+                    "estimatedStartAt": now + timedelta(hours=1),
+                    "status": T_CREATED,
+                    "players": ["TestUser_1"],
+                    "pendingPlayers": [username],
+                },
+                {
+                    "_id": "accepted",
+                    "name": "Accepted Application",
+                    "createdBy": "TestUser_3",
+                    "variant": "chess",
+                    "base": 10,
+                    "inc": 0,
+                    "createdAt": now - timedelta(minutes=5),
+                    "hostSeenAt": now,
+                    "estimatedStartAt": now + timedelta(hours=2),
+                    "status": T_CREATED,
+                    "players": ["TestUser_3", username],
+                    "pendingPlayers": [],
+                },
+                {
+                    "_id": "hosted01",
+                    "name": "Own Hosted Simul",
+                    "createdBy": username,
+                    "variant": "chess",
+                    "base": 3,
+                    "inc": 2,
+                    "createdAt": now,
+                    "hostSeenAt": now,
+                    "status": T_CREATED,
+                    "players": [username],
+                    "pendingPlayers": [],
+                },
+            ]
+        )
+
+        my_simuls, _created, _started, _finished = await get_simul_home_lists(
+            app_state, username=username
+        )
+        assert [(entry.id, entry.participation) for entry in my_simuls] == [
+            ("accepted", "accepted"),
+            ("pending1", "pending"),
+        ]
+
+        session = await self._session_for_user(username)
+        try:
+            response = await session.get(f"http://127.0.0.1:{server.port}/simul")
+            assert response.status == 200
+            html = await response.text()
+            assert "Your pending and accepted simuls" in html
+            assert "Pending Application" in html
+            assert "Accepted Application" in html
+            assert ">Pending<" in html
+            assert ">Accepted<" in html
+        finally:
+            await session.close()
 
     async def test_aborted_simul_game_finishes_simul(self, aiohttp_server):
         app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))

@@ -22,6 +22,48 @@
                 </div>
             </div>
 
+            {% if my_simuls %}
+            <table class="slist">
+                <thead>
+                    <tr>
+                        <th colspan="4">{% trans %}Your pending and accepted simuls{% endtrans %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for simul in my_simuls %}
+                    <tr>
+                        <td>
+                            <div class="icon" data-icon="{{ icons[simul.variant + ('960' if simul.chess960 else '')] }}"></div>
+                        </td>
+                        <td class="header">
+                            <a href="/simul/{{ simul.id }}">
+                                <span class="name">{{ simul.name }}</span>
+                                by
+                                <span class="by">{{ simul.created_by }}</span>
+                                <span class="system">
+                                    {{ time_control_str(simul.base, simul.inc, 0) }} •
+                                    {{ variant_display_name(simul.variant + ('960' if simul.chess960 else '')) }}
+                                </span>
+                            </a>
+                        </td>
+                        <td class="infos">
+                            <span class="starts">
+                                <info-date timestamp="{{ simul.display_date }}"></info-date>
+                            </span>
+                        </td>
+                        <td>
+                            {% if simul.participation == 'accepted' %}
+                            <span>{% trans %}Accepted{% endtrans %}</span>
+                            {% else %}
+                            <span>{% trans %}Pending{% endtrans %}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+
             <table class="slist">
                 <thead>
                     <tr>

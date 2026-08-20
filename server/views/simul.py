@@ -10,7 +10,12 @@ from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
 from settings import SIMULING
 from simul.simul import Simul
-from simul.simuls import delete_simul_from_db, get_latest_simuls, load_simul, upsert_simul_to_db
+from simul.simuls import (
+    delete_simul_from_db,
+    get_simul_home_lists,
+    load_simul,
+    upsert_simul_to_db,
+)
 from typing_defs import ViewContext
 from variants import VARIANT_ICONS, VARIANTS, get_server_variant, is_catalogued_variant
 
@@ -325,7 +330,11 @@ async def simuls(request: web.Request) -> ViewContext:
         )
         raise web.HTTPFound(f"/simul/{simul_id}")
 
-    created_simuls, started_simuls, finished_simuls = await get_latest_simuls(app_state)
+    username = None if user.anon else user.username
+    my_simuls, created_simuls, started_simuls, finished_simuls = await get_simul_home_lists(
+        app_state, username=username
+    )
+    context["my_simuls"] = my_simuls
     context["created_simuls"] = created_simuls
     context["started_simuls"] = started_simuls
     context["finished_simuls"] = finished_simuls

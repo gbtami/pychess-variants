@@ -32,10 +32,10 @@ and Lichess-parity work identified in the post-Teams review.
   `T_CREATED` simuls only when the host was seen within the previous hour. Stale created
   simuls remain in MongoDB and still load on demand from their URL instead of consuming
   startup memory forever.
-- [ ] **Home-list queries.** Query created, started, and finished simuls independently.
-  The current single newest-N scan can hide a still-created or running simul behind more
-  recent finished records. Add a signed-in user's pending/accepted simuls section similar
-  to Lichess.
+- [x] **Home-list queries.** Query created, started, and finished simuls independently so
+  recent finished records cannot hide a still-created or running simul. Created listings
+  use the same recent-host window as restart preloading, finished listings sort by finish
+  time, and signed-in participants get a pending/accepted simuls section.
 - [ ] **Participant/game cap.** Put an explicit upper bound on accepted opponents before
   one host can create an excessive number of simultaneous live games. Lichess ties simul
   admission to its realtime-playing capacity.
