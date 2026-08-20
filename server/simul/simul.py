@@ -70,6 +70,7 @@ class Simul:
         self.clock_task: asyncio.Task[None] | None = None
         self.status = T_CREATED
         self.created_at = datetime.now(UTC)
+        self.host_seen_at = self.created_at
         self.starts_at: datetime | None = None
         self.ends_at: datetime | None = None
         self.spectators: set[User] = set()

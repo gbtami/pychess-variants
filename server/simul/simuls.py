@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 
 from const import MAX_CHAT_LINES, STARTED, T_CREATED, T_FINISHED, T_STARTED, TStatus
@@ -20,6 +20,15 @@ if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 
 log = logging.getLogger(__name__)
+
+
+# Created simuls are cheap to reload on demand from their URL, so startup only
+# restores ones whose host was active recently. Started simuls are always
+# restored regardless of age. Lichess uses an even tighter live-host window for
+# featuring created simuls; one hour is intentionally more forgiving here
+# because PyChess records presence on websocket connect rather than periodic
+# host pings.
+CREATED_SIMUL_RESTART_WINDOW = timedelta(hours=1)
 
 
 @dataclass
@@ -93,6 +102,7 @@ async def upsert_simul_to_db(simul: Simul, app_state: PychessGlobalAppState | No
         "entryMinAccountAgeDays": simul.entry_min_account_age_days,
         "createdBy": simul.created_by,
         "createdAt": simul.created_at,
+        "hostSeenAt": simul.host_seen_at,
         "startsAt": simul.starts_at,
         "estimatedStartAt": simul.estimated_start_at,
         "endsAt": simul.ends_at,
@@ -123,6 +133,22 @@ async def delete_simul_from_db(
         await app_state.db.simul_chat.delete_many({"sid": simul_id})
     except Exception:
         log.exception("Failed to delete simul %s", simul_id)
+
+
+async def mark_simul_host_seen(simul: Simul) -> None:
+    now = datetime.now(UTC)
+    simul.host_seen_at = now
+
+    if simul.app_state.db is None:
+        return
+
+    try:
+        await simul.app_state.db.simul.update_one(
+            {"_id": simul.id},
+            {"$set": {"hostSeenAt": now}},
+        )
+    except Exception:
+        log.exception("Failed to update host presence for simul %s", simul.id)
 
 
 def _parse_status(value: object) -> TStatus:
@@ -200,6 +226,7 @@ async def load_simul(
         entry_titled_only=False,
     )
     simul.created_at = _as_datetime(doc.get("createdAt")) or datetime.now(UTC)
+    simul.host_seen_at = _as_datetime(doc.get("hostSeenAt")) or simul.created_at
     simul.starts_at = _as_datetime(doc.get("startsAt"))
     simul.ends_at = _as_datetime(doc.get("endsAt"))
     simul.status = _parse_status(doc.get("status"))
@@ -291,8 +318,28 @@ async def load_active_simuls(app_state: PychessGlobalAppState) -> None:
         with startup.phase("ensure createdAt index"):
             await app_state.db.simul.create_index("createdAt")
 
+        with startup.phase("ensure hostSeenAt index"):
+            await app_state.db.simul.create_index("hostSeenAt")
+
         with startup.phase("query active simul docs"):
-            cursor = app_state.db.simul.find({"status": {"$in": [T_CREATED, T_STARTED]}})
+            created_cutoff = datetime.now(UTC) - CREATED_SIMUL_RESTART_WINDOW
+            cursor = app_state.db.simul.find(
+                {
+                    "$or": [
+                        {"status": T_STARTED},
+                        {
+                            "status": T_CREATED,
+                            "$or": [
+                                {"hostSeenAt": {"$gte": created_cutoff}},
+                                {
+                                    "hostSeenAt": {"$exists": False},
+                                    "createdAt": {"$gte": created_cutoff},
+                                },
+                            ],
+                        },
+                    ]
+                }
+            )
             try:
                 cursor.sort("createdAt", -1)
             except AttributeError:

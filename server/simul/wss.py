@@ -5,11 +5,12 @@ from typing import TYPE_CHECKING
 import aiohttp_session
 from aiohttp import web
 from chat import chat_response
+from const import T_CREATED
 from link_filter import sanitize_user_message
 from pychess_global_app_state_utils import get_app_state
 from websocket_utils import get_user, process_ws, ws_send_json
 
-from simul.simuls import load_simul, upsert_simul_to_db
+from simul.simuls import load_simul, mark_simul_host_seen, upsert_simul_to_db
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -101,6 +102,9 @@ async def handle_simul_user_connected(
         user.simul_sockets[simulId] = set()
     user.simul_sockets[simulId].add(ws)
     user.update_online()
+
+    if user.username == simul.created_by and simul.status == T_CREATED:
+        await mark_simul_host_seen(simul)
 
     simul.add_spectator(user)
 

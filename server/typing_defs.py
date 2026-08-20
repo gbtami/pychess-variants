@@ -747,6 +747,7 @@ class SimulDoc(TypedDict):
     entryTitledOnly: bool
     createdBy: str
     createdAt: datetime
+    hostSeenAt: NotRequired[datetime]
     estimatedStartAt: NotRequired[datetime | None]
     startsAt: NotRequired[datetime | None]
     endsAt: NotRequired[datetime | None]
@@ -773,6 +774,7 @@ class SimulUpdateData(TypedDict, total=False):
     entryTitledOnly: bool
     createdBy: str
     createdAt: datetime
+    hostSeenAt: datetime
     estimatedStartAt: datetime | None
     startsAt: datetime | None
     endsAt: datetime | None

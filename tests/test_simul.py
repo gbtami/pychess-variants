@@ -17,7 +17,7 @@ from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
 from simul import wss as simul_wss
 from simul.simul import Simul
-from simul.simuls import get_latest_simuls, load_active_simuls, load_simul
+from simul.simuls import get_latest_simuls, load_active_simuls, load_simul, upsert_simul_to_db
 from typedefs import pychess_global_app_state_key
 from user import User
 
@@ -163,6 +163,8 @@ class TestGUI:
 
         simul = await Simul.create(app_state, sid, name="Test Simul", created_by=host_username)
         app_state.simuls[sid] = simul
+        previous_host_seen_at = datetime.now(UTC) - timedelta(days=1)
+        simul.host_seen_at = previous_host_seen_at
 
         player2 = User(app_state, username="TestUser_2")
         app_state.users[player2.username] = player2
@@ -178,6 +180,7 @@ class TestGUI:
             assert msg["type"] == "simul_user_connected"
             assert msg["username"] == host_username
             assert msg["players"][0]["name"] == host_username
+            assert simul.host_seen_at > previous_host_seen_at
 
             await player_ws.send_json(
                 {"type": "simul_user_connected", "username": player2.username, "simulId": sid}
@@ -195,6 +198,7 @@ class TestGUI:
                 assert simul_doc is not None
                 assert player2.username in simul_doc["pendingPlayers"]
                 assert host_username in simul_doc["players"]
+                assert abs((simul_doc["hostSeenAt"] - simul.host_seen_at).total_seconds()) < 0.001
 
             await host_ws.send_json(
                 {"type": "approve_player", "simulId": sid, "username": player2.username}
@@ -707,6 +711,55 @@ class TestGUI:
                 await reloaded_simul.clock_task
             except asyncio.CancelledError:
                 pass
+
+    async def test_restart_skips_stale_created_simuls_but_keeps_on_demand_loading(self):
+        db_client = AsyncMongoMockClient(tz_aware=True)
+        app = make_app(db_client=db_client)
+        app[pychess_global_app_state_key] = PychessGlobalAppState(app)
+        app_state = get_app_state(app)
+        host_username = "TestUser_1"
+        host = User(app_state, username=host_username)
+        app_state.users[host.username] = host
+        now = datetime.now(UTC)
+
+        recent_sid = id8()
+        recent = await Simul.create(
+            app_state, recent_sid, name="Recent Created Simul", created_by=host_username
+        )
+        recent.created_at = now - timedelta(minutes=30)
+        recent.host_seen_at = now - timedelta(minutes=15)
+        await upsert_simul_to_db(recent, app_state)
+
+        stale_sid = id8()
+        stale = await Simul.create(
+            app_state, stale_sid, name="Stale Created Simul", created_by=host_username
+        )
+        stale.created_at = now - timedelta(hours=3)
+        stale.host_seen_at = now - timedelta(hours=2)
+        await upsert_simul_to_db(stale, app_state)
+
+        legacy_sid = id8()
+        legacy = await Simul.create(
+            app_state, legacy_sid, name="Legacy Recent Simul", created_by=host_username
+        )
+        legacy.created_at = now - timedelta(minutes=20)
+        await upsert_simul_to_db(legacy, app_state)
+        assert app_state.db is not None
+        await app_state.db.simul.update_one({"_id": legacy_sid}, {"$unset": {"hostSeenAt": ""}})
+
+        restarted_app = make_app(db_client=db_client)
+        restarted_app[pychess_global_app_state_key] = PychessGlobalAppState(restarted_app)
+        restarted_state = get_app_state(restarted_app)
+        await load_active_simuls(restarted_state)
+
+        assert recent_sid in restarted_state.simuls
+        assert legacy_sid in restarted_state.simuls
+        assert stale_sid not in restarted_state.simuls
+
+        loaded_stale = await load_simul(restarted_state, stale_sid)
+        assert loaded_stale is not None
+        assert loaded_stale.status == T_CREATED
+        assert abs((loaded_stale.host_seen_at - stale.host_seen_at).total_seconds()) < 0.001
 
     async def test_short_finished_simul_game_persists_and_reloads(self, aiohttp_server):
         db_client = AsyncMongoMockClient(tz_aware=True)
