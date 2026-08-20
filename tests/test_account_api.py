@@ -777,7 +777,24 @@ class AccountApiTestCase(AioHTTPTestCase):
         await app_state.db.tournament.insert_one(
             {"_id": "tour-hist", "createdBy": "alice", "status": 0}
         )
-        await app_state.db.simul.insert_one({"_id": "sim-hist", "createdBy": "alice", "status": 0})
+        await app_state.db.simul.insert_many(
+            [
+                {
+                    "_id": "sim-hist",
+                    "createdBy": "alice",
+                    "status": 3,
+                    "players": ["alice", "bob"],
+                    "pendingPlayers": [],
+                },
+                {
+                    "_id": "sim-created-owned",
+                    "createdBy": "alice",
+                    "status": 0,
+                    "players": ["alice"],
+                    "pendingPlayers": ["bob"],
+                },
+            ]
+        )
         app_state.tournaments["tour1"] = SimpleNamespace(
             tourneychat=[
                 {"type": "lobbychat", "user": "alice", "message": "cached alice tournament"},
@@ -879,7 +896,11 @@ class AccountApiTestCase(AioHTTPTestCase):
         self.assertEqual("bob bug chat", bug_game["c"][1]["m"])
         self.assertEqual(1, await app_state.db.game.count_documents({"_id": "bug1"}))
         self.assertEqual(1, await app_state.db.tournament.count_documents({"_id": "tour-hist"}))
-        self.assertEqual(1, await app_state.db.simul.count_documents({"_id": "sim-hist"}))
+        sim_hist = await app_state.db.simul.find_one({"_id": "sim-hist"})
+        self.assertIsNotNone(sim_hist)
+        self.assertEqual(ERASED_POST_USER, sim_hist.get("createdBy"))
+        self.assertEqual([ERASED_POST_USER, "bob"], sim_hist.get("players"))
+        self.assertIsNone(await app_state.db.simul.find_one({"_id": "sim-created-owned"}))
 
         self.assertEqual(ERASED_POST_USER, app_state.tournaments["tour1"].tourneychat[0]["user"])
         self.assertEqual(

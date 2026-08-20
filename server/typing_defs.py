@@ -183,6 +183,7 @@ GameDocument = TypedDict(
         "rn": NotRequired[int],
         "aid": NotRequired[str],
         "sid": NotRequired[str],
+        "sh": NotRequired[str],
         "cw0": NotRequired[int],
         "cb0": NotRequired[int],
         "a": NotRequired[list[AnalysisStep]],

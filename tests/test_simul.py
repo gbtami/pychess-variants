@@ -16,8 +16,9 @@ from newid import id8
 from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
 from simul import wss as simul_wss
-from simul.simul import MAX_SIMUL_OPPONENTS, Simul
+from simul.simul import MAX_SIMUL_OPPONENTS, SIMUL_ERASED_USER, Simul
 from simul.simuls import (
+    erase_user_from_simuls,
     get_simul_home_lists,
     load_active_simuls,
     load_simul,
@@ -72,6 +73,11 @@ class TestGUI:
         if app_state.db is not None:
             game_doc = await app_state.db.game.find_one({"sid": sid})
             assert game_doc is not None
+            assert game_doc["sh"] in ("w", "b")
+            game = simul.games[game_doc["_id"]]
+            assert simul.game_json(game)["hostSide"] == (
+                "white" if game_doc["sh"] == "w" else "black"
+            )
             simul_doc = await app_state.db.simul.find_one({"_id": sid})
             assert simul_doc is not None
             assert simul_doc["status"] == T_STARTED
@@ -126,6 +132,94 @@ class TestGUI:
         assert player2.username not in simul.players
         assert simul.withdraw(host) is False
         assert host_username in simul.players
+
+    async def test_gdpr_erasure_removes_created_simul_registration(self, aiohttp_server):
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
+        await aiohttp_server(app, host="127.0.0.1")
+        app_state = get_app_state(app)
+        host = User(app_state, username="Host")
+        applicant = User(app_state, username="Applicant")
+        app_state.users[host.username] = host
+        app_state.users[applicant.username] = applicant
+
+        owned = await Simul.create(app_state, "owned", name="Owned", created_by=applicant.username)
+        app_state.simuls[owned.id] = owned
+        await upsert_simul_to_db(owned)
+
+        joined = await Simul.create(app_state, "joined", name="Joined", created_by=host.username)
+        assert joined.join(applicant) is True
+        assert joined.approve(applicant.username) is True
+        app_state.simuls[joined.id] = joined
+        await upsert_simul_to_db(joined)
+
+        await erase_user_from_simuls(app_state, applicant.username)
+
+        assert await app_state.db.simul.find_one({"_id": owned.id}) is None
+        assert owned.id not in app_state.simuls
+        joined_doc = await app_state.db.simul.find_one({"_id": joined.id})
+        assert joined_doc is not None
+        assert joined_doc["players"] == [host.username]
+        assert joined_doc["pendingPlayers"] == []
+        assert applicant.username not in joined.players
+        assert applicant.username not in joined.pending_players
+
+    async def test_gdpr_erasure_anonymizes_started_simul_history(self, aiohttp_server):
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
+        await aiohttp_server(app, host="127.0.0.1")
+        app_state = get_app_state(app)
+        host = User(app_state, username="Host")
+        player1 = User(app_state, username="Player1")
+        player2 = User(app_state, username="Player2")
+        for player in (host, player1, player2):
+            app_state.users[player.username] = player
+
+        simul = await Simul.create(app_state, "history", name="History", created_by=host.username)
+        for player in (player1, player2):
+            assert simul.join(player) is True
+            assert simul.approve(player.username) is True
+        app_state.simuls[simul.id] = simul
+        assert await simul.start() is True
+
+        game_sides = {game.id: simul.game_json(game)["hostSide"] for game in simul.games.values()}
+        await erase_user_from_simuls(app_state, player1.username)
+        await erase_user_from_simuls(app_state, host.username)
+
+        simul_doc = await app_state.db.simul.find_one({"_id": simul.id})
+        assert simul_doc is not None
+        assert simul_doc["createdBy"] == SIMUL_ERASED_USER
+        assert player1.username not in simul_doc["players"]
+        assert host.username not in simul_doc["players"]
+        assert simul_doc["players"].count(SIMUL_ERASED_USER) == 2
+
+        assert simul.created_by == SIMUL_ERASED_USER
+        assert player1.username not in simul.players
+        assert host.username not in simul.players
+        assert [player.username for player in simul.players.values()].count(SIMUL_ERASED_USER) == 2
+        for game in simul.games.values():
+            assert simul.game_json(game)["hostSide"] == game_sides[game.id]
+
+        await upsert_simul_to_db(simul)
+        rewritten = await app_state.db.simul.find_one({"_id": simul.id})
+        assert rewritten is not None
+        assert player1.username not in rewritten["players"]
+        assert host.username not in rewritten["players"]
+        assert rewritten["players"].count(SIMUL_ERASED_USER) == 2
+
+        if simul.clock_task is not None:
+            simul.clock_task.cancel()
+        app_state.simuls.pop(simul.id, None)
+        for game_id in tuple(game_sides):
+            app_state.games.pop(game_id, None)
+        reloaded = await load_simul(app_state, simul.id)
+        assert reloaded is not None
+        assert reloaded.created_by == SIMUL_ERASED_USER
+        assert [player.username for player in reloaded.players.values()].count(
+            SIMUL_ERASED_USER
+        ) == 2
+        for game in reloaded.games.values():
+            assert reloaded.game_json(game)["hostSide"] == game_sides[game.id]
+        if reloaded.clock_task is not None:
+            reloaded.clock_task.cancel()
 
     async def test_simul_participant_cap(self, aiohttp_server):
         app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))

@@ -21,6 +21,7 @@ if TYPE_CHECKING:
 # 50 live games at once. Keep this as a single explicit constant so it can be
 # raised later if production measurements show that is safe.
 MAX_SIMUL_OPPONENTS = 50
+SIMUL_ERASED_USER = "<erased>"
 
 
 class Simul:
@@ -115,10 +116,14 @@ class Simul:
         return [self.player_json(player) for player in self.pending_players.values()]
 
     def game_json(self, game: Game) -> dict[str, object]:
+        host_side = game.simulHostColor
+        if host_side not in ("w", "b"):
+            raise ValueError(f"Simul game {game.id} is missing persisted host side")
         return {
             "gameId": game.id,
             "wplayer": game.wplayer.username,
             "bplayer": game.bplayer.username,
+            "hostSide": "white" if host_side == "w" else "black",
             "variant": game.variant,
             "fen": game.fen,
             "lastMove": game.lastmove,
@@ -277,6 +282,7 @@ class Simul:
                 else:
                     wp, bp = opponent, host
 
+            host_side = "w" if wp.username == self.created_by else "b"
             host_initial_ms = self.host_clock_initial_ms()
             opponent_initial_ms = (self.base * 60 * 1000) if self.base > 0 else self.inc * 1000
             if wp.username == self.created_by:
@@ -298,6 +304,7 @@ class Simul:
                 simulId=self.id,
                 initial_clocks=initial_clocks,
             )
+            game.simulHostColor = host_side
             self.games[game.id] = game
             self.ongoing_games.add(game)
             self.app_state.games[game_id] = game

@@ -44,8 +44,11 @@ and Lichess-parity work identified in the post-Teams review.
   remain registered when their last simul-page websocket disconnects, matching Lichess.
   Registration survives navigation/reconnect and is removed only when the player uses the
   explicit Withdraw action or the host rejects/removes them.
-- [ ] **Account deletion / GDPR.** Anonymize simul host/player references when an account
-  is erased. Simul chat is already scrubbed; the simul documents themselves are not.
+- [x] **Account deletion / GDPR.** GDPR erasure now removes unstarted simuls owned by the
+  account, removes the account from other created-simul applicant lists, and anonymizes
+  host/player references in started or finished simul history. Cached simuls are scrubbed
+  too, and simul games persist the non-personal host side so anonymization cannot corrupt
+  result/mini-board interpretation.
 - [ ] **Moderator controls.** Allow the appropriate site moderators/admins to edit or
   abort an abusive/stuck simul without impersonating the host. Decide whether the host
   should also receive local moderation controls for their simul chat.

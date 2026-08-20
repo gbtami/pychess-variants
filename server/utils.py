@@ -293,6 +293,11 @@ async def _load_game_from_doc(
         tournamentArrangementId=doc.get("aid"),
         simulId=doc.get("sid"),
     )
+    simul_host_color = doc.get("sh")
+    if game.simulId is not None:
+        if simul_host_color not in ("w", "b"):
+            raise ValueError(f"Simul game {game.id} is missing host side")
+        game.simulHostColor = simul_host_color
 
     if variant == "jieqi":
         game.board.set_jieqi_initial_pieces(doc["bj"], doc["wj"])
@@ -898,6 +903,9 @@ async def insert_game_to_db(game, app_state: PychessGlobalAppState):
         document["aid"] = game.tournamentArrangementId
     if game.simulId is not None:
         document["sid"] = game.simulId
+        if game.simulHostColor not in ("w", "b"):
+            raise ValueError(f"Simul game {game.id} is missing host side")
+        document["sh"] = game.simulHostColor
 
     if game.variant.endswith("shogi") or game.variant in (
         "dobutsu",

@@ -210,6 +210,7 @@ class Game:
             # tournament link even if only the arrangement id is provided.
             self.tournamentId = self.tournamentArrangementId.split(":", 1)[0]
         self.simulId: str | None = simulId
+        self.simulHostColor: str | None = None
         self.chess960: bool | None = chess960
         self.corr: bool = corr
         self.create: bool = create

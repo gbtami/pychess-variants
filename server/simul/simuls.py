@@ -14,7 +14,7 @@ from user import User
 from utils import load_game
 from ws_types import ChatLine
 
-from simul.simul import Simul
+from simul.simul import SIMUL_ERASED_USER, Simul
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -60,11 +60,23 @@ class SimulListEntry:
 def _as_str_list(value: object) -> list[str]:
     if not isinstance(value, list):
         return []
-    usernames: list[str] = []
-    for item in value:
-        if isinstance(item, str) and item not in usernames:
-            usernames.append(item)
-    return usernames
+    return [item for item in value if isinstance(item, str)]
+
+
+def _simul_player_key(players: dict[str, User], username: str) -> str:
+    if username not in players:
+        return username
+    if username != SIMUL_ERASED_USER:
+        return username
+
+    suffix = 2
+    while f"{SIMUL_ERASED_USER}:{suffix}" in players:
+        suffix += 1
+    return f"{SIMUL_ERASED_USER}:{suffix}"
+
+
+def _erased_simul_user(app_state: PychessGlobalAppState) -> User:
+    return User(app_state, username=SIMUL_ERASED_USER, enabled=False)
 
 
 def _as_datetime(value: object) -> datetime | None:
@@ -112,8 +124,8 @@ async def upsert_simul_to_db(simul: Simul, app_state: PychessGlobalAppState | No
         "estimatedStartAt": simul.estimated_start_at,
         "endsAt": simul.ends_at,
         "status": simul.status,
-        "players": list(simul.players.keys()),
-        "pendingPlayers": list(simul.pending_players.keys()),
+        "players": [player.username for player in simul.players.values()],
+        "pendingPlayers": [player.username for player in simul.pending_players.values()],
     }
 
     try:
@@ -138,6 +150,96 @@ async def delete_simul_from_db(
         await app_state.db.simul_chat.delete_many({"sid": simul_id})
     except Exception:
         log.exception("Failed to delete simul %s", simul_id)
+
+
+def _anonymize_loaded_simul_player(
+    app_state: PychessGlobalAppState, simul: Simul, username: str, *, host: bool
+) -> None:
+    player = simul.players.pop(username, None)
+    simul.pending_players.pop(username, None)
+    if player is None:
+        return
+
+    if host:
+        existing = simul.players.pop(SIMUL_ERASED_USER, None)
+        if existing is not None:
+            suffix = 2
+            while f"{SIMUL_ERASED_USER}:{suffix}" in simul.players:
+                suffix += 1
+            simul.players[f"{SIMUL_ERASED_USER}:{suffix}"] = existing
+        key = SIMUL_ERASED_USER
+    else:
+        key = _simul_player_key(simul.players, SIMUL_ERASED_USER)
+    simul.players[key] = _erased_simul_user(app_state)
+
+
+async def erase_user_from_simuls(app_state: PychessGlobalAppState, username: str) -> None:
+    """Remove personal simul references while preserving played simul history.
+
+    Created simuls owned by the erased account have no game history and can no
+    longer be hosted, so delete them. Created-simul applicants are removed. For
+    started/finished simuls, keep the historical participant slots but replace
+    usernames with the same non-identifying marker used elsewhere on PyChess.
+    """
+    if app_state.db is None:
+        return
+
+    cursor = app_state.db.simul.find(
+        {
+            "$or": [
+                {"createdBy": username},
+                {"players": username},
+                {"pendingPlayers": username},
+            ]
+        }
+    )
+    docs = await cursor.to_list(length=None)
+
+    for doc in docs:
+        simul_id = doc.get("_id")
+        if not isinstance(simul_id, str):
+            continue
+
+        status = _parse_status(doc.get("status"))
+        is_host = doc.get("createdBy") == username
+        if is_host and status == T_CREATED:
+            await delete_simul_from_db(simul_id, app_state)
+            app_state.simuls.pop(simul_id, None)
+            continue
+
+        players = _as_str_list(doc.get("players"))
+        pending_players = _as_str_list(doc.get("pendingPlayers"))
+        update: dict[str, object] = {}
+
+        if is_host:
+            update["createdBy"] = SIMUL_ERASED_USER
+
+        if status == T_CREATED:
+            update["players"] = [player for player in players if player != username]
+            update["pendingPlayers"] = [player for player in pending_players if player != username]
+        else:
+            update["players"] = [
+                SIMUL_ERASED_USER if player == username else player for player in players
+            ]
+            update["pendingPlayers"] = [
+                SIMUL_ERASED_USER if player == username else player for player in pending_players
+            ]
+
+        await app_state.db.simul.update_one({"_id": simul_id}, {"$set": update})
+
+        simul = app_state.simuls.get(simul_id)
+        if simul is None:
+            continue
+        simul.spectators = {
+            spectator for spectator in simul.spectators if spectator.username != username
+        }
+        if is_host:
+            simul.created_by = SIMUL_ERASED_USER
+        if status == T_CREATED:
+            simul.players.pop(username, None)
+            simul.pending_players.pop(username, None)
+        else:
+            _anonymize_loaded_simul_player(app_state, simul, username, host=is_host)
 
 
 async def mark_simul_host_seen(simul: Simul) -> None:
@@ -248,7 +350,11 @@ async def load_simul(
 
     with detail_timer.phase(f"recover {len(players)} simul players"):
         for username in players:
-            simul.players[username] = await _recover_user(app_state, username)
+            key = _simul_player_key(simul.players, username)
+            if username == SIMUL_ERASED_USER:
+                simul.players[key] = _erased_simul_user(app_state)
+            else:
+                simul.players[key] = await _recover_user(app_state, username)
 
     pending_players = _as_str_list(doc.get("pendingPlayers"))
     with detail_timer.phase(f"recover {len(pending_players)} pending players"):

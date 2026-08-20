@@ -27,6 +27,7 @@ interface SimulGame {
     gameId: string;
     wplayer: string;
     bplayer: string;
+    hostSide: 'white' | 'black';
     variant: string;
     fen: string;
     lastMove?: string;
@@ -388,7 +389,7 @@ export class SimulController implements ChatController {
     }
 
     isHostWhite(game: SimulGame): boolean {
-        return game.wplayer === this.createdBy;
+        return game.hostSide === 'white';
     }
 
     getHostScore(game: SimulGame): '1' | '0' | '½' | '' {
@@ -478,13 +479,10 @@ export class SimulController implements ChatController {
     }
 
     getHostAndOpponent(game: SimulGame): { host: string; opponent: string } {
-        if (game.wplayer === this.createdBy) {
-            return { host: game.wplayer, opponent: game.bplayer };
-        }
-        if (game.bplayer === this.createdBy) {
-            return { host: game.bplayer, opponent: game.wplayer };
-        }
-        return { host: game.wplayer, opponent: game.bplayer };
+        const host = this.createdBy || '<erased>';
+        return game.hostSide === 'white'
+            ? { host, opponent: game.bplayer }
+            : { host, opponent: game.wplayer };
     }
 
     getVariantInfo() {
