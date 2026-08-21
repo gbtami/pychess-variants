@@ -951,6 +951,7 @@ td.header:hover {
 
 /* Hosted simul history */
 .simul-history {
+    grid-area: main;
     max-width: 900px;
     width: 100%;
     margin-inline: auto;
