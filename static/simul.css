@@ -893,3 +893,33 @@ td.header:hover {
     background: var(--bg-color2);
     color: var(--font-color);
 }
+
+
+/* Hosted simul history */
+.simul-history {
+    max-width: 900px;
+    width: 100%;
+    margin-inline: auto;
+}
+
+.simul-history__count {
+    font-size: 1.25em;
+}
+
+.simul-history__score {
+    white-space: nowrap;
+}
+
+.simul-history__empty {
+    padding: 2rem 0;
+}
+
+.simul-history__pagination {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.simul-history__pagination a {
+    font-weight: 600;
+}

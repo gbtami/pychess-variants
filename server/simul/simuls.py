@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 
+from compress import C2R
 from const import MAX_CHAT_LINES, STARTED, T_CREATED, T_FINISHED, T_STARTED, TStatus
 from fairy import FairyBoard
 from game import Game
@@ -34,6 +35,7 @@ SIMUL_HOME_CREATED_LIMIT = 50
 SIMUL_HOME_STARTED_LIMIT = 50
 SIMUL_HOME_FINISHED_LIMIT = 20
 SIMUL_HOME_MINE_LIMIT = 50
+SIMUL_HISTORY_PAGE_SIZE = 20
 
 
 @dataclass
@@ -45,11 +47,15 @@ class SimulListEntry:
     base: int
     inc: int
     created_by: str
+    created_at: datetime | None
     starts_at: datetime | None
     estimated_start_at: datetime | None
     status: TStatus
     players_count: int
     participation: str | None = None
+    wins: int = 0
+    draws: int = 0
+    losses: int = 0
 
     @property
     def display_date(self) -> datetime | None:
@@ -559,6 +565,10 @@ async def load_active_simuls(app_state: PychessGlobalAppState) -> None:
     await app_state.db.simul.create_index("hostSeenAt")
     await app_state.db.simul.create_index("players.user")
     await app_state.db.simul.create_index("pendingPlayers.user")
+    await app_state.db.simul.create_index(
+        [("createdBy", 1), ("status", 1), ("createdAt", -1)],
+        name="createdBy_status_createdAt",
+    )
 
     created_cutoff = datetime.now(UTC) - CREATED_SIMUL_RESTART_WINDOW
     cursor = app_state.db.simul.find(
@@ -622,6 +632,7 @@ def _simul_list_entry(simul_doc: SimulDoc, username: str | None = None) -> Simul
         base=_parse_int(simul_doc.get("base"), 1),
         inc=_parse_int(simul_doc.get("inc"), 0),
         created_by=created_by,
+        created_at=_as_datetime(simul_doc.get("createdAt")),
         starts_at=_as_datetime(simul_doc.get("startsAt")),
         estimated_start_at=_as_datetime(simul_doc.get("estimatedStartAt")),
         status=_parse_status(simul_doc.get("status")),
@@ -655,6 +666,54 @@ async def _query_simul_list(
         if entry is not None:
             entries.append(entry)
     return entries
+
+
+async def get_hosted_simuls(
+    app_state: PychessGlobalAppState, username: str, page: int
+) -> tuple[list[SimulListEntry], int]:
+    if app_state.db is None:
+        return [], 0
+
+    page = max(page, 1)
+    selector: dict[str, object] = {"status": T_FINISHED, "createdBy": username}
+    total = await app_state.db.simul.count_documents(selector)
+
+    cursor = (
+        app_state.db.simul.find(selector)
+        .sort("createdAt", -1)
+        .skip((page - 1) * SIMUL_HISTORY_PAGE_SIZE)
+        .limit(SIMUL_HISTORY_PAGE_SIZE)
+    )
+    docs = await cursor.to_list(length=SIMUL_HISTORY_PAGE_SIZE)
+    entries = [entry for doc in docs if (entry := _simul_list_entry(doc)) is not None]
+
+    by_id = {entry.id: entry for entry in entries}
+    if not by_id:
+        return entries, total
+
+    games = app_state.db.game.find(
+        {"sid": {"$in": list(by_id)}},
+        projection={"_id": 0, "sid": 1, "r": 1, "sh": 1},
+    )
+    async for game_doc in games:
+        simul_id = game_doc.get("sid")
+        host_side = game_doc.get("sh")
+        result_code = game_doc.get("r")
+        if not isinstance(simul_id, str) or simul_id not in by_id:
+            continue
+        if host_side not in ("w", "b") or not isinstance(result_code, str):
+            continue
+
+        result = C2R.get(result_code, "*")
+        entry = by_id[simul_id]
+        if result == "1/2-1/2":
+            entry.draws += 1
+        elif (result == "1-0" and host_side == "w") or (result == "0-1" and host_side == "b"):
+            entry.wins += 1
+        elif result in ("1-0", "0-1"):
+            entry.losses += 1
+
+    return entries, total
 
 
 async def get_simul_home_lists(

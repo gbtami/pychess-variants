@@ -606,6 +606,7 @@ class ViewContext(TypedDict, total=False):
     online_users: Sequence[User]
     profile: str | None
     profile_teams: Sequence[Mapping[str, object]]
+    profile_simul_count: int
     profile_title: str
     profile_restricted: bool
     ublog_posts: list[object]
@@ -629,6 +630,11 @@ class ViewContext(TypedDict, total=False):
     simulid: str
     simulname: str
     started_simuls: Sequence[object]
+    simul_history_profile: str
+    simul_history_entries: Sequence[object]
+    simul_history_total: int
+    simul_history_prev_href: str
+    simul_history_next_href: str
     tags: Sequence[str] | Mapping[str, str]
     tournament: object
     tournamentdirector: bool

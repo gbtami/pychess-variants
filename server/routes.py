@@ -347,6 +347,7 @@ get_routes: tuple[RouteDef, ...] = (
     (r"/simul/{simulId:\w{8}}/edit", simul_view.simul_edit),
     (r"/simul/{simulId:\w{8}}/cancel", simul_view.cancel_simul),
     (r"/simul/{simulId:\w{8}}", simul_view.simul),
+    ("/@/{profileId}/simuls", simul_view.simul_history),
     ("/@/{profileId}", profile.profile),
     ("/@/{profileId}/following", following.following),
     ("/@/{profileId}/mini", user_mini.user_mini),

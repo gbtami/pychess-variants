@@ -89,8 +89,9 @@ and Lichess-parity work identified in the post-Teams review.
 - [x] **Host current-board presence.** The round websocket records the game currently opened
   by the host, persists that game id, and broadcasts changes to the simul room. Spectators
   see the host's current mini-board highlighted, matching Lichess's `hostGame` behavior.
-- [ ] **Hosted-simul history.** Add a paginated "simuls hosted by this user" view and
-  profile integration when useful.
+- [x] **Hosted-simul history.** Finished simuls now have a public 20-per-page host history,
+  newest first, with W/D/L totals derived in one indexed game query per page. Profiles link
+  to the history when the user has hosted at least one finished simul.
 
 ## Optional parity / polish
 

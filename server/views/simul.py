@@ -13,7 +13,9 @@ from request_utils import read_post_data
 from settings import ADMINS, SIMULING
 from simul.simul import MAX_SIMUL_VARIANTS, Simul, split_simul_variant_key
 from simul.simuls import (
+    SIMUL_HISTORY_PAGE_SIZE,
     delete_simul_from_db,
+    get_hosted_simuls,
     get_simul_home_lists,
     load_simul,
     upsert_simul_to_db,
@@ -458,6 +460,43 @@ async def simuls(request: web.Request) -> ViewContext:
     context["icons"] = VARIANT_ICONS
     context["time_control_str"] = time_control_str
     context["view_css"] = "simul.css"
+    return context
+
+
+@aiohttp_jinja2.template("simul_history.html")
+async def simul_history(request: web.Request) -> ViewContext:
+    if not SIMULING:
+        raise web.HTTPForbidden()
+
+    _user, context = await get_user_context(request)
+    app_state = get_app_state(request.app)
+    profile_id = request.match_info["profileId"]
+
+    profile_user = await app_state.public_users.get_profile(profile_id)
+    if profile_user is None or not profile_user.enabled:
+        raise web.HTTPNotFound()
+
+    try:
+        page = max(int(request.rel_url.query.get("page", "1")), 1)
+    except ValueError:
+        page = 1
+
+    profile_id = profile_user.username
+    hosted_simuls, total = await get_hosted_simuls(app_state, profile_id, page)
+    base_url = f"/@/{profile_id}/simuls"
+    context["title"] = f"{profile_id} • Hosted simuls"
+    context["view"] = "simul-history"
+    context["view_css"] = "simul.css"
+    context["simul_history_profile"] = profile_id
+    context["simul_history_entries"] = hosted_simuls
+    context["simul_history_total"] = total
+    context["simul_history_prev_href"] = (
+        base_url if page == 2 else f"{base_url}?page={page - 1}" if page > 2 else ""
+    )
+    context["simul_history_next_href"] = (
+        f"{base_url}?page={page + 1}" if page * SIMUL_HISTORY_PAGE_SIZE < total else ""
+    )
+    context["time_control_str"] = time_control_str
     return context
 
 

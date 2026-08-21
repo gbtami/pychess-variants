@@ -71,6 +71,9 @@
             {% if (not anon) and (profile_title != "BOT") %}
             <a class="icon icon-bubble-convo" href="/blogs/@/{{ profile }}" title="User blogs">Blogs</a>
             <a class="icon icon-list" href="{{ home }}/variants/community?author={{ profile | urlencode }}" title="{% trans %}Variants{% endtrans %}">{% trans %}Variants{% endtrans %}</a>
+            {% if profile_simul_count %}
+            <a class="icon icon-trophy" href="{{ home }}/@/{{ profile }}/simuls" title="{% trans %}Hosted simuls{% endtrans %}">{% trans %}Simuls{% endtrans %} ({{ profile_simul_count }})</a>
+            {% endif %}
             {% endif %}
 
             {% if (not anon) and (profile != username) and (profile_title != "BOT") and (can_message) %}

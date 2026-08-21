@@ -2,11 +2,11 @@ from urllib.parse import urlsplit
 
 import aiohttp_jinja2
 from aiohttp import web
-from const import DASH, IMPORTED, RATED, SYSTEM_USER, TROPHIES
+from const import DASH, IMPORTED, RATED, SYSTEM_USER, T_FINISHED, TROPHIES
 from custom_trophy_owners import CUSTOM_TROPHY_OWNERS
 from glicko2.glicko2 import PROVISIONAL_PHI
 from pychess_global_app_state_utils import get_app_state
-from settings import ADMINS
+from settings import ADMINS, SIMULING
 from team import profile_teams_for_user
 from typedefs import REQUEST_PROFILE_RESTRICTED_KEY
 from typing_defs import ViewContext
@@ -198,9 +198,14 @@ async def profile(request: web.Request) -> ViewContext:
         profile_user.oauth_id if profile_user.oauth_provider == "lishogi" else ""
     )
     context["profile_teams"] = []
+    context["profile_simul_count"] = 0
     context["ublog_posts"] = []
     context["ublog_post_count"] = 0
     if app_state.db is not None and not profile_restricted:
+        if SIMULING and not user.anon and not profile_user.bot:
+            context["profile_simul_count"] = await app_state.db.simul.count_documents(
+                {"createdBy": profile_user.username, "status": T_FINISHED}
+            )
         if not user.anon:
             context["profile_teams"] = await profile_teams_for_user(app_state, profileId)
         context["ublog_post_count"] = await app_state.db.ublog_post.count_documents(

@@ -21,6 +21,7 @@ from simul import wss as simul_wss
 from simul.simul import MAX_SIMUL_OPPONENTS, SIMUL_ERASED_USER, Simul
 from simul.simuls import (
     erase_user_from_simuls,
+    get_hosted_simuls,
     get_simul_home_lists,
     load_active_simuls,
     load_simul,
@@ -1713,6 +1714,81 @@ class TestGUI:
         assert len(finished) == 20
         assert finished[0].id == "f0000034"
         assert stale_id not in {entry.id for entry in created}
+
+    async def test_hosted_simuls_are_paginated_with_host_results(self):
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
+        app[pychess_global_app_state_key] = PychessGlobalAppState(app)
+        app_state = get_app_state(app)
+        now = datetime.now(UTC)
+        host = "TestUser_1"
+
+        docs = []
+        for i in range(23):
+            docs.append(
+                {
+                    "_id": f"h{i:07d}",
+                    "name": f"Hosted {i}",
+                    "createdBy": host,
+                    "variants": ["chess"],
+                    "base": 5,
+                    "inc": 3,
+                    "createdAt": now - timedelta(minutes=i),
+                    "status": T_FINISHED,
+                    "players": [
+                        {"user": host, "variant": "chess", "host": True},
+                        {"user": f"player-{i}", "variant": "chess", "host": False},
+                    ],
+                    "pendingPlayers": [],
+                }
+            )
+        docs.extend(
+            [
+                {
+                    "_id": "other001",
+                    "name": "Someone else's simul",
+                    "createdBy": "TestUser_2",
+                    "variants": ["chess"],
+                    "base": 5,
+                    "inc": 3,
+                    "createdAt": now,
+                    "status": T_FINISHED,
+                    "players": [
+                        {"user": "TestUser_2", "variant": "chess", "host": True},
+                        {"user": "player", "variant": "chess", "host": False},
+                    ],
+                    "pendingPlayers": [],
+                },
+                {
+                    "_id": "active01",
+                    "name": "Still active",
+                    "createdBy": host,
+                    "variants": ["chess"],
+                    "base": 5,
+                    "inc": 3,
+                    "createdAt": now + timedelta(minutes=1),
+                    "status": T_CREATED,
+                    "players": [{"user": host, "variant": "chess", "host": True}],
+                    "pendingPlayers": [],
+                },
+            ]
+        )
+        await app_state.db.simul.insert_many(docs)
+        await app_state.db.game.insert_many(
+            [
+                {"_id": "win00001", "sid": "h0000000", "r": "a", "sh": "w"},
+                {"_id": "draw0001", "sid": "h0000000", "r": "c", "sh": "b"},
+                {"_id": "loss0001", "sid": "h0000000", "r": "a", "sh": "b"},
+            ]
+        )
+
+        first_page, total = await get_hosted_simuls(app_state, host, 1)
+        second_page, second_total = await get_hosted_simuls(app_state, host, 2)
+
+        assert total == second_total == 23
+        assert len(first_page) == 20
+        assert [entry.id for entry in first_page[:2]] == ["h0000000", "h0000001"]
+        assert [entry.id for entry in second_page] == ["h0000020", "h0000021", "h0000022"]
+        assert (first_page[0].wins, first_page[0].draws, first_page[0].losses) == (1, 1, 1)
 
     async def test_simul_home_lists_signed_in_players_pending_and_accepted(self, aiohttp_server):
         app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
