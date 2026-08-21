@@ -352,8 +352,8 @@ class Simul:
     def start_error(self) -> str | None:
         if self.status != T_CREATED:
             return "This simul has already started"
-        if self.opponent_count < 1:
-            return "Cannot start simul without opponents"
+        if self.opponent_count < 2:
+            return "Cannot start simul with fewer than 2 opponents"
         if self.opponent_count > MAX_SIMUL_OPPONENTS:
             return f"Cannot start simul with more than {MAX_SIMUL_OPPONENTS} opponents"
         if not self.host_extra_time_valid():

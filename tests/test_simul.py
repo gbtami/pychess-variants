@@ -293,7 +293,7 @@ class TestGUI:
         assert waiting.username in simul.pending_players
         assert waiting.username not in simul.players
 
-    async def test_simul_cannot_start_without_opponents(self, aiohttp_server):
+    async def test_simul_requires_two_opponents_to_start(self, aiohttp_server):
         app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         await aiohttp_server(app, host="127.0.0.1")
         app_state = get_app_state(app)
@@ -306,8 +306,17 @@ class TestGUI:
         simul = await Simul.create(app_state, sid, name="Test Simul", created_by=host_username)
         app_state.simuls[sid] = simul
 
-        started = await simul.start()
-        assert started is False
+        assert await simul.start() is False
+        assert simul.start_error() == "Cannot start simul with fewer than 2 opponents"
+        assert simul.status == T_CREATED
+
+        player = User(app_state, username="TestUser_2")
+        app_state.users[player.username] = player
+        assert simul.join(player) is True
+        assert simul.approve(player.username) is True
+
+        assert await simul.start() is False
+        assert simul.start_error() == "Cannot start simul with fewer than 2 opponents"
         assert simul.status == T_CREATED
 
     async def _session_for_user(self, username: str):
@@ -797,12 +806,14 @@ class TestGUI:
         host = User(app_state, username="Host")
         moderator = User(app_state, username="mod")
         opponent = User(app_state, username="Opponent")
-        for user in (host, moderator, opponent):
+        opponent2 = User(app_state, username="Opponent2")
+        for user in (host, moderator, opponent, opponent2):
             app_state.users[user.username] = user
 
         simul = await Simul.create(app_state, id8(), name="Running simul", created_by=host.username)
-        assert simul.join(opponent)
-        assert simul.approve(opponent.username)
+        for player in (opponent, opponent2):
+            assert simul.join(player)
+            assert simul.approve(player.username)
         app_state.simuls[simul.id] = simul
         assert await simul.start()
 
@@ -1088,14 +1099,16 @@ class TestGUI:
         app_state.simuls[sid] = simul
 
         player2 = User(app_state, username="TestUser_2")
-        app_state.users[player2.username] = player2
-        simul.join(player2)
-        simul.approve(player2.username)
+        player3 = User(app_state, username="TestUser_3")
+        for player in (player2, player3):
+            app_state.users[player.username] = player
+            simul.join(player)
+            simul.approve(player.username)
 
         started = await simul.start()
         assert started is True
         assert simul.status == T_STARTED
-        assert len(simul.games) == 1
+        assert len(simul.games) == 2
         assert simul.clock_task is not None
 
         reloaded_app = make_app(db_client=db_client)
@@ -1108,8 +1121,9 @@ class TestGUI:
         assert reloaded_simul.status == T_STARTED
         assert host_username in reloaded_simul.players
         assert player2.username in reloaded_simul.players
-        assert len(reloaded_simul.games) == 1
-        assert len(reloaded_simul.ongoing_games) == 1
+        assert player3.username in reloaded_simul.players
+        assert len(reloaded_simul.games) == 2
+        assert len(reloaded_simul.ongoing_games) == 2
         assert reloaded_simul.clock_task is not None
 
         if reloaded_simul.clock_task is not None:
@@ -1325,18 +1339,22 @@ class TestGUI:
         app_state.simuls[sid] = simul
 
         player2 = User(app_state, username="TestUser_2")
-        app_state.users[player2.username] = player2
-        simul.join(player2)
-        simul.approve(player2.username)
+        player3 = User(app_state, username="TestUser_3")
+        for player in (player2, player3):
+            app_state.users[player.username] = player
+            simul.join(player)
+            simul.approve(player.username)
 
         started = await simul.start()
         assert started is True
-        assert len(simul.games) == 1
+        assert len(simul.games) == 2
 
-        game = next(iter(simul.games.values()))
-        game.update_status(MATE, "1-0")
-        await game.save_game()
-        await simul.game_update(game)
+        games = list(simul.games.values())
+        for game in games:
+            game.update_status(MATE, "1-0")
+            await game.save_game()
+            await simul.game_update(game)
+        game = games[0]
 
         if app_state.db is not None:
             game_doc = await app_state.db.game.find_one({"_id": game.id})
@@ -1368,17 +1386,19 @@ class TestGUI:
         app_state.simuls[sid] = simul
 
         player2 = User(app_state, username="TestUser_2")
-        app_state.users[player2.username] = player2
-        simul.join(player2)
-        simul.approve(player2.username)
+        player3 = User(app_state, username="TestUser_3")
+        for player in (player2, player3):
+            app_state.users[player.username] = player
+            simul.join(player)
+            simul.approve(player.username)
 
         started = await simul.start()
         assert started is True
 
-        game = next(iter(simul.games.values()))
-        game.update_status(MATE, "1-0")
-        await game.save_game()
-        await simul.game_update(game)
+        for game in simul.games.values():
+            game.update_status(MATE, "1-0")
+            await game.save_game()
+            await simul.game_update(game)
         assert simul.status == T_FINISHED
 
         restarted_app = make_app(db_client=db_client)
@@ -1570,19 +1590,21 @@ class TestGUI:
         app_state.simuls[sid] = simul
 
         player2 = User(app_state, username="TestUser_2")
-        app_state.users[player2.username] = player2
-        simul.join(player2)
-        simul.approve(player2.username)
+        player3 = User(app_state, username="TestUser_3")
+        for player in (player2, player3):
+            app_state.users[player.username] = player
+            simul.join(player)
+            simul.approve(player.username)
 
         started = await simul.start()
         assert started is True
         assert simul.status == T_STARTED
-        assert len(simul.games) == 1
-        assert len(simul.ongoing_games) == 1
+        assert len(simul.games) == 2
+        assert len(simul.ongoing_games) == 2
 
-        game = next(iter(simul.games.values()))
-        await game.game_ended(host, "abort")
-        assert game.status == ABORTED
+        for game in tuple(simul.games.values()):
+            await game.game_ended(host, "abort")
+            assert game.status == ABORTED
         assert len(simul.ongoing_games) == 0
         assert simul.status == T_FINISHED
 

@@ -69,8 +69,8 @@ and Lichess-parity work identified in the post-Teams review.
   clock menus: 5-180 minute initial times and 0-180 second increments at the same stepped
   choices. The server continues accepting the existing 0-180 ranges; this item aligns the
   normal create/edit form without unnecessarily narrowing server compatibility.
-- [ ] **Minimum start size.** Require at least two accepted opponents before starting,
-  matching Lichess. PyChess currently allows a one-opponent "simul".
+- [x] **Minimum start size.** Require at least two accepted opponents before starting,
+  enforced server-side and reflected by the host Start button, matching Lichess.
 - [ ] **Team membership condition.** Now that PyChess Teams exist, add an optional
   team-members-only entry condition comparable to Lichess.
 - [ ] **Multiple variants.** Lichess lets a host offer multiple variants and each

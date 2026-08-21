@@ -515,7 +515,7 @@ export class SimulController implements ChatController {
         const buttons: VNode[] = [];
 
         if (isHost) {
-            if (approvedParticipants.length > 0) {
+            if (approvedParticipants.length > 1) {
                 buttons.push(
                     h(
                         'button.button.button-green.text.simul__cta',
