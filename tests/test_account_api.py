@@ -787,15 +787,22 @@ class AccountApiTestCase(AioHTTPTestCase):
                     "_id": "sim-hist",
                     "createdBy": "alice",
                     "status": 3,
-                    "players": ["alice", "bob"],
+                    "variants": ["chess"],
+                    "players": [
+                        {"user": "alice", "variant": "chess", "host": True},
+                        {"user": "bob", "variant": "chess", "host": False},
+                    ],
                     "pendingPlayers": [],
                 },
                 {
                     "_id": "sim-created-owned",
                     "createdBy": "alice",
                     "status": 0,
-                    "players": ["alice"],
-                    "pendingPlayers": ["bob"],
+                    "variants": ["chess"],
+                    "players": [{"user": "alice", "variant": "chess", "host": True}],
+                    "pendingPlayers": [
+                        {"user": "bob", "variant": "chess", "host": False}
+                    ],
                 },
             ]
         )
@@ -903,7 +910,13 @@ class AccountApiTestCase(AioHTTPTestCase):
         sim_hist = await app_state.db.simul.find_one({"_id": "sim-hist"})
         self.assertIsNotNone(sim_hist)
         self.assertEqual(ERASED_POST_USER, sim_hist.get("createdBy"))
-        self.assertEqual([ERASED_POST_USER, "bob"], sim_hist.get("players"))
+        self.assertEqual(
+            [
+                {"user": ERASED_POST_USER, "variant": "chess", "host": True},
+                {"user": "bob", "variant": "chess", "host": False},
+            ],
+            sim_hist.get("players"),
+        )
         self.assertIsNone(await app_state.db.simul.find_one({"_id": "sim-created-owned"}))
 
         self.assertEqual(ERASED_POST_USER, app_state.tournaments["tour1"].tourneychat[0]["user"])
