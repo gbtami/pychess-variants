@@ -81,9 +81,11 @@ and Lichess-parity work identified in the post-Teams review.
   a searchable multi-select with removable selections instead of Lichess's fixed checkbox
   grid. Applicant choices are persisted per participant and drive entry checks, restart
   recovery, and actual game creation.
-- [ ] **Custom starting position.** Lichess can host a simul from a supplied FEN. Decide
-  how this should interact with PyChess variants and custom/catalogued variants before
-  implementing it.
+- [x] **Custom starting position.** Hosts can optionally supply a FEN when exactly one
+  variant is selected. The position is validated and sanitized with the same Fairy-Stockfish
+  path used by normal PyChess game creation, so built-in and public catalogued variants are
+  supported without pretending one FEN can describe several unrelated variants. The position
+  is persisted, survives restart recovery, and is used for every game in the simul.
 - [ ] **Host current-board presence.** Track and expose which game the host is currently
   viewing so spectators can see the active board, as Lichess does.
 - [ ] **Hosted-simul history.** Add a paginated "simuls hosted by this user" view and

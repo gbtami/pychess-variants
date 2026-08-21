@@ -743,6 +743,7 @@ class SimulDoc(TypedDict):
     _id: str
     name: str
     description: str
+    fen: str
     variants: list[str]
     rated: bool
     base: int
@@ -771,6 +772,7 @@ class SimulDoc(TypedDict):
 class SimulUpdateData(TypedDict, total=False):
     name: str
     description: str
+    fen: str
     variants: list[str]
     rated: bool
     base: int

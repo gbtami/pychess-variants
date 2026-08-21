@@ -7,10 +7,11 @@ from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 
 from const import MAX_CHAT_LINES, STARTED, T_CREATED, T_FINISHED, T_STARTED, TStatus
+from fairy import FairyBoard
 from game import Game
 from typing_defs import SimulDoc, SimulParticipantDoc, SimulUpdateData
 from user import User
-from utils import load_game
+from utils import load_game, sanitize_fen
 from variants import get_server_variant
 from ws_types import ChatLine
 
@@ -120,6 +121,7 @@ async def upsert_simul_to_db(simul: Simul, app_state: PychessGlobalAppState | No
     new_data: SimulUpdateData = {
         "name": simul.name,
         "description": simul.description,
+        "fen": simul.fen,
         "variants": list(simul.variants),
         "rated": bool(simul.rated),
         "base": simul.base,
@@ -356,6 +358,21 @@ async def load_simul(
         log.error("Skipping simul %s with invalid variants", simul_id)
         return None
 
+    fen = doc.get("fen")
+    if not isinstance(fen, str):
+        log.error("Skipping simul %s with invalid starting position", simul_id)
+        return None
+    if fen and len(variants) != 1:
+        log.error("Skipping simul %s with a starting position and multiple variants", simul_id)
+        return None
+    if fen:
+        variant, chess960 = split_simul_variant_key(variants[0])
+        fen_valid, sanitized_fen = sanitize_fen(variant, fen, chess960)
+        if not fen_valid or not FairyBoard(variant, sanitized_fen, chess960).has_legal_move():
+            log.error("Skipping simul %s with an invalid persisted starting position", simul_id)
+            return None
+        fen = sanitized_fen
+
     host_color = doc.get("hostColor")
     if host_color not in ("random", "white", "black"):
         host_color = "random"
@@ -369,6 +386,7 @@ async def load_simul(
             description=(
                 doc.get("description", "") if isinstance(doc.get("description"), str) else ""
             ),
+            fen=fen,
             variants=variants,
             rated=bool(doc.get("rated", False)),
             base=_parse_int(doc.get("base"), 1),

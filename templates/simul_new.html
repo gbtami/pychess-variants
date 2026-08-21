@@ -10,6 +10,7 @@
             {% set simul_inc = simul.inc %}
             {% set simul_host_color = simul.host_color %}
             {% set simul_description = simul.description %}
+            {% set simul_fen = simul.fen %}
             {% set simul_host_extra_time = simul.host_extra_time %}
             {% set simul_host_extra_time_per_player = simul.host_extra_time_per_player %}
             {% set simul_estimated_start_at = simul.estimated_start_at.isoformat() if simul.estimated_start_at else '' %}
@@ -25,6 +26,7 @@
             {% set simul_inc = simul_clock_increment_default %}
             {% set simul_host_color = 'random' %}
             {% set simul_description = '' %}
+            {% set simul_fen = '' %}
             {% set simul_host_extra_time = 0 %}
             {% set simul_host_extra_time_per_player = 0 %}
             {% set simul_estimated_start_at = '' %}
@@ -95,6 +97,15 @@
                                 <option value="black"{% if simul_host_color == 'black' %} selected="selected"{% endif %}>Black</option>
                             </select>
                         </div>
+                    </div>
+                    <div class="form-group" id="simul-position-group">
+                        <label class="form-label" for="form3-position">Starting position</label>
+                        <input id="form3-position" name="position" value="{{ simul_fen }}" class="form-control" maxlength="4096" />
+                        <small class="form-help" id="simul-position-help">
+                            Optional. Custom positions require exactly one selected variant.
+                            Use the <a id="simul-position-editor" href="/editor/{{ simul_variants[0] }}" rel="noopener" target="_blank">Board editor</a>
+                            to create a position, then paste its FEN here.
+                        </small>
                     </div>
                 </fieldset>
                 <fieldset class="simul-form__fieldset">

@@ -85,6 +85,80 @@ class TestGUI:
             assert simul_doc["status"] == T_STARTED
             assert len(simul_doc["players"]) == NB_PLAYERS
 
+    async def test_simul_custom_start_position(self, aiohttp_server):
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+        server = await aiohttp_server(app, host="127.0.0.1")
+        app_state = get_app_state(app)
+        host = User(app_state, username="FenHost")
+        player1 = User(app_state, username="FenPlayer1")
+        player2 = User(app_state, username="FenPlayer2")
+        for user in (host, player1, player2):
+            app_state.users[user.username] = user
+        session = await self._session_for_user(host.username)
+        fen = "8/8/8/8/8/4k3/8/4K2R w - - 0 1"
+
+        try:
+            response = await session.post(
+                f"http://127.0.0.1:{server.port}/simul",
+                data={
+                    "name": "From Position",
+                    "variants": "chess",
+                    "position": fen,
+                    "host_color": "white",
+                    "base": "5",
+                    "inc": "0",
+                    "hostExtraTime": "0",
+                    "hostExtraTimePerPlayer": "0",
+                    "entryMinRatedGames": "0",
+                    "entryMinRating": "0",
+                    "entryMaxRating": "0",
+                    "entryMinAccountAgeDays": "0",
+                },
+                allow_redirects=False,
+            )
+            assert response.status == 302
+            simul_id = response.headers["Location"].rsplit("/", 1)[-1]
+            simul = app_state.simuls[simul_id]
+            assert simul.fen == fen
+            simul_doc = await app_state.db.simul.find_one({"_id": simul_id})
+            assert simul_doc is not None
+            assert simul_doc["fen"] == fen
+
+            app_state.simuls.pop(simul_id)
+            simul = await load_simul(app_state, simul_id)
+            assert simul is not None
+            assert simul.fen == fen
+
+            for player in (player1, player2):
+                assert simul.join(player) is True
+                assert simul.approve(player.username) is True
+            assert await simul.start() is True
+            assert {game.initial_fen for game in simul.games.values()} == {fen}
+
+            rejected = await session.post(
+                f"http://127.0.0.1:{server.port}/simul",
+                data=[
+                    ("name", "Mixed From Position"),
+                    ("variants", "chess"),
+                    ("variants", "atomic"),
+                    ("position", fen),
+                    ("host_color", "random"),
+                    ("base", "5"),
+                    ("inc", "0"),
+                    ("hostExtraTime", "0"),
+                    ("hostExtraTimePerPlayer", "0"),
+                    ("entryMinRatedGames", "0"),
+                    ("entryMinRating", "0"),
+                    ("entryMaxRating", "0"),
+                    ("entryMinAccountAgeDays", "0"),
+                ],
+                allow_redirects=False,
+            )
+            assert rejected.status == 400
+            assert "requires exactly one simul variant" in await rejected.text()
+        finally:
+            await session.close()
+
     async def test_simul_applicants_choose_offered_variants(self, aiohttp_server):
         app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         await aiohttp_server(app, host="127.0.0.1")

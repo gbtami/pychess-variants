@@ -51,6 +51,7 @@ class Simul:
         inc=0,
         host_color="random",
         description="",
+        fen="",
         host_extra_time=0,
         host_extra_time_per_player=0,
         estimated_start_at=None,
@@ -73,6 +74,9 @@ class Simul:
             raise ValueError("A simul must offer at least one variant")
         if len(self.variants) > MAX_SIMUL_VARIANTS:
             raise ValueError(f"A simul can offer at most {MAX_SIMUL_VARIANTS} variants")
+        if fen and len(self.variants) != 1:
+            raise ValueError("A custom starting position requires exactly one simul variant")
+        self.fen = fen
         self.rated = rated
         self.base = base
         self.inc = inc
@@ -229,7 +233,7 @@ class Simul:
         perf = user.perfs.get(perf_key, {})
         try:
             rated_games = int(perf.get("nb", 0))
-        except TypeError, ValueError:
+        except (TypeError, ValueError):
             rated_games = 0
 
         if self.entry_min_rated_games > 0 and rated_games < self.entry_min_rated_games:
@@ -448,7 +452,7 @@ class Simul:
                 self.app_state,
                 game_id,
                 server_variant.uci_variant,
-                "",  # initial_fen
+                self.fen,
                 wp,
                 bp,
                 base=self.base,

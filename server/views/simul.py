@@ -5,12 +5,13 @@ from admin_api import record_mod_action
 from aiohttp import web
 from catalogued_variants import is_public_catalogued_variant, public_catalogued_variants_for_forms
 from const import T_CREATED
+from fairy import FairyBoard
 from misc import time_control_str
 from newid import id8
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
 from settings import ADMINS, SIMULING
-from simul.simul import MAX_SIMUL_VARIANTS, Simul
+from simul.simul import MAX_SIMUL_VARIANTS, Simul, split_simul_variant_key
 from simul.simuls import (
     delete_simul_from_db,
     get_simul_home_lists,
@@ -19,6 +20,7 @@ from simul.simuls import (
 )
 from team import get_team, is_team_member, teams_for_user
 from typing_defs import ViewContext
+from utils import NO_LEGAL_MOVES_START_FEN_MESSAGE, sanitize_fen
 from variants import VARIANT_ICONS, VARIANTS, get_server_variant, is_catalogued_variant
 
 from views import get_user_context
@@ -289,6 +291,31 @@ def parse_simul_variants(app_state, data) -> list[str]:
     return variants
 
 
+def parse_simul_fen(data, variants: list[str]) -> str:
+    raw_fen = data.get("position", "")
+    if not isinstance(raw_fen, (str, bytes)):
+        raise web.HTTPBadRequest(text="Invalid simul starting position")
+    if isinstance(raw_fen, bytes):
+        raw_fen = raw_fen.decode("utf-8")
+    fen = raw_fen.strip()
+    if not fen:
+        return ""
+    if len(variants) != 1:
+        raise web.HTTPBadRequest(
+            text="A custom starting position requires exactly one simul variant."
+        )
+
+    variant, chess960 = split_simul_variant_key(variants[0])
+    fen_valid, sanitized_fen = sanitize_fen(variant, fen, chess960)
+    if not fen_valid:
+        raise web.HTTPBadRequest(text="Invalid starting position for the selected variant.")
+
+    board = FairyBoard(variant, sanitized_fen, chess960)
+    if not board.has_legal_move():
+        raise web.HTTPBadRequest(text=NO_LEGAL_MOVES_START_FEN_MESSAGE)
+    return sanitized_fen
+
+
 def add_simul_variant_form_context(context: ViewContext, app_state, user) -> None:
     site_variants = {key: variant for key, variant in VARIANTS.items() if not variant.two_boards}
     catalogued_variants = public_catalogued_variants_for_forms(app_state)
@@ -361,6 +388,7 @@ async def simuls(request: web.Request) -> ViewContext:
         simul_id = id8()
         name = parse_simul_name(data)
         variants = parse_simul_variants(app_state, data)
+        fen = parse_simul_fen(data, variants)
         host_color = parse_host_color(data)
         base = parse_int_post_field(data, "base", min_value=0, max_value=180)
         inc = parse_int_post_field(data, "inc", min_value=0, max_value=180)
@@ -393,6 +421,7 @@ async def simuls(request: web.Request) -> ViewContext:
             name=name,
             created_by=user.username,
             description=description,
+            fen=fen,
             variants=variants,
             rated=False,
             base=base,
@@ -529,7 +558,10 @@ async def update_simul(request: web.Request) -> web.Response:
     simul.description = parse_simul_description(data)
 
     if simul.status == T_CREATED:
-        removed_players = simul.set_variants(parse_simul_variants(app_state, data))
+        variants = parse_simul_variants(app_state, data)
+        fen = parse_simul_fen(data, variants)
+        removed_players = simul.set_variants(variants)
+        simul.fen = fen
         simul.base = parse_int_post_field(data, "base", min_value=0, max_value=180)
         simul.inc = parse_int_post_field(data, "inc", min_value=0, max_value=180)
         simul.host_color = parse_host_color(data)

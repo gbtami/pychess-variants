@@ -47,6 +47,7 @@ interface MsgSimulUserConnected {
     createdBy: string;
     name?: string;
     description?: string;
+    fen?: string;
     variants?: string[];
     base?: number;
     inc?: number;
@@ -155,6 +156,7 @@ export class SimulController implements ChatController {
     hostExtraTime: number;
     hostExtraTimePerPlayer: number;
     description: string;
+    startingFen: string;
     entryMinRating: number;
     entryMaxRating: number;
     entryMinRatedGames: number;
@@ -182,6 +184,7 @@ export class SimulController implements ChatController {
         this.hostExtraTime = 0;
         this.hostExtraTimePerPlayer = 0;
         this.description = '';
+        this.startingFen = '';
         this.entryMinRating = 0;
         this.entryMaxRating = 0;
         this.entryMinRatedGames = 0;
@@ -262,6 +265,7 @@ export class SimulController implements ChatController {
         this.createdBy = msg.createdBy;
         if (msg.name) this.simulName = msg.name;
         if (typeof msg.description === 'string') this.description = msg.description;
+        if (typeof msg.fen === 'string') this.startingFen = msg.fen;
         if (msg.variants && msg.variants.length > 0) {
             this.variantKeys = msg.variants;
             if (!this.variantKeys.includes(this.selectedJoinVariant)) {
@@ -806,6 +810,23 @@ export class SimulController implements ChatController {
                         : []),
                     ...(showPendingCount ? [h('p.simul__meta__line', `${approvedCount} accepted players`)] : []),
                     ...(showPendingCount ? [h('p.simul__meta__line', `${pendingCount} pending players`)] : []),
+                    ...(this.startingFen
+                        ? [
+                              h('p.simul__meta__line', [
+                                  h(
+                                      'a',
+                                      {
+                                          attrs: {
+                                              href: `/analysis/${encodeURIComponent(this.variantKeys[0])}?fen=${encodeURIComponent(this.startingFen)}`,
+                                              target: '_blank',
+                                              rel: 'noopener',
+                                          },
+                                      },
+                                      'Custom starting position',
+                                  ),
+                              ]),
+                          ]
+                        : []),
                 ]),
                 this.description
                     ? h('section', [h('p.simul__meta__line.simul__meta__description', this.description)])

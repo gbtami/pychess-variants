@@ -104,6 +104,7 @@ async def handle_simul_user_connected(
         "createdBy": simul.created_by,
         "name": simul.name,
         "description": simul.description,
+        "fen": simul.fen,
         "variants": simul.variants,
         "base": simul.base,
         "inc": simul.inc,

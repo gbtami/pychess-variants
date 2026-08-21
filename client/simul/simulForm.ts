@@ -53,6 +53,23 @@ export function initSimulForm(): void {
 
     const selectedEntries = (): VariantPickerEntry[] => entries.filter(entry => entry.option.selected);
 
+    const position = document.getElementById('form3-position');
+    const positionHelp = document.getElementById('simul-position-help');
+    const positionEditor = document.getElementById('simul-position-editor');
+
+    const updatePositionAvailability = (): void => {
+        if (!(position instanceof HTMLInputElement)) return;
+        const chosen = selectedEntries();
+        const available = chosen.length === 1;
+        position.disabled = !available;
+        if (positionHelp instanceof HTMLElement) {
+            positionHelp.classList.toggle('is-disabled', !available);
+        }
+        if (positionEditor instanceof HTMLAnchorElement && available) {
+            positionEditor.href = `/editor/${encodeURIComponent(chosen[0].value)}`;
+        }
+    };
+
     const setExpanded = (expanded: boolean): void => {
         search.setAttribute('aria-expanded', expanded ? 'true' : 'false');
         results.hidden = !expanded;
@@ -231,5 +248,7 @@ export function initSimulForm(): void {
         setExpanded(false);
     });
 
+    source.addEventListener('change', updatePositionAvailability);
     renderSelected();
+    updatePositionAvailability();
 }
