@@ -582,6 +582,58 @@ class TestGUI:
             await host_session.close()
             await player_session.close()
 
+    async def test_host_game_presence_is_broadcast_and_persisted(self, aiohttp_server):
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+        server = await aiohttp_server(app, host="127.0.0.1")
+        app_state = get_app_state(app)
+
+        host = User(app_state, username="PresenceHost")
+        watcher = User(app_state, username="PresenceWatcher")
+        opponents = [User(app_state, username=f"PresenceOpponent_{i}") for i in range(2)]
+        for user in (host, watcher, *opponents):
+            app_state.users[user.username] = user
+
+        simul = await Simul.create(app_state, id8(), name="Presence", created_by=host.username)
+        app_state.simuls[simul.id] = simul
+        for opponent in opponents:
+            assert simul.join(opponent) is True
+            assert simul.approve(opponent.username) is True
+        assert await simul.start() is True
+
+        watcher_session, watcher_ws = await self._connect_ws(watcher.username, server.port)
+        host_session = await self._session_for_user(host.username)
+        host_round_ws = None
+        try:
+            await watcher_ws.send_json(
+                {"type": "simul_user_connected", "username": watcher.username, "simulId": simul.id}
+            )
+            connected = await self._receive_until_type(watcher_ws, "simul_user_connected")
+            assert connected["hostGameId"] is None
+
+            game_id = next(iter(simul.games))
+            host_round_ws = await host_session.ws_connect(
+                f"ws://127.0.0.1:{server.port}/wsr/{game_id}"
+            )
+            host_game = await self._receive_until_type(watcher_ws, "host_game")
+            assert host_game["gameId"] == game_id
+            assert simul.host_game_id == game_id
+
+            simul_doc = await app_state.db.simul.find_one({"_id": simul.id})
+            assert simul_doc is not None
+            assert simul_doc["hostGameId"] == game_id
+        finally:
+            if host_round_ws is not None:
+                await host_round_ws.close()
+            await host_session.close()
+            await watcher_ws.close()
+            await watcher_session.close()
+            if simul.clock_task is not None:
+                simul.clock_task.cancel()
+                try:
+                    await simul.clock_task
+                except asyncio.CancelledError:
+                    pass
+
     async def test_simul_creation_rejects_two_board_variant(self, aiohttp_server):
         app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
         server = await aiohttp_server(app, host="127.0.0.1")

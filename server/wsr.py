@@ -1148,6 +1148,15 @@ async def handle_game_user_connected(
     user.add_ws_for_game(game.id, ws)
     user.update_online()
 
+    if game.simulId is not None:
+        from simul.simuls import load_simul, set_simul_host_game
+
+        simul = app_state.simuls.get(game.simulId)
+        if simul is None:
+            simul = await load_simul(app_state, game.simulId)
+        if simul is not None and user.username == simul.created_by:
+            await set_simul_host_game(simul, game.id)
+
     # remove user seeks
     if len(user.lobby_sockets) == 0 or (
         game.status <= STARTED and user.username in (game.wplayer.username, game.bplayer.username)

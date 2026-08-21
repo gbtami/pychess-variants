@@ -765,6 +765,7 @@ class SimulDoc(TypedDict):
     startsAt: NotRequired[datetime | None]
     endsAt: NotRequired[datetime | None]
     status: int
+    hostGameId: NotRequired[str | None]
     players: list[SimulParticipantDoc]
     pendingPlayers: list[SimulParticipantDoc]
 
@@ -794,6 +795,7 @@ class SimulUpdateData(TypedDict, total=False):
     startsAt: datetime | None
     endsAt: datetime | None
     status: int
+    hostGameId: NotRequired[str | None]
     players: list[SimulParticipantDoc]
     pendingPlayers: list[SimulParticipantDoc]
 

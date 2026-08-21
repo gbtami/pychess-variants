@@ -86,8 +86,9 @@ and Lichess-parity work identified in the post-Teams review.
   path used by normal PyChess game creation, so built-in and public catalogued variants are
   supported without pretending one FEN can describe several unrelated variants. The position
   is persisted, survives restart recovery, and is used for every game in the simul.
-- [ ] **Host current-board presence.** Track and expose which game the host is currently
-  viewing so spectators can see the active board, as Lichess does.
+- [x] **Host current-board presence.** The round websocket records the game currently opened
+  by the host, persists that game id, and broadcasts changes to the simul room. Spectators
+  see the host's current mini-board highlighted, matching Lichess's `hostGame` behavior.
 - [ ] **Hosted-simul history.** Add a paginated "simuls hosted by this user" view and
   profile integration when useful.
 

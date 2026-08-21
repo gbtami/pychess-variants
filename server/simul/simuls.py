@@ -142,6 +142,7 @@ async def upsert_simul_to_db(simul: Simul, app_state: PychessGlobalAppState | No
         "estimatedStartAt": simul.estimated_start_at,
         "endsAt": simul.ends_at,
         "status": simul.status,
+        "hostGameId": simul.host_game_id,
         "players": [
             {
                 "user": player.username,
@@ -286,6 +287,24 @@ async def erase_user_from_simuls(app_state: PychessGlobalAppState, username: str
             _anonymize_loaded_simul_player(app_state, simul, username, host=is_host)
 
 
+async def set_simul_host_game(simul: Simul, game_id: str) -> None:
+    """Record and announce which live simul board the host is viewing."""
+    if simul.status != T_STARTED or game_id not in simul.games or simul.host_game_id == game_id:
+        return
+
+    simul.host_game_id = game_id
+    if simul.app_state.db is not None:
+        try:
+            await simul.app_state.db.simul.update_one(
+                {"_id": simul.id},
+                {"$set": {"hostGameId": game_id}},
+            )
+        except Exception:
+            log.exception("Failed to update current host game for simul %s", simul.id)
+
+    await simul.broadcast({"type": "host_game", "gameId": game_id})
+
+
 async def mark_simul_host_seen(simul: Simul) -> None:
     now = datetime.now(UTC)
     simul.host_seen_at = now
@@ -419,6 +438,11 @@ async def load_simul(
     simul.starts_at = _as_datetime(doc.get("startsAt"))
     simul.ends_at = _as_datetime(doc.get("endsAt"))
     simul.status = _parse_status(doc.get("status"))
+    host_game_id = doc.get("hostGameId")
+    if host_game_id is not None and not isinstance(host_game_id, str):
+        log.error("Skipping simul %s with invalid hostGameId", simul_id)
+        return None
+    simul.host_game_id = host_game_id
 
     raw_players = doc.get("players")
     players = _as_simul_participants(raw_players)
@@ -498,6 +522,10 @@ async def load_simul(
     )
     docs: list[ChatLine] = await chat_cursor.to_list(length=MAX_CHAT_LINES)
     simul.tourneychat = docs
+
+    if simul.host_game_id is not None and simul.host_game_id not in simul.games:
+        log.warning("Clearing stale host game %s from simul %s", simul.host_game_id, simul.id)
+        simul.host_game_id = None
 
     if simul.status == T_STARTED:
         missing_opponents = simul.missing_opponents()

@@ -99,6 +99,7 @@ class Simul:
         self.pending_player_variants: dict[str, str] = {}
         self.games: dict[str, Game] = {}
         self.ongoing_games: set[Game] = set()
+        self.host_game_id: str | None = None
         self.clock_task: asyncio.Task[None] | None = None
         self.status = T_CREATED
         self.created_at = datetime.now(UTC)
@@ -503,6 +504,7 @@ class Simul:
         if self.status == T_STARTED:
             self.status = T_FINISHED
             self.ends_at = datetime.now(UTC)
+            self.host_game_id = None
             if self.clock_task is not None:
                 self.clock_task.cancel()
             from simul.simuls import upsert_simul_to_db

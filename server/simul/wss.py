@@ -125,6 +125,7 @@ async def handle_simul_user_connected(
         "startsAt": simul.starts_at.isoformat() if simul.starts_at is not None else None,
         "endsAt": simul.ends_at.isoformat() if simul.ends_at is not None else None,
         "games": simul.all_games_json(),
+        "hostGameId": simul.host_game_id,
         "username": user.username,
     }
     await ws_send_json(ws, response)

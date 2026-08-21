@@ -696,6 +696,12 @@ td.header:hover {
     box-shadow: inset 0 0 0 2px var(--link-color-blue);
 }
 
+.simul__games a.host-current {
+    border-radius: 3px;
+    background: color-mix(in srgb, var(--green-switch) 24%, transparent);
+    box-shadow: 0 0 0 0.3rem color-mix(in srgb, var(--green-switch) 24%, transparent);
+}
+
 .simul__games .mini-game__player {
     display: flex;
     align-items: center;

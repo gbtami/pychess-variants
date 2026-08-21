@@ -66,6 +66,7 @@ interface MsgSimulUserConnected {
     startsAt?: string | null;
     endsAt?: string | null;
     games?: SimulGame[];
+    hostGameId?: string | null;
 }
 
 interface MsgNewGame extends SimulGame {
@@ -130,7 +131,8 @@ type SimulInboundMessage =
     | MsgFullChat
     | MsgError
     | { type: 'simul_started' }
-    | { type: 'simul_finished' };
+    | { type: 'simul_finished' }
+    | { type: 'host_game'; gameId: string };
 
 export class SimulController implements ChatController {
     sock;
@@ -142,6 +144,7 @@ export class SimulController implements ChatController {
     createdBy: string;
     model: PyChessModel;
     games: SimulGame[] = [];
+    hostGameId = '';
     chessgrounds: { [gameId: string]: Api } = {};
     hasRedirectedToGame = false;
     hostRedirectTimeout: number | null = null;
@@ -249,6 +252,11 @@ export class SimulController implements ChatController {
                 break;
             case 'simul_finished':
                 this.simulStatus = T_FINISHED;
+                this.hostGameId = '';
+                this.redraw();
+                break;
+            case 'host_game':
+                this.hostGameId = msg.gameId;
                 this.redraw();
                 break;
             case 'error':
@@ -289,6 +297,7 @@ export class SimulController implements ChatController {
         if (typeof msg.startsAt === 'string') this.startsAt = msg.startsAt;
         if (typeof msg.endsAt === 'string') this.endsAt = msg.endsAt;
         this.games = msg.games ?? [];
+        this.hostGameId = typeof msg.hostGameId === 'string' ? msg.hostGameId : '';
         this.redraw();
     }
 
@@ -900,7 +909,11 @@ export class SimulController implements ChatController {
                     'a',
                     {
                         key: game.gameId,
-                        attrs: { href: `/${game.gameId}` },
+                        class: { 'host-current': this.hostGameId === game.gameId },
+                        attrs: {
+                            href: `/${game.gameId}`,
+                            title: this.hostGameId === game.gameId ? 'Host is playing this game' : undefined,
+                        },
                     },
                     [
                         h('div.mini-game__player', [
