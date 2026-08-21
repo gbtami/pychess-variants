@@ -56,9 +56,12 @@ and Lichess-parity work identified in the post-Teams review.
   for the initial production rollout: PyChess currently has only a global `User.silence`
   timeout, so exposing it to hosts would incorrectly affect unrelated chats. Add a dedicated
   room-local timeout first if host chat moderation is revisited.
-- [ ] **Recovery tests and cleanup.** Add coverage for interrupted/partial start, stale
-  created simuls, and host navigation after restart. Remove temporary detailed startup
-  timing once production restart behavior is confirmed.
+- [x] **Recovery tests and cleanup.** Simul game creation is idempotent per accepted
+  opponent, so restart recovery completes any games missing after an interrupted/partial
+  start without duplicating games or applying host extra time twice. Coverage now includes
+  partial start recovery, stale-created preload/on-demand behavior, and the host round-page
+  game list used for navigation after restart. The temporary nested/per-simul startup timing
+  has been removed while retaining the coarse application startup phases.
 
 ## High-value Lichess parity
 

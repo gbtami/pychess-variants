@@ -258,13 +258,47 @@ class Simul:
         response_db["sid"] = self.id
         await self.app_state.db.simul_chat.insert_one(response_db)
 
+    def missing_opponents(self) -> list[User]:
+        """Return accepted opponent slots that do not yet have a simul game."""
+        missing = [player for key, player in self.players.items() if key != self.created_by]
+
+        for game in self.games.values():
+            if not missing:
+                break
+            if game.simulHostColor == "w":
+                opponent_name = game.bplayer.username
+            elif game.simulHostColor == "b":
+                opponent_name = game.wplayer.username
+            else:
+                continue
+
+            match_index = next(
+                (i for i, player in enumerate(missing) if player.username == opponent_name),
+                None,
+            )
+            if match_index is None:
+                # GDPR anonymization can change the persisted simul participant name
+                # before the corresponding historical game document is scrubbed. Every
+                # existing game still consumes one accepted-opponent slot, so prefer an
+                # erased placeholder and otherwise consume the first unmatched slot.
+                match_index = next(
+                    (i for i, player in enumerate(missing) if player.username == SIMUL_ERASED_USER),
+                    0,
+                )
+            missing.pop(match_index)
+
+        return missing
+
     async def create_games(self) -> list[Game]:
         created_games: list[Game] = []
         host = self.players.get(self.created_by)
         if host is None:
             return created_games
 
-        opponents = [p for p in self.players.values() if p.username != self.created_by]
+        # Game creation is intentionally idempotent per accepted opponent. A server
+        # restart can occur after the simul is marked started but before every game
+        # has been inserted; recovery calls this method again to fill only the gaps.
+        opponents = self.missing_opponents()
         random.shuffle(opponents)
 
         game_table = self.app_state.db.game if self.app_state.db else None

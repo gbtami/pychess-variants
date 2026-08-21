@@ -3,6 +3,7 @@ import json
 import logging
 import time
 from datetime import UTC, datetime, timedelta
+from html import unescape
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
@@ -1046,6 +1047,156 @@ class TestGUI:
                 await reloaded_simul.clock_task
             except asyncio.CancelledError:
                 pass
+
+    @pytest.mark.parametrize("fail_at", [1, 2])
+    async def test_restart_completes_interrupted_or_partial_start(self, fail_at):
+        db_client = AsyncMongoMockClient(tz_aware=True)
+        app = make_app(db_client=db_client)
+        app[pychess_global_app_state_key] = PychessGlobalAppState(app)
+        app_state = get_app_state(app)
+        host = User(app_state, username="PartialHost")
+        app_state.users[host.username] = host
+
+        simul = await Simul.create(
+            app_state,
+            id8(),
+            name="Interrupted Start",
+            created_by=host.username,
+            base=5,
+            inc=3,
+            host_extra_time=10,
+            host_extra_time_per_player=7,
+        )
+        app_state.simuls[simul.id] = simul
+        opponents = [User(app_state, username=f"PartialPlayer_{i}") for i in range(3)]
+        for opponent in opponents:
+            app_state.users[opponent.username] = opponent
+            assert simul.join(opponent) is True
+            assert simul.approve(opponent.username) is True
+
+        from utils import insert_game_to_db as persist_game
+
+        inserts = 0
+
+        async def interrupted_insert(game, state):
+            nonlocal inserts
+            inserts += 1
+            if inserts == fail_at:
+                raise RuntimeError("simulated restart during simul start")
+            await persist_game(game, state)
+
+        with (
+            patch("simul.simul.insert_game_to_db", side_effect=interrupted_insert),
+            pytest.raises(RuntimeError, match="simulated restart during simul start"),
+        ):
+            await simul.start()
+
+        assert simul.status == T_STARTED
+        assert await app_state.db.game.count_documents({"sid": simul.id}) == fail_at - 1
+        persisted = await app_state.db.simul.find_one({"_id": simul.id})
+        assert persisted is not None
+        assert persisted["status"] == T_STARTED
+        assert persisted["hostExtraTime"] == 31
+
+        restarted_app = make_app(db_client=db_client)
+        restarted_app[pychess_global_app_state_key] = PychessGlobalAppState(restarted_app)
+        restarted_state = get_app_state(restarted_app)
+        await load_active_simuls(restarted_state)
+
+        recovered = restarted_state.simuls.get(simul.id)
+        assert recovered is not None
+        assert recovered.status == T_STARTED
+        assert recovered.host_extra_time == 31
+        assert len(recovered.games) == len(opponents)
+        assert len(recovered.ongoing_games) == len(opponents)
+        assert await restarted_state.db.game.count_documents({"sid": simul.id}) == len(opponents)
+
+        paired_opponents = []
+        for game in recovered.games.values():
+            paired_opponents.append(
+                game.bplayer.username if game.simulHostColor == "w" else game.wplayer.username
+            )
+        assert sorted(paired_opponents) == sorted(player.username for player in opponents)
+        assert recovered.missing_opponents() == []
+
+        recovered_ids = set(recovered.games)
+        if recovered.clock_task is not None:
+            recovered.clock_task.cancel()
+            with pytest.raises(asyncio.CancelledError):
+                await recovered.clock_task
+
+        second_restart_app = make_app(db_client=db_client)
+        second_restart_app[pychess_global_app_state_key] = PychessGlobalAppState(second_restart_app)
+        second_restart_state = get_app_state(second_restart_app)
+        await load_active_simuls(second_restart_state)
+        second_recovery = second_restart_state.simuls.get(simul.id)
+        assert second_recovery is not None
+        assert set(second_recovery.games) == recovered_ids
+        assert await second_restart_state.db.game.count_documents({"sid": simul.id}) == len(
+            opponents
+        )
+        if second_recovery.clock_task is not None:
+            second_recovery.clock_task.cancel()
+            with pytest.raises(asyncio.CancelledError):
+                await second_recovery.clock_task
+
+    async def test_host_round_navigation_survives_restart(self, aiohttp_server):
+        db_client = AsyncMongoMockClient(tz_aware=True)
+        app = make_app(db_client=db_client)
+        app[pychess_global_app_state_key] = PychessGlobalAppState(app)
+        app_state = get_app_state(app)
+        host = User(app_state, username="RestartHost")
+        app_state.users[host.username] = host
+        await app_state.db.user.insert_one({"_id": host.username, "enabled": True})
+
+        simul = await Simul.create(
+            app_state, id8(), name="Restart Navigation", created_by=host.username
+        )
+        app_state.simuls[simul.id] = simul
+        for i in range(2):
+            opponent = User(app_state, username=f"RestartOpponent_{i}")
+            app_state.users[opponent.username] = opponent
+            await app_state.db.user.insert_one({"_id": opponent.username, "enabled": True})
+            assert simul.join(opponent) is True
+            assert simul.approve(opponent.username) is True
+        assert await simul.start() is True
+        if simul.clock_task is not None:
+            simul.clock_task.cancel()
+            with pytest.raises(asyncio.CancelledError):
+                await simul.clock_task
+
+        restarted_app = make_app(
+            db_client=db_client, simple_cookie_storage=True, anon_as_test_users=True
+        )
+        restarted_app[pychess_global_app_state_key] = PychessGlobalAppState(restarted_app)
+        restarted_state = get_app_state(restarted_app)
+        await load_active_simuls(restarted_state)
+        recovered = restarted_state.simuls.get(simul.id)
+        assert recovered is not None
+        assert len(recovered.games) == 2
+
+        server = await aiohttp_server(restarted_app, host="127.0.0.1")
+        game_ids = list(recovered.games)
+        session = await self._session_for_user(host.username)
+        try:
+            response = await session.get(f"http://127.0.0.1:{server.port}/{game_ids[0]}")
+            assert response.status == 200
+            html = await response.text()
+            assert f'data-simulid="{simul.id}"' in html
+            assert 'data-simulhost="True"' in html
+            # The round page must contain every simul game, not only the current one,
+            # because SimulRoundHostController uses this list for skip/navigation.
+            simul_games_attr = html.split('data-simulgames="', 1)[1].split('"', 1)[0]
+            round_simul_games = json.loads(unescape(simul_games_attr))
+            assert {game["gameId"] for game in round_simul_games} == set(game_ids)
+        finally:
+            await session.close()
+            if recovered.clock_task is not None:
+                recovered.clock_task.cancel()
+                try:
+                    await recovered.clock_task
+                except asyncio.CancelledError:
+                    pass
 
     async def test_restart_skips_stale_created_simuls_but_keeps_on_demand_loading(self):
         db_client = AsyncMongoMockClient(tz_aware=True)

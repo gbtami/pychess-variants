@@ -25,6 +25,7 @@ const variantNames = [
     'testfsfthreekingsstandard',
     'testreformedcourieroverride',
     'testcentauroverride',
+    'testpembaoverride',
     'testmakrukwall',
     'testdecimalshogiimagelayer',
 ];
@@ -189,6 +190,30 @@ centaur = g`,
 
     expect(variant.pieceFamily).toBe('centaur');
     expect(boardSettings.pieceCSS(variant.pieceFamily, variant)).toBe('centaur0');
+});
+
+test('catalogued Pemba variants can use the complete Alfaerie piece family', () => {
+    const variant = register({
+        name: 'testpembaoverride',
+        displayName: 'Test Pemba Override',
+        tooltip: 'Catalogued variant',
+        ini: `[testpembaoverride:shako]
+customPiece1 = l:C
+customPiece2 = g:Z
+customPiece3 = a:mBcpB
+customPiece4 = m:WD`,
+        baseVariant: 'shako',
+        startFen: 'clagmmgalc/ernbqkbnre/pppppppppp/10/10/10/10/PPPPPPPPPP/ERNBQKBNRE/CLAGMMGALC w KQkq - 0 1',
+        width: 10,
+        height: 10,
+        pieces: ['k', 'q', 'r', 'b', 'n', 'p', 'c', 'e', 'l', 'g', 'a', 'm'],
+        kingRoles: ['k'],
+        pieceFamilyOverride: 'pemba',
+    });
+
+    expect(variant.pieceFamily).toBe('pemba');
+    expect(PIECE_FAMILIES.pemba.pieceCSS).toEqual(['alfaerie', 'disguised']);
+    expect(boardSettings.pieceCSS(variant.pieceFamily, variant)).toBe('alfaerie');
 });
 
 test('catalogued variants using an image-layer piece style do not get a base-image fallback', () => {

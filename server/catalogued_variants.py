@@ -116,6 +116,7 @@ CATALOGUED_PIECE_FAMILY_OVERRIDES = frozenset(
         "mansindam",
         "orda",
         "ordamirror",
+        "pemba",
         "seirawan",
         "shako",
         "shatranj",
