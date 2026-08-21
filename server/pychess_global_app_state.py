@@ -353,10 +353,15 @@ class PychessGlobalAppState:
                 if "tournament_chat" not in db_collections:
                     await self.db.create_collection("tournament_chat")
                 await self.db.tournament_chat.create_index("tid")
+                await self.db.tournament_chat.create_index("user")
 
                 if "simul_chat" not in db_collections:
                     await self.db.create_collection("simul_chat")
                 await self.db.simul_chat.create_index("sid")
+                await self.db.simul_chat.create_index("user")
+
+                if "lobbychat" in db_collections:
+                    await self.db.lobbychat.create_index("user")
 
                 await self.db.tournament.create_index("startsAt")
                 await self.db.tournament.create_index("status")
@@ -374,6 +379,7 @@ class PychessGlobalAppState:
                 await self.db.timeline_entry.create_index(
                     [("type", 1), ("date", -1)], name="type_date"
                 )
+                await self.db.timeline_entry.create_index("data.actor", sparse=True)
                 await self.db.timeline_entry.create_index(
                     "date",
                     name="date_ttl",
@@ -515,6 +521,7 @@ class PychessGlobalAppState:
                 if "inbox_msg" not in db_collections:
                     await self.db.create_collection("inbox_msg")
                 await self.db.inbox_msg.create_index([("tid", 1), ("createdAt", 1)])
+                await self.db.inbox_msg.create_index("from")
 
                 if "team" not in db_collections:
                     await self.db.create_collection("team")
@@ -563,11 +570,13 @@ class PychessGlobalAppState:
                     unique=True,
                     name="forum_topic_categ_slug",
                 )
+                await self.db.forum_topic.create_index("user")
 
                 if "forum_post" not in db_collections:
                     await self.db.create_collection("forum_post")
                 await self.db.forum_post.create_index([("topicId", 1), ("createdAt", 1)])
                 await self.db.forum_post.create_index([("categId", 1), ("createdAt", -1)])
+                await self.db.forum_post.create_index("user")
                 await self.db.forum_post.create_index([("text", "text")])
 
                 if "user_report" not in db_collections:
@@ -586,6 +595,10 @@ class PychessGlobalAppState:
                 if "seek" not in db_collections:
                     await self.db.create_collection("seek")
                 await self.db.seek.create_index("expireAt", expireAfterSeconds=0)
+                await self.db.seek.create_index("user")
+
+                await self.db.bot_token.create_index("user")
+                await self.db.account_reopen_token.create_index("username")
 
                 if "security_ban_signal" not in db_collections:
                     await self.db.create_collection("security_ban_signal")

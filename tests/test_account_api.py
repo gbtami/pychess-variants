@@ -299,6 +299,7 @@ class AccountApiTestCase(AioHTTPTestCase):
         response = await self.client.get("/account/personal-data/export")
         self.assertEqual(response.status, 200)
         self.assertEqual(response.content_type, "text/plain")
+        self.assertIsNone(response.content_length)
         body = await response.text()
         self.assertIn("Personal data export for", body)
         self.assertIn('"oauth_id": "alice-oauth"', body)
@@ -768,10 +769,13 @@ class AccountApiTestCase(AioHTTPTestCase):
         await app_state.db.game.insert_one(
             {
                 "_id": "bug1",
-                "c": [
-                    {"u": "alice", "m": "alice bug chat", "t": 1},
-                    {"u": "bob", "m": "bob bug chat", "t": 2},
-                ],
+                "us": ["alice", "bob", "carol", "dave"],
+                "c": {
+                    "m0": [
+                        {"u": "alice", "m": "alice bug chat", "t": 1},
+                        {"u": "bob", "m": "bob bug chat", "t": 2},
+                    ]
+                },
             }
         )
         await app_state.db.tournament.insert_one(
@@ -890,10 +894,10 @@ class AccountApiTestCase(AioHTTPTestCase):
         self.assertEqual("bob simul message", simul_rows[1]["message"])
 
         bug_game = await app_state.db.game.find_one({"_id": "bug1"})
-        self.assertEqual(ERASED_POST_USER, bug_game["c"][0]["u"])
-        self.assertEqual("[deleted by account deletion request]", bug_game["c"][0]["m"])
-        self.assertEqual("bob", bug_game["c"][1]["u"])
-        self.assertEqual("bob bug chat", bug_game["c"][1]["m"])
+        self.assertEqual(ERASED_POST_USER, bug_game["c"]["m0"][0]["u"])
+        self.assertEqual("[deleted by account deletion request]", bug_game["c"]["m0"][0]["m"])
+        self.assertEqual("bob", bug_game["c"]["m0"][1]["u"])
+        self.assertEqual("bob bug chat", bug_game["c"]["m0"][1]["m"])
         self.assertEqual(1, await app_state.db.game.count_documents({"_id": "bug1"}))
         self.assertEqual(1, await app_state.db.tournament.count_documents({"_id": "tour-hist"}))
         sim_hist = await app_state.db.simul.find_one({"_id": "sim-hist"})
