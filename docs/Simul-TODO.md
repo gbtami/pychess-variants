@@ -104,8 +104,10 @@ and Lichess-parity work identified in the post-Teams review.
   host's displayed `TITLE username`, names allow 2-40 characters, and the server rejects
   chess-title markers the host does not actually hold, matching Lichess's anti-spoofing
   behavior.
-- [ ] Do a final visual/mobile comparison against Lichess after the behavior and data
-  model are settled.
+- [x] **Final visual/mobile comparison.** The settled Simul UI was compared with
+  Lichess at desktop and phone widths. Long descriptions now live in the main content
+  instead of the narrow sidebar, Simul home/history tables progressively hide secondary
+  columns on phones, long names wrap safely, and mini-boards center on narrow screens.
 
 ## Intentional PyChess differences
 

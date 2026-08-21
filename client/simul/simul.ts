@@ -697,6 +697,7 @@ export class SimulController implements ChatController {
                 h('h1', [this.simulName, h('span.author', [' hosted by ', hostLinkNode()])]),
                 h('div.box__top__actions', buttons),
             ]),
+            this.renderDescription(),
             instruction ? h('p.instructions', instruction) : null,
             h('div.halves', [
                 h('div.half.candidates', [
@@ -765,6 +766,7 @@ export class SimulController implements ChatController {
                     ),
                 ]),
             ]),
+            this.renderDescription(),
             this.renderResultsSummary(),
             !isSimulFinished ? h('h2.simul__section-title', 'Games in progress') : null,
             this.renderMiniBoards(),
@@ -837,9 +839,6 @@ export class SimulController implements ChatController {
                           ]
                         : []),
                 ]),
-                this.description
-                    ? h('section', [h('p.simul__meta__line.simul__meta__description', this.description)])
-                    : null,
                 this.renderEntryConditions().length > 0 ? h('section', [...this.renderEntryConditions()]) : null,
                 h('section', [
                     h('p.simul__meta__line', ['Hosted by ', hostLinkNode()]),
@@ -850,6 +849,10 @@ export class SimulController implements ChatController {
             ]),
             chatView(this, 'lobbychat'),
         ]);
+    }
+
+    renderDescription(): VNode | null {
+        return this.description ? h('div.simul-text', [h('p', this.description)]) : null;
     }
 
     renderTimingLine(): VNode | null {

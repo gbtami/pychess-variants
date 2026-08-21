@@ -215,8 +215,12 @@ td.header:hover {
     transform: translateX(3px);
 }
 
-.header .name, .header .system {
-    letter-spacing: 2px;
+.simul-list .header .name,
+.simul-list .header .system,
+.simul-history .header .name,
+.simul-history .header .system {
+    letter-spacing: normal;
+    overflow-wrap: anywhere;
 }
 
 .name {
@@ -384,6 +388,7 @@ td.header:hover {
     margin: 0;
     font-size: 2.2em;
     line-height: 1.1;
+    overflow-wrap: anywhere;
 }
 
 .simul .box__top h1 .author {
@@ -444,6 +449,19 @@ td.header:hover {
     margin: 0 0 0.8rem;
     text-align: center;
     color: var(--link-color);
+}
+
+.simul .simul-text {
+    margin: 0 0.5rem 1rem;
+    padding: 1rem 1.2rem;
+    border-radius: 3px;
+    background: var(--bg-color2);
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
+.simul .simul-text p {
+    line-height: 1.45;
 }
 
 .simul .halves {
@@ -609,10 +627,6 @@ td.header:hover {
     font-size: 0.82rem;
 }
 
-.simul__meta__description {
-    white-space: pre-wrap;
-}
-
 .simul__meta__error {
     margin-top: 0.5rem;
     color: var(--error);
@@ -762,6 +776,46 @@ td.header:hover {
     .simul .half:first-child {
         border-inline-end: none;
         border-bottom: 1px solid var(--border-color);
+    }
+
+    .simul__games {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 600px) {
+    .simul-list .slist td:first-child,
+    .simul-list .slist td.infos,
+    .simul-history .slist td:first-child,
+    .simul-history .slist td.infos,
+    .simul-history .slist th:first-child,
+    .simul-history .slist th:nth-child(3) {
+        display: none;
+    }
+
+    .simul-list .slist td,
+    .simul-history .slist td {
+        padding: 0.7rem 0.45rem;
+    }
+
+    .simul-list .slist td.header,
+    .simul-history .slist td.header {
+        padding: 0;
+    }
+
+    .simul-list .slist td.header a,
+    .simul-history .slist td.header a {
+        padding: 0.7rem;
+    }
+
+    .simul-list .header a .name,
+    .simul-history .header a .name {
+        font-size: 1.25em;
+    }
+
+    .simul-list .slist td:last-child,
+    .simul-history .simul-history__score {
+        white-space: nowrap;
     }
 }
 
