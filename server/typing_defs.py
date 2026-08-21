@@ -448,6 +448,9 @@ class ViewContext(TypedDict, total=False):
     site_variants: Mapping[str, object]
     favorite_variants: Mapping[str, object]
     community_variants_for_tournaments: Mapping[str, object]
+    community_variants_for_simuls: Mapping[str, object]
+    max_simul_variants: int
+    simul_teams: Sequence[Mapping[str, object]]
     community_arena_max_creations_per_24h: int
     fixed_round_max_creations_per_24h: int
     tournament_teams: Sequence[Mapping[str, object]]
@@ -730,12 +733,17 @@ class ScheduledTournamentCreateData(TournamentCreateData):
     pass
 
 
+class SimulParticipantDoc(TypedDict):
+    user: str
+    variant: str
+    host: bool
+
+
 class SimulDoc(TypedDict):
     _id: str
     name: str
     description: str
-    variant: str
-    chess960: bool
+    variants: list[str]
     rated: bool
     base: int
     inc: int
@@ -756,15 +764,14 @@ class SimulDoc(TypedDict):
     startsAt: NotRequired[datetime | None]
     endsAt: NotRequired[datetime | None]
     status: int
-    players: list[str]
-    pendingPlayers: list[str]
+    players: list[SimulParticipantDoc]
+    pendingPlayers: list[SimulParticipantDoc]
 
 
 class SimulUpdateData(TypedDict, total=False):
     name: str
     description: str
-    variant: str
-    chess960: bool
+    variants: list[str]
     rated: bool
     base: int
     inc: int
@@ -785,8 +792,8 @@ class SimulUpdateData(TypedDict, total=False):
     startsAt: datetime | None
     endsAt: datetime | None
     status: int
-    players: list[str]
-    pendingPlayers: list[str]
+    players: list[SimulParticipantDoc]
+    pendingPlayers: list[SimulParticipantDoc]
 
 
 class TournamentDoc(TypedDict):

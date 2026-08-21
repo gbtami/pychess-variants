@@ -758,3 +758,132 @@ td.header:hover {
         border-bottom: 1px solid var(--border-color);
     }
 }
+
+/* Searchable multi-variant picker for Simul forms. */
+.simul-new .variant-picker {
+    position: relative;
+}
+
+.simul-new .variant-picker-source {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.simul-new .variant-picker-results {
+    position: absolute;
+    z-index: 30;
+    top: calc(100% + 0.25rem);
+    left: 0;
+    right: 0;
+    max-height: 24rem;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-color1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+}
+
+.simul-new .variant-picker-group {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 0.45rem 0.75rem 0.3rem;
+    color: var(--button-text);
+    background: var(--bg-color2);
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.simul-new .variant-picker-option {
+    display: flex;
+    gap: 0.75rem;
+    align-items: baseline;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0.55rem 0.75rem;
+    border: 0;
+    border-radius: 0;
+    color: inherit;
+    background: var(--bg-input);
+    text-align: left;
+    cursor: pointer;
+}
+
+.simul-new .variant-picker-option:hover,
+.simul-new .variant-picker-option.is-active {
+    background: var(--bg-color2);
+}
+
+.simul-new .variant-picker-option[aria-selected="true"] .variant-picker-option-name {
+    font-weight: bold;
+}
+
+.simul-new .variant-picker-option-key {
+    flex: 0 1 auto;
+    overflow: hidden;
+    color: var(--button-text);
+    font-size: 0.78rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.simul-new .variant-picker-hint {
+    padding: 0.65rem 0.75rem;
+    color: var(--button-text);
+    background: var(--bg-input);
+    font-size: 0.85rem;
+}
+
+.simul-variant-picker__selected {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.5rem;
+}
+
+.simul-variant-picker__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.55rem;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    background: var(--bg-color1);
+    color: var(--font-color);
+    cursor: pointer;
+}
+
+.simul-variant-picker__chip:disabled {
+    cursor: default;
+    opacity: 0.85;
+}
+
+.simul-variant-picker__remove {
+    font-size: 1.15em;
+    line-height: 1;
+}
+
+@media (max-width: 600px) {
+    .simul-new .variant-picker-results {
+        max-height: 18rem;
+    }
+
+    .simul-new .variant-picker-option-key {
+        max-width: 42%;
+    }
+}
+
+.simul__join-variant {
+    max-width: min(18rem, 100%);
+    padding: 0.55em 0.7em;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-color2);
+    color: var(--font-color);
+}

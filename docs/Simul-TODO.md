@@ -75,9 +75,12 @@ and Lichess-parity work identified in the post-Teams review.
   of one of their enabled teams, matching Lichess. The selected team is validated on
   create/edit, persisted with the simul, displayed with the other entry conditions,
   and enforced server-side when an applicant joins.
-- [ ] **Multiple variants.** Lichess lets a host offer multiple variants and each
-  applicant chooses one. PyChess currently creates a single-variant simul. This is the
-  largest remaining functional parity item.
+- [x] **Multiple variants.** Hosts can offer up to 20 variants and each applicant chooses
+  which offered variant to play, matching Lichess's game semantics. Because PyChess has
+  60+ site variants plus a much larger public community catalogue, the create/edit form uses
+  a searchable multi-select with removable selections instead of Lichess's fixed checkbox
+  grid. Applicant choices are persisted per participant and drive entry checks, restart
+  recovery, and actual game creation.
 - [ ] **Custom starting position.** Lichess can host a simul from a supplied FEN. Decide
   how this should interact with PyChess variants and custom/catalogued variants before
   implementing it.

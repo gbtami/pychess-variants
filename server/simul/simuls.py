@@ -8,12 +8,13 @@ from typing import TYPE_CHECKING
 
 from const import MAX_CHAT_LINES, STARTED, T_CREATED, T_FINISHED, T_STARTED, TStatus
 from game import Game
-from typing_defs import SimulDoc, SimulUpdateData
+from typing_defs import SimulDoc, SimulParticipantDoc, SimulUpdateData
 from user import User
 from utils import load_game
+from variants import get_server_variant
 from ws_types import ChatLine
 
-from simul.simul import SIMUL_ERASED_USER, Simul
+from simul.simul import SIMUL_ERASED_USER, Simul, split_simul_variant_key
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -38,8 +39,8 @@ SIMUL_HOME_MINE_LIMIT = 50
 class SimulListEntry:
     id: str
     name: str
-    variant: str
-    chess960: bool
+    variants: list[str]
+    icon: str
     base: int
     inc: int
     created_by: str
@@ -60,6 +61,21 @@ def _as_str_list(value: object) -> list[str]:
     if not isinstance(value, list):
         return []
     return [item for item in value if isinstance(item, str)]
+
+
+def _as_simul_participants(value: object) -> list[SimulParticipantDoc]:
+    if not isinstance(value, list):
+        return []
+    participants: list[SimulParticipantDoc] = []
+    for item in value:
+        if not isinstance(item, dict):
+            continue
+        username = item.get("user")
+        variant = item.get("variant")
+        host = item.get("host")
+        if isinstance(username, str) and isinstance(variant, str) and isinstance(host, bool):
+            participants.append({"user": username, "variant": variant, "host": host})
+    return participants
 
 
 def _simul_player_key(players: dict[str, User], username: str) -> str:
@@ -104,8 +120,7 @@ async def upsert_simul_to_db(simul: Simul, app_state: PychessGlobalAppState | No
     new_data: SimulUpdateData = {
         "name": simul.name,
         "description": simul.description,
-        "variant": simul.variant,
-        "chess960": bool(simul.chess960),
+        "variants": list(simul.variants),
         "rated": bool(simul.rated),
         "base": simul.base,
         "inc": simul.inc,
@@ -125,8 +140,22 @@ async def upsert_simul_to_db(simul: Simul, app_state: PychessGlobalAppState | No
         "estimatedStartAt": simul.estimated_start_at,
         "endsAt": simul.ends_at,
         "status": simul.status,
-        "players": [player.username for player in simul.players.values()],
-        "pendingPlayers": [player.username for player in simul.pending_players.values()],
+        "players": [
+            {
+                "user": player.username,
+                "variant": simul.player_variants.get(key, simul.primary_variant_key),
+                "host": key == simul.created_by,
+            }
+            for key, player in simul.players.items()
+        ],
+        "pendingPlayers": [
+            {
+                "user": player.username,
+                "variant": simul.pending_player_variants.get(key, simul.primary_variant_key),
+                "host": False,
+            }
+            for key, player in simul.pending_players.items()
+        ],
     }
 
     try:
@@ -157,21 +186,27 @@ def _anonymize_loaded_simul_player(
     app_state: PychessGlobalAppState, simul: Simul, username: str, *, host: bool
 ) -> None:
     player = simul.players.pop(username, None)
+    variant_key = simul.player_variants.pop(username, None)
     simul.pending_players.pop(username, None)
+    simul.pending_player_variants.pop(username, None)
     if player is None:
         return
 
     if host:
         existing = simul.players.pop(SIMUL_ERASED_USER, None)
+        existing_variant = simul.player_variants.pop(SIMUL_ERASED_USER, None)
         if existing is not None:
             suffix = 2
             while f"{SIMUL_ERASED_USER}:{suffix}" in simul.players:
                 suffix += 1
-            simul.players[f"{SIMUL_ERASED_USER}:{suffix}"] = existing
+            shifted_key = f"{SIMUL_ERASED_USER}:{suffix}"
+            simul.players[shifted_key] = existing
+            simul.player_variants[shifted_key] = existing_variant or simul.primary_variant_key
         key = SIMUL_ERASED_USER
     else:
         key = _simul_player_key(simul.players, SIMUL_ERASED_USER)
     simul.players[key] = _erased_simul_user(app_state)
+    simul.player_variants[key] = variant_key or simul.primary_variant_key
 
 
 async def erase_user_from_simuls(app_state: PychessGlobalAppState, username: str) -> None:
@@ -189,8 +224,8 @@ async def erase_user_from_simuls(app_state: PychessGlobalAppState, username: str
         {
             "$or": [
                 {"createdBy": username},
-                {"players": username},
-                {"pendingPlayers": username},
+                {"players.user": username},
+                {"pendingPlayers.user": username},
             ]
         }
     )
@@ -208,22 +243,26 @@ async def erase_user_from_simuls(app_state: PychessGlobalAppState, username: str
             app_state.simuls.pop(simul_id, None)
             continue
 
-        players = _as_str_list(doc.get("players"))
-        pending_players = _as_str_list(doc.get("pendingPlayers"))
+        players = _as_simul_participants(doc.get("players"))
+        pending_players = _as_simul_participants(doc.get("pendingPlayers"))
         update: dict[str, object] = {}
 
         if is_host:
             update["createdBy"] = SIMUL_ERASED_USER
 
         if status == T_CREATED:
-            update["players"] = [player for player in players if player != username]
-            update["pendingPlayers"] = [player for player in pending_players if player != username]
+            update["players"] = [player for player in players if player["user"] != username]
+            update["pendingPlayers"] = [
+                player for player in pending_players if player["user"] != username
+            ]
         else:
             update["players"] = [
-                SIMUL_ERASED_USER if player == username else player for player in players
+                {**player, "user": SIMUL_ERASED_USER} if player["user"] == username else player
+                for player in players
             ]
             update["pendingPlayers"] = [
-                SIMUL_ERASED_USER if player == username else player for player in pending_players
+                {**player, "user": SIMUL_ERASED_USER} if player["user"] == username else player
+                for player in pending_players
             ]
 
         await app_state.db.simul.update_one({"_id": simul_id}, {"$set": update})
@@ -238,7 +277,9 @@ async def erase_user_from_simuls(app_state: PychessGlobalAppState, username: str
             simul.created_by = SIMUL_ERASED_USER
         if status == T_CREATED:
             simul.players.pop(username, None)
+            simul.player_variants.pop(username, None)
             simul.pending_players.pop(username, None)
+            simul.pending_player_variants.pop(username, None)
         else:
             _anonymize_loaded_simul_player(app_state, simul, username, host=is_host)
 
@@ -304,39 +345,53 @@ async def load_simul(
     if not isinstance(name, str):
         name = "Simul"
 
-    variant = doc.get("variant")
-    if not isinstance(variant, str):
-        variant = "chess"
+    raw_variants = doc.get("variants")
+    variants = _as_str_list(raw_variants)
+    if (
+        not isinstance(raw_variants, list)
+        or not variants
+        or len(variants) != len(raw_variants)
+        or len(variants) != len(set(variants))
+    ):
+        log.error("Skipping simul %s with invalid variants", simul_id)
+        return None
 
     host_color = doc.get("hostColor")
     if host_color not in ("random", "white", "black"):
         host_color = "random"
 
-    simul = Simul(
-        app_state,
-        simul_id,
-        name=name,
-        created_by=created_by,
-        description=doc.get("description", "") if isinstance(doc.get("description"), str) else "",
-        variant=variant,
-        chess960=bool(doc.get("chess960", False)),
-        rated=bool(doc.get("rated", False)),
-        base=_parse_int(doc.get("base"), 1),
-        inc=_parse_int(doc.get("inc"), 0),
-        host_color=host_color,
-        host_extra_time=_parse_int(doc.get("hostExtraTime"), 0),
-        host_extra_time_per_player=_parse_int(doc.get("hostExtraTimePerPlayer"), 0),
-        estimated_start_at=_as_datetime(doc.get("estimatedStartAt")),
-        entry_min_rating=_parse_int(doc.get("entryMinRating"), 0),
-        entry_max_rating=_parse_int(doc.get("entryMaxRating"), 0),
-        entry_min_rated_games=_parse_int(doc.get("entryMinRatedGames"), 0),
-        entry_min_account_age_days=_parse_int(doc.get("entryMinAccountAgeDays"), 0),
-        entry_titled_only=False,
-        entry_team_id=(doc.get("entryTeamId") if isinstance(doc.get("entryTeamId"), str) else None),
-        entry_team_name=(
-            doc.get("entryTeamName") if isinstance(doc.get("entryTeamName"), str) else None
-        ),
-    )
+    try:
+        simul = Simul(
+            app_state,
+            simul_id,
+            name=name,
+            created_by=created_by,
+            description=(
+                doc.get("description", "") if isinstance(doc.get("description"), str) else ""
+            ),
+            variants=variants,
+            rated=bool(doc.get("rated", False)),
+            base=_parse_int(doc.get("base"), 1),
+            inc=_parse_int(doc.get("inc"), 0),
+            host_color=host_color,
+            host_extra_time=_parse_int(doc.get("hostExtraTime"), 0),
+            host_extra_time_per_player=_parse_int(doc.get("hostExtraTimePerPlayer"), 0),
+            estimated_start_at=_as_datetime(doc.get("estimatedStartAt")),
+            entry_min_rating=_parse_int(doc.get("entryMinRating"), 0),
+            entry_max_rating=_parse_int(doc.get("entryMaxRating"), 0),
+            entry_min_rated_games=_parse_int(doc.get("entryMinRatedGames"), 0),
+            entry_min_account_age_days=_parse_int(doc.get("entryMinAccountAgeDays"), 0),
+            entry_titled_only=False,
+            entry_team_id=(
+                doc.get("entryTeamId") if isinstance(doc.get("entryTeamId"), str) else None
+            ),
+            entry_team_name=(
+                doc.get("entryTeamName") if isinstance(doc.get("entryTeamName"), str) else None
+            ),
+        )
+    except ValueError as exc:
+        log.error("Skipping simul %s with invalid variants: %s", simul_id, exc)
+        return None
     simul.created_at = _as_datetime(doc.get("createdAt")) or datetime.now(UTC)
     host_seen_at = _as_datetime(doc.get("hostSeenAt"))
     if host_seen_at is None:
@@ -347,22 +402,48 @@ async def load_simul(
     simul.ends_at = _as_datetime(doc.get("endsAt"))
     simul.status = _parse_status(doc.get("status"))
 
-    players = _as_str_list(doc.get("players"))
-    if created_by not in players:
-        players.insert(0, created_by)
+    raw_players = doc.get("players")
+    players = _as_simul_participants(raw_players)
+    if not isinstance(raw_players, list) or len(players) != len(raw_players):
+        log.error("Skipping simul %s with invalid persisted participants", simul_id)
+        return None
+    host_entries = [player for player in players if player["host"]]
+    if len(host_entries) != 1 or host_entries[0]["user"] != created_by:
+        log.error("Skipping simul %s with invalid persisted host participant", simul_id)
+        return None
+    if any(player["variant"] not in variants for player in players):
+        log.error("Skipping simul %s with invalid persisted player variant", simul_id)
+        return None
 
-    for username in players:
-        key = _simul_player_key(simul.players, username)
+    host_entry = host_entries[0]
+    ordered_players = [host_entry, *(player for player in players if player is not host_entry)]
+    for participant in ordered_players:
+        username = participant["user"]
+        if participant["host"]:
+            key = created_by
+        else:
+            key = _simul_player_key(simul.players, username)
         if username == SIMUL_ERASED_USER:
             simul.players[key] = _erased_simul_user(app_state)
         else:
             simul.players[key] = await _recover_user(app_state, username)
+        simul.player_variants[key] = participant["variant"]
 
-    pending_players = _as_str_list(doc.get("pendingPlayers"))
-    for username in pending_players:
+    raw_pending_players = doc.get("pendingPlayers")
+    pending_players = _as_simul_participants(raw_pending_players)
+    if (
+        not isinstance(raw_pending_players, list)
+        or len(pending_players) != len(raw_pending_players)
+        or any(player["host"] or player["variant"] not in variants for player in pending_players)
+    ):
+        log.error("Skipping simul %s with invalid persisted pending participant", simul_id)
+        return None
+    for participant in pending_players:
+        username = participant["user"]
         if username == created_by or username in simul.players:
             continue
         simul.pending_players[username] = await _recover_user(app_state, username)
+        simul.pending_player_variants[username] = participant["variant"]
 
     # Games are only created after a simul transitions from T_CREATED to T_STARTED.
     # Avoid scanning the game collection for a simul that has never started.
@@ -430,6 +511,8 @@ async def load_active_simuls(app_state: PychessGlobalAppState) -> None:
     await app_state.db.simul.create_index("status")
     await app_state.db.simul.create_index("createdAt")
     await app_state.db.simul.create_index("hostSeenAt")
+    await app_state.db.simul.create_index("players.user")
+    await app_state.db.simul.create_index("pendingPlayers.user")
 
     created_cutoff = datetime.now(UTC) - CREATED_SIMUL_RESTART_WINDOW
     cursor = app_state.db.simul.find(
@@ -466,30 +549,30 @@ async def load_active_simuls(app_state: PychessGlobalAppState) -> None:
 def _simul_list_entry(simul_doc: SimulDoc, username: str | None = None) -> SimulListEntry | None:
     simul_id = simul_doc.get("_id")
     created_by = simul_doc.get("createdBy")
-    variant = simul_doc.get("variant")
+    variants = _as_str_list(simul_doc.get("variants"))
     name = simul_doc.get("name")
-    if (
-        not isinstance(simul_id, str)
-        or not isinstance(created_by, str)
-        or not isinstance(variant, str)
-    ):
+    if not isinstance(simul_id, str) or not isinstance(created_by, str) or not variants:
         return None
     if not isinstance(name, str):
         name = "Simul"
 
-    players = _as_str_list(simul_doc.get("players"))
+    players = _as_simul_participants(simul_doc.get("players"))
+    pending_players = _as_simul_participants(simul_doc.get("pendingPlayers"))
     participation = None
     if username is not None and username != created_by:
-        if username in _as_str_list(simul_doc.get("pendingPlayers")):
+        if any(player["user"] == username for player in pending_players):
             participation = "pending"
-        elif username in players:
+        elif any(player["user"] == username for player in players):
             participation = "accepted"
+
+    primary_variant, primary_chess960 = split_simul_variant_key(variants[0])
+    icon = get_server_variant(primary_variant, primary_chess960).icon
 
     return SimulListEntry(
         id=simul_id,
         name=name,
-        variant=variant,
-        chess960=bool(simul_doc.get("chess960", False)),
+        variants=variants,
+        icon=icon,
         base=_parse_int(simul_doc.get("base"), 1),
         inc=_parse_int(simul_doc.get("inc"), 0),
         created_by=created_by,
@@ -576,8 +659,8 @@ async def get_simul_home_lists(
             **active_created_selector,
             "createdBy": {"$ne": username},
             "$or": [
-                {"pendingPlayers": username},
-                {"players": username},
+                {"pendingPlayers.user": username},
+                {"players.user": username},
             ],
         },
         sort_field="createdAt",

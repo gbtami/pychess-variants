@@ -5,7 +5,7 @@
         <div class="box box-pad">
             {% if edit %}
             {% set simul_name = simul.name %}
-            {% set simul_variant = simul.variant + ('960' if simul.chess960 else '') %}
+            {% set simul_variants = simul.variants %}
             {% set simul_base = simul.base %}
             {% set simul_inc = simul.inc %}
             {% set simul_host_color = simul.host_color %}
@@ -20,7 +20,7 @@
             {% set simul_entry_team_id = simul.entry_team_id or '' %}
             {% else %}
             {% set simul_name = '' %}
-            {% set simul_variant = 'chess' %}
+            {% set simul_variants = ['chess'] %}
             {% set simul_base = simul_clock_time_default %}
             {% set simul_inc = simul_clock_increment_default %}
             {% set simul_host_color = 'random' %}
@@ -47,12 +47,45 @@
                     <legend>Games</legend>
                     <div class="form-split">
                         <div class="form-group form-half">
-                            <label class="form-label" for="form3-variant">Variant</label>
-                            <select id="form3-variant" name="variant" class="form-control">
-                                {% for key in variants %}
-                                <option value="{{ key }}"{% if key == simul_variant %} selected="selected"{% endif %}>{{ variant_display_name(key).title() }}</option>
-                                {% endfor %}
-                            </select>
+                            <label class="form-label" for="simul-variant-search">Variants</label>
+                            <div id="simul-variant-picker" class="variant-picker simul-variant-picker" data-max-selected="{{ max_simul_variants }}">
+                                <div id="simul-selected-variants" class="simul-variant-picker__selected"></div>
+                                <input
+                                    id="simul-variant-search"
+                                    type="search"
+                                    class="form-control variant-picker-search"
+                                    autocomplete="off"
+                                    spellcheck="false"
+                                    role="combobox"
+                                    aria-autocomplete="list"
+                                    aria-controls="simul-variant-results"
+                                    aria-expanded="false"
+                                    placeholder="Search variants"
+                                />
+                                <select id="simul-variants" name="variants" class="variant-picker-source" multiple tabindex="-1" aria-hidden="true">
+                                    {% if favorite_variants %}
+                                    <optgroup label="Favorites" data-kind="favorite">
+                                        {% for key in favorite_variants %}
+                                        <option value="{{ key }}" data-kind="favorite"{% if key in simul_variants %} selected="selected"{% endif %}>{{ variant_display_name(key).title() }}</option>
+                                        {% endfor %}
+                                    </optgroup>
+                                    {% endif %}
+                                    <optgroup label="Site variants" data-kind="site">
+                                        {% for key in site_variants %}
+                                        <option value="{{ key }}" data-kind="site"{% if key in simul_variants %} selected="selected"{% endif %}>{{ variant_display_name(key).title() }}</option>
+                                        {% endfor %}
+                                    </optgroup>
+                                    {% if community_variants_for_simuls %}
+                                    <optgroup label="Community variants" data-kind="community">
+                                        {% for key in community_variants_for_simuls %}
+                                        <option value="{{ key }}" data-kind="community"{% if key in simul_variants %} selected="selected"{% endif %}>{{ variant_display_name(key).title() }}</option>
+                                        {% endfor %}
+                                    </optgroup>
+                                    {% endif %}
+                                </select>
+                                <div id="simul-variant-results" class="variant-picker-results" role="listbox" hidden></div>
+                            </div>
+                            <small class="form-help">Choose up to {{ max_simul_variants }} variants. Favorites and site variants are shown first; search to reach the full public community catalogue. Each applicant chooses one offered variant.</small>
                         </div>
                         <div class="form-group form-half">
                             <label class="form-label" for="form3-host-color">Host color</label>

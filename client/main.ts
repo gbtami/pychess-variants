@@ -26,6 +26,7 @@ import { profileView } from './profile';
 import { tournamentView } from './tournament';
 import { tournamentRRView } from './tournamentRR';
 import { simulView } from './simul/simul';
+import { initSimulForm } from './simul/simulForm';
 import { calendarView } from './calendar';
 import { pasteView, recordImportFfishError } from './paste';
 import { myVariantsView } from './myVariants';
@@ -300,6 +301,7 @@ function start() {
 
     renderTimeago();
     initTournamentForm();
+    initSimulForm();
     initAdminSystemMessages();
 
     // searchbar

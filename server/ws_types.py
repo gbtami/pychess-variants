@@ -638,6 +638,7 @@ class SimulStartRequest(SimulIdMessage):
 
 class SimulJoinRequest(SimulIdMessage):
     type: Literal["join"]
+    variant: NotRequired[str]
 
 
 class SimulWithdrawRequest(SimulIdMessage):

@@ -33,7 +33,7 @@
                     {% for simul in my_simuls %}
                     <tr>
                         <td>
-                            <div class="icon" data-icon="{{ icons[simul.variant + ('960' if simul.chess960 else '')] }}"></div>
+                            <div class="icon" data-icon="{{ simul.icon }}"></div>
                         </td>
                         <td class="header">
                             <a href="/simul/{{ simul.id }}">
@@ -42,7 +42,7 @@
                                 <span class="by">{{ simul.created_by }}</span>
                                 <span class="system">
                                     {{ time_control_str(simul.base, simul.inc, 0) }} •
-                                    {{ variant_display_name(simul.variant + ('960' if simul.chess960 else '')) }}
+                                    {% for variant_key in simul.variants[:3] %}{{ variant_display_name(variant_key) }}{% if not loop.last %}, {% endif %}{% endfor %}{% if simul.variants|length > 3 %} +{{ simul.variants|length - 3 }} more{% endif %}
                                 </span>
                             </a>
                         </td>
@@ -74,7 +74,7 @@
                     {% for simul in created_simuls %}
                     <tr>
                         <td>
-                            <div class="icon" data-icon="{{ icons[simul.variant + ('960' if simul.chess960 else '')] }}"></div>
+                            <div class="icon" data-icon="{{ simul.icon }}"></div>
                         </td>
                         <td class="header">
                             <a href="/simul/{{ simul.id }}">
@@ -83,7 +83,7 @@
                                 <span class="by">{{ simul.created_by }}</span>
                                 <span class="system">
                                     {{ time_control_str(simul.base, simul.inc, 0) }} •
-                                    {{ variant_display_name(simul.variant + ('960' if simul.chess960 else '')) }}
+                                    {% for variant_key in simul.variants[:3] %}{{ variant_display_name(variant_key) }}{% if not loop.last %}, {% endif %}{% endfor %}{% if simul.variants|length > 3 %} +{{ simul.variants|length - 3 }} more{% endif %}
                                 </span>
                             </a>
                         </td>
@@ -110,7 +110,7 @@
                     {% for simul in started_simuls %}
                     <tr>
                         <td>
-                            <div class="icon" data-icon="{{ icons[simul.variant + ('960' if simul.chess960 else '')] }}"></div>
+                            <div class="icon" data-icon="{{ simul.icon }}"></div>
                         </td>
                         <td class="header">
                             <a href="/simul/{{ simul.id }}">
@@ -119,7 +119,7 @@
                                 <span class="by">{{ simul.created_by }}</span>
                                 <span class="system">
                                     {{ time_control_str(simul.base, simul.inc, 0) }} •
-                                    {{ variant_display_name(simul.variant + ('960' if simul.chess960 else '')) }}
+                                    {% for variant_key in simul.variants[:3] %}{{ variant_display_name(variant_key) }}{% if not loop.last %}, {% endif %}{% endfor %}{% if simul.variants|length > 3 %} +{{ simul.variants|length - 3 }} more{% endif %}
                                 </span>
                             </a>
                         </td>
@@ -146,7 +146,7 @@
                     {% for simul in finished_simuls %}
                     <tr>
                         <td>
-                            <div class="icon" data-icon="{{ icons[simul.variant + ('960' if simul.chess960 else '')] }}"></div>
+                            <div class="icon" data-icon="{{ simul.icon }}"></div>
                         </td>
                         <td class="header">
                             <a href="/simul/{{ simul.id }}">
@@ -155,7 +155,7 @@
                                 <span class="by">{{ simul.created_by }}</span>
                                 <span class="system">
                                     {{ time_control_str(simul.base, simul.inc, 0) }} •
-                                    {{ variant_display_name(simul.variant + ('960' if simul.chess960 else '')) }}
+                                    {% for variant_key in simul.variants[:3] %}{{ variant_display_name(variant_key) }}{% if not loop.last %}, {% endif %}{% endfor %}{% if simul.variants|length > 3 %} +{{ simul.variants|length - 3 }} more{% endif %}
                                 </span>
                             </a>
                         </td>

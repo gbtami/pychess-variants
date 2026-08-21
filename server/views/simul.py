@@ -10,7 +10,7 @@ from newid import id8
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
 from settings import ADMINS, SIMULING
-from simul.simul import Simul
+from simul.simul import MAX_SIMUL_VARIANTS, Simul
 from simul.simuls import (
     delete_simul_from_db,
     get_simul_home_lists,
@@ -251,12 +251,7 @@ def parse_optional_datetime_post_field(data, field_name: str) -> datetime | None
     return parsed
 
 
-def parse_simul_variant(app_state, data):
-    variant_key = data.get("variant", "")
-    if not isinstance(variant_key, (str, bytes)):
-        raise web.HTTPBadRequest(text="Invalid simul variant")
-    if isinstance(variant_key, bytes):
-        variant_key = variant_key.decode("utf-8")
+def validate_simul_variant_key(app_state, variant_key: str):
     if is_catalogued_variant(variant_key):
         if not is_public_catalogued_variant(app_state, variant_key):
             raise web.HTTPBadRequest(
@@ -269,7 +264,45 @@ def parse_simul_variant(app_state, data):
             raise web.HTTPBadRequest(text="Unknown variant")
     if variant.two_boards:
         raise web.HTTPBadRequest(text="Two-board variants are not allowed in simuls")
-    return variant_key, variant
+    return variant
+
+
+def parse_simul_variants(app_state, data) -> list[str]:
+    getall = getattr(data, "getall", None)
+    raw_variants = getall("variants", []) if callable(getall) else []
+    variants: list[str] = []
+    for raw_variant in raw_variants:
+        if isinstance(raw_variant, bytes):
+            raw_variant = raw_variant.decode("utf-8")
+        if not isinstance(raw_variant, str):
+            raise web.HTTPBadRequest(text="Invalid simul variant")
+        variant_key = raw_variant.strip()
+        if not variant_key or variant_key in variants:
+            continue
+        validate_simul_variant_key(app_state, variant_key)
+        variants.append(variant_key)
+
+    if not variants:
+        raise web.HTTPBadRequest(text="Select at least one simul variant")
+    if len(variants) > MAX_SIMUL_VARIANTS:
+        raise web.HTTPBadRequest(text=f"A simul can offer at most {MAX_SIMUL_VARIANTS} variants")
+    return variants
+
+
+def add_simul_variant_form_context(context: ViewContext, app_state, user) -> None:
+    site_variants = {key: variant for key, variant in VARIANTS.items() if not variant.two_boards}
+    catalogued_variants = public_catalogued_variants_for_forms(app_state)
+    favorite_names = user.catalogued_variant_favorites
+    favorite_variants = {
+        key: variant for key, variant in catalogued_variants.items() if key in favorite_names
+    }
+    community_variants = {
+        key: variant for key, variant in catalogued_variants.items() if key not in favorite_names
+    }
+    context["site_variants"] = site_variants
+    context["favorite_variants"] = favorite_variants
+    context["community_variants_for_simuls"] = community_variants
+    context["max_simul_variants"] = MAX_SIMUL_VARIANTS
 
 
 def add_simul_form_context(context: ViewContext) -> None:
@@ -327,7 +360,7 @@ async def simuls(request: web.Request) -> ViewContext:
             raise web.HTTPNoContent()
         simul_id = id8()
         name = parse_simul_name(data)
-        _variant_key, variant = parse_simul_variant(app_state, data)
+        variants = parse_simul_variants(app_state, data)
         host_color = parse_host_color(data)
         base = parse_int_post_field(data, "base", min_value=0, max_value=180)
         inc = parse_int_post_field(data, "inc", min_value=0, max_value=180)
@@ -360,8 +393,7 @@ async def simuls(request: web.Request) -> ViewContext:
             name=name,
             created_by=user.username,
             description=description,
-            variant=variant.uci_variant,
-            chess960=variant.chess960,
+            variants=variants,
             rated=False,
             base=base,
             inc=inc,
@@ -410,10 +442,7 @@ async def simul_new(request: web.Request) -> ViewContext:
         raise web.HTTPForbidden()
 
     app_state = get_app_state(request.app)
-    context["variants"] = {
-        key: variant for key, variant in VARIANTS.items() if not variant.two_boards
-    }
-    context["variants"].update(public_catalogued_variants_for_forms(app_state))
+    add_simul_variant_form_context(context, app_state, user)
     context["simul_teams"] = await teams_for_user(app_state, user.username)
     context["edit"] = False
     context["simul_form_action"] = "/simul"
@@ -438,10 +467,8 @@ async def simul_edit(request: web.Request) -> ViewContext:
         raise web.HTTPForbidden(text="Only the host or a site admin can edit the simul")
 
     app_state = get_app_state(request.app)
-    context["variants"] = {
-        key: variant for key, variant in VARIANTS.items() if not variant.two_boards
-    }
-    context["variants"].update(public_catalogued_variants_for_forms(app_state))
+    form_user = await app_state.users.get(simul.created_by)
+    add_simul_variant_form_context(context, app_state, form_user)
     context["simul_teams"] = await teams_for_user(app_state, simul.created_by)
     context["edit"] = True
     context["simul"] = simul
@@ -473,7 +500,7 @@ async def simul(request: web.Request) -> ViewContext:
 
     context["simulid"] = simul.id
     context["name"] = simul.name
-    context["variant"] = simul.variant + ("960" if simul.chess960 else "")
+    context["variant"] = simul.primary_variant_key
     context["base"] = simul.base
     context["inc"] = simul.inc
     context["rated"] = False
@@ -502,9 +529,7 @@ async def update_simul(request: web.Request) -> web.Response:
     simul.description = parse_simul_description(data)
 
     if simul.status == T_CREATED:
-        _, variant = parse_simul_variant(app_state, data)
-        simul.variant = variant.uci_variant
-        simul.chess960 = variant.chess960
+        removed_players = simul.set_variants(parse_simul_variants(app_state, data))
         simul.base = parse_int_post_field(data, "base", min_value=0, max_value=180)
         simul.inc = parse_int_post_field(data, "inc", min_value=0, max_value=180)
         simul.host_color = parse_host_color(data)
@@ -537,8 +562,10 @@ async def update_simul(request: web.Request) -> web.Response:
                 simul.entry_max_rating,
                 simul.entry_min_rating,
             )
-
     await upsert_simul_to_db(simul)
+    if simul.status == T_CREATED:
+        for username in removed_players:
+            await simul.broadcast({"type": "player_denied", "username": username})
     if user.username != simul.created_by:
         await record_mod_action(
             app_state,

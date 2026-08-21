@@ -104,8 +104,7 @@ async def handle_simul_user_connected(
         "createdBy": simul.created_by,
         "name": simul.name,
         "description": simul.description,
-        "variant": simul.variant,
-        "chess960": simul.chess960,
+        "variants": simul.variants,
         "base": simul.base,
         "inc": simul.inc,
         "status": simul.status,
@@ -158,7 +157,8 @@ async def handle_join(
     if simul is None:
         return
 
-    error = await simul.entry_condition_error(user)
+    variant = data.get("variant")
+    error = await simul.entry_condition_error(user, variant)
     if (
         error is None
         and user.username not in simul.players
@@ -169,14 +169,18 @@ async def handle_join(
         await ws_send_json(ws, {"type": "error", "message": error})
         return
 
-    if simul.join(user):
+    if simul.join(user, variant):
         await upsert_simul_to_db(simul, app_state)
         await app_state.timeline.publish(
             "simul-join",
             user,
             {"simulId": simul.id, "name": simul.name},
         )
-        await simul.broadcast({"type": "player_joined", "player": simul.player_json(user)})
+        if variant is None:
+            variant = simul.primary_variant_key
+        await simul.broadcast(
+            {"type": "player_joined", "player": simul.player_json(user, variant)}
+        )
 
 
 async def handle_withdraw(
@@ -215,8 +219,12 @@ async def handle_approve_player(
         approved_player = simul.players.get(username)
         if approved_player is None:
             return
+        variant = simul.player_variants.get(username, simul.primary_variant_key)
         await simul.broadcast(
-            {"type": "player_approved", "player": simul.player_json(approved_player)}
+            {
+                "type": "player_approved",
+                "player": simul.player_json(approved_player, variant),
+            }
         )
 
 

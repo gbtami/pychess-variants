@@ -85,6 +85,44 @@ class TestGUI:
             assert simul_doc["status"] == T_STARTED
             assert len(simul_doc["players"]) == NB_PLAYERS
 
+    async def test_simul_applicants_choose_offered_variants(self, aiohttp_server):
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
+        await aiohttp_server(app, host="127.0.0.1")
+        app_state = get_app_state(app)
+        host = User(app_state, username="Host")
+        chess_player = User(app_state, username="ChessPlayer")
+        atomic_player = User(app_state, username="AtomicPlayer")
+        for user in (host, chess_player, atomic_player):
+            app_state.users[user.username] = user
+
+        simul = await Simul.create(
+            app_state,
+            id8(),
+            name="Mixed Simul",
+            created_by=host.username,
+            variants=["chess", "atomic"],
+        )
+        app_state.simuls[simul.id] = simul
+
+        assert simul.join(chess_player, "chess") is True
+        assert simul.join(atomic_player, "atomic") is True
+        assert simul.approve(chess_player.username) is True
+        assert simul.approve(atomic_player.username) is True
+        assert await simul.start() is True
+
+        assert {simul.game_json(game)["variant"] for game in simul.games.values()} == {
+            "chess",
+            "atomic",
+        }
+        simul_doc = await app_state.db.simul.find_one({"_id": simul.id})
+        assert simul_doc is not None
+        assert simul_doc["variants"] == ["chess", "atomic"]
+        assert {
+            (player["user"], player["variant"])
+            for player in simul_doc["players"]
+            if not player["host"]
+        } == {(chess_player.username, "chess"), (atomic_player.username, "atomic")}
+
     async def test_simul_join_approve_and_deny(self, aiohttp_server):
         app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         await aiohttp_server(app, host="127.0.0.1")
@@ -160,7 +198,7 @@ class TestGUI:
         assert owned.id not in app_state.simuls
         joined_doc = await app_state.db.simul.find_one({"_id": joined.id})
         assert joined_doc is not None
-        assert joined_doc["players"] == [host.username]
+        assert [player["user"] for player in joined_doc["players"]] == [host.username]
         assert joined_doc["pendingPlayers"] == []
         assert applicant.username not in joined.players
         assert applicant.username not in joined.pending_players
@@ -189,9 +227,9 @@ class TestGUI:
         simul_doc = await app_state.db.simul.find_one({"_id": simul.id})
         assert simul_doc is not None
         assert simul_doc["createdBy"] == SIMUL_ERASED_USER
-        assert player1.username not in simul_doc["players"]
-        assert host.username not in simul_doc["players"]
-        assert simul_doc["players"].count(SIMUL_ERASED_USER) == 2
+        assert player1.username not in {player["user"] for player in simul_doc["players"]}
+        assert host.username not in {player["user"] for player in simul_doc["players"]}
+        assert [player["user"] for player in simul_doc["players"]].count(SIMUL_ERASED_USER) == 2
 
         assert simul.created_by == SIMUL_ERASED_USER
         assert player1.username not in simul.players
@@ -203,9 +241,9 @@ class TestGUI:
         await upsert_simul_to_db(simul)
         rewritten = await app_state.db.simul.find_one({"_id": simul.id})
         assert rewritten is not None
-        assert player1.username not in rewritten["players"]
-        assert host.username not in rewritten["players"]
-        assert rewritten["players"].count(SIMUL_ERASED_USER) == 2
+        assert player1.username not in {player["user"] for player in rewritten["players"]}
+        assert host.username not in {player["user"] for player in rewritten["players"]}
+        assert [player["user"] for player in rewritten["players"]].count(SIMUL_ERASED_USER) == 2
 
         if simul.clock_task is not None:
             simul.clock_task.cancel()
@@ -387,8 +425,10 @@ class TestGUI:
             if app_state.db is not None:
                 simul_doc = await app_state.db.simul.find_one({"_id": sid})
                 assert simul_doc is not None
-                assert player2.username in simul_doc["pendingPlayers"]
-                assert host_username in simul_doc["players"]
+                assert player2.username in {
+                    player["user"] for player in simul_doc["pendingPlayers"]
+                }
+                assert host_username in {player["user"] for player in simul_doc["players"]}
                 assert abs((simul_doc["hostSeenAt"] - simul.host_seen_at).total_seconds()) < 0.001
 
             await player_ws.close()
@@ -397,7 +437,9 @@ class TestGUI:
             if app_state.db is not None:
                 simul_doc = await app_state.db.simul.find_one({"_id": sid})
                 assert simul_doc is not None
-                assert player2.username in simul_doc["pendingPlayers"]
+                assert player2.username in {
+                    player["user"] for player in simul_doc["pendingPlayers"]
+                }
 
             reconnect_session, reconnect_ws = await self._connect_ws(player2.username, server.port)
             try:
@@ -419,8 +461,10 @@ class TestGUI:
                 if app_state.db is not None:
                     simul_doc = await app_state.db.simul.find_one({"_id": sid})
                     assert simul_doc is not None
-                    assert player2.username in simul_doc["players"]
-                    assert player2.username not in simul_doc["pendingPlayers"]
+                    assert player2.username in {player["user"] for player in simul_doc["players"]}
+                    assert player2.username not in {
+                        player["user"] for player in simul_doc["pendingPlayers"]
+                    }
 
                 await reconnect_ws.close()
                 await asyncio.sleep(0)
@@ -450,7 +494,9 @@ class TestGUI:
                         simul_doc = await app_state.db.simul.find_one({"_id": sid})
                         assert simul_doc is not None
                         assert player2.username not in simul_doc["players"]
-                        assert player2.username not in simul_doc["pendingPlayers"]
+                        assert player2.username not in {
+                            player["user"] for player in simul_doc["pendingPlayers"]
+                        }
                 finally:
                     await withdraw_ws.close()
                     await withdraw_session.close()
@@ -476,7 +522,7 @@ class TestGUI:
                 f"http://127.0.0.1:{server.port}/simul",
                 data={
                     "name": "No Two Board Simul",
-                    "variant": "bughouse",
+                    "variants": "bughouse",
                     "host_color": "random",
                     "base": "3",
                     "inc": "0",
@@ -613,7 +659,7 @@ class TestGUI:
                 f"http://127.0.0.1:{server.port}/simul",
                 data={
                     "name": "Anon Simul",
-                    "variant": "chess",
+                    "variants": "chess",
                     "host_color": "random",
                     "base": "3",
                     "inc": "0",
@@ -639,7 +685,7 @@ class TestGUI:
                 data={
                     "name": "Entry Checked Simul",
                     "description": "Club practice only",
-                    "variant": "chess",
+                    "variants": "chess",
                     "host_color": "white",
                     "base": "5",
                     "inc": "3",
@@ -695,7 +741,7 @@ class TestGUI:
                 data={
                     "name": "Scheduled Simul",
                     "description": "Later today",
-                    "variant": "chess",
+                    "variants": "chess",
                     "host_color": "random",
                     "base": "5",
                     "inc": "0",
@@ -760,7 +806,7 @@ class TestGUI:
                     data={
                         "name": "Clean simul name",
                         "description": "Moderated description",
-                        "variant": "chess",
+                        "variants": "chess",
                         "host_color": "random",
                         "base": "3",
                         "inc": "0",
@@ -1108,7 +1154,9 @@ class TestGUI:
                 simul_doc = await app_state.db.simul.find_one({"_id": sid})
                 assert simul_doc is not None
                 assert player2.username not in simul_doc["players"]
-                assert player2.username not in simul_doc["pendingPlayers"]
+                assert player2.username not in {
+                    player["user"] for player in simul_doc["pendingPlayers"]
+                }
         finally:
             await host_ws.close()
             await player_ws.close()
@@ -1465,40 +1513,43 @@ class TestGUI:
                     "_id": created_id,
                     "name": "Older Active Created",
                     "createdBy": "host-created",
-                    "variant": "chess",
+                    "variants": ["chess"],
                     "base": 5,
                     "inc": 3,
                     "createdAt": now - timedelta(hours=3),
                     "hostSeenAt": now - timedelta(minutes=5),
                     "status": T_CREATED,
-                    "players": ["host-created"],
+                    "players": [{"user": "host-created", "variant": "chess", "host": True}],
                     "pendingPlayers": [],
                 },
                 {
                     "_id": started_id,
                     "name": "Older Running Simul",
                     "createdBy": "host-started",
-                    "variant": "chess",
+                    "variants": ["chess"],
                     "base": 5,
                     "inc": 3,
                     "createdAt": now - timedelta(hours=4),
                     "hostSeenAt": now - timedelta(hours=4),
                     "startsAt": now - timedelta(hours=2),
                     "status": T_STARTED,
-                    "players": ["host-started", "player"],
+                    "players": [
+                        {"user": "host-started", "variant": "chess", "host": True},
+                        {"user": "player", "variant": "chess", "host": False},
+                    ],
                     "pendingPlayers": [],
                 },
                 {
                     "_id": stale_id,
                     "name": "Stale Created",
                     "createdBy": "host-stale",
-                    "variant": "chess",
+                    "variants": ["chess"],
                     "base": 5,
                     "inc": 3,
                     "createdAt": now - timedelta(hours=5),
                     "hostSeenAt": now - timedelta(hours=2),
                     "status": T_CREATED,
-                    "players": ["host-stale"],
+                    "players": [{"user": "host-stale", "variant": "chess", "host": True}],
                     "pendingPlayers": [],
                 },
             ]
@@ -1511,7 +1562,7 @@ class TestGUI:
                     "_id": f"f{i:07d}",
                     "name": f"Finished {i}",
                     "createdBy": "host-finished",
-                    "variant": "chess",
+                    "variants": ["chess"],
                     "base": 3,
                     "inc": 0,
                     "createdAt": now - timedelta(minutes=i),
@@ -1519,7 +1570,10 @@ class TestGUI:
                     "startsAt": now - timedelta(minutes=70 - i),
                     "endsAt": now - timedelta(minutes=35 - i),
                     "status": T_FINISHED,
-                    "players": ["host-finished", "player"],
+                    "players": [
+                        {"user": "host-finished", "variant": "chess", "host": True},
+                        {"user": "player", "variant": "chess", "host": False},
+                    ],
                     "pendingPlayers": [],
                 }
             )
@@ -1548,41 +1602,44 @@ class TestGUI:
                     "_id": "pending1",
                     "name": "Pending Application",
                     "createdBy": "TestUser_1",
-                    "variant": "chess",
+                    "variants": ["chess"],
                     "base": 5,
                     "inc": 3,
                     "createdAt": now - timedelta(minutes=10),
                     "hostSeenAt": now,
                     "estimatedStartAt": now + timedelta(hours=1),
                     "status": T_CREATED,
-                    "players": ["TestUser_1"],
-                    "pendingPlayers": [username],
+                    "players": [{"user": "TestUser_1", "variant": "chess", "host": True}],
+                    "pendingPlayers": [{"user": username, "variant": "chess", "host": False}],
                 },
                 {
                     "_id": "accepted",
                     "name": "Accepted Application",
                     "createdBy": "TestUser_3",
-                    "variant": "chess",
+                    "variants": ["chess"],
                     "base": 10,
                     "inc": 0,
                     "createdAt": now - timedelta(minutes=5),
                     "hostSeenAt": now,
                     "estimatedStartAt": now + timedelta(hours=2),
                     "status": T_CREATED,
-                    "players": ["TestUser_3", username],
+                    "players": [
+                        {"user": "TestUser_3", "variant": "chess", "host": True},
+                        {"user": username, "variant": "chess", "host": False},
+                    ],
                     "pendingPlayers": [],
                 },
                 {
                     "_id": "hosted01",
                     "name": "Own Hosted Simul",
                     "createdBy": username,
-                    "variant": "chess",
+                    "variants": ["chess"],
                     "base": 3,
                     "inc": 2,
                     "createdAt": now,
                     "hostSeenAt": now,
                     "status": T_CREATED,
-                    "players": [username],
+                    "players": [{"user": username, "variant": "chess", "host": True}],
                     "pendingPlayers": [],
                 },
             ]
