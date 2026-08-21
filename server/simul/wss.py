@@ -178,9 +178,7 @@ async def handle_join(
         )
         if variant is None:
             variant = simul.primary_variant_key
-        await simul.broadcast(
-            {"type": "player_joined", "player": simul.player_json(user, variant)}
-        )
+        await simul.broadcast({"type": "player_joined", "player": simul.player_json(user, variant)})
 
 
 async def handle_withdraw(
