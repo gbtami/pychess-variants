@@ -910,10 +910,10 @@ export class SimulController implements ChatController {
                     {
                         key: game.gameId,
                         class: { 'host-current': this.hostGameId === game.gameId },
-                        attrs: {
-                            href: `/${game.gameId}`,
-                            title: this.hostGameId === game.gameId ? 'Host is playing this game' : undefined,
-                        },
+                        attrs:
+                            this.hostGameId === game.gameId
+                                ? { href: `/${game.gameId}`, title: 'Host is playing this game' }
+                                : { href: `/${game.gameId}` },
                     },
                     [
                         h('div.mini-game__player', [
