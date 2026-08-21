@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 from const import CASUAL, STARTED, T_ABORTED, T_CREATED, T_FINISHED, T_STARTED
 from game import Game
 from newid import new_id
+from team import is_enabled_team_member
 from utils import insert_game_to_db
 from websocket_utils import ws_send_json_many
 
@@ -50,6 +51,8 @@ class Simul:
         entry_min_rated_games=0,
         entry_min_account_age_days=0,
         entry_titled_only=False,
+        entry_team_id=None,
+        entry_team_name=None,
     ):
         self.app_state = app_state
         self.id = simul_id
@@ -70,6 +73,8 @@ class Simul:
         self.entry_min_rated_games = entry_min_rated_games
         self.entry_min_account_age_days = entry_min_account_age_days
         self.entry_titled_only = entry_titled_only
+        self.entry_team_id = entry_team_id
+        self.entry_team_name = entry_team_name
 
         self.players: dict[str, User] = {}
         self.pending_players: dict[str, User] = {}
@@ -160,7 +165,7 @@ class Simul:
         self.pending_players[user.username] = user
         return True
 
-    def entry_condition_error(self, user: User) -> str | None:
+    async def entry_condition_error(self, user: User) -> str | None:
         if user.anon:
             return "Anonymous users cannot join simuls."
         if user.bot:
@@ -191,6 +196,12 @@ class Simul:
             return "Your rating is below the minimum allowed for this simul."
         if self.entry_max_rating > 0 and rating > self.entry_max_rating:
             return "Your rating is above the maximum allowed for this simul."
+
+        if self.entry_team_id is not None and not await is_enabled_team_member(
+            self.app_state, self.entry_team_id, user.username
+        ):
+            team_name = self.entry_team_name or self.entry_team_id
+            return f"You must be a member of {team_name} to join this simul."
 
         return None
 

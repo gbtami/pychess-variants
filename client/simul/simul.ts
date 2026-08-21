@@ -59,6 +59,8 @@ interface MsgSimulUserConnected {
     entryMaxRating?: number;
     entryMinRatedGames?: number;
     entryMinAccountAgeDays?: number;
+    entryTeamId?: string | null;
+    entryTeamName?: string | null;
     createdAt?: string;
     estimatedStartAt?: string | null;
     startsAt?: string | null;
@@ -157,6 +159,8 @@ export class SimulController implements ChatController {
     entryMaxRating: number;
     entryMinRatedGames: number;
     entryMinAccountAgeDays: number;
+    entryTeamId: string;
+    entryTeamName: string;
     createdAt: string;
     estimatedStartAt: string;
     startsAt: string;
@@ -181,6 +185,8 @@ export class SimulController implements ChatController {
         this.entryMaxRating = 0;
         this.entryMinRatedGames = 0;
         this.entryMinAccountAgeDays = 0;
+        this.entryTeamId = '';
+        this.entryTeamName = '';
         this.createdAt = '';
         this.estimatedStartAt = '';
         this.startsAt = '';
@@ -268,6 +274,8 @@ export class SimulController implements ChatController {
         if (typeof msg.entryMaxRating === 'number') this.entryMaxRating = msg.entryMaxRating;
         if (typeof msg.entryMinRatedGames === 'number') this.entryMinRatedGames = msg.entryMinRatedGames;
         if (typeof msg.entryMinAccountAgeDays === 'number') this.entryMinAccountAgeDays = msg.entryMinAccountAgeDays;
+        if (typeof msg.entryTeamId === 'string') this.entryTeamId = msg.entryTeamId;
+        if (typeof msg.entryTeamName === 'string') this.entryTeamName = msg.entryTeamName;
         if (typeof msg.createdAt === 'string') this.createdAt = msg.createdAt;
         if (typeof msg.estimatedStartAt === 'string') this.estimatedStartAt = msg.estimatedStartAt;
         if (typeof msg.startsAt === 'string') this.startsAt = msg.startsAt;
@@ -502,6 +510,14 @@ export class SimulController implements ChatController {
         }
         if (this.entryMinAccountAgeDays > 0) {
             lines.push(h('p.simul__meta__line', `Entry: account age ${this.entryMinAccountAgeDays}+ days`));
+        }
+        if (this.entryTeamId && this.entryTeamName) {
+            lines.push(
+                h('p.simul__meta__line', [
+                    'Entry: members of ',
+                    h('a', { attrs: { href: `/team/${this.entryTeamId}` } }, this.entryTeamName),
+                ]),
+            );
         }
         return lines;
     }

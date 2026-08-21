@@ -886,6 +886,39 @@ class TestGUI:
             await host_session.close()
             await player_session.close()
 
+    async def test_simul_team_membership_entry_condition(self, aiohttp_server):
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
+        await aiohttp_server(app, host="127.0.0.1")
+        app_state = get_app_state(app)
+        assert app_state.db is not None
+
+        await app_state.db.team.insert_one(
+            {"_id": "variant-fans", "name": "Variant Fans", "enabled": True}
+        )
+        await app_state.db.team_member.insert_one(
+            {
+                "_id": "member@variant-fans",
+                "team": "variant-fans",
+                "user": "member",
+            }
+        )
+
+        simul = Simul(
+            app_state,
+            "team-simul",
+            name="Team Simul",
+            created_by="host",
+            entry_team_id="variant-fans",
+            entry_team_name="Variant Fans",
+        )
+        member = User(app_state, username="member")
+        outsider = User(app_state, username="outsider")
+
+        assert await simul.entry_condition_error(member) is None
+        assert await simul.entry_condition_error(outsider) == (
+            "You must be a member of Variant Fans to join this simul."
+        )
+
     async def test_bot_user_cannot_join_simul(self, aiohttp_server):
         app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         await aiohttp_server(app, host="127.0.0.1")
@@ -893,7 +926,7 @@ class TestGUI:
         bot_user = User(app_state, bot=True, username="bot-simul")
         ws = SimpleNamespace(send_str=AsyncMock())
         simul = SimpleNamespace(
-            entry_condition_error=lambda user: "BOT accounts cannot join simuls.",
+            entry_condition_error=AsyncMock(return_value="BOT accounts cannot join simuls."),
             join=lambda user: False,
         )
 

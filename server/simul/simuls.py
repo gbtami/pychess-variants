@@ -116,6 +116,8 @@ async def upsert_simul_to_db(simul: Simul, app_state: PychessGlobalAppState | No
         "entryMaxRating": simul.entry_max_rating,
         "entryMinRatedGames": simul.entry_min_rated_games,
         "entryMinAccountAgeDays": simul.entry_min_account_age_days,
+        "entryTeamId": simul.entry_team_id,
+        "entryTeamName": simul.entry_team_name,
         "createdBy": simul.created_by,
         "createdAt": simul.created_at,
         "hostSeenAt": simul.host_seen_at,
@@ -330,6 +332,10 @@ async def load_simul(
         entry_min_rated_games=_parse_int(doc.get("entryMinRatedGames"), 0),
         entry_min_account_age_days=_parse_int(doc.get("entryMinAccountAgeDays"), 0),
         entry_titled_only=False,
+        entry_team_id=(doc.get("entryTeamId") if isinstance(doc.get("entryTeamId"), str) else None),
+        entry_team_name=(
+            doc.get("entryTeamName") if isinstance(doc.get("entryTeamName"), str) else None
+        ),
     )
     simul.created_at = _as_datetime(doc.get("createdAt")) or datetime.now(UTC)
     host_seen_at = _as_datetime(doc.get("hostSeenAt"))

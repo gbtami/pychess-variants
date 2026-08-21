@@ -747,6 +747,8 @@ class SimulDoc(TypedDict):
     entryMinRatedGames: int
     entryMinAccountAgeDays: int
     entryTitledOnly: bool
+    entryTeamId: NotRequired[str | None]
+    entryTeamName: NotRequired[str | None]
     createdBy: str
     createdAt: datetime
     hostSeenAt: datetime
@@ -774,6 +776,8 @@ class SimulUpdateData(TypedDict, total=False):
     entryMinRatedGames: int
     entryMinAccountAgeDays: int
     entryTitledOnly: bool
+    entryTeamId: str | None
+    entryTeamName: str | None
     createdBy: str
     createdAt: datetime
     hostSeenAt: datetime

@@ -17,6 +17,7 @@
             {% set simul_entry_max_rating = simul.entry_max_rating %}
             {% set simul_entry_min_rated_games = simul.entry_min_rated_games %}
             {% set simul_entry_min_account_age_days = simul.entry_min_account_age_days %}
+            {% set simul_entry_team_id = simul.entry_team_id or '' %}
             {% else %}
             {% set simul_name = '' %}
             {% set simul_variant = 'chess' %}
@@ -31,6 +32,7 @@
             {% set simul_entry_max_rating = 0 %}
             {% set simul_entry_min_rated_games = 0 %}
             {% set simul_entry_min_account_age_days = 0 %}
+            {% set simul_entry_team_id = '' %}
             {% endif %}
             <h1>{{ simul_form_title }}</h1>
             <form method="post" class="form3 simul-form__body" action="{{ simul_form_action }}">
@@ -161,6 +163,17 @@
                                 {% endfor %}
                             </select>
                         </div>
+                        {% if simul_teams %}
+                        <div class="form-group form-half">
+                            <label class="form-label" for="form3-entryTeam">Only members of team</label>
+                            <select id="form3-entryTeam" name="entryTeam" class="form-control">
+                                <option value=""{% if not simul_entry_team_id %} selected="selected"{% endif %}>No restriction</option>
+                                {% for team in simul_teams %}
+                                <option value="{{ team['_id'] }}"{% if simul_entry_team_id == team['_id'] %} selected="selected"{% endif %}>{{ team['name'] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% endif %}
                     </div>
                 </fieldset>
                 <div class="form-split">

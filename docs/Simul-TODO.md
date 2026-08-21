@@ -71,8 +71,10 @@ and Lichess-parity work identified in the post-Teams review.
   normal create/edit form without unnecessarily narrowing server compatibility.
 - [x] **Minimum start size.** Require at least two accepted opponents before starting,
   enforced server-side and reflected by the host Start button, matching Lichess.
-- [ ] **Team membership condition.** Now that PyChess Teams exist, add an optional
-  team-members-only entry condition comparable to Lichess.
+- [x] **Team membership condition.** Hosts can optionally restrict a simul to members
+  of one of their enabled teams, matching Lichess. The selected team is validated on
+  create/edit, persisted with the simul, displayed with the other entry conditions,
+  and enforced server-side when an applicant joins.
 - [ ] **Multiple variants.** Lichess lets a host offer multiple variants and each
   applicant chooses one. PyChess currently creates a single-variant simul. This is the
   largest remaining functional parity item.

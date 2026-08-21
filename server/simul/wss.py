@@ -116,6 +116,8 @@ async def handle_simul_user_connected(
         "entryMaxRating": simul.entry_max_rating,
         "entryMinRatedGames": simul.entry_min_rated_games,
         "entryMinAccountAgeDays": simul.entry_min_account_age_days,
+        "entryTeamId": simul.entry_team_id,
+        "entryTeamName": simul.entry_team_name,
         "createdAt": simul.created_at.isoformat(),
         "estimatedStartAt": (
             simul.estimated_start_at.isoformat() if simul.estimated_start_at is not None else None
@@ -156,7 +158,7 @@ async def handle_join(
     if simul is None:
         return
 
-    error = simul.entry_condition_error(user)
+    error = await simul.entry_condition_error(user)
     if (
         error is None
         and user.username not in simul.players

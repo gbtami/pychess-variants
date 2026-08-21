@@ -17,6 +17,7 @@ from simul.simuls import (
     load_simul,
     upsert_simul_to_db,
 )
+from team import get_team, is_team_member, teams_for_user
 from typing_defs import ViewContext
 from variants import VARIANT_ICONS, VARIANTS, get_server_variant, is_catalogued_variant
 
@@ -211,6 +212,27 @@ def parse_host_color(data) -> str:
     return host_color
 
 
+async def parse_simul_team_condition(
+    app_state, data, host_username: str
+) -> tuple[str | None, str | None]:
+    raw_team_id = data.get("entryTeam", "")
+    if not isinstance(raw_team_id, (str, bytes)):
+        raise web.HTTPBadRequest(text="Invalid team entry condition")
+    if isinstance(raw_team_id, bytes):
+        raw_team_id = raw_team_id.decode("utf-8")
+    team_id = raw_team_id.strip()
+    if not team_id:
+        return None, None
+
+    team = await get_team(app_state, team_id)
+    if team is None or not await is_team_member(app_state, team_id, host_username):
+        raise web.HTTPBadRequest(text="You can only restrict a simul to a team you belong to")
+    team_name = team.get("name")
+    if not isinstance(team_name, str) or not team_name:
+        raise web.HTTPBadRequest(text="Invalid team entry condition")
+    return team_id, team_name
+
+
 def parse_optional_datetime_post_field(data, field_name: str) -> datetime | None:
     raw_value = data.get(field_name, "")
     if not isinstance(raw_value, (str, bytes)):
@@ -326,6 +348,9 @@ async def simuls(request: web.Request) -> ViewContext:
         entry_min_account_age_days = parse_int_post_field(
             data, "entryMinAccountAgeDays", min_value=0, max_value=36500
         )
+        entry_team_id, entry_team_name = await parse_simul_team_condition(
+            app_state, data, user.username
+        )
         if entry_max_rating > 0 and entry_min_rating > entry_max_rating:
             entry_min_rating, entry_max_rating = entry_max_rating, entry_min_rating
 
@@ -349,6 +374,8 @@ async def simuls(request: web.Request) -> ViewContext:
             entry_min_rated_games=entry_min_rated_games,
             entry_min_account_age_days=entry_min_account_age_days,
             entry_titled_only=False,
+            entry_team_id=entry_team_id,
+            entry_team_name=entry_team_name,
         )
         app_state.simuls[simul_id] = simul
         await upsert_simul_to_db(simul, app_state)
@@ -382,10 +409,12 @@ async def simul_new(request: web.Request) -> ViewContext:
     if user.anon or user.bot:
         raise web.HTTPForbidden()
 
+    app_state = get_app_state(request.app)
     context["variants"] = {
         key: variant for key, variant in VARIANTS.items() if not variant.two_boards
     }
-    context["variants"].update(public_catalogued_variants_for_forms(get_app_state(request.app)))
+    context["variants"].update(public_catalogued_variants_for_forms(app_state))
+    context["simul_teams"] = await teams_for_user(app_state, user.username)
     context["edit"] = False
     context["simul_form_action"] = "/simul"
     context["simul_form_title"] = "Host a new simul"
@@ -408,10 +437,12 @@ async def simul_edit(request: web.Request) -> ViewContext:
     if not _can_manage_simul(user, simul):
         raise web.HTTPForbidden(text="Only the host or a site admin can edit the simul")
 
+    app_state = get_app_state(request.app)
     context["variants"] = {
         key: variant for key, variant in VARIANTS.items() if not variant.two_boards
     }
-    context["variants"].update(public_catalogued_variants_for_forms(get_app_state(request.app)))
+    context["variants"].update(public_catalogued_variants_for_forms(app_state))
+    context["simul_teams"] = await teams_for_user(app_state, simul.created_by)
     context["edit"] = True
     context["simul"] = simul
     context["simul_form_action"] = f"/simul/{simul.id}/edit"
@@ -496,6 +527,9 @@ async def update_simul(request: web.Request) -> web.Response:
         )
         simul.entry_min_account_age_days = parse_int_post_field(
             data, "entryMinAccountAgeDays", min_value=0, max_value=36500
+        )
+        simul.entry_team_id, simul.entry_team_name = await parse_simul_team_condition(
+            app_state, data, simul.created_by
         )
         simul.entry_titled_only = False
         if simul.entry_max_rating > 0 and simul.entry_min_rating > simul.entry_max_rating:
