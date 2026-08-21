@@ -627,6 +627,8 @@ async def update_simul(request: web.Request) -> web.Response:
         simul.entry_team_id, simul.entry_team_name = await parse_simul_team_condition(
             app_state, data, simul.created_by
         )
+        host = await app_state.users.get(simul.created_by)
+        simul.refresh_featurable(host)
         simul.entry_titled_only = False
         if simul.entry_max_rating > 0 and simul.entry_min_rating > simul.entry_max_rating:
             simul.entry_min_rating, simul.entry_max_rating = (

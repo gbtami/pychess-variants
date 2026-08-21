@@ -95,8 +95,11 @@ and Lichess-parity work identified in the post-Teams review.
 
 ## Optional parity / polish
 
-- [ ] Consider Lichess-style featured/featurable simuls for titled or moderator-approved
-  hosts if the public list becomes busy.
+- [x] **Featured/featurable simuls.** Public created/finished listings are curated to
+  non-team-restricted simuls hosted by titled players, site admins, tournament directors,
+  or a current Top 10 player in at least one offered variant. Started simuls remain visible
+  to everyone, and signed-in users retain direct home-list access to simuls they host or
+  have joined even when those simuls are not globally featured.
 - [ ] Consider a public simul-list API only if clients or bots have a concrete use for it.
 - [ ] Revisit name defaults/limits and title-spoof protection; Lichess pre-fills the
   host's name and allows up to 40 characters.

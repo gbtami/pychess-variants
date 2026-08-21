@@ -5,15 +5,18 @@ import random
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 
+import settings
 from const import CASUAL, STARTED, T_ABORTED, T_CREATED, T_FINISHED, T_STARTED
 from game import Game
 from newid import new_id
 from team import is_enabled_team_member
+from tournament_director import is_tournament_director
 from utils import insert_game_to_db
 from variants import get_server_variant, is_catalogued_variant
 from websocket_utils import ws_send_json_many
 
 if TYPE_CHECKING:
+    from pychess_global_app_state import PychessGlobalAppState
     from user import User
     from ws_types import ChatLine
 
@@ -30,6 +33,48 @@ SIMUL_ERASED_USER = "<erased>"
 def split_simul_variant_key(variant_key: str) -> tuple[str, bool]:
     chess960 = False if is_catalogued_variant(variant_key) else variant_key.endswith("960")
     return (variant_key[:-3] if chess960 else variant_key), chess960
+
+
+def _is_admin_username(username: str) -> bool:
+    lowered = username.casefold()
+    return any(lowered == admin.casefold() for admin in settings.ADMINS)
+
+
+def _is_top_ten_in_any_variant(
+    app_state: PychessGlobalAppState, username: str, variants: list[str]
+) -> bool:
+    for variant_key in variants:
+        scores = app_state.highscore.get(variant_key)
+        if scores is None:
+            continue
+        for identity in scores.keys()[:10]:
+            top_username, _separator, _title = str(identity).partition("|")
+            if top_username == username:
+                return True
+    return False
+
+
+def is_simul_featurable(
+    app_state: PychessGlobalAppState,
+    host: User,
+    variants: list[str],
+    entry_team_id: str | None,
+) -> bool:
+    """Return whether a simul may be featured on the public simul home page.
+
+    Team-restricted simuls are intentionally never featured globally. Otherwise
+    PyChess features established hosts: titled players, site admins, tournament
+    directors, or a current Top 10 player in any offered rated variant.
+    """
+    if host.anon or host.bot or entry_team_id is not None:
+        return False
+    if host.title and host.title != "BOT":
+        return True
+    if _is_admin_username(host.username):
+        return True
+    if is_tournament_director(host, app_state):
+        return True
+    return _is_top_ten_in_any_variant(app_state, host.username, variants)
 
 
 class Simul:
@@ -62,6 +107,7 @@ class Simul:
         entry_titled_only=False,
         entry_team_id=None,
         entry_team_name=None,
+        featurable=False,
     ):
         self.app_state = app_state
         self.id = simul_id
@@ -92,6 +138,7 @@ class Simul:
         self.entry_titled_only = entry_titled_only
         self.entry_team_id = entry_team_id
         self.entry_team_name = entry_team_name
+        self.featurable = featurable
 
         self.players: dict[str, User] = {}
         self.player_variants: dict[str, str] = {}
@@ -116,7 +163,16 @@ class Simul:
         if host:
             simul.players[created_by] = host
             simul.player_variants[created_by] = simul.variants[0]
+            simul.refresh_featurable(host)
         return simul
+
+    def refresh_featurable(self, host: User) -> None:
+        self.featurable = is_simul_featurable(
+            self.app_state,
+            host,
+            self.variants,
+            self.entry_team_id,
+        )
 
     @property
     def primary_variant_key(self) -> str:

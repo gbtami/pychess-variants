@@ -141,6 +141,7 @@ async def upsert_simul_to_db(simul: Simul, app_state: PychessGlobalAppState | No
         "entryMinAccountAgeDays": simul.entry_min_account_age_days,
         "entryTeamId": simul.entry_team_id,
         "entryTeamName": simul.entry_team_name,
+        "featurable": simul.featurable,
         "createdBy": simul.created_by,
         "createdAt": simul.created_at,
         "hostSeenAt": simul.host_seen_at,
@@ -402,6 +403,11 @@ async def load_simul(
     if host_color not in ("random", "white", "black"):
         host_color = "random"
 
+    featurable = doc.get("featurable")
+    if not isinstance(featurable, bool):
+        log.error("Skipping simul %s with invalid featurable flag", simul_id)
+        return None
+
     try:
         simul = Simul(
             app_state,
@@ -431,6 +437,7 @@ async def load_simul(
             entry_team_name=(
                 doc.get("entryTeamName") if isinstance(doc.get("entryTeamName"), str) else None
             ),
+            featurable=featurable,
         )
     except ValueError as exc:
         log.error("Skipping simul %s with invalid variants: %s", simul_id, exc)
@@ -566,6 +573,14 @@ async def load_active_simuls(app_state: PychessGlobalAppState) -> None:
     await app_state.db.simul.create_index("players.user")
     await app_state.db.simul.create_index("pendingPlayers.user")
     await app_state.db.simul.create_index(
+        [("status", 1), ("featurable", 1), ("hostSeenAt", -1), ("createdAt", -1)],
+        name="status_featurable_hostSeenAt_createdAt",
+    )
+    await app_state.db.simul.create_index(
+        [("status", 1), ("featurable", 1), ("endsAt", -1)],
+        name="status_featurable_endsAt",
+    )
+    await app_state.db.simul.create_index(
         [("createdBy", 1), ("status", 1), ("createdAt", -1)],
         name="createdBy_status_createdAt",
     )
@@ -615,8 +630,10 @@ def _simul_list_entry(simul_doc: SimulDoc, username: str | None = None) -> Simul
     players = _as_simul_participants(simul_doc.get("players"))
     pending_players = _as_simul_participants(simul_doc.get("pendingPlayers"))
     participation = None
-    if username is not None and username != created_by:
-        if any(player["user"] == username for player in pending_players):
+    if username is not None:
+        if username == created_by:
+            participation = "host"
+        elif any(player["user"] == username for player in pending_players):
             participation = "pending"
         elif any(player["user"] == username for player in players):
             participation = "accepted"
@@ -735,7 +752,7 @@ async def get_simul_home_lists(
 
     created_query = _query_simul_list(
         app_state,
-        active_created_selector,
+        {**active_created_selector, "featurable": True},
         sort_field="createdAt",
         limit=SIMUL_HOME_CREATED_LIMIT,
     )
@@ -747,7 +764,7 @@ async def get_simul_home_lists(
     )
     finished_query = _query_simul_list(
         app_state,
-        {"status": T_FINISHED},
+        {"status": T_FINISHED, "featurable": True},
         sort_field="endsAt",
         limit=SIMUL_HOME_FINISHED_LIMIT,
     )
@@ -762,8 +779,8 @@ async def get_simul_home_lists(
         app_state,
         {
             **active_created_selector,
-            "createdBy": {"$ne": username},
             "$or": [
+                {"createdBy": username},
                 {"pendingPlayers.user": username},
                 {"players.user": username},
             ],

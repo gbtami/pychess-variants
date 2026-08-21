@@ -1585,7 +1585,7 @@ class TestGUI:
         host_username = "TestUser_1"
         sid = id8()
 
-        host = User(app_state, username=host_username)
+        host = User(app_state, username=host_username, title="FM")
         app_state.users[host.username] = host
 
         simul = await Simul.create(
@@ -1640,6 +1640,7 @@ class TestGUI:
                     "_id": created_id,
                     "name": "Older Active Created",
                     "createdBy": "host-created",
+                    "featurable": True,
                     "variants": ["chess"],
                     "base": 5,
                     "inc": 3,
@@ -1653,6 +1654,7 @@ class TestGUI:
                     "_id": started_id,
                     "name": "Older Running Simul",
                     "createdBy": "host-started",
+                    "featurable": False,
                     "variants": ["chess"],
                     "base": 5,
                     "inc": 3,
@@ -1670,6 +1672,7 @@ class TestGUI:
                     "_id": stale_id,
                     "name": "Stale Created",
                     "createdBy": "host-stale",
+                    "featurable": True,
                     "variants": ["chess"],
                     "base": 5,
                     "inc": 3,
@@ -1689,6 +1692,7 @@ class TestGUI:
                     "_id": f"f{i:07d}",
                     "name": f"Finished {i}",
                     "createdBy": "host-finished",
+                    "featurable": True,
                     "variants": ["chess"],
                     "base": 3,
                     "inc": 0,
@@ -1804,6 +1808,7 @@ class TestGUI:
                     "_id": "pending1",
                     "name": "Pending Application",
                     "createdBy": "TestUser_1",
+                    "featurable": False,
                     "variants": ["chess"],
                     "base": 5,
                     "inc": 3,
@@ -1818,6 +1823,7 @@ class TestGUI:
                     "_id": "accepted",
                     "name": "Accepted Application",
                     "createdBy": "TestUser_3",
+                    "featurable": False,
                     "variants": ["chess"],
                     "base": 10,
                     "inc": 0,
@@ -1835,6 +1841,7 @@ class TestGUI:
                     "_id": "hosted01",
                     "name": "Own Hosted Simul",
                     "createdBy": username,
+                    "featurable": False,
                     "variants": ["chess"],
                     "base": 3,
                     "inc": 2,
@@ -1851,6 +1858,7 @@ class TestGUI:
             app_state, username=username
         )
         assert [(entry.id, entry.participation) for entry in my_simuls] == [
+            ("hosted01", "host"),
             ("accepted", "accepted"),
             ("pending1", "pending"),
         ]
@@ -1860,7 +1868,8 @@ class TestGUI:
             response = await session.get(f"http://127.0.0.1:{server.port}/simul")
             assert response.status == 200
             html = await response.text()
-            assert "Your pending and accepted simuls" in html
+            assert "Your simuls" in html
+            assert "Own Hosted Simul" in html
             assert "Pending Application" in html
             assert "Accepted Application" in html
             assert ">Pending<" in html

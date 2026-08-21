@@ -764,6 +764,7 @@ class SimulDoc(TypedDict):
     entryTitledOnly: bool
     entryTeamId: NotRequired[str | None]
     entryTeamName: NotRequired[str | None]
+    featurable: bool
     createdBy: str
     createdAt: datetime
     hostSeenAt: datetime
@@ -794,6 +795,7 @@ class SimulUpdateData(TypedDict, total=False):
     entryTitledOnly: bool
     entryTeamId: str | None
     entryTeamName: str | None
+    featurable: bool
     createdBy: str
     createdAt: datetime
     hostSeenAt: datetime

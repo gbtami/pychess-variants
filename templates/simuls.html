@@ -26,7 +26,7 @@
             <table class="slist">
                 <thead>
                     <tr>
-                        <th colspan="4">{% trans %}Your pending and accepted simuls{% endtrans %}</th>
+                        <th colspan="4">{% trans %}Your simuls{% endtrans %}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -52,7 +52,9 @@
                             </span>
                         </td>
                         <td>
-                            {% if simul.participation == 'accepted' %}
+                            {% if simul.participation == 'host' %}
+                            <span>{% trans %}Host{% endtrans %}</span>
+                            {% elif simul.participation == 'accepted' %}
                             <span>{% trans %}Accepted{% endtrans %}</span>
                             {% else %}
                             <span>{% trans %}Pending{% endtrans %}</span>
@@ -67,7 +69,7 @@
             <table class="slist">
                 <thead>
                     <tr>
-                        <th colspan="4">{% trans %}Newly created simuls{% endtrans %}</th>
+                        <th colspan="4">{% trans %}Featured simuls{% endtrans %}</th>
                     </tr>
                 </thead>
                 <tbody>
