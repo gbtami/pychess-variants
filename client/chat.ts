@@ -14,6 +14,7 @@ export interface ChatController {
     spectator?: boolean;
     gameId?: string;
     tournamentId?: string;
+    simulId?: string;
 }
 
 // ------ Deterministic color assignment for usernames, theme-aware ------
@@ -79,6 +80,7 @@ export function chatView(ctrl: ChatController, chatType: string) {
         const m: any = { type: chatType, message: message, room: spectator ? 'spectator' : 'player' };
         if ('gameId' in ctrl) m['gameId'] = ctrl.gameId;
         if ('tournamentId' in ctrl) m['tournamentId'] = ctrl.tournamentId;
+        if ('simulId' in ctrl) m['simulId'] = ctrl.simulId;
         ctrl.doSend(m);
     }
     function onClick() {

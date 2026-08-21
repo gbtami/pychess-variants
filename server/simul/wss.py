@@ -248,7 +248,9 @@ async def handle_deny_player(
 async def handle_lobbychat(
     app_state: PychessGlobalAppState, user: User, data: SimulLobbyChatMessage
 ) -> None:
-    simul_id = data["simulId"]
+    simul_id = data.get("simulId")
+    if simul_id is None:
+        return
     simul = await get_simul(app_state, simul_id)
     if simul is None or user.anon or user.silence != 0:
         return
