@@ -920,6 +920,7 @@ td.header:hover {
 }
 
 .simul-variant-picker__chip:disabled {
+    color: var(--font-color);
     cursor: default;
     opacity: 0.85;
 }
