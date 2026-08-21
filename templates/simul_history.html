@@ -1,0 +1,54 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+<main class="page-small box box-pad simul-history">
+    <div class="box-top">
+        <h1><a href="{{ home }}/@/{{ simul_history_profile }}">{{ simul_history_profile }}</a> {% trans %}hosted simuls{% endtrans %}</h1>
+        <strong class="simul-history__count">{{ simul_history_total }}</strong>
+    </div>
+
+    {% if simul_history_entries %}
+    <table class="slist">
+        <thead>
+            <tr>
+                <th></th>
+                <th>{% trans %}Simul{% endtrans %}</th>
+                <th>{% trans %}Created{% endtrans %}</th>
+                <th>{% trans %}Wins{% endtrans %} / {% trans %}Draws{% endtrans %} / {% trans %}Losses{% endtrans %}</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for simul in simul_history_entries %}
+            <tr>
+                <td><div class="icon" data-icon="{{ simul.icon }}"></div></td>
+                <td class="header">
+                    <a href="/simul/{{ simul.id }}">
+                        <span class="name">{{ simul.name }}</span>
+                        <span class="system">
+                            {{ time_control_str(simul.base, simul.inc, 0) }} •
+                            {% for variant_key in simul.variants[:3] %}{{ variant_display_name(variant_key) }}{% if not loop.last %}, {% endif %}{% endfor %}{% if simul.variants|length > 3 %} +{{ simul.variants|length - 3 }} more{% endif %}
+                        </span>
+                    </a>
+                </td>
+                <td class="infos"><span class="starts"><info-date timestamp="{{ simul.created_at }}"></info-date></span></td>
+                <td class="simul-history__score">{{ simul.wins }} / {{ simul.draws }} / {{ simul.losses }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="simul-history__empty">{{ simul_history_profile }} {% trans %}hasn't hosted any simuls yet!{% endtrans %}</p>
+    {% endif %}
+
+    {% if simul_history_prev_href or simul_history_next_href %}
+    <nav class="simul-history__pagination" aria-label="{% trans %}Pagination{% endtrans %}">
+        {% if simul_history_prev_href %}<a href="{{ simul_history_prev_href }}">‹ {% trans %}Previous{% endtrans %}</a>{% endif %}
+        {% if simul_history_next_href %}<a href="{{ simul_history_next_href }}">{% trans %}Next{% endtrans %} ›</a>{% endif %}
+    </nav>
+    {% endif %}
+</main>
+</div>
+{% endblock %}
+{% block js %}
+    <script src="{{ js }}"></script>
+{% endblock %}
