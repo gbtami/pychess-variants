@@ -1,6 +1,7 @@
 from datetime import UTC, datetime
 
 import aiohttp_jinja2
+from admin_api import record_mod_action
 from aiohttp import web
 from catalogued_variants import is_public_catalogued_variant, public_catalogued_variants_for_forms
 from const import T_CREATED
@@ -8,7 +9,7 @@ from misc import time_control_str
 from newid import id8
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
-from settings import SIMULING
+from settings import ADMINS, SIMULING
 from simul.simul import Simul
 from simul.simuls import (
     delete_simul_from_db,
@@ -123,6 +124,17 @@ HOST_EXTRA_TIME_PER_PLAYER_CHOICES = [
     (300, "300 seconds"),
 ]
 HOST_EXTRA_TIME_PER_PLAYER_VALUES = [value for value, _ in HOST_EXTRA_TIME_PER_PLAYER_CHOICES]
+
+
+def _is_admin_username(username: str) -> bool:
+    lowered = username.casefold()
+    return any(lowered == admin.casefold() for admin in ADMINS)
+
+
+def _can_manage_simul(user, simul: Simul) -> bool:
+    return not user.anon and (
+        user.username == simul.created_by or _is_admin_username(user.username)
+    )
 
 
 def parse_int_post_field(data, field_name: str, min_value: int, max_value: int) -> int:
@@ -376,8 +388,8 @@ async def simul_edit(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
     simul = await get_simul_for_request(request)
 
-    if user.username != simul.created_by:
-        raise web.HTTPForbidden(text="Only the host can edit the simul")
+    if not _can_manage_simul(user, simul):
+        raise web.HTTPForbidden(text="Only the host or a site admin can edit the simul")
 
     context["variants"] = {
         key: variant for key, variant in VARIANTS.items() if not variant.two_boards
@@ -431,8 +443,8 @@ async def update_simul(request: web.Request) -> web.Response:
     app_state = get_app_state(request.app)
     simul = await get_simul_for_request(request)
 
-    if user.username != simul.created_by:
-        raise web.HTTPForbidden(text="Only the host can edit the simul")
+    if not _can_manage_simul(user, simul):
+        raise web.HTTPForbidden(text="Only the host or a site admin can edit the simul")
 
     data = await read_post_data(request)
     if data is None:
@@ -476,6 +488,14 @@ async def update_simul(request: web.Request) -> web.Response:
             )
 
     await upsert_simul_to_db(simul)
+    if user.username != simul.created_by:
+        await record_mod_action(
+            app_state,
+            user.username,
+            simul.created_by,
+            "simul_edited",
+            f"{simul.id}: {simul.name}",
+        )
     raise web.HTTPFound(f"/simul/{simul.id}")
 
 
@@ -487,14 +507,22 @@ async def cancel_simul(request: web.Request) -> web.Response:
     app_state = get_app_state(request.app)
     simul = await get_simul_for_request(request)
 
-    if user.username != simul.created_by:
-        raise web.HTTPForbidden(text="Only the host can cancel the simul")
+    if not _can_manage_simul(user, simul):
+        raise web.HTTPForbidden(text="Only the host or a site admin can cancel the simul")
     if simul.status != T_CREATED:
         raise web.HTTPBadRequest(text="Only a created simul can be cancelled")
 
     await simul.abort()
     app_state.simuls.pop(simul.id, None)
     await delete_simul_from_db(simul.id, app_state)
+    if user.username != simul.created_by:
+        await record_mod_action(
+            app_state,
+            user.username,
+            simul.created_by,
+            "simul_cancelled",
+            f"{simul.id}: {simul.name}",
+        )
     raise web.HTTPFound("/simul")
 
 

@@ -712,7 +712,7 @@ export class SimulController implements ChatController {
         const { chess960 } = splitVariantKey(this.variantKey);
         const variantName = variantInfo.displayName(chess960);
         const hostName = this.createdBy ? displayUsername(this.createdBy) : '-';
-        const canEdit = this.model['username'] === this.createdBy;
+        const canEdit = this.model['username'] === this.createdBy || this.model.admin;
         const hostLinkNode = () =>
             this.createdBy ? userLink(this.createdBy, hostName, { className: 'user-link' }) : h('span', hostName);
         const approvedCount = Math.max(0, this.players.length - (this.createdBy ? 1 : 0));

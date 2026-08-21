@@ -640,6 +640,118 @@ class TestGUI:
         finally:
             await session.close()
 
+    async def test_site_admin_can_edit_and_cancel_created_simul(self, aiohttp_server):
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+        server = await aiohttp_server(app, host="127.0.0.1")
+        app_state = get_app_state(app)
+        host = User(app_state, username="Host")
+        moderator = User(app_state, username="mod")
+        outsider = User(app_state, username="outsider")
+        for user in (host, moderator, outsider):
+            app_state.users[user.username] = user
+
+        simul = await Simul.create(
+            app_state, id8(), name="Needs moderation", created_by=host.username
+        )
+        app_state.simuls[simul.id] = simul
+        await upsert_simul_to_db(simul)
+
+        moderator_session = await self._session_for_user(moderator.username)
+        outsider_session = await self._session_for_user(outsider.username)
+        try:
+            with (
+                patch("views.simul.ADMINS", [moderator.username]),
+                patch("views.ADMINS", [moderator.username]),
+            ):
+                denied = await outsider_session.get(
+                    f"http://127.0.0.1:{server.port}/simul/{simul.id}/edit"
+                )
+                assert denied.status == 403
+
+                edit_page = await moderator_session.get(
+                    f"http://127.0.0.1:{server.port}/simul/{simul.id}/edit"
+                )
+                assert edit_page.status == 200
+                assert "Edit Needs moderation" in await edit_page.text()
+
+                updated = await moderator_session.post(
+                    f"http://127.0.0.1:{server.port}/simul/{simul.id}/edit",
+                    data={
+                        "name": "Clean simul name",
+                        "description": "Moderated description",
+                        "variant": "chess",
+                        "host_color": "random",
+                        "base": "3",
+                        "inc": "0",
+                        "hostExtraTime": "0",
+                        "hostExtraTimePerPlayer": "0",
+                        "entryMinRatedGames": "0",
+                        "entryMinRating": "0",
+                        "entryMaxRating": "0",
+                        "entryMinAccountAgeDays": "0",
+                        "estimatedStartAt": "",
+                    },
+                    allow_redirects=False,
+                )
+                assert updated.status == 302
+                assert simul.name == "Clean simul name"
+
+                edit_log = await app_state.db.mod_log.find_one({"action": "simul_edited"})
+                assert edit_log is not None
+                assert edit_log["mod"] == moderator.username
+                assert edit_log["user"] == host.username
+                assert simul.id in edit_log["details"]
+
+                cancelled = await moderator_session.get(
+                    f"http://127.0.0.1:{server.port}/simul/{simul.id}/cancel",
+                    allow_redirects=False,
+                )
+                assert cancelled.status == 302
+                assert simul.id not in app_state.simuls
+                assert await app_state.db.simul.find_one({"_id": simul.id}) is None
+
+                cancel_log = await app_state.db.mod_log.find_one({"action": "simul_cancelled"})
+                assert cancel_log is not None
+                assert cancel_log["mod"] == moderator.username
+                assert cancel_log["user"] == host.username
+        finally:
+            await moderator_session.close()
+            await outsider_session.close()
+
+    async def test_site_admin_cannot_cancel_started_simul(self, aiohttp_server):
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+        server = await aiohttp_server(app, host="127.0.0.1")
+        app_state = get_app_state(app)
+        host = User(app_state, username="Host")
+        moderator = User(app_state, username="mod")
+        opponent = User(app_state, username="Opponent")
+        for user in (host, moderator, opponent):
+            app_state.users[user.username] = user
+
+        simul = await Simul.create(app_state, id8(), name="Running simul", created_by=host.username)
+        assert simul.join(opponent)
+        assert simul.approve(opponent.username)
+        app_state.simuls[simul.id] = simul
+        assert await simul.start()
+
+        moderator_session = await self._session_for_user(moderator.username)
+        try:
+            with (
+                patch("views.simul.ADMINS", [moderator.username]),
+                patch("views.ADMINS", [moderator.username]),
+            ):
+                response = await moderator_session.get(
+                    f"http://127.0.0.1:{server.port}/simul/{simul.id}/cancel",
+                    allow_redirects=False,
+                )
+                assert response.status == 400
+                assert simul.status == T_STARTED
+                assert simul.id in app_state.simuls
+        finally:
+            if simul.clock_task is not None:
+                simul.clock_task.cancel()
+            await moderator_session.close()
+
     async def test_simul_join_rejected_by_rating_entry_conditions(self, aiohttp_server):
         app = make_app(
             db_client=AsyncMongoMockClient(tz_aware=True),

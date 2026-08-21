@@ -8,6 +8,7 @@ from json_utils import json_response
 from pychess_global_app_state_utils import get_app_state
 from report_api import TIMEOUT_REASONS
 from settings import ADMINS
+from simul.simuls import load_simul
 from tournament.tournaments import load_tournament
 
 
@@ -63,6 +64,33 @@ async def public_chat_timeout(request: web.Request) -> web.Response:
             )
 
         await tournament.broadcast(fullchat)
+        return json_response({"ok": True, "chan": chan, "reason": reason})
+
+    if chan == "simul":
+        if not room_id:
+            return json_response({"type": "error", "message": "Missing room ID"}, status=400)
+        simul = await load_simul(app_state, room_id)
+        if simul is None:
+            return json_response({"type": "error", "message": "Simul not found"}, status=404)
+
+        fullchat = silence(
+            app_state,
+            target_user,
+            simul.tourneychat,
+            reason_text=reason_text,
+        )
+        if fullchat is None:
+            return json_response(
+                {"type": "error", "message": "User must be online to timeout"},
+                status=409,
+            )
+
+        if app_state.db is not None:
+            await app_state.db.simul_chat.delete_many({"sid": room_id, "user": target_user})
+            system_line = fullchat["lines"][-1]
+            await app_state.db.simul_chat.insert_one({**system_line, "sid": room_id})
+
+        await simul.broadcast(fullchat)
         return json_response({"ok": True, "chan": chan, "reason": reason})
 
     if chan == "round":

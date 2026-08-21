@@ -39,6 +39,8 @@ MOD_ACTION_LABELS: dict[str, str] = {
     "system_message_sent": "Send system message",
     "close_team": "Close team",
     "reopen_team": "Reopen team",
+    "simul_edited": "Edit simul",
+    "simul_cancelled": "Cancel simul",
 }
 
 API_ACTIONS = {"timeout", "shadowban", "unshadowban", "close", "reopen"}

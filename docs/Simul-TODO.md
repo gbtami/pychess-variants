@@ -49,9 +49,13 @@ and Lichess-parity work identified in the post-Teams review.
   host/player references in started or finished simul history. Cached simuls are scrubbed
   too, and simul games persist the non-personal host side so anonymization cannot corrupt
   result/mini-board interpretation.
-- [ ] **Moderator controls.** Allow the appropriate site moderators/admins to edit or
-  abort an abusive/stuck simul without impersonating the host. Decide whether the host
-  should also receive local moderation controls for their simul chat.
+- [x] **Moderator controls.** Site admins can edit any simul and cancel a created simul
+  without impersonating the host, matching Lichess's `ManageSimul` behavior while keeping
+  already-started games intact. Simul chats are included in the central admin Public chats
+  console and use the existing global timeout action. Hosts do not receive chat moderation
+  for the initial production rollout: PyChess currently has only a global `User.silence`
+  timeout, so exposing it to hosts would incorrectly affect unrelated chats. Add a dedicated
+  room-local timeout first if host chat moderation is revisited.
 - [ ] **Recovery tests and cleanup.** Add coverage for interrupted/partial start, stale
   created simuls, and host navigation after restart. Remove temporary detailed startup
   timing once production restart behavior is confirmed.
