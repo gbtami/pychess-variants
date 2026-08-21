@@ -65,10 +65,10 @@ and Lichess-parity work identified in the post-Teams review.
 
 ## High-value Lichess parity
 
-- [ ] **Clock choices and defaults.** Lichess currently defaults to 20+60 and offers
-  initial times from 5 through 180 minutes plus increments up to 180 seconds. PyChess's
-  form currently defaults to 3+0 and exposes only 1-15 minutes / 0-5 seconds despite the
-  server already accepting the wider range.
+- [x] **Clock choices and defaults.** Match Lichess's 20+60 default and its full simul
+  clock menus: 5-180 minute initial times and 0-180 second increments at the same stepped
+  choices. The server continues accepting the existing 0-180 ranges; this item aligns the
+  normal create/edit form without unnecessarily narrowing server compatibility.
 - [ ] **Minimum start size.** Require at least two accepted opponents before starting,
   matching Lichess. PyChess currently allows a one-opponent "simul".
 - [ ] **Team membership condition.** Now that PyChess Teams exist, add an optional

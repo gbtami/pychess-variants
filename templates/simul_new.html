@@ -20,8 +20,8 @@
             {% else %}
             {% set simul_name = '' %}
             {% set simul_variant = 'chess' %}
-            {% set simul_base = 3 %}
-            {% set simul_inc = 0 %}
+            {% set simul_base = simul_clock_time_default %}
+            {% set simul_inc = simul_clock_increment_default %}
             {% set simul_host_color = 'random' %}
             {% set simul_description = '' %}
             {% set simul_host_extra_time = 0 %}
@@ -68,22 +68,17 @@
                         <div class="form-group form-half">
                             <label class="form-label" for="form3-clockTime">Clock initial time</label>
                             <select id="form3-clockTime" name="base" class="form-control">
-                                <option value="1"{% if simul_base == 1 %} selected="selected"{% endif %}>1 minute</option>
-                                <option value="2"{% if simul_base == 2 %} selected="selected"{% endif %}>2 minutes</option>
-                                <option value="3"{% if simul_base == 3 %} selected="selected"{% endif %}>3 minutes</option>
-                                <option value="5"{% if simul_base == 5 %} selected="selected"{% endif %}>5 minutes</option>
-                                <option value="10"{% if simul_base == 10 %} selected="selected"{% endif %}>10 minutes</option>
-                                <option value="15"{% if simul_base == 15 %} selected="selected"{% endif %}>15 minutes</option>
+                                {% for value in simul_clock_time_values %}
+                                <option value="{{ value }}"{% if simul_base == value %} selected="selected"{% endif %}>{{ value }} minutes</option>
+                                {% endfor %}
                             </select>
                         </div>
                         <div class="form-group form-half">
                             <label class="form-label" for="form3-clockIncrement">Clock increment</label>
                             <select id="form3-clockIncrement" name="inc" class="form-control">
-                                <option value="0"{% if simul_inc == 0 %} selected="selected"{% endif %}>0 seconds</option>
-                                <option value="1"{% if simul_inc == 1 %} selected="selected"{% endif %}>1 second</option>
-                                <option value="2"{% if simul_inc == 2 %} selected="selected"{% endif %}>2 seconds</option>
-                                <option value="3"{% if simul_inc == 3 %} selected="selected"{% endif %}>3 seconds</option>
-                                <option value="5"{% if simul_inc == 5 %} selected="selected"{% endif %}>5 seconds</option>
+                                {% for value in simul_clock_increment_values %}
+                                <option value="{{ value }}"{% if simul_inc == value %} selected="selected"{% endif %}>{{ value }} second{% if value != 1 %}s{% endif %}</option>
+                                {% endfor %}
                             </select>
                         </div>
                     </div>

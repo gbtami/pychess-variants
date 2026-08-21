@@ -124,6 +124,19 @@ HOST_EXTRA_TIME_PER_PLAYER_CHOICES = [
     (300, "300 seconds"),
 ]
 HOST_EXTRA_TIME_PER_PLAYER_VALUES = [value for value, _ in HOST_EXTRA_TIME_PER_PLAYER_CHOICES]
+SIMUL_CLOCK_TIME_VALUES = [
+    *range(5, 16, 5),
+    *range(20, 91, 10),
+    *range(120, 181, 20),
+]
+SIMUL_CLOCK_INCREMENT_VALUES = [
+    *range(8),
+    *range(10, 31, 5),
+    *range(40, 61, 10),
+    *range(90, 181, 30),
+]
+SIMUL_CLOCK_TIME_DEFAULT = 20
+SIMUL_CLOCK_INCREMENT_DEFAULT = 60
 
 
 def _is_admin_username(username: str) -> bool:
@@ -250,6 +263,10 @@ def add_simul_form_context(context: ViewContext) -> None:
     context["host_extra_time_values"] = HOST_EXTRA_TIME_VALUES
     context["host_extra_time_per_player_choices"] = HOST_EXTRA_TIME_PER_PLAYER_CHOICES
     context["host_extra_time_per_player_values"] = HOST_EXTRA_TIME_PER_PLAYER_VALUES
+    context["simul_clock_time_values"] = SIMUL_CLOCK_TIME_VALUES
+    context["simul_clock_increment_values"] = SIMUL_CLOCK_INCREMENT_VALUES
+    context["simul_clock_time_default"] = SIMUL_CLOCK_TIME_DEFAULT
+    context["simul_clock_increment_default"] = SIMUL_CLOCK_INCREMENT_DEFAULT
 
 
 def ensure_valid_host_extra_time(base: int, inc: int, host_extra_time: int) -> None:

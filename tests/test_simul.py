@@ -1,6 +1,7 @@
 import asyncio
 import json
 import logging
+import re
 import time
 from datetime import UTC, datetime, timedelta
 from html import unescape
@@ -502,6 +503,76 @@ class TestGUI:
             assert 'name="entryMaxRating"' in html
             assert 'name="entryMinAccountAgeDays"' in html
             assert 'name="estimatedStartAt"' in html
+        finally:
+            await session.close()
+
+    async def test_simul_new_uses_lichess_clock_choices_and_defaults(self, aiohttp_server):
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+        server = await aiohttp_server(app, host="127.0.0.1")
+        app_state = get_app_state(app)
+        host_username = "TestUser_1"
+        host = User(app_state, username=host_username)
+        app_state.users[host.username] = host
+        session = await self._session_for_user(host_username)
+
+        try:
+            response = await session.get(f"http://127.0.0.1:{server.port}/simul/new")
+            assert response.status == 200
+            html = await response.text()
+
+            clock_time_select = html.split('id="form3-clockTime"', 1)[1].split("</select>", 1)[0]
+            clock_increment_select = html.split('id="form3-clockIncrement"', 1)[1].split(
+                "</select>", 1
+            )[0]
+
+            assert [
+                int(value) for value in re.findall(r'<option value="(\d+)"', clock_time_select)
+            ] == [
+                5,
+                10,
+                15,
+                20,
+                30,
+                40,
+                50,
+                60,
+                70,
+                80,
+                90,
+                120,
+                140,
+                160,
+                180,
+            ]
+            assert [
+                int(value) for value in re.findall(r'<option value="(\d+)"', clock_increment_select)
+            ] == [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                10,
+                15,
+                20,
+                25,
+                30,
+                40,
+                50,
+                60,
+                90,
+                120,
+                150,
+                180,
+            ]
+            assert '<option value="20" selected="selected">20 minutes</option>' in clock_time_select
+            assert (
+                '<option value="60" selected="selected">60 seconds</option>'
+                in clock_increment_select
+            )
         finally:
             await session.close()
 
