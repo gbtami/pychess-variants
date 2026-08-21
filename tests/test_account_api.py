@@ -800,9 +800,7 @@ class AccountApiTestCase(AioHTTPTestCase):
                     "status": 0,
                     "variants": ["chess"],
                     "players": [{"user": "alice", "variant": "chess", "host": True}],
-                    "pendingPlayers": [
-                        {"user": "bob", "variant": "chess", "host": False}
-                    ],
+                    "pendingPlayers": [{"user": "bob", "variant": "chess", "host": False}],
                 },
             ]
         )
