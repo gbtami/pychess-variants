@@ -100,9 +100,10 @@ and Lichess-parity work identified in the post-Teams review.
   or a current Top 10 player in at least one offered variant. Started simuls remain visible
   to everyone, and signed-in users retain direct home-list access to simuls they host or
   have joined even when those simuls are not globally featured.
-- [ ] Consider a public simul-list API only if clients or bots have a concrete use for it.
-- [ ] Revisit name defaults/limits and title-spoof protection; Lichess pre-fills the
-  host's name and allows up to 40 characters.
+- [x] **Name defaults, limits, and title-spoof protection.** New simuls pre-fill the
+  host's displayed `TITLE username`, names allow 2-40 characters, and the server rejects
+  chess-title markers the host does not actually hold, matching Lichess's anti-spoofing
+  behavior.
 - [ ] Do a final visual/mobile comparison against Lichess after the behavior and data
   model are settled.
 

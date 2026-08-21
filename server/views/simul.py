@@ -142,6 +142,22 @@ SIMUL_CLOCK_INCREMENT_VALUES = [
 ]
 SIMUL_CLOCK_TIME_DEFAULT = 20
 SIMUL_CLOCK_INCREMENT_DEFAULT = 60
+SIMUL_NAME_MIN_LENGTH = 2
+SIMUL_NAME_MAX_LENGTH = 40
+SIMUL_TITLE_NAMES = {
+    "GM": "GRANDMASTER",
+    "WGM": "WOMAN GRANDMASTER",
+    "IM": "INTERNATIONAL MASTER",
+    "WIM": "WOMAN INTERNATIONAL MASTER",
+    "FM": "FIDE MASTER",
+    "WFM": "WOMAN FIDE MASTER",
+    "CM": "CANDIDATE MASTER",
+    "WCM": "WOMAN CANDIDATE MASTER",
+    "NM": "NATIONAL MASTER",
+    "WNM": "WOMAN NATIONAL MASTER",
+    "LM": "LICHESS MASTER",
+    "BOT": "BOT",
+}
 
 
 def _is_admin_username(username: str) -> bool:
@@ -181,15 +197,35 @@ def parse_signed_int_post_field(data, field_name: str, min_value: int, max_value
     return value
 
 
-def parse_simul_name(data) -> str:
+def simul_default_name(user) -> str:
+    if user.title and user.title != "BOT":
+        return f"{user.title} {user.username}"
+    return user.username
+
+
+def parse_simul_name(data, host) -> str:
     name_raw = data.get("name", "")
     if not isinstance(name_raw, (str, bytes)):
         raise web.HTTPBadRequest(text="Invalid simul name")
     if isinstance(name_raw, bytes):
         name_raw = name_raw.decode("utf-8")
     name = name_raw.strip()
-    if len(name) < 2 or len(name) > 30:
+    if len(name) < SIMUL_NAME_MIN_LENGTH or len(name) > SIMUL_NAME_MAX_LENGTH:
         raise web.HTTPBadRequest(text="Invalid simul name length")
+
+    # Match Lichess's anti-title-spoofing rule: ordinary hosts may use their
+    # own chess title in an event name, but not another title.  Check both
+    # acronyms (GM, WFM, ...) and their common long forms.
+    words = {word.strip(".,:;'\"!?()[]{}+-").upper() for word in name.split()}
+    normalized_name = " ".join(name.upper().split())
+    own_title = (host.title or "").upper()
+    for title, long_name in SIMUL_TITLE_NAMES.items():
+        if title == own_title:
+            continue
+        if title in words or f" {long_name} " in f" {normalized_name} ":
+            raise web.HTTPBadRequest(
+                text="Simul name must not contain a chess title you do not hold"
+            )
     return name
 
 
@@ -388,7 +424,7 @@ async def simuls(request: web.Request) -> ViewContext:
         if data is None:
             raise web.HTTPNoContent()
         simul_id = id8()
-        name = parse_simul_name(data)
+        name = parse_simul_name(data, user)
         variants = parse_simul_variants(app_state, data)
         fen = parse_simul_fen(data, variants)
         host_color = parse_host_color(data)
@@ -518,6 +554,7 @@ async def simul_new(request: web.Request) -> ViewContext:
     context["simul_submit_label"] = "Create a new simul"
     context["simul_cancel_url"] = "/simul"
     context["simul_editable"] = True
+    context["simul_default_name"] = simul_default_name(user)
     context["view_css"] = "simul.css"
     add_simul_form_context(context)
     return context
@@ -593,7 +630,8 @@ async def update_simul(request: web.Request) -> web.Response:
     if data is None:
         raise web.HTTPNoContent()
 
-    simul.name = parse_simul_name(data)
+    host = await app_state.users.get(simul.created_by)
+    simul.name = parse_simul_name(data, host)
     simul.description = parse_simul_description(data)
 
     if simul.status == T_CREATED:
@@ -627,7 +665,6 @@ async def update_simul(request: web.Request) -> web.Response:
         simul.entry_team_id, simul.entry_team_name = await parse_simul_team_condition(
             app_state, data, simul.created_by
         )
-        host = await app_state.users.get(simul.created_by)
         simul.refresh_featurable(host)
         simul.entry_titled_only = False
         if simul.entry_max_rating > 0 and simul.entry_min_rating > simul.entry_max_rating:

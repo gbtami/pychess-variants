@@ -20,7 +20,7 @@
             {% set simul_entry_min_account_age_days = simul.entry_min_account_age_days %}
             {% set simul_entry_team_id = simul.entry_team_id or '' %}
             {% else %}
-            {% set simul_name = '' %}
+            {% set simul_name = simul_default_name %}
             {% set simul_variants = ['chess'] %}
             {% set simul_base = simul_clock_time_default %}
             {% set simul_inc = simul_clock_increment_default %}
@@ -41,7 +41,7 @@
                 <div class="form-group">
                     <label class="form-label" for="form3-name">Name</label>
                     <div>
-                        <input id="form3-name" name="name" value="{{ simul_name }}" class="form-control" minlength="2" maxlength="30" />
+                        <input id="form3-name" name="name" value="{{ simul_name }}" class="form-control" minlength="2" maxlength="40" required />
                     </div>
                 </div>
                 {% if simul_editable %}
