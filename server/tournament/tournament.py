@@ -99,6 +99,7 @@ MAX_AUTO_ROUND_INTERVAL_SECONDS = 60
 RR_DEFAULT_MAX_PLAYERS = 10
 RR_MAX_SUPPORTED_PLAYERS = 16
 SWISS_MAX_PLAYERS = 64
+SWISS_FIRST_ROUND_START_GRACE = timedelta(hours=1)
 
 SWISS_FINISH_REASON_NOT_ENOUGH_PLAYERS = "notEnoughPlayers"
 SWISS_FINISH_REASON_NO_LEGAL_PAIRING = "noLegalPairing"
@@ -1040,11 +1041,23 @@ class Tournament(ABC):
                     )
                     if now >= self.starts_at:
                         min_players_to_start = 0
+                        joined_players = len(self.players)
                         if self.system == RR:
                             min_players_to_start = 3
                         elif self.system == SWISS:
                             min_players_to_start = 2
-                        if min_players_to_start > 0 and len(self.players) < min_players_to_start:
+                            # Withdrawn pre-start registrations remain in self.players for
+                            # durable history, so use the active leaderboard count here.
+                            joined_players = self.nb_players
+
+                        not_enough_players = (
+                            min_players_to_start > 0 and joined_players < min_players_to_start
+                        )
+                        swiss_start_grace_active = (
+                            self.system == SWISS
+                            and now < self.starts_at + SWISS_FIRST_ROUND_START_GRACE
+                        )
+                        if not_enough_players and not swiss_start_grace_active:
                             await self.abort()
                             log.info(
                                 "T_ABORTED: less than %s player(s) joined for %s",
@@ -1052,9 +1065,12 @@ class Tournament(ABC):
                                 "RR" if self.system == RR else "Swiss",
                             )
                             break
-
-                        await self.start(now)
-                        continue
+                        if not not_enough_players:
+                            await self.start(now)
+                            continue
+                        # A Swiss inside its first-round grace remains created and retries on
+                        # the normal clock tick. The deadline comes from persisted starts_at,
+                        # so restart during the wait needs no extra recovery state.
 
                     elif (not self.notify2) and remaining_mins_to_start <= NOTIFY2_MINUTES:
                         self.notify1 = True

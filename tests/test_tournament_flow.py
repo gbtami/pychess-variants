@@ -3,7 +3,7 @@ import json
 import unittest
 from datetime import UTC, datetime, timedelta
 
-from const import FLAG, T_CREATED, T_FINISHED, T_STARTED
+from const import FLAG, T_ABORTED, T_CREATED, T_FINISHED, T_STARTED
 from glicko2.glicko2 import new_default_perf, new_default_perf_map
 from newid import id8
 from pychess_global_app_state_utils import get_app_state
@@ -138,6 +138,85 @@ class TournamentFlowTestCase(TournamentTestCase):
         if self.tournament.clock_task is not None:
             await asyncio.wait_for(self.tournament.clock_task, timeout=5)
         self.assertEqual(self.tournament.status, T_FINISHED)
+
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
+    async def test_swiss_first_round_waits_for_late_players(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state,
+            tid,
+            rounds=3,
+            round_interval=MANUAL_ROUND_INTERVAL,
+            starts_at=datetime.now(UTC) - timedelta(minutes=30),
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        await asyncio.sleep(0.05)
+        self.assertEqual(self.tournament.status, T_CREATED)
+
+        await self.tournament.join_players(2)
+        for _ in range(50):
+            if self.tournament.status != T_CREATED:
+                break
+            await asyncio.sleep(0.02)
+
+        self.assertEqual(self.tournament.status, T_STARTED)
+
+        if self.tournament.clock_task is not None:
+            task = self.tournament.clock_task
+            task.cancel()
+            with self.assertRaises(asyncio.CancelledError):
+                await task
+
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
+    async def test_swiss_first_round_grace_counts_only_active_players(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state,
+            tid,
+            rounds=3,
+            starts_at=datetime.now(UTC) - timedelta(minutes=30),
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+        await self.tournament.join_players(2)
+        await self.tournament.withdraw(list(self.tournament.players)[0])
+
+        self.tournament.clock_task = asyncio.create_task(
+            self.tournament.clock(), name="test-swiss-grace-clock"
+        )
+        await asyncio.sleep(0.05)
+
+        self.assertEqual(self.tournament.nb_players, 1)
+        self.assertEqual(self.tournament.status, T_CREATED)
+
+        if self.tournament.clock_task is not None:
+            task = self.tournament.clock_task
+            task.cancel()
+            with self.assertRaises(asyncio.CancelledError):
+                await task
+
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
+    async def test_swiss_first_round_aborts_after_grace_expires(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state,
+            tid,
+            rounds=3,
+            starts_at=datetime.now(UTC) - timedelta(hours=1, seconds=1),
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        if self.tournament.clock_task is not None:
+            await asyncio.wait_for(self.tournament.clock_task, timeout=1)
+
+        self.assertEqual(self.tournament.status, T_ABORTED)
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_players(self):

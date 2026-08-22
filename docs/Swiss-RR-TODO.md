@@ -178,11 +178,13 @@ the asynchronous arrangement model.
   1` retaining its manual-bye meaning). This follows Lichess's validation shape while using
   limits that match PyChess's much smaller Swiss field bound.
 
-- [ ] **First-round start grace.** PyChess aborts a Swiss immediately when `startsAt` is
-  reached with fewer than two players. Lichess keeps the event created, retries the first
-  round, and destroys it only after roughly one hour without enough players. Team events are
-  often scheduled in advance and participants can arrive slightly late, so add a bounded
-  grace/retry period instead of turning a one-minute delay into an aborted tournament.
+- [x] **First-round start grace.** PyChess now keeps a Swiss in `T_CREATED` for up to one
+  hour after `startsAt` while fewer than two active registrations are present, retrying on the
+  normal tournament clock and starting as soon as a second player arrives. The grace deadline
+  is derived from the persisted `startsAt`, so restart during the wait needs no extra recovery
+  state; after the hour expires the tournament is aborted as before. Pre-start withdrawn
+  registrations deliberately do not satisfy the two-player threshold. This follows Lichess's
+  one-hour first-round grace while fitting PyChess's existing clock model.
 
 ## Round-Robin hardening
 
