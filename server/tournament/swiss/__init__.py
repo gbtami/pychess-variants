@@ -6,7 +6,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from const import SWISS, T_STARTED
+from const import SWISS, T_CREATED, T_STARTED
+from notify import notify_by_username
 from py4swiss.engines import DutchEngine
 from py4swiss.engines.common import PairingError
 from py4swiss.trf import ParsedTrf
@@ -20,6 +21,7 @@ from py4swiss.trf.results import (
 )
 from py4swiss.trf.sections import PlayerSection, XSection
 from py4swiss.trf.sections.x_section import XSectionConfiguration
+from typing_defs import NotificationContent
 
 from tournament.tournament import SWISS_MAX_PLAYERS, PairingUnavailable, Tournament
 
@@ -138,6 +140,70 @@ class SwissTournament(Tournament):
         super().__init__(*args, **kwargs)
         self._manual_pairings_used_for_round = False
         self._last_manual_bye_count = 0
+
+    def _active_start_reminder_usernames(self) -> list[str]:
+        return sorted(
+            username
+            for username, player_data in self.players_by_name.items()
+            if not player_data.withdrawn and not player_data.paused
+        )
+
+    async def _existing_start_reminder_usernames(self) -> set[str]:
+        if self.app_state.db is None:
+            existing: set[str] = set()
+            for username in self._active_start_reminder_usernames():
+                user = self.app_state.users.data.get(username)
+                if user is None or user.notifications is None:
+                    continue
+                if any(
+                    notification.get("type") == "swissStartReminder"
+                    and notification.get("content", {}).get("tid") == self.id
+                    for notification in user.notifications
+                ):
+                    existing.add(username)
+            return existing
+
+        cursor = self.app_state.db.notify.find(
+            {
+                "type": "swissStartReminder",
+                "content.tid": self.id,
+                "content.date": self.starts_at.isoformat(),
+            }
+        )
+        documents = await cursor.to_list(length=SWISS_MAX_PLAYERS)
+        return {str(document.get("notifies", "")) for document in documents}
+
+    async def send_scheduled_start_reminders(self) -> None:
+        if self.status != T_CREATED or not self.team_id:
+            return
+
+        usernames = self._active_start_reminder_usernames()
+        if not usernames:
+            return
+
+        try:
+            already_notified = await self._existing_start_reminder_usernames()
+        except Exception:
+            log.exception("Failed to load Swiss start-reminder state for %s", self.id)
+            already_notified = set()
+
+        content: NotificationContent = {
+            "tid": self.id,
+            "name": self.name,
+            "date": self.starts_at.isoformat(),
+        }
+        for username in usernames:
+            if username in already_notified:
+                continue
+            try:
+                await notify_by_username(self.app_state, username, "swissStartReminder", content)
+            except Exception:
+                # A best-effort reminder must never stop the tournament clock.
+                log.exception(
+                    "Failed to send Swiss start reminder for %s to %s",
+                    self.id,
+                    username,
+                )
 
     async def _clear_consumed_manual_pairings(self) -> None:
         await _clear_consumed_manual_pairings_impl(self)

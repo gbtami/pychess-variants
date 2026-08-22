@@ -1029,6 +1029,9 @@ class Tournament(ABC):
 
         return waiting
 
+    async def send_scheduled_start_reminders(self) -> None:
+        """Hook for tournament systems that notify registered players before start."""
+
     async def clock(self):
         try:
             while self.status not in (T_ABORTED, T_FINISHED, T_ARCHIVED):
@@ -1075,6 +1078,7 @@ class Tournament(ABC):
                     elif (not self.notify2) and remaining_mins_to_start <= NOTIFY2_MINUTES:
                         self.notify1 = True
                         self.notify2 = True
+                        await self.send_scheduled_start_reminders()
                         await self.app_state.discord.send_to_discord(
                             "notify_tournament",
                             self.notify_discord_msg(remaining_mins_to_start),

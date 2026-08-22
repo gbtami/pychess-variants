@@ -89,6 +89,24 @@ function messageView(message: Message) {
                     h('span', corrMoveText(content.opp, content.san)),
                 ]),
             ]);
+        case 'swissStartReminder':
+            return h(
+                `a.notification.corr${read}`,
+                { attrs: { href: `/tournament/${content.tid || content.id}` } },
+                [
+                    h('div.icon.icon-bullhorn'),
+                    h('span.content', [
+                        h('span', [
+                            h('strong', _('Swiss tournament starting soon')),
+                            h('info.date', { attrs: { timestamp: message.createdAt } }, timeago(message.createdAt)),
+                        ]),
+                        h(
+                            'span',
+                            `${content.name || _('Your Swiss tournament')} ${_('starts at')} ${content.date ? new Date(content.date).toLocaleString() : ''}.`,
+                        ),
+                    ]),
+                ],
+            );
         case 'rrChallenge':
             return h(
                 `a.notification.corr${read}`,

@@ -1191,7 +1191,13 @@ async def create_or_update_tournament(
         tournament.manual_pairings = data["manualPairings"]
         tournament.beforeStart = data["beforeStart"]
         if tournament.status == T_CREATED:
+            previous_starts_at = tournament.starts_at
             tournament.starts_at = data["startDate"]  # type: ignore[assignment]
+            if tournament.system == SWISS and tournament.starts_at != previous_starts_at:
+                # Start reminders are tied to one scheduled start. A pre-start reschedule
+                # should get fresh Discord/participant reminders at the new time.
+                tournament.notify1 = False
+                tournament.notify2 = False
         tournament.frequency = data["frequency"]
         tournament.minutes = data["minutes"]
         if tournament.status == T_CREATED or allow_started_position_edit:

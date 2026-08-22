@@ -159,6 +159,92 @@ class TournamentFlowTestCase(TournamentTestCase):
         self.assertEqual(self.tournament.status, T_FINISHED)
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
+    async def test_swiss_start_reminder_notifies_active_team_players_once(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state,
+            tid,
+            rounds=3,
+            with_clock=False,
+            starts_at=datetime.now(UTC) + timedelta(minutes=10),
+            name="Team Swiss reminder test",
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+        await self.tournament.join_players(3)
+        self.tournament.team_id = "team-reminder-test"
+        usernames = sorted(self.tournament.players_by_name)
+
+        withdrawn_username = usernames[2]
+        withdrawn_user = self.tournament.get_player_by_name(withdrawn_username)
+        assert withdrawn_user is not None
+        await self.tournament.withdraw(withdrawn_user)
+
+        offline_username = usernames[1]
+        app_state.users.data.pop(offline_username, None)
+
+        await self.tournament.send_scheduled_start_reminders()
+
+        notifications = await app_state.db.notify.find(
+            {"type": "swissStartReminder", "content.tid": tid}
+        ).to_list(length=10)
+        self.assertEqual(
+            {notification["notifies"] for notification in notifications},
+            {usernames[0], offline_username},
+        )
+        self.assertNotIn(offline_username, app_state.users.data)
+        self.assertNotIn(withdrawn_username, {n["notifies"] for n in notifications})
+
+        loaded_user = app_state.users[usernames[0]]
+        self.assertIsNotNone(loaded_user.notifications)
+        assert loaded_user.notifications is not None
+        self.assertEqual(loaded_user.notifications[-1]["type"], "swissStartReminder")
+        self.assertEqual(loaded_user.notifications[-1]["content"]["tid"], tid)
+
+        await self.tournament.send_scheduled_start_reminders()
+        self.assertEqual(
+            await app_state.db.notify.count_documents(
+                {"type": "swissStartReminder", "content.tid": tid}
+            ),
+            2,
+        )
+
+        # A genuinely rescheduled start gets one new reminder per active player.
+        self.tournament.starts_at += timedelta(hours=1)
+        await self.tournament.send_scheduled_start_reminders()
+        self.assertEqual(
+            await app_state.db.notify.count_documents(
+                {"type": "swissStartReminder", "content.tid": tid}
+            ),
+            4,
+        )
+
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
+    async def test_swiss_start_reminder_skips_non_team_swiss(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state,
+            tid,
+            rounds=3,
+            with_clock=False,
+            starts_at=datetime.now(UTC) + timedelta(minutes=10),
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+        await self.tournament.join_players(2)
+
+        await self.tournament.send_scheduled_start_reminders()
+
+        self.assertEqual(
+            await app_state.db.notify.count_documents(
+                {"type": "swissStartReminder", "content.tid": tid}
+            ),
+            0,
+        )
+
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_swiss_first_round_waits_for_late_players(self):
         app_state = get_app_state(self.app)
         tid = id8()

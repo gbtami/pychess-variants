@@ -985,6 +985,42 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         with self.assertRaises(web.HTTPBadRequest):
             await create_or_update_tournament(app_state, "tester", form)
 
+    async def test_rescheduled_created_swiss_resets_start_reminder_flags(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        tournament = SwissTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            rounds=5,
+            starts_at=datetime.now(UTC) + timedelta(hours=1),
+            with_clock=False,
+        )
+        tournament.notify1 = True
+        tournament.notify2 = True
+        app_state.tournaments[tid] = tournament
+        await upsert_tournament_to_db(tournament, app_state)
+
+        new_start = datetime.now(UTC) + timedelta(hours=2)
+        form = self._fixed_round_form(
+            "2",
+            rounds="5",
+            startDate=new_start.isoformat(),
+            name=tournament.name,
+            minutes=str(tournament.minutes),
+        )
+        await create_or_update_tournament(
+            app_state,
+            "tester",
+            form,
+            tournament,
+            creator_is_director=True,
+        )
+
+        self.assertEqual(tournament.starts_at, new_start)
+        self.assertFalse(tournament.notify1)
+        self.assertFalse(tournament.notify2)
+
     async def test_rejects_started_tournament_start_date_edit_with_meaningful_message(self):
         app_state = get_app_state(self.app)
         tid = id8()

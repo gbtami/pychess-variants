@@ -252,12 +252,18 @@ the asynchronous arrangement model.
 
 ## Swiss
 
-- [ ] **Scheduled participant reminder.** Lichess sends a "Swiss starting soon" notification
-  about ten minutes before eligible Swiss events. PyChess currently has tournament-page
-  countdown/browser alerts and Discord notices, but no equivalent participant reminder when
-  the player is away from the tournament page. Add a focused notification before a scheduled
-  Team Swiss starts; Web Push can be layered on only where the user's notification preference
-  and subscription support it.
+- [x] **Scheduled participant reminder.** Lichess sends a "Swiss starting soon" notification
+  about ten minutes before eligible Swiss events. PyChess now hooks the existing ten-minute
+  tournament reminder tick and creates a notification-bell/SSE reminder for each active
+  participant of a scheduled Team Swiss. Withdrawn/paused registrations are excluded, and the
+  existing `notify_by_username()` path persists reminders for offline users without materializing
+  them into the global user cache. Before sending, Swiss reads existing reminder documents for
+  the tournament and scheduled start so a server restart inside the ten-minute window does not
+  duplicate notifications. If an organizer reschedules a still-created Swiss, its reminder flags are
+  reset and the new start time can receive a fresh reminder without being suppressed by the old one.
+  Standalone director/dev Swiss events are deliberately left unchanged. Web Push remains a later
+  opt-in extension because PyChess currently exposes a push preference only for correspondence
+  moves; this first parity step does not silently reuse that unrelated preference.
 
 - [ ] **Additional Swiss entry/chat conditions only if Teams need them.** Lichess Swiss also
   offers titled-only and explicit allow-list entry conditions plus configurable chat scope
