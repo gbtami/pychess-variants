@@ -77,6 +77,7 @@ class GameBug:
         self.inc = inc
         self.level = level if level is not None else 0
         self.tournamentId = tournamentId
+        self.simulId: str | None = None
         self.chess960 = chess960
         self.create = create
         self.new_960_fen_needed_for_rematch = new_960_fen_needed_for_rematch
