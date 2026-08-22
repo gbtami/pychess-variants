@@ -159,6 +159,7 @@ class User:
         game_category: str = "all",
         pm_friends_only: bool = False,
         corr_push: bool = True,
+        rr_push: bool = False,
         catalogued_variant_favorites: list[str] | set[str] | None = None,
         oauth_id: str = "",
         oauth_provider: str = "",
@@ -176,6 +177,7 @@ class User:
         self.game_category_set: bool = False
         self.pm_friends_only: bool = pm_friends_only
         self.corr_push_enabled: bool = corr_push
+        self.rr_push_enabled: bool = rr_push
         self.catalogued_variant_favorites: set[str] = {
             str(name) for name in (catalogued_variant_favorites or []) if isinstance(name, str)
         }
@@ -992,6 +994,28 @@ async def set_corr_push(request: web.Request) -> web.StreamResponse:
     if app_state.db is not None:
         await app_state.db.user.find_one_and_update(
             {"_id": user.username}, {"$set": {"cps": value}}
+        )
+    return web.Response(status=204)
+
+
+async def set_rr_push(request: web.Request) -> web.StreamResponse:
+    app_state = get_app_state(request.app)
+    post_data = await read_post_data(request)
+    if post_data is None:
+        return web.Response(status=204)
+
+    session = await aiohttp_session.get_session(request)
+    session_user = session.get("user_name")
+    user = await app_state.users.get(session_user)
+    if user.anon:
+        return web.Response(status=403)
+
+    raw = str(post_data.get("rr_push", "")).strip().lower()
+    value = raw in {"1", "true", "yes", "on"}
+    user.rr_push_enabled = value
+    if app_state.db is not None:
+        await app_state.db.user.find_one_and_update(
+            {"_id": user.username}, {"$set": {"rps": value}}
         )
     return web.Response(status=204)
 

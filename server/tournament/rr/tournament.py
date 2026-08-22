@@ -1044,6 +1044,13 @@ class RRTournament(Tournament):
                     "date": arrangement.scheduled_at.isoformat(),
                 }
                 await notify_by_username(self.app_state, opponent, "rrArrangementTime", content)
+                await self.app_state.push_notifier.enqueue_rr_arrangement(
+                    opponent,
+                    tournament_id=self.id,
+                    arrangement_id=arrangement.id,
+                    opponent=user.username,
+                    kind="confirmed",
+                )
 
         await self.broadcast_arrangements()
         return None
@@ -1085,6 +1092,13 @@ class RRTournament(Tournament):
                     "date": arrangement.scheduled_at.isoformat(),
                 }
                 await notify_by_username(self.app_state, username, "rrArrangementReminder", content)
+                await self.app_state.push_notifier.enqueue_rr_arrangement(
+                    username,
+                    tournament_id=self.id,
+                    arrangement_id=arrangement.id,
+                    opponent=opponent,
+                    kind="reminder",
+                )
 
             arrangement.last_reminded_at = now
             await self.db_update_arrangement(arrangement)

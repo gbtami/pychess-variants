@@ -156,6 +156,7 @@ from user import (
     set_corr_push,
     set_game_category,
     set_pm_friends_only,
+    set_rr_push,
     set_theme,
 )
 from utils import get_names, get_notifications, import_game, notified, subscribe_notify
@@ -463,6 +464,7 @@ post_routes: tuple[RouteDef, ...] = (
     ("/pref/game-category", set_game_category),
     ("/pref/pm-friends-only", set_pm_friends_only),
     ("/pref/corr-push", set_corr_push),
+    ("/pref/rr-push", set_rr_push),
     ("/api/{profileId}/block", block_user),
     ("/api/{profileId}/follow", follow_user),
     ("/api/inbox/thread/{contact}", inbox_post),

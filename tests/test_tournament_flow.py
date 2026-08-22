@@ -7,6 +7,7 @@ from unittest.mock import patch
 from const import FLAG, T_ABORTED, T_CREATED, T_FINISHED, T_STARTED
 from glicko2.glicko2 import new_default_perf, new_default_perf_map
 from newid import id8
+from push_notifications import RRArrangementPushJob
 from pychess_global_app_state_utils import get_app_state
 from seek import (
     DIRECT_CHALLENGE_CREATED,
@@ -1348,6 +1349,7 @@ class TournamentFlowTestCase(TournamentTestCase):
 
     async def test_rr_scheduling_sets_player_proposals_and_agreed_time(self):
         app_state = get_app_state(self.app)
+        app_state.push_notifier.enabled = True
         tid = id8()
         self.tournament = RRTestTournament(
             app_state,
@@ -1364,6 +1366,7 @@ class TournamentFlowTestCase(TournamentTestCase):
         users = []
         for suffix in ("A", "B", "C"):
             user = User(app_state, username=f"{tid}_{suffix}", perfs=make_test_perfs())
+            user.rr_push_enabled = True
             app_state.users[user.username] = user
             user.tournament_sockets[tid] = {None}
             await self.tournament.join(user)
@@ -1388,6 +1391,14 @@ class TournamentFlowTestCase(TournamentTestCase):
         self.assertIsNone(await self.tournament.set_arrangement_time(black, arrangement.id, agreed))
         self.assertEqual(arrangement.black_date, agreed)
         self.assertEqual(arrangement.scheduled_at, proposed)
+
+        job = app_state.push_notifier.queue.get_nowait()
+        self.assertIsInstance(job, RRArrangementPushJob)
+        assert isinstance(job, RRArrangementPushJob)
+        self.assertEqual(job.username, white.username)
+        self.assertEqual(job.kind, "confirmed")
+        self.assertEqual(job.arrangement_id, arrangement.id)
+        app_state.push_notifier.queue.task_done()
 
     async def test_rr_prestart_scheduling_rejects_stale_and_post_deadline_times(self):
         app_state = get_app_state(self.app)
@@ -1657,6 +1668,7 @@ class TournamentFlowTestCase(TournamentTestCase):
 
     async def test_rr_arrangement_reminders_fire_for_agreed_games(self):
         app_state = get_app_state(self.app)
+        app_state.push_notifier.enabled = True
         tid = id8()
         self.tournament = RRTestTournament(
             app_state,
@@ -1672,6 +1684,7 @@ class TournamentFlowTestCase(TournamentTestCase):
         users = []
         for suffix in ("A", "B", "C"):
             user = User(app_state, username=f"{tid}_{suffix}", perfs=make_test_perfs())
+            user.rr_push_enabled = True
             app_state.users[user.username] = user
             user.tournament_sockets[tid] = {None}
             await self.tournament.join(user)
@@ -1692,6 +1705,14 @@ class TournamentFlowTestCase(TournamentTestCase):
             assert user.notifications is not None
             self.assertEqual(user.notifications[-1]["type"], "rrArrangementReminder")
             self.assertEqual(user.notifications[-1]["content"]["arr"], arrangement.id)
+
+        jobs = [app_state.push_notifier.queue.get_nowait() for _ in range(2)]
+        rr_jobs = [job for job in jobs if isinstance(job, RRArrangementPushJob)]
+        self.assertEqual(len(rr_jobs), 2)
+        self.assertEqual({job.username for job in rr_jobs}, {arrangement.white, arrangement.black})
+        self.assertEqual({job.kind for job in rr_jobs}, {"reminder"})
+        for _ in jobs:
+            app_state.push_notifier.queue.task_done()
 
     async def test_swiss_ws_redirect_failure_does_not_pause_players(self):
         app_state = get_app_state(self.app)

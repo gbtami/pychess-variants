@@ -58,6 +58,7 @@ class UserDocument(TypedDict, total=False):
     ct: str
     pmf: bool
     cps: bool
+    rps: bool
     cvf: list[str]
     oauth_id: str
     oauth_provider: str
@@ -457,6 +458,7 @@ class ViewContext(TypedDict, total=False):
     selected_tournament_team_id: str
     pm_friends_only: bool
     corr_push_enabled: bool
+    rr_push_enabled: bool
     menu_variant: str
     title: str
     view: str

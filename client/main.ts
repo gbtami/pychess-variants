@@ -176,6 +176,9 @@ function initModel(el: HTMLElement) {
               }
             : null,
         pushVapidKey: el.getAttribute('data-vapid') ?? '',
+        pushEnabled:
+            el.getAttribute('data-corr-push-enabled') !== 'False' ||
+            el.getAttribute('data-rr-push-enabled') === 'True',
     };
 }
 
@@ -290,7 +293,7 @@ function start() {
     if (model['embed']) return;
 
     initUserMiniWidget(model.assetURL, model.username, model.anon);
-    void initPushSubscription(model.anon, model.pushVapidKey);
+    if (model.pushEnabled) void initPushSubscription(model.anon, model.pushVapidKey);
     initUblogLike();
     initUblogMarkdown();
     initUblogEditor();

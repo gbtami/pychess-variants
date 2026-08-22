@@ -119,6 +119,7 @@ class Users(UserDict[str, User]):
                 game_category=doc.get("ct", "all"),
                 pm_friends_only=doc.get("pmf", False),
                 corr_push=doc.get("cps", True),
+                rr_push=doc.get("rps", False),
                 catalogued_variant_favorites=doc.get("cvf") or [],
                 oauth_id=doc.get("oauth_id") or "",
                 oauth_provider=doc.get("oauth_provider") or "",

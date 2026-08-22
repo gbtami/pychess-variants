@@ -277,12 +277,15 @@ the asynchronous arrangement model.
   idempotently rejected. Restart recovery also completes a crash after the durable annul marker
   by repairing stale player score documents, and the annul action disappears at the RR deadline.
 
-- [ ] **Offline usefulness of RR reminders.** RR appointment confirmations and 24-hour
-  reminders currently create PyChess notification-bell entries and live SSE updates. That is
-  useful when the site is open but much less useful for a correspondence-style appointment
-  days later. After the core RR lifecycle is stable, consider Web Push for agreed-time and
-  24-hour reminder notifications, controlled by user notification preferences. Do not make
-  push delivery a prerequisite for starting the actual game.
+- [x] **Offline usefulness of RR reminders.** RR appointment confirmations and approximately
+  24-hour reminders now keep their normal notification-bell/SSE delivery and additionally queue
+  best-effort Web Push for users who explicitly enable **Round-robin appointment push
+  notifications**. The preference is independent from correspondence-move push; a browser push
+  subscription is retained while either feature is enabled. RR push is skipped when the user has
+  a live notification SSE channel, so it is primarily an offline aid rather than duplicate noise.
+  Offline preference checks read the compact user document directly instead of materializing the
+  user into the global cache. Missing subscriptions, provider failures, or a full push queue never
+  block scheduling, reminders, challenge creation, or the actual RR game.
 
 # Final rollout / verification
 

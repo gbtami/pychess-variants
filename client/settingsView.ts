@@ -141,6 +141,7 @@ function zenModeSettingsView() {
 function privacySettingsView() {
     const pmFriendsOnly = getDocumentData('pm-friends-only') === 'True';
     const corrPushEnabled = getDocumentData('corr-push-enabled') !== 'False';
+    const rrPushEnabled = getDocumentData('rr-push-enabled') === 'True';
     return h('div#settings-privacy', [
         backButton(_('Privacy')),
         h('div', [
@@ -168,6 +169,18 @@ function privacySettingsView() {
                 }),
                 h('label', { attrs: { for: 'corr-push-enabled' } }, _('Correspondence move push notifications')),
             ]),
+            h('div.privacy-toggle', [
+                h('input#rr-push-enabled', {
+                    attrs: { type: 'checkbox', checked: rrPushEnabled },
+                    on: {
+                        change: (evt: Event) => {
+                            const next = (evt.target as HTMLInputElement).checked;
+                            setRrPushEnabled(next);
+                        },
+                    },
+                }),
+                h('label', { attrs: { for: 'rr-push-enabled' } }, _('Round-robin appointment push notifications')),
+            ]),
         ]),
     ]);
 }
@@ -184,32 +197,45 @@ function setPmFriendsOnly(value: boolean) {
 }
 
 function setCorrPushEnabled(value: boolean) {
-    const payload = new URLSearchParams({ corr_push: value ? 'true' : 'false' });
-    fetch('/pref/corr-push', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-        body: payload.toString(),
-    })
-        .then(async response => {
-            if (!response.ok) throw new Error(`corr push pref failed: ${response.status}`);
+    void setPushPreference('/pref/corr-push', 'corr_push', value);
+}
 
-            if (value) {
-                if ('Notification' in window && Notification.permission === 'default') {
-                    const permission = await Notification.requestPermission();
-                    if (permission !== 'granted') return;
-                }
-                // Persist preference first, then sync/create browser subscription.
-                const anon = getDocumentData('anon') ?? 'True';
-                const vapidPublicKey = getDocumentData('vapid') ?? '';
-                await initPushSubscription(anon, vapidPublicKey);
-                return;
-            }
-            // Disable path removes both server-side endpoint and browser subscription.
-            await disablePushSubscription();
-        })
-        .catch(error => {
-            console.warn('Failed to update correspondence push setting.', error);
+function setRrPushEnabled(value: boolean) {
+    void setPushPreference('/pref/rr-push', 'rr_push', value);
+}
+
+async function setPushPreference(url: string, field: string, value: boolean): Promise<void> {
+    const payload = new URLSearchParams({ [field]: value ? 'true' : 'false' });
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+            body: payload.toString(),
         });
+        if (!response.ok) throw new Error(`push pref failed: ${response.status}`);
+        await syncPushSubscription();
+    } catch (error) {
+        console.warn('Failed to update push notification setting.', error);
+    }
+}
+
+async function syncPushSubscription(): Promise<void> {
+    const corrEnabled = (document.getElementById('corr-push-enabled') as HTMLInputElement | null)?.checked ?? false;
+    const rrEnabled = (document.getElementById('rr-push-enabled') as HTMLInputElement | null)?.checked ?? false;
+
+    if (!corrEnabled && !rrEnabled) {
+        await disablePushSubscription();
+        return;
+    }
+
+    if ('Notification' in window && Notification.permission === 'default') {
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') return;
+    }
+
+    const anon = getDocumentData('anon') ?? 'True';
+    const vapidPublicKey = getDocumentData('vapid') ?? '';
+    await initPushSubscription(anon, vapidPublicKey);
 }
 
 function boardSettingsView(modelVariant: string) {

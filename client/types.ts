@@ -107,6 +107,7 @@ export type PyChessModel = {
         oauth_username: string;
     } | null;
     pushVapidKey: string;
+    pushEnabled: boolean;
 
     // Simul-specific properties
     simulId?: string;
