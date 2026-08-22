@@ -7,6 +7,7 @@ from tournament.wst import (
     TOURNAMENT_LIFECYCLE_COMMANDS_RETIRED_MESSAGE,
     handle_abort_tournament,
     handle_lobbychat,
+    handle_rr_set_joining_closed,
     handle_start_next_round,
 )
 
@@ -23,6 +24,10 @@ class TournamentChatShadowbanTestCase(unittest.IsolatedAsyncioTestCase):
         with (
             patch("tournament.wst.load_tournament", new=AsyncMock(return_value=tournament)),
             patch("tournament.wst.is_tournament_director", return_value=False),
+            patch(
+                "tournament.wst.creator_can_manage_tournament",
+                new=AsyncMock(return_value=True),
+            ),
             patch("tournament.wst.ws_send_json", new=AsyncMock()) as send,
         ):
             await handle_start_next_round(
@@ -44,12 +49,41 @@ class TournamentChatShadowbanTestCase(unittest.IsolatedAsyncioTestCase):
         with (
             patch("tournament.wst.load_tournament", new=AsyncMock(return_value=tournament)),
             patch("tournament.wst.is_tournament_director", return_value=False),
+            patch(
+                "tournament.wst.creator_can_manage_tournament",
+                new=AsyncMock(return_value=False),
+            ),
             patch("tournament.wst.ws_send_json", new=AsyncMock()) as send,
         ):
             await handle_start_next_round(
                 app_state,
                 ws,
                 user,
+                {"type": "start_next_round", "tournamentId": "tid"},
+            )
+
+        tournament.start_next_round_now.assert_not_awaited()
+        send.assert_awaited_once_with(ws, {"type": "error", "message": "Permission denied"})
+
+    async def test_team_creator_without_current_permission_cannot_start_a_round(self) -> None:
+        tournament = SimpleNamespace(creator="creator", start_next_round_now=AsyncMock())
+        app_state = SimpleNamespace()
+        creator = SimpleNamespace(username="creator")
+        ws = object()
+
+        with (
+            patch("tournament.wst.load_tournament", new=AsyncMock(return_value=tournament)),
+            patch("tournament.wst.is_tournament_director", return_value=False),
+            patch(
+                "tournament.wst.creator_can_manage_tournament",
+                new=AsyncMock(return_value=False),
+            ),
+            patch("tournament.wst.ws_send_json", new=AsyncMock()) as send,
+        ):
+            await handle_start_next_round(
+                app_state,
+                ws,
+                creator,
                 {"type": "start_next_round", "tournamentId": "tid"},
             )
 
@@ -88,6 +122,10 @@ class TournamentChatShadowbanTestCase(unittest.IsolatedAsyncioTestCase):
         with (
             patch("tournament.wst.load_tournament", new=AsyncMock(return_value=tournament)),
             patch("tournament.wst.is_tournament_director", return_value=False),
+            patch(
+                "tournament.wst.creator_can_manage_tournament",
+                new=AsyncMock(return_value=True),
+            ),
             patch("tournament.wst.ws_send_json", new=AsyncMock()) as send,
         ):
             await handle_abort_tournament(
@@ -98,6 +136,38 @@ class TournamentChatShadowbanTestCase(unittest.IsolatedAsyncioTestCase):
             )
 
         tournament.abort.assert_not_awaited()
+        send.assert_awaited_once_with(ws, {"type": "error", "message": "Permission denied"})
+
+    async def test_team_creator_without_current_permission_cannot_change_rr_joining(self) -> None:
+        tournament = SimpleNamespace(
+            creator="creator",
+            created_by="creator",
+            rr_set_joining_closed=AsyncMock(),
+        )
+        app_state = SimpleNamespace()
+        creator = SimpleNamespace(username="creator")
+        ws = object()
+
+        with (
+            patch("tournament.wst.load_rr_tournament", new=AsyncMock(return_value=tournament)),
+            patch(
+                "tournament.wst.creator_can_manage_tournament",
+                new=AsyncMock(return_value=False),
+            ),
+            patch("tournament.wst.ws_send_json", new=AsyncMock()) as send,
+        ):
+            await handle_rr_set_joining_closed(
+                app_state,
+                ws,
+                creator,
+                {
+                    "type": "rr_set_joining_closed",
+                    "tournamentId": "tid",
+                    "closed": True,
+                },
+            )
+
+        tournament.rr_set_joining_closed.assert_not_awaited()
         send.assert_awaited_once_with(ws, {"type": "error", "message": "Permission denied"})
 
     async def test_retired_lifecycle_command_is_not_posted_to_tournament_chat(self) -> None:

@@ -689,6 +689,7 @@ class ViewContext(TypedDict, total=False):
     tournamentid: str
     tournamentname: str
     tournamentcreator: str
+    tournamentmanager: bool
     tournamentteamid: str
     tournamentteamname: str
     description: str

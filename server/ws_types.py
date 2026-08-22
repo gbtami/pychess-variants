@@ -428,6 +428,7 @@ class TournamentUserConnectedMessage(TypedDict):
     chatClosed: bool
     private: bool
     createdBy: str
+    creatorCanManage: bool
     rrRequiresApproval: NotRequired[bool]
     rrJoiningClosed: NotRequired[bool]
     defender_title: NotRequired[str]

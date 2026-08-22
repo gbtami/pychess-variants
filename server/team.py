@@ -71,7 +71,7 @@ PERMISSION_ADMIN = "admin"
 TEAM_PERMISSION_DEFINITIONS = (
     (PERMISSION_PUBLIC, "Public", "Visible as leader on the team page"),
     (PERMISSION_SETTINGS, "Settings", "Change settings and descriptions"),
-    (PERMISSION_TOURNAMENTS, "Tournaments", "Create team tournaments"),
+    (PERMISSION_TOURNAMENTS, "Tournaments", "Create and manage team tournaments"),
     (PERMISSION_MODERATION, "Moderation", "Moderate the team forum"),
     (PERMISSION_REQUESTS, "Requests", "Accept and decline join requests"),
     (PERMISSION_UPDATES, "Updates", "Send team updates to members"),

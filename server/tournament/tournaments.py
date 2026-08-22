@@ -767,6 +767,33 @@ async def _release_fixed_round_creation_slot(
     )
 
 
+async def creator_can_manage_tournament(
+    app_state: PychessGlobalAppState,
+    tournament: Tournament,
+    username: str,
+) -> bool:
+    """Whether the original creator still has organizer rights for this tournament.
+
+    Non-Team tournaments keep the historical creator-based policy. Team tournaments
+    additionally require that the Team is still enabled and the creator still holds
+    the Team tournament permission. Site-wide tournament-director overrides are kept
+    outside this helper so HTTP and websocket callers can apply them explicitly.
+    """
+
+    if username != tournament.creator:
+        return False
+    if not tournament.team_id:
+        return True
+    if await get_team(app_state, tournament.team_id) is None:
+        return False
+    return await has_team_permission(
+        app_state,
+        tournament.team_id,
+        username,
+        PERMISSION_TOURNAMENTS,
+    )
+
+
 async def create_or_update_tournament(
     app_state: PychessGlobalAppState,
     username: str,
@@ -832,6 +859,10 @@ async def create_or_update_tournament(
     else:
         # Editing keeps existing pairing type to avoid mutating tournament class behavior.
         system = tournament.system
+        if team_id and not await creator_can_manage_tournament(app_state, tournament, username):
+            raise web.HTTPForbidden(
+                text=("You need the tournament permission in this team to manage this tournament.")
+            )
 
     try:
         rounds = int(form.get("rounds", 0))

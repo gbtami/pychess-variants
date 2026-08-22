@@ -163,14 +163,14 @@ export class TournamentRRController implements ChatController {
     gamesNode: VNode | null = null;
     boundHashChange: () => void;
     boundVisibilityChange: () => void;
-    isTournamentCreator: boolean;
+    creatorCanManage: boolean;
     isTournamentDirector: boolean;
     isTeamTournament: boolean;
 
     constructor(_el: HTMLElement, model: PyChessModel) {
         this.tournamentId = model.tournamentId;
         this.username = model.username;
-        this.isTournamentCreator = this.username === model.tournamentcreator;
+        this.creatorCanManage = model.tournamentmanager;
         this.isTournamentDirector = model.tournamentDirector;
         this.isTeamTournament = !!model.tournamentteamid;
         this.anon = model.anon === 'True';
@@ -233,7 +233,7 @@ export class TournamentRRController implements ChatController {
                 status: this.tournamentStatus,
                 system: this.system,
                 manualNextRoundPending: this.manualNextRoundPending,
-                isCreator: this.isTournamentCreator,
+                creatorCanManage: this.creatorCanManage,
                 isDirector: this.isTournamentDirector,
                 isTeamTournament: this.isTeamTournament,
             },
@@ -258,6 +258,10 @@ export class TournamentRRController implements ChatController {
 
     isHost() {
         return this.username === this.createdBy;
+    }
+
+    canManage() {
+        return this.creatorCanManage;
     }
 
     playerByName(name: string) {
@@ -914,7 +918,7 @@ export class TournamentRRController implements ChatController {
     }
 
     renderManageButton() {
-        if (!this.isHost()) {
+        if (!this.canManage()) {
             this.manageNode = patch(this.manageNode, h('div#rr-manage'));
             return;
         }
@@ -1396,7 +1400,7 @@ export class TournamentRRController implements ChatController {
     }
 
     renderManagement() {
-        if (!this.isHost()) {
+        if (!this.canManage()) {
             this.bodyNode = patch(
                 this.bodyNode,
                 h('div#rr-body', [
@@ -1676,6 +1680,7 @@ export class TournamentRRController implements ChatController {
 
     private onMsgUserConnected(msg: MsgUserConnectedTournament) {
         this.userStatus = msg.ustatus;
+        this.creatorCanManage = msg.creatorCanManage;
         this.rounds = msg.rounds || this.rounds;
         this.tournamentStatus = T_STATUS[msg.tstatus as keyof typeof T_STATUS];
         this.roundOngoingGames = msg.roundOngoingGames || 0;
@@ -1755,7 +1760,7 @@ export class TournamentRRController implements ChatController {
         this.joiningClosed = msg.joiningClosed;
         this.renderManageButton();
         this.updateActionButton();
-        if (this.viewMode === 'manage' && !this.isHost()) this.viewMode = 'overview';
+        if (this.viewMode === 'manage' && !this.canManage()) this.viewMode = 'overview';
         this.renderBody();
     }
 
@@ -1843,7 +1848,7 @@ export function tournamentRRView(model: PyChessModel): VNode[] {
     const variant = VARIANTS[model.variant] ?? VARIANTS['chess'];
     const chess960 = model.chess960 === 'True';
     const dataIcon = variant.icon(chess960);
-    const canEdit = model.username === model.tournamentcreator && model.status === 0;
+    const canEdit = model.tournamentmanager && model.status === 0;
 
     return [
         h('aside.sidebar-first', [

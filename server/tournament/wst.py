@@ -41,7 +41,7 @@ from ws_types import ChatLine, FullChatMessage, TournamentUserConnectedMessage
 
 from tournament.rr import RRTournament
 from tournament.tournament import T_CREATED, T_STARTED
-from tournament.tournaments import load_tournament
+from tournament.tournaments import creator_can_manage_tournament, load_tournament
 
 TOURNAMENT_LIFECYCLE_COMMANDS_RETIRED_MESSAGE = (
     "Tournament lifecycle commands moved to the tournament controls."
@@ -186,7 +186,8 @@ async def handle_get_rr_management(
     rr_tournament = await load_rr_tournament(app, data["tournamentId"])
     if rr_tournament is None:
         return
-    if user.username != rr_tournament.created_by:
+    if not await creator_can_manage_tournament(app, rr_tournament, user.username):
+        await ws_send_json(ws, {"type": "error", "message": "Permission denied"})
         return
     await ws_send_json(ws, rr_tournament.rr_management_payload(requested_by=user.username))
 
@@ -197,7 +198,8 @@ async def handle_rr_set_joining_closed(
     rr_tournament = await load_rr_tournament(app, data["tournamentId"])
     if rr_tournament is None:
         return
-    if user.username != rr_tournament.created_by:
+    if not await creator_can_manage_tournament(app, rr_tournament, user.username):
+        await ws_send_json(ws, {"type": "error", "message": "Permission denied"})
         return
     result = await rr_tournament.rr_set_joining_closed(data["closed"])
     if result is not None:
@@ -284,7 +286,9 @@ async def handle_start_next_round(
         await ws_send_json(ws, {"type": "error", "message": "Tournament not found"})
         return
 
-    can_control_rounds = is_tournament_director(user, app) or user.username == tournament.creator
+    can_control_rounds = is_tournament_director(user, app) or await creator_can_manage_tournament(
+        app, tournament, user.username
+    )
     if not can_control_rounds:
         await ws_send_json(ws, {"type": "error", "message": "Permission denied"})
         return
@@ -308,7 +312,7 @@ async def handle_abort_tournament(
         return
 
     can_abort = is_tournament_director(user, app) or (
-        user.username == tournament.creator
+        await creator_can_manage_tournament(app, tournament, user.username)
         and tournament.system in (RR, SWISS)
         and bool(tournament.team_id)
     )
@@ -341,6 +345,7 @@ async def handle_user_connected(
     app_state.tourneysockets[tournamentId][user.username] = user.tournament_sockets[tournamentId]
 
     now = datetime.now(UTC)
+    creator_can_manage = await creator_can_manage_tournament(app_state, tournament, user.username)
     response: TournamentUserConnectedMessage = {
         "type": "tournament_user_connected",
         "username": user.username,
@@ -366,6 +371,7 @@ async def handle_user_connected(
         "chatClosed": tournament.status > T_STARTED
         and (now - tournament.ends_at).total_seconds() > 60 * 60,
         "private": bool(tournament.password),
+        "creatorCanManage": creator_can_manage,
     }
     round_ongoing_games, seconds_to_next_round = tournament.round_status(now)
     response["currentRound"] = tournament.current_round
@@ -399,7 +405,7 @@ async def handle_user_connected(
         assert isinstance(tournament, RRTournament)
         rr_tournament = tournament
         await ws_send_json(ws, rr_tournament.arrangement_payload(user=user))
-        if user.username == tournament.created_by:
+        if creator_can_manage:
             await ws_send_json(ws, rr_tournament.rr_management_payload(requested_by=user.username))
 
     if user.username not in tournament.spectators:
@@ -453,7 +459,8 @@ async def handle_rr_manage_player(
     rr_tournament = await load_rr_tournament(app, data["tournamentId"])
     if rr_tournament is None:
         return
-    if user.username != rr_tournament.created_by:
+    if not await creator_can_manage_tournament(app, rr_tournament, user.username):
+        await ws_send_json(ws, {"type": "error", "message": "Permission denied"})
         return
 
     if data["type"] == "rr_approve_player":

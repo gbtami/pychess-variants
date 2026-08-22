@@ -69,6 +69,7 @@ export interface MsgUserConnectedTournament {
     chatClosed: boolean;
     private: boolean;
     createdBy: string;
+    creatorCanManage: boolean;
     rrRequiresApproval?: boolean;
     rrJoiningClosed?: boolean;
 }

@@ -140,13 +140,19 @@ the asynchronous arrangement model.
   is disabled, with a durable system-chat explanation, so a started RR can never be silently
   stranded by Team closure.
 
-- [ ] **Organizer permission lifecycle.** Creation requires the Team tournament permission,
+- [x] **Organizer permission lifecycle.** Creation requires the Team tournament permission,
   but subsequent edit/abort/manual-round/RR-management authorization is based primarily on
   the original `createdBy`. Therefore a leader who later loses the Team permission or leaves
   the Team can still remain tournament organizer. Lichess similarly privileges the original
   Swiss creator, so this is not automatically wrong; choose and document the PyChess policy
   before advertising "Team leaders can manage Team tournaments." If current Team permission
   should be required, enforce it consistently across HTTP edit and websocket management.
+  PyChess now keeps the original creator as the sole Team organizer but requires that creator
+  to remain in an enabled Team with the `tournaments` permission. Losing membership or that
+  permission immediately revokes creator edit/manual-round/abort/RR-management controls;
+  tournament directors retain their existing lifecycle override. The HTTP edit path, direct
+  update helper, websocket handlers, reconnect payload, and client-side controls all use the
+  same current-permission decision.
 
 ## Swiss hardening
 

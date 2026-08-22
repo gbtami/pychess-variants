@@ -49,6 +49,7 @@ export type PyChessModel = {
     tournamentname: string;
     simulname: string;
     tournamentcreator: string;
+    tournamentmanager: boolean;
     tournamentteamid: string;
     tournamentteamname: string;
     inviter: string;

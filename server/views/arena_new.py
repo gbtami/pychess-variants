@@ -8,6 +8,7 @@ from team import PERMISSION_TOURNAMENTS, get_team, teams_for_user
 from tournament.tournaments import (
     COMMUNITY_ARENA_MAX_CREATIONS_PER_24H,
     FIXED_ROUND_MAX_CREATIONS_PER_24H,
+    creator_can_manage_tournament,
 )
 from tournament_director import is_tournament_director
 from typedefs import pychess_global_app_state_key as app_state_key
@@ -59,6 +60,10 @@ async def arena_new(request: web.Request) -> ViewContext:
         tournament = app_state.tournaments.get(tournamentId)
         if tournament is None or user.username != tournament.creator:
             raise web.HTTPNotFound()
+        if not await creator_can_manage_tournament(app_state, tournament, user.username):
+            raise web.HTTPForbidden(
+                text="You need the tournament permission in this team to edit this tournament."
+            )
         if not director and (
             tournament.frequency
             or tournament.status != T_CREATED

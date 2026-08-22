@@ -4,6 +4,7 @@ from const import ARENA, T_CREATED
 from pychess_global_app_state_utils import get_app_state
 from team import get_team
 from tournament.tournaments import (
+    creator_can_manage_tournament,
     get_tournament_name,
     load_tournament,
 )
@@ -25,10 +26,16 @@ async def tournament(request: web.Request) -> ViewContext:
     if tournament is None:
         return context  # web.HTTPFound("/")
 
-    can_cancel = is_tournament_director(user, app_state) or (
+    director = is_tournament_director(user, app_state)
+    creator_can_manage = (
         not user.anon
         and not user.bot
-        and tournament.creator == user.username
+        and await creator_can_manage_tournament(app_state, tournament, user.username)
+    )
+    can_cancel = director or (
+        not user.anon
+        and not user.bot
+        and creator_can_manage
         and not tournament.frequency
         and (tournament.system == ARENA or bool(tournament.team_id))
     )
@@ -41,7 +48,8 @@ async def tournament(request: web.Request) -> ViewContext:
 
     tournament_name = await get_tournament_name(request, tournamentId)
     context["tournamentid"] = tournamentId
-    context["tournamentdirector"] = is_tournament_director(user, app_state)
+    context["tournamentdirector"] = director
+    context["tournamentmanager"] = creator_can_manage
     context["tournamentname"] = tournament_name
     context["tournamentcreator"] = tournament.creator
     context["tournamentteamid"] = tournament.team_id

@@ -32,7 +32,11 @@ from tournament.tournament import (
     Tournament,
     upsert_tournament_to_db,
 )
-from tournament.tournaments import create_or_update_tournament, load_tournament
+from tournament.tournaments import (
+    create_or_update_tournament,
+    creator_can_manage_tournament,
+    load_tournament,
+)
 from tournament_test_base import TournamentTestCase
 from user import User
 from variants import VARIANTS
@@ -624,6 +628,64 @@ class TournamentPersistenceTestCase(TournamentTestCase):
                         form,
                         creator_is_director=False,
                     )
+
+    async def test_team_tournament_creator_loses_management_when_permission_is_removed(self):
+        app_state = get_app_state(self.app)
+        username = f"TeamOrganizer{id8()}"
+        team_id = f"team-{id8()}"
+        now = datetime.now(UTC)
+        await app_state.db.user.insert_one({"_id": username})
+        await app_state.db.team.insert_one(
+            {
+                "_id": team_id,
+                "name": "Organizer Lifecycle Team",
+                "enabled": True,
+                "memberCount": 1,
+                "createdBy": "team-owner",
+                "createdAt": now,
+                "updatedAt": now,
+            }
+        )
+        member_id = f"{username}@{team_id}"
+        await app_state.db.team_member.insert_one(
+            {
+                "_id": member_id,
+                "team": team_id,
+                "user": username,
+                "joinedAt": now,
+                "permissions": [PERMISSION_TOURNAMENTS],
+            }
+        )
+
+        before_ids = set(app_state.tournaments)
+        form = self._fixed_round_form("2", teamId=team_id, name="Organizer Swiss")
+        await create_or_update_tournament(
+            app_state,
+            username,
+            form,
+            creator_is_director=False,
+        )
+        tournament_id = (set(app_state.tournaments) - before_ids).pop()
+        tournament = app_state.tournaments[tournament_id]
+        self.assertTrue(await creator_can_manage_tournament(app_state, tournament, username))
+
+        await app_state.db.team_member.update_one(
+            {"_id": member_id},
+            {"$set": {"permissions": []}},
+        )
+        self.assertFalse(await creator_can_manage_tournament(app_state, tournament, username))
+
+        for creator_is_director in (False, True):
+            with self.assertRaises(web.HTTPForbidden):
+                await create_or_update_tournament(
+                    app_state,
+                    username,
+                    {**form, "name": "Unauthorized edit"},
+                    tournament,
+                    creator_is_director=creator_is_director,
+                )
+
+        await tournament.abort()
 
     async def test_team_arena_uses_regular_user_arena_quota(self):
         app_state = get_app_state(self.app)

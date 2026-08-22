@@ -106,7 +106,7 @@ export class TournamentController implements ChatController {
     username: string;
     anon: boolean;
     private: boolean;
-    isTournamentCreator: boolean;
+    creatorCanManage: boolean;
     isTournamentDirector: boolean;
     isTeamTournament: boolean;
 
@@ -114,7 +114,7 @@ export class TournamentController implements ChatController {
         console.log('TournamentController constructor', el, model);
         this.tournamentId = model['tournamentId'];
         this.username = model['username'];
-        this.isTournamentCreator = this.username === model['tournamentcreator'];
+        this.creatorCanManage = model.tournamentmanager;
         this.isTournamentDirector = model['tournamentDirector'];
         this.isTeamTournament = !!model.tournamentteamid;
         this.nbPlayers = 0;
@@ -233,7 +233,7 @@ export class TournamentController implements ChatController {
                 status: this.tournamentStatus,
                 system: this.system,
                 manualNextRoundPending: this.manualNextRoundPending,
-                isCreator: this.isTournamentCreator,
+                creatorCanManage: this.creatorCanManage,
                 isDirector: this.isTournamentDirector,
                 isTeamTournament: this.isTeamTournament,
             },
@@ -932,6 +932,7 @@ export class TournamentController implements ChatController {
         this.roundOngoingGames = msg.roundOngoingGames ?? 0;
         this.secondsToNextRound = msg.secondsToNextRound ?? 0;
         this.manualNextRoundPending = msg.manualNextRound ?? false;
+        this.creatorCanManage = msg.creatorCanManage;
         this.private = msg.private;
         this.updateTournamentSystemLabel();
 
@@ -1183,7 +1184,7 @@ export function tournamentView(model: PyChessModel): VNode[] {
         'style',
         `--ranks: ${variant.board.dimensions.height}; --files: ${variant.board.dimensions.width};`,
     );
-    const canEdit = model.username === model.tournamentcreator && model.status === 0;
+    const canEdit = model.tournamentmanager && model.status === 0;
     return [
         h('aside.sidebar-first', [
             h('div.game-info', [

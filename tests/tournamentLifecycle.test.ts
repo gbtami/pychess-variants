@@ -6,21 +6,23 @@ const baseState = {
     status: 'started',
     system: 2,
     manualNextRoundPending: true,
-    isCreator: false,
+    creatorCanManage: false,
     isDirector: false,
     isTeamTournament: false,
 };
 
 describe('tournament lifecycle controls', () => {
     test('lets a non-team creator start a pending manual round without exposing abort', () => {
-        expect(availableTournamentLifecycleActions({ ...baseState, isCreator: true })).toEqual(['start_next_round']);
+        expect(availableTournamentLifecycleActions({ ...baseState, creatorCanManage: true })).toEqual([
+            'start_next_round',
+        ]);
     });
 
     test('lets a team tournament creator abort their fixed-round tournament', () => {
         expect(
             availableTournamentLifecycleActions({
                 ...baseState,
-                isCreator: true,
+                creatorCanManage: true,
                 isTeamTournament: true,
             }),
         ).toEqual(['start_next_round', 'abort_tournament']);
@@ -37,11 +39,21 @@ describe('tournament lifecycle controls', () => {
         expect(
             availableTournamentLifecycleActions({
                 ...baseState,
-                isCreator: true,
+                creatorCanManage: true,
                 manualNextRoundPending: false,
             }),
         ).toEqual([]);
-        expect(availableTournamentLifecycleActions({ ...baseState, isCreator: true, system: 0 })).toEqual([]);
+        expect(availableTournamentLifecycleActions({ ...baseState, creatorCanManage: true, system: 0 })).toEqual([]);
+    });
+
+    test('hides creator controls after Team tournament permission is lost', () => {
+        expect(
+            availableTournamentLifecycleActions({
+                ...baseState,
+                isTeamTournament: true,
+                creatorCanManage: false,
+            }),
+        ).toEqual([]);
     });
 
     test('hides all controls from ordinary users and after the tournament ends', () => {

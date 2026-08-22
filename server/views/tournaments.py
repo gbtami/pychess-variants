@@ -10,6 +10,7 @@ from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
 from tournament.tournaments import (
     create_or_update_tournament,
+    creator_can_manage_tournament,
     get_latest_tournaments,
 )
 from tournament_director import is_tournament_director
@@ -54,6 +55,12 @@ async def tournaments(request: web.Request) -> ViewContext:
             raise web.HTTPNotFound(text="Tournament not found.")
         if tournament and user.username != tournament.creator:
             raise web.HTTPForbidden(text="Only the tournament creator can edit this tournament.")
+        if tournament and not await creator_can_manage_tournament(
+            app_state, tournament, user.username
+        ):
+            raise web.HTTPForbidden(
+                text="You need the tournament permission in this team to edit this tournament."
+            )
         if (
             tournament
             and not director
