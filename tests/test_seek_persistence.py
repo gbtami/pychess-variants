@@ -1,4 +1,6 @@
+import asyncio
 import unittest
+from datetime import UTC, datetime
 from types import SimpleNamespace
 from typing import cast
 from unittest.mock import patch
@@ -7,10 +9,15 @@ import test_logger
 from glicko2.glicko2 import new_default_perf_map
 from header_challenges import set_direct_challenge_status
 from mongomock_motor import AsyncMongoMockClient
+from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
 from pymongo.asynchronous.mongo_client import AsyncMongoClient
 from seek import DIRECT_CHALLENGE_ACCEPTED, DIRECT_CHALLENGE_CREATED, Seek
 from settings import MONGO_DB_NAME
+from tournament.auto_play_tournament import RRTestTournament
+from tournament.rr import ARR_STATUS_CHALLENGED, RRTournament
+from tournament.tournament import upsert_tournament_to_db
+from typedefs import pychess_global_app_state_key
 from user import User
 from utils import join_seek
 from variants import VARIANTS
@@ -122,6 +129,65 @@ class SeekPersistenceTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertIsNotNone(game_doc)
         self.assertEqual(tournament_id, game_doc["tid"])
         self.assertEqual(arrangement_id, game_doc["aid"])
+
+    async def test_rr_challenge_is_restored_before_arrangement_reconciliation(self):
+        producer_app = make_app(db_client=self.db_client)
+        producer_app[pychess_global_app_state_key] = PychessGlobalAppState(producer_app)
+        producer_state = get_app_state(producer_app)
+
+        await self.db.user.insert_many([{"_id": "alice"}, {"_id": "bob"}])
+        alice = User(producer_state, username="alice", perfs=PERFS)
+        bob = User(producer_state, username="bob", perfs=PERFS)
+        producer_state.users.update({alice.username: alice, bob.username: bob})
+
+        tournament = RRTestTournament(
+            producer_state,
+            "Tour1234",
+            variant="chess",
+            before_start=0,
+            rounds=0,
+            rr_max_players=2,
+            with_clock=False,
+        )
+        producer_state.tournaments[tournament.id] = tournament
+        await upsert_tournament_to_db(tournament, producer_state)
+        await tournament.join(alice)
+        await tournament.join(bob)
+        await tournament.start(datetime.now(UTC))
+
+        arrangement = tournament.arrangement_list()[0]
+        challenger = alice if arrangement.white == alice.username else bob
+        self.assertIsNone(await tournament.create_arrangement_challenge(challenger, arrangement.id))
+        self.assertEqual(ARR_STATUS_CHALLENGED, arrangement.status)
+        invite_id = arrangement.invite_id
+        assert invite_id is not None
+        persisted_seek = producer_state.invites[invite_id]
+        await self.db.seek.insert_one(persisted_seek.seek_db_json)
+
+        restarted_app = make_app(db_client=self.db_client)
+        self.app = restarted_app
+        await init_state(restarted_app)
+        restarted_state = get_app_state(restarted_app)
+        restarted_tournament = restarted_state.tournaments[tournament.id]
+        self.assertIsInstance(restarted_tournament, RRTournament)
+        assert isinstance(restarted_tournament, RRTournament)
+        restarted_arrangement = restarted_tournament.arrangement_by_id(arrangement.id)
+
+        self.assertIsNotNone(restarted_arrangement)
+        assert restarted_arrangement is not None
+        self.assertEqual(ARR_STATUS_CHALLENGED, restarted_arrangement.status)
+        self.assertEqual(invite_id, restarted_arrangement.invite_id)
+        restarted_seek = restarted_state.invites[invite_id]
+        self.assertIs(restarted_seek, restarted_state.seeks[persisted_seek.id])
+        self.assertEqual(tournament.id, restarted_seek.tournament_id)
+        self.assertEqual(arrangement.id, restarted_seek.rr_arrangement_id)
+
+        if restarted_tournament.clock_task is not None:
+            restarted_tournament.clock_task.cancel()
+            try:
+                await restarted_tournament.clock_task
+            except asyncio.CancelledError:
+                pass
 
     def test_catalogued_rr_seek_preserves_tournament_linkage(self):
         challenger = self.make_user("alice")

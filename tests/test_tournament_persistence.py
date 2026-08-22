@@ -22,7 +22,12 @@ from tournament.auto_play_tournament import (
     RRTestTournament,
     SwissTestTournament,
 )
-from tournament.rr import ARR_STATUS_FINISHED, ARR_STATUS_STARTED
+from tournament.rr import (
+    ARR_STATUS_CHALLENGED,
+    ARR_STATUS_FINISHED,
+    ARR_STATUS_PENDING,
+    ARR_STATUS_STARTED,
+)
 from tournament.tournament import (
     SCORE_SHIFT,
     SWISS_FINISH_REASON_NO_LEGAL_PAIRING,
@@ -1798,6 +1803,135 @@ class TournamentPersistenceTestCase(TournamentTestCase):
             await app_state.db.tournament_player.count_documents({"tid": tid}),
             0,
         )
+
+    async def test_rr_reload_clears_stale_challenge_and_persists_repair(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state, tid, before_start=10, rounds=0, rr_max_players=8, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        await self.tournament.join_players(2)
+        await self.tournament.start(datetime.now(UTC))
+        arrangement = self.tournament.arrangement_list()[0]
+        challenger = app_state.users[arrangement.white]
+        self.assertIsNone(
+            await self.tournament.create_arrangement_challenge(challenger, arrangement.id)
+        )
+        self.assertEqual(arrangement.status, ARR_STATUS_CHALLENGED)
+        self.assertIsNotNone(arrangement.invite_id)
+        stale_invite_id = arrangement.invite_id
+        assert stale_invite_id is not None
+        self.assertIn(stale_invite_id, app_state.invites)
+
+        stored_before = await app_state.db.tournament_arrangement.find_one({"_id": arrangement.id})
+        self.assertIsNotNone(stored_before)
+        assert stored_before is not None
+        self.assertEqual(stored_before.get("s"), ARR_STATUS_CHALLENGED)
+        self.assertEqual(stored_before.get("iid"), stale_invite_id)
+        self.assertEqual(stored_before.get("ch"), challenger.username)
+
+        with patch(
+            "tournament.rr.tournament.RRTournament.broadcast_arrangements",
+            new_callable=AsyncMock,
+        ) as broadcast_arrangements:
+            reloaded_state, reloaded_tournament = await self.reload_tournament(
+                app_state.db_client, tid
+            )
+        broadcast_arrangements.assert_awaited_once_with()
+        self.assertIsNotNone(reloaded_tournament)
+        assert reloaded_tournament is not None
+        self.assertNotIn(stale_invite_id, reloaded_state.invites)
+        reloaded_arrangement = reloaded_tournament.arrangement_by_id(arrangement.id)
+        self.assertIsNotNone(reloaded_arrangement)
+        assert reloaded_arrangement is not None
+        self.assertEqual(reloaded_arrangement.status, ARR_STATUS_PENDING)
+        self.assertIsNone(reloaded_arrangement.invite_id)
+        self.assertIsNone(reloaded_arrangement.challenger)
+
+        stored_after = await reloaded_state.db.tournament_arrangement.find_one(
+            {"_id": arrangement.id}
+        )
+        self.assertIsNotNone(stored_after)
+        assert stored_after is not None
+        self.assertEqual(stored_after.get("s"), ARR_STATUS_PENDING)
+        self.assertIsNone(stored_after.get("iid"))
+        self.assertIsNone(stored_after.get("ch"))
+
+        if reloaded_tournament.clock_task is not None:
+            reloaded_tournament.clock_task.cancel()
+            try:
+                await reloaded_tournament.clock_task
+            except asyncio.CancelledError:
+                pass
+
+    async def test_rr_reload_prefers_game_reconciliation_over_stale_challenge(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state, tid, before_start=10, rounds=0, rr_max_players=8, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        await self.tournament.join_players(2)
+        await self.tournament.start(datetime.now(UTC))
+        arrangement = self.tournament.arrangement_list()[0]
+        challenger = app_state.users[arrangement.white]
+        opponent = app_state.users[arrangement.black]
+        self.assertIsNone(
+            await self.tournament.create_arrangement_challenge(challenger, arrangement.id)
+        )
+        stale_invite_id = arrangement.invite_id
+        assert stale_invite_id is not None
+
+        accept_result = await self.tournament.accept_arrangement_challenge(opponent, arrangement.id)
+        self.assertEqual(accept_result["type"], "new_game")
+        game_id = accept_result["gameId"]
+
+        # Simulate a crash window where game creation/pairing persistence won but
+        # the arrangement document still contains the old challenge state.
+        await app_state.db.tournament_arrangement.update_one(
+            {"_id": arrangement.id},
+            {
+                "$set": {
+                    "s": ARR_STATUS_CHALLENGED,
+                    "gid": None,
+                    "iid": stale_invite_id,
+                    "ch": challenger.username,
+                }
+            },
+        )
+
+        _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
+        self.assertIsNotNone(reloaded_tournament)
+        assert reloaded_tournament is not None
+        reloaded_arrangement = reloaded_tournament.arrangement_by_id(arrangement.id)
+        self.assertIsNotNone(reloaded_arrangement)
+        assert reloaded_arrangement is not None
+        self.assertEqual(reloaded_arrangement.status, ARR_STATUS_STARTED)
+        self.assertEqual(reloaded_arrangement.game_id, game_id)
+        self.assertIsNone(reloaded_arrangement.invite_id)
+        self.assertIsNone(reloaded_arrangement.challenger)
+
+        stored_after = await reloaded_tournament.app_state.db.tournament_arrangement.find_one(
+            {"_id": arrangement.id}
+        )
+        self.assertIsNotNone(stored_after)
+        assert stored_after is not None
+        self.assertEqual(stored_after.get("s"), ARR_STATUS_STARTED)
+        self.assertEqual(stored_after.get("gid"), game_id)
+        self.assertIsNone(stored_after.get("iid"))
+        self.assertIsNone(stored_after.get("ch"))
+
+        if reloaded_tournament.clock_task is not None:
+            reloaded_tournament.clock_task.cancel()
+            try:
+                await reloaded_tournament.clock_task
+            except asyncio.CancelledError:
+                pass
 
     async def test_rr_reload_restores_started_arrangement_game(self):
         app_state = get_app_state(self.app)

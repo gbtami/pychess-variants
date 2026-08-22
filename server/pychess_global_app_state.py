@@ -333,6 +333,53 @@ class PychessGlobalAppState:
 
         startup.log_summary()
 
+    async def _restore_persisted_seeks(self) -> None:
+        if self.db is None:
+            return
+
+        async for doc in self.db.seek.find():
+            user = await self.users.get(doc["user"])
+            if user is None:
+                continue
+
+            game_id = doc.get("gameId") or None
+            player2_name = doc.get("player2") or ""
+            player2 = None if player2_name == "" else await self.users.get(str(player2_name))
+            seek = Seek(
+                doc["_id"],
+                user,
+                doc["variant"],
+                fen=doc["fen"],
+                color=doc["color"],
+                base=doc.get("base", 5),
+                inc=doc.get("inc", 5),
+                byoyomi_period=doc.get("byoyomi", 0),
+                day=doc["day"],
+                rated=doc["rated"],
+                rrmin=doc.get("rrmin"),
+                rrmax=doc.get("rrmax"),
+                chess960=doc["chess960"],
+                target=doc.get("target"),
+                game_id=game_id,
+                player1=user,
+                player2=player2,
+                tournament_id=doc.get("tournamentId"),
+                rr_arrangement_id=doc.get("rrArrangementId"),
+                expire_at=doc.get("expireAt"),
+                challenge_status=doc.get("challengeStatus"),
+                challenge_decline_reason=doc.get("challengeDeclineReason"),
+                bot_challenge_status=doc.get("botChallengeStatus"),
+                bot_challenge_decline_reason=doc.get("botChallengeDeclineReason"),
+            )
+            if not should_restore_persisted_seek(seek):
+                log.debug("Skipping non-restorable seek from database: %s", seek.id)
+                continue
+            log.debug("Loading seek from database: %s", seek)
+            self.seeks[seek.id] = seek
+            user.seeks[seek.id] = seek
+            if game_id is not None:
+                self.invites[game_id] = seek
+
     async def init_from_db(self):
         startup = StartupTimer(log, "PychessGlobalAppState.init_from_db")
         if self.db is None:
@@ -407,6 +454,12 @@ class PychessGlobalAppState:
                     from catalogued_variants import init_catalogued_variants
 
                     await init_catalogued_variants(self, db_collections)
+
+            # RR arrangement documents refer to challenge invite ids. Restore persisted
+            # seeks first so tournament load can distinguish a live graceful-restart
+            # challenge from a genuinely stale crash-left arrangement.
+            with startup.phase("restore persisted seeks"):
+                await self._restore_persisted_seeks()
 
             with startup.phase("recover tournament user result side effects"):
                 active_tournament_ids = [
@@ -614,7 +667,7 @@ class PychessGlobalAppState:
                     await self.db.create_collection("security_ban_signal")
                 await self.db.security_ban_signal.create_index("expireAt", expireAfterSeconds=0)
 
-            with startup.phase("restore autopairings + seeks"):
+            with startup.phase("restore autopairings"):
                 # Load auto pairings from database
                 async for doc in self.db.autopairing.find():
                     variant_tc = tuple(doc["variant_tc"])
@@ -626,50 +679,6 @@ class PychessGlobalAppState:
                         self.auto_pairings[variant_tc].add(user)
                         if user not in self.auto_pairing_users:
                             self.auto_pairing_users[user] = rrange
-
-                # Load seeks from database
-                async for doc in self.db.seek.find():
-                    user = await self.users.get(doc["user"])
-                    if user is not None:
-                        game_id = doc.get("gameId") or None
-                        player2_name = doc.get("player2") or ""
-                        player2 = (
-                            None if player2_name == "" else await self.users.get(str(player2_name))
-                        )
-                        seek = Seek(
-                            doc["_id"],
-                            user,
-                            doc["variant"],
-                            fen=doc["fen"],
-                            color=doc["color"],
-                            base=doc.get("base", 5),
-                            inc=doc.get("inc", 5),
-                            byoyomi_period=doc.get("byoyomi", 0),
-                            day=doc["day"],
-                            rated=doc["rated"],
-                            rrmin=doc.get("rrmin"),
-                            rrmax=doc.get("rrmax"),
-                            chess960=doc["chess960"],
-                            target=doc.get("target"),
-                            game_id=game_id,
-                            player1=user,
-                            player2=player2,
-                            tournament_id=doc.get("tournamentId"),
-                            rr_arrangement_id=doc.get("rrArrangementId"),
-                            expire_at=doc.get("expireAt"),
-                            challenge_status=doc.get("challengeStatus"),
-                            challenge_decline_reason=doc.get("challengeDeclineReason"),
-                            bot_challenge_status=doc.get("botChallengeStatus"),
-                            bot_challenge_decline_reason=doc.get("botChallengeDeclineReason"),
-                        )
-                        if not should_restore_persisted_seek(seek):
-                            log.debug("Skipping non-restorable seek from database: %s", seek.id)
-                            continue
-                        log.debug("Loading seek from database: %s" % seek)
-                        self.seeks[seek.id] = seek
-                        user.seeks[seek.id] = seek
-                        if game_id is not None:
-                            self.invites[game_id] = seek
 
             # Read games in play and start their clocks.
             #

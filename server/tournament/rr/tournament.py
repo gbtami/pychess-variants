@@ -506,6 +506,24 @@ class RRTournament(Tournament):
             default=self.rounds,
         )
         await self._reconcile_arrangements_from_games()
+        if await self._repair_stale_loaded_challenges():
+            await self.broadcast_arrangements()
+
+    async def _repair_stale_loaded_challenges(self) -> bool:
+        repaired = False
+        for arrangement in self.arrangements.values():
+            if arrangement.status != ARR_STATUS_CHALLENGED:
+                continue
+            if arrangement.invite_id and arrangement.invite_id in self.app_state.invites:
+                continue
+
+            arrangement.status = ARR_STATUS_PENDING
+            arrangement.invite_id = None
+            arrangement.challenger = None
+            await self.db_update_arrangement(arrangement)
+            repaired = True
+
+        return repaired
 
     async def _reconcile_arrangements_from_games(self) -> None:
         if self.app_state.db is None or not self.arrangements:

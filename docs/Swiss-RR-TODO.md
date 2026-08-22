@@ -198,13 +198,14 @@ the asynchronous arrangement model.
   restart coverage verifies a deadline-crossing game is restored, scored, and only then causes
   the tournament to finish. Unplayed cells use the durable `expired` arrangement status.
 
-- [ ] **Clear stale RR challenges durably on restart.** RR persists `status=challenged` and
-  `inviteId`, but the underlying challenge/seek is in memory and is not restored. On reload,
-  `_reconcile_arrangements_from_games()` does not reset such a challenge; the lazy
-  `_clear_stale_invite()` only runs when an arrangement is looked up and does not persist the
-  repair. This can show an Accept challenge control for a challenge that vanished with the
-  previous process. During `load_arrangements()`, detect challenged arrangements whose invite
-  is absent, reset them to pending, persist the reset, and broadcast only the repaired state.
+- [x] **Clear stale RR challenges durably on restart.** RR challenges use the ordinary seek
+  store, which is snapshotted only during graceful shutdown. Seek restoration now runs before
+  tournament restoration, so a gracefully persisted invite is already present when RR
+  arrangements load. After a crash or interrupted shutdown, a durable arrangement may still
+  say `challenged` without a restored invite; `load_arrangements()` reconciles game history
+  first, then resets any such remaining challenge to `pending`, clears its stale
+  invite/challenger fields, persists the repair, and only then broadcasts the repaired matrix.
+  A real started/finished game always wins reconciliation over a stale challenge document.
 
 - [ ] **Serialize RR arrangement mutations.** Lishogi sequences arrangement mutations per
   tournament. PyChess currently lets websocket requests from the two players interleave.
