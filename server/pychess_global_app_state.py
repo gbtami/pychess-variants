@@ -366,8 +366,15 @@ class PychessGlobalAppState:
                 await self.db.tournament.create_index("startsAt")
                 await self.db.tournament.create_index("status")
                 await self.db.tournament.create_index("teamId")
+                await self.db.tournament.create_index("createdBy")
+                await self.db.tournament.create_index("winner")
                 await self.db.tournament_player.create_index("tid")
+                await self.db.tournament_player.create_index("uid")
                 await self.db.tournament_pairing.create_index("tid")
+                await self.db.tournament_pairing.create_index("u")
+                await self.db.tournament_arrangement.create_index("tid")
+                await self.db.tournament_arrangement.create_index("u")
+                await self.db.tournament_arrangement.create_index("ch")
                 await self.db.relation.create_index([("u1", 1), ("r", 1)], name="u1_r")
                 await self.db.relation.create_index([("u2", 1), ("r", 1)], name="u2_r")
 
@@ -480,6 +487,7 @@ class PychessGlobalAppState:
                 # Only simul games have sid, so keep this index sparse. It avoids a full
                 # game-collection scan when restoring a started simul after restart.
                 await self.db.game.create_index("sid", sparse=True)
+                await self.db.game.create_index("aid", sparse=True)
 
                 # Advanced search needs some indexes to be able to respond in reasonable times
                 await self.db.game.create_index([("d", -1), ("_id", -1)], name="d_id_desc")
@@ -502,6 +510,7 @@ class PychessGlobalAppState:
                     await self.db.create_collection("notify")
                 await self.db.notify.create_index("notifies")
                 await self.db.notify.create_index("expireAt", expireAfterSeconds=0)
+                await self.db.notify.create_index("content.arr", sparse=True)
 
                 if PUSH_SUBSCRIPTION_COLLECTION not in db_collections:
                     await self.db.create_collection(PUSH_SUBSCRIPTION_COLLECTION)
@@ -596,6 +605,7 @@ class PychessGlobalAppState:
                     await self.db.create_collection("seek")
                 await self.db.seek.create_index("expireAt", expireAfterSeconds=0)
                 await self.db.seek.create_index("user")
+                await self.db.seek.create_index("rrArrangementId", sparse=True)
 
                 await self.db.bot_token.create_index("user")
                 await self.db.account_reopen_token.create_index("username")

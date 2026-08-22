@@ -115,7 +115,7 @@ the asynchronous arrangement model.
 
 ## Shared tournament lifecycle
 
-- [ ] **Tournament GDPR/account-erasure coverage.** Account erasure currently scrubs
+- [x] **Tournament GDPR/account-erasure coverage.** Account erasure currently scrubs
   tournament chat and removes the account from active Team tournaments, but historical
   tournament identity still remains in tournament-specific documents. Define and implement
   a durable ghost-user policy for `tournament.createdBy`, `tournament_player.uid`,
@@ -124,7 +124,11 @@ the asynchronous arrangement model.
   pairings to a generated ghost id so historical pairings remain structurally valid. For
   PyChess, created events owned by an erased account can be aborted/deleted while started or
   finished history should remain valid and anonymized. Add the identity indexes needed by
-  the chosen scrub queries rather than scanning whole collections.
+  the chosen scrub queries rather than scanning whole collections. Implemented with a keyed,
+  retry-safe per-tournament ghost id for preserved history; removal from genuinely unplayed
+  rosters; abort of unstarted events owned by the erased account; RR arrangement id re-keying
+  (including game/notification links and stale challenge cleanup); loaded-cache scrubbing; and
+  indexed lookups for creator/winner/player/pairing/arrangement/link identities.
 
 - [ ] **Team-close / disabled-Team lifecycle.** Closing a Team currently makes
   `is_enabled_team_member()` false immediately. Swiss already-registered players can mostly
@@ -197,11 +201,12 @@ the asynchronous arrangement model.
   lightweight per-tournament or per-arrangement async lock around state-changing RR
   arrangement operations and keep database writes inside that serialized section.
 
-- [ ] **Index RR arrangement lookup.** Startup/reload reads
+- [x] **Index RR arrangement lookup.** Startup/reload reads
   `tournament_arrangement.find({"tid": tournament_id})`, and empty-RR cleanup deletes by the
-  same field, but startup currently creates indexes only for `tournament_player.tid` and
-  `tournament_pairing.tid`. Add `tournament_arrangement.tid` before RR is used in production;
-  add user-field indexes too if required by the GDPR implementation.
+  same field, but startup previously created indexes only for `tournament_player.tid` and
+  `tournament_pairing.tid`. Added `tournament_arrangement.tid` plus the user/challenger indexes
+  required by account erasure; RR game/seek/notification link indexes were added for arrangement
+  re-keying as well.
 
 - [ ] **Validate RR scheduling against the tournament deadline.** The client limits the
   calendar, but before the tournament starts `scheduleMaxDate()` falls back to

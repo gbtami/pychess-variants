@@ -23,6 +23,7 @@ from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
 from simul.simuls import erase_user_from_simuls
 from team import remove_user_from_teams_on_account_disable
+from tournament.gdpr import erase_user_from_tournaments
 from typedefs import REQUEST_NEW_SESSION_KEY
 from typing_defs import UserDocument, ViewContext
 from user_stats import DEFAULT_USER_COUNT
@@ -297,6 +298,7 @@ async def _scrub_delete_owned_data(app_state: Any, user: Any, now: datetime) -> 
     await app_state.timeline.erase_user(user.username)
     await _remove_active_seeks_for_user(app_state, user)
     await _scrub_authored_chat_history(app_state, user.username)
+    await erase_user_from_tournaments(app_state, user.username)
     await erase_user_from_simuls(app_state, user.username)
 
     await db.inbox_msg.update_many(
