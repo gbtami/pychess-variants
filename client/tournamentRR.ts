@@ -606,6 +606,7 @@ export class TournamentRRController implements ChatController {
         if (row.gameId || row.status === 'started') return _('Current game');
         if (row.scheduled) return _('Scheduled');
         if (row.status === 'challenged') return _('Challenge');
+        if (row.status === 'expired') return _('Not played');
         return row.status;
     }
 
@@ -675,6 +676,7 @@ export class TournamentRRController implements ChatController {
         }
         if (cell.status === 'started') return '...';
         if (cell.status === 'challenged') return cell.challenger === this.username ? '!' : '?';
+        if (cell.status === 'expired') return '-';
         return '';
     }
 
@@ -1091,7 +1093,7 @@ export class TournamentRRController implements ChatController {
 
     modalPlayerAction(cell: RRArrangementCell, username: string): VNode | null {
         const canAct = [cell.white, cell.black].includes(this.username);
-        if (!canAct || cell.gameId || ['started', 'finished'].includes(cell.status)) return null;
+        if (!canAct || cell.gameId || ['started', 'finished', 'expired'].includes(cell.status)) return null;
         const perspective = this.schedulePerspective(cell);
         const mine = username === this.username;
         const suggestedAt = mine ? perspective.mine : perspective.opponent;

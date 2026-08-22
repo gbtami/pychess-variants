@@ -9,6 +9,7 @@ ARR_STATUS_PENDING = "pending"
 ARR_STATUS_CHALLENGED = "challenged"
 ARR_STATUS_STARTED = "started"
 ARR_STATUS_FINISHED = "finished"
+ARR_STATUS_EXPIRED = "expired"
 ARR_SCHEDULE_TOLERANCE = timedelta(seconds=60)
 ARR_REMINDER_WINDOW_START = timedelta(hours=23)
 ARR_REMINDER_WINDOW_END = timedelta(hours=24)

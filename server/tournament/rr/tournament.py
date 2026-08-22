@@ -14,7 +14,7 @@ from typing_defs import (
     TournamentRRManagementResponse,
     TournamentRRSettingsResponse,
 )
-from utils import join_seek
+from utils import join_seek, remove_seek
 from websocket_utils import ws_send_json_many
 
 from tournament.tournament import RR_MAX_SUPPORTED_PLAYERS, ByeGame, PlayerData, Tournament
@@ -26,6 +26,7 @@ from .arrangements import (
     ARR_REMINDER_WINDOW_START,
     ARR_SCHEDULE_TOLERANCE,
     ARR_STATUS_CHALLENGED,
+    ARR_STATUS_EXPIRED,
     ARR_STATUS_FINISHED,
     ARR_STATUS_PENDING,
     ARR_STATUS_STARTED,
@@ -253,6 +254,7 @@ class RRTournament(Tournament):
             if not arrangement.involves(username) or arrangement.status in (
                 ARR_STATUS_STARTED,
                 ARR_STATUS_FINISHED,
+                ARR_STATUS_EXPIRED,
             ):
                 continue
             if arrangement.invite_id is not None:
@@ -603,6 +605,63 @@ class RRTournament(Tournament):
             arrangement.status == ARR_STATUS_FINISHED for arrangement in self.arrangements.values()
         )
 
+    def deadline_reached(self, now: datetime | None = None) -> bool:
+        if now is None:
+            now = datetime.now(UTC)
+        return now >= self.ends_at
+
+    def _remove_arrangement_seeks(self, arrangement_id: str) -> None:
+        for seek in tuple(self.app_state.seeks.values()):
+            if seek.rr_arrangement_id != arrangement_id:
+                continue
+            if seek.game_id is not None:
+                self.app_state.invites.pop(seek.game_id, None)
+            remove_seek(self.app_state.seeks, seek)
+
+        for invite_id, seek in tuple(self.app_state.invites.items()):
+            if seek.rr_arrangement_id != arrangement_id:
+                continue
+            self.app_state.invites.pop(invite_id, None)
+            remove_seek(self.app_state.seeks, seek)
+
+    async def expire_unstarted_arrangements(
+        self, now: datetime | None = None, *, broadcast: bool = True
+    ) -> bool:
+        if now is None:
+            now = datetime.now(UTC)
+        if now < self.ends_at:
+            return False
+
+        changed = False
+        expired_ids: list[str] = []
+        for arrangement in self.arrangements.values():
+            if arrangement.status in (
+                ARR_STATUS_STARTED,
+                ARR_STATUS_FINISHED,
+                ARR_STATUS_EXPIRED,
+            ):
+                continue
+
+            self._remove_arrangement_seeks(arrangement.id)
+            arrangement.status = ARR_STATUS_EXPIRED
+            arrangement.invite_id = None
+            arrangement.challenger = None
+            arrangement.white_date = None
+            arrangement.black_date = None
+            arrangement.scheduled_at = None
+            arrangement.last_reminded_at = None
+            arrangement.date = now
+            await self.db_update_arrangement(arrangement)
+            expired_ids.append(arrangement.id)
+            changed = True
+
+        if expired_ids and self.app_state.db is not None:
+            await self.app_state.db.seek.delete_many({"rrArrangementId": {"$in": expired_ids}})
+
+        if changed and broadcast:
+            await self.broadcast_arrangements()
+        return changed
+
     async def clock(self):
         try:
             while self.status not in (T_ABORTED, T_FINISHED, T_ARCHIVED):
@@ -615,10 +674,16 @@ class RRTournament(Tournament):
                         await self.start(now)
                         continue
                 elif self.status == T_STARTED:
-                    await self.send_arrangement_reminders(now)
-                    if self.all_arrangements_finished() or now >= self.ends_at:
+                    if self.deadline_reached(now):
+                        await self.expire_unstarted_arrangements(now)
+                        if len(self.ongoing_games) == 0:
+                            await self.finish()
+                            break
+                    elif self.all_arrangements_finished():
                         await self.finish()
                         break
+                    else:
+                        await self.send_arrangement_reminders(now)
                 await asyncio.sleep(self.clock_interval)
         finally:
             self.clock_task = None
@@ -653,6 +718,8 @@ class RRTournament(Tournament):
     ) -> str | None:
         if self.status not in (T_CREATED, T_STARTED):
             return "Round-robin scheduling is not available for this tournament."
+        if self.status == T_STARTED and self.deadline_reached():
+            return "The round-robin scheduling deadline has passed."
         if not await self.user_is_team_member(user):
             return "You must be a member of the tournament team to schedule games."
 
@@ -664,6 +731,7 @@ class RRTournament(Tournament):
         if arrangement.game_id is not None or arrangement.status in (
             ARR_STATUS_STARTED,
             ARR_STATUS_FINISHED,
+            ARR_STATUS_EXPIRED,
         ):
             return "This round-robin pairing can no longer be rescheduled."
 
@@ -713,6 +781,7 @@ class RRTournament(Tournament):
             if arrangement.game_id is not None or arrangement.status in (
                 ARR_STATUS_STARTED,
                 ARR_STATUS_FINISHED,
+                ARR_STATUS_EXPIRED,
             ):
                 continue
 
@@ -745,6 +814,8 @@ class RRTournament(Tournament):
     async def create_arrangement_challenge(self, user: User, arrangement_id: str) -> str | None:
         if self.status not in (T_CREATED, T_STARTED):
             return "Round-robin challenges are not available for this tournament."
+        if self.status == T_STARTED and self.deadline_reached():
+            return "The round-robin challenge deadline has passed."
         if not await self.user_is_team_member(user):
             return "You must be a member of the tournament team to play this tournament."
 
@@ -757,6 +828,8 @@ class RRTournament(Tournament):
             return "This round-robin game is already finished."
         if arrangement.status == ARR_STATUS_STARTED:
             return "This round-robin game is already in progress."
+        if arrangement.status == ARR_STATUS_EXPIRED:
+            return "The round-robin deadline has passed for this game."
         if (
             self.player_data_by_name(user.username) is None
             or self.player_data_by_name(user.username).paused
@@ -809,6 +882,13 @@ class RRTournament(Tournament):
         return None
 
     async def accept_arrangement_challenge(self, user: User, arrangement_id: str):
+        if self.status not in (T_CREATED, T_STARTED):
+            return {
+                "type": "error",
+                "message": "Round-robin challenges are not available for this tournament.",
+            }
+        if self.status == T_STARTED and self.deadline_reached():
+            return {"type": "error", "message": "The round-robin challenge deadline has passed."}
         if not await self.user_is_team_member(user):
             return {
                 "type": "error",
@@ -819,6 +899,11 @@ class RRTournament(Tournament):
             return {"type": "error", "message": "Unknown round-robin pairing."}
         if not arrangement.involves(user.username):
             return {"type": "error", "message": "You are not part of this round-robin pairing."}
+        if arrangement.status == ARR_STATUS_EXPIRED:
+            return {
+                "type": "error",
+                "message": "The round-robin deadline has passed for this game.",
+            }
         if arrangement.challenger == user.username:
             return {"type": "error", "message": "Waiting for your opponent to accept."}
         if arrangement.invite_id is None:
@@ -871,6 +956,11 @@ class RRTournament(Tournament):
             return
 
         if game.status == ABORTED:
+            live_game = self._take_ongoing_game(game)
+            if live_game is not None:
+                self.app_state.create_background_task(
+                    self.delayed_free(live_game), name="t-delayed-free"
+                )
             arrangement.status = ARR_STATUS_PENDING
             arrangement.game_id = None
         else:
@@ -882,9 +972,16 @@ class RRTournament(Tournament):
         arrangement.black_date = None
         arrangement.scheduled_at = None
         arrangement.last_reminded_at = None
-        arrangement.date = datetime.now(UTC)
+        now = datetime.now(UTC)
+        arrangement.date = now
         await self.db_update_arrangement(arrangement)
+
+        if self.status == T_STARTED and self.deadline_reached(now):
+            await self.expire_unstarted_arrangements(now, broadcast=False)
         await self.broadcast_arrangements()
 
-        if self.status == T_STARTED and self.all_arrangements_finished():
+        if self.status == T_STARTED and (
+            self.all_arrangements_finished()
+            or (self.deadline_reached(now) and len(self.ongoing_games) == 0)
+        ):
             await self.finish()

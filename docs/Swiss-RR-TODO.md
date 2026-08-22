@@ -188,14 +188,15 @@ the asynchronous arrangement model.
 
 ## Round-Robin hardening
 
-- [ ] **Do not finish RR while an arrangement game is still running.** The RR clock currently
-  calls `finish()` as soon as `ends_at` is reached, even if `ongoing_games` is non-empty.
-  Common tournament scoring ignores game results after the tournament is already finished,
-  so a game that crosses the deadline can finish normally yet fail to contribute to the RR
-  leaderboard. At the deadline, freeze new schedules/challenges and mark unfinished
-  arrangements as no longer playable, but allow already-started arrangement games to finish
-  and be scored before finalizing the tournament (or explicitly abort/adjudicate them if a
-  different policy is chosen). Cover restart while in this deadline-draining state.
+- [x] **Do not finish RR while an arrangement game is still running.** At the configured
+  deadline PyChess now durably expires every not-yet-started arrangement, clears its live RR
+  seek/challenge and scheduling state, and rejects new schedule/challenge/accept requests.
+  Already-started arrangement games remain playable while the tournament stays `T_STARTED`;
+  their normal game-end path still scores the result, then finalizes the RR once no ongoing
+  arrangement game remains. The draining state needs no extra persisted flag: it is derived
+  from the durable `startsAt + minutes` deadline plus restored started games/arrangements, and
+  restart coverage verifies a deadline-crossing game is restored, scored, and only then causes
+  the tournament to finish. Unplayed cells use the durable `expired` arrangement status.
 
 - [ ] **Clear stale RR challenges durably on restart.** RR persists `status=challenged` and
   `inviteId`, but the underlying challenge/seek is in memory and is not restored. On reload,

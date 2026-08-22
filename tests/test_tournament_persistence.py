@@ -22,6 +22,7 @@ from tournament.auto_play_tournament import (
     RRTestTournament,
     SwissTestTournament,
 )
+from tournament.rr import ARR_STATUS_FINISHED, ARR_STATUS_STARTED
 from tournament.tournament import (
     SCORE_SHIFT,
     SWISS_FINISH_REASON_NO_LEGAL_PAIRING,
@@ -1830,6 +1831,74 @@ class TournamentPersistenceTestCase(TournamentTestCase):
                 await reloaded_tournament.clock_task
             except asyncio.CancelledError:
                 pass
+
+    async def test_rr_reload_restores_deadline_draining_game_and_scores_it(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state, tid, before_start=10, rounds=0, rr_max_players=2, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        await self.tournament.join_players(2)
+        await self.tournament.start(datetime.now(UTC))
+        arrangement = self.tournament.arrangement_list()[0]
+        game = await self.tournament.start_arrangement_game(arrangement.id)
+
+        past_start = datetime.now(UTC) - timedelta(minutes=2)
+        self.tournament.starts_at = past_start
+        self.tournament.minutes = 1
+        self.tournament.ends_at = past_start + timedelta(minutes=1)
+        await app_state.db.tournament.update_one(
+            {"_id": tid},
+            {"$set": {"startsAt": past_start, "minutes": 1}},
+        )
+
+        self.assertEqual(self.tournament.status, T_STARTED)
+        self.assertEqual(arrangement.status, ARR_STATUS_STARTED)
+        self.assertTrue(self.tournament.deadline_reached())
+
+        reloaded_app_state, reloaded_tournament = await self.reload_tournament(
+            app_state.db_client, tid
+        )
+        self.assertIsNotNone(reloaded_tournament)
+        assert reloaded_tournament is not None
+        self.assertEqual(reloaded_tournament.status, T_STARTED)
+        self.assertTrue(reloaded_tournament.deadline_reached())
+        self.assertEqual(len(reloaded_tournament.ongoing_games), 1)
+        reloaded_arrangement = reloaded_tournament.arrangement_by_id(arrangement.id)
+        self.assertIsNotNone(reloaded_arrangement)
+        assert reloaded_arrangement is not None
+        self.assertEqual(reloaded_arrangement.status, ARR_STATUS_STARTED)
+
+        # Let the restored RR clock observe the expired deadline. It must keep
+        # draining the live game instead of finishing the tournament.
+        await asyncio.sleep(reloaded_tournament.clock_interval + 0.1)
+        self.assertEqual(reloaded_tournament.status, T_STARTED)
+        self.assertEqual(len(reloaded_tournament.ongoing_games), 1)
+
+        # reload_tournament() reconstructs only the tournament fixture, not the
+        # full startup sequence that normally releases finished game callbacks.
+        reloaded_app_state.tournaments_loaded.set()
+        reloaded_game = reloaded_app_state.games[game.id]
+        reloaded_game.board.ply = 20
+        await reloaded_game.game_ended(reloaded_game.bplayer, "resign")
+        if reloaded_tournament.clock_task is not None:
+            await asyncio.wait_for(reloaded_tournament.clock_task, timeout=2)
+
+        self.assertEqual(reloaded_tournament.status, T_FINISHED)
+        self.assertEqual(reloaded_tournament.nb_games_finished, 1)
+        self.assertEqual(reloaded_arrangement.status, ARR_STATUS_FINISHED)
+        self.assertGreater(
+            reloaded_tournament.leaderboard_score_by_username(reloaded_game.wplayer.username)
+            // SCORE_SHIFT,
+            0,
+        )
+        tournament_doc = await reloaded_app_state.db.tournament.find_one({"_id": tid})
+        self.assertIsNotNone(tournament_doc)
+        assert tournament_doc is not None
+        self.assertEqual(tournament_doc["status"], T_FINISHED)
 
     async def test_rr_reload_reconciles_finished_game_with_stale_started_arrangement(self):
         app_state = get_app_state(self.app)

@@ -13,8 +13,18 @@ from tournament.auto_play_tournament import (
     RRTestTournament,
     SwissTestTournament,
 )
-from tournament.rr import ARR_STATUS_FINISHED, ARR_STATUS_PENDING, ARR_STATUS_STARTED
-from tournament.tournament import MANUAL_ROUND_INTERVAL, GameData, upsert_tournament_to_db
+from tournament.rr import (
+    ARR_STATUS_EXPIRED,
+    ARR_STATUS_FINISHED,
+    ARR_STATUS_PENDING,
+    ARR_STATUS_STARTED,
+)
+from tournament.tournament import (
+    MANUAL_ROUND_INTERVAL,
+    SCORE_SHIFT,
+    GameData,
+    upsert_tournament_to_db,
+)
 from tournament_test_base import ONE_TEST_ONLY, TournamentTestCase
 from user import User
 from variants import VARIANTS
@@ -503,6 +513,99 @@ class TournamentFlowTestCase(TournamentTestCase):
         self.assertEqual(self.tournament.status, T_FINISHED)
         self.assertEqual(len(self.tournament.arrangements), 10)
         self.assertFalse(self.tournament.all_arrangements_finished())
+        self.assertTrue(
+            all(
+                arrangement.status == ARR_STATUS_EXPIRED
+                for arrangement in self.tournament.arrangements.values()
+            )
+        )
+
+    async def test_rr_deadline_drains_running_game_before_finishing(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            before_start=0,
+            rounds=0,
+            rr_max_players=4,
+            minutes=45,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+        await self.tournament.join_players(4)
+        await self.tournament.start(datetime.now(UTC))
+
+        running_arrangement = self.tournament.arrangement_list()[0]
+        running_game = await self.tournament.start_arrangement_game(running_arrangement.id)
+        running_names = set(running_arrangement.players())
+        challenged_arrangement = next(
+            arrangement
+            for arrangement in self.tournament.arrangement_list()
+            if running_names.isdisjoint(arrangement.players())
+        )
+        challenger = app_state.users[challenged_arrangement.white]
+        challenge_error = await self.tournament.create_arrangement_challenge(
+            challenger, challenged_arrangement.id
+        )
+        self.assertIsNone(challenge_error)
+        challenge_id = challenged_arrangement.invite_id
+        self.assertIsNotNone(challenge_id)
+        assert challenge_id is not None
+        self.assertIn(challenge_id, app_state.invites)
+
+        deadline = datetime.now(UTC) - timedelta(seconds=1)
+        self.tournament.ends_at = deadline
+        self.tournament.clock_task = asyncio.create_task(
+            self.tournament.clock(), name="test-rr-deadline-drain"
+        )
+        await asyncio.sleep(self.tournament.clock_interval * 3)
+
+        self.assertEqual(self.tournament.status, T_STARTED)
+        self.assertIn(running_game, self.tournament.ongoing_games)
+        self.assertEqual(running_arrangement.status, ARR_STATUS_STARTED)
+        self.assertEqual(challenged_arrangement.status, ARR_STATUS_EXPIRED)
+        self.assertNotIn(challenge_id, app_state.invites)
+        self.assertFalse(
+            any(
+                seek.rr_arrangement_id == challenged_arrangement.id
+                for seek in app_state.seeks.values()
+            )
+        )
+
+        self.assertEqual(
+            await self.tournament.set_arrangement_time(
+                challenger, challenged_arrangement.id, datetime.now(UTC) + timedelta(hours=1)
+            ),
+            "The round-robin scheduling deadline has passed.",
+        )
+        self.assertEqual(
+            await self.tournament.create_arrangement_challenge(
+                challenger, challenged_arrangement.id
+            ),
+            "The round-robin challenge deadline has passed.",
+        )
+        accept_result = await self.tournament.accept_arrangement_challenge(
+            app_state.users[challenged_arrangement.black], challenged_arrangement.id
+        )
+        self.assertEqual(accept_result["type"], "error")
+        self.assertEqual(accept_result["message"], "The round-robin challenge deadline has passed.")
+
+        running_game.board.ply = 20
+        await running_game.game_ended(running_game.bplayer, "resign")
+        if self.tournament.clock_task is not None:
+            await asyncio.wait_for(self.tournament.clock_task, timeout=2)
+
+        self.assertEqual(self.tournament.status, T_FINISHED)
+        self.assertEqual(self.tournament.nb_games_finished, 1)
+        self.assertEqual(running_arrangement.status, ARR_STATUS_FINISHED)
+        self.assertEqual(len(self.tournament.ongoing_games), 0)
+        self.assertGreater(
+            self.tournament.leaderboard_score_by_username(running_game.wplayer.username)
+            // SCORE_SHIFT,
+            0,
+        )
 
     async def test_fixed_round_manual_next_round_waits_for_organizer(self):
         app_state = get_app_state(self.app)
@@ -1547,3 +1650,62 @@ class TournamentFlowTestCase(TournamentTestCase):
         self.assertIsNone(arrangement.invite_id)
         self.assertIsNone(arrangement.challenger)
         self.assertIsNone(arrangement.scheduled_at)
+        self.assertNotIn(game, self.tournament.ongoing_games)
+
+    async def test_rr_aborted_arrangement_after_deadline_expires_and_finishes(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state, tid, before_start=0, rounds=0, rr_max_players=4, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        await self.tournament.join_players(4)
+        await self.tournament.start(datetime.now(UTC))
+
+        finished_arrangement = self.tournament.arrangement_list()[0]
+        finished_game = await self.tournament.start_arrangement_game(finished_arrangement.id)
+        finished_game.board.ply = 20
+        await finished_game.game_ended(finished_game.bplayer, "resign")
+        self.assertEqual(self.tournament.nb_games_finished, 1)
+        self.assertEqual(finished_arrangement.status, ARR_STATUS_FINISHED)
+
+        finished_names = set(finished_arrangement.players())
+        arrangement = next(
+            candidate
+            for candidate in self.tournament.arrangement_list()
+            if finished_names.isdisjoint(candidate.players())
+        )
+        game = await self.tournament.start_arrangement_game(arrangement.id)
+
+        self.tournament.ends_at = datetime.now(UTC) - timedelta(seconds=1)
+        self.assertTrue(self.tournament.deadline_reached())
+        self.assertIn(game, self.tournament.ongoing_games)
+
+        await game.game_ended(game.wplayer, "abort")
+
+        self.assertEqual(self.tournament.status, T_FINISHED)
+        self.assertEqual(arrangement.status, ARR_STATUS_EXPIRED)
+        self.assertIsNone(arrangement.game_id)
+        self.assertNotIn(game, self.tournament.ongoing_games)
+        self.assertEqual(self.tournament.nb_games_finished, 1)
+        self.assertEqual(
+            self.tournament.leaderboard_score_by_username(game.wplayer.username) // SCORE_SHIFT,
+            0,
+        )
+        self.assertEqual(
+            self.tournament.leaderboard_score_by_username(game.bplayer.username) // SCORE_SHIFT,
+            0,
+        )
+
+        arrangement_doc = await app_state.db.tournament_arrangement.find_one(
+            {"_id": arrangement.id}
+        )
+        self.assertIsNotNone(arrangement_doc)
+        assert arrangement_doc is not None
+        self.assertEqual(arrangement_doc["s"], ARR_STATUS_EXPIRED)
+        tournament_doc = await app_state.db.tournament.find_one({"_id": tid})
+        self.assertIsNotNone(tournament_doc)
+        assert tournament_doc is not None
+        self.assertEqual(tournament_doc["status"], T_FINISHED)
