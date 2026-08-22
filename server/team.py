@@ -965,6 +965,50 @@ async def remove_user_from_teams_on_account_disable(
     )
 
 
+async def _active_fixed_round_team_tournaments(
+    app_state: PychessGlobalAppState, team_id: str
+) -> list[Mapping[str, Any]]:
+    if app_state.db is None:
+        return []
+
+    # Imported lazily because tournament.tournament imports Team membership helpers.
+    from const import RR, SWISS, T_CREATED, T_STARTED
+
+    return await app_state.db.tournament.find(
+        {
+            "teamId": team_id,
+            "system": {"$in": (RR, SWISS)},
+            "status": {"$in": (T_CREATED, T_STARTED)},
+        },
+        projection={"_id": 1, "name": 1, "status": 1, "system": 1},
+    ).to_list(length=None)
+
+
+async def _abort_active_fixed_round_team_tournaments(
+    app_state: PychessGlobalAppState, tournaments: list[Mapping[str, Any]]
+) -> None:
+    from const import T_CREATED, T_STARTED
+    from tournament.tournaments import load_tournament
+
+    for tournament_doc in tournaments:
+        tournament_id = str(tournament_doc.get("_id") or "")
+        tournament = await load_tournament(app_state, tournament_id)
+        if tournament is None:
+            raise web.HTTPConflict(
+                text=(
+                    "The team has an active fixed-round tournament that could not be loaded. "
+                    "Resolve that tournament before closing the team."
+                )
+            )
+        if tournament.status not in (T_CREATED, T_STARTED):
+            continue
+
+        await tournament.broadcast_system_tourney_chat(
+            "Tournament aborted because its team was closed."
+        )
+        await tournament.abort()
+
+
 async def close_team(
     app_state: PychessGlobalAppState,
     team_id: str,
@@ -981,6 +1025,20 @@ async def close_team(
         raise web.HTTPForbidden(text="Only the team creator can close this team.")
     if not bool(team.get("enabled", True)):
         raise web.HTTPConflict(text="Team is already closed.")
+
+    active_fixed_round = await _active_fixed_round_team_tournaments(app_state, team_id)
+    if active_fixed_round:
+        if not site_admin:
+            raise web.HTTPConflict(
+                text=(
+                    "This team has an active Round-Robin or Swiss tournament. "
+                    "Abort or finish it before closing the team."
+                )
+            )
+        # Forced closure is used by site moderation and account-disable/erasure paths.
+        # Resolve fixed-round events first so disabling the Team can never strand an RR
+        # whose arrangement actions require an enabled Team membership.
+        await _abort_active_fixed_round_team_tournaments(app_state, active_fixed_round)
 
     now = datetime.now(UTC)
     await app_state.db.team.update_one(

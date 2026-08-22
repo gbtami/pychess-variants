@@ -130,15 +130,15 @@ the asynchronous arrangement model.
   (including game/notification links and stale challenge cleanup); loaded-cache scrubbing; and
   indexed lookups for creator/winner/player/pairing/arrangement/link identities.
 
-- [ ] **Team-close / disabled-Team lifecycle.** Closing a Team currently makes
-  `is_enabled_team_member()` false immediately. Swiss already-registered players can mostly
-  continue because pairing uses the tournament roster, but an RR becomes effectively
+- [x] **Team-close / disabled-Team lifecycle.** Closing a Team previously made
+  `is_enabled_team_member()` false immediately. Swiss already-registered players could mostly
+  continue because pairing uses the tournament roster, but an RR became effectively
   unplayable because scheduling and challenge creation/acceptance re-check enabled Team
-  membership on every action. Decide one explicit policy before rollout. A safe initial
-  policy would be to prevent ordinary Team closure while a created/started RR or Swiss
-  exists, with a site-admin/account-erasure path that explicitly aborts created events and
-  resolves started events. Do not leave a started RR silently frozen because its Team was
-  closed.
+  membership on every action. PyChess now prevents ordinary creator closure while a
+  created/started RR or Swiss exists. The site-admin path used by moderation and account
+  disable/erasure explicitly aborts every active fixed-round Team tournament before the Team
+  is disabled, with a durable system-chat explanation, so a started RR can never be silently
+  stranded by Team closure.
 
 - [ ] **Organizer permission lifecycle.** Creation requires the Team tournament permission,
   but subsequent edit/abort/manual-round/RR-management authorization is based primarily on

@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 from aiohttp import web
 from aiohttp.test_utils import AioHTTPTestCase
-from const import FOLLOW
+from const import FOLLOW, T_ABORTED, T_CREATED, T_STARTED
 from mongomock_motor import AsyncMongoMockClient
 from multidict import MultiDict
 from pychess_global_app_state_utils import get_app_state
@@ -18,7 +18,7 @@ from team import (
     TEAM_PERMISSIONS,
     _add_member,
 )
-from tournament.auto_play_tournament import SwissTestTournament
+from tournament.auto_play_tournament import RRTestTournament, SwissTestTournament
 from tournament.tournament import upsert_tournament_to_db
 from user import User
 
@@ -304,6 +304,97 @@ class TeamTestCase(AioHTTPTestCase):
         self.assertIsNone(await app_state.db.team_member.find_one({"_id": "bob@variant-fans"}))
         team = await app_state.db.team.find_one({"_id": "variant-fans"})
         self.assertEqual(1, team["memberCount"])
+
+    async def test_team_close_refuses_active_fixed_round_tournaments(self):
+        await self.create_team()
+        app_state = get_app_state(self.app)
+
+        swiss = SwissTestTournament(
+            app_state,
+            "team-close-swiss",
+            variant="chess",
+            rounds=5,
+            team_id="variant-fans",
+            created_by="alice",
+            status=T_CREATED,
+            with_clock=False,
+        )
+        rr = RRTestTournament(
+            app_state,
+            "team-close-rr",
+            variant="chess",
+            team_id="variant-fans",
+            created_by="alice",
+            status=T_CREATED,
+            with_clock=False,
+        )
+        for tournament in (swiss, rr):
+            app_state.tournaments[tournament.id] = tournament
+            await upsert_tournament_to_db(tournament, app_state)
+            self.assertIsNone(await tournament.join(app_state.users["alice"]))
+        rr.status = T_STARTED
+        await upsert_tournament_to_db(rr, app_state)
+
+        response = await self.client.post(
+            "/team/variant-fans/close", data={}, allow_redirects=False
+        )
+        self.assertEqual(409, response.status)
+        self.assertIn("active Round-Robin or Swiss tournament", await response.text())
+
+        team = await app_state.db.team.find_one({"_id": "variant-fans"})
+        self.assertTrue(team["enabled"])
+        self.assertEqual(T_CREATED, swiss.status)
+        self.assertEqual(T_STARTED, rr.status)
+
+    async def test_site_admin_close_aborts_active_fixed_round_tournaments(self):
+        await self.create_team()
+        app_state = get_app_state(self.app)
+
+        swiss = SwissTestTournament(
+            app_state,
+            "team-admin-close-swiss",
+            variant="chess",
+            rounds=5,
+            team_id="variant-fans",
+            created_by="alice",
+            status=T_CREATED,
+            with_clock=False,
+        )
+        rr = RRTestTournament(
+            app_state,
+            "team-admin-close-rr",
+            variant="chess",
+            team_id="variant-fans",
+            created_by="alice",
+            status=T_CREATED,
+            with_clock=False,
+        )
+        for tournament in (swiss, rr):
+            app_state.tournaments[tournament.id] = tournament
+            await upsert_tournament_to_db(tournament, app_state)
+            self.assertIsNone(await tournament.join(app_state.users["alice"]))
+        rr.status = T_STARTED
+        await upsert_tournament_to_db(rr, app_state)
+
+        self.add_live_user("siteadmin")
+        self.set_session_user("siteadmin")
+        with patch("views.team.ADMINS", ("siteadmin",)):
+            response = await self.client.post(
+                "/team/variant-fans/close", data={}, allow_redirects=False
+            )
+        self.assertEqual(302, response.status)
+
+        team = await app_state.db.team.find_one({"_id": "variant-fans"})
+        self.assertFalse(team["enabled"])
+        for tournament in (swiss, rr):
+            self.assertEqual(T_ABORTED, tournament.status)
+            tournament_doc = await app_state.db.tournament.find_one({"_id": tournament.id})
+            self.assertEqual(T_ABORTED, tournament_doc["status"])
+            chat = await app_state.db.tournament_chat.find_one(
+                {"tid": tournament.id, "user": "_server"}
+            )
+            self.assertIsNotNone(chat)
+            self.assertEqual("Tournament aborted because its team was closed.", chat["message"])
 
     async def test_closed_team_blocks_new_tournament_participation(self):
         await self.create_team()
