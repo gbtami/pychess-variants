@@ -36,7 +36,7 @@ from json_utils import json_response
 from newid import id8
 from notify import notify
 from user_stats import normalize_user_count
-from websocket_utils import ws_send_json_many, ws_send_str_many
+from websocket_utils import ws_send_json_many
 
 if TYPE_CHECKING:
     from typing_defs import (
@@ -752,15 +752,6 @@ class User:
         #        )
         #    return
         await ws_send_json_many(ws_set, message)
-
-    async def send_game_message_str(self, game_id: str, payload: str) -> None:
-        # Same as send_game_message(), but takes an already-serialized JSON string.
-        # Used by round_broadcast() so one broadcast to many spectators encodes
-        # the message once instead of once per recipient.
-        ws_set = self.game_sockets.get(game_id)
-        if ws_set is None or len(ws_set) == 0:
-            return
-        await ws_send_str_many(ws_set, payload)
 
     async def close_all_game_sockets(self) -> None:
         for ws_set in tuple(self.game_sockets.values()):

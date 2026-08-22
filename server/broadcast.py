@@ -5,6 +5,7 @@ from collections.abc import Mapping
 from typing import TYPE_CHECKING
 
 from json_utils import json_dumps
+from websocket_utils import ws_send_str_many
 
 if TYPE_CHECKING:
     from bug.game_bug import GameBug
@@ -53,10 +54,16 @@ async def round_broadcast(
         )
         return
 
-    for spectator in spectators:
-        await spectator.send_game_message_str(game.id, payload)
-    for player in players:
-        await player.send_game_message_str(game.id, payload)
+    # Flatten every recipient socket into one fan-out so slow/backpressured
+    # users do not serialize delivery to everybody after them.
+    # ws_send_str_many() applies the broadcast-wide concurrency cap and
+    # per-socket timeout. Snapshot each socket set before the await below so
+    # disconnect/reconnect tasks may safely mutate game_sockets concurrently.
+    sockets = [
+        ws for user in (*spectators, *players) for ws in tuple(user.game_sockets.get(game.id, ()))
+    ]
+    if sockets:
+        await ws_send_str_many(sockets, payload)
     for queue in ch:
         try:
             queue.put_nowait(payload)
