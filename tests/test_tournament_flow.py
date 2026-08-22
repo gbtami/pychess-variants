@@ -8,6 +8,14 @@ from const import FLAG, T_ABORTED, T_CREATED, T_FINISHED, T_STARTED
 from glicko2.glicko2 import new_default_perf, new_default_perf_map
 from newid import id8
 from pychess_global_app_state_utils import get_app_state
+from seek import (
+    DIRECT_CHALLENGE_CREATED,
+    MAX_USER_SEEKS,
+    Seek,
+    create_seek,
+    seek_counts_toward_limit,
+    user_reached_seek_limit,
+)
 from tournament import swiss as swiss_mod
 from tournament.auto_play_tournament import (
     ArenaTestTournament,
@@ -962,6 +970,191 @@ class TournamentFlowTestCase(TournamentTestCase):
         self.assertEqual(opponent.notifications[-1]["content"]["tid"], tid)
         self.assertEqual(opponent.notifications[-1]["content"]["arr"], arrangement.id)
         self.assertEqual(opponent.notifications[-1]["content"]["opp"], challenger.username)
+
+    async def test_rr_challenge_bypasses_lobby_seek_limit_and_does_not_count_toward_it(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=0,
+            rounds=0,
+            rr_max_players=2,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = self.tournament
+
+        users = []
+        for suffix in ("A", "B"):
+            user = User(app_state, username=f"{tid}_{suffix}", perfs=make_test_perfs())
+            app_state.users[user.username] = user
+            user.tournament_sockets[tid] = {None}
+            await self.tournament.join(user)
+            users.append(user)
+
+        await self.tournament.start(datetime.now(UTC))
+        arrangement = self.tournament.arrangement_list()[0]
+        players = {user.username: user for user in users}
+        challenger = players[arrangement.white]
+
+        for _ in range(MAX_USER_SEEKS):
+            seek = Seek(id8(), challenger, "chess", player1=challenger)
+            app_state.seeks[seek.id] = seek
+            challenger.seeks[seek.id] = seek
+
+        self.assertTrue(user_reached_seek_limit(challenger, 0))
+
+        forged_seek = await create_seek(
+            app_state.db,
+            app_state.invites,
+            app_state.seeks,
+            challenger,
+            {
+                "variant": "chess",
+                "fen": "",
+                "color": "w",
+                "minutes": 5,
+                "increment": 0,
+                "byoyomiPeriod": 0,
+                "rated": False,
+                "chess960": False,
+                "target": arrangement.black,
+                "reserveGameId": True,
+                "tournamentId": tid,
+                "rrArrangementId": arrangement.id,
+            },
+        )
+        self.assertIsNone(forged_seek)
+
+        self.assertIsNone(
+            await self.tournament.create_arrangement_challenge(challenger, arrangement.id)
+        )
+        rr_seek = next(
+            seek for seek in app_state.seeks.values() if seek.rr_arrangement_id == arrangement.id
+        )
+        self.assertFalse(seek_counts_toward_limit(rr_seek))
+        self.assertEqual(
+            MAX_USER_SEEKS,
+            sum(seek_counts_toward_limit(seek) for seek in challenger.seeks.values()),
+        )
+
+    async def test_rr_challenge_bypasses_mutual_blocks_on_create_and_accept(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=0,
+            rounds=0,
+            rr_max_players=2,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = self.tournament
+
+        users = []
+        for suffix in ("A", "B"):
+            user = User(app_state, username=f"{tid}_{suffix}", perfs=make_test_perfs())
+            app_state.users[user.username] = user
+            user.tournament_sockets[tid] = {None}
+            await self.tournament.join(user)
+            users.append(user)
+
+        await self.tournament.start(datetime.now(UTC))
+        arrangement = self.tournament.arrangement_list()[0]
+        players = {user.username: user for user in users}
+        challenger = players[arrangement.white]
+        opponent = players[arrangement.black]
+        challenger.blocked.add(opponent.username)
+        opponent.blocked.add(challenger.username)
+
+        self.assertIsNone(
+            await self.tournament.create_arrangement_challenge(challenger, arrangement.id)
+        )
+        result = await self.tournament.accept_arrangement_challenge(opponent, arrangement.id)
+
+        self.assertEqual("new_game", result["type"])
+        game = app_state.games[result["gameId"]]
+        self.assertEqual(tid, game.tournamentId)
+        self.assertEqual(arrangement.id, getattr(game, "tournamentArrangementId", None))
+
+    async def test_rr_challenge_does_not_replace_normal_direct_challenge(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=0,
+            rounds=0,
+            rr_max_players=2,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = self.tournament
+
+        users = []
+        for suffix in ("A", "B"):
+            user = User(app_state, username=f"{tid}_{suffix}", perfs=make_test_perfs())
+            app_state.users[user.username] = user
+            user.tournament_sockets[tid] = {None}
+            await self.tournament.join(user)
+            users.append(user)
+
+        await self.tournament.start(datetime.now(UTC))
+        arrangement = self.tournament.arrangement_list()[0]
+        players = {user.username: user for user in users}
+        challenger = players[arrangement.white]
+        opponent = players[arrangement.black]
+        normal_seek = await create_seek(
+            app_state.db,
+            app_state.invites,
+            app_state.seeks,
+            challenger,
+            {
+                "variant": "chess",
+                "fen": "",
+                "color": "r",
+                "minutes": 5,
+                "increment": 3,
+                "byoyomiPeriod": 0,
+                "rated": False,
+                "chess960": False,
+                "target": opponent.username,
+            },
+        )
+        assert normal_seek is not None
+
+        self.assertIsNone(
+            await self.tournament.create_arrangement_challenge(challenger, arrangement.id)
+        )
+        rr_seek = next(
+            seek for seek in app_state.seeks.values() if seek.rr_arrangement_id == arrangement.id
+        )
+
+        self.assertEqual(DIRECT_CHALLENGE_CREATED, normal_seek.challenge_status)
+        self.assertEqual(DIRECT_CHALLENGE_CREATED, rr_seek.challenge_status)
+
+        replacement = await create_seek(
+            app_state.db,
+            app_state.invites,
+            app_state.seeks,
+            challenger,
+            {
+                "variant": "chess",
+                "fen": "",
+                "color": "r",
+                "minutes": 3,
+                "increment": 2,
+                "byoyomiPeriod": 0,
+                "rated": False,
+                "chess960": False,
+                "target": opponent.username,
+            },
+        )
+        assert replacement is not None
+        self.assertEqual(DIRECT_CHALLENGE_CREATED, rr_seek.challenge_status)
+        self.assertNotEqual(rr_seek.id, replacement.id)
 
     async def test_rr_simultaneous_challenges_create_only_one_invite(self):
         app_state = get_app_state(self.app)

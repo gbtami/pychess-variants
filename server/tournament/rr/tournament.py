@@ -911,8 +911,6 @@ class RRTournament(Tournament):
             "chess960": self.chess960,
             "target": opponent,
             "reserveGameId": True,
-            "tournamentId": self.id,
-            "rrArrangementId": arrangement.id,
         }
         seek = await create_seek(
             self.app_state.db,
@@ -920,6 +918,8 @@ class RRTournament(Tournament):
             self.app_state.seeks,
             user,
             seek_data,
+            tournament_id=self.id,
+            rr_arrangement_id=arrangement.id,
         )
         if seek is None or seek.game_id is None:
             return "Could not create a round-robin challenge."

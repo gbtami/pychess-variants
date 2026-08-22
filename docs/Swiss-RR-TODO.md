@@ -237,13 +237,16 @@ the asynchronous arrangement model.
   offsets), and malformed dates are rejected as ordinary request errors rather than escaping the
   handler.
 
-- [ ] **Decouple mandatory RR games from ordinary lobby challenge restrictions.** An RR
-  arrangement currently goes through generic `create_seek()`, so the normal seek-count limit
-  and mutual block checks can prevent two already-registered tournament opponents from
-  creating their required game. Decide the policy explicitly. The recommended tournament
-  behavior is to keep authentication/team/arrangement checks but bypass restrictions whose
-  purpose is unsolicited lobby challenges; otherwise provide an organizer-visible resolution
-  for pairings that can never be played.
+- [x] **Decouple mandatory RR games from ordinary lobby challenge restrictions.** Team RR
+  registration is now the consent boundary for mandatory pairings. RR challenge creation and
+  acceptance still require the normal tournament/team/arrangement/deadline/player-state checks,
+  and generic variant/access/BOT/two-board game-safety checks remain in place, but mutual user
+  blocks and the ordinary lobby seek quota no longer make a required RR game impossible. RR
+  challenge seeks do not count toward that lobby quota and do not replace (or get selected as
+  the duplicate of) an ordinary direct challenge between the same users. Tournament and RR
+  arrangement linkage is now attached through server-only `create_seek()` keyword arguments;
+  client-supplied `tournamentId`/`rrArrangementId` fields in a generic lobby seek are ignored,
+  so those fields cannot be forged to obtain the tournament exemptions.
 
 # High-value parity / organizer features
 
