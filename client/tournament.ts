@@ -825,7 +825,12 @@ export class TournamentController implements ChatController {
 
             const oldPlayers = document.getElementById('players') as Element;
             oldPlayers.innerHTML = '';
-            patch(oldPlayers, h('table#players.players.box', [h('tbody', this.renderPlayers(msg.players))]));
+            patch(
+                oldPlayers,
+                h('table#players.players.box', { class: { 'fixed-rounds': this.system > 0 } }, [
+                    h('tbody', this.renderPlayers(msg.players)),
+                ]),
+            );
         }
     }
 
@@ -1241,7 +1246,12 @@ export function tournamentView(model: PyChessModel): VNode[] {
                 h('div.tour-header', [h('div#trophy'), h('h1', model['tournamentname']), h('div#clockdiv')]),
                 h('div#podium'),
                 h('div#page-controls'),
-                h('table#players', { hook: { insert: vnode => runTournament(vnode, model) } }),
+                h('div.tournament-standing-wrap', [
+                    h('table#players', {
+                        class: { 'fixed-rounds': model.tsystem > 0 },
+                        hook: { insert: vnode => runTournament(vnode, model) },
+                    }),
+                ]),
                 h('div.tour-faq'),
             ]),
         ]),

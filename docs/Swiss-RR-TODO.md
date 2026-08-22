@@ -297,11 +297,21 @@ the asynchronous arrangement model.
   terminal standings/history pages. This catches integration/UX assumptions that unit tests
   cannot reproduce.
 
-- [ ] **Final desktop/mobile comparison.** After the lifecycle fixes above settle the UI,
-  compare Swiss against current Lichess and RR against current lishogi at desktop and phone
-  widths. Focus on fixed-round controls, long Team/variant names, Swiss standings/player
-  sheets, the RR matrix/list fallback, appointment modal, and organizer management controls.
-  Do not add tests for CSS-only polish unless a concrete regression needs protection.
+- [x] **Final desktop/mobile comparison.** Compared the current PyChess fixed-round DOM/CSS
+  against the supplied current lila Swiss and lishogi Robin/arrangement implementations and
+  rendered representative 15-round Swiss / 16-player RR layouts at desktop and phone widths.
+  The pass fixed three structural responsive failures: the tournament layout now has the
+  Lichess/Lishogi-style middle two-column breakpoint instead of jumping directly from one to
+  three columns at 800px; Swiss round sheets no longer wrap each player's rounds into
+  multi-line/tall standings rows (the standings now scroll as one table); and the RR split
+  matrix now lets only its arrangement grid scroll instead of widening the whole page. RR cells
+  grow to touch-friendly phone targets while names/scores stay visible.
+  The RR games/challenges fallback lists keep their own horizontal overflow, organizer controls
+  wrap on narrow screens, long Team/variant/title metadata wraps safely, and the appointment
+  modal is height-bounded/scrollable with ellipsized long player names. The shared tournament
+  creation form also drops its desktop 60px padding on phones, makes the name field full width,
+  and stacks split fields. No CSS-only regression tests were added; final live-device checking
+  remains part of the staging exercise below.
 
 - [ ] **Enable for Team leaders.** Keep standalone RR/Swiss restricted to site administration
   / development as appropriate, and expose normal creation through the Team tournament

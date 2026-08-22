@@ -5,16 +5,21 @@
     grid-area: main;
     display: grid;
     grid-gap: 2vmin;
+    grid-template-areas: 'main' 'side' 'uchat' 'table';
 }
-@media (max-width: 799px) and (orientation: portrait) {
+@media (max-width: 799px) {
     #main-wrap {
         --main-max-width: 100%;
     }
+}
+@media (min-width: 800px) and (max-width: 1099px) {
     .tour {
-        grid-template-areas: 'main' 'side' 'uchat' 'table';
+        grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
+        grid-template-areas: 'main side' 'main uchat' 'table table';
+        align-items: start;
     }
 }
-@media (min-width: 800px) {
+@media (min-width: 1100px) {
     .tour {
         grid-template-columns: minmax(250px, 350px) minmax(500px, calc(100vh * 0.9 - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) minmax(240px, 400px);
         grid-template-rows: calc(100vh - calc(var(--site-header-height) + var(--site-header-margin)) - 2vmin - 3rem) auto;
@@ -145,6 +150,7 @@ button#action:active {
 
 .players {
     grid-area: main;
+    min-width: 0;
 }
 .tour-table {
     grid-area: table;
@@ -991,4 +997,174 @@ div.tour-faq {
 }
 .tour-faq p {
   padding: 0;
+}
+
+/* Fixed-round desktop/mobile parity: keep round sheets on one line and scroll the
+ * standings as a unit instead of wrapping one player's rounds into tall rows. */
+.tournament-standing-wrap {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: thin;
+}
+table#players.fixed-rounds {
+    min-width: max-content;
+}
+table#players.fixed-rounds td.player {
+    min-width: 9rem;
+    max-width: 12rem;
+    white-space: nowrap;
+}
+table#players.fixed-rounds td.player span.name {
+    display: inline-block;
+    max-width: 8rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+}
+td.sheet.fixed-rounds {
+    width: auto;
+}
+td.sheet.fixed-rounds div {
+    flex-flow: row nowrap;
+}
+td.sheet.fixed-rounds > div > * {
+    flex: 0 0 1.3em;
+}
+
+/* The RR matrix follows lishogi's split-table layout: names and totals stay
+ * visible while only the O(n²) arrangement grid scrolls horizontally. */
+.r-table-wrap {
+    max-width: 100%;
+    min-width: 0;
+}
+.r-table-wrap-players,
+.r-table-wrap-scores {
+    flex: 0 0 auto;
+}
+.r-table-wrap-arrs {
+    min-width: 0;
+    flex: 1 1 auto;
+    scrollbar-width: thin;
+}
+#rr-crosstable .r-table-wrap-players th:nth-child(2) {
+    max-width: 10rem;
+}
+#rr-crosstable .r-table-wrap-players th:nth-child(2) .user-link {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* RR list views are the compact fallback below the matrix. Keep their overflow
+ * local to the panel so narrow screens never acquire page-level horizontal scroll. */
+#rr-body [id^='rr-panel-'] {
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: thin;
+}
+#rr-body #games {
+    min-width: 28rem;
+}
+#rr-challenges table {
+    min-width: 40rem;
+}
+#rr-management td.manage-actions {
+    flex-wrap: wrap;
+}
+
+/* Long localized metadata and Team/variant names should wrap inside the sidebar. */
+.tour .game-info .tc,
+.tour .tournament-team,
+.tour .tournament-team a {
+    overflow-wrap: anywhere;
+}
+div.tour-header h1 {
+    overflow-wrap: anywhere;
+}
+#rr-info-meta {
+    flex-wrap: wrap;
+}
+
+/* Appointment details can exceed a phone's height once the inline calendar is
+ * open. Scroll the modal body rather than letting actions fall below the viewport. */
+.rr-modal-content.rr-arr-modal {
+    max-height: calc(100vh - 2rem);
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+.rr-arr-header h3 {
+    padding-right: 2rem;
+    overflow-wrap: anywhere;
+}
+.rr-arr-name,
+.rr-arr-player-link,
+.rr-arr-player-link .user-link {
+    min-width: 0;
+}
+.rr-arr-player-link {
+    flex: 1 1 auto;
+}
+.rr-arr-player-link .user-link {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.title-value-wrap {
+    flex-wrap: wrap;
+}
+.title-value-wrap .value {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 799px) {
+    div.tour-header {
+        padding: 0 1rem;
+    }
+    div.tour-header h1 {
+        font-size: 1.6rem;
+    }
+    #startsAt {
+        white-space: normal;
+    }
+    .r-table-wrap {
+        --rr-cell-size: 3.5rem;
+    }
+    #rr-crosstable .r-table-wrap-players th:nth-child(2) {
+        min-width: 8.5rem;
+        max-width: 8.5rem;
+        padding: 0 0.55rem;
+    }
+    #rr-management .rr-section-header,
+    #rr-management .rr-kick-controls,
+    #rr-selection .rr-detail-actions {
+        flex-wrap: wrap;
+    }
+    #rr-management .rr-section-header > *,
+    #rr-management .rr-kick-controls > * {
+        min-width: 0;
+    }
+    #rr-management .rr-kick-controls input {
+        flex: 1 1 12rem;
+    }
+}
+
+@media (max-width: 480px) {
+    table#players.fixed-rounds td.player {
+        min-width: 8rem;
+        max-width: 9rem;
+    }
+    table#players.fixed-rounds td.player span.name {
+        max-width: 6.5rem;
+    }
+    .rr-arr-user {
+        padding: 0.85rem;
+    }
+    .rr-arr-name {
+        font-size: 1.35rem;
+    }
 }

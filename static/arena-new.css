@@ -197,3 +197,24 @@ input[type="checkbox"] {
         max-width: 42%;
     }
 }
+
+@media (max-width: 600px) {
+    .tour__form.box,
+    .tour__faq.box {
+        --box-padding: 1rem;
+    }
+    .tour__form h1 {
+        font-size: clamp(2rem, 9vw, 2.6rem);
+        overflow-wrap: anywhere;
+    }
+    .tour__form #form3-name {
+        width: 100% !important;
+    }
+    .tour__form .form-half {
+        flex: 1 1 100%;
+        min-width: 0;
+    }
+    .tour__form .form-group {
+        margin-bottom: 2rem;
+    }
+}
