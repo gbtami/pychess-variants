@@ -156,14 +156,17 @@ the asynchronous arrangement model.
 
 ## Swiss hardening
 
-- [ ] **Bound Swiss pairing work / participant cap.** Swiss currently has no participant
-  ceiling. `py4swiss` TRF construction/validation and `DutchEngine.generate_pairings()` are
-  synchronous CPU work on the single aiohttp process, so an unexpectedly large Team Swiss
-  can delay live move handling. Define a conservative PyChess Swiss player cap, benchmark
-  pairing at that cap, and enforce it server-side on join. If the desired cap makes pairing
-  measurably expensive, move the Dutch pairing call off the event-loop thread (this is a
-  better `asyncio.to_thread()` use case than streaming because the operation is bounded CPU
-  work with a small result).
+- [x] **Bound Swiss pairing work / participant cap.** PyChess now caps Swiss tournaments at
+  64 registered participants server-side. The count deliberately includes withdrawn players,
+  because they remain as zeroed TRF rows and still contribute to py4swiss pairing work; an
+  existing participant can therefore rejoin at the cap, but join/withdraw churn cannot admit a
+  65th historical participant. The existing `scripts/py4swiss_memory_stress.py` harness was
+  used to benchmark the same TRF construction/validation plus Dutch pairing path: across 90
+  synthetic pairing calls at 64 players / 9 rounds, this Python 3.13 sandbox measured about
+  45 ms median, 76 ms p95, and 79 ms maximum per call. A 96-player / 10-round run averaged
+  about 112 ms per round. That makes 64 a conservative bound for the single aiohttp process
+  without adding `asyncio.to_thread()` complexity yet; revisit offloading if production
+  measurements at the cap show materially higher latency.
 
 - [ ] **Server-side Swiss round/input limits.** The form advertises a finite round list
   (currently 3–15), but a forged POST can submit any positive integer; an already-started

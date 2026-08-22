@@ -21,7 +21,7 @@ from py4swiss.trf.results import (
 from py4swiss.trf.sections import PlayerSection, XSection
 from py4swiss.trf.sections.x_section import XSectionConfiguration
 
-from tournament.tournament import PairingUnavailable, Tournament
+from tournament.tournament import SWISS_MAX_PLAYERS, PairingUnavailable, Tournament
 
 from .history import (
     _build_player_results,
@@ -210,6 +210,17 @@ class SwissTournament(Tournament):
         if self.status == T_STARTED and player_data.joined_round > 1:
             await _persist_late_entry_round_history_impl(self, player)
 
+    def participant_count(self) -> int:
+        # Match the complete player set included in _build_dutch_pairing_state().
+        # Withdrawn players still contribute TRF rows, so counting only nb_players
+        # would let join/withdraw churn bypass the pairing-work bound.
+        return len({player.username for player in self.players}.union(self.players_by_name))
+
+    async def join_precheck(self, user: User, player_data: PlayerData | None) -> str | None:
+        if player_data is None and self.participant_count() >= SWISS_MAX_PLAYERS:
+            return f"This Swiss tournament is full (maximum {SWISS_MAX_PLAYERS} players)."
+        return await super().join_precheck(user, player_data)
+
     async def join(self, user: User, password: str | None = None) -> str | None:
         is_new_player = self.player_data_by_name(user.username) is None
         if self.status == T_STARTED and is_new_player and not self._is_late_join_allowed():
@@ -309,6 +320,7 @@ class SwissTournament(Tournament):
 
 
 __all__ = [
+    "SWISS_MAX_PLAYERS",
     "ColorToken",
     "DutchEngine",
     "PairingError",
