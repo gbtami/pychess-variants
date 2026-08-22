@@ -40,6 +40,12 @@ TEAM_UPDATE_SIDEBAR_LIMIT = TEAM_MAX_JOINED * TEAM_UPDATE_MAX_PER_7_DAYS * 6
 TEAM_ERASED_USER = "<erased>"
 TEAM_ERASED_UPDATE_TEXT = "[deleted by account deletion request]"
 
+
+# Deferred translations for labels rendered through Jinja gettext.
+def _(message: str) -> str:
+    return message
+
+
 TEAM_FORUM_ACCESS_NONE = "none"
 TEAM_FORUM_ACCESS_LEADERS = "leaders"
 TEAM_FORUM_ACCESS_MEMBERS = "members"
@@ -53,10 +59,10 @@ TEAM_FORUM_ACCESS_VALUES = frozenset(
     }
 )
 TEAM_FORUM_ACCESS_OPTIONS = (
-    (TEAM_FORUM_ACCESS_EVERYONE, "Show to everyone"),
-    (TEAM_FORUM_ACCESS_MEMBERS, "Show to team members"),
-    (TEAM_FORUM_ACCESS_LEADERS, "Show to team leaders"),
-    (TEAM_FORUM_ACCESS_NONE, "Hide the forum"),
+    (TEAM_FORUM_ACCESS_EVERYONE, _("Show to everyone")),
+    (TEAM_FORUM_ACCESS_MEMBERS, _("Show to team members")),
+    (TEAM_FORUM_ACCESS_LEADERS, _("Show to team leaders")),
+    (TEAM_FORUM_ACCESS_NONE, _("Hide the forum")),
 )
 
 PERMISSION_PUBLIC = "public"
@@ -69,15 +75,18 @@ PERMISSION_KICK = "kick"
 PERMISSION_ADMIN = "admin"
 
 TEAM_PERMISSION_DEFINITIONS = (
-    (PERMISSION_PUBLIC, "Public", "Visible as leader on the team page"),
-    (PERMISSION_SETTINGS, "Settings", "Change settings and descriptions"),
-    (PERMISSION_TOURNAMENTS, "Tournaments", "Create and manage team tournaments"),
-    (PERMISSION_MODERATION, "Moderation", "Moderate the team forum"),
-    (PERMISSION_REQUESTS, "Requests", "Accept and decline join requests"),
-    (PERMISSION_UPDATES, "Updates", "Send team updates to members"),
-    (PERMISSION_KICK, "Kick", "Kick members from the team"),
-    (PERMISSION_ADMIN, "Admin", "Manage leader permissions"),
+    (PERMISSION_PUBLIC, _("Public"), _("Visible as leader on the team page")),
+    (PERMISSION_SETTINGS, _("Settings"), _("Change settings and descriptions")),
+    (PERMISSION_TOURNAMENTS, _("Tournaments"), _("Create and manage team tournaments")),
+    (PERMISSION_MODERATION, _("Moderation"), _("Moderate the team forum")),
+    (PERMISSION_REQUESTS, _("Requests"), _("Accept and decline join requests")),
+    (PERMISSION_UPDATES, _("Updates"), _("Send team updates to members")),
+    (PERMISSION_KICK, _("Kick"), _("Kick members from the team")),
+    (PERMISSION_ADMIN, _("Admin"), _("Manage leader permissions")),
 )
+
+del _
+
 
 TEAM_PERMISSIONS = frozenset(
     {

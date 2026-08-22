@@ -1,6 +1,6 @@
 {% if catalogued_variant.ruleSummary %}
 <section class="catalogued-variant-rules-block catalogued-variant-generated-rules">
-    <h2>Generated rule overview</h2>
+    <h2>{% trans %}Generated rule overview{% endtrans %}</h2>
     {% for paragraph in catalogued_variant.ruleSummary.intro %}
     <p>{{ paragraph }}</p>
     {% endfor %}
@@ -13,7 +13,7 @@
             <div class="catalogued-start-board-preview" data-variant="{{ catalogued_variant.name }}">
                 {{ catalogued_variant.startBoardPreview.svg | safe }}
             </div>
-            <figcaption>Default starting position</figcaption>
+            <figcaption>{% trans %}Default starting position{% endtrans %}</figcaption>
         </figure>
         {% endif %}
         {% if section.lines %}
@@ -28,7 +28,7 @@
 
     {% if catalogued_variant.ruleSummary.unknown %}
     <details class="catalogued-rule-technical-notes">
-        <summary>Other technical options</summary>
+        <summary>{% trans %}Other technical options{% endtrans %}</summary>
         <ul>
             {% for line in catalogued_variant.ruleSummary.unknown %}
             <li>

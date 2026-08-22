@@ -370,18 +370,18 @@ def _extract_form_values(data: Any, defaults: dict[str, Any]) -> dict[str, Any]:
 def _validate_content(values: dict[str, Any]) -> list[str]:
     errors: list[str] = []
     if len(values["title"]) < 3:
-        errors.append("Title must have at least 3 characters.")
+        errors.append("title_too_short")
     if len(values["intro"]) < 3:
-        errors.append("Intro must have at least 3 characters.")
+        errors.append("intro_too_short")
     if len(values["markdown"]) < 3:
-        errors.append("Post body must have at least 3 characters.")
+        errors.append("body_too_short")
     return errors
 
 
 def _validate_media(values: dict[str, Any]) -> list[str]:
     image = sanitize_image_url(values["image"])
     if values["image"] != "" and image is None:
-        return ["Image URL must be absolute http(s) or start with /."]
+        return ["invalid_image_url"]
     return []
 
 

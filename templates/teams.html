@@ -6,7 +6,7 @@
         {% include "team-menu.html" %}
         <div class="page-menu__content box">
             <div class="box__top team-list-top">
-                <h1>{% if mine_only %}My teams{% else %}Teams{% endif %}</h1>
+                <h1>{% if mine_only %}{% trans %}My teams{% endtrans %}{% else %}{% trans %}Teams{% endtrans %}{% endif %}</h1>
             </div>
 
             <table class="team-slist slist slist-pad slist-invert">
@@ -18,19 +18,19 @@
                             <a class="team-name{% if team['_id'] in my_team_ids %} mine{% endif %}" href="/team/{{ team['_id'] }}">
                                 <span class="team-icon" aria-hidden="true"></span>
                                 <span class="team-name__label">{{ team['name'] }}</span>
-                                {% if team['_id'] in my_team_ids %}<em>joined</em>{% endif %}
+                                {% if team['_id'] in my_team_ids %}<em>{% trans %}joined{% endtrans %}</em>{% endif %}
                             </a>
                             {% if team.get('intro') %}<span class="team-list-intro">{{ team['intro'] }}</span>{% endif %}
                         </td>
                         <td class="info">
-                            <p>{{ team.get('memberCount', 0) }} member{% if team.get('memberCount', 0) != 1 %}s{% endif %}</p>
+                            <p>{% trans count=team.get('memberCount', 0) %}{{ count }} member{% pluralize %}{{ count }} members{% endtrans %}</p>
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
                 {% else %}
                 <tbody>
-                    <tr><td class="team-empty" colspan="2">No teams yet{% if not anon %}. Create the first one and invite other PyChess players.{% endif %}</td></tr>
+                    <tr><td class="team-empty" colspan="2">{% trans %}No teams yet{% endtrans %}{% if not anon %}. {% trans %}Create the first one and invite other PyChess players.{% endtrans %}{% endif %}</td></tr>
                 </tbody>
                 {% endif %}
             </table>

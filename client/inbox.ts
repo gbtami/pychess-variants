@@ -31,6 +31,34 @@ interface Message {
     createdAt: string;
 }
 
+interface InboxApiError {
+    type?: string;
+    code?: string;
+    message?: string;
+}
+
+const INBOX_MAX_MSG_LEN = 2000;
+
+function inboxApiErrorMessage(data: InboxApiError, fallback: string): string {
+    switch (data.code) {
+        case 'login_required': return _('Login required');
+        case 'invalid_contact': return _('Invalid contact');
+        case 'user_not_found': return _('User not found');
+        case 'invalid_before': return _('Invalid message cursor');
+        case 'system_user_no_messages': return _("PyChess doesn't accept new messages.");
+        case 'invalid_request': return _('Invalid request');
+        case 'message_empty': return _('Message is empty');
+        case 'message_too_long': return _('Message too long (max %1)', INBOX_MAX_MSG_LEN);
+        case 'too_many_similar_messages': return _('Too many similar messages. Please wait and retry.');
+        case 'cannot_send_from_account': return _('Cannot send messages from this account');
+        case 'user_blocked': return _('User is blocked');
+        case 'cannot_message_user': return _('Cannot message this user');
+        case 'friends_only': return _('Only friends can message this user');
+        case 'system_messages_cannot_delete': return _('PyChess system messages cannot be deleted.');
+        default: return data.message || fallback;
+    }
+}
+
 interface ThreadResponse {
     contact: {
         name: string;
@@ -166,9 +194,9 @@ export function inboxView(model: PyChessModel) {
     function loadThreads(selectFirstWhenEmpty = true) {
         fetch('/api/inbox/threads')
             .then(parseJsonResponse)
-            .then(({ status, data }: { status: number; data: { threads?: ThreadSummary[]; message?: string } }) => {
+            .then(({ status, data }: { status: number; data: { threads?: ThreadSummary[] } & InboxApiError }) => {
                 if (status >= 400) {
-                    throw new Error(data.message || `HTTP ${status}`);
+                    throw new Error(inboxApiErrorMessage(data, `HTTP ${status}`));
                 }
                 const payload = data;
                 threads = payload.threads || [];
@@ -208,9 +236,9 @@ export function inboxView(model: PyChessModel) {
         fetch(`/api/inbox/thread/${encodeURIComponent(user)}${query}`)
             .then(parseJsonResponse)
             .then(
-                ({ status, data }: { status: number; data: ThreadResponse & { type?: string; message?: string } }) => {
+                ({ status, data }: { status: number; data: ThreadResponse & InboxApiError }) => {
                     if (status >= 400 || data.type === 'error') {
-                        if (data.message === 'Invalid contact') {
+                        if (data.code === 'invalid_contact' || data.message === 'Invalid contact') {
                             contact = '';
                             contactTitle = '';
                             contactOnline = false;
@@ -226,7 +254,7 @@ export function inboxView(model: PyChessModel) {
                             redraw();
                             return;
                         }
-                        void alertDialog({ text: data.message || _('Could not open conversation.') });
+                        void alertDialog({ text: inboxApiErrorMessage(data, _('Could not open conversation.')) });
                         loadingMore = false;
                         loading = false;
                         redraw();
@@ -297,7 +325,7 @@ export function inboxView(model: PyChessModel) {
             .then(parseJsonResponse)
             .then(({ status, data }) => {
                 if (status >= 400 || data.type === 'error') {
-                    void alertDialog({ text: data.message || _('Could not send message.') });
+                    void alertDialog({ text: inboxApiErrorMessage(data, _('Could not send message.')) });
                     return;
                 }
 
@@ -360,9 +388,9 @@ export function inboxView(model: PyChessModel) {
             method: 'POST',
         })
             .then(parseJsonResponse)
-            .then(({ status, data }: { status: number; data: { type?: string; message?: string } }) => {
+            .then(({ status, data }: { status: number; data: InboxApiError }) => {
                 if (status >= 400 || data.type === 'error') {
-                    void alertDialog({ text: data.message || _('Could not delete conversation.') });
+                    void alertDialog({ text: inboxApiErrorMessage(data, _('Could not delete conversation.')) });
                     return;
                 }
 

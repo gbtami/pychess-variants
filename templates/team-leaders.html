@@ -5,14 +5,14 @@
         {% set team_menu_active = '' %}
         {% include "team-menu.html" %}
         <div class="page-menu__content box">
-            <h1 class="box__top team-admin-top"><a href="/team/{{ team['_id'] }}">{{ team['name'] }}</a> • Team leaders</h1>
+            <h1 class="box__top team-admin-top"><a href="/team/{{ team['_id'] }}">{{ team['name'] }}</a> • {% trans %}Team leaders{% endtrans %}</h1>
 
             <form method="post" action="/team/{{ team['_id'] }}/leaders/add" class="team-add-leader box__pad">
                 <div class="team-add-leader__input">
-                    <input class="form-control" name="username" required autocomplete="off" placeholder="Add a new leader">
-                    <button class="button" type="submit">Add</button>
+                    <input class="form-control" name="username" required autocomplete="off" placeholder="{% trans %}Add a new leader{% endtrans %}">
+                    <button class="button" type="submit">{% trans %}Add{% endtrans %}</button>
                 </div>
-                <p class="form-help">The user must already be a team member. A team can have up to {{ team_max_leaders }} leaders.</p>
+                <p class="form-help">{% trans count=team_max_leaders %}The user must already be a team member. A team can have up to {{ count }} leader.{% pluralize %}The user must already be a team member. A team can have up to {{ count }} leaders.{% endtrans %}</p>
             </form>
 
             <form method="post" action="/team/{{ team['_id'] }}/permissions" class="team-permissions form3">
@@ -33,8 +33,8 @@
                             {% for key, name, description in team_permission_definitions %}
                             <tr>
                                 <th>
-                                    <strong>{{ name }}</strong>
-                                    <p>{{ description }}</p>
+                                    <strong>{{ _(name) }}</strong>
+                                    <p>{{ _(description) }}</p>
                                 </th>
                                 {% for leader in team_leaders %}
                                 <td data-label="{{ leader['user'] }}">
@@ -42,7 +42,7 @@
                                         type="checkbox"
                                         name="perm:{{ leader['user'] }}"
                                         value="{{ key }}"
-                                        aria-label="{{ name }} for {{ leader['user'] }}"
+                                        aria-label="{{ _(name) }} {% trans %}for{% endtrans %} {{ leader['user'] }}"
                                         {% if key in leader.get('permissions', []) %}checked{% endif %}
                                     >
                                 </td>
@@ -53,11 +53,11 @@
                     </table>
                 </div>
                 <p class="form-help box__pad team-permissions-help">
-                    To remove a leader, remove all permissions. The team creator must keep Admin permission. At least one Admin is always required, and a team can have at most {{ team_max_admins }} Admins.
+                    {% trans max_admins=team_max_admins %}To remove a leader, remove all permissions. The team creator must keep Admin permission. At least one Admin is always required, and a team can have at most {{ max_admins }} Admins.{% endtrans %}
                 </p>
                 <div class="form-actions box__pad">
-                    <a href="/team/{{ team['_id'] }}">Cancel</a>
-                    <button class="button" type="submit">Save permissions</button>
+                    <a href="/team/{{ team['_id'] }}">{% trans %}Cancel{% endtrans %}</a>
+                    <button class="button" type="submit">{% trans %}Save permissions{% endtrans %}</button>
                 </div>
             </form>
         </div>

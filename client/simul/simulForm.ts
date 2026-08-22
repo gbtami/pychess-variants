@@ -1,3 +1,5 @@
+import { _ } from '../i18n';
+
 type VariantPickerKind = 'favorite' | 'site' | 'community';
 
 type VariantPickerEntry = {
@@ -103,7 +105,7 @@ export function initSimulForm(): void {
             const chip = document.createElement('button');
             chip.type = 'button';
             chip.className = 'simul-variant-picker__chip';
-            chip.title = chosen.length === 1 ? 'A simul must offer at least one variant' : `Remove ${entry.label}`;
+            chip.title = chosen.length === 1 ? _('A simul must offer at least one variant') : _('Remove %1', entry.label);
             chip.disabled = chosen.length === 1;
 
             const label = document.createElement('span');
@@ -145,7 +147,7 @@ export function initSimulForm(): void {
             results.replaceChildren();
             visibleEntries = [];
             activeIndex = -1;
-            appendHint(`A simul can offer at most ${maxSelected} variants.`);
+            appendHint(_('A simul can offer at most %1 variants.', maxSelected));
             setExpanded(true);
             return;
         }
@@ -201,21 +203,21 @@ export function initSimulForm(): void {
 
         const query = normalize(search.value);
         if (!query) {
-            appendGroup('Favorites', entries.filter(entry => entry.kind === 'favorite').slice(0, FAVORITE_LIMIT));
-            appendGroup('Site variants', entries.filter(entry => entry.kind === 'site'));
+            appendGroup(_('Favorites'), entries.filter(entry => entry.kind === 'favorite').slice(0, FAVORITE_LIMIT));
+            appendGroup(_('Site variants'), entries.filter(entry => entry.kind === 'site'));
             if (entries.some(entry => entry.kind === 'community')) {
-                appendHint('Type to search all public community variants.');
+                appendHint(_('Type to search all public community variants.'));
             }
         } else {
             const tokens = query.split(/\s+/).filter(Boolean);
             const matches = entries.filter(entry => tokens.every(token => entry.searchText.includes(token)));
             const limited = matches.slice(0, SEARCH_LIMIT);
-            appendGroup('Favorites', limited.filter(entry => entry.kind === 'favorite'));
-            appendGroup('Site variants', limited.filter(entry => entry.kind === 'site'));
-            appendGroup('Community variants', limited.filter(entry => entry.kind === 'community'));
-            if (matches.length === 0) appendHint('No matching variants.');
+            appendGroup(_('Favorites'), limited.filter(entry => entry.kind === 'favorite'));
+            appendGroup(_('Site variants'), limited.filter(entry => entry.kind === 'site'));
+            appendGroup(_('Community variants'), limited.filter(entry => entry.kind === 'community'));
+            if (matches.length === 0) appendHint(_('No matching variants.'));
             else if (matches.length > limited.length) {
-                appendHint(`Showing the first ${SEARCH_LIMIT} matches. Refine your search.`);
+                appendHint(_('Showing the first %1 matches. Refine your search.', SEARCH_LIMIT));
             }
         }
 

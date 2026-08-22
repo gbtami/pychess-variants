@@ -27,18 +27,24 @@ from variants import VARIANT_ICONS, VARIANTS, get_server_variant, is_catalogued_
 
 from views import get_user_context
 
+
+# Deferred translations for select labels rendered through Jinja gettext.
+def _(message: str) -> str:
+    return message
+
+
 RATED_GAME_CHOICES = [
-    (0, "No restriction"),
-    (5, "5 rated games"),
-    (10, "10 rated games"),
-    (20, "20 rated games"),
-    (50, "50 rated games"),
-    (100, "100 rated games"),
-    (200, "200 rated games"),
+    (0, _("No restriction")),
+    (5, _("5 rated games")),
+    (10, _("10 rated games")),
+    (20, _("20 rated games")),
+    (50, _("50 rated games")),
+    (100, _("100 rated games")),
+    (200, _("200 rated games")),
 ]
 RATED_GAME_VALUES = [value for value, _ in RATED_GAME_CHOICES]
 MIN_RATING_CHOICES = [
-    (0, "No restriction"),
+    (0, _("No restriction")),
     (800, "800"),
     (900, "900"),
     (1000, "1000"),
@@ -57,7 +63,7 @@ MIN_RATING_CHOICES = [
 ]
 MIN_RATING_VALUES = [value for value, _ in MIN_RATING_CHOICES]
 MAX_RATING_CHOICES = [
-    (0, "No restriction"),
+    (0, _("No restriction")),
     (2200, "2200"),
     (2100, "2100"),
     (2000, "2000"),
@@ -76,59 +82,62 @@ MAX_RATING_CHOICES = [
 ]
 MAX_RATING_VALUES = [value for value, _ in MAX_RATING_CHOICES]
 ACCOUNT_AGE_CHOICES = [
-    (0, "No restriction"),
-    (1, "1 day"),
-    (3, "3 days"),
-    (7, "7 days"),
-    (14, "14 days"),
-    (30, "1 month"),
-    (60, "2 months"),
-    (90, "3 months"),
-    (180, "6 months"),
-    (365, "1 year"),
-    (730, "2 years"),
-    (1095, "3 years"),
+    (0, _("No restriction")),
+    (1, _("1 day")),
+    (3, _("3 days")),
+    (7, _("7 days")),
+    (14, _("14 days")),
+    (30, _("1 month")),
+    (60, _("2 months")),
+    (90, _("3 months")),
+    (180, _("6 months")),
+    (365, _("1 year")),
+    (730, _("2 years")),
+    (1095, _("3 years")),
 ]
 ACCOUNT_AGE_VALUES = [value for value, _ in ACCOUNT_AGE_CHOICES]
 HOST_EXTRA_TIME_CHOICES = [
-    (-7200, "-120 minutes"),
-    (-5400, "-90 minutes"),
-    (-3600, "-60 minutes"),
-    (-3000, "-50 minutes"),
-    (-2400, "-40 minutes"),
-    (-1800, "-30 minutes"),
-    (-1200, "-20 minutes"),
-    (-900, "-15 minutes"),
-    (-600, "-10 minutes"),
-    (-300, "-5 minutes"),
-    (0, "0 minutes"),
-    (300, "+5 minutes"),
-    (600, "+10 minutes"),
-    (900, "+15 minutes"),
-    (1200, "+20 minutes"),
-    (1800, "+30 minutes"),
-    (2400, "+40 minutes"),
-    (3000, "+50 minutes"),
-    (3600, "+60 minutes"),
-    (5400, "+90 minutes"),
-    (7200, "+120 minutes"),
+    (-7200, _("-120 minutes")),
+    (-5400, _("-90 minutes")),
+    (-3600, _("-60 minutes")),
+    (-3000, _("-50 minutes")),
+    (-2400, _("-40 minutes")),
+    (-1800, _("-30 minutes")),
+    (-1200, _("-20 minutes")),
+    (-900, _("-15 minutes")),
+    (-600, _("-10 minutes")),
+    (-300, _("-5 minutes")),
+    (0, _("0 minutes")),
+    (300, _("+5 minutes")),
+    (600, _("+10 minutes")),
+    (900, _("+15 minutes")),
+    (1200, _("+20 minutes")),
+    (1800, _("+30 minutes")),
+    (2400, _("+40 minutes")),
+    (3000, _("+50 minutes")),
+    (3600, _("+60 minutes")),
+    (5400, _("+90 minutes")),
+    (7200, _("+120 minutes")),
 ]
 HOST_EXTRA_TIME_VALUES = [value for value, _ in HOST_EXTRA_TIME_CHOICES]
 HOST_EXTRA_TIME_PER_PLAYER_CHOICES = [
-    (0, "0 seconds"),
-    (10, "10 seconds"),
-    (20, "20 seconds"),
-    (30, "30 seconds"),
-    (40, "40 seconds"),
-    (50, "50 seconds"),
-    (60, "60 seconds"),
-    (90, "90 seconds"),
-    (120, "120 seconds"),
-    (180, "180 seconds"),
-    (240, "240 seconds"),
-    (300, "300 seconds"),
+    (0, _("0 seconds")),
+    (10, _("10 seconds")),
+    (20, _("20 seconds")),
+    (30, _("30 seconds")),
+    (40, _("40 seconds")),
+    (50, _("50 seconds")),
+    (60, _("60 seconds")),
+    (90, _("90 seconds")),
+    (120, _("120 seconds")),
+    (180, _("180 seconds")),
+    (240, _("240 seconds")),
+    (300, _("300 seconds")),
 ]
 HOST_EXTRA_TIME_PER_PLAYER_VALUES = [value for value, _ in HOST_EXTRA_TIME_PER_PLAYER_CHOICES]
+del _
+
+
 SIMUL_CLOCK_TIME_VALUES = [
     *range(5, 16, 5),
     *range(20, 91, 10),

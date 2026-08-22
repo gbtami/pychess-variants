@@ -5,7 +5,7 @@
         {% set team_menu_active = 'requests' %}
         {% include "team-menu.html" %}
         <div class="page-menu__content box box-pad">
-            <h1 class="box__top">{{ team_requests|length }} join request{% if team_requests|length != 1 %}s{% endif %}</h1>
+            <h1 class="box__top">{% trans count=team_requests|length %}{{ count }} join request{% pluralize %}{{ count }} join requests{% endtrans %}</h1>
 
             {% if team_requests %}
             <table class="team-requests team-requests--global slist requests datatable">
@@ -24,11 +24,11 @@
                             <div class="team-request-actions">
                                 <form method="post" action="/team/{{ req['team'] }}/request/{{ req['user'] }}/decline">
                                     <input type="hidden" name="redirect" value="/team/requests">
-                                    <button class="button button-empty red team-request-action team-request-action--decline" type="submit">Decline</button>
+                                    <button class="button button-empty red team-request-action team-request-action--decline" type="submit">{% trans %}Decline{% endtrans %}</button>
                                 </form>
                                 <form method="post" action="/team/{{ req['team'] }}/request/{{ req['user'] }}/accept">
                                     <input type="hidden" name="redirect" value="/team/requests">
-                                    <button class="button team-request-action team-request-action--accept" type="submit">Accept</button>
+                                    <button class="button team-request-action team-request-action--accept" type="submit">{% trans %}Accept{% endtrans %}</button>
                                 </form>
                             </div>
                         </td>
@@ -37,7 +37,7 @@
                 </tbody>
             </table>
             {% else %}
-            <p class="team-empty team-requests__empty">No pending join requests.</p>
+            <p class="team-empty team-requests__empty">{% trans %}No pending join requests.{% endtrans %}</p>
             {% endif %}
         </div>
     </main>

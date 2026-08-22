@@ -1,3 +1,5 @@
+import { _ } from './i18n';
+
 type LikePayload = {
     ok: boolean;
     liked?: boolean;
@@ -6,13 +8,13 @@ type LikePayload = {
 
 function updateButton(button: HTMLButtonElement, liked: boolean, likes: number) {
     button.classList.toggle('ublog-post__like--liked', liked);
-    button.title = liked ? 'Unlike' : 'Like';
+    button.title = liked ? _('Unlike') : _('Like');
 
     const count = button.querySelector('.ublog-post__like__nb');
     if (count) count.textContent = String(likes);
 
     const label = button.querySelector('.button-label');
-    if (label) label.textContent = liked ? 'Unlike' : 'Like';
+    if (label) label.textContent = liked ? _('Unlike') : _('Like');
 }
 
 export function initUblogLike(): void {

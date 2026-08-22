@@ -8,7 +8,8 @@ import aiohttp_session
 from aiohttp import web
 from aiohttp_sse import sse_response
 from const import SSE_EVENT_QUEUE_MAXSIZE, SYSTEM_USER
-from json_utils import json_dumps, json_response
+from json_utils import json_dumps
+from json_utils import json_response as raw_json_response
 from link_filter import sanitize_user_message
 from newid import id8, new_id
 from pychess_global_app_state_utils import get_app_state
@@ -20,6 +21,40 @@ USERNAME_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 MAX_MSG_LEN = 2000
 THREAD_MSG_PAGE_SIZE = 100
 THREAD_LIST_LIMIT = 80
+
+INBOX_ERROR_CODES = {
+    "Login required": "login_required",
+    "Invalid contact": "invalid_contact",
+    "User not found": "user_not_found",
+    "Invalid before value": "invalid_before",
+    "Invalid request": "invalid_request",
+    "Message is empty": "message_empty",
+    "Too many similar messages. Please wait and retry.": "too_many_similar_messages",
+    "Cannot send messages from this account": "cannot_send_from_account",
+    "User is blocked": "user_blocked",
+    "Cannot message this user": "cannot_message_user",
+    "Only friends can message this user": "friends_only",
+}
+
+
+def inbox_error_code(message: str) -> str | None:
+    if message.startswith("Message too long (max "):
+        return "message_too_long"
+    if message == f"{SYSTEM_USER} doesn't accept new messages.":
+        return "system_user_no_messages"
+    if message == f"{SYSTEM_USER} system messages cannot be deleted.":
+        return "system_messages_cannot_delete"
+    return INBOX_ERROR_CODES.get(message)
+
+
+def json_response(payload: dict[str, object], *, status: int = 200) -> web.Response:
+    if payload.get("type") == "error" and "code" not in payload:
+        message = payload.get("message")
+        if isinstance(message, str):
+            code = inbox_error_code(message)
+            if code is not None:
+                payload = {**payload, "code": code}
+    return raw_json_response(payload, status=status)
 
 
 def _thread_id(user1: str, user2: str) -> str:

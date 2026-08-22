@@ -8,9 +8,9 @@
                 {% if team.get('intro') and (not team_closed or team_is_site_admin) %}<p class="team-show__intro">{{ team['intro'] }}</p>{% endif %}
             </div>
             {% if team_closed %}
-            <span class="team-show__closed-badge">CLOSED</span>
+            <span class="team-show__closed-badge">{% trans %}CLOSED{% endtrans %}</span>
             {% else %}
-            <a class="team-show__member-count" href="/team/{{ team['_id'] }}/members"><strong>{{ team.get('memberCount', 0) }}</strong> member{% if team.get('memberCount', 0) != 1 %}s{% endif %}</a>
+            <a class="team-show__member-count" href="/team/{{ team['_id'] }}/members"><strong>{{ team.get('memberCount', 0) }}</strong> {% trans count=team.get('memberCount', 0) %}member{% pluralize %}members{% endtrans %}</a>
             {% endif %}
         </div>
 
@@ -20,25 +20,25 @@
                 <section class="team-show__meta">
                     {% if team_leaders %}
                     <p>
-                        <strong>Team leaders:</strong>
+                        <strong>{% trans %}Team leaders:{% endtrans %}</strong>
                         {% for member in team_leaders %}
                         <a class="user-link" href="/@/{{ member['user'] }}">{{ member['user'] }}</a>{% if not loop.last %}, {% endif %}
                         {% endfor %}
                     </p>
                     {% endif %}
-                    <p>Created by {% if team.get('creatorErasedAt') %}&lt;erased&gt;{% else %}<a class="user-link" href="/@/{{ team['createdBy'] }}">{{ team['createdBy'] }}</a>{% endif %}</p>
+                    <p>{% trans %}Created by{% endtrans %} {% if team.get('creatorErasedAt') %}&lt;erased&gt;{% else %}<a class="user-link" href="/@/{{ team['createdBy'] }}">{{ team['createdBy'] }}</a>{% endif %}</p>
                 </section>
                 {% endif %}
 
                 <div class="team-show__actions">
                     {% if team_closed %}
                     <div class="team-show__membership-state team-show__membership-state--closed">
-                        <strong>Team closed</strong>
-                        <span>This team is archived and cannot accept new activity.</span>
+                        <strong>{% trans %}Team closed{% endtrans %}</strong>
+                        <span>{% trans %}This team is archived and cannot accept new activity.{% endtrans %}</span>
                     </div>
                     {% if team_member and username != team['createdBy'] %}
                     <form method="post" action="/team/{{ team['_id'] }}/quit">
-                        <button class="button team-action team-action--danger icon-sign-out" type="submit"><strong>Leave team</strong></button>
+                        <button class="button team-action team-action--danger icon-sign-out" type="submit"><strong>{% trans %}Leave team{% endtrans %}</strong></button>
                     </form>
                     {% endif %}
                     {% if team_can_reopen %}
@@ -53,73 +53,73 @@
                     {% if not anon and not user.bot and (team_member or not team_is_site_admin) %}
                         {% if team_member %}
                             <div class="team-show__membership-state">
-                                <strong>You are a member</strong>
-                                {% if team_member.get('permissions') %}<span>You are a team leader.</span>{% endif %}
+                                <strong>{% trans %}You are a member{% endtrans %}</strong>
+                                {% if team_member.get('permissions') %}<span>{% trans %}You are a team leader.{% endtrans %}</span>{% endif %}
                             </div>
                             {% if username != team['createdBy'] %}
                             <form method="post" action="/team/{{ team['_id'] }}/quit">
-                                <button class="button team-action team-action--danger icon-sign-out" type="submit"><strong>Leave team</strong></button>
+                                <button class="button team-action team-action--danger icon-sign-out" type="submit"><strong>{% trans %}Leave team{% endtrans %}</strong></button>
                             </form>
                             {% endif %}
                         {% elif team_pending_request %}
                             <div class="team-show__membership-state">
-                                <strong>Join request pending</strong>
-                                <span>A team leader must approve your request.</span>
+                                <strong>{% trans %}Join request pending{% endtrans %}</strong>
+                                <span>{% trans %}A team leader must approve your request.{% endtrans %}</span>
                             </div>
                             <form method="post" action="/team/{{ team['_id'] }}/cancel-request">
-                                <button class="button team-action team-action--danger icon-abort" type="submit"><strong>Cancel request</strong></button>
+                                <button class="button team-action team-action--danger icon-abort" type="submit"><strong>{% trans %}Cancel request{% endtrans %}</strong></button>
                             </form>
                         {% elif team_declined_request %}
                             <div class="team-show__membership-state team-show__membership-state--declined">
-                                <strong>Join request declined</strong>
-                                <span>You cannot request to join this team again unless a team leader restores your request.</span>
+                                <strong>{% trans %}Join request declined{% endtrans %}</strong>
+                                <span>{% trans %}You cannot request to join this team again unless a team leader restores your request.{% endtrans %}</span>
                             </div>
-                            <button class="button team-action icon-sign-in" type="button" disabled><strong>Join team</strong></button>
+                            <button class="button team-action icon-sign-in" type="button" disabled><strong>{% trans %}Join team{% endtrans %}</strong></button>
                         {% else %}
                             <form method="post" action="/team/{{ team['_id'] }}/join" class="team-show__join-action">
-                                <button class="button team-action icon-sign-in" type="submit"><strong>Join team</strong></button>
+                                <button class="button team-action icon-sign-in" type="submit"><strong>{% trans %}Join team{% endtrans %}</strong></button>
                             </form>
                         {% endif %}
                     {% endif %}
 
                     {% if team_member %}
                     <a class="button team-action icon-bell-o" href="/team/{{ team['_id'] }}/updates">
-                        <strong>Team updates</strong>
-                        <em>Read team announcements</em>
+                        <strong>{% trans %}Team updates{% endtrans %}</strong>
+                        <em>{% trans %}Read team announcements{% endtrans %}</em>
                     </a>
                     {% endif %}
                     {% if team_can_send_update %}
                     <a class="button team-action icon-ink-pen" href="/team/{{ team['_id'] }}/updates/new">
-                        <strong>New team update</strong>
-                        <em>Message subscribed members</em>
+                        <strong>{% trans %}New team update{% endtrans %}</strong>
+                        <em>{% trans %}Message subscribed members{% endtrans %}</em>
                     </a>
                     {% endif %}
                     {% if team_can_create_tournament %}
                     <a class="button team-action icon-trophy" href="/tournaments/new?team={{ team['_id'] }}">
-                        <strong>Team tournament</strong>
-                        <em>Create an Arena, Round-Robin, or Swiss</em>
+                        <strong>{% trans %}Team tournament{% endtrans %}</strong>
+                        <em>{% trans %}Create an Arena, Round-Robin, or Swiss{% endtrans %}</em>
                     </a>
                     {% endif %}
                     {% if team_can_edit %}
                     <a class="button team-action icon-cog" href="/team/{{ team['_id'] }}/edit">
-                        <strong>Settings</strong>
-                        <em>Edit team information and access</em>
+                        <strong>{% trans %}Settings{% endtrans %}</strong>
+                        <em>{% trans %}Edit team information and access{% endtrans %}</em>
                     </a>
                     {% endif %}
                     {% if team_can_manage_leaders %}
                     <a class="button team-action icon-crown" href="/team/{{ team['_id'] }}/leaders">
-                        <strong>Team leaders</strong>
-                        <em>Manage leader permissions</em>
+                        <strong>{% trans %}Team leaders{% endtrans %}</strong>
+                        <em>{% trans %}Manage leader permissions{% endtrans %}</em>
                     </a>
                     {% endif %}
                     {% if team_can_manage_requests %}
                     <a class="button team-action icon-list" href="/team/requests">
-                        <strong>Join requests</strong>
-                        <em>Review requests across your teams</em>
+                        <strong>{% trans %}Join requests{% endtrans %}</strong>
+                        <em>{% trans %}Review requests across your teams{% endtrans %}</em>
                     </a>
                     <a class="button team-action icon-ban" href="/team/{{ team['_id'] }}/declined-requests">
-                        <strong>Declined requests</strong>
-                        <em>Restore previously declined requests</em>
+                        <strong>{% trans %}Declined requests{% endtrans %}</strong>
+                        <em>{% trans %}Restore previously declined requests{% endtrans %}</em>
                     </a>
                     {% endif %}
                     {% if team_can_close and team_is_site_admin %}
@@ -136,22 +136,22 @@
                 {% if not team_closed or team_is_site_admin %}
                 <section class="team-show__members">
                     <section class="recent-members">
-                        <h2><a class="icon-list" href="/team/{{ team['_id'] }}/members">Recent members</a></h2>
+                        <h2><a class="icon-list" href="/team/{{ team['_id'] }}/members">{% trans %}Recent members{% endtrans %}</a></h2>
                         <div class="userlist">
                             {% for member in team_members %}
                             <div class="paginated team-member-row">
                                 <a class="user-link" href="/@/{{ member['user'] }}">{{ member['user'] }}</a>
-                                {% if team_public_permission in member.get('permissions', []) %}<span class="team-member-badge">Leader</span>{% endif %}
+                                {% if team_public_permission in member.get('permissions', []) %}<span class="team-member-badge">{% trans %}Leader{% endtrans %}</span>{% endif %}
                                 {% if team_can_kick and member['user'] != team['createdBy'] and member['user'] != username and (not member.get('permissions') or team_can_manage_leaders) %}
                                 <form method="post" action="/team/{{ team['_id'] }}/kick/{{ member['user'] }}">
-                                    <button class="team-link-button" type="submit">Kick</button>
+                                    <button class="team-link-button" type="submit">{% trans %}Kick{% endtrans %}</button>
                                 </form>
                                 {% endif %}
                             </div>
                             {% endfor %}
                         </div>
                         {% if team.get('memberCount', 0) > team_members|length %}
-                        <a class="team-show__more" href="/team/{{ team['_id'] }}/members">All {{ team.get('memberCount', 0) }} members »</a>
+                        <a class="team-show__more" href="/team/{{ team['_id'] }}/members">{% trans count=team.get('memberCount', 0) %}All {{ count }} member »{% pluralize %}All {{ count }} members »{% endtrans %}</a>
                         {% endif %}
                     </section>
                 </section>
@@ -164,7 +164,7 @@
 
                 {% if team_can_manage_requests and team_requests %}
                 <section class="team-show__requests">
-                    <h2>{{ team_requests|length }} join request{% if team_requests|length != 1 %}s{% endif %}</h2>
+                    <h2>{% trans count=team_requests|length %}{{ count }} join request{% pluralize %}{{ count }} join requests{% endtrans %}</h2>
                     <div class="team-show__list-wrapper">
                         <table class="team-requests slist requests datatable">
                             <tbody>
@@ -175,8 +175,8 @@
                                     <td class="team-request-date"><info-date timestamp="{{ req['createdAt'].isoformat() if req.get('createdAt') else '' }}"></info-date></td>
                                     <td class="process">
                                         <div class="team-request-actions">
-                                            <form method="post" action="/team/{{ team['_id'] }}/request/{{ req['user'] }}/decline"><button class="button button-empty red team-request-action team-request-action--decline" type="submit">Decline</button></form>
-                                            <form method="post" action="/team/{{ team['_id'] }}/request/{{ req['user'] }}/accept"><button class="button team-request-action team-request-action--accept" type="submit">Accept</button></form>
+                                            <form method="post" action="/team/{{ team['_id'] }}/request/{{ req['user'] }}/decline"><button class="button button-empty red team-request-action team-request-action--decline" type="submit">{% trans %}Decline{% endtrans %}</button></form>
+                                            <form method="post" action="/team/{{ team['_id'] }}/request/{{ req['user'] }}/accept"><button class="button team-request-action team-request-action--accept" type="submit">{% trans %}Accept{% endtrans %}</button></form>
                                         </div>
                                     </td>
                                 </tr>
@@ -190,28 +190,28 @@
                 <div class="team-show__events">
                     {% if team_latest_update %}
                     <section class="team-show__update">
-                        <h2><a class="icon-bell-o" href="/team/{{ team['_id'] }}/updates">Team updates</a></h2>
+                        <h2><a class="icon-bell-o" href="/team/{{ team['_id'] }}/updates">{% trans %}Team updates{% endtrans %}</a></h2>
                         <div class="team-show__update__last">
                             <div class="team-show__update__meta">
                                 <info-date timestamp="{{ team_latest_update['createdAt'].isoformat() if team_latest_update.get('createdAt') else '' }}"></info-date>
-                                <span>by <a class="user-link" href="/@/{{ team_latest_update['sender'] }}">{{ team_latest_update['sender'] }}</a></span>
+                                <span>{% trans %}by{% endtrans %} <a class="user-link" href="/@/{{ team_latest_update['sender'] }}">{{ team_latest_update['sender'] }}</a></span>
                             </div>
                             <div class="team-show__update__body">{{ team_latest_update['text'] }}</div>
-                            <a class="team-show__update__more" href="/team/{{ team['_id'] }}/updates">More »</a>
+                            <a class="team-show__update__more" href="/team/{{ team['_id'] }}/updates">{% trans %}More »{% endtrans %}</a>
                         </div>
                     </section>
                     {% endif %}
 
                     {% if team_tournaments %}
                     <section class="team-show__tour">
-                        <h2 class="icon-trophy">Team tournaments</h2>
+                        <h2 class="icon-trophy">{% trans %}Team tournaments{% endtrans %}</h2>
                         <div class="team-show__list-wrapper team-tournament-list">
                             {% for tournament in team_tournaments %}
                             <a class="team-tournament-row" href="/tournament/{{ tournament['_id'] }}">
                                 <span class="team-tournament-row__icon icon" data-icon="{{ tournament.get('variantIcon', '') }}" aria-hidden="true"></span>
                                 <span class="team-tournament-row__main">
                                     <strong>{{ tournament['name'] }}</strong>
-                                    <span class="team-tournament-row__setup">{% if tournament['system'] == 1 %}Round-Robin{% elif tournament['system'] == 2 %}Swiss{% else %}Arena{% endif %}</span>
+                                    <span class="team-tournament-row__setup">{% if tournament['system'] == 1 %}{% trans %}Round-Robin{% endtrans %}{% elif tournament['system'] == 2 %}{% trans %}Swiss{% endtrans %}{% else %}{% trans %}Arena{% endtrans %}{% endif %}</span>
                                 </span>
                                 <span class="team-tournament-row__date"><info-date timestamp="{{ tournament['startsAt'].isoformat() if tournament.get('startsAt') else '' }}"></info-date></span>
                             </a>
@@ -222,7 +222,7 @@
 
                     {% if team_can_see_forum %}
                     <section class="team-show__forum">
-                        <h2><a class="icon-bubbles4" href="/forum/{{ team_forum_categ_id }}">Team forum</a></h2>
+                        <h2><a class="icon-bubbles4" href="/forum/{{ team_forum_categ_id }}">{% trans %}Team forum{% endtrans %}</a></h2>
                         <div class="team-show__list-wrapper team-forum-topic-list">
                             {% for topic in team_forum_topics %}
                             {% set replies = topic.get('nbPosts', 1) - 1 %}
@@ -230,24 +230,24 @@
                                 <span class="team-forum-topic-row__meta">
                                     <strong>{{ topic['name'] }}</strong>
                                     <span>
-                                        by {{ topic.get('lastPostUser', topic.get('user', '')) }}
+                                        {% trans %}by{% endtrans %} {{ topic.get('lastPostUser', topic.get('user', '')) }}
                                         <span class="team-forum-topic-row__separator">•</span>
                                         <info-date timestamp="{{ topic['lastPostAt'].isoformat() if topic.get('lastPostAt') else '' }}"></info-date>
                                         <span class="team-forum-topic-row__separator">•</span>
-                                        {{ replies }} {% if replies == 1 %}reply{% else %}replies{% endif %}
+                                        {% trans count=replies %}{{ count }} reply{% pluralize %}{{ count }} replies{% endtrans %}
                                     </span>
                                 </span>
                             </a>
                             {% endfor %}
                         </div>
-                        <a class="team-show__more" href="/forum/{{ team_forum_categ_id }}">{{ team['name'] }} forum »</a>
+                        <a class="team-show__more" href="/forum/{{ team_forum_categ_id }}">{% trans team_name=team['name'] %}{{ team_name }} forum »{% endtrans %}</a>
                     </section>
                     {% endif %}
                 </div>
                 {% else %}
                 <section class="team-show__closed-message">
-                    <h2>This team is closed</h2>
-                    <p>Memberships and historical content are preserved, but team activity is disabled.</p>
+                    <h2>{% trans %}This team is closed{% endtrans %}</h2>
+                    <p>{% trans %}Memberships and historical content are preserved, but team activity is disabled.{% endtrans %}</p>
                 </section>
                 {% endif %}
             </div>

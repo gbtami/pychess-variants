@@ -6,10 +6,10 @@
         {% include "team-menu.html" %}
         <div class="page-menu__content box box-pad">
             <div class="box__top team-declined-requests__top">
-                <h1><a href="/team/{{ team['_id'] }}">{{ team['name'] }}</a> <span>• Declined requests</span></h1>
+                <h1><a href="/team/{{ team['_id'] }}">{{ team['name'] }}</a> <span>• {% trans %}Declined requests{% endtrans %}</span></h1>
                 <form class="team-declined-request-search" method="get" action="/team/{{ team['_id'] }}/declined-requests">
-                    <input type="search" name="search" value="{{ team_declined_requests_search }}" placeholder="Search user" autocomplete="off">
-                    <button class="button icon-search" type="submit" aria-label="Search"></button>
+                    <input type="search" name="search" value="{{ team_declined_requests_search }}" placeholder="{% trans %}Search user{% endtrans %}" autocomplete="off">
+                    <button class="button icon-search" type="submit" aria-label="{% trans %}Search{% endtrans %}"></button>
                 </form>
             </div>
 
@@ -24,21 +24,21 @@
                         <td class="process">
                             <form method="post" action="/team/{{ team['_id'] }}/request/{{ req['user'] }}/accept">
                                 <input type="hidden" name="redirect" value="{{ team_declined_requests_current_href }}">
-                                <button class="button team-request-action team-request-action--accept" type="submit">Accept</button>
+                                <button class="button team-request-action team-request-action--accept" type="submit">{% trans %}Accept{% endtrans %}</button>
                             </form>
                         </td>
                     </tr>
                     {% else %}
-                    <tr><td colspan="4" class="team-empty">No declined requests found.</td></tr>
+                    <tr><td colspan="4" class="team-empty">{% trans %}No declined requests found.{% endtrans %}</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
 
             {% if team_declined_requests_prev_href or team_declined_requests_next_href %}
-            <nav class="team-declined-requests__pagination" aria-label="Pagination">
-                {% if team_declined_requests_prev_href %}<a class="button button-empty team-page-nav icon-left" href="{{ team_declined_requests_prev_href }}">Previous</a>{% else %}<span></span>{% endif %}
-                <span class="team-page-number">Page {{ team_declined_requests_page }}</span>
-                {% if team_declined_requests_next_href %}<a class="button button-empty team-page-nav team-page-nav--next icon-right" href="{{ team_declined_requests_next_href }}">Next</a>{% endif %}
+            <nav class="team-declined-requests__pagination" aria-label="{% trans %}Pagination{% endtrans %}">
+                {% if team_declined_requests_prev_href %}<a class="button button-empty team-page-nav icon-left" href="{{ team_declined_requests_prev_href }}">{% trans %}Previous{% endtrans %}</a>{% else %}<span></span>{% endif %}
+                <span class="team-page-number">{% trans page=team_declined_requests_page %}Page {{ page }}{% endtrans %}</span>
+                {% if team_declined_requests_next_href %}<a class="button button-empty team-page-nav team-page-nav--next icon-right" href="{{ team_declined_requests_next_href }}">{% trans %}Next{% endtrans %}</a>{% endif %}
             </nav>
             {% endif %}
         </div>

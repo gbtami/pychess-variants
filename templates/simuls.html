@@ -3,12 +3,12 @@
 <div id="main-wrap">
 <main class="page-menu simul-list">
     <aside class="simul-list__help">
-        <p>Simuls involve a single player facing several players at once.</p>
-        <img src="{{ static('images/Samuel_Reshevsky_versus_the_World.JPG') }}" alt="The chess prodigy Samuel Reshevsky, 8 years old, performing a simultaneous exhibition against adults in Paris, 1920.">
-        <em>The chess prodigy Samuel Reshevsky, 8 years old, performing a simultaneous exhibition against adults in Paris, 1920.</em>
-        <p>The concept is taken from real world events. In real life, this involves the simul host moving from table to table to play a single move.</p>
-        <p>When the simul starts, every player starts a game with the host. The simul ends when all games are complete.</p>
-        <p>Simuls are always casual. Rematches, takebacks and adding time are disabled.</p>
+        <p>{% trans %}Simuls involve a single player facing several players at once.{% endtrans %}</p>
+        <img src="{{ static('images/Samuel_Reshevsky_versus_the_World.JPG') }}" alt="{% trans %}The chess prodigy Samuel Reshevsky, 8 years old, performing a simultaneous exhibition against adults in Paris, 1920.{% endtrans %}">
+        <em>{% trans %}The chess prodigy Samuel Reshevsky, 8 years old, performing a simultaneous exhibition against adults in Paris, 1920.{% endtrans %}</em>
+        <p>{% trans %}The concept is taken from real world events. In real life, this involves the simul host moving from table to table to play a single move.{% endtrans %}</p>
+        <p>{% trans %}When the simul starts, every player starts a game with the host. The simul ends when all games are complete.{% endtrans %}</p>
+        <p>{% trans %}Simuls are always casual. Rematches, takebacks and adding time are disabled.{% endtrans %}</p>
     </aside>
 
     <div class="simul-list__content">
@@ -38,11 +38,11 @@
                         <td class="header">
                             <a href="/simul/{{ simul.id }}">
                                 <span class="name">{{ simul.name }}</span>
-                                by
+                                {% trans %}by{% endtrans %}
                                 <span class="by">{{ simul.created_by }}</span>
                                 <span class="system">
                                     {{ time_control_str(simul.base, simul.inc, 0) }} •
-                                    {% for variant_key in simul.variants[:3] %}{{ variant_display_name(variant_key) }}{% if not loop.last %}, {% endif %}{% endfor %}{% if simul.variants|length > 3 %} +{{ simul.variants|length - 3 }} more{% endif %}
+                                    {% for variant_key in simul.variants[:3] %}{{ variant_display_name(variant_key) }}{% if not loop.last %}, {% endif %}{% endfor %}{% if simul.variants|length > 3 %} +{% trans count=simul.variants|length - 3 %}{{ count }} more{% endtrans %}{% endif %}
                                 </span>
                             </a>
                         </td>
@@ -81,11 +81,11 @@
                         <td class="header">
                             <a href="/simul/{{ simul.id }}">
                                 <span class="name">{{ simul.name }}</span>
-                                by
+                                {% trans %}by{% endtrans %}
                                 <span class="by">{{ simul.created_by }}</span>
                                 <span class="system">
                                     {{ time_control_str(simul.base, simul.inc, 0) }} •
-                                    {% for variant_key in simul.variants[:3] %}{{ variant_display_name(variant_key) }}{% if not loop.last %}, {% endif %}{% endfor %}{% if simul.variants|length > 3 %} +{{ simul.variants|length - 3 }} more{% endif %}
+                                    {% for variant_key in simul.variants[:3] %}{{ variant_display_name(variant_key) }}{% if not loop.last %}, {% endif %}{% endfor %}{% if simul.variants|length > 3 %} +{% trans count=simul.variants|length - 3 %}{{ count }} more{% endtrans %}{% endif %}
                                 </span>
                             </a>
                         </td>
@@ -117,11 +117,11 @@
                         <td class="header">
                             <a href="/simul/{{ simul.id }}">
                                 <span class="name">{{ simul.name }}</span>
-                                by
+                                {% trans %}by{% endtrans %}
                                 <span class="by">{{ simul.created_by }}</span>
                                 <span class="system">
                                     {{ time_control_str(simul.base, simul.inc, 0) }} •
-                                    {% for variant_key in simul.variants[:3] %}{{ variant_display_name(variant_key) }}{% if not loop.last %}, {% endif %}{% endfor %}{% if simul.variants|length > 3 %} +{{ simul.variants|length - 3 }} more{% endif %}
+                                    {% for variant_key in simul.variants[:3] %}{{ variant_display_name(variant_key) }}{% if not loop.last %}, {% endif %}{% endfor %}{% if simul.variants|length > 3 %} +{% trans count=simul.variants|length - 3 %}{{ count }} more{% endtrans %}{% endif %}
                                 </span>
                             </a>
                         </td>
@@ -153,11 +153,11 @@
                         <td class="header">
                             <a href="/simul/{{ simul.id }}">
                                 <span class="name">{{ simul.name }}</span>
-                                by
+                                {% trans %}by{% endtrans %}
                                 <span class="by">{{ simul.created_by }}</span>
                                 <span class="system">
                                     {{ time_control_str(simul.base, simul.inc, 0) }} •
-                                    {% for variant_key in simul.variants[:3] %}{{ variant_display_name(variant_key) }}{% if not loop.last %}, {% endif %}{% endfor %}{% if simul.variants|length > 3 %} +{{ simul.variants|length - 3 }} more{% endif %}
+                                    {% for variant_key in simul.variants[:3] %}{{ variant_display_name(variant_key) }}{% if not loop.last %}, {% endif %}{% endfor %}{% if simul.variants|length > 3 %} +{% trans count=simul.variants|length - 3 %}{{ count }} more{% endtrans %}{% endif %}
                                 </span>
                             </a>
                         </td>

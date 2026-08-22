@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import TYPE_CHECKING
 
 import aiohttp_session
@@ -11,6 +12,49 @@ from pychess_global_app_state_utils import get_app_state
 from websocket_utils import get_user, process_ws, ws_send_json
 
 from simul.simuls import load_simul, mark_simul_host_seen, upsert_simul_to_db
+
+SIMUL_ERROR_CODES = {
+    "Anonymous users cannot join simuls.": "anonymous_cannot_join",
+    "BOT accounts cannot join simuls.": "bot_cannot_join",
+    "Choose one of the variants offered by this simul.": "choose_variant",
+    "This variant is not offered by this simul.": "variant_not_offered",
+    "Your rating is below the minimum allowed for this simul.": "rating_too_low",
+    "Your rating is above the maximum allowed for this simul.": "rating_too_high",
+    "This simul has already started": "already_started",
+    "Cannot start simul with fewer than 2 opponents": "too_few_opponents",
+    "Invalid host extra time for this clock setup": "invalid_host_extra_time",
+    "Cannot start simul": "cannot_start",
+}
+
+
+def simul_error_payload(message: str) -> dict[str, object]:
+    payload: dict[str, object] = {"type": "error", "message": message}
+    code = SIMUL_ERROR_CODES.get(message)
+    if code is not None:
+        payload["code"] = code
+        return payload
+
+    match = re.fullmatch(r"This simul already has the maximum of (\d+) accepted players\.", message)
+    if match:
+        payload.update(code="capacity_reached", count=int(match.group(1)))
+        return payload
+    match = re.fullmatch(r"This simul requires at least (\d+) rated (.+) games\.", message)
+    if match:
+        payload.update(code="min_rated_games", count=int(match.group(1)), variant=match.group(2))
+        return payload
+    match = re.fullmatch(r"This simul requires accounts to be at least (\d+) days old\.", message)
+    if match:
+        payload.update(code="min_account_age", count=int(match.group(1)))
+        return payload
+    match = re.fullmatch(r"You must be a member of (.+) to join this simul\.", message)
+    if match:
+        payload.update(code="team_membership_required", team=match.group(1))
+        return payload
+    match = re.fullmatch(r"Cannot start simul with more than (\d+) opponents", message)
+    if match:
+        payload.update(code="too_many_opponents", count=int(match.group(1)))
+    return payload
+
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -147,7 +191,7 @@ async def handle_start_simul(
     if not started:
         await ws_send_json(
             ws,
-            {"type": "error", "message": simul.start_error() or "Cannot start simul"},
+            simul_error_payload(simul.start_error() or "Cannot start simul"),
         )
 
 
@@ -168,7 +212,7 @@ async def handle_join(
     ):
         error = simul.capacity_error()
     if error is not None:
-        await ws_send_json(ws, {"type": "error", "message": error})
+        await ws_send_json(ws, simul_error_payload(error))
         return
 
     if simul.join(user, variant):
@@ -208,8 +252,9 @@ async def handle_approve_player(
         return
 
     username = data.get("username")
-    if username in simul.pending_players and simul.capacity_error() is not None:
-        await ws_send_json(ws, {"type": "error", "message": simul.capacity_error()})
+    capacity_error = simul.capacity_error()
+    if username in simul.pending_players and capacity_error is not None:
+        await ws_send_json(ws, simul_error_payload(capacity_error))
         return
 
     if simul.approve(username):

@@ -4,18 +4,18 @@
 <main class="page-menu ublog-page">
 <aside>
     <ul class="guide">
-        <li><a href="/blogs"><span>By PyChess</span></a></li>
-        <li><a href="/blogs/community"><span>Community</span></a></li>
-        <li><a href="/blogs/@/{{ profile }}"><span>By {{ profile }}</span></a></li>
+        <li><a href="/blogs"><span>{% trans %}By PyChess{% endtrans %}</span></a></li>
+        <li><a href="/blogs/community"><span>{% trans %}Community{% endtrans %}</span></a></li>
+        <li><a href="/blogs/@/{{ profile }}"><span>{% trans profile=profile %}By {{ profile }}{% endtrans %}</span></a></li>
         {% if ublog_is_owner %}
-        <li><a href="/blogs/@/{{ profile }}/drafts"><span>Drafts</span></a></li>
-        <li><a href="/blogs/@/{{ profile }}/new"><span>New post</span></a></li>
+        <li><a href="/blogs/@/{{ profile }}/drafts"><span>{% trans %}Drafts{% endtrans %}</span></a></li>
+        <li><a href="/blogs/@/{{ profile }}/new"><span>{% trans %}New post{% endtrans %}</span></a></li>
         {% endif %}
     </ul>
 </aside>
 <div class="ublog-box box box-pad ublog-index">
     <div class="box-top">
-        <h1>{% if ublog_is_drafts %}{{ profile }} drafts{% else %}By {{ profile }}{% endif %}</h1>
+        <h1>{% if ublog_is_drafts %}{% trans profile=profile %}{{ profile }} drafts{% endtrans %}{% else %}{% trans profile=profile %}By {{ profile }}{% endtrans %}{% endif %}</h1>
     </div>
     <div class="ublog-cards ublog-post-cards">
     {% for post in ublog_posts %}
@@ -29,7 +29,7 @@
                 <time class="ublog-post-card__over-image">{{ post['date'] }}</time>
                 <span class="ublog-post-card__over-image user-link pos-bottom"><player-title>{{ post['author_title'] }} </player-title>{{ post['author'] }}</span>
                 {% if post['sticky'] %}
-                <span class="ublog-post-card__over-image user-link pos-top" title="Sticky">&#9733;</span>
+                <span class="ublog-post-card__over-image user-link pos-top" title="{% trans %}Sticky{% endtrans %}">&#9733;</span>
                 {% endif %}
             </span>
             <span class="ublog-post-card__content">
@@ -39,7 +39,7 @@
         </a>
     {% endfor %}
     {% if not ublog_posts %}
-    <div class="ublog-empty ublog-index__posts--empty">No posts yet.</div>
+    <div class="ublog-empty ublog-index__posts--empty">{% trans %}No posts yet.{% endtrans %}</div>
     {% endif %}
     </div>
 </div>

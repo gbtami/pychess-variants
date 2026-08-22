@@ -12,6 +12,7 @@ import { displayUsername, userLink } from '../user';
 import { sizeMiniBoardHost } from '../miniBoard';
 import { timeControlStr } from '../view';
 import { localeOptions } from '../tournamentClock';
+import { _, ngettext } from '../i18n';
 const T_CREATED = 0;
 const T_STARTED = 1;
 const T_FINISHED = 3;
@@ -105,6 +106,31 @@ interface MsgPlayerWithdrawn {
 interface MsgError {
     type: 'error';
     message: string;
+    code?: string;
+    count?: number;
+    variant?: string;
+    team?: string;
+}
+
+function simulErrorMessage(msg: MsgError): string {
+    switch (msg.code) {
+        case 'anonymous_cannot_join': return _('Anonymous users cannot join simuls.');
+        case 'bot_cannot_join': return _('BOT accounts cannot join simuls.');
+        case 'choose_variant': return _('Choose one of the variants offered by this simul.');
+        case 'variant_not_offered': return _('This variant is not offered by this simul.');
+        case 'capacity_reached': return _('This simul already has the maximum of %1 accepted players.', msg.count ?? '');
+        case 'min_rated_games': return _('This simul requires at least %1 rated %2 games.', msg.count ?? '', msg.variant ?? '');
+        case 'min_account_age': return _('This simul requires accounts to be at least %1 days old.', msg.count ?? '');
+        case 'rating_too_low': return _('Your rating is below the minimum allowed for this simul.');
+        case 'rating_too_high': return _('Your rating is above the maximum allowed for this simul.');
+        case 'team_membership_required': return _('You must be a member of %1 to join this simul.', msg.team ?? '');
+        case 'already_started': return _('This simul has already started');
+        case 'too_few_opponents': return _('Cannot start simul with fewer than 2 opponents');
+        case 'too_many_opponents': return _('Cannot start simul with more than %1 opponents', msg.count ?? '');
+        case 'invalid_host_extra_time': return _('Invalid host extra time for this clock setup');
+        case 'cannot_start': return _('Cannot start simul');
+        default: return msg.message;
+    }
 }
 
 interface MsgChat {
@@ -178,7 +204,7 @@ export class SimulController implements ChatController {
         this.model = model;
         this.createdBy = '';
         this.simulStatus = Number.isFinite(model.status) ? model.status : T_CREATED;
-        this.simulName = model['name'] || 'Simul';
+        this.simulName = model['name'] || _('Simul');
         this.variantKeys = [model['variant'] || 'chess'];
         this.selectedJoinVariant = this.variantKeys[0];
         this.base = Number.isFinite(model.base) ? model.base : 0;
@@ -260,7 +286,7 @@ export class SimulController implements ChatController {
                 this.redraw();
                 break;
             case 'error':
-                this.lastError = msg.message;
+                this.lastError = simulErrorMessage(msg);
                 this.redraw();
                 console.warn('Simul error:', msg.message);
                 break;
@@ -454,10 +480,10 @@ export class SimulController implements ChatController {
         const stat = (value: number, label: string) => h('div', [h('div.number', String(value)), h('div.text', label)]);
 
         return h('div.results', [
-            stat(playing, 'Playing'),
-            stat(wins, 'Wins'),
-            stat(draws, 'Draws'),
-            stat(losses, 'Losses'),
+            stat(playing, _('Playing')),
+            stat(wins, _('Wins')),
+            stat(draws, _('Draws')),
+            stat(losses, _('Losses')),
         ]);
     }
 
@@ -483,24 +509,23 @@ export class SimulController implements ChatController {
     }
 
     formatTimeControl(): string {
-        if (this.base === 0 && this.inc === 0) return 'Untimed';
+        if (this.base === 0 && this.inc === 0) return _('Untimed');
         return timeControlStr(this.base, this.inc, 0);
     }
 
     formatHostColor(): string {
-        if (this.hostColor === 'white') return 'White';
-        if (this.hostColor === 'black') return 'Black';
-        return 'Random';
+        if (this.hostColor === 'white') return _('White');
+        if (this.hostColor === 'black') return _('Black');
+        return _('Random');
     }
 
     formatHostExtraTime(seconds: number): string {
-        const sign = seconds > 0 ? '+' : '';
+        const sign = seconds > 0 ? '+' : seconds < 0 ? '-' : '';
         const abs = Math.abs(seconds);
         if (abs % 60 === 0) {
-            const minutes = abs / 60;
-            return `${sign}${seconds < 0 ? '-' : ''}${minutes} minute${minutes === 1 ? '' : 's'}`;
+            return `${sign}${ngettext('%1 minute', '%1 minutes', abs / 60)}`;
         }
-        return `${sign}${seconds} seconds`;
+        return `${sign}${ngettext('%1 second', '%1 seconds', abs)}`;
     }
 
     getHostAndOpponent(game: SimulGame): { host: string; opponent: string } {
@@ -524,27 +549,27 @@ export class SimulController implements ChatController {
     variantSummary(): string {
         const names = this.variantKeys.map(variantKey => this.variantDisplayName(variantKey));
         const shown = names.slice(0, 4);
-        return names.length > shown.length ? `${shown.join(', ')} +${names.length - shown.length} more` : shown.join(', ');
+        return names.length > shown.length ? `${shown.join(', ')} ${_('+%1 more', names.length - shown.length)}` : shown.join(', ');
     }
 
     renderEntryConditions(): VNode[] {
         const lines: VNode[] = [];
         if (this.entryMinRatedGames > 0) {
-            lines.push(h('p.simul__meta__line', `Entry: ${this.entryMinRatedGames}+ rated games in this variant`));
+            lines.push(h('p.simul__meta__line', _('Entry: %1+ rated games in this variant', this.entryMinRatedGames)));
         }
         if (this.entryMinRating > 0) {
-            lines.push(h('p.simul__meta__line', `Entry: minimum rating ${this.entryMinRating}`));
+            lines.push(h('p.simul__meta__line', _('Entry: minimum rating %1', this.entryMinRating)));
         }
         if (this.entryMaxRating > 0) {
-            lines.push(h('p.simul__meta__line', `Entry: maximum rating ${this.entryMaxRating}`));
+            lines.push(h('p.simul__meta__line', _('Entry: maximum rating %1', this.entryMaxRating)));
         }
         if (this.entryMinAccountAgeDays > 0) {
-            lines.push(h('p.simul__meta__line', `Entry: account age ${this.entryMinAccountAgeDays}+ days`));
+            lines.push(h('p.simul__meta__line', _('Entry: account age %1+ days', this.entryMinAccountAgeDays)));
         }
         if (this.entryTeamId && this.entryTeamName) {
             lines.push(
                 h('p.simul__meta__line', [
-                    'Entry: members of ',
+                    `${_('Entry: members of')} `,
                     h('a', { attrs: { href: `/team/${this.entryTeamId}` } }, this.entryTeamName),
                 ]),
             );
@@ -566,7 +591,7 @@ export class SimulController implements ChatController {
                     h(
                         'button.button.button-green.text.simul__cta',
                         { on: { click: () => this.startSimul() } },
-                        `Start (${approvedParticipants.length})`,
+                        _('Start (%1)', approvedParticipants.length),
                     ),
                 );
             }
@@ -583,13 +608,13 @@ export class SimulController implements ChatController {
                                 },
                             },
                         },
-                        'Accept random candidate',
+                        _('Accept random candidate'),
                     ),
                 );
             }
         } else if (alreadyJoined) {
             buttons.push(
-                h('button.button.simul__cta', { on: { click: () => this.withdrawSimul() } }, 'Withdraw'),
+                h('button.button.simul__cta', { on: { click: () => this.withdrawSimul() } }, _('Withdraw')),
             );
         } else {
             if (this.variantKeys.length > 1) {
@@ -610,7 +635,7 @@ export class SimulController implements ChatController {
                     ),
                 );
             }
-            buttons.push(h('button.button.text.simul__cta', { on: { click: () => this.joinSimul() } }, 'Join'));
+            buttons.push(h('button.button.text.simul__cta', { on: { click: () => this.joinSimul() } }, _('Join')));
         }
 
         return buttons;
@@ -647,19 +672,19 @@ export class SimulController implements ChatController {
                             ? [
                                   h(
                                       'button.button.simul__table-action',
-                                      { attrs: { title: 'Accept' }, on: { click: () => this.approve(player.name) } },
-                                      'Accept',
+                                      { attrs: { title: _('Accept') }, on: { click: () => this.approve(player.name) } },
+                                      _('Accept'),
                                   ),
                                   h(
                                       'button.button.button-red.simul__table-action',
-                                      { attrs: { title: 'Reject' }, on: { click: () => this.deny(player.name) } },
-                                      'Reject',
+                                      { attrs: { title: _('Reject') }, on: { click: () => this.deny(player.name) } },
+                                      _('Reject'),
                                   ),
                               ]
                             : h(
                                   'button.button.button-red.simul__table-action',
-                                  { attrs: { title: 'Remove' }, on: { click: () => this.deny(player.name) } },
-                                  'Remove',
+                                  { attrs: { title: _('Remove') }, on: { click: () => this.deny(player.name) } },
+                                  _('Remove'),
                               )
                         : null,
                 ),
@@ -685,16 +710,16 @@ export class SimulController implements ChatController {
         );
 
         const instruction = approvedParticipants.some(player => player.name === this.model.username)
-            ? 'You have been selected! Hold still, the simul is about to begin.'
+            ? _('You have been selected! Hold still, the simul is about to begin.')
             : isHost && this.players.length + this.pendingPlayers.length < 6
-              ? 'Share this page URL to let people enter the simul!'
+              ? _('Share this page URL to let people enter the simul!')
               : !isHost && alreadyJoined
-                ? 'Your registration is recorded. Wait for the host to accept you.'
+                ? _('Your registration is recorded. Wait for the host to accept you.')
                 : null;
 
         return h('div.simul__main.box', [
             h('div.box__top', [
-                h('h1', [this.simulName, h('span.author', [' hosted by ', hostLinkNode()])]),
+                h('h1', [this.simulName, h('span.author', [` ${_('hosted by')} `, hostLinkNode()])]),
                 h('div.box__top__actions', buttons),
             ]),
             this.renderDescription(),
@@ -706,7 +731,7 @@ export class SimulController implements ChatController {
                             h('tr', [
                                 h('th', { attrs: { colspan: 3 } }, [
                                     h('strong', `${pendingParticipants.length}`),
-                                    ' candidate players',
+                                    ` ${ngettext('candidate player', 'candidate players', pendingParticipants.length)}`,
                                 ]),
                             ]),
                         ]),
@@ -714,7 +739,7 @@ export class SimulController implements ChatController {
                             'tbody',
                             pendingParticipants.length > 0
                                 ? pendingParticipants.map(player => this.renderApplicantRow(player, isHost, true))
-                                : [h('tr.empty', [h('td', { attrs: { colspan: 3 } }, 'No pending players')])],
+                                : [h('tr.empty', [h('td', { attrs: { colspan: 3 } }, _('No pending players'))])],
                         ),
                     ]),
                 ]),
@@ -724,7 +749,7 @@ export class SimulController implements ChatController {
                             h('tr', [
                                 h('th', { attrs: { colspan: 3 } }, [
                                     h('strong', `${approvedParticipants.length}`),
-                                    ' accepted players',
+                                    ` ${ngettext('accepted player', 'accepted players', approvedParticipants.length)}`,
                                 ]),
                             ]),
                             isHost && pendingParticipants.length > 0 && approvedParticipants.length === 0
@@ -732,7 +757,7 @@ export class SimulController implements ChatController {
                                       h(
                                           'th',
                                           { attrs: { colspan: 3 } },
-                                          'Now you get to accept some players, then start the simul',
+                                          _('Now you get to accept some players, then start the simul'),
                                       ),
                                   ])
                                 : null,
@@ -741,7 +766,7 @@ export class SimulController implements ChatController {
                             'tbody',
                             approvedParticipants.length > 0
                                 ? approvedParticipants.map(player => this.renderApplicantRow(player, isHost, false))
-                                : [h('tr.empty', [h('td', { attrs: { colspan: 3 } }, 'No approved players yet')])],
+                                : [h('tr.empty', [h('td', { attrs: { colspan: 3 } }, _('No approved players yet'))])],
                         ),
                     ]),
                 ]),
@@ -768,7 +793,7 @@ export class SimulController implements ChatController {
             ]),
             this.renderDescription(),
             this.renderResultsSummary(),
-            !isSimulFinished ? h('h2.simul__section-title', 'Games in progress') : null,
+            !isSimulFinished ? h('h2.simul__section-title', _('Games in progress')) : null,
             this.renderMiniBoards(),
         ]);
     }
@@ -794,12 +819,12 @@ export class SimulController implements ChatController {
                     h('div', [
                         h('span.clock', this.formatTimeControl()),
                         h('p.simul__meta__headline', [
-                            h('span', `${variantNames} • Casual`),
+                            h('span', `${variantNames} • ${_('Casual')}`),
                             canEdit
                                 ? h('a.icon-cog.simul__meta__edit', {
                                       attrs: {
                                           href: `/simul/${this.simulId}/edit`,
-                                          title: 'Edit simul',
+                                          title: _('Edit simul'),
                                       },
                                   })
                                 : null,
@@ -807,20 +832,20 @@ export class SimulController implements ChatController {
                     ]),
                 ]),
                 h('section.game-infos', [
-                    h('p.simul__meta__line', `Host color: ${this.formatHostColor()}`),
+                    h('p.simul__meta__line', _('Host color: %1', this.formatHostColor())),
                     ...(this.hostExtraTime !== 0
-                        ? [h('p.simul__meta__line', `Host extra time: ${this.formatHostExtraTime(this.hostExtraTime)}`)]
+                        ? [h('p.simul__meta__line', _('Host extra time: %1', this.formatHostExtraTime(this.hostExtraTime)))]
                         : []),
                     ...(this.hostExtraTimePerPlayer > 0
                         ? [
                               h(
                                   'p.simul__meta__line',
-                                  `Host extra time per player: +${this.hostExtraTimePerPlayer} seconds`,
+                                  _('Host extra time per player: +%1', ngettext('%1 second', '%1 seconds', this.hostExtraTimePerPlayer)),
                               ),
                           ]
                         : []),
-                    ...(showPendingCount ? [h('p.simul__meta__line', `${approvedCount} accepted players`)] : []),
-                    ...(showPendingCount ? [h('p.simul__meta__line', `${pendingCount} pending players`)] : []),
+                    ...(showPendingCount ? [h('p.simul__meta__line', ngettext('%1 accepted player', '%1 accepted players', approvedCount))] : []),
+                    ...(showPendingCount ? [h('p.simul__meta__line', ngettext('%1 pending player', '%1 pending players', pendingCount))] : []),
                     ...(this.startingFen
                         ? [
                               h('p.simul__meta__line', [
@@ -833,7 +858,7 @@ export class SimulController implements ChatController {
                                               rel: 'noopener',
                                           },
                                       },
-                                      'Custom starting position',
+                                      _('Custom starting position'),
                                   ),
                               ]),
                           ]
@@ -841,7 +866,7 @@ export class SimulController implements ChatController {
                 ]),
                 this.renderEntryConditions().length > 0 ? h('section', [...this.renderEntryConditions()]) : null,
                 h('section', [
-                    h('p.simul__meta__line', ['Hosted by ', hostLinkNode()]),
+                    h('p.simul__meta__line', [`${_('Hosted by')} `, hostLinkNode()]),
                     ...(timingLine ? [timingLine] : []),
                     ...(!isFinished ? [h('p.simul__meta__line.simul__meta__statusline', simulStatusText)] : []),
                     ...(this.lastError ? [h('p.simul__meta__line.simul__meta__error', this.lastError)] : []),
@@ -859,14 +884,14 @@ export class SimulController implements ChatController {
         if (this.simulStatus < T_STARTED && this.estimatedStartAt) {
             return h(
                 'p.simul__meta__line.simul__meta__date',
-                `Estimated start time: ${this.formatEventDate(this.estimatedStartAt)}`,
+                _('Estimated start time: %1', this.formatEventDate(this.estimatedStartAt)),
             );
         }
         if (this.startsAt) {
-            return h('p.simul__meta__line.simul__meta__date', `Started: ${this.formatEventDate(this.startsAt)}`);
+            return h('p.simul__meta__line.simul__meta__date', _('Started: %1', this.formatEventDate(this.startsAt)));
         }
         if (this.simulStatus === T_FINISHED && this.endsAt) {
-            return h('p.simul__meta__line.simul__meta__date', `Finished: ${this.formatEventDate(this.endsAt)}`);
+            return h('p.simul__meta__line.simul__meta__date', _('Finished: %1', this.formatEventDate(this.endsAt)));
         }
         return null;
     }
@@ -879,7 +904,7 @@ export class SimulController implements ChatController {
 
     renderMiniBoards() {
         if (this.games.length === 0) {
-            return h('div.no-games', 'No games created yet');
+            return h('div.no-games', _('No games created yet'));
         }
 
         const sortedGames = [...this.games].sort((left, right) => {
@@ -915,7 +940,7 @@ export class SimulController implements ChatController {
                         class: { 'host-current': this.hostGameId === game.gameId },
                         attrs:
                             this.hostGameId === game.gameId
-                                ? { href: `/${game.gameId}`, title: 'Host is playing this game' }
+                                ? { href: `/${game.gameId}`, title: _('Host is playing this game') }
                                 : { href: `/${game.gameId}` },
                     },
                     [
@@ -971,7 +996,7 @@ export class SimulController implements ChatController {
     render() {
         const isSimulStarted = this.simulStatus >= T_STARTED;
         const isSimulFinished = this.simulStatus === T_FINISHED;
-        const simulStatusText = isSimulFinished ? 'Finished' : isSimulStarted ? 'Playing now' : 'Waiting for players';
+        const simulStatusText = isSimulFinished ? _('Finished') : isSimulStarted ? _('Playing now') : _('Waiting for players');
 
         return h('div.simul__app', { class: { 'simul-created': !isSimulStarted } }, [
             this.renderSide(simulStatusText),

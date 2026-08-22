@@ -6,7 +6,7 @@
             <h1>
                 <span class="team-icon" aria-hidden="true"></span>
                 <a href="/team/{{ team['_id'] }}">{{ team['name'] }}</a>
-                <span>• {{ team_members_total }} member{% if team_members_total != 1 %}s{% endif %}</span>
+                <span>• {% trans count=team_members_total %}{{ count }} member{% pluralize %}{{ count }} members{% endtrans %}</span>
             </h1>
         </div>
 
@@ -20,16 +20,16 @@
                     </td>
                 </tr>
                 {% else %}
-                <tr><td colspan="2" class="team-empty">No members found.</td></tr>
+                <tr><td colspan="2" class="team-empty">{% trans %}No members found.{% endtrans %}</td></tr>
                 {% endfor %}
             </tbody>
         </table>
 
         {% if team_members_prev_href or team_members_next_href %}
-        <nav class="team-members__pagination" aria-label="Pagination">
-            {% if team_members_prev_href %}<a class="button button-empty team-page-nav icon-left" href="{{ team_members_prev_href }}">Previous</a>{% else %}<span></span>{% endif %}
-            <span class="team-page-number">Page {{ team_members_page }}</span>
-            {% if team_members_next_href %}<a class="button button-empty team-page-nav team-page-nav--next icon-right" href="{{ team_members_next_href }}">Next</a>{% endif %}
+        <nav class="team-members__pagination" aria-label="{% trans %}Pagination{% endtrans %}">
+            {% if team_members_prev_href %}<a class="button button-empty team-page-nav icon-left" href="{{ team_members_prev_href }}">{% trans %}Previous{% endtrans %}</a>{% else %}<span></span>{% endif %}
+            <span class="team-page-number">{% trans page=team_members_page %}Page {{ page }}{% endtrans %}</span>
+            {% if team_members_next_href %}<a class="button button-empty team-page-nav team-page-nav--next icon-right" href="{{ team_members_next_href }}">{% trans %}Next{% endtrans %}</a>{% endif %}
         </nav>
         {% endif %}
     </main>

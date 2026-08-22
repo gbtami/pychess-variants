@@ -4,11 +4,11 @@
 <main class="page-menu">
 <aside>
     <ul class="guide">
-    <li><a href="{{ home }}/blogs"><span>By PyChess</span></a></li>
-    <li><a href="{{ home }}/blogs/community"><span>Community</span></a></li>
+    <li><a href="{{ home }}/blogs"><span>{% trans %}By PyChess{% endtrans %}</span></a></li>
+    <li><a href="{{ home }}/blogs/community"><span>{% trans %}Community{% endtrans %}</span></a></li>
     {% for topic in site_tags %}
     <li>
-    <a href="{{ home }}/blogs?tags={{ topic | urlencode }}"><span>#{{ topic }}</span></a>
+    <a href="{{ home }}/blogs?tags={{ topic | urlencode }}"><span>#{{ _(topic) }}</span></a>
     </li>
     {% endfor %}
     </ul>
