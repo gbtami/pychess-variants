@@ -8,7 +8,7 @@ import { renderTimeago } from '../../datetime';
 import { PyChessModel } from '../../types';
 import AnalysisControllerBughouse from './analysisCtrl';
 import { gauge } from '@/analysis';
-import { renderTabbedPanels } from '../common/tabs';
+import { TabbedPanels } from '../common/tabs';
 import { MovelistView } from '../common/movelist';
 import { EngineController } from './engine';
 import { PgnView } from './pgn';
@@ -104,6 +104,36 @@ export function analysisView(model: PyChessModel): VNode[] {
     const pgnView = new PgnView();
     const clockView = new AnalysisClockView();
     const movetimeChartView = new MovetimeChartView(!isAnalysisBoard);
+    const analysisTabs = new TabbedPanels(
+        'analysis-tabs',
+        [
+            // one part each: panelClass now belongs to the part, since it is the
+            // part that becomes an element and the part that gets placed
+            {
+                label: _('Move times'),
+                parts: [{ panelClass: 'chart-container', content: [movetimeChartView.placeholder()] }],
+            },
+            {
+                label: _('FEN & PGN'),
+                parts: [
+                    {
+                        panelClass: 'fenpgn-panel',
+                        content: [
+                            h('div#fentext', [
+                                h('strong', 'BFEN'),
+                                h('input#fullfen', {
+                                    attrs: { readonly: true, spellcheck: false },
+                                    on: { click: onClickFullfen },
+                                }),
+                            ]),
+                            ...pgnView.placeholders(),
+                        ],
+                    },
+                ],
+            },
+        ],
+        'Analysis Tabs',
+    );
 
     return [
         h(
@@ -208,31 +238,14 @@ export function analysisView(model: PyChessModel): VNode[] {
                     ]),
                 ]),
                 h('under-left#spectators'),
-                renderTabbedPanels(
+                // under-board is the page's own element now; the widget contributes
+                // only the two parts inside it. The plain analysis board has nothing
+                // to switch to, so it simply does not mount the tablist.
+                h(
                     'under-board',
-                    [
-                        {
-                            label: _('Move times'),
-                            panelClass: 'chart-container',
-                            content: [movetimeChartView.placeholder()],
-                        },
-                        {
-                            label: _('FEN & PGN'),
-                            panelClass: 'fenpgn-panel',
-                            content: [
-                                h('div#fentext', [
-                                    h('strong', 'BFEN'),
-                                    h('input#fullfen', {
-                                        attrs: { readonly: true, spellcheck: false },
-                                        on: { click: onClickFullfen },
-                                    }),
-                                ]),
-                                ...pgnView.placeholders(),
-                            ],
-                        },
-                    ],
-                    'Analysis Tabs',
-                    isAnalysisBoard,
+                    isAnalysisBoard
+                        ? [analysisTabs.panel(0, 0), analysisTabs.panel(1, 0)]
+                        : [analysisTabs.panel(0, 0), analysisTabs.panel(1, 0), analysisTabs.tabList()],
                 ),
             ],
         ),

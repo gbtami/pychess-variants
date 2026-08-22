@@ -1,5 +1,6 @@
 import logging
 import random
+from collections.abc import Mapping
 from datetime import UTC
 from typing import TYPE_CHECKING
 
@@ -23,7 +24,50 @@ from websocket_utils import ws_send_json_many
 
 from bug.game_bug import GameBug
 
+if TYPE_CHECKING:
+    from user import User
+
 log = logging.getLogger(__name__)
+
+
+async def send_to_team(game: GameBug, team: list[str], response: Mapping[str, object]) -> None:
+    """Deliver to the two players on one team and to nobody else.
+
+    Deliberately not round_broadcast: that reaches the opposing team and the spectators,
+    and a pending resignation is the resigning team's own business. Knowing that your
+    opponents are considering resignation is information about how they judge the
+    position, and handing it over mid-game changes the game.
+    """
+    for player in game.non_bot_players:
+        if player.username in team:
+            await player.send_game_message(game.id, response)
+
+
+async def cancel_team_offers_on_move(game: GameBug, user: User) -> None:
+    """Playing on is an answer, and it answers both kinds of offer.
+
+    A move by either teammate cancels their pending resignation — the player who asked has
+    changed their mind, the partner has declined without needing a control for it. A move
+    by either opponent declines an outstanding draw offer on behalf of their team.
+
+    Done here rather than in the client so it holds however the move arrived, and so all
+    four windows learn of it from one broadcast instead of each deciding for itself.
+    """
+    team = game.team_of(user.username)
+    if team is None:
+        return
+
+    if game.resign_offer is not None and game.resign_offer in team:
+        game.resign_offer = None
+        await send_to_team(
+            game, team, {"type": "resign_cancelled", "message": "Resignation cancelled"}
+        )
+
+    if game.draw_offer_team is not None and game.draw_offer_team is not team:
+        game.draw_offer_team = None
+        await round_broadcast(
+            game, {"type": "draw_rejected", "message": "Draw offer rejected"}, full=True
+        )
 
 
 async def init_players(app_state: PychessGlobalAppState, wp_a, bp_a, wp_b, bp_b):
@@ -487,6 +531,11 @@ async def play_move(
     gameId = game.id
     invalid_move = False
     # log.info("%s move %s %s %s - %s" % (user.username, move, gameId, game.wplayer.username, game.bplayer.username))
+
+    # Playing on answers any offer this player's move speaks to — their team's pending
+    # resignation, or the other team's draw offer. Before the move is applied, so a move
+    # that ends the game still leaves no offer outstanding behind it.
+    await cancel_team_offers_on_move(game, user)
 
     if game.status <= STARTED:
         try:

@@ -142,28 +142,40 @@ export function swap(nodeA: HTMLElement, nodeB: HTMLElement) {
     parentA!.insertBefore(nodeB, siblingA);
 }
 
-export function switchBoards(ctrl: TwoBoardController) {
+// The board halves of a switch, without the surrounding furniture — each page
+// arranges that differently. The round page groups a seat's pocket with its clock
+// and name in a strip and moves strips; the analysis page places pockets on their
+// own, so switchBoards() below moves those elements directly.
+export function switchBoardElements() {
     // todo: not sure if best implementation below
     //       it manipulates the DOM directly switching places of elements identified by whether they are
     //       main/second board, instead of keeping info about the switch and rendering boards on elements
     //       called left/right
     let mainboardVNode = document.getElementById('mainboard');
-    let mainboardPocket0 = document.getElementById('pocket00');
-    let mainboardPocket1 = document.getElementById('pocket01');
-
     let bugboardVNode = document.getElementById('bugboard');
-    let bugboardPocket0 = document.getElementById('pocket10');
-    let bugboardPocket1 = document.getElementById('pocket11');
 
     let a = mainboardVNode!.style.gridArea || 'board';
     mainboardVNode!.style.gridArea = bugboardVNode!.style.gridArea || 'boardPartner';
     bugboardVNode!.style.gridArea = a;
+}
+
+export function redrawBoards(ctrl: TwoBoardController) {
+    ctrl.boardA.chessground.redrawAll();
+    ctrl.boardB.chessground.redrawAll();
+}
+
+export function switchBoards(ctrl: TwoBoardController) {
+    switchBoardElements();
+
+    let mainboardPocket0 = document.getElementById('pocket00');
+    let mainboardPocket1 = document.getElementById('pocket01');
+    let bugboardPocket0 = document.getElementById('pocket10');
+    let bugboardPocket1 = document.getElementById('pocket11');
 
     swap(mainboardPocket0!, bugboardPocket0!);
     swap(mainboardPocket1!, bugboardPocket1!);
 
-    ctrl.boardA.chessground.redrawAll();
-    ctrl.boardB.chessground.redrawAll();
+    redrawBoards(ctrl);
 }
 
 export function initBoardSettings(b1: ChessgroundController, b2: ChessgroundController, variant: Variant) {

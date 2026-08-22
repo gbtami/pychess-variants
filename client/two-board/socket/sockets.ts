@@ -123,6 +123,12 @@ export class RoundControllerBughouseSocket {
             case 'draw_rejected':
                 ctrl.onMsgDrawRejected(msg);
                 break;
+            case 'resign_offer':
+                ctrl.onMsgResignOffer(msg);
+                break;
+            case 'resign_cancelled':
+                ctrl.onMsgResignCancelled(msg);
+                break;
             case 'rematch_offer':
                 ctrl.onMsgRematchOffer(msg);
                 break;

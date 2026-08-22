@@ -11,7 +11,14 @@ import game
 from aiohttp import web
 from aiohttp.web_ws import WebSocketResponse
 from broadcast import round_broadcast
-from bug.wsr_bug import handle_reconnect_bughouse, handle_rematch_bughouse, handle_resign_bughouse
+from bug.wsr_bug import (
+    handle_draw_bughouse,
+    handle_reconnect_bughouse,
+    handle_reject_draw_bughouse,
+    handle_reject_rematch_bughouse,
+    handle_rematch_bughouse,
+    handle_resign_bughouse,
+)
 from catalogued_variants import catalogued_variant_allows_fishnet
 from chat import chat_response
 from cheat_report import (
@@ -233,11 +240,33 @@ async def process_message(
             return
         await handle_rematch(app_state, ws, user, data, game)
     elif data["type"] == "reject_rematch":
-        await handle_reject_rematch(user, game)
+        # In bughouse this means "take my own offer back", not "decline yours" — the
+        # answering side has a single ACCEPT control and declining is just not pressing it.
+        if game.server_variant.two_boards:
+            if TYPE_CHECKING:
+                assert isinstance(game, GameBug)
+            await handle_reject_rematch_bughouse(game, user)
+        else:
+            await handle_reject_rematch(user, game)
     elif data["type"] == "draw":
-        await handle_draw(ws, app_state.users, user, data, game)
+        # Bughouse branch, the same shape abort/resign use below. A draw there is offered
+        # to the opposing TEAM and answerable by either of its members, which the shared
+        # handler cannot express: it derives one opponent from wplayer/bplayer — board A's
+        # two seats — and broadcasts without full=True, so two of the four players never
+        # heard the offer at all.
+        if game.server_variant.two_boards:
+            if TYPE_CHECKING:
+                assert isinstance(game, GameBug)
+            await handle_draw_bughouse(game, user)
+        else:
+            await handle_draw(ws, app_state.users, user, data, game)
     elif data["type"] == "reject_draw":
-        await handle_reject_draw(user, game)
+        if game.server_variant.two_boards:
+            if TYPE_CHECKING:
+                assert isinstance(game, GameBug)
+            await handle_reject_draw_bughouse(game, user)
+        else:
+            await handle_reject_draw(user, game)
     elif data["type"] == "byoyomi":
         await handle_byoyomi(user, data, game)
     elif data["type"] == "takeback":
