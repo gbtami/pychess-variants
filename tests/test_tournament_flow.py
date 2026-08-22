@@ -1075,6 +1075,7 @@ class TournamentFlowTestCase(TournamentTestCase):
             tid,
             variant="chess",
             before_start=0,
+            minutes=7 * 24 * 60,
             rounds=0,
             rr_max_players=4,
             with_clock=False,
@@ -1109,6 +1110,102 @@ class TournamentFlowTestCase(TournamentTestCase):
         self.assertEqual(arrangement.black_date, agreed)
         self.assertEqual(arrangement.scheduled_at, proposed)
 
+    async def test_rr_prestart_scheduling_rejects_stale_and_post_deadline_times(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        now = datetime.now(UTC).replace(microsecond=0)
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=0,
+            starts_at=now + timedelta(hours=1),
+            minutes=120,
+            rounds=0,
+            rr_max_players=2,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = self.tournament
+
+        users = []
+        for suffix in ("A", "B"):
+            user = User(app_state, username=f"{tid}_{suffix}", perfs=make_test_perfs())
+            app_state.users[user.username] = user
+            user.tournament_sockets[tid] = {None}
+            await self.tournament.join(user)
+            users.append(user)
+
+        arrangement = self.tournament.arrangement_list()[0]
+        white = next(user for user in users if user.username == arrangement.white)
+
+        self.assertEqual(
+            await self.tournament.set_arrangement_time(
+                white, arrangement.id, now - timedelta(minutes=6)
+            ),
+            "Round-robin game times cannot be scheduled in the past.",
+        )
+        self.assertIsNone(arrangement.white_date)
+
+        self.assertEqual(
+            await self.tournament.set_arrangement_time(
+                white, arrangement.id, self.tournament.ends_at
+            ),
+            "Round-robin game times must be before the tournament deadline.",
+        )
+        self.assertEqual(
+            await self.tournament.set_arrangement_time(
+                white, arrangement.id, self.tournament.ends_at + timedelta(minutes=1)
+            ),
+            "Round-robin game times must be before the tournament deadline.",
+        )
+        self.assertIsNone(arrangement.white_date)
+
+        near_now = now - timedelta(minutes=1)
+        self.assertIsNone(
+            await self.tournament.set_arrangement_time(white, arrangement.id, near_now)
+        )
+        self.assertEqual(arrangement.white_date, near_now)
+
+    async def test_rr_started_scheduling_accepts_time_before_deadline(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=0,
+            minutes=24 * 60,
+            rounds=0,
+            rr_max_players=2,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = self.tournament
+
+        users = []
+        for suffix in ("A", "B"):
+            user = User(app_state, username=f"{tid}_{suffix}", perfs=make_test_perfs())
+            app_state.users[user.username] = user
+            user.tournament_sockets[tid] = {None}
+            await self.tournament.join(user)
+            users.append(user)
+
+        await self.tournament.start(datetime.now(UTC))
+        arrangement = self.tournament.arrangement_list()[0]
+        white = next(user for user in users if user.username == arrangement.white)
+        before_deadline = self.tournament.ends_at - timedelta(minutes=1)
+
+        self.assertIsNone(
+            await self.tournament.set_arrangement_time(white, arrangement.id, before_deadline)
+        )
+        self.assertEqual(arrangement.white_date, before_deadline.replace(microsecond=0))
+        self.assertEqual(
+            await self.tournament.set_arrangement_time(
+                white, arrangement.id, self.tournament.ends_at
+            ),
+            "Round-robin game times must be before the tournament deadline.",
+        )
+        self.assertEqual(arrangement.white_date, before_deadline.replace(microsecond=0))
+
     async def test_rr_scheduling_keeps_db_write_inside_mutation_lock(self):
         app_state = get_app_state(self.app)
         tid = id8()
@@ -1117,6 +1214,7 @@ class TournamentFlowTestCase(TournamentTestCase):
             tid,
             variant="chess",
             before_start=0,
+            minutes=7 * 24 * 60,
             rounds=0,
             rr_max_players=2,
             with_clock=False,
@@ -1195,6 +1293,7 @@ class TournamentFlowTestCase(TournamentTestCase):
             tid,
             variant="chess",
             before_start=0,
+            minutes=7 * 24 * 60,
             rounds=0,
             rr_max_players=4,
             with_clock=False,
@@ -1241,6 +1340,7 @@ class TournamentFlowTestCase(TournamentTestCase):
             tid,
             variant="chess",
             before_start=10,
+            minutes=7 * 24 * 60,
             rounds=0,
             rr_max_players=4,
             with_clock=False,

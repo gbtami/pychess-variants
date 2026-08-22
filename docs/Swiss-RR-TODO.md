@@ -224,12 +224,18 @@ the asynchronous arrangement model.
   required by account erasure; RR game/seek/notification link indexes were added for arrangement
   re-keying as well.
 
-- [ ] **Validate RR scheduling against the tournament deadline.** The client limits the
-  calendar, but before the tournament starts `scheduleMaxDate()` falls back to
-  `startsAt + 90 days` instead of the actual `startsAt + tminutes`, and the server accepts an
-  arbitrary proposed date. Players can therefore agree to a game after the RR itself is
-  scheduled to finish. Derive the real finish date before and after start, use it as the
-  client max, and reject materially-past or post-deadline proposals server-side.
+- [x] **Validate RR scheduling against the tournament deadline.** The RR client now retains
+  the authoritative tournament duration from the websocket handshake and derives its calendar
+  maximum from `startsAt + tminutes` both before and after start instead of using the old
+  90-day fallback; the calendar minimum is the current time rather than the start of today.
+  Server-side scheduling independently rejects proposals at or beyond the durable tournament
+  deadline and proposals more than five minutes in the past. The small past-time tolerance
+  accommodates minute-granularity calendar input, page delay, and modest client/server clock
+  skew without allowing stale appointments. Deadline validation applies while the RR is still
+  `T_CREATED` as well as after it starts, so forged websocket input cannot create an impossible
+  post-tournament agreement. Websocket ISO timestamps are normalized to UTC (including explicit
+  offsets), and malformed dates are rejected as ordinary request errors rather than escaping the
+  handler.
 
 - [ ] **Decouple mandatory RR games from ordinary lobby challenge restrictions.** An RR
   arrangement currently goes through generic `create_seek()`, so the normal seek-count limit

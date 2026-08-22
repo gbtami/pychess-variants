@@ -116,6 +116,7 @@ export class TournamentRRController implements ChatController {
     startDate = '';
     secondsToStart = 0;
     secondsToFinish = 0;
+    tournamentMinutes = 0;
     roundOngoingGames = 0;
     secondsToNextRound = 0;
     manualNextRoundPending = false;
@@ -422,10 +423,12 @@ export class TournamentRRController implements ChatController {
     }
 
     scheduleMaxDate(): Date {
-        if (this.secondsToFinish > 0) return new Date(Date.now() + this.secondsToFinish * 1000);
         const startsAt = new Date(this.startDate);
-        if (!Number.isNaN(startsAt.getTime())) return new Date(startsAt.getTime() + 90 * 24 * 3600 * 1000);
-        return new Date(Date.now() + 90 * 24 * 3600 * 1000);
+        if (!Number.isNaN(startsAt.getTime()) && this.tournamentMinutes > 0) {
+            return new Date(startsAt.getTime() + this.tournamentMinutes * 60 * 1000);
+        }
+        if (this.secondsToFinish > 0) return new Date(Date.now() + this.secondsToFinish * 1000);
+        return new Date();
     }
 
     submitSchedule(cell: RRArrangementCell, value: string) {
@@ -539,6 +542,7 @@ export class TournamentRRController implements ChatController {
 
     renderInfo(msg: MsgUserConnectedTournament) {
         this.startDate = msg.startsAt;
+        this.tournamentMinutes = msg.tminutes;
         this.createdBy = msg.createdBy;
         this.approvalRequired = !!msg.rrRequiresApproval;
         this.joiningClosed = !!msg.rrJoiningClosed;
@@ -1188,7 +1192,7 @@ export class TournamentRRController implements ChatController {
                                                 altInput: true,
                                                 altFormat: 'Y-m-d H:i',
                                                 inline: true,
-                                                minDate: 'today',
+                                                minDate: new Date(),
                                                 maxDate: this.scheduleMaxDate(),
                                                 monthSelectorType: 'static',
                                                 disableMobile: true,

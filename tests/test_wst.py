@@ -1,3 +1,4 @@
+from datetime import UTC, datetime
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
@@ -6,7 +7,7 @@ from aiohttp.test_utils import AioHTTPTestCase
 from glicko2.glicko2 import new_default_perf_map
 from mongomock_motor import AsyncMongoMockClient
 from pychess_global_app_state_utils import get_app_state
-from tournament.wst import finally_logic, handle_join
+from tournament.wst import finally_logic, handle_join, handle_rr_set_time
 from user import User
 from variants import VARIANTS
 
@@ -49,6 +50,44 @@ class TournamentSocketCleanupTestCase(AioHTTPTestCase):
 
         self.assertNotIn(tournament_id, self.user.tournament_sockets)
         self.assertNotIn(self.user.username, app_state.tourneysockets[tournament_id])
+
+    async def test_rr_set_time_normalizes_offset_and_rejects_invalid_date(self):
+        app_state = get_app_state(self.app)
+        ws = SimpleNamespace(send_str=AsyncMock())
+        tournament = SimpleNamespace(set_arrangement_time=AsyncMock(return_value=None))
+
+        with patch("tournament.wst.load_rr_tournament", new=AsyncMock(return_value=tournament)):
+            await handle_rr_set_time(
+                app_state,
+                ws,
+                self.user,
+                {
+                    "type": "rr_set_time",
+                    "tournamentId": "tid",
+                    "arrangementId": "arr",
+                    "date": "2026-08-22T16:30:00+02:00",
+                },
+            )
+
+            tournament.set_arrangement_time.assert_awaited_once_with(
+                self.user, "arr", datetime(2026, 8, 22, 14, 30, tzinfo=UTC)
+            )
+            tournament.set_arrangement_time.reset_mock()
+
+            await handle_rr_set_time(
+                app_state,
+                ws,
+                self.user,
+                {
+                    "type": "rr_set_time",
+                    "tournamentId": "tid",
+                    "arrangementId": "arr",
+                    "date": "not-a-date",
+                },
+            )
+
+        tournament.set_arrangement_time.assert_not_awaited()
+        self.assertIn("Invalid round-robin schedule date", ws.send_str.call_args.args[0])
 
     async def test_bot_user_cannot_join_tournament(self):
         app_state = get_app_state(self.app)

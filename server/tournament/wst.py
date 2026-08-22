@@ -445,9 +445,20 @@ async def handle_rr_set_time(
         return
 
     raw_date = data.get("date")
-    parsed_date = (
-        datetime.fromisoformat(raw_date.rstrip("Z")).replace(tzinfo=UTC) if raw_date else None
-    )
+    try:
+        if raw_date:
+            parsed_date = datetime.fromisoformat(raw_date)
+            parsed_date = (
+                parsed_date.replace(tzinfo=UTC)
+                if parsed_date.tzinfo is None
+                else parsed_date.astimezone(UTC)
+            )
+        else:
+            parsed_date = None
+    except (TypeError, ValueError):
+        await ws_send_json(ws, {"type": "error", "message": "Invalid round-robin schedule date."})
+        return
+
     result = await rr_tournament.set_arrangement_time(user, data["arrangementId"], parsed_date)
     if result is not None:
         await ws_send_json(ws, {"type": "error", "message": result})

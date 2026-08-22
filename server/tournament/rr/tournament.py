@@ -24,6 +24,7 @@ from .arrangements import (
     ARR_REMINDER_REPEAT,
     ARR_REMINDER_WINDOW_END,
     ARR_REMINDER_WINDOW_START,
+    ARR_SCHEDULE_PAST_TOLERANCE,
     ARR_SCHEDULE_TOLERANCE,
     ARR_STATUS_CHALLENGED,
     ARR_STATUS_EXPIRED,
@@ -759,7 +760,8 @@ class RRTournament(Tournament):
     ) -> str | None:
         if self.status not in (T_CREATED, T_STARTED):
             return "Round-robin scheduling is not available for this tournament."
-        if self.status == T_STARTED and self.deadline_reached():
+        now = datetime.now(UTC)
+        if self.deadline_reached(now):
             return "The round-robin scheduling deadline has passed."
         if not await self.user_is_team_member(user):
             return "You must be a member of the tournament team to schedule games."
@@ -782,6 +784,12 @@ class RRTournament(Tournament):
 
         previous_scheduled_at = arrangement.scheduled_at
         date = self._normalize_arrangement_date(date)
+        if date is not None:
+            if date < now - ARR_SCHEDULE_PAST_TOLERANCE:
+                return "Round-robin game times cannot be scheduled in the past."
+            deadline = self.ends_at.astimezone(UTC).replace(microsecond=0)
+            if date >= deadline:
+                return "Round-robin game times must be before the tournament deadline."
         arrangement.set_suggested_time(user.username, date)
         arrangement.scheduled_at = None
 

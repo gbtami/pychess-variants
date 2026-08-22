@@ -11,6 +11,7 @@ ARR_STATUS_STARTED = "started"
 ARR_STATUS_FINISHED = "finished"
 ARR_STATUS_EXPIRED = "expired"
 ARR_SCHEDULE_TOLERANCE = timedelta(seconds=60)
+ARR_SCHEDULE_PAST_TOLERANCE = timedelta(minutes=5)
 ARR_REMINDER_WINDOW_START = timedelta(hours=23)
 ARR_REMINDER_WINDOW_END = timedelta(hours=24)
 ARR_REMINDER_REPEAT = timedelta(hours=2)
