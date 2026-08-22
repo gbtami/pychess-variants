@@ -44,6 +44,12 @@ class RRTournament(Tournament):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.arrangements: dict[str, RRArrangement] = {}
+        # Arrangement requests can arrive concurrently from both players while the
+        # tournament clock and game-end callbacks mutate the same records. Sequence
+        # all live arrangement writes per tournament, like Lishogi's tournament
+        # work queue, so validation and the matching MongoDB update are atomic with
+        # respect to other arrangement operations.
+        self._arrangement_mutation_lock = asyncio.Lock()
 
     def create_pairing(self, waiting_players: list[User]) -> list[tuple[User, User]]:
         return []
@@ -243,6 +249,10 @@ class RRTournament(Tournament):
         return None
 
     async def team_member_removed(self, user: User) -> None:
+        async with self._arrangement_mutation_lock:
+            await self._team_member_removed(user)
+
+    async def _team_member_removed(self, user: User) -> None:
         username = user.username
         self.rr_pending_players.discard(username)
         self.rr_denied_players.discard(username)
@@ -461,7 +471,7 @@ class RRTournament(Tournament):
         self.arrangements = projected
         return stale_ids
 
-    async def create_arrangements(self) -> None:
+    async def _create_arrangements(self) -> None:
         stale_ids = self.sync_projected_arrangements()
 
         if self.app_state.db is not None:
@@ -613,10 +623,11 @@ class RRTournament(Tournament):
         return arrangement
 
     async def start(self, now: datetime) -> None:
-        self.rounds = self.rr_rounds_for_start()
-        await self.create_arrangements()
-        await super().start(now)
-        await self.broadcast_arrangements()
+        async with self._arrangement_mutation_lock:
+            self.rounds = self.rr_rounds_for_start()
+            await self._create_arrangements()
+            await super().start(now)
+            await self.broadcast_arrangements()
 
     def all_arrangements_finished(self) -> bool:
         return bool(self.arrangements) and all(
@@ -643,6 +654,12 @@ class RRTournament(Tournament):
             remove_seek(self.app_state.seeks, seek)
 
     async def expire_unstarted_arrangements(
+        self, now: datetime | None = None, *, broadcast: bool = True
+    ) -> bool:
+        async with self._arrangement_mutation_lock:
+            return await self._expire_unstarted_arrangements(now, broadcast=broadcast)
+
+    async def _expire_unstarted_arrangements(
         self, now: datetime | None = None, *, broadcast: bool = True
     ) -> bool:
         if now is None:
@@ -734,6 +751,12 @@ class RRTournament(Tournament):
     async def set_arrangement_time(
         self, user: User, arrangement_id: str, date: datetime | None
     ) -> str | None:
+        async with self._arrangement_mutation_lock:
+            return await self._set_arrangement_time(user, arrangement_id, date)
+
+    async def _set_arrangement_time(
+        self, user: User, arrangement_id: str, date: datetime | None
+    ) -> str | None:
         if self.status not in (T_CREATED, T_STARTED):
             return "Round-robin scheduling is not available for this tournament."
         if self.status == T_STARTED and self.deadline_reached():
@@ -793,6 +816,10 @@ class RRTournament(Tournament):
         return None
 
     async def send_arrangement_reminders(self, now: datetime) -> None:
+        async with self._arrangement_mutation_lock:
+            await self._send_arrangement_reminders(now)
+
+    async def _send_arrangement_reminders(self, now: datetime) -> None:
         for arrangement in self.arrangements.values():
             if arrangement.scheduled_at is None:
                 continue
@@ -830,6 +857,10 @@ class RRTournament(Tournament):
             await self.db_update_arrangement(arrangement)
 
     async def create_arrangement_challenge(self, user: User, arrangement_id: str) -> str | None:
+        async with self._arrangement_mutation_lock:
+            return await self._create_arrangement_challenge(user, arrangement_id)
+
+    async def _create_arrangement_challenge(self, user: User, arrangement_id: str) -> str | None:
         if self.status not in (T_CREATED, T_STARTED):
             return "Round-robin challenges are not available for this tournament."
         if self.status == T_STARTED and self.deadline_reached():
@@ -900,6 +931,10 @@ class RRTournament(Tournament):
         return None
 
     async def accept_arrangement_challenge(self, user: User, arrangement_id: str):
+        async with self._arrangement_mutation_lock:
+            return await self._accept_arrangement_challenge(user, arrangement_id)
+
+    async def _accept_arrangement_challenge(self, user: User, arrangement_id: str):
         if self.status not in (T_CREATED, T_STARTED):
             return {
                 "type": "error",
@@ -940,10 +975,12 @@ class RRTournament(Tournament):
         if result["type"] == "new_game":
             game = self.app_state.games.get(result["gameId"])
             if game is not None:
-                await self.register_arrangement_game(arrangement, game)
+                await self._register_arrangement_game(arrangement, game)
         return result
 
-    async def register_arrangement_game(self, arrangement: RRArrangement, game: Game | Any) -> None:
+    async def _register_arrangement_game(
+        self, arrangement: RRArrangement, game: Game | Any
+    ) -> None:
         game.round = arrangement.round_no  # type: ignore[attr-defined]
         arrangement.status = ARR_STATUS_STARTED
         arrangement.game_id = game.id
@@ -963,6 +1000,10 @@ class RRTournament(Tournament):
         await self.broadcast(self.live_status())
 
     async def game_update(self, game: Game) -> None:
+        async with self._arrangement_mutation_lock:
+            await self._game_update(game)
+
+    async def _game_update(self, game: Game) -> None:
         await super().game_update(game)
 
         arrangement_id = getattr(game, "tournamentArrangementId", None)
@@ -995,7 +1036,7 @@ class RRTournament(Tournament):
         await self.db_update_arrangement(arrangement)
 
         if self.status == T_STARTED and self.deadline_reached(now):
-            await self.expire_unstarted_arrangements(now, broadcast=False)
+            await self._expire_unstarted_arrangements(now, broadcast=False)
         await self.broadcast_arrangements()
 
         if self.status == T_STARTED and (

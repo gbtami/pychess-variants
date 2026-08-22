@@ -207,13 +207,15 @@ the asynchronous arrangement model.
   invite/challenger fields, persists the repair, and only then broadcasts the repaired matrix.
   A real started/finished game always wins reconciliation over a stale challenge document.
 
-- [ ] **Serialize RR arrangement mutations.** Lishogi sequences arrangement mutations per
-  tournament. PyChess currently lets websocket requests from the two players interleave.
-  Two simultaneous `create_arrangement_challenge()` calls can both pass the "no active
-  invite" check, create two seeks, and leave one orphaned while the later write wins.
-  Scheduling/update/accept operations should also have deterministic ordering. Add a
-  lightweight per-tournament or per-arrangement async lock around state-changing RR
-  arrangement operations and keep database writes inside that serialized section.
+- [x] **Serialize RR arrangement mutations.** PyChess now mirrors Lishogi's per-tournament
+  sequencing with one lightweight `asyncio.Lock` on each `RRTournament`. Challenge creation,
+  challenge acceptance/game registration, scheduling, deadline expiry, reminders, game-end
+  and abort handling, Team-member removal, and start-time arrangement creation all pass
+  through that serialization point, with their arrangement MongoDB writes still inside the
+  locked section. Concurrent challenge coverage proves that two players cannot create two
+  invites for one arrangement; a scheduling race test deliberately stalls the first MongoDB
+  write and proves the second mutation cannot enter until that write completes, keeping the
+  durable arrangement state ordered with the in-memory state.
 
 - [x] **Index RR arrangement lookup.** Startup/reload reads
   `tournament_arrangement.find({"tid": tournament_id})`, and empty-RR cleanup deletes by the

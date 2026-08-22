@@ -2,6 +2,7 @@ import asyncio
 import json
 import unittest
 from datetime import UTC, datetime, timedelta
+from unittest.mock import patch
 
 from const import FLAG, T_ABORTED, T_CREATED, T_FINISHED, T_STARTED
 from glicko2.glicko2 import new_default_perf, new_default_perf_map
@@ -962,6 +963,65 @@ class TournamentFlowTestCase(TournamentTestCase):
         self.assertEqual(opponent.notifications[-1]["content"]["arr"], arrangement.id)
         self.assertEqual(opponent.notifications[-1]["content"]["opp"], challenger.username)
 
+    async def test_rr_simultaneous_challenges_create_only_one_invite(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=0,
+            rounds=0,
+            rr_max_players=2,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = self.tournament
+
+        users = []
+        for suffix in ("A", "B"):
+            user = User(app_state, username=f"{tid}_{suffix}", perfs=make_test_perfs())
+            app_state.users[user.username] = user
+            user.tournament_sockets[tid] = {None}
+            await self.tournament.join(user)
+            users.append(user)
+
+        await self.tournament.start(datetime.now(UTC))
+        arrangement = self.tournament.arrangement_list()[0]
+        players = {user.username: user for user in users}
+        white = players[arrangement.white]
+        black = players[arrangement.black]
+
+        from tournament.rr import tournament as rr_tournament_module
+
+        original_create_seek = rr_tournament_module.create_seek
+        create_seek_calls = 0
+
+        async def yielding_create_seek(*args, **kwargs):
+            nonlocal create_seek_calls
+            create_seek_calls += 1
+            # Without RR mutation serialization this yield lets the opponent pass
+            # the same "no invite" check and create a second orphaned seek.
+            await asyncio.sleep(0)
+            return await original_create_seek(*args, **kwargs)
+
+        with patch(
+            "tournament.rr.tournament.create_seek",
+            new=yielding_create_seek,
+        ):
+            results = await asyncio.gather(
+                self.tournament.create_arrangement_challenge(white, arrangement.id),
+                self.tournament.create_arrangement_challenge(black, arrangement.id),
+            )
+
+        self.assertEqual(results, [None, None])
+        self.assertEqual(create_seek_calls, 1)
+        arrangement_seeks = [
+            seek for seek in app_state.seeks.values() if seek.rr_arrangement_id == arrangement.id
+        ]
+        self.assertEqual(len(arrangement_seeks), 1)
+        self.assertEqual(arrangement.invite_id, arrangement_seeks[0].game_id)
+        self.assertIn(arrangement.invite_id, app_state.invites)
+
     async def test_rr_prestart_challenge_survives_start(self):
         app_state = get_app_state(self.app)
         tid = id8()
@@ -1048,6 +1108,84 @@ class TournamentFlowTestCase(TournamentTestCase):
         self.assertIsNone(await self.tournament.set_arrangement_time(black, arrangement.id, agreed))
         self.assertEqual(arrangement.black_date, agreed)
         self.assertEqual(arrangement.scheduled_at, proposed)
+
+    async def test_rr_scheduling_keeps_db_write_inside_mutation_lock(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=0,
+            rounds=0,
+            rr_max_players=2,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = self.tournament
+
+        users = []
+        for suffix in ("A", "B"):
+            user = User(app_state, username=f"{tid}_{suffix}", perfs=make_test_perfs())
+            app_state.users[user.username] = user
+            user.tournament_sockets[tid] = {None}
+            await self.tournament.join(user)
+            users.append(user)
+
+        await self.tournament.start(datetime.now(UTC))
+        arrangement = self.tournament.arrangement_list()[0]
+        players = {user.username: user for user in users}
+        white = players[arrangement.white]
+        black = players[arrangement.black]
+        proposed = datetime.now(UTC).replace(microsecond=0) + timedelta(days=1)
+        agreed = proposed + timedelta(seconds=30)
+
+        first_write_started = asyncio.Event()
+        release_first_write = asyncio.Event()
+        write_calls = 0
+
+        async def delayed_db_update(current_arrangement):
+            nonlocal write_calls
+            write_calls += 1
+            snapshot = current_arrangement.update_doc(self.tournament.id)
+            if write_calls == 1:
+                first_write_started.set()
+                await release_first_write.wait()
+            await app_state.db.tournament_arrangement.update_one(
+                {"_id": current_arrangement.id},
+                {"$set": snapshot},
+                upsert=True,
+            )
+
+        with patch.object(
+            self.tournament,
+            "db_update_arrangement",
+            new=delayed_db_update,
+        ):
+            white_task = asyncio.create_task(
+                self.tournament.set_arrangement_time(white, arrangement.id, proposed)
+            )
+            await first_write_started.wait()
+
+            black_task = asyncio.create_task(
+                self.tournament.set_arrangement_time(black, arrangement.id, agreed)
+            )
+            await asyncio.sleep(0)
+            self.assertEqual(
+                write_calls,
+                1,
+                "A second arrangement mutation entered while the first DB write was pending",
+            )
+
+            release_first_write.set()
+            self.assertEqual(await asyncio.gather(white_task, black_task), [None, None])
+
+        self.assertEqual(write_calls, 2)
+        stored = await app_state.db.tournament_arrangement.find_one({"_id": arrangement.id})
+        self.assertIsNotNone(stored)
+        assert stored is not None
+        self.assertEqual(stored["d1"], proposed)
+        self.assertEqual(stored["d2"], agreed)
+        self.assertEqual(stored["sa"], proposed)
 
     async def test_rr_scheduling_clears_agreement_when_player_changes_time(self):
         app_state = get_app_state(self.app)
