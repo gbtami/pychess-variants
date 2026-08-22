@@ -68,6 +68,7 @@ from tournament.tournament import (
     RR_DEFAULT_MAX_PLAYERS,
     RR_MAX_SUPPORTED_PLAYERS,
     SCORE_SHIFT,
+    SWISS_MAX_PLAYERS,
     ByeGame,
     GameData,
     PlayerData,
@@ -116,6 +117,10 @@ COMMUNITY_ARENA_CLOCK_INCREMENTS: frozenset[int] = frozenset(
     (0, 1, 2, 3, 4, 5, 6, 7, 10, 15, 20, 25, 30, 40, 50, 60)
 )
 COMMUNITY_ARENA_WAIT_MINUTES: frozenset[int] = frozenset((1, 2, 3, 5, 10, 15, 20, 30, 45, 60))
+SWISS_MIN_ROUNDS = 3
+SWISS_MAX_ROUNDS = 15
+SWISS_MAX_FORBIDDEN_PAIRING_LINES = 2048
+SWISS_MAX_MANUAL_PAIRING_LINES = SWISS_MAX_PLAYERS
 
 ROUND_INTERVAL_SECONDS: frozenset[int] = frozenset(
     (
@@ -204,6 +209,50 @@ def _swiss_unplayed_point_from_token(token: str, variant: str):
     if token == "F":
         return (7, 0) if variant == "janggi" else (2, 0)
     return (0, 0)
+
+
+def _nonempty_pairing_lines(raw: str) -> list[str]:
+    return [line.strip() for line in raw.splitlines() if line.strip()]
+
+
+def _validate_swiss_pairing_inputs(forbidden_pairings: str, manual_pairings: str) -> None:
+    forbidden_lines = _nonempty_pairing_lines(forbidden_pairings)
+    if len(forbidden_lines) > SWISS_MAX_FORBIDDEN_PAIRING_LINES:
+        raise web.HTTPBadRequest(
+            text=(
+                "Swiss forbidden pairings are limited to "
+                f"{SWISS_MAX_FORBIDDEN_PAIRING_LINES} lines."
+            )
+        )
+
+    manual_lines = _nonempty_pairing_lines(manual_pairings)
+    if len(manual_lines) > SWISS_MAX_MANUAL_PAIRING_LINES:
+        raise web.HTTPBadRequest(
+            text=f"Swiss manual pairings are limited to {SWISS_MAX_MANUAL_PAIRING_LINES} lines."
+        )
+
+    used_names: set[str] = set()
+    for line_no, line in enumerate(manual_lines, start=1):
+        parts = line.lower().split()
+        if len(parts) != 2:
+            raise web.HTTPBadRequest(text=f"Invalid Swiss manual pairing on line {line_no}.")
+
+        left_name, right_name = parts
+        if left_name == right_name:
+            raise web.HTTPBadRequest(
+                text=f"Invalid Swiss manual pairing on line {line_no}: a player cannot play themself."
+            )
+
+        names = (left_name,) if right_name == "1" else (left_name, right_name)
+        duplicate_name = next((name for name in names if name in used_names), None)
+        if duplicate_name is not None:
+            raise web.HTTPBadRequest(
+                text=(
+                    f"Invalid Swiss manual pairing on line {line_no}: "
+                    f"{duplicate_name} is paired more than once."
+                )
+            )
+        used_names.update(names)
 
 
 def _parse_round_interval(
@@ -864,9 +913,12 @@ async def create_or_update_tournament(
                 text=("You need the tournament permission in this team to manage this tournament.")
             )
 
+    raw_rounds = form.get("rounds", 0)
     try:
-        rounds = int(form.get("rounds", 0))
+        rounds = int(raw_rounds)
     except (TypeError, ValueError):
+        if system == SWISS:
+            raise web.HTTPBadRequest(text="Invalid Swiss round count.") from None
         rounds = 0
     if system == ARENA:
         rounds = 0
@@ -875,8 +927,22 @@ async def create_or_update_tournament(
             rounds = tournament.rounds
         else:
             rounds = 0
-    elif rounds <= 0:
-        rounds = 5
+    else:
+        if not SWISS_MIN_ROUNDS <= rounds <= SWISS_MAX_ROUNDS:
+            raise web.HTTPBadRequest(
+                text=f"Swiss tournaments must have {SWISS_MIN_ROUNDS} to {SWISS_MAX_ROUNDS} rounds."
+            )
+        if (
+            tournament is not None
+            and tournament.status != T_CREATED
+            and rounds < tournament.current_round
+        ):
+            raise web.HTTPBadRequest(
+                text=(
+                    "Swiss round count cannot be lower than the current round "
+                    f"({tournament.current_round})."
+                )
+            )
 
     default_rr_max_players = (
         tournament.rr_join_limit() if tournament is not None else RR_DEFAULT_MAX_PLAYERS
@@ -929,6 +995,8 @@ async def create_or_update_tournament(
     if system != SWISS:
         forbidden_pairings = ""
         manual_pairings = ""
+    else:
+        _validate_swiss_pairing_inputs(forbidden_pairings, manual_pairings)
 
     if entry_max_rating > 0 and entry_min_rating > entry_max_rating:
         entry_min_rating, entry_max_rating = entry_max_rating, entry_min_rating

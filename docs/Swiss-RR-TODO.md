@@ -168,14 +168,15 @@ the asynchronous arrangement model.
   without adding `asyncio.to_thread()` complexity yet; revisit offloading if production
   measurements at the cap show materially higher latency.
 
-- [ ] **Server-side Swiss round/input limits.** The form advertises a finite round list
-  (currently 3–15), but a forged POST can submit any positive integer; an already-started
-  Swiss can also be edited below its current round. Lichess enforces 3–100 initially and
-  never allows an edit below the current round. Enforce the PyChess-supported range on the
-  server and require `rounds >= current_round` after start. Also cap forbidden/manual
-  pairing line counts (Lichess uses 1,000/4,000 respectively) and reject malformed/duplicate
-  manual lines instead of silently ignoring them. Choose smaller limits if appropriate for
-  PyChess rather than copying Lichess mechanically.
+- [x] **Server-side Swiss round/input limits.** Swiss creation/edit now enforces the
+  PyChess-supported 3–15 round range server-side, rejects malformed round counts, and after
+  start requires `rounds >= current_round`. Pairing input is also bounded before persistence:
+  forbidden pairings allow at most 2,048 non-empty lines (enough to represent all 2,016
+  unique player pairs at the 64-player cap), while next-round manual pairings allow at most
+  64 non-empty lines. Manual lines must contain exactly two tokens, cannot self-pair, and a
+  username may occur only once across the submitted round (case-insensitive, with `username
+  1` retaining its manual-bye meaning). This follows Lichess's validation shape while using
+  limits that match PyChess's much smaller Swiss field bound.
 
 - [ ] **First-round start grace.** PyChess aborts a Swiss immediately when `startsAt` is
   reached with fewer than two players. Lichess keeps the event created, retries the first

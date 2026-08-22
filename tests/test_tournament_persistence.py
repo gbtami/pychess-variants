@@ -1030,6 +1030,110 @@ class TournamentPersistenceTestCase(TournamentTestCase):
             "Start date cannot be changed after the tournament has started.",
         )
 
+    async def test_swiss_form_enforces_supported_round_range(self):
+        app_state = get_app_state(self.app)
+
+        for rounds in ("2", "16", "not-a-number"):
+            with self.subTest(rounds=rounds), self.assertRaises(web.HTTPBadRequest):
+                await create_or_update_tournament(
+                    app_state,
+                    "tester",
+                    self._fixed_round_form("2", rounds=rounds),
+                )
+
+        before_ids = set(app_state.tournaments)
+        await create_or_update_tournament(
+            app_state,
+            "tester",
+            self._fixed_round_form("2", rounds="15", name="Maximum Swiss"),
+        )
+        tournament_id = (set(app_state.tournaments) - before_ids).pop()
+        tournament = app_state.tournaments[tournament_id]
+        self.assertEqual(tournament.rounds, 15)
+        await tournament.abort()
+
+    async def test_started_swiss_cannot_reduce_rounds_below_current_round(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        tournament = SwissTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=0,
+            rounds=7,
+            with_clock=False,
+        )
+        tournament.status = T_STARTED
+        tournament.current_round = 4
+        app_state.tournaments[tid] = tournament
+        await upsert_tournament_to_db(tournament, app_state)
+
+        form = self._fixed_round_form(
+            "2",
+            rounds="3",
+            clockTime=str(tournament.base),
+            clockIncrement=str(tournament.inc),
+            byoyomiPeriod=str(tournament.byoyomi_period),
+            name=tournament.name,
+            minutes=str(tournament.minutes),
+        )
+        with self.assertRaises(web.HTTPBadRequest) as ctx:
+            await create_or_update_tournament(app_state, "tester", form, tournament)
+        self.assertEqual(
+            str(ctx.exception.text),
+            "Swiss round count cannot be lower than the current round (4).",
+        )
+        self.assertEqual(tournament.rounds, 7)
+
+    async def test_swiss_form_caps_pairing_input_lines(self):
+        app_state = get_app_state(self.app)
+
+        forbidden_pairings = "\n".join(f"player{i} opponent{i}" for i in range(2049))
+        with self.assertRaises(web.HTTPBadRequest) as forbidden_ctx:
+            await create_or_update_tournament(
+                app_state,
+                "tester",
+                self._fixed_round_form("2", forbiddenPairings=forbidden_pairings),
+            )
+        self.assertEqual(
+            str(forbidden_ctx.exception.text),
+            "Swiss forbidden pairings are limited to 2048 lines.",
+        )
+
+        manual_pairings = "\n".join(f"player{i} 1" for i in range(65))
+        with self.assertRaises(web.HTTPBadRequest) as manual_ctx:
+            await create_or_update_tournament(
+                app_state,
+                "tester",
+                self._fixed_round_form("2", manualPairings=manual_pairings),
+            )
+        self.assertEqual(
+            str(manual_ctx.exception.text),
+            "Swiss manual pairings are limited to 64 lines.",
+        )
+
+    async def test_swiss_form_rejects_malformed_or_duplicate_manual_pairings(self):
+        app_state = get_app_state(self.app)
+        invalid_manual_pairings = (
+            "alice",
+            "alice alice",
+            "alice bob extra",
+            "Alice bob\ncarol ALICE",
+            "alice 1\nalice bob",
+            "alice bob\nbob alice",
+        )
+
+        for manual_pairings in invalid_manual_pairings:
+            with (
+                self.subTest(manual_pairings=manual_pairings),
+                self.assertRaises(web.HTTPBadRequest),
+            ):
+                await create_or_update_tournament(
+                    app_state,
+                    "tester",
+                    self._fixed_round_form("2", manualPairings=manual_pairings),
+                )
+
     async def test_started_swiss_allows_safe_edit_fields(self):
         app_state = get_app_state(self.app)
         tid = id8()
