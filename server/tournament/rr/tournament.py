@@ -4,7 +4,16 @@ import asyncio
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
-from const import ABORTED, RR, T_ABORTED, T_ARCHIVED, T_CREATED, T_FINISHED, T_STARTED
+from const import (
+    ABORTED,
+    RR,
+    T_ABORTED,
+    T_ARCHIVED,
+    T_CREATED,
+    T_FINISHED,
+    T_STARTED,
+    VARIANTEND,
+)
 from notify import notify_by_username
 from seek import SeekCreateData, create_seek
 from typing_defs import (
@@ -17,7 +26,14 @@ from typing_defs import (
 from utils import join_seek, remove_seek
 from websocket_utils import ws_send_json_many
 
-from tournament.tournament import RR_MAX_SUPPORTED_PLAYERS, ByeGame, PlayerData, Tournament
+from tournament.tournament import (
+    RR_MAX_SUPPORTED_PLAYERS,
+    SCORE,
+    ByeGame,
+    GameData,
+    PlayerData,
+    Tournament,
+)
 
 from .arrangements import (
     ARR_REMINDER_COOLDOWN_AFTER_AGREEMENT,
@@ -395,6 +411,190 @@ class RRTournament(Tournament):
 
         return None
 
+    def _find_arrangement_game(
+        self, arrangement: RRArrangement, game_id: str
+    ) -> Game | GameData | None:
+        for username in arrangement.players():
+            player_data = self.player_data_by_name(username)
+            if player_data is None:
+                continue
+            for player_game in player_data.games:
+                if isinstance(player_game, ByeGame):
+                    continue
+                if player_game.id == game_id:
+                    return player_game
+        return None
+
+    def _rr_point_for_game(self, game: Game | GameData, username: str) -> tuple[int, int]:
+        is_white = username == game.wplayer.username
+        won = (game.result == "1-0" and is_white) or (game.result == "0-1" and not is_white)
+
+        point_value = 0
+        if self.variant == "janggi":
+            if game.status == VARIANTEND:
+                if game.result == "1-0":
+                    point_value = 4 if is_white else 2
+                elif game.result == "0-1":
+                    point_value = 2 if is_white else 4
+            elif won:
+                point_value = 7
+        elif game.result == "1/2-1/2":
+            point_value = 1
+        elif won:
+            point_value = 2
+            berserk = game.wberserk if is_white else game.bberserk
+            if berserk and self._game_ply(game) >= (13 if is_white else 14):
+                point_value += 1
+
+        return (point_value, SCORE)
+
+    def _scored_rr_games(self, player_data: PlayerData) -> list[Game | GameData]:
+        return [
+            game
+            for game in player_data.games
+            if not isinstance(game, ByeGame) and game.result != "*" and game.status != ABORTED
+        ]
+
+    async def _repair_annulled_player_scores(self) -> None:
+        # The pairing-level annul marker is written first. If a process dies before
+        # both tournament_player documents are rewritten, rebuild their points from
+        # the remaining non-annulled game history instead of trusting stale scores.
+        for player_data in self.players.values():
+            previous_state = (
+                list(player_data.points),
+                player_data.nb_win,
+                player_data.nb_berserk,
+                player_data.performance,
+                player_data.win_streak,
+                self.leaderboard_score_by_username(player_data.username),
+            )
+            player_data.points = [
+                self._rr_point_for_game(game, player_data.username)
+                for game in self._scored_rr_games(player_data)
+            ]
+            self._recompute_rr_player_aggregate(player_data)
+            current_state = (
+                list(player_data.points),
+                player_data.nb_win,
+                player_data.nb_berserk,
+                player_data.performance,
+                player_data.win_streak,
+                self.leaderboard_score_by_username(player_data.username),
+            )
+            if current_state != previous_state:
+                await self.db_update_player(player_data.username, "GAME_END")
+
+    def _recompute_rr_player_aggregate(self, player_data: PlayerData) -> None:
+        performance = 0
+        nb_win = 0
+        nb_berserk = 0
+
+        for scored_game_count, (game, _point) in enumerate(
+            zip(self._scored_rr_games(player_data), player_data.points, strict=False),
+            start=1,
+        ):
+            wname, _bname = self.game_player_usernames(game)
+            is_white = player_data.username == wname
+            opponent_rating = game.brating if is_white else game.wrating
+            perf = int(str(opponent_rating).rstrip("?"))
+            won = (game.result == "1-0" and is_white) or (game.result == "0-1" and not is_white)
+            lost = (game.result == "0-1" and is_white) or (game.result == "1-0" and not is_white)
+
+            if not (self.variant == "janggi" and game.status == VARIANTEND):
+                if won:
+                    nb_win += 1
+                    perf += 500
+                elif lost:
+                    perf -= 500
+
+            berserk = game.wberserk if is_white else game.bberserk
+            if berserk:
+                nb_berserk += 1
+
+            performance = int(
+                round(
+                    (performance * (scored_game_count - 1) + perf) / scored_game_count,
+                    0,
+                )
+            )
+
+        player_data.nb_win = nb_win
+        player_data.nb_berserk = nb_berserk
+        player_data.performance = performance
+        player_data.win_streak = 0
+
+        score_points = sum(
+            point[0]
+            for point in player_data.points
+            if isinstance(point, tuple) and isinstance(point[0], int)
+        )
+        self.set_leaderboard_score_by_username(
+            player_data.username,
+            self.compose_leaderboard_score(score_points, player_data),
+        )
+
+    async def annul_arrangement_game(self, arrangement_id: str, game_id: str) -> str | None:
+        async with self._arrangement_mutation_lock:
+            if self.status not in (T_CREATED, T_STARTED):
+                return "Only an active round-robin result can be annulled."
+            if self.status == T_STARTED and self.deadline_reached():
+                return "The round-robin deadline has passed, so this game cannot be replayed."
+
+            arrangement = self.arrangement_by_id(arrangement_id)
+            if arrangement is None:
+                return "Unknown round-robin pairing."
+            if arrangement.status != ARR_STATUS_FINISHED or arrangement.game_id != game_id:
+                return "This game is no longer the current round-robin result."
+            if game_id in arrangement.previous_game_ids:
+                return "This round-robin result was already annulled."
+
+            game = self._find_arrangement_game(arrangement, game_id)
+            if game is None or game.result == "*" or game.status == ABORTED:
+                return "The finished round-robin game could not be loaded."
+
+            # Keep the original pairing/game documents for auditability. The
+            # explicit pairing marker prevents startup recovery from scoring or
+            # re-attaching this historical result after the arrangement reopens.
+            if self.app_state.db is not None:
+                await self.app_state.db.tournament_pairing.update_one(
+                    {"_id": game_id, "tid": self.id},
+                    {"$set": {"an": True}},
+                )
+
+            for username in arrangement.players():
+                player_data = self.player_data_by_name(username)
+                if player_data is None:
+                    continue
+                game_index = self._player_game_index(player_data, game_id)
+                if game_index is None:
+                    continue
+                player_data.games.pop(game_index)
+                if game_index < len(player_data.points):
+                    player_data.points.pop(game_index)
+                self._recompute_rr_player_aggregate(player_data)
+                await self.db_update_player(username, "GAME_END")
+
+            self.nb_games_finished = max(0, self.nb_games_finished - 1)
+            if game.result == "1-0":
+                self.w_win = max(0, self.w_win - 1)
+            elif game.result == "0-1":
+                self.b_win = max(0, self.b_win - 1)
+            elif game.result == "1/2-1/2":
+                self.draw = max(0, self.draw - 1)
+            self.nb_berserk = max(
+                0,
+                self.nb_berserk - int(bool(game.wberserk)) - int(bool(game.bberserk)),
+            )
+
+            annulled_game_id = arrangement.annul_game()
+            if annulled_game_id != game_id:
+                return "This game is no longer the current round-robin result."
+            await self.db_update_arrangement(arrangement)
+
+            await self.broadcast_arrangements()
+            await self.broadcast(self.live_status())
+            return None
+
     async def broadcast_arrangements(self) -> None:
         await self.broadcast(self.arrangement_payload())
 
@@ -509,6 +709,7 @@ class RRTournament(Tournament):
                 black_date=doc.get("d2"),
                 scheduled_at=doc.get("sa"),
                 last_reminded_at=doc.get("ln"),
+                previous_game_ids=list(doc.get("pg", [])),
             )
             self.arrangements[arrangement.id] = arrangement
 
@@ -540,6 +741,24 @@ class RRTournament(Tournament):
         if self.app_state.db is None or not self.arrangements:
             return
 
+        annulled_pairing_docs = await self.app_state.db.tournament_pairing.find(
+            {"tid": self.id, "an": True},
+            projection={"_id": 1},
+        ).to_list(length=None)
+        annulled_game_ids = {doc["_id"] for doc in annulled_pairing_docs}
+
+        # The pairing row is the durable annul marker. If the process died after
+        # marking it but before the arrangement reset was persisted, complete the
+        # reset here instead of resurrecting that historical game from db.game.
+        for arrangement in self.arrangements.values():
+            if arrangement.game_id not in annulled_game_ids:
+                continue
+            arrangement.annul_game()
+            await self.db_update_arrangement(arrangement)
+
+        if annulled_game_ids:
+            await self._repair_annulled_player_scores()
+
         arrangement_ids = list(self.arrangements)
         game_docs = await self.app_state.db.game.find(
             {"aid": {"$in": arrangement_ids}},
@@ -549,8 +768,14 @@ class RRTournament(Tournament):
         games_by_arrangement: dict[str, list[dict[str, Any]]] = {}
         for game_doc in game_docs:
             arrangement_id = game_doc.get("aid")
-            if arrangement_id in self.arrangements:
-                games_by_arrangement.setdefault(arrangement_id, []).append(game_doc)
+            arrangement = self.arrangements.get(arrangement_id)
+            if arrangement is None:
+                continue
+            if game_doc["_id"] in annulled_game_ids:
+                continue
+            if game_doc["_id"] in arrangement.previous_game_ids:
+                continue
+            games_by_arrangement.setdefault(arrangement_id, []).append(game_doc)
 
         for arrangement_id, arrangement_games in games_by_arrangement.items():
             arrangement = self.arrangements[arrangement_id]
@@ -1012,15 +1237,19 @@ class RRTournament(Tournament):
             await self._game_update(game)
 
     async def _game_update(self, game: Game) -> None:
-        await super().game_update(game)
-
         arrangement_id = getattr(game, "tournamentArrangementId", None)
         if arrangement_id is None:
+            await super().game_update(game)
             return
 
         arrangement = self.arrangements.get(arrangement_id)
         if arrangement is None:
+            await super().game_update(game)
             return
+        if game.id in arrangement.previous_game_ids:
+            return
+
+        await super().game_update(game)
 
         if game.status == ABORTED:
             live_game = self._take_ongoing_game(game)

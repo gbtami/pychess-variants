@@ -265,20 +265,17 @@ the asynchronous arrangement model.
   opt-in extension because PyChess currently exposes a push preference only for correspondence
   moves; this first parity step does not silently reuse that unrelated preference.
 
-- [ ] **Additional Swiss entry/chat conditions only if Teams need them.** Lichess Swiss also
-  offers titled-only and explicit allow-list entry conditions plus configurable chat scope
-  (leaders/members/all/none). PyChess already has Team membership, password, rating, rated
-  games, account age, and no-show enforcement, which is sufficient for initial rollout.
-  Add allow-list/titled/chat-scope controls only if real Team organizers request them.
-
 ## Round-Robin
 
-- [ ] **Organizer annul/replay control.** Lishogi lets the organizer annul a mistaken RR game
-  result and replay that arrangement, retaining previous game ids as history. PyChess only
-  reopens games that end with `ABORTED`; once a normal result is recorded it is final. Add a
-  creator/site-moderator annul action for a still-active RR, reverse the tournament score
-  idempotently, reset the arrangement to pending, and retain prior game ids so the original
-  game remains auditable instead of disappearing from the arrangement history.
+- [x] **Organizer annul/replay control.** Active RR results can now be annulled by the current
+  Team tournament organizer or a site tournament director before the RR deadline. Annulment
+  reverses both players' tournament points and derived RR performance/win/berserk aggregates,
+  decrements tournament summary counters, and reopens the arrangement for replay. The old game
+  and pairing documents are retained for auditability, while the pairing is marked annulled so
+  restart recovery cannot score or reattach it. Each arrangement retains the ten most recent
+  previous game ids and exposes them in the organizer modal. Repeated/stale annul requests are
+  idempotently rejected. Restart recovery also completes a crash after the durable annul marker
+  by repairing stale player score documents, and the annul action disappears at the RR deadline.
 
 - [ ] **Offline usefulness of RR reminders.** RR appointment confirmations and 24-hour
   reminders currently create PyChess notification-bell entries and live SSE updates. That is

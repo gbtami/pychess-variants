@@ -556,6 +556,12 @@ class TournamentRRChallengeMessage(TournamentIdMessage):
     arrangementId: str
 
 
+class TournamentRRAnnulGameMessage(TournamentIdMessage):
+    type: Literal["rr_annul_game"]
+    arrangementId: str
+    gameId: str
+
+
 class TournamentRRSetTimeMessage(TournamentIdMessage):
     type: Literal["rr_set_time"]
     arrangementId: str
@@ -607,6 +613,7 @@ TournamentInboundMessage = (
     | TournamentRRManagementMessage
     | TournamentRRSetJoiningMessage
     | TournamentRRChallengeMessage
+    | TournamentRRAnnulGameMessage
     | TournamentRRSetTimeMessage
     | TournamentRRManagePlayerMessage
     | TournamentJoinMessage

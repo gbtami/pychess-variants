@@ -2142,6 +2142,103 @@ class TournamentPersistenceTestCase(TournamentTestCase):
             except asyncio.CancelledError:
                 pass
 
+    async def test_rr_annulled_result_stays_reopened_after_restart(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state, tid, before_start=10, rounds=0, rr_max_players=4, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        await self.tournament.join_players(4)
+        await self.tournament.start(datetime.now(UTC))
+        arrangement = self.tournament.arrangement_list()[0]
+        game = await self.tournament.start_arrangement_game(arrangement.id)
+        game.board.ply = 20
+        await game.game_ended(game.bplayer, "resign")
+        self.assertEqual(self.tournament.nb_games_finished, 1)
+
+        self.assertIsNone(await self.tournament.annul_arrangement_game(arrangement.id, game.id))
+
+        _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
+        self.assertIsNotNone(reloaded_tournament)
+        assert reloaded_tournament is not None
+        reloaded_arrangement = reloaded_tournament.arrangement_by_id(arrangement.id)
+        self.assertIsNotNone(reloaded_arrangement)
+        assert reloaded_arrangement is not None
+        self.assertEqual(reloaded_arrangement.status, ARR_STATUS_PENDING)
+        self.assertIsNone(reloaded_arrangement.game_id)
+        self.assertEqual(reloaded_arrangement.previous_game_ids, [game.id])
+        self.assertEqual(reloaded_tournament.nb_games_finished, 0)
+        for username in arrangement.players():
+            player_data = reloaded_tournament.player_data_by_name(username)
+            assert player_data is not None
+            self.assertFalse(any(getattr(g, "id", None) == game.id for g in player_data.games))
+            self.assertEqual(player_data.points, [])
+            self.assertEqual(reloaded_tournament.leaderboard_score_by_username(username), 0)
+
+        if reloaded_tournament.clock_task is not None:
+            reloaded_tournament.clock_task.cancel()
+            try:
+                await reloaded_tournament.clock_task
+            except asyncio.CancelledError:
+                pass
+
+    async def test_rr_annul_marker_repairs_player_scores_after_mid_annul_restart(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state, tid, before_start=10, rounds=0, rr_max_players=4, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        await self.tournament.join_players(4)
+        await self.tournament.start(datetime.now(UTC))
+        arrangement = self.tournament.arrangement_list()[0]
+        game = await self.tournament.start_arrangement_game(arrangement.id)
+        game.board.ply = 20
+        await game.game_ended(game.bplayer, "resign")
+
+        # Simulate a crash immediately after annulment writes its durable pairing
+        # marker, before either tournament_player row or the arrangement is reset.
+        await app_state.db.tournament_pairing.update_one(
+            {"_id": game.id, "tid": tid},
+            {"$set": {"an": True}},
+        )
+
+        _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
+        self.assertIsNotNone(reloaded_tournament)
+        assert reloaded_tournament is not None
+        reloaded_arrangement = reloaded_tournament.arrangement_by_id(arrangement.id)
+        self.assertIsNotNone(reloaded_arrangement)
+        assert reloaded_arrangement is not None
+        self.assertEqual(reloaded_arrangement.status, ARR_STATUS_PENDING)
+        self.assertIsNone(reloaded_arrangement.game_id)
+        self.assertEqual(reloaded_arrangement.previous_game_ids, [game.id])
+        self.assertEqual(reloaded_tournament.nb_games_finished, 0)
+
+        for username in arrangement.players():
+            player_data = reloaded_tournament.player_data_by_name(username)
+            assert player_data is not None
+            self.assertEqual(player_data.points, [])
+            self.assertEqual(reloaded_tournament.leaderboard_score_by_username(username), 0)
+            player_doc = await app_state.db.tournament_player.find_one(
+                {"tid": tid, "uid": username}
+            )
+            self.assertIsNotNone(player_doc)
+            assert player_doc is not None
+            self.assertEqual(player_doc["p"], [])
+            self.assertEqual(player_doc["s"], 0)
+
+        if reloaded_tournament.clock_task is not None:
+            reloaded_tournament.clock_task.cancel()
+            try:
+                await reloaded_tournament.clock_task
+            except asyncio.CancelledError:
+                pass
+
     async def test_rr_short_game_persists_even_if_tournament_id_is_missing(self):
         app_state = get_app_state(self.app)
         tid = id8()

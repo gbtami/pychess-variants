@@ -7,6 +7,7 @@ from tournament.wst import (
     TOURNAMENT_LIFECYCLE_COMMANDS_RETIRED_MESSAGE,
     handle_abort_tournament,
     handle_lobbychat,
+    handle_rr_annul_game,
     handle_rr_set_joining_closed,
     handle_start_next_round,
 )
@@ -137,6 +138,43 @@ class TournamentChatShadowbanTestCase(unittest.IsolatedAsyncioTestCase):
 
         tournament.abort.assert_not_awaited()
         send.assert_awaited_once_with(ws, {"type": "error", "message": "Permission denied"})
+
+    async def test_rr_annul_requires_current_creator_permission_or_director(self) -> None:
+        tournament = SimpleNamespace(annul_arrangement_game=AsyncMock(return_value=None))
+        app_state = SimpleNamespace()
+        user = SimpleNamespace(username="creator")
+        ws = object()
+        message = {
+            "type": "rr_annul_game",
+            "tournamentId": "tid",
+            "arrangementId": "arr",
+            "gameId": "game",
+        }
+
+        with (
+            patch("tournament.wst.load_rr_tournament", new=AsyncMock(return_value=tournament)),
+            patch("tournament.wst.is_tournament_director", return_value=False),
+            patch(
+                "tournament.wst.creator_can_manage_tournament",
+                new=AsyncMock(return_value=False),
+            ),
+            patch("tournament.wst.ws_send_json", new=AsyncMock()) as send,
+        ):
+            await handle_rr_annul_game(app_state, ws, user, message)
+
+        tournament.annul_arrangement_game.assert_not_awaited()
+        send.assert_awaited_once_with(ws, {"type": "error", "message": "Permission denied"})
+
+        director = SimpleNamespace(username="director")
+        with (
+            patch("tournament.wst.load_rr_tournament", new=AsyncMock(return_value=tournament)),
+            patch("tournament.wst.is_tournament_director", return_value=True),
+            patch("tournament.wst.ws_send_json", new=AsyncMock()) as send,
+        ):
+            await handle_rr_annul_game(app_state, ws, director, message)
+
+        tournament.annul_arrangement_game.assert_awaited_once_with("arr", "game")
+        send.assert_not_awaited()
 
     async def test_team_creator_without_current_permission_cannot_change_rr_joining(self) -> None:
         tournament = SimpleNamespace(

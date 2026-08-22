@@ -952,6 +952,7 @@ class TournamentPairingDoc(TypedDict):
     p: NotRequired[int]
     rn: NotRequired[int]
     bt: NotRequired[str]
+    an: NotRequired[bool]
 
 
 class TournamentPairingUpdate(TypedDict, total=False):
@@ -969,6 +970,7 @@ class TournamentPairingUpdate(TypedDict, total=False):
     p: int | None
     rn: int
     bt: str
+    an: bool
 
 
 class TournamentArrangementDoc(TypedDict, total=False):
@@ -986,6 +988,7 @@ class TournamentArrangementDoc(TypedDict, total=False):
     d2: datetime
     sa: datetime
     ln: datetime
+    pg: list[str]
 
 
 class TournamentArrangementUpdate(TypedDict, total=False):
@@ -1002,6 +1005,7 @@ class TournamentArrangementUpdate(TypedDict, total=False):
     d2: datetime | None
     sa: datetime | None
     ln: datetime | None
+    pg: list[str]
 
 
 class TournamentPlayerJson(TypedDict):

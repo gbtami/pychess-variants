@@ -1771,6 +1771,10 @@ async def load_tournament(
     finished_pairings: list[Game | GameData] = []
     async for doc in cursor:
         pairing_doc: TournamentPairingDoc = doc
+        if tournament.system == RR and pairing_doc.get("an", False):
+            # RR annul/replay keeps the historical pairing document for auditability,
+            # but an annulled result must not re-enter player score history on restart.
+            continue
         pair_status = pairing_doc.get("s")
         pair_round = pairing_doc.get("rn")
         if tournament.system == SWISS and pair_round is None:

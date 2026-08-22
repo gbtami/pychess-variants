@@ -127,6 +127,7 @@ export interface RRArrangementCell {
     whiteSuggestedAt: string;
     blackSuggestedAt: string;
     scheduledAt: string;
+    previousGameIds: string[];
     result?: string;
     points?: number | string;
 }

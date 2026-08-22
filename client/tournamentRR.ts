@@ -147,6 +147,7 @@ export class TournamentRRController implements ChatController {
     arrangementPresenceInterval: number | null = null;
     presenceArrangementId = '';
     openCalendarArrangementId = '';
+    annulDeadlineTimer: number | null = null;
     clockdiv: VNode;
     action: VNode;
     descriptionNode: VNode;
@@ -263,6 +264,56 @@ export class TournamentRRController implements ChatController {
 
     canManage() {
         return this.creatorCanManage;
+    }
+
+    canAnnulResults() {
+        return this.creatorCanManage || this.isTournamentDirector;
+    }
+
+    annulReplayAvailable() {
+        if (!['created', 'started'].includes(this.tournamentStatus)) return false;
+        const deadline = this.scheduleMaxDate().getTime();
+        return Number.isFinite(deadline) && Date.now() < deadline;
+    }
+
+    syncAnnulDeadlineTimer() {
+        if (this.annulDeadlineTimer !== null) {
+            window.clearTimeout(this.annulDeadlineTimer);
+            this.annulDeadlineTimer = null;
+        }
+        if (!this.canAnnulResults() || !this.annulReplayAvailable()) return;
+
+        const deadline = this.scheduleMaxDate().getTime();
+        const remaining = deadline - Date.now();
+        const maxTimeout = 2_147_000_000;
+        this.annulDeadlineTimer = window.setTimeout(
+            () => {
+                this.annulDeadlineTimer = null;
+                if (Date.now() < deadline) {
+                    this.syncAnnulDeadlineTimer();
+                    return;
+                }
+                this.renderModal();
+            },
+            Math.min(remaining + 50, maxTimeout),
+        );
+    }
+
+    async annulArrangementGame(cell: RRArrangementCell) {
+        if (!cell.gameId || !this.canAnnulResults() || !this.annulReplayAvailable()) return;
+        const confirmed = await confirmDialog({
+            title: _('Annul result'),
+            text: _('This removes the tournament result and reopens the pairing for a replay. The original game remains in the pairing history.'),
+            confirmText: _('Annul result'),
+            danger: true,
+        });
+        if (!confirmed) return;
+        this.doSend({
+            type: 'rr_annul_game',
+            tournamentId: this.tournamentId,
+            arrangementId: cell.id,
+            gameId: cell.gameId,
+        });
     }
 
     playerByName(name: string) {
@@ -572,6 +623,7 @@ export class TournamentRRController implements ChatController {
         this.renderManageButton();
         this.renderBody();
         this.renderModal();
+        this.syncAnnulDeadlineTimer();
     }
 
     gameListRows(): RRGameListRow[] {
@@ -1095,6 +1147,19 @@ export class TournamentRRController implements ChatController {
         );
     }
 
+    modalAnnulButton(cell: RRArrangementCell): VNode | null {
+        if (!this.canAnnulResults() || !this.annulReplayAvailable()) return null;
+        if (cell.status !== 'finished' || !cell.gameId) return null;
+        return h(
+            'button.button.button-red',
+            {
+                attrs: { title: _('Annul result and replay') },
+                on: { click: () => void this.annulArrangementGame(cell) },
+            },
+            _('Annul result'),
+        );
+    }
+
     modalPlayerAction(cell: RRArrangementCell, username: string): VNode | null {
         const canAct = [cell.white, cell.black].includes(this.username);
         if (!canAct || cell.gameId || ['started', 'finished', 'expired'].includes(cell.status)) return null;
@@ -1266,6 +1331,18 @@ export class TournamentRRController implements ChatController {
                       h('span.value', this.formatArrangementDate(cell.date)),
                   ])
                 : null,
+            cell.previousGameIds.length > 0
+                ? h('div.title-value-wrap', [
+                      h('span.title', `${_('Previous games')}:`),
+                      h(
+                          'span.value',
+                          cell.previousGameIds.flatMap((gameId, index) => [
+                              index > 0 ? ', ' : '',
+                              h('a', { attrs: { href: `/${gameId}` } }, gameId),
+                          ]),
+                      ),
+                  ])
+                : null,
         ];
     }
 
@@ -1314,7 +1391,7 @@ export class TournamentRRController implements ChatController {
                                 this.modalValueRows(cell).filter((row): row is VNode => row !== null),
                             ),
                             cell.gameId
-                                ? actionButton
+                                ? h('div.arr-start-wrap', [actionButton, this.modalAnnulButton(cell)])
                                 : actionButton && canAct
                                   ? h('div.arr-start-wrap', [
                                         actionButton,
@@ -1715,6 +1792,8 @@ export class TournamentRRController implements ChatController {
         this.updateActionButton();
         this.updateLifecycleActions();
         this.renderSummary();
+        this.renderModal();
+        this.syncAnnulDeadlineTimer();
     }
 
     private onMsgGetPlayers(msg: MsgGetPlayers) {

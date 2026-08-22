@@ -23,6 +23,7 @@ if TYPE_CHECKING:
         TournamentLobbyChatMessage,
         TournamentMyPageMessage,
         TournamentPauseMessage,
+        TournamentRRAnnulGameMessage,
         TournamentRRArrangementsMessage,
         TournamentRRChallengeMessage,
         TournamentRRManagementMessage,
@@ -126,6 +127,8 @@ async def process_message(
         await handle_rr_challenge(app_state, ws, user, data)
     elif data["type"] == "rr_accept_challenge":
         await handle_rr_accept_challenge(app_state, ws, user, data)
+    elif data["type"] == "rr_annul_game":
+        await handle_rr_annul_game(app_state, ws, user, data)
     elif data["type"] == "rr_set_time":
         await handle_rr_set_time(app_state, ws, user, data)
     elif (
@@ -435,6 +438,31 @@ async def handle_rr_accept_challenge(
         return
     result = await rr_tournament.accept_arrangement_challenge(user, data["arrangementId"])
     await ws_send_json(ws, result)
+
+
+async def handle_rr_annul_game(
+    app: PychessGlobalAppState,
+    ws,
+    user: User,
+    data: TournamentRRAnnulGameMessage,
+) -> None:
+    rr_tournament = await load_rr_tournament(app, data["tournamentId"])
+    if rr_tournament is None:
+        return
+
+    can_annul = is_tournament_director(user, app) or await creator_can_manage_tournament(
+        app, rr_tournament, user.username
+    )
+    if not can_annul:
+        await ws_send_json(ws, {"type": "error", "message": "Permission denied"})
+        return
+
+    result = await rr_tournament.annul_arrangement_game(
+        data["arrangementId"],
+        data["gameId"],
+    )
+    if result is not None:
+        await ws_send_json(ws, {"type": "error", "message": result})
 
 
 async def handle_rr_set_time(
