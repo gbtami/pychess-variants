@@ -27,6 +27,7 @@ from tournament.rr import (
     ARR_STATUS_FINISHED,
     ARR_STATUS_PENDING,
     ARR_STATUS_STARTED,
+    RRTournament,
 )
 from tournament.tournament import (
     SCORE_SHIFT,
@@ -2029,33 +2030,37 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         self.assertEqual(arrangement.status, ARR_STATUS_STARTED)
         self.assertTrue(self.tournament.deadline_reached())
 
-        reloaded_app_state, reloaded_tournament = await self.reload_tournament(
-            app_state.db_client, tid
-        )
-        self.assertIsNotNone(reloaded_tournament)
-        assert reloaded_tournament is not None
-        self.assertEqual(reloaded_tournament.status, T_STARTED)
-        self.assertTrue(reloaded_tournament.deadline_reached())
-        self.assertEqual(len(reloaded_tournament.ongoing_games), 1)
-        reloaded_arrangement = reloaded_tournament.arrangement_by_id(arrangement.id)
-        self.assertIsNotNone(reloaded_arrangement)
-        assert reloaded_arrangement is not None
-        self.assertEqual(reloaded_arrangement.status, ARR_STATUS_STARTED)
+        # load_tournament() deliberately restores the production RR class. Keep
+        # this lifecycle test on the TestTournament cadence so it verifies the
+        # clock transition without waiting a real production second.
+        with patch.object(RRTournament, "clock_interval", RRTestTournament.clock_interval):
+            reloaded_app_state, reloaded_tournament = await self.reload_tournament(
+                app_state.db_client, tid
+            )
+            self.assertIsNotNone(reloaded_tournament)
+            assert reloaded_tournament is not None
+            self.assertEqual(reloaded_tournament.status, T_STARTED)
+            self.assertTrue(reloaded_tournament.deadline_reached())
+            self.assertEqual(len(reloaded_tournament.ongoing_games), 1)
+            reloaded_arrangement = reloaded_tournament.arrangement_by_id(arrangement.id)
+            self.assertIsNotNone(reloaded_arrangement)
+            assert reloaded_arrangement is not None
+            self.assertEqual(reloaded_arrangement.status, ARR_STATUS_STARTED)
 
-        # Let the restored RR clock observe the expired deadline. It must keep
-        # draining the live game instead of finishing the tournament.
-        await asyncio.sleep(reloaded_tournament.clock_interval + 0.1)
-        self.assertEqual(reloaded_tournament.status, T_STARTED)
-        self.assertEqual(len(reloaded_tournament.ongoing_games), 1)
+            # Let the restored RR clock observe the expired deadline. It must keep
+            # draining the live game instead of finishing the tournament.
+            await asyncio.sleep(reloaded_tournament.clock_interval + 0.01)
+            self.assertEqual(reloaded_tournament.status, T_STARTED)
+            self.assertEqual(len(reloaded_tournament.ongoing_games), 1)
 
-        # reload_tournament() reconstructs only the tournament fixture, not the
-        # full startup sequence that normally releases finished game callbacks.
-        reloaded_app_state.tournaments_loaded.set()
-        reloaded_game = reloaded_app_state.games[game.id]
-        reloaded_game.board.ply = 20
-        await reloaded_game.game_ended(reloaded_game.bplayer, "resign")
-        if reloaded_tournament.clock_task is not None:
-            await asyncio.wait_for(reloaded_tournament.clock_task, timeout=2)
+            # reload_tournament() reconstructs only the tournament fixture, not the
+            # full startup sequence that normally releases finished game callbacks.
+            reloaded_app_state.tournaments_loaded.set()
+            reloaded_game = reloaded_app_state.games[game.id]
+            reloaded_game.board.ply = 20
+            await reloaded_game.game_ended(reloaded_game.bplayer, "resign")
+            if reloaded_tournament.clock_task is not None:
+                await asyncio.wait_for(reloaded_tournament.clock_task, timeout=2)
 
         self.assertEqual(reloaded_tournament.status, T_FINISHED)
         self.assertEqual(reloaded_tournament.nb_games_finished, 1)
