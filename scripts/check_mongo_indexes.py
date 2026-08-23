@@ -3,6 +3,8 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import os
+import sys
 from collections.abc import Sequence
 
 from database.indexes import (
@@ -19,11 +21,41 @@ from database.schema import (
     LEGACY_OPTIONAL_INDEXES,
     IndexKey,
     IndexSpec,
+    StartupPolicy,
 )
 from pymongo import AsyncMongoClient
 from settings import MONGO_DB_NAME, MONGO_HOST
 
 INDEXES_BY_ID = {f"{spec.collection}.{spec.name}": spec for spec in ALL_KNOWN_INDEXES}
+
+ANSI_RESET = "\033[0m"
+ANSI_BOLD = "\033[1m"
+ANSI_DIM = "\033[2m"
+ANSI_RED = "\033[31m"
+ANSI_GREEN = "\033[32m"
+ANSI_YELLOW = "\033[33m"
+ANSI_MAGENTA = "\033[35m"
+ANSI_CYAN = "\033[36m"
+
+_COLOR_ENABLED = False
+
+
+def _configure_color(mode: str) -> None:
+    global _COLOR_ENABLED
+    if mode == "always":
+        _COLOR_ENABLED = True
+    elif mode == "never":
+        _COLOR_ENABLED = False
+    else:
+        _COLOR_ENABLED = (
+            sys.stdout.isatty() and "NO_COLOR" not in os.environ and os.getenv("TERM") != "dumb"
+        )
+
+
+def _paint(text: str, *styles: str) -> str:
+    if not _COLOR_ENABLED:
+        return text
+    return f"{''.join(styles)}{text}{ANSI_RESET}"
 
 
 def _format_key(key: IndexKey) -> str:
@@ -70,6 +102,12 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         "--create-missing",
         action="store_true",
         help="Create missing indexes in the explicit scope; never drops or replaces indexes",
+    )
+    parser.add_argument(
+        "--color",
+        choices=("auto", "always", "never"),
+        default="auto",
+        help="Colorize output (default: auto, which honors NO_COLOR and output redirection)",
     )
     scope = parser.add_mutually_exclusive_group()
     scope.add_argument(
@@ -124,8 +162,11 @@ def _selected_schema(args: argparse.Namespace) -> tuple[list[str], list[IndexSpe
 
 def _before_create(position: int, total: int, spec: IndexSpec) -> None:
     print(
-        f"[{position}/{total}] creating {_index_id(spec)} {_format_key(spec.key)}"
-        f"{_expected_options(spec)} ...",
+        _paint(
+            f"[{position}/{total}] creating {_index_id(spec)} {_format_key(spec.key)}"
+            f"{_expected_options(spec)} ...",
+            ANSI_CYAN,
+        ),
         flush=True,
     )
 
@@ -133,9 +174,28 @@ def _before_create(position: int, total: int, spec: IndexSpec) -> None:
 def _after_create(position: int, total: int, result: IndexCreationResult) -> None:
     del position, total
     print(
-        f"    created as {result.created_name!r} in {result.duration_ms / 1000.0:.1f} seconds",
+        _paint(
+            f"    created as {result.created_name!r} in {result.duration_ms / 1000.0:.1f} seconds",
+            ANSI_GREEN,
+        ),
         flush=True,
     )
+
+
+def _format_index_result(result: IndexCheckResult) -> str:
+    spec = result.spec
+    status = f"[{result.status.upper():8}]"
+    line = (
+        f"{status} {_index_id(spec)} "
+        f"{_format_key(spec.key)}{_expected_options(spec)} - {result.details}"
+    )
+    if result.status == "conflict":
+        return _paint(line, ANSI_BOLD, ANSI_RED)
+    if result.status == "missing":
+        if spec.startup_policy is StartupPolicy.MANUAL:
+            return _paint(line, ANSI_BOLD, ANSI_MAGENTA)
+        return _paint(line, ANSI_BOLD, ANSI_YELLOW)
+    return line.replace(status, _paint(status, ANSI_GREEN), 1)
 
 
 def _print_report(
@@ -149,48 +209,80 @@ def _print_report(
     created_count: int,
 ) -> int:
     mode = "create missing indexes" if create_mode else "read-only"
-    print(f"MongoDB schema check for database {database_name!r} ({mode})")
-    for collection_name in missing_collections:
-        print(f"[MISSING ] collection {collection_name}")
-    for result in checks:
-        spec = result.spec
-        print(
-            f"[{result.status.upper():8}] {_index_id(spec)} "
-            f"{_format_key(spec.key)}{_expected_options(spec)} - {result.details}"
+    print(
+        _paint(
+            f"MongoDB schema check for database {database_name!r} ({mode})",
+            ANSI_BOLD,
+            ANSI_CYAN,
         )
+    )
+    for collection_name in missing_collections:
+        print(_paint(f"[MISSING ] collection {collection_name}", ANSI_BOLD, ANSI_YELLOW))
+    for result in checks:
+        print(_format_index_result(result))
 
     missing_indexes = sum(result.status == "missing" for result in checks)
+    missing_manual_indexes = sum(
+        result.status == "missing" and result.spec.startup_policy is StartupPolicy.MANUAL
+        for result in checks
+    )
     conflicting_indexes = sum(result.status == "conflict" for result in checks)
     ok_indexes = len(checks) - missing_indexes - conflicting_indexes
     missing_collection_names = set(missing_collections)
     skipped_indexes = sum(spec.collection in missing_collection_names for spec in selected_specs)
-    print(
+    collection_summary = (
         f"Collections: {len(required_names) - len(missing_collections)} present, "
         f"{len(missing_collections)} missing"
     )
     print(
-        f"Indexes: {ok_indexes} ok, {missing_indexes} missing, "
-        f"{conflicting_indexes} conflicting, {skipped_indexes} not checked"
+        _paint(
+            collection_summary,
+            ANSI_YELLOW if missing_collections else ANSI_GREEN,
+        )
     )
+    index_summary = f"Indexes: {_paint(f'{ok_indexes} ok', ANSI_GREEN)}, "
+    if missing_indexes:
+        index_summary += _paint(f"{missing_indexes} missing", ANSI_YELLOW)
+    else:
+        index_summary += _paint("0 missing", ANSI_GREEN)
+    index_summary += ", "
+    if conflicting_indexes:
+        index_summary += _paint(f"{conflicting_indexes} conflicting", ANSI_BOLD, ANSI_RED)
+    else:
+        index_summary += _paint("0 conflicting", ANSI_GREEN)
+    index_summary += f", {_paint(f'{skipped_indexes} not checked', ANSI_DIM)}"
+    print(index_summary)
+    if missing_manual_indexes:
+        print(
+            _paint(
+                f"Manual indexes: {missing_manual_indexes} missing",
+                ANSI_BOLD,
+                ANSI_MAGENTA,
+            )
+        )
     if create_mode:
-        print(f"Created {created_count} missing index(es).")
+        print(_paint(f"Created {created_count} missing index(es).", ANSI_CYAN))
 
     if missing_collections or missing_indexes or conflicting_indexes:
         if create_mode:
-            print("Unresolved schema issues remain; no conflicting index was changed.")
+            message = "Unresolved schema issues remain; no conflicting index was changed."
         else:
-            print("No changes were made. Create or repair the reported schema separately.")
+            message = "No changes were made. Create or repair the reported schema separately."
+        styles = (ANSI_BOLD, ANSI_RED) if conflicting_indexes else (ANSI_BOLD, ANSI_YELLOW)
+        print(_paint(message, *styles))
         return 1
 
     if create_mode:
-        print("All selected indexes are present; no conflicting index was changed.")
+        message = "All selected indexes are present; no conflicting index was changed."
     else:
-        print("All expected collections and indexes are present. No changes were made.")
+        message = "All expected collections and indexes are present. No changes were made."
+    print(_paint(message, ANSI_BOLD, ANSI_GREEN))
     return 0
 
 
 async def async_main(argv: Sequence[str] | None = None) -> int:
     args = parse_args(argv)
+    _configure_color(args.color)
     required_names, selected_specs = _selected_schema(args)
     client = AsyncMongoClient(args.mongo_host, tz_aware=True)
     created_count = 0
