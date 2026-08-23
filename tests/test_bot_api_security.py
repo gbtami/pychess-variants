@@ -191,6 +191,12 @@ class BotApiSecurityTestCase(AioHTTPTestCase):
         self.assertEqual(response.status, 200)
         self.assertEqual(await response.json(), [{"id": "status-bot", "online": True}])
 
+        bot.patron = True
+        response = await self.client.get("/api/users/status?ids=status-bot")
+        self.assertEqual(
+            await response.json(), [{"id": "status-bot", "online": True, "patron": True}]
+        )
+
     async def test_event_stream_disconnect_marks_bot_offline(self):
         bot, token = await self.create_bot("owner-bot")
 

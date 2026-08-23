@@ -7,6 +7,7 @@ from admin import (
     ban,
     is_protected_username,
     resolve_existing_username,
+    set_patron,
     set_shadowban,
     timeout_user,
     unban,
@@ -27,6 +28,8 @@ MOD_ACTION_LABELS: dict[str, str] = {
     "unshadowban": "Remove shadowban",
     "close_account": "Close account",
     "reopen_account": "Reopen account",
+    "grant_patron": "Grant patron",
+    "revoke_patron": "Revoke patron",
     "anonymous_sessions_disabled": "Disable new anonymous sessions",
     "anonymous_sessions_enabled": "Enable new anonymous sessions",
     "stream_added": "Add YouTube stream",
@@ -43,9 +46,17 @@ MOD_ACTION_LABELS: dict[str, str] = {
     "simul_cancelled": "Cancel simul",
 }
 
-API_ACTIONS = {"timeout", "shadowban", "unshadowban", "close", "reopen"}
+API_ACTIONS = {"timeout", "shadowban", "unshadowban", "close", "reopen", "patron", "unpatron"}
 USER_LOG_ACTIONS = frozenset(
-    {"chat_timeout", "shadowban", "unshadowban", "close_account", "reopen_account"}
+    {
+        "chat_timeout",
+        "shadowban",
+        "unshadowban",
+        "close_account",
+        "reopen_account",
+        "grant_patron",
+        "revoke_patron",
+    }
 )
 TEAM_LOG_ACTIONS = frozenset({"close_team", "reopen_team"})
 
@@ -123,14 +134,27 @@ async def admin_user_action(request: web.Request) -> web.Response:
     target = await resolve_existing_username(app_state, request.match_info.get("username", ""))
     if target is None:
         return _error("User not found", 404)
-    if is_protected_username(target):
-        return _error("Protected accounts cannot be moderated here", 403)
-
     user_doc = await app_state.db.user.find_one(
-        {"_id": target}, projection={"enabled": 1, "shadowban": 1}
+        {"_id": target}, projection={"enabled": 1, "shadowban": 1, "patron": 1}
     )
     if user_doc is None:
         return _error("User not found", 404)
+
+    if action in {"patron", "unpatron"}:
+        enabled = action == "patron"
+        if bool(user_doc.get("patron", False)) == enabled:
+            return _error(
+                "User is already a patron" if enabled else "User is not a patron",
+                409,
+            )
+        if not await set_patron(app_state, target, enabled):
+            return _error("Failed to update patron status", 409)
+        log_action = "grant_patron" if enabled else "revoke_patron"
+        await record_mod_action(app_state, moderator, target, log_action)
+        return json_response({"ok": True, "username": target, "action": log_action})
+
+    if is_protected_username(target):
+        return _error("Protected accounts cannot be moderated here", 403)
 
     if action == "timeout":
         live_user = app_state.users.data.get(target)

@@ -699,9 +699,11 @@ async def post(request: web.Request) -> ViewContext:
     post_card["likes"] = len(likes)
     post_card["liked"] = (not user.anon) and (user.username in likes)
 
+    author_profile = await app_state.public_users.get_profile(profile_id, include_blocked=False)
     context["profile"] = profile_id
     context["ublog_is_owner"] = owner
     context["ublog_author_online"] = profile_id in app_state.users
+    context["ublog_author_patron"] = bool(author_profile is not None and author_profile.patron)
     context["ublog_post"] = post_card
     context["ublog_related"] = related_cards
     context["title"] = f"{post_card['title']} • PyChess"

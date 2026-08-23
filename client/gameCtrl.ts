@@ -51,8 +51,11 @@ export abstract class GameController extends ChessgroundController implements Ch
     players: string[];
     titles: string[];
     ratings: string[];
+    patrons: boolean[];
     wtitle: string;
     btitle: string;
+    wpatron: boolean;
+    bpatron: boolean;
     wrating: string;
     brating: string;
 
@@ -131,6 +134,8 @@ export abstract class GameController extends ChessgroundController implements Ch
         this.ply = isNaN(model['ply']) ? 0 : model['ply'];
         this.wtitle = model['wtitle'];
         this.btitle = model['btitle'];
+        this.wpatron = model['wpatron'];
+        this.bpatron = model['bpatron'];
         this.wrating = model['wrating'];
         this.brating = model['brating'];
         this.rated = model['rated'];
@@ -165,6 +170,10 @@ export abstract class GameController extends ChessgroundController implements Ch
         this.ratings = [
             this.mycolor === 'white' ? this.brating : this.wrating,
             this.mycolor === 'white' ? this.wrating : this.brating,
+        ];
+        this.patrons = [
+            this.mycolor === 'white' ? this.bpatron : this.wpatron,
+            this.mycolor === 'white' ? this.wpatron : this.bpatron,
         ];
 
         this.result = '*';

@@ -63,6 +63,7 @@ class AdminViewTestCase(AioHTTPTestCase):
                 "title": "FM",
                 "enabled": False,
                 "shadowban": True,
+                "patron": True,
                 "createdAt": created_at,
                 "count": {"game": 12, "win": 7, "loss": 3, "draw": 2, "rated": 10},
                 "security": {
@@ -94,6 +95,7 @@ class AdminViewTestCase(AioHTTPTestCase):
         body = await response.text()
         self.assertIn('href="/@/MixedCase"', body)
         self.assertIn("Closed", body)
+        self.assertIn("Patron", body)
         self.assertIn("Shadowbanned", body)
         self.assertIn("12 total · 7 wins · 3 losses · 2 draws", body)
         self.assertIn("IP 1 · fingerprint 2 · combined 0", body)
@@ -101,6 +103,7 @@ class AdminViewTestCase(AioHTTPTestCase):
         self.assertIn("Reopen account completed.", body)
         self.assertIn("Chat timeout", body)
         self.assertIn("spamming the chat", body)
+        self.assertIn("/api/admin/users/MixedCase/unpatron", body)
         self.assertIn("/api/admin/users/MixedCase/unshadowban", body)
         self.assertIn("/api/admin/users/MixedCase/reopen", body)
         self.assertIn("admin-action-dialog", body)
@@ -117,7 +120,10 @@ class AdminViewTestCase(AioHTTPTestCase):
         self.assertEqual(response.status, 200)
         body = await response.text()
         self.assertIn("This is a protected account", body)
-        self.assertNotIn("data-admin-action=", body)
+        self.assertIn("/api/admin/users/mod/patron", body)
+        self.assertNotIn("/api/admin/users/mod/timeout", body)
+        self.assertNotIn("/api/admin/users/mod/shadowban", body)
+        self.assertNotIn("/api/admin/users/mod/close", body)
 
     async def test_user_search_reports_invalid_and_missing_user(self):
         app_state = get_app_state(self.app)

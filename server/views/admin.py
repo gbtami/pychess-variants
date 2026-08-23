@@ -168,6 +168,7 @@ async def _user_status(app_state: Any, user_doc: UserDocument) -> dict[str, obje
         "title": str(user_doc.get("title") or ""),
         "enabled": bool(user_doc.get("enabled", True)),
         "shadowban": bool(user_doc.get("shadowban", False)),
+        "patron": bool(user_doc.get("patron", False)),
         "protected": is_protected_username(username),
         "online": bool(live_user is not None and live_user.online),
         "timed_out": bool(live_user is not None and live_user.silence > 0),

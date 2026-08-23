@@ -42,6 +42,7 @@ class UserDocument(TypedDict, total=False):
     title: str
     enabled: bool
     shadowban: bool
+    patron: bool
     createdAt: datetime
     count: UserCount
     swissBanUntil: datetime
@@ -88,6 +89,7 @@ class UserJson(TypedDict):
 class FollowingUserRow(TypedDict):
     username: str
     title: str
+    patron: bool
     games: int
     rating: str
     variant: str
@@ -97,6 +99,7 @@ class FollowingUserRow(TypedDict):
 class UserStatusJson(TypedDict):
     id: str
     online: bool
+    patron: NotRequired[bool]
 
 
 class UserBlocksResponse(TypedDict):

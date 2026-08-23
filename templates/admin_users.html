@@ -33,6 +33,7 @@
                         <span class="admin-status{% if admin_user_status.enabled %} is-ok{% else %} is-danger{% endif %}">
                             {{ "Enabled" if admin_user_status.enabled else "Closed" }}
                         </span>
+                        {% if admin_user_status.patron %}<span class="admin-status is-ok">Patron</span>{% endif %}
                         {% if admin_user_status.shadowban %}<span class="admin-status is-warning">Shadowbanned</span>{% endif %}
                         {% if admin_user_status.timed_out %}<span class="admin-status is-warning">Chat timeout</span>{% endif %}
                         <span class="admin-status{% if admin_user_status.online %} is-online{% endif %}">
@@ -78,6 +79,31 @@
                         </dd>
                     </div>
                 </dl>
+
+                <div class="admin-user-actions">
+                    <h3>Patron status</h3>
+                    <div class="admin-user-actions__buttons">
+                        {% if admin_user_status.patron %}
+                        <button
+                            class="admin-action-button"
+                            type="button"
+                            data-admin-action="unpatron"
+                            data-action-url="/api/admin/users/{{ admin_user_status.username }}/unpatron"
+                            data-confirm-title="Remove patron wings?"
+                            data-confirm-text="Remove patron status from {{ admin_user_status.username }}."
+                        >Remove patron</button>
+                        {% else %}
+                        <button
+                            class="admin-action-button is-positive"
+                            type="button"
+                            data-admin-action="patron"
+                            data-action-url="/api/admin/users/{{ admin_user_status.username }}/patron"
+                            data-confirm-title="Grant patron wings?"
+                            data-confirm-text="Grant patron status to {{ admin_user_status.username }}."
+                        >Grant patron</button>
+                        {% endif %}
+                    </div>
+                </div>
 
                 <div class="admin-user-actions">
                     <h3>Moderation actions</h3>
@@ -162,10 +188,9 @@
                 </div>
             </section>
 
-            {% if not admin_user_status.protected %}
             <dialog id="admin-action-dialog" class="admin-action-dialog">
                 <form method="dialog">
-                    <h2 class="admin-action-dialog__title">Confirm moderation action</h2>
+                    <h2 class="admin-action-dialog__title">Confirm admin action</h2>
                     <p class="admin-action-dialog__text"></p>
                     <label class="admin-action-dialog__reason" hidden>
                         Reason
@@ -181,7 +206,6 @@
                     </div>
                 </form>
             </dialog>
-            {% endif %}
             {% endif %}
         </main>
     </div>
@@ -205,7 +229,7 @@
   document.querySelectorAll('[data-admin-action]').forEach((button) => {
     button.addEventListener('click', () => {
       selectedButton = button;
-      title.textContent = button.dataset.confirmTitle || 'Confirm moderation action';
+      title.textContent = button.dataset.confirmTitle || 'Confirm admin action';
       text.textContent = button.dataset.confirmText || '';
       reasonRow.hidden = button.dataset.needsReason !== 'true';
       confirmButton.classList.toggle('is-danger', button.dataset.danger === 'true');

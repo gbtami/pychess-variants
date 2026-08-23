@@ -129,22 +129,26 @@ function initModel(el: HTMLElement) {
 
         wplayer: el.getAttribute('data-wplayer') ?? '',
         wtitle: el.getAttribute('data-wtitle') ?? '',
+        wpatron: el.getAttribute('data-wpatron') === 'True',
         wrating: el.getAttribute('data-wrating') ?? '',
         wrdiff: parseInt('' + el.getAttribute('data-wrdiff')),
         wberserk: el.getAttribute('data-wberserk') ?? '',
 
         bplayer: el.getAttribute('data-bplayer') ?? '',
         btitle: el.getAttribute('data-btitle') ?? '',
+        bpatron: el.getAttribute('data-bpatron') === 'True',
         brating: el.getAttribute('data-brating') ?? '',
         brdiff: parseInt('' + el.getAttribute('data-brdiff')),
         bberserk: el.getAttribute('data-bberserk') ?? '',
 
         wplayerB: el.getAttribute('data-wplayer-b') ?? '',
         wtitleB: el.getAttribute('data-wtitle-b') ?? '',
+        wpatronB: el.getAttribute('data-wpatron-b') === 'True',
         wratingB: el.getAttribute('data-wrating-b') ?? '',
 
         bplayerB: el.getAttribute('data-bplayer-b') ?? '',
         btitleB: el.getAttribute('data-btitle-b') ?? '',
+        bpatronB: el.getAttribute('data-bpatron-b') === 'True',
         bratingB: el.getAttribute('data-brating-b') ?? '',
 
         fen: el.getAttribute('data-fen') ?? '',

@@ -143,6 +143,7 @@ export class TournamentRRController implements ChatController {
     kickUsername = '';
     scheduleDrafts: Record<string, string> = {};
     onlineByUsername: Record<string, boolean | undefined> = {};
+    patronByUsername: Record<string, boolean | undefined> = {};
     flatpickrReady: Promise<void>;
     arrangementPresenceInterval: number | null = null;
     presenceArrangementId = '';
@@ -500,6 +501,10 @@ export class TournamentRRController implements ChatController {
         return this.onlineByUsername[username];
     }
 
+    playerPatron(username: string): boolean | undefined {
+        return this.patronByUsername[username];
+    }
+
     async loadArrangementOnlineStatus() {
         const cell = this.selectedArrangement();
         if (!cell) return;
@@ -508,9 +513,10 @@ export class TournamentRRController implements ChatController {
                 `/api/users/status?ids=${encodeURIComponent(cell.white)},${encodeURIComponent(cell.black)}`,
             );
             if (!response.ok) return;
-            const payload = (await response.json()) as Array<{ id: string; online?: boolean }>;
+            const payload = (await response.json()) as Array<{ id: string; online?: boolean; patron?: boolean }>;
             payload.forEach(entry => {
                 this.onlineByUsername[entry.id] = entry.online;
+                this.patronByUsername[entry.id] = entry.patron;
             });
             this.renderModal();
         } catch {
@@ -1091,7 +1097,9 @@ export class TournamentRRController implements ChatController {
                     icon: true,
                     'icon-online': !!this.playerOnline(username),
                     'icon-offline': !this.playerOnline(username),
+                    'icon-patron': !!this.playerPatron(username),
                 },
+                attrs: this.playerPatron(username) ? { title: _('PyChess Patron') } : {},
             }),
             userLink(
                 username,

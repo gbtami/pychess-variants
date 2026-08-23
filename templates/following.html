@@ -15,7 +15,7 @@
         {% for followed in following_users %}
             <tr>
                 <td class="following-page__user">
-                    <i-side class="following-page__status icon {% if followed.online %}icon-online online{% else %}icon-offline{% endif %}"></i-side>
+                    <i-side class="following-page__status icon {% if followed.online %}icon-online online{% else %}icon-offline{% endif %}{% if followed.patron %} icon-patron{% endif %}"{% if followed.patron %} title="{{ _('PyChess Patron') }}"{% endif %}></i-side>
                     <a class="user-link ulpt" href="{{ home }}/@/{{ followed.username }}"><player-title>{{ followed.title }}</player-title>{% if followed.title %} {% endif %}{{ followed.username }}</a>
                 </td>
                 <td class="following-page__rating">

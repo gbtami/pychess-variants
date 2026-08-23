@@ -178,10 +178,7 @@ export class RoundController extends GameController {
             console.log('Reconnecting in round...');
 
             const container = document.getElementById('player1') as HTMLElement;
-            patch(
-                container,
-                h('i-side.online#player1', { class: { icon: true, 'icon-online': false, 'icon-offline': true } }),
-            );
+            this.renderPresenceIcon(container, 'player1', false);
         };
 
         this.sock = createWebsocket(
@@ -284,8 +281,32 @@ export class RoundController extends GameController {
         // initialize users
         const player0 = document.getElementById('rplayer0') as HTMLElement;
         const player1 = document.getElementById('rplayer1') as HTMLElement;
-        this.vplayer0 = patch(player0, player('player0', this.titles[0], this.players[0], this.ratings[0], this.level));
-        this.vplayer1 = patch(player1, player('player1', this.titles[1], this.players[1], this.ratings[1], this.level));
+        this.vplayer0 = patch(
+            player0,
+            player(
+                'player0',
+                this.titles[0],
+                this.players[0],
+                this.ratings[0],
+                this.level,
+                false,
+                undefined,
+                this.patrons[0],
+            ),
+        );
+        this.vplayer1 = patch(
+            player1,
+            player(
+                'player1',
+                this.titles[1],
+                this.players[1],
+                this.ratings[1],
+                this.level,
+                false,
+                undefined,
+                this.patrons[1],
+            ),
+        );
 
         if (this.variant.material.showDiff) {
             const materialTop = document.querySelector('.material-top') as HTMLElement;
@@ -631,6 +652,9 @@ export class RoundController extends GameController {
                 this.players[this.flipped() ? 1 : 0],
                 this.ratings[this.flipped() ? 1 : 0],
                 this.level,
+                false,
+                undefined,
+                this.patrons[this.flipped() ? 1 : 0],
             ),
         );
         this.vplayer1 = patch(
@@ -641,6 +665,9 @@ export class RoundController extends GameController {
                 this.players[this.flipped() ? 0 : 1],
                 this.ratings[this.flipped() ? 0 : 1],
                 this.level,
+                false,
+                undefined,
+                this.patrons[this.flipped() ? 0 : 1],
             ),
         );
 
@@ -1775,6 +1802,17 @@ export class RoundController extends GameController {
         setTimeout(this.showExpiration, 250);
     };
 
+    private renderPresenceIcon(container: HTMLElement, id: 'player0' | 'player1', online: boolean): VNode {
+        const patron = container.classList.contains('icon-patron');
+        return patch(
+            container,
+            h(`i-side.online#${id}`, {
+                class: { icon: true, 'icon-online': online, 'icon-offline': !online, 'icon-patron': patron },
+                attrs: patron ? { title: _('PyChess Patron') } : {},
+            }),
+        );
+    }
+
     private onMsgUserConnected = (msg: MsgUserConnected) => {
         this.username = msg['username'];
         if (this.spectator) {
@@ -1787,10 +1825,7 @@ export class RoundController extends GameController {
             this.doSend({ type: 'is_user_present', username: opp_name, gameId: this.gameId });
 
             const container = document.getElementById('player1') as HTMLElement;
-            patch(
-                container,
-                h('i-side.online#player1', { class: { icon: true, 'icon-online': true, 'icon-offline': false } }),
-            );
+            this.renderPresenceIcon(container, 'player1', true);
 
             // prevent sending gameStart message when user just reconnecting
             if (msg.ply === 0) {
@@ -1809,16 +1844,10 @@ export class RoundController extends GameController {
         // console.log(msg);
         if (msg.username === this.players[0]) {
             const container = document.getElementById('player0') as HTMLElement;
-            patch(
-                container,
-                h('i-side.online#player0', { class: { icon: true, 'icon-online': true, 'icon-offline': false } }),
-            );
+            this.renderPresenceIcon(container, 'player0', true);
         } else {
             const container = document.getElementById('player1') as HTMLElement;
-            patch(
-                container,
-                h('i-side.online#player1', { class: { icon: true, 'icon-online': true, 'icon-offline': false } }),
-            );
+            this.renderPresenceIcon(container, 'player1', true);
         }
     };
 
@@ -1826,16 +1855,10 @@ export class RoundController extends GameController {
         // console.log(msg);
         if (msg.username === this.players[0]) {
             const container = document.getElementById('player0') as HTMLElement;
-            patch(
-                container,
-                h('i-side.online#player0', { class: { icon: true, 'icon-online': false, 'icon-offline': true } }),
-            );
+            this.renderPresenceIcon(container, 'player0', false);
         } else {
             const container = document.getElementById('player1') as HTMLElement;
-            patch(
-                container,
-                h('i-side.online#player1', { class: { icon: true, 'icon-online': false, 'icon-offline': true } }),
-            );
+            this.renderPresenceIcon(container, 'player1', false);
         }
     };
 

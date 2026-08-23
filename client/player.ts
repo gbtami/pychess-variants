@@ -1,6 +1,7 @@
 import { h, VNode } from 'snabbdom';
 
 import { aiLevel } from './result';
+import { _ } from './i18n';
 import { displayUsername, userLink } from './user';
 
 // A player bar. `id` identifies the bar's presence icon, and by default also names
@@ -15,11 +16,15 @@ export function player(
     level: number,
     online = false,
     root = 'round-' + id,
+    patron = false,
 ): VNode {
     const displayName = displayUsername(name);
     return h(root, [
         h('div.player-data', [
-            h('i-side#' + id + '.online.icon', { class: { 'icon-online': online, 'icon-offline': !online } }),
+            h('i-side#' + id + '.online.icon', {
+                class: { 'icon-online': online, 'icon-offline': !online, 'icon-patron': patron },
+                attrs: patron ? { title: _('PyChess Patron') } : {},
+            }),
             h('player', [
                 userLink(name, [
                     title !== '' ? h('player-title', title + ' ') : '',

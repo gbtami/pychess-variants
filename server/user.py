@@ -167,6 +167,7 @@ class User:
         swiss_ban_until: datetime | None = None,
         swiss_ban_hours: int = 0,
         swiss_ban_game_id: str | None = None,
+        patron: bool = False,
     ) -> None:
         self.app_state: PychessGlobalAppState = app_state
         self.bot: bool = bot
@@ -259,6 +260,7 @@ class User:
 
         self.enabled: bool = enabled
         self.shadowban: bool = shadowban
+        self.patron: bool = patron
 
         self.last_seen: datetime = datetime(MINYEAR, 1, 1, tzinfo=UTC)
 
@@ -1127,6 +1129,8 @@ async def get_status(request: web.Request) -> web.StreamResponse:
     for uid in ids:
         user = await app_state.users.get(uid)
         status_entry: UserStatusJson = {"online": user.online, "id": uid}
+        if user.patron:
+            status_entry["patron"] = True
         status_list.append(status_entry)
 
     return json_response(status_list)

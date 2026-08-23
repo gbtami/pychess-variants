@@ -51,11 +51,13 @@ def _row_from_user_data(
     count: Mapping[str, object] | None,
     perfs: PerfMap,
     online: bool,
+    patron: bool,
 ) -> FollowingUserRow:
     rating, variant = _best_perf(perfs)
     return {
         "username": username,
         "title": title,
+        "patron": patron,
         "games": normalize_user_count(count).get("game", 0),
         "rating": rating,
         "variant": variant,
@@ -104,7 +106,7 @@ async def following(request: web.Request) -> ViewContext:
     if target_ids:
         cursor = app_state.db.user.find(
             {"_id": {"$in": target_ids}},
-            projection={"_id": 1, "title": 1, "enabled": 1, "count": 1, "perfs": 1},
+            projection={"_id": 1, "title": 1, "enabled": 1, "patron": 1, "count": 1, "perfs": 1},
         )
         user_docs = {str(doc["_id"]): doc async for doc in cursor}
 
@@ -120,6 +122,7 @@ async def following(request: web.Request) -> ViewContext:
                         live_user.count,
                         live_user.perfs,
                         bool(live_user.online),
+                        live_user.patron,
                     )
                 )
             continue
@@ -134,6 +137,7 @@ async def following(request: web.Request) -> ViewContext:
                 doc.get("count"),
                 sparse_perf_map(RATED_VARIANTS, doc.get("perfs")),
                 False,
+                doc.get("patron", False),
             )
         )
 

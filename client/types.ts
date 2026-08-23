@@ -63,11 +63,13 @@ export type PyChessModel = {
     board: MsgBoard | string;
     wplayer: string;
     wtitle: string;
+    wpatron: boolean;
     wrating: string; // string, because can contain "?" suffix for provisional rating
     wrdiff: number;
     wberserk: string;
     bplayer: string;
     btitle: string;
+    bpatron: boolean;
     brating: string; // string, because can contain "?" suffix for provisional rating
     brdiff: number;
     bberserk: string;
@@ -91,9 +93,11 @@ export type PyChessModel = {
 
     wplayerB: string;
     wtitleB: string;
+    wpatronB: boolean;
     wratingB: string; // string, because can contain "?" suffix for provisional rating
     bplayerB: string;
     btitleB: string;
+    bpatronB: boolean;
     bratingB: string; // string, because can contain "?" suffix for provisional rating
 
     blogs: string;

@@ -28,6 +28,7 @@ class PublicProfile:
     title: str
     bot: bool
     enabled: bool
+    patron: bool
     created_at: datetime
     count: UserCount
     perfs: PerfMap
@@ -66,6 +67,7 @@ class PublicUsers:
             title=user.title,
             bot=user.bot,
             enabled=user.enabled,
+            patron=user.patron,
             created_at=user.created_at,
             count=normalize_user_count(user.count),
             perfs=user.perfs,
@@ -87,6 +89,7 @@ class PublicUsers:
             title=title,
             bot=title == "BOT",
             enabled=doc.get("enabled", True),
+            patron=doc.get("patron", False),
             created_at=doc.get("createdAt", datetime(MINYEAR, 1, 1, tzinfo=UTC)),
             count=normalize_user_count(doc.get("count")),
             perfs=sparse_perf_map(RATED_VARIANTS, doc.get("perfs")),
@@ -103,6 +106,7 @@ class PublicUsers:
             title="",
             bot=False,
             enabled=True,
+            patron=False,
             created_at=datetime(MINYEAR, 1, 1, tzinfo=UTC),
             count=normalize_user_count(None),
             perfs={},
@@ -111,6 +115,11 @@ class PublicUsers:
             oauth_id="",
             oauth_provider="",
         )
+
+    def invalidate(self, username: str) -> None:
+        """Drop cached public data after an account attribute changes."""
+        self._profiles.pop(username, None)
+        self._titles.pop(username, None)
 
     async def get_profile(
         self,

@@ -17,10 +17,10 @@ test_logger.init_test_logger()
 
 class BughouseContextTestCase(unittest.TestCase):
     def test_add_game_context_uses_bughouse_compat_fields(self) -> None:
-        player_a = SimpleNamespace(username="whiteA", title="")
-        player_b = SimpleNamespace(username="blackA", title="")
-        player_c = SimpleNamespace(username="whiteB", title="")
-        player_d = SimpleNamespace(username="blackB", title="")
+        player_a = SimpleNamespace(username="whiteA", title="", patron=False)
+        player_b = SimpleNamespace(username="blackA", title="", patron=False)
+        player_c = SimpleNamespace(username="whiteB", title="", patron=False)
+        player_d = SimpleNamespace(username="blackB", title="", patron=False)
 
         class FakeBughouseGame:
             id = "bug1"

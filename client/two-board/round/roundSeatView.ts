@@ -132,6 +132,7 @@ export class RoundSeatView {
                 this.level,
                 this.online,
                 this.playerBarSel,
+                player.patron,
             ),
         );
     }

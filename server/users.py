@@ -108,6 +108,7 @@ class Users(UserDict[str, User]):
             count=doc.get("count"),
             enabled=doc.get("enabled", True),
             shadowban=doc.get("shadowban", False),
+            patron=doc.get("patron", False),
             lang=doc.get("lang", "en"),
             theme=doc.get("theme", "dark"),
             game_category=doc.get("ct", "all"),

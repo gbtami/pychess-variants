@@ -18,7 +18,7 @@
             {% for user in online_users %}
             <tr>
                 <td class="player-data">
-                <i-side class="online icon icon-online"></i-side>
+                <i-side class="online icon icon-online{% if user.patron %} icon-patron{% endif %}"{% if user.patron %} title="{{ _('PyChess Patron') }}"{% endif %}></i-side>
                 <player>
                     <a class="user-link" href="{{ home }}/@/{{ user.username }}"><player-title>{{ user.title }}</player-title> {{ user.username }}</a>
                 </player>

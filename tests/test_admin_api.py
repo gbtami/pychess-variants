@@ -64,6 +64,32 @@ class AdminApiTestCase(AioHTTPTestCase):
         self.assertEqual(system_user.status, 403)
         self.assertEqual(0, await app_state.db.mod_log.count_documents({}))
 
+    async def test_patron_toggle_updates_db_cache_and_allows_protected_target(self):
+        app_state = get_app_state(self.app)
+        moderator = User(app_state, username="mod")
+        target_user = User(app_state, username="othermod")
+        app_state.users[moderator.username] = moderator
+        app_state.users[target_user.username] = target_user
+        await self.insert_user("othermod")
+        self.set_session_user("mod")
+
+        with (
+            patch("admin_api.ADMINS", ["mod", "othermod"]),
+            patch("admin.ADMINS", ["mod", "othermod"]),
+        ):
+            grant = await self.client.post("/api/admin/users/othermod/patron")
+            duplicate = await self.client.post("/api/admin/users/othermod/patron")
+            revoke = await self.client.post("/api/admin/users/othermod/unpatron")
+
+        self.assertEqual(grant.status, 200)
+        self.assertEqual(duplicate.status, 409)
+        self.assertEqual(revoke.status, 200)
+        target_doc = await app_state.db.user.find_one({"_id": "othermod"})
+        self.assertFalse(target_doc["patron"])
+        self.assertFalse(target_user.patron)
+        logs = await app_state.db.mod_log.find({"user": "othermod"}).to_list(None)
+        self.assertEqual(["grant_patron", "revoke_patron"], [entry["action"] for entry in logs])
+
     async def test_shadowban_toggle_updates_cache_and_mod_log(self):
         app_state = get_app_state(self.app)
         app_state.users["mod"] = User(app_state, username="mod")

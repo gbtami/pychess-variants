@@ -341,6 +341,7 @@ def add_game_context(
     context["variant"] = game.variant
     context["wplayer"] = game.wplayer.username
     context["wtitle"] = game.wplayer.title
+    context["wpatron"] = game.wplayer.patron
     context["wrating"] = game.wrating
     context["wrdiff"] = game.wrdiff
     context["chess960"] = game.chess960
@@ -349,6 +350,7 @@ def add_game_context(
     context["level"] = game.level
     context["bplayer"] = game.bplayer.username
     context["btitle"] = game.bplayer.title
+    context["bpatron"] = game.bplayer.patron
     context["brating"] = game.brating
     context["brdiff"] = game.brdiff
     context["fen"] = DARK_FEN if game.variant == "fogofwar" else game.fen
@@ -375,7 +377,9 @@ def add_game_context(
         game_two_boards = game
         context["wplayerB"] = game_two_boards.wplayerB.username
         context["wtitleB"] = game_two_boards.wplayerB.title
+        context["wpatronB"] = game_two_boards.wplayerB.patron
         context["wratingB"] = game_two_boards.wrating_b
         context["bplayerB"] = game_two_boards.bplayerB.username
         context["btitleB"] = game_two_boards.bplayerB.title
+        context["bpatronB"] = game_two_boards.bplayerB.patron
         context["bratingB"] = game_two_boards.brating_b

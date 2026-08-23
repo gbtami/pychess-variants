@@ -73,6 +73,28 @@ async def resolve_existing_username(
     return username if isinstance(username, str) else None
 
 
+async def set_patron(
+    app_state: PychessGlobalAppState,
+    raw_username: str,
+    enabled: bool,
+) -> bool:
+    username = _normalize_target_username(raw_username)
+    resolved_username = await resolve_existing_username(app_state, username)
+    if resolved_username is None:
+        return False
+    username = resolved_username
+
+    await app_state.db.user.find_one_and_update(
+        {"_id": username},
+        {"$set": {"patron": enabled}},
+    )
+    live_user = app_state.users.data.get(username)
+    if live_user is not None:
+        live_user.patron = enabled
+    app_state.public_users.invalidate(username)
+    return True
+
+
 async def set_shadowban(
     app_state: PychessGlobalAppState,
     raw_username: str,
