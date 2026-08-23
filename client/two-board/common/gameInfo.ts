@@ -6,7 +6,7 @@ import { colorIcon } from '../../chess';
 import { aiLevel, gameType } from '../../result';
 import { timeago } from '../../datetime';
 import { timeControlStr } from '../../view';
-import { displayUsername, userLink } from '../../user';
+import { displayUsername, patronWing, userLink } from '../../user';
 import { Seat } from './seat';
 import type { TwoBoardController } from '../twoBoardCtrl';
 
@@ -63,17 +63,29 @@ export class GameInfoView {
                 ]),
                 h('div.player-data', [
                     h('i-side.icon', { class: { [colorIcon(model.variant, variant.colors.first)]: true } }),
-                    h('player', playerInfo(seat('a', 'white'), model.level)),
+                    h('player', [
+                        patronWing(seat('a', 'white').player.patron),
+                        playerInfo(seat('a', 'white'), model.level),
+                    ]),
                     h('div', { style: { display: 'inline', paddingRight: '8px' } }, '+'),
                     h('i-side.icon', { class: { [colorIcon(model.variant, variant.colors.second)]: true } }),
-                    h('player', playerInfo(seat('b', 'black'), model.level)),
+                    h('player', [
+                        patronWing(seat('b', 'black').player.patron),
+                        playerInfo(seat('b', 'black'), model.level),
+                    ]),
                 ]),
                 h('div.player-data', [
                     h('i-side.icon', { class: { [colorIcon(model.variant, variant.colors.second)]: true } }),
-                    h('player', playerInfo(seat('b', 'white'), model.level)),
+                    h('player', [
+                        patronWing(seat('b', 'white').player.patron),
+                        playerInfo(seat('b', 'white'), model.level),
+                    ]),
                     h('div', { style: { display: 'inline', paddingRight: '8px' } }, '+'),
                     h('i-side.icon', { class: { [colorIcon(model.variant, variant.colors.first)]: true } }),
-                    h('player', playerInfo(seat('a', 'black'), model.level)),
+                    h('player', [
+                        patronWing(seat('a', 'black').player.patron),
+                        playerInfo(seat('a', 'black'), model.level),
+                    ]),
                 ]),
             ]),
             h('section', [

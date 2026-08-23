@@ -592,6 +592,8 @@ class ViewContext(TypedDict, total=False):
     finished_simuls: Sequence[object]
     gameId: str
     highscore: object
+    highscore_patrons: set[str]
+    highscore_online: set[str]
     inviter: str
     bot_challenge_status: str
     bot_challenge_decline_reason: str
@@ -613,6 +615,8 @@ class ViewContext(TypedDict, total=False):
     profile_teams: Sequence[Mapping[str, object]]
     profile_simul_count: int
     profile_title: str
+    profile_patron: bool
+    profile_online: bool
     profile_restricted: bool
     ublog_posts: list[object]
     ublog_post_count: int

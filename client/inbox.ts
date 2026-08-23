@@ -12,6 +12,7 @@ interface ThreadSummary {
     user: string;
     title: string;
     online?: boolean;
+    patron?: boolean;
     system?: boolean;
     updatedAt: string;
     unread: boolean;
@@ -64,6 +65,7 @@ interface ThreadResponse {
         name: string;
         title: string;
         online?: boolean;
+        patron?: boolean;
         system?: boolean;
         canMessage?: boolean;
         blockedByMe?: boolean;
@@ -132,6 +134,7 @@ export function inboxView(model: PyChessModel) {
     let contact = model.profileid || '';
     let contactTitle = '';
     let contactOnline = false;
+    let contactPatron = false;
     let contactSystem = false;
     let contactCanMessage = true;
     let blockedUsers = new Set<string>();
@@ -242,6 +245,7 @@ export function inboxView(model: PyChessModel) {
                             contact = '';
                             contactTitle = '';
                             contactOnline = false;
+                            contactPatron = false;
                             contactSystem = false;
                             contactCanMessage = true;
                             contactBlocked = false;
@@ -267,6 +271,7 @@ export function inboxView(model: PyChessModel) {
                         contact = data.contact.name;
                         contactTitle = data.contact.title || '';
                         contactOnline = Boolean(data.contact.online);
+                        contactPatron = Boolean(data.contact.patron);
                         contactSystem = Boolean(data.contact.system);
                         contactCanMessage = data.contact.canMessage !== false;
                         contactBlocked = Boolean(data.contact.blockedByMe);
@@ -400,6 +405,7 @@ export function inboxView(model: PyChessModel) {
                     contact = '';
                     contactTitle = '';
                     contactOnline = false;
+                    contactPatron = false;
                     contactSystem = false;
                     loading = false;
                     history.replaceState({}, '', '/inbox');
@@ -440,7 +446,9 @@ export function inboxView(model: PyChessModel) {
 
     function renderThreadItem(thread: ThreadSummary) {
         const isSelected = thread.user === contact;
-        const statusClass = thread.system ? '.system' : thread.online ? '.online' : '';
+        const statusClass = thread.system
+            ? '.system'
+            : `${thread.online ? '.online' : ''}${thread.patron ? '.patron' : ''}`;
         return h(
             `button.inbox-thread${isSelected ? '.active' : ''}${thread.unread ? '.unread' : ''}`,
             {
@@ -449,7 +457,11 @@ export function inboxView(model: PyChessModel) {
             },
             [
                 h('div.inbox-thread-head', [
-                    h(`strong.inbox-user${statusClass}`, titleAndName(thread.title, thread.user)),
+                    h(
+                        `strong.inbox-user${statusClass}`,
+                        { attrs: thread.patron ? { title: _('PyChess Patron') } : {} },
+                        titleAndName(thread.title, thread.user),
+                    ),
                     h('span.inbox-thread-date', timeago(thread.lastMsg?.createdAt || thread.updatedAt)),
                 ]),
                 h('div.inbox-thread-body', thread.lastMsg?.text || ''),
@@ -546,9 +558,14 @@ export function inboxView(model: PyChessModel) {
                               contactSystem
                                   ? h('span.inbox-user.system', thread.user)
                                   : h(
-                                        `a.user-link.ulpt.inbox-user${contactOnline ? '.online' : ''}`,
+                                        `a.user-link.ulpt.inbox-user${contactOnline ? '.online' : ''}${
+                                            contactPatron ? '.patron' : ''
+                                        }`,
                                         {
-                                            attrs: { href: `/@/${encodeURIComponent(thread.user)}` },
+                                            attrs: {
+                                                href: `/@/${encodeURIComponent(thread.user)}`,
+                                                ...(contactPatron ? { title: _('PyChess Patron') } : {}),
+                                            },
                                         },
                                         titleAndName(thread.title || contactTitle, thread.user),
                                     ),

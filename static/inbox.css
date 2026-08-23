@@ -108,6 +108,23 @@
   opacity: 0.95;
 }
 
+.inbox-user.patron::before {
+  width: 1.05em;
+  height: 0.95em;
+  border: 0;
+  border-radius: 0;
+  background: var(--time-text);
+  opacity: 0.75;
+  flex-basis: 1.05em;
+  -webkit-mask: var(--patron-wing-mask) center / contain no-repeat;
+  mask: var(--patron-wing-mask) center / contain no-repeat;
+}
+
+.inbox-user.patron.online::before {
+  background: var(--good);
+  opacity: 0.95;
+}
+
 .inbox-user.system::before {
   border-color: var(--rusty);
   border-radius: 2px;

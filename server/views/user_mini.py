@@ -287,6 +287,7 @@ async def user_mini(request: web.Request) -> web.StreamResponse:
         "system": profile_id == SYSTEM_USER,
         "title": profile.title,
         "online": online,
+        "patron": profile.patron,
         "canMessage": can_message,
         "joinedAt": _joined_at_for_payload(profile.created_at),
         "count": profile.count,

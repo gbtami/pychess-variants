@@ -258,9 +258,8 @@ async def inbox_threads(request: web.Request) -> web.Response:
         for contact in (_other_user(doc.get("users", []), username) for doc in docs)
         if contact is not None
     ]
-    titles = await app_state.public_users.get_titles(
-        [contact for contact in contacts if contact != SYSTEM_USER]
-    )
+    ordinary_contacts = [contact for contact in contacts if contact != SYSTEM_USER]
+    titles, patrons = await app_state.public_users.get_titles_and_patrons(ordinary_contacts)
 
     threads: list[dict[str, object]] = []
     for doc in docs:
@@ -278,6 +277,7 @@ async def inbox_threads(request: web.Request) -> web.Response:
                 "title": "" if contact == SYSTEM_USER else titles.get(contact, ""),
                 "system": contact == SYSTEM_USER,
                 "online": bool(live_contact and live_contact.online),
+                "patron": contact in patrons,
                 "updatedAt": doc.get("updatedAt"),
                 "unread": unread,
                 "lastMsg": {
@@ -359,6 +359,7 @@ async def inbox_thread(request: web.Request) -> web.Response:
                 "name": profile.username,
                 "title": "" if system_contact else profile.title,
                 "system": system_contact,
+                "patron": profile.patron,
                 "online": bool(
                     app_state.users.data.get(profile.username)
                     and app_state.users.data[profile.username].online

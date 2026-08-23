@@ -1724,24 +1724,28 @@ i-side {
   margin-right: 0.4em;
 }
 
-/* Patron wings replace the normal presence circle while preserving its online/offline color. */
+/* Exact Lichess Wings glyph (licon U+E06C), extracted from its AGPLv3 icon font. */
+:root {
+  --patron-wing-mask: url("images/patron-wing.svg");
+}
 .icon-patron::before {
   content: "" !important;
   display: inline-block;
-  width: 1.05em;
-  height: 0.9em;
-  margin-right: 0.28em;
+  width: 1.5em;
+  height: 1em;
+  margin-right: 0;
   background-color: currentColor;
-  vertical-align: -0.08em;
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 20'%3E%3Cpath d='M23 1C15.8 1.1 10.2 3 6.2 6.7 3.5 9.2 1.8 13 .8 19c2.8-2.4 5.5-4.1 8.1-5.1-.8 1.4-1.4 3-1.7 4.8 3-2.4 5.8-4.1 8.5-5.3-.4 1.2-.6 2.4-.6 3.6 2.7-2.7 4.8-5.6 6.2-8.8C22.4 5.7 23 3.3 23 1Z'/%3E%3C/svg%3E") center / contain no-repeat;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 20'%3E%3Cpath d='M23 1C15.8 1.1 10.2 3 6.2 6.7 3.5 9.2 1.8 13 .8 19c2.8-2.4 5.5-4.1 8.1-5.1-.8 1.4-1.4 3-1.7 4.8 3-2.4 5.8-4.1 8.5-5.3-.4 1.2-.6 2.4-.6 3.6 2.7-2.7 4.8-5.6 6.2-8.8C22.4 5.7 23 3.3 23 1Z'/%3E%3C/svg%3E") center / contain no-repeat;
+  vertical-align: text-top;
+  -webkit-mask: var(--patron-wing-mask) center / contain no-repeat;
+  mask: var(--patron-wing-mask) center / contain no-repeat;
 }
 .icon-online.icon-patron::before {
   color: var(--good);
+  opacity: 1;
 }
 .icon-offline.icon-patron::before {
-  color: LightGray;
-  opacity: 0.75;
+  color: currentColor;
+  opacity: 0.7;
 }
 .icon-left:before {
   color: var(--green-hover);
@@ -3309,6 +3313,14 @@ div.ctable-container {
 }
 .umw-status.offline {
   background: #888;
+}
+.umw-status.patron {
+  width: 1.05em;
+  height: 0.95em;
+  border-radius: 0;
+  flex-basis: 1.05em;
+  -webkit-mask: var(--patron-wing-mask) center / contain no-repeat;
+  mask: var(--patron-wing-mask) center / contain no-repeat;
 }
 .umw-perfs {
   display: grid;

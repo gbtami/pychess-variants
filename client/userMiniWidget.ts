@@ -34,6 +34,7 @@ interface MiniPayload {
     system?: boolean;
     title: string;
     online: boolean;
+    patron: boolean;
     canMessage?: boolean;
     canFollow?: boolean;
     following?: boolean;
@@ -339,8 +340,9 @@ class UserMiniWidget {
         head.className = 'umw-head';
 
         const status = document.createElement('span');
-        status.className = `umw-status ${payload.online ? 'online' : 'offline'}`;
+        status.className = `umw-status ${payload.online ? 'online' : 'offline'}${payload.patron ? ' patron' : ''}`;
         status.setAttribute('aria-hidden', 'true');
+        if (payload.patron) status.title = _('PyChess Patron');
         head.appendChild(status);
 
         const nameLink = document.createElement('a');

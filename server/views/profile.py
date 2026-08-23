@@ -186,6 +186,9 @@ async def profile(request: web.Request) -> ViewContext:
         )
     }
     context["profile_title"] = profile_user.title
+    context["profile_patron"] = profile_user.patron
+    live_profile_user = app_state.users.data.get(profileId)
+    context["profile_online"] = bool(live_profile_user is not None and live_profile_user.online)
     context["rated"] = rated
 
     context["view"] = "profile"

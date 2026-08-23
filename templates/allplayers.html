@@ -3,6 +3,7 @@
 <main class="allplayers">
     {% for user in allusers %}
         <div class="player-data">
+        {% if user.patron %}<i-side class="{% if user.online %}online icon icon-online{% else %}offline icon icon-offline{% endif %} icon-patron" title="{{ _('PyChess Patron') }}"></i-side>{% endif %}
         <player>
             <a class="user-link" href="{{ home }}/@/{{ user.username }}"><player-title>{{ user.title }}</player-title> {{ user.username }}</a>
         </player>

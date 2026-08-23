@@ -7,7 +7,7 @@ import { timeago } from './datetime';
 import { alternateStartName, timeControlStr } from './view';
 import { PyChessModel } from './types';
 import { VARIANTS } from './variants';
-import { displayUsername, userLink } from './user';
+import { displayUsername, patronWing, userLink } from './user';
 
 export function gameInfo(model: PyChessModel): VNode {
     // console.log("roundView model=", model);
@@ -45,11 +45,11 @@ export function gameInfo(model: PyChessModel): VNode {
             ]),
             h('div.player-data', [
                 h('i-side.icon', { class: { [colorIcon(model.variant, variant.colors.first)]: true } }),
-                h('player', playerInfo(model, 'w')),
+                h('player', [patronWing(model.wpatron), playerInfo(model, 'w')]),
             ]),
             h('div.player-data', [
                 h('i-side.icon', { class: { [colorIcon(model.variant, variant.colors.second)]: true } }),
-                h('player', playerInfo(model, 'b')),
+                h('player', [patronWing(model.bpatron), playerInfo(model, 'b')]),
             ]),
         ]),
     ];

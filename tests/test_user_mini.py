@@ -23,7 +23,11 @@ class UserMiniJoinedAtTestCase(AioHTTPTestCase):
             [
                 # Missing createdAt uses the internal MINYEAR sentinel path.
                 {"_id": "legacy-user"},
-                {"_id": "recent-user", "createdAt": datetime(2024, 4, 20, tzinfo=UTC)},
+                {
+                    "_id": "recent-user",
+                    "createdAt": datetime(2024, 4, 20, tzinfo=UTC),
+                    "patron": True,
+                },
             ]
         )
 
@@ -48,6 +52,7 @@ class UserMiniJoinedAtTestCase(AioHTTPTestCase):
         payload = await response.json()
 
         self.assertEqual(payload["joinedAt"], "2024-04-20T00:00:00Z")
+        self.assertTrue(payload["patron"])
 
     async def test_user_mini_reflects_follow_and_friends_only_message_state(self):
         app_state = get_app_state(self.app)

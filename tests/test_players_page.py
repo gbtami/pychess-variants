@@ -2,6 +2,7 @@ from aiohttp.test_utils import AioHTTPTestCase
 from const import ANON_PREFIX, HTTP_ANON_USER
 from mongomock_motor import AsyncMongoMockClient
 from pychess_global_app_state_utils import get_app_state
+from user import User
 
 from server import make_app
 
@@ -19,6 +20,30 @@ class PlayersPageAnonymousDisplayTestCase(AioHTTPTestCase):
         self.assertEqual(response.status, 200)
         html = await response.text()
         self.assertNotIn(f"/@/{HTTP_ANON_USER}", html)
+
+    async def test_patron_wing_is_rendered_on_leaderboards_and_profile(self):
+        app_state = get_app_state(self.app)
+        patron = User(app_state, username="winged-user", patron=True)
+        app_state.users[patron.username] = patron
+        app_state.highscore["chess"][f"{patron.username}|"] = 2100
+
+        response = await self.client.get("/players")
+        self.assertEqual(response.status, 200)
+        html = await response.text()
+        self.assertIn('/@/winged-user"', html)
+        self.assertIn("icon-offline icon-patron", html)
+
+        response = await self.client.get("/players/chess")
+        self.assertEqual(response.status, 200)
+        html = await response.text()
+        self.assertIn('/@/winged-user"', html)
+        self.assertIn("icon-offline icon-patron", html)
+
+        response = await self.client.get("/@/winged-user")
+        self.assertEqual(response.status, 200)
+        html = await response.text()
+        self.assertIn("profile-user-status offline icon icon-offline icon-patron", html)
+        self.assertIn('href="/patron"', html)
 
     async def test_materialized_anonymous_user_is_not_listed_by_name(self):
         app_state = get_app_state(self.app)

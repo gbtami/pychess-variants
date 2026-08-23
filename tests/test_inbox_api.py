@@ -24,8 +24,8 @@ class InboxApiTestCase(AioHTTPTestCase):
 
     async def test_send_and_read_inbox_message_flow(self):
         app_state = get_app_state(self.app)
-        alice = User(app_state, username="alice")
-        bob = User(app_state, username="bob")
+        alice = User(app_state, username="alice", patron=True)
+        bob = User(app_state, username="bob", patron=True)
         app_state.users[alice.username] = alice
         app_state.users[bob.username] = bob
 
@@ -40,6 +40,7 @@ class InboxApiTestCase(AioHTTPTestCase):
         threads_payload = await threads_resp.json()
         self.assertEqual(1, len(threads_payload["threads"]))
         self.assertEqual("bob", threads_payload["threads"][0]["user"])
+        self.assertTrue(threads_payload["threads"][0]["patron"])
         self.assertFalse(threads_payload["threads"][0]["unread"])
 
         self.set_session_user("bob")
@@ -50,6 +51,7 @@ class InboxApiTestCase(AioHTTPTestCase):
         self.assertEqual(thread_resp.status, 200)
         thread_payload = await thread_resp.json()
         self.assertEqual("alice", thread_payload["contact"]["name"])
+        self.assertTrue(thread_payload["contact"]["patron"])
         self.assertEqual(1, len(thread_payload["messages"]))
         self.assertEqual("hello bob", thread_payload["messages"][0]["text"])
         self.assertEqual("alice", thread_payload["messages"][0]["from"])
