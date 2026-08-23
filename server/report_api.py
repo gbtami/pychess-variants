@@ -124,8 +124,12 @@ async def _resolve_username(app_state, raw_username: str) -> str | None:
         {
             "$or": [
                 {"_id": candidate},
-                {"username_lower": candidate.lower()},
-                {"_id": {"$regex": f"^{re.escape(candidate)}$", "$options": "i"}},
+                {
+                    "username_lower": {
+                        "$eq": candidate.lower(),
+                        "$type": "string",
+                    }
+                },
             ]
         },
         projection={"_id": 1},

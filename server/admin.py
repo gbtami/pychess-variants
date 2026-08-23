@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import collections
 import logging
-import re
 from collections.abc import Mapping
 from typing import TYPE_CHECKING
 
@@ -57,8 +56,12 @@ async def resolve_existing_username(
         {
             "$or": [
                 {"_id": candidate},
-                {"username_lower": candidate.lower()},
-                {"_id": {"$regex": f"^{re.escape(candidate)}$", "$options": "i"}},
+                {
+                    "username_lower": {
+                        "$eq": candidate.lower(),
+                        "$type": "string",
+                    }
+                },
             ]
         },
         projection={"_id": 1},

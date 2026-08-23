@@ -890,7 +890,12 @@ async def _canonical_search_username(app_state: PychessGlobalAppState, raw_usern
         {
             "$or": [
                 {"_id": candidate},
-                {"username_lower": candidate.lower()},
+                {
+                    "username_lower": {
+                        "$eq": candidate.lower(),
+                        "$type": "string",
+                    }
+                },
             ]
         },
         projection={"_id": 1},

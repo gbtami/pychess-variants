@@ -48,8 +48,12 @@ async def _find_user_doc(app_state: Any, raw_username: str) -> UserDocument | No
         {
             "$or": [
                 {"_id": candidate},
-                {"username_lower": candidate.lower()},
-                {"_id": {"$regex": f"^{re.escape(candidate)}$", "$options": "i"}},
+                {
+                    "username_lower": {
+                        "$eq": candidate.lower(),
+                        "$type": "string",
+                    }
+                },
             ]
         }
     )

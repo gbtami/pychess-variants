@@ -80,7 +80,6 @@ ignore = ["UP031"]
 # recovery behavior, so retain it while keeping these rules active elsewhere.
 "monitor/monitor.py" = ["BLE001", "DTZ901"]
 "scripts/backfill_user_created_at_from_games.py" = ["BLE001"]
-"scripts/create_game_profile_indexes.py" = ["ASYNC230"]
 "scripts/fix_dragonfly_castling_rights.py" = ["TRY004"]
 "scripts/fix_makpong.py" = ["DTZ001"]
 "scripts/inspect_game_indexes.py" = ["ASYNC230", "BLE001"]
