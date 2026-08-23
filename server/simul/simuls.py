@@ -567,24 +567,6 @@ async def load_active_simuls(app_state: PychessGlobalAppState) -> None:
     if app_state.db is None:
         return
 
-    await app_state.db.simul.create_index("status")
-    await app_state.db.simul.create_index("createdAt")
-    await app_state.db.simul.create_index("hostSeenAt")
-    await app_state.db.simul.create_index("players.user")
-    await app_state.db.simul.create_index("pendingPlayers.user")
-    await app_state.db.simul.create_index(
-        [("status", 1), ("featurable", 1), ("hostSeenAt", -1), ("createdAt", -1)],
-        name="status_featurable_hostSeenAt_createdAt",
-    )
-    await app_state.db.simul.create_index(
-        [("status", 1), ("featurable", 1), ("endsAt", -1)],
-        name="status_featurable_endsAt",
-    )
-    await app_state.db.simul.create_index(
-        [("createdBy", 1), ("status", 1), ("createdAt", -1)],
-        name="createdBy_status_createdAt",
-    )
-
     created_cutoff = datetime.now(UTC) - CREATED_SIMUL_RESTART_WINDOW
     cursor = app_state.db.simul.find(
         {

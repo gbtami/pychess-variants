@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
+from inspect import isawaitable
 from time import monotonic
 from typing import Any, Literal
 
@@ -139,7 +140,8 @@ def check_collection_indexes(
 
 
 async def load_indexes(collection: Any) -> list[dict[str, Any]]:
-    cursor = await collection.list_indexes()
+    cursor_or_awaitable = collection.list_indexes()
+    cursor = await cursor_or_awaitable if isawaitable(cursor_or_awaitable) else cursor_or_awaitable
     return [index_doc async for index_doc in cursor]
 
 

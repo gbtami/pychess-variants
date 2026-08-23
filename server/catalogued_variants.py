@@ -3281,22 +3281,12 @@ async def _remove_legacy_fsf_builtin_description_fields(collection: Any) -> None
         )
 
 
-async def init_catalogued_variants(app_state: Any, db_collections: list[str]) -> None:
+async def init_catalogued_variants(app_state: Any) -> None:
     app_state.catalogued_variants = {}
-
-    if CATALOGUED_VARIANT_COLLECTION not in db_collections:
-        await app_state.db.create_collection(CATALOGUED_VARIANT_COLLECTION)
 
     collection = app_state.db[CATALOGUED_VARIANT_COLLECTION]
     await _remove_legacy_catalogued_icon_fields(collection)
     await _remove_legacy_fsf_builtin_description_fields(collection)
-    await collection.create_index("name", unique=True)
-    await collection.create_index("enabled")
-    await collection.create_index("archived")
-    await collection.create_index("author")
-    await collection.create_index("visibility")
-    await collection.create_index("createdAt")
-    await collection.create_index("source")
 
     await ensure_fsf_catalogued_builtin_variants(app_state)
 

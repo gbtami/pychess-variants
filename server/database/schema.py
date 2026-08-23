@@ -82,9 +82,8 @@ def _index(
     )
 
 
-# These are the collections required by the current application. Some are
-# currently created explicitly, while others appear when an index, seeder, or
-# normal application write first touches them.
+# These are the collections required by the current application. Startup uses
+# this catalog to create every missing collection before feature initialization.
 COLLECTIONS = (
     CollectionSpec("account_reopen_token"),
     CollectionSpec("autopairing"),
@@ -148,9 +147,8 @@ LEGACY_OPTIONAL_COLLECTIONS = (
 )
 
 
-# This catalog includes indexes currently created directly by
-# PychessGlobalAppState as well as the startup indexes owned by simul and
-# catalogued-variant initialization.
+# This is the single source of truth for indexes managed by application startup
+# and the schema utility.
 INDEXES = (
     # Tournament and social infrastructure.
     _index("tournament_chat", ("tid", 1)),
@@ -336,7 +334,7 @@ INDEXES = (
         partial_filter={"username_lower": {"$type": "string"}},
         startup_policy=StartupPolicy.MANUAL,
     ),
-    # Simul and catalogued-variant startup helpers currently own these calls.
+    # Simul and catalogued-variant queries.
     _index("simul", ("status", 1)),
     _index("simul", ("createdAt", 1)),
     _index("simul", ("hostSeenAt", 1)),

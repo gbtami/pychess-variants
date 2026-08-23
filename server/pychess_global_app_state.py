@@ -34,11 +34,10 @@ import sys
 from ai import BOT_task
 from broadcast import round_broadcast
 from chat_flood import ChatFlood
-from cheat_report import CEVAL_AUTO_LOSE_CONFIG_NAME, CHEAT_REPORT_COLLECTION
+from cheat_report import CEVAL_AUTO_LOSE_CONFIG_NAME
 from const import (
     ABORTED,
     ARENA,
-    GAME_CATEGORIES,
     HTTP_ANON_USER,
     LANGUAGES,
     MONTHLY,
@@ -53,6 +52,7 @@ from const import (
     WEEKLY,
     reserved,
 )
+from database.startup import ensure_after_startup_indexes, prepare_database_schema
 from discord_bot import DiscordBot, FakeDiscordBot
 from game import Game
 from gc_telemetry import start_gc_telemetry
@@ -66,7 +66,7 @@ from lobby_panels_cache import (
 )
 from logger import DEFAULT_LOGGING_CONFIG
 from public_users import PublicUsers
-from push_notifications import PUSH_SUBSCRIPTION_COLLECTION, PushNotifier
+from push_notifications import PushNotifier
 from puzzle import rename_puzzle_fields
 from seek import Seek, should_persist_seek_on_shutdown, should_restore_persisted_seek
 from settings import (
@@ -74,6 +74,7 @@ from settings import (
     DISCORD_TOKEN,
     FISHNET_KEYS,
     LOCALHOST,
+    PROD,
     SOURCE_VERSION,
     STATIC_ROOT,
     URI,
@@ -82,7 +83,7 @@ from settings import (
 from simul.simul import Simul
 from simul.simuls import load_active_simuls
 from startup_timer import StartupTimer
-from timeline import TIMELINE_RETENTION_SECONDS, Timeline
+from timeline import Timeline
 from tournament.scheduler import (
     MONTHLY_VARIANTS,
     NEW_MONTHLY_VARIANTS,
@@ -118,9 +119,7 @@ TOURNAMENT_ACTIVE_RECHECK_INTERVAL = 60  # never evict while a viewer socket is 
 REGISTERED_USER_CACHE_TTL = 30 * 60
 REGISTERED_USER_CACHE_SWEEP_INTERVAL = 5 * 60
 TOURNAMENT_EFFECT_RECOVERY_DELAY = 60
-TEAM_UPDATE_RETENTION_SECONDS = 90 * 24 * 60 * 60
 T = TypeVar("T")
-USERNAME_LOWER_FIELD = "username_lower"
 
 _TEST_TRANSLATIONS_CACHE: dict[str, gettext.NullTranslations] | None = None
 _TEST_TOURNEYNAMES_CACHE: dict[str, dict[Any, str]] | None = None
@@ -193,16 +192,6 @@ async def recover_pending_tournament_game_side_effects(
         await game.complete_tournament_final_side_effects(doc, users_only=users_only)
         recovered += 1
     return recovered
-
-
-async def ensure_tournament_effect_recovery_index(game_collection: Any) -> None:
-    indexes = await game_collection.index_information()
-    has_fx_index = any(index.get("key") == [("fx", 1)] for index in indexes.values())
-    if not has_fx_index:
-        # Delay only the first build: it may scan the large game collection and
-        # must not compete with Heroku startup for database resources.
-        await asyncio.sleep(TOURNAMENT_EFFECT_RECOVERY_DELAY)
-    await game_collection.create_index("fx", sparse=True)
 
 
 # Local test cache retention; keep this small for test runs, but use the
@@ -389,63 +378,23 @@ class PychessGlobalAppState:
 
         # Read tournaments, users and highscore from db
         try:
-            with startup.phase("preflight collections + tournament indexes"):
-                db_collections = await self.db.list_collection_names()
+            with startup.phase("prepare database schema"):
+                schema_result = await prepare_database_schema(
+                    self.db,
+                    local_development=not PROD,
+                )
+                db_collections = schema_result.initial_collections
+                log.info(
+                    "[startup] MongoDB schema mode=%s collections_created=%s indexes_created=%s",
+                    schema_result.mode.value,
+                    len(schema_result.created_collections),
+                    len(schema_result.created_indexes),
+                )
 
                 puzzle = await self.db.puzzle.find_one()
                 puzzle_doc_rename_needed = (puzzle is not None) and ("variant" in puzzle)
                 if puzzle_doc_rename_needed:
                     await rename_puzzle_fields(self.db)
-
-                if "tournament_chat" not in db_collections:
-                    await self.db.create_collection("tournament_chat")
-                await self.db.tournament_chat.create_index("tid")
-                await self.db.tournament_chat.create_index("user")
-
-                if "simul_chat" not in db_collections:
-                    await self.db.create_collection("simul_chat")
-                await self.db.simul_chat.create_index("sid")
-                await self.db.simul_chat.create_index("user")
-
-                if "lobbychat" in db_collections:
-                    await self.db.lobbychat.create_index("user")
-
-                await self.db.tournament.create_index("startsAt")
-                await self.db.tournament.create_index("status")
-                await self.db.tournament.create_index("teamId")
-                await self.db.tournament.create_index("createdBy")
-                await self.db.tournament.create_index("winner")
-                await self.db.tournament_player.create_index("tid")
-                await self.db.tournament_player.create_index("uid")
-                await self.db.tournament_pairing.create_index("tid")
-                await self.db.tournament_pairing.create_index("u")
-                await self.db.tournament_arrangement.create_index("tid")
-                await self.db.tournament_arrangement.create_index("u")
-                await self.db.tournament_arrangement.create_index("ch")
-                await self.db.relation.create_index([("u1", 1), ("r", 1)], name="u1_r")
-                await self.db.relation.create_index([("u2", 1), ("r", 1)], name="u2_r")
-
-                if "timeline_entry" not in db_collections:
-                    await self.db.create_collection("timeline_entry")
-                await self.db.timeline_entry.create_index(
-                    [("users", 1), ("date", -1)], name="users_date"
-                )
-                await self.db.timeline_entry.create_index(
-                    [("type", 1), ("date", -1)], name="type_date"
-                )
-                await self.db.timeline_entry.create_index("data.actor", sparse=True)
-                await self.db.timeline_entry.create_index(
-                    "date",
-                    name="date_ttl",
-                    expireAfterSeconds=TIMELINE_RETENTION_SECONDS,
-                )
-                if "timeline_unsub" not in db_collections:
-                    await self.db.create_collection("timeline_unsub")
-                await self.db.timeline_unsub.create_index(
-                    [("user", 1), ("channel", 1)],
-                    name="user_channel",
-                    unique=True,
-                )
 
             with startup.phase("load catalogued casual variants"):
                 if is_test_run():
@@ -453,7 +402,7 @@ class PychessGlobalAppState:
                 else:
                     from catalogued_variants import init_catalogued_variants
 
-                    await init_catalogued_variants(self, db_collections)
+                    await init_catalogued_variants(self)
 
             # RR arrangement documents refer to challenge invite ids. Restore persisted
             # seeks first so tournament load can distinguish a live graceful-restart
@@ -513,159 +462,11 @@ class PychessGlobalAppState:
                 await refresh_lobby_leaderboard_cache(self)
                 await refresh_lobby_tournament_winners_cache(self)
 
-            with startup.phase("bootstrap collections + indexes"):
-                if "dailypuzzle" not in db_collections:
-                    try:
-                        daily_max = 365 * len(GAME_CATEGORIES)
-                        await self.db.create_collection(
-                            "dailypuzzle",
-                            capped=True,
-                            size=50000,
-                            max=daily_max,
-                        )
-                    except NotImplementedError:
-                        await self.db.create_collection("dailypuzzle")
-                else:
+            with startup.phase("restore daily puzzle cache"):
+                if "dailypuzzle" in db_collections:
                     cursor = self.db.dailypuzzle.find()
-                    docs = await cursor.to_list(length=365 * len(GAME_CATEGORIES))
+                    docs = await cursor.to_list(length=None)
                     self.daily_puzzle_ids = {doc["_id"]: doc["puzzleId"] for doc in docs}
-
-                await self.db.game.create_index("us")
-                await self.db.game.create_index("r")
-                await self.db.game.create_index("v")
-                await self.db.game.create_index("y")
-                await self.db.game.create_index("by")
-                await self.db.game.create_index("c")
-                await self.db.game.create_index("tid")
-                # Only simul games have sid, so keep this index sparse. It avoids a full
-                # game-collection scan when restoring a started simul after restart.
-                await self.db.game.create_index("sid", sparse=True)
-                await self.db.game.create_index("aid", sparse=True)
-
-                # Advanced search needs some indexes to be able to respond in reasonable times
-                await self.db.game.create_index([("d", -1), ("_id", -1)], name="d_id_desc")
-                await self.db.game.create_index(
-                    [("v", 1), ("d", -1), ("_id", -1)], name="v_d_id_desc"
-                )
-
-                await self.db.game.create_index([("us", 1), ("d", -1)], name="us_d_desc")
-                await self.db.game.create_index(
-                    [("us", 1), ("s", 1), ("d", -1)], name="us_s_d_desc"
-                )
-                await self.db.game.create_index([("us.0", 1), ("d", -1)], name="us0_d_desc")
-                await self.db.game.create_index([("us.1", 1), ("d", -1)], name="us1_d_desc")
-                await self.db.game.create_index(
-                    [("us.0", 1), ("us.1", 1), ("d", -1)],
-                    name="us0_us1_d_desc",
-                )
-
-                if "notify" not in db_collections:
-                    await self.db.create_collection("notify")
-                await self.db.notify.create_index("notifies")
-                await self.db.notify.create_index("expireAt", expireAfterSeconds=0)
-                await self.db.notify.create_index("content.arr", sparse=True)
-
-                if PUSH_SUBSCRIPTION_COLLECTION not in db_collections:
-                    await self.db.create_collection(PUSH_SUBSCRIPTION_COLLECTION)
-                await self.db[PUSH_SUBSCRIPTION_COLLECTION].create_index("user")
-                await self.db[PUSH_SUBSCRIPTION_COLLECTION].create_index("seenAt")
-                await self.db[PUSH_SUBSCRIPTION_COLLECTION].create_index(
-                    [("user", 1), ("endpoint", 1)],
-                    unique=True,
-                    name="push_user_endpoint",
-                )
-
-                if "inbox_thread" not in db_collections:
-                    await self.db.create_collection("inbox_thread")
-                await self.db.inbox_thread.create_index("users")
-                await self.db.inbox_thread.create_index("updatedAt")
-
-                if "inbox_msg" not in db_collections:
-                    await self.db.create_collection("inbox_msg")
-                await self.db.inbox_msg.create_index([("tid", 1), ("createdAt", 1)])
-                await self.db.inbox_msg.create_index("from")
-
-                if "team" not in db_collections:
-                    await self.db.create_collection("team")
-                await self.db.team.create_index(
-                    [("enabled", 1), ("memberCount", -1), ("createdAt", -1)]
-                )
-                await self.db.team.create_index([("createdBy", 1), ("createdAt", -1)])
-
-                if "team_member" not in db_collections:
-                    await self.db.create_collection("team_member")
-                await self.db.team_member.create_index("team")
-                await self.db.team_member.create_index("user")
-                await self.db.team_member.create_index([("user", 1), ("permissions", 1)])
-
-                if "team_update" not in db_collections:
-                    await self.db.create_collection("team_update")
-                await self.db.team_update.create_index([("team", 1), ("createdAt", -1)])
-                await self.db.team_update.create_index("sender")
-                await self.db.team_update.create_index(
-                    "createdAt",
-                    name="team_update_ttl",
-                    expireAfterSeconds=TEAM_UPDATE_RETENTION_SECONDS,
-                )
-
-                if "team_request" not in db_collections:
-                    await self.db.create_collection("team_request")
-                await self.db.team_request.create_index(
-                    [("team", 1), ("declined", 1), ("createdAt", 1)]
-                )
-                await self.db.team_request.create_index(
-                    [("team", 1), ("declined", 1), ("processedAt", -1)]
-                )
-                await self.db.team_request.create_index("user")
-
-                if "forum_categ" not in db_collections:
-                    await self.db.create_collection("forum_categ")
-                await self.db.forum_categ.create_index("order")
-
-                if "forum_topic" not in db_collections:
-                    await self.db.create_collection("forum_topic")
-                await self.db.forum_topic.create_index(
-                    [("categId", 1), ("sticky", -1), ("updatedAt", -1)]
-                )
-                await self.db.forum_topic.create_index(
-                    [("categId", 1), ("slug", 1)],
-                    unique=True,
-                    name="forum_topic_categ_slug",
-                )
-                await self.db.forum_topic.create_index("user")
-
-                if "forum_post" not in db_collections:
-                    await self.db.create_collection("forum_post")
-                await self.db.forum_post.create_index([("topicId", 1), ("createdAt", 1)])
-                await self.db.forum_post.create_index([("categId", 1), ("createdAt", -1)])
-                await self.db.forum_post.create_index("user")
-                await self.db.forum_post.create_index([("text", "text")])
-
-                if "user_report" not in db_collections:
-                    await self.db.create_collection("user_report")
-                await self.db.user_report.create_index("createdAt")
-                await self.db.user_report.create_index("status")
-                await self.db.user_report.create_index("reporter")
-                await self.db.user_report.create_index("suspect")
-
-                if "mod_log" not in db_collections:
-                    await self.db.create_collection("mod_log")
-                await self.db.mod_log.create_index("createdAt")
-                await self.db.mod_log.create_index("mod")
-                await self.db.mod_log.create_index("user")
-
-                if "seek" not in db_collections:
-                    await self.db.create_collection("seek")
-                await self.db.seek.create_index("expireAt", expireAfterSeconds=0)
-                await self.db.seek.create_index("user")
-                await self.db.seek.create_index("rrArrangementId", sparse=True)
-
-                await self.db.bot_token.create_index("user")
-                await self.db.account_reopen_token.create_index("username")
-
-                if "security_ban_signal" not in db_collections:
-                    await self.db.create_collection("security_ban_signal")
-                await self.db.security_ban_signal.create_index("expireAt", expireAfterSeconds=0)
 
             with startup.phase("restore autopairings"):
                 # Load auto pairings from database
@@ -788,22 +589,6 @@ class PychessGlobalAppState:
                     video_count = await _upsert_static_docs(self.db.video, VIDEOS)
                     log.debug("[startup] synced %s static video documents", video_count)
 
-                if "ublog_post" not in db_collections:
-                    await self.db.create_collection("ublog_post")
-
-                await self.db.ublog_post.create_index(
-                    [("author", 1), ("live", 1), ("publishedAt", -1)]
-                )
-                await self.db.ublog_post.create_index(
-                    [("live", 1), ("sticky", -1), ("publishedAt", -1)]
-                )
-                await self.db.ublog_post.create_index(
-                    [("live", 1), ("blogType", 1), ("publishedAt", -1)]
-                )
-                await self.db.ublog_post.create_index([("author", 1), ("slug", 1)])
-                await self.db.ublog_post.create_index("legacyBlogId")
-                await self.db.ublog_post.create_index("topics")
-
                 if not is_test_run() and os.getenv("LEGACY_BLOG_BOOTSTRAP", "1") == "1":
                     # Run legacy bootstrap only for an empty target collection.
                     # This keeps first deploy fully automatic while preventing
@@ -841,27 +626,15 @@ class PychessGlobalAppState:
                     await self.db.config.insert_one(
                         {"name": "logging.config", "value": DEFAULT_LOGGING_CONFIG}
                     )
-                    await self.db.config.create_index("name")
                 await self.db.config.update_one(
                     {"name": CEVAL_AUTO_LOSE_CONFIG_NAME},
                     {"$setOnInsert": {"value": False}},
                     upsert=True,
                 )
 
-                if CHEAT_REPORT_COLLECTION not in db_collections:
-                    await self.db.create_collection(CHEAT_REPORT_COLLECTION)
-                await self.db[CHEAT_REPORT_COLLECTION].create_index("createdAt")
-                await self.db[CHEAT_REPORT_COLLECTION].create_index("gameId")
-                await self.db[CHEAT_REPORT_COLLECTION].create_index("suspect")
-
                 await self.db.user.update_many(
-                    {USERNAME_LOWER_FIELD: {"$exists": False}},
-                    [{"$set": {USERNAME_LOWER_FIELD: {"$toLower": "$_id"}}}],
-                )
-                await self.db.user.create_index(
-                    USERNAME_LOWER_FIELD,
-                    name="username_lower",
-                    partialFilterExpression={USERNAME_LOWER_FIELD: {"$type": "string"}},
+                    {"username_lower": {"$exists": False}},
+                    [{"$set": {"username_lower": {"$toLower": "$_id"}}}],
                 )
 
                 # TODO: remove this after OAuth2 PR deployed !!!
@@ -895,7 +668,10 @@ class PychessGlobalAppState:
                 # ``fx`` was introduced with durable tournament result recovery. Building
                 # its first index can scan the large game collection, so never make that
                 # one-time operation part of Heroku's boot deadline.
-                await ensure_tournament_effect_recovery_index(self.db.game)
+                await ensure_after_startup_indexes(
+                    self.db,
+                    delay_seconds=TOURNAMENT_EFFECT_RECOVERY_DELAY,
+                )
                 recovered = await recover_pending_tournament_game_side_effects(
                     self, users_only=False
                 )

@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import random
 from datetime import UTC, datetime
+from inspect import isawaitable
 
 import aiohttp_session
 from const import (
@@ -144,8 +145,7 @@ async def get_daily_puzzle(request):
     if app_state.db is None:
         return empty_puzzle("chess")
 
-    db_collections = await app_state.db.list_collection_names()
-    if "puzzle" not in db_collections:
+    if await app_state.db.puzzle.find_one({}, {"_id": 1}) is None:
         return empty_puzzle("chess")
 
     today = datetime.now(UTC).date().isoformat()
@@ -250,7 +250,10 @@ async def next_puzzle(
             {"$match": {"$and": filters}},
             {"$sample": {"size": 1}},
         ]
-        cursor = await app_state.db.puzzle.aggregate(pipeline)
+        cursor_or_awaitable = app_state.db.puzzle.aggregate(pipeline)
+        cursor = (
+            await cursor_or_awaitable if isawaitable(cursor_or_awaitable) else cursor_or_awaitable
+        )
 
         async for doc in cursor:
             puzzle = {
