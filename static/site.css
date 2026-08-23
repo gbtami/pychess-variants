@@ -1728,12 +1728,16 @@ i-side {
 :root {
   --patron-wing-mask: url("images/patron-wing.svg");
 }
+.icon-patron {
+  margin-right: 0;
+}
 .icon-patron::before {
   content: "" !important;
   display: inline-block;
+  font-size: 1em;
   width: 1.5em;
   height: 1em;
-  margin-right: 0;
+  margin-right: 0.3em;
   background-color: currentColor;
   vertical-align: text-top;
   -webkit-mask: var(--patron-wing-mask) center / contain no-repeat;
