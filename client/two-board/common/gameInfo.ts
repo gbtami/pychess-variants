@@ -64,26 +64,26 @@ export class GameInfoView {
                 h('div.player-data', [
                     h('i-side.icon', { class: { [colorIcon(model.variant, variant.colors.first)]: true } }),
                     h('player', [
-                        patronWing(seat('a', 'white').player.patron),
+                        patronWing(seat('a', 'white').player.patron, seat('a', 'white').player.username),
                         playerInfo(seat('a', 'white'), model.level),
                     ]),
                     h('div', { style: { display: 'inline', paddingRight: '8px' } }, '+'),
                     h('i-side.icon', { class: { [colorIcon(model.variant, variant.colors.second)]: true } }),
                     h('player', [
-                        patronWing(seat('b', 'black').player.patron),
+                        patronWing(seat('b', 'black').player.patron, seat('b', 'black').player.username),
                         playerInfo(seat('b', 'black'), model.level),
                     ]),
                 ]),
                 h('div.player-data', [
                     h('i-side.icon', { class: { [colorIcon(model.variant, variant.colors.second)]: true } }),
                     h('player', [
-                        patronWing(seat('b', 'white').player.patron),
+                        patronWing(seat('b', 'white').player.patron, seat('b', 'white').player.username),
                         playerInfo(seat('b', 'white'), model.level),
                     ]),
                     h('div', { style: { display: 'inline', paddingRight: '8px' } }, '+'),
                     h('i-side.icon', { class: { [colorIcon(model.variant, variant.colors.first)]: true } }),
                     h('player', [
-                        patronWing(seat('a', 'black').player.patron),
+                        patronWing(seat('a', 'black').player.patron, seat('a', 'black').player.username),
                         playerInfo(seat('a', 'black'), model.level),
                     ]),
                 ]),

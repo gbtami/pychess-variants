@@ -45,11 +45,11 @@ export function gameInfo(model: PyChessModel): VNode {
             ]),
             h('div.player-data', [
                 h('i-side.icon', { class: { [colorIcon(model.variant, variant.colors.first)]: true } }),
-                h('player', [patronWing(model.wpatron), playerInfo(model, 'w')]),
+                h('player', [patronWing(model.wpatron, model.wplayer), playerInfo(model, 'w')]),
             ]),
             h('div.player-data', [
                 h('i-side.icon', { class: { [colorIcon(model.variant, variant.colors.second)]: true } }),
-                h('player', [patronWing(model.bpatron), playerInfo(model, 'b')]),
+                h('player', [patronWing(model.bpatron, model.bplayer), playerInfo(model, 'b')]),
             ]),
         ]),
     ];
