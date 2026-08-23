@@ -1,0 +1,28 @@
+{
+    "Light": "Svjetlo",
+    "Dark": "Tamno",
+    "Rated": "Za bodove",
+    "Server": "Server",
+    "Spectators: ": "Gledatelji:",
+    "Red": "Crvena",
+    "Blue": "Plava",
+    "Pink": "Roza",
+    "Green": "Zelena",
+    "chess": "šah",
+    "Copy URL": "Kopiraj URL",
+    "Variant": "Varijanta",
+    "FAQ": "FAQ",
+    "Checkmate": "Šah mat",
+    "Stalemate": "Pat",
+    "Draw": "Remi",
+    " +15 seconds": "+15 sekundi",
+    "Give 15 seconds": "Dodaj 15 sekundi",
+    "Background": "Pozadina",
+    "Zen Mode": "Zen Način",
+    "Download PGN": "Preuzmi PGN",
+    "PNG image": "PNG slika",
+    "": {
+        "language": "hr",
+        "plural-forms": "nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;"
+    }
+}

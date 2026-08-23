@@ -12,166 +12,157 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-03-02 08:49+0100\n"
+"POT-Creation-Date: 2026-08-22 23:56+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: gbtami <gbtami@gmail.com>, 2022\n"
 "Language-Team: Dutch (https://app.transifex.com/gbtami/teams/14790/nl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.18.0\n"
+"Generated-By: Babel 2.17.0\n"
 "Language: nl\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../server/blogs.py:10
-msgid "Announcement"
-msgstr ""
-
-#: ../server/blogs.py:11 ../server/videos.py:29
-msgid "Tournament"
-msgstr ""
-
-#: ../server/blogs.py:12 ../templates/template.html:48
-msgid "Blog"
-msgstr ""
-
-#: ../server/const.py:384
+#: ../server/const.py:406 ../templates/team-show.html:214
 msgid "Arena"
 msgstr ""
 
-#: ../server/const.py:385
+#: ../server/const.py:407 ../templates/team-show.html:214
 msgid "Round-Robin"
 msgstr ""
 
-#: ../server/const.py:386
+#: ../server/const.py:408 ../templates/team-show.html:214
 msgid "Swiss"
 msgstr ""
 
-#: ../server/const.py:387
+#: ../server/const.py:409 ../templates/simul_history.html:15
 msgid "Simul"
 msgstr ""
 
-#: ../server/const.py:391
+#: ../server/const.py:413
 msgid "Hourly"
 msgstr ""
 
-#: ../server/const.py:392
+#: ../server/const.py:414
 msgid "Daily"
 msgstr ""
 
-#: ../server/const.py:393
+#: ../server/const.py:415
 msgid "Weekly"
 msgstr ""
 
-#: ../server/const.py:394
+#: ../server/const.py:416
 msgid "Monthly"
 msgstr ""
 
-#: ../server/const.py:395
+#: ../server/const.py:417
 msgid "Yearly"
 msgstr ""
 
-#: ../server/const.py:396
+#: ../server/const.py:418
 msgid "Marathon"
 msgstr ""
 
-#: ../server/const.py:397
+#: ../server/const.py:419
 msgid "Shield"
 msgstr ""
 
-#: ../server/const.py:398
+#: ../server/const.py:420
 msgid "SEAturday"
 msgstr ""
 
-#: ../server/deprecated.py:270 ../server/variants.py:133
+#: ../server/deprecated.py:270 ../server/variants.py:186
 msgid "Ataxx"
 msgstr ""
 
-#: ../server/deprecated.py:271 ../server/variants.py:53
+#: ../server/deprecated.py:271 ../server/variants.py:104
 msgid "Chess"
 msgstr ""
 
-#: ../server/deprecated.py:272 ../server/variants.py:54
+#: ../server/deprecated.py:272 ../server/variants.py:105
 msgid "Chess960"
 msgstr ""
 
-#: ../server/deprecated.py:273 ../server/variants.py:57
+#: ../server/deprecated.py:273 ../server/variants.py:108
 msgid "Crazyhouse"
 msgstr ""
 
-#: ../server/deprecated.py:274 ../server/variants.py:58
+#: ../server/deprecated.py:274 ../server/variants.py:109
 msgid "Crazyhouse960"
 msgstr ""
 
-#: ../server/deprecated.py:275 ../server/variants.py:71 ../server/videos.py:26
+#: ../server/deprecated.py:275 ../server/variants.py:122
+#: ../server/videos.py:26
 msgid "Placement"
 msgstr ""
 
-#: ../server/deprecated.py:276 ../server/variants.py:59
+#: ../server/deprecated.py:276 ../server/variants.py:110
 msgid "Atomic"
 msgstr ""
 
-#: ../server/deprecated.py:277 ../server/variants.py:60
+#: ../server/deprecated.py:277 ../server/variants.py:111
 msgid "Atomic960"
 msgstr ""
 
-#: ../server/deprecated.py:278 ../server/variants.py:72
+#: ../server/deprecated.py:278 ../server/variants.py:123
 msgid "Duck Chess"
 msgstr ""
 
-#: ../server/deprecated.py:279 ../server/variants.py:73
+#: ../server/deprecated.py:279 ../server/variants.py:124
 msgid "Alice Chess"
 msgstr ""
 
-#: ../server/deprecated.py:280 ../server/variants.py:74
+#: ../server/deprecated.py:280 ../server/variants.py:125
 msgid "Fog of War"
 msgstr ""
 
-#: ../server/deprecated.py:281 ../server/variants.py:76 ../server/videos.py:22
+#: ../server/deprecated.py:281 ../server/variants.py:127
+#: ../server/videos.py:22
 msgid "Makruk"
 msgstr ""
 
-#: ../server/deprecated.py:282 ../server/variants.py:79
+#: ../server/deprecated.py:282 ../server/variants.py:130
 msgid "Makpong"
 msgstr ""
 
-#: ../server/deprecated.py:283 ../server/variants.py:80
+#: ../server/deprecated.py:283 ../server/variants.py:131
 msgid "Ouk Chaktrang"
 msgstr ""
 
-#: ../server/deprecated.py:284 ../server/variants.py:81
+#: ../server/deprecated.py:284 ../server/variants.py:132
 msgid "Sittuyin"
 msgstr ""
 
-#: ../server/deprecated.py:285 ../server/variants.py:82
+#: ../server/deprecated.py:285 ../server/variants.py:133
 msgid "ASEAN"
 msgstr ""
 
-#: ../server/deprecated.py:286 ../server/variants.py:84 ../server/videos.py:23
+#: ../server/deprecated.py:286 ../server/variants.py:135
+#: ../server/videos.py:23
 msgid "Shogi"
 msgstr ""
 
-#: ../server/deprecated.py:287 ../server/variants.py:85
+#: ../server/deprecated.py:287 ../server/variants.py:136
 msgid "Sho Shogi"
 msgstr ""
 
-#: ../server/deprecated.py:288 ../server/variants.py:86
+#: ../server/deprecated.py:288 ../server/variants.py:137
 msgid "Minishogi"
 msgstr ""
 
-#: ../server/deprecated.py:289 ../server/variants.py:87
+#: ../server/deprecated.py:289 ../server/variants.py:138
 msgid "Kyoto Shogi"
 msgstr ""
 
-#: ../server/deprecated.py:290 ../server/variants.py:88
+#: ../server/deprecated.py:290 ../server/variants.py:139
 msgid "Dobutsu"
 msgstr ""
 
-#: ../server/deprecated.py:291 ../server/variants.py:55
+#: ../server/deprecated.py:291 ../server/variants.py:106
 msgid "Bughouse"
 msgstr ""
 
-#: ../server/deprecated.py:292 ../server/variants.py:56
+#: ../server/deprecated.py:292 ../server/variants.py:107
 msgid "Bughouse960"
 msgstr ""
 
@@ -179,213 +170,404 @@ msgstr ""
 msgid "Gorogoro"
 msgstr ""
 
-#: ../server/deprecated.py:295 ../server/variants.py:89
+#: ../server/deprecated.py:295 ../server/variants.py:140
 msgid "Gorogoro+"
 msgstr ""
 
-#: ../server/deprecated.py:296 ../server/variants.py:90
+#: ../server/deprecated.py:296 ../server/variants.py:141
 msgid "Tori Shogi"
 msgstr ""
 
-#: ../server/deprecated.py:297 ../server/variants.py:91
+#: ../server/deprecated.py:297 ../server/variants.py:142
 msgid "Cannon Shogi"
 msgstr ""
 
-#: ../server/deprecated.py:298 ../server/variants.py:93 ../server/videos.py:21
+#: ../server/deprecated.py:298 ../server/variants.py:145
+#: ../server/videos.py:21
 msgid "Xiangqi"
 msgstr ""
 
-#: ../server/deprecated.py:299 ../server/variants.py:96
+#: ../server/deprecated.py:299 ../server/variants.py:148
 msgid "Manchu+"
 msgstr ""
 
-#: ../server/deprecated.py:300 ../server/variants.py:97 ../server/videos.py:20
+#: ../server/deprecated.py:300 ../server/variants.py:149
+#: ../server/videos.py:20
 msgid "Janggi"
 msgstr ""
 
-#: ../server/deprecated.py:301 ../server/variants.py:98
+#: ../server/deprecated.py:301 ../server/variants.py:150
 msgid "Minixiangqi"
 msgstr ""
 
-#: ../server/deprecated.py:302 ../server/variants.py:102
+#: ../server/deprecated.py:302 ../server/variants.py:154
 #: ../server/videos.py:25
 msgid "Capablanca"
 msgstr ""
 
-#: ../server/deprecated.py:303 ../server/variants.py:103
+#: ../server/deprecated.py:303 ../server/variants.py:155
 msgid "Capablanca960"
 msgstr ""
 
-#: ../server/deprecated.py:304 ../server/variants.py:104
+#: ../server/deprecated.py:304 ../server/variants.py:156
 msgid "Capahouse"
 msgstr ""
 
-#: ../server/deprecated.py:305 ../server/variants.py:105
+#: ../server/deprecated.py:305 ../server/variants.py:157
 msgid "Capahouse960"
 msgstr ""
 
-#: ../server/deprecated.py:308 ../server/variants.py:106
+#: ../server/deprecated.py:308 ../server/variants.py:158
 msgid "Gothic"
 msgstr ""
 
-#: ../server/deprecated.py:309 ../server/variants.py:107
+#: ../server/deprecated.py:309 ../server/variants.py:159
 msgid "Gothhouse"
 msgstr ""
 
-#: ../server/deprecated.py:310 ../server/variants.py:108
+#: ../server/deprecated.py:310 ../server/variants.py:160
 msgid "Embassy"
 msgstr ""
 
-#: ../server/deprecated.py:311 ../server/variants.py:109
+#: ../server/deprecated.py:311 ../server/variants.py:161
 msgid "Dragon Chess"
 msgstr ""
 
-#: ../server/deprecated.py:312 ../server/variants.py:110
+#: ../server/deprecated.py:312 ../server/variants.py:162
 #: ../server/videos.py:24
 msgid "S-Chess"
 msgstr ""
 
-#: ../server/deprecated.py:313 ../server/variants.py:111
+#: ../server/deprecated.py:313 ../server/variants.py:163
 msgid "S-Chess960"
 msgstr ""
 
-#: ../server/deprecated.py:314 ../server/variants.py:112
+#: ../server/deprecated.py:314 ../server/variants.py:164
 msgid "S-House"
 msgstr ""
 
-#: ../server/deprecated.py:315 ../server/variants.py:113
+#: ../server/deprecated.py:315 ../server/variants.py:165
 msgid "Grand"
 msgstr ""
 
-#: ../server/deprecated.py:316 ../server/variants.py:114
+#: ../server/deprecated.py:316 ../server/variants.py:166
 msgid "Grandhouse"
 msgstr ""
 
-#: ../server/deprecated.py:317 ../server/variants.py:115
+#: ../server/deprecated.py:317 ../server/variants.py:167
 msgid "Shogun"
 msgstr ""
 
-#: ../server/deprecated.py:318 ../server/variants.py:116
+#: ../server/deprecated.py:318 ../server/variants.py:168
 msgid "Shako"
 msgstr ""
 
-#: ../server/deprecated.py:319 ../server/variants.py:117
+#: ../server/deprecated.py:319 ../server/variants.py:169
 msgid "Hoppel-Poppel"
 msgstr ""
 
-#: ../server/deprecated.py:320 ../server/variants.py:120
+#: ../server/deprecated.py:320 ../server/variants.py:172
 msgid "Orda Chess"
 msgstr ""
 
-#: ../server/deprecated.py:321 ../server/variants.py:121
+#: ../server/deprecated.py:321 ../server/variants.py:173
 msgid "Khan's Chess"
 msgstr ""
 
-#: ../server/deprecated.py:322 ../server/variants.py:122
+#: ../server/deprecated.py:322 ../server/variants.py:174
 msgid "Synochess"
 msgstr ""
 
-#: ../server/deprecated.py:323 ../server/variants.py:123
+#: ../server/deprecated.py:323 ../server/variants.py:175
 msgid "Shinobi"
 msgstr ""
 
-#: ../server/deprecated.py:324 ../server/variants.py:124
+#: ../server/deprecated.py:324 ../server/variants.py:176
 msgid "Shinobi+"
 msgstr ""
 
-#: ../server/deprecated.py:325 ../server/variants.py:125
+#: ../server/deprecated.py:325 ../server/variants.py:177
 msgid "Empire"
 msgstr ""
 
-#: ../server/deprecated.py:326 ../server/variants.py:126
+#: ../server/deprecated.py:326 ../server/variants.py:178
 msgid "Orda Mirror"
 msgstr ""
 
-#: ../server/deprecated.py:327 ../server/variants.py:127
+#: ../server/deprecated.py:327 ../server/variants.py:179
 msgid "Chak"
 msgstr ""
 
-#: ../server/deprecated.py:328 ../server/variants.py:128
+#: ../server/deprecated.py:328 ../server/variants.py:180
 msgid "Chennis"
 msgstr ""
 
-#: ../server/deprecated.py:329 ../server/variants.py:129
+#: ../server/deprecated.py:329 ../server/variants.py:181
 msgid "Spartan"
 msgstr ""
 
-#: ../server/deprecated.py:330 ../server/variants.py:61
+#: ../server/deprecated.py:330 ../server/variants.py:112
 msgid "King of the Hill"
 msgstr ""
 
-#: ../server/deprecated.py:331 ../server/variants.py:62
+#: ../server/deprecated.py:331 ../server/variants.py:113
 msgid "King of the Hill 960"
 msgstr ""
 
-#: ../server/deprecated.py:332 ../server/variants.py:63
+#: ../server/deprecated.py:332 ../server/variants.py:114
 msgid "Three check"
 msgstr ""
 
-#: ../server/deprecated.py:333 ../server/variants.py:64
+#: ../server/deprecated.py:333 ../server/variants.py:115
 msgid "Three check 960"
 msgstr ""
 
-#: ../server/deprecated.py:334 ../server/variants.py:118
+#: ../server/deprecated.py:334 ../server/variants.py:170
 msgid "Mansindam"
 msgstr ""
 
-#: ../server/deprecated.py:335 ../server/variants.py:65
+#: ../server/deprecated.py:335 ../server/variants.py:116
 msgid "Antichess"
 msgstr ""
 
-#: ../server/deprecated.py:336 ../server/variants.py:66
+#: ../server/deprecated.py:336 ../server/variants.py:117
 msgid "Antichess960"
 msgstr ""
 
-#: ../server/deprecated.py:337 ../server/variants.py:67
+#: ../server/deprecated.py:337 ../server/variants.py:118
 msgid "Racing Kings"
 msgstr ""
 
-#: ../server/deprecated.py:338 ../server/variants.py:68
+#: ../server/deprecated.py:338 ../server/variants.py:119
 msgid "Racing Kings 1440"
 msgstr ""
 
-#: ../server/deprecated.py:339 ../server/variants.py:69
+#: ../server/deprecated.py:339 ../server/variants.py:120
 msgid "Horde"
 msgstr ""
 
-#: ../server/deprecated.py:340 ../server/variants.py:70
+#: ../server/deprecated.py:340 ../server/variants.py:121
 msgid "Horde960"
 msgstr ""
 
-#: ../server/deprecated.py:341 ../server/variants.py:101
+#: ../server/deprecated.py:341 ../server/variants.py:153
 msgid "Shatranj"
 msgstr ""
 
-#: ../server/variants.py:77
+#: ../server/team.py:62
+msgid "Show to everyone"
+msgstr ""
+
+#: ../server/team.py:63
+msgid "Show to team members"
+msgstr ""
+
+#: ../server/team.py:64
+msgid "Show to team leaders"
+msgstr ""
+
+#: ../server/team.py:65
+msgid "Hide the forum"
+msgstr ""
+
+#: ../server/team.py:78
+msgid "Public"
+msgstr ""
+
+#: ../server/team.py:78
+msgid "Visible as leader on the team page"
+msgstr ""
+
+#: ../server/team.py:79 ../templates/team-show.html:105
+msgid "Settings"
+msgstr ""
+
+#: ../server/team.py:79
+msgid "Change settings and descriptions"
+msgstr ""
+
+#: ../server/team.py:80 ../templates/template.html:17
+#: ../templates/tournaments.html:6
+msgid "Tournaments"
+msgstr "Toernooien"
+
+#: ../server/team.py:80
+msgid "Create and manage team tournaments"
+msgstr ""
+
+#: ../server/team.py:81
+msgid "Moderation"
+msgstr ""
+
+#: ../server/team.py:81
+msgid "Moderate the team forum"
+msgstr ""
+
+#: ../server/team.py:82
+msgid "Requests"
+msgstr ""
+
+#: ../server/team.py:82
+msgid "Accept and decline join requests"
+msgstr ""
+
+#: ../server/team.py:83
+msgid "Updates"
+msgstr ""
+
+#: ../server/team.py:83
+msgid "Send team updates to members"
+msgstr ""
+
+#: ../server/team.py:84 ../templates/team-show.html:147
+msgid "Kick"
+msgstr ""
+
+#: ../server/team.py:84
+msgid "Kick members from the team"
+msgstr ""
+
+#: ../server/team.py:85
+msgid "Admin"
+msgstr ""
+
+#: ../server/team.py:85 ../templates/team-show.html:112
+msgid "Manage leader permissions"
+msgstr ""
+
+#: ../server/ublog.py:28
+msgid "chess"
+msgstr ""
+
+#: ../server/ublog.py:29
+msgid "analysis"
+msgstr ""
+
+#: ../server/ublog.py:30
+msgid "puzzle"
+msgstr ""
+
+#: ../server/ublog.py:31
+msgid "opening"
+msgstr ""
+
+#: ../server/ublog.py:32
+msgid "endgame"
+msgstr ""
+
+#: ../server/ublog.py:33
+msgid "tactics"
+msgstr ""
+
+#: ../server/ublog.py:34
+msgid "strategy"
+msgstr ""
+
+#: ../server/ublog.py:35
+msgid "engine"
+msgstr ""
+
+#: ../server/ublog.py:36
+msgid "BOT"
+msgstr ""
+
+#: ../server/ublog.py:37
+msgid "over the board"
+msgstr ""
+
+#: ../server/ublog.py:38
+msgid "tournament"
+msgstr ""
+
+#: ../server/ublog.py:39
+msgid "chess variant"
+msgstr ""
+
+#: ../server/ublog.py:40
+msgid "software development"
+msgstr ""
+
+#: ../server/ublog.py:41
+msgid "off topic"
+msgstr ""
+
+#: ../server/ublog.py:42
+msgid "lichess"
+msgstr ""
+
+#: ../server/ublog.py:43
+msgid "lishogi"
+msgstr ""
+
+#: ../server/ublog.py:44
+msgid "playstrategy"
+msgstr ""
+
+#: ../server/ublog.py:45
+msgid "announcement"
+msgstr ""
+
+#: ../server/ublog.py:46
+msgid "fairy"
+msgstr ""
+
+#: ../server/ublog.py:47
+msgid "army"
+msgstr ""
+
+#: ../server/ublog.py:48
+msgid "makruk"
+msgstr ""
+
+#: ../server/ublog.py:49
+msgid "shogi"
+msgstr ""
+
+#: ../server/ublog.py:50
+msgid "xiangqi"
+msgstr ""
+
+#: ../server/ublog.py:51
+msgid "other"
+msgstr ""
+
+#: ../server/ublog.py:52
+msgid "all"
+msgstr ""
+
+#: ../server/variants.py:128
 msgid "Makrukhouse"
 msgstr ""
 
-#: ../server/variants.py:78
+#: ../server/variants.py:129
 msgid "Makbug"
 msgstr ""
 
-#: ../server/variants.py:94
+#: ../server/variants.py:143
+msgid "Yokai Shogi"
+msgstr ""
+
+#: ../server/variants.py:146
 msgid "Xiangqihouse"
 msgstr ""
 
-#: ../server/variants.py:95
+#: ../server/variants.py:147
 msgid "Supply Chess"
 msgstr ""
 
-#: ../server/variants.py:99
+#: ../server/variants.py:151
 msgid "Jieqi"
 msgstr ""
 
-#: ../server/variants.py:130
+#: ../server/variants.py:182
 msgid "Xiang Fu"
 msgstr ""
 
-#: ../server/variants.py:132
+#: ../server/variants.py:183
+msgid "CWDA"
+msgstr ""
+
+#: ../server/variants.py:185
 msgid "Borderlands"
 msgstr ""
 
@@ -429,6 +611,10 @@ msgstr ""
 msgid "Match"
 msgstr ""
 
+#: ../server/videos.py:29
+msgid "Tournament"
+msgstr ""
+
 #: ../server/videos.py:30
 msgid "Hu Ronghua"
 msgstr ""
@@ -449,13 +635,544 @@ msgstr ""
 msgid "advanced"
 msgstr ""
 
-#: ../templates/blogs.html:15
+#: ../server/views/simul.py:37 ../server/views/simul.py:47
+#: ../server/views/simul.py:66 ../server/views/simul.py:85
+#: ../templates/simul_new.html:214
+msgid "No restriction"
+msgstr ""
+
+#: ../server/views/simul.py:38
+msgid "5 rated games"
+msgstr ""
+
+#: ../server/views/simul.py:39
+msgid "10 rated games"
+msgstr ""
+
+#: ../server/views/simul.py:40
+msgid "20 rated games"
+msgstr ""
+
+#: ../server/views/simul.py:41
+msgid "50 rated games"
+msgstr ""
+
+#: ../server/views/simul.py:42
+msgid "100 rated games"
+msgstr ""
+
+#: ../server/views/simul.py:43
+msgid "200 rated games"
+msgstr ""
+
+#: ../server/views/simul.py:86
+msgid "1 day"
+msgstr ""
+
+#: ../server/views/simul.py:87
+msgid "3 days"
+msgstr ""
+
+#: ../server/views/simul.py:88
+msgid "7 days"
+msgstr ""
+
+#: ../server/views/simul.py:89
+msgid "14 days"
+msgstr ""
+
+#: ../server/views/simul.py:90
+msgid "1 month"
+msgstr ""
+
+#: ../server/views/simul.py:91
+msgid "2 months"
+msgstr ""
+
+#: ../server/views/simul.py:92
+msgid "3 months"
+msgstr ""
+
+#: ../server/views/simul.py:93
+msgid "6 months"
+msgstr ""
+
+#: ../server/views/simul.py:94
+msgid "1 year"
+msgstr ""
+
+#: ../server/views/simul.py:95
+msgid "2 years"
+msgstr ""
+
+#: ../server/views/simul.py:96
+msgid "3 years"
+msgstr ""
+
+#: ../server/views/simul.py:100
+msgid "-120 minutes"
+msgstr ""
+
+#: ../server/views/simul.py:101
+msgid "-90 minutes"
+msgstr ""
+
+#: ../server/views/simul.py:102
+msgid "-60 minutes"
+msgstr ""
+
+#: ../server/views/simul.py:103
+msgid "-50 minutes"
+msgstr ""
+
+#: ../server/views/simul.py:104
+msgid "-40 minutes"
+msgstr ""
+
+#: ../server/views/simul.py:105
+msgid "-30 minutes"
+msgstr ""
+
+#: ../server/views/simul.py:106
+msgid "-20 minutes"
+msgstr ""
+
+#: ../server/views/simul.py:107
+msgid "-15 minutes"
+msgstr ""
+
+#: ../server/views/simul.py:108
+msgid "-10 minutes"
+msgstr ""
+
+#: ../server/views/simul.py:109
+msgid "-5 minutes"
+msgstr ""
+
+#: ../server/views/simul.py:110
+msgid "0 minutes"
+msgstr ""
+
+#: ../server/views/simul.py:111
+msgid "+5 minutes"
+msgstr ""
+
+#: ../server/views/simul.py:112
+msgid "+10 minutes"
+msgstr ""
+
+#: ../server/views/simul.py:113
+msgid "+15 minutes"
+msgstr ""
+
+#: ../server/views/simul.py:114
+msgid "+20 minutes"
+msgstr ""
+
+#: ../server/views/simul.py:115
+msgid "+30 minutes"
+msgstr ""
+
+#: ../server/views/simul.py:116
+msgid "+40 minutes"
+msgstr ""
+
+#: ../server/views/simul.py:117
+msgid "+50 minutes"
+msgstr ""
+
+#: ../server/views/simul.py:118
+msgid "+60 minutes"
+msgstr ""
+
+#: ../server/views/simul.py:119
+msgid "+90 minutes"
+msgstr ""
+
+#: ../server/views/simul.py:120
+msgid "+120 minutes"
+msgstr ""
+
+#: ../server/views/simul.py:124
+msgid "0 seconds"
+msgstr ""
+
+#: ../server/views/simul.py:125
+msgid "10 seconds"
+msgstr ""
+
+#: ../server/views/simul.py:126
+msgid "20 seconds"
+msgstr ""
+
+#: ../server/views/simul.py:127
+msgid "30 seconds"
+msgstr ""
+
+#: ../server/views/simul.py:128
+msgid "40 seconds"
+msgstr ""
+
+#: ../server/views/simul.py:129
+msgid "50 seconds"
+msgstr ""
+
+#: ../server/views/simul.py:130
+msgid "60 seconds"
+msgstr ""
+
+#: ../server/views/simul.py:131
+msgid "90 seconds"
+msgstr ""
+
+#: ../server/views/simul.py:132
+msgid "120 seconds"
+msgstr ""
+
+#: ../server/views/simul.py:133
+msgid "180 seconds"
+msgstr ""
+
+#: ../server/views/simul.py:134
+msgid "240 seconds"
+msgstr ""
+
+#: ../server/views/simul.py:135
+msgid "300 seconds"
+msgstr ""
+
+#: ../templates/blogs.html:7 ../templates/ublog_community.html:7
+#: ../templates/ublog_index.html:7 ../templates/ublog_post.html:7
+msgid "By PyChess"
+msgstr ""
+
+#: ../templates/blogs.html:8 ../templates/template.html:46
+#: ../templates/ublog_community.html:8 ../templates/ublog_index.html:8
+#: ../templates/ublog_post.html:8
+msgid "Community"
+msgstr ""
+
+#: ../templates/blogs.html:17
 msgid "PyChess Blogs"
 msgstr ""
 
 #: ../templates/closed.html:8
 msgid "This account is closed."
 msgstr "Dit account is gesloten."
+
+#: ../templates/following.html:7
+msgid "Back to profile"
+msgstr ""
+
+#: ../templates/following.html:8
+msgid "Following"
+msgstr ""
+
+#: ../templates/following.html:28 ../templates/profile.html:11
+#, python-format
+msgid "%(count)s game"
+msgid_plural "%(count)s games"
+msgstr[0] "%(count)s partijen"
+msgstr[1] "%(count)s partijen"
+
+#: ../templates/following.html:35
+msgid "No players followed yet."
+msgstr ""
+
+#: ../templates/following.html:38 ../templates/simul_history.html:44
+#: ../templates/team-declined-requests.html:38
+#: ../templates/team-members.html:29
+msgid "Pagination"
+msgstr ""
+
+#: ../templates/following.html:39 ../templates/simul_history.html:45
+#: ../templates/team-declined-requests.html:39
+#: ../templates/team-members.html:30 ../templates/variants.html:131
+msgid "Previous"
+msgstr ""
+
+#: ../templates/following.html:40 ../templates/simul_history.html:46
+#: ../templates/team-declined-requests.html:41
+#: ../templates/team-members.html:32 ../templates/variants.html:133
+msgid "Next"
+msgstr ""
+
+#: ../templates/forum_etiquette.html:7
+msgid "Forum Etiquette"
+msgstr ""
+
+#: ../templates/forum_etiquette.html:9
+msgid ""
+"The forum is for useful discussion between players. Moderators may close or "
+"remove threads that break site rules. Following these guidelines keeps "
+"conversations readable and productive."
+msgstr ""
+
+#: ../templates/forum_etiquette.html:12
+msgid "A descriptive title"
+msgstr ""
+
+#: ../templates/forum_etiquette.html:13
+msgid ""
+"Pick a clear subject line so people can understand your thread before "
+"opening it."
+msgstr ""
+
+#: ../templates/forum_etiquette.html:14
+msgid "Good:"
+msgstr ""
+
+#: ../templates/forum_etiquette.html:14
+msgid "\"Tournament feature request: from-position pairings\""
+msgstr ""
+
+#: ../templates/forum_etiquette.html:15
+msgid "Bad:"
+msgstr ""
+
+#: ../templates/forum_etiquette.html:15
+msgid "\"Help\", \"Bug\", \"Question\", \"Hi\""
+msgstr ""
+
+#: ../templates/forum_etiquette.html:17
+msgid "Advertising and spam"
+msgstr ""
+
+#: ../templates/forum_etiquette.html:18
+msgid "Promotional posts are not allowed in forum threads."
+msgstr ""
+
+#: ../templates/forum_etiquette.html:20
+msgid ""
+"Do not post \"follow me\", \"join my team\", \"join my tournament\", or "
+"channel promotion threads."
+msgstr ""
+
+#: ../templates/forum_etiquette.html:21
+msgid ""
+"Do not create engagement bait threads such as \"how many likes can this "
+"get\"."
+msgstr ""
+
+#: ../templates/forum_etiquette.html:22
+msgid ""
+"If you see spam, use the report button on that post instead of replying to "
+"it."
+msgstr ""
+
+#: ../templates/forum_etiquette.html:25
+msgid "Use the correct sub-forum"
+msgstr ""
+
+#: ../templates/forum_etiquette.html:26
+msgid "Choose the category that matches your topic."
+msgstr ""
+
+#: ../templates/forum_etiquette.html:28
+msgid "General Variant Discussion"
+msgstr ""
+
+#: ../templates/forum_etiquette.html:28
+msgid "for broad chess and variant discussion."
+msgstr ""
+
+#: ../templates/forum_etiquette.html:29
+msgid "PyChess Feedback"
+msgstr ""
+
+#: ../templates/forum_etiquette.html:29
+msgid "for bug reports and feature feedback."
+msgstr ""
+
+#: ../templates/forum_etiquette.html:30
+msgid "Game Analysis"
+msgstr ""
+
+#: ../templates/forum_etiquette.html:30
+msgid "for sharing and discussing games."
+msgstr ""
+
+#: ../templates/forum_etiquette.html:31
+msgid "Off-Topic Discussion"
+msgstr ""
+
+#: ../templates/forum_etiquette.html:31
+msgid "for non-chess conversation."
+msgstr ""
+
+#: ../templates/forum_etiquette.html:34
+msgid "Respect other players"
+msgstr ""
+
+#: ../templates/forum_etiquette.html:36
+msgid "Explain disagreement calmly and focus on ideas, not people."
+msgstr ""
+
+#: ../templates/forum_etiquette.html:37
+msgid "No insults, slurs, harassment, or profanity directed at other users."
+msgstr ""
+
+#: ../templates/forum_etiquette.html:38
+msgid "Do not escalate arguments into personal fights."
+msgstr ""
+
+#: ../templates/forum_etiquette.html:39
+msgid "If a post is abusive or trolling, report it instead of retaliating."
+msgstr ""
+
+#: ../templates/forum_etiquette.html:42
+msgid "No public shaming"
+msgstr ""
+
+#: ../templates/forum_etiquette.html:44
+msgid ""
+"Do not make accusation threads about named users (\"is X cheating?\", \"X is"
+" toxic\", etc.). Use the dedicated report form instead:"
+msgstr ""
+
+#: ../templates/forum_etiquette.html:47
+msgid "Before posting"
+msgstr ""
+
+#: ../templates/forum_etiquette.html:49
+msgid "Search the forum first to avoid duplicate topics."
+msgstr ""
+
+#: ../templates/forum_etiquette.html:50
+msgid "Read existing FAQ or docs for common questions."
+msgstr ""
+
+#: ../templates/forum_etiquette.html:51
+msgid "Keep posts on-topic and readable."
+msgstr ""
+
+#: ../templates/game_search.html:5
+msgid "Advanced game search"
+msgstr ""
+
+#: ../templates/game_search.html:10 ../templates/template.html:48
+msgid "Players"
+msgstr "Spelers"
+
+#: ../templates/game_search.html:16 ../templates/game_search.html:17
+msgid "Player 1"
+msgstr ""
+
+#: ../templates/game_search.html:24 ../templates/game_search.html:25
+msgid "Player 2"
+msgstr ""
+
+#: ../templates/game_search.html:31
+msgid "White player"
+msgstr ""
+
+#: ../templates/game_search.html:34 ../templates/game_search.html:42
+#: ../templates/game_search.html:50 ../templates/game_search.html:58
+msgid "Any player"
+msgstr ""
+
+#: ../templates/game_search.html:39
+msgid "Black player"
+msgstr ""
+
+#: ../templates/game_search.html:47
+msgid "Winner"
+msgstr ""
+
+#: ../templates/game_search.html:55
+msgid "Loser"
+msgstr ""
+
+#: ../templates/game_search.html:63
+msgid "Variant"
+msgstr ""
+
+#: ../templates/game_search.html:67
+msgid "Result"
+msgstr ""
+
+#: ../templates/game_search.html:70
+msgid "Any result"
+msgstr ""
+
+#: ../templates/game_search.html:78
+msgid "Game type"
+msgstr ""
+
+#: ../templates/game_search.html:81
+msgid "Any type"
+msgstr ""
+
+#: ../templates/game_search.html:82 ../templates/tournaments.html:43
+msgid "Casual"
+msgstr "Vrijblijvend"
+
+#: ../templates/game_search.html:83 ../templates/tournaments.html:43
+msgid "Rated"
+msgstr "Met rating"
+
+#: ../templates/game_search.html:84
+msgid "Imported"
+msgstr ""
+
+#: ../templates/game_search.html:85
+msgid "Correspondence"
+msgstr ""
+
+#: ../templates/game_search.html:90
+msgid "Date"
+msgstr ""
+
+#: ../templates/game_search.html:93 ../templates/game_search.html:126
+msgid "From"
+msgstr ""
+
+#: ../templates/game_search.html:102 ../templates/game_search.html:136
+msgid "To"
+msgstr ""
+
+#: ../templates/game_search.html:113
+msgid "Tournament ID"
+msgstr ""
+
+#: ../templates/game_search.html:123
+msgid "Plies"
+msgstr ""
+
+#: ../templates/game_search.html:148 ../templates/variants.html:40
+msgid "Sort"
+msgstr ""
+
+#: ../templates/game_search.html:151
+msgid "Newest first"
+msgstr ""
+
+#: ../templates/game_search.html:152
+msgid "Oldest first"
+msgstr ""
+
+#: ../templates/game_search.html:157 ../templates/template.html:63
+#: ../templates/variants.html:113
+msgid "Analysis"
+msgstr "Analyse"
+
+#: ../templates/game_search.html:161
+msgid "Computer analysis available"
+msgstr ""
+
+#: ../templates/game_search.html:172
+#: ../templates/team-declined-requests.html:12 ../templates/variants.html:32
+#: ../templates/variants.html:56
+msgid "Search"
+msgstr ""
+
+#: ../templates/game_search.html:174
+msgid "Clear"
+msgstr ""
+
+#: ../templates/game_search.html:184
+msgid "Search results"
+msgstr ""
 
 #: ../templates/patron.html:11
 msgid ""
@@ -479,7 +1196,7 @@ msgstr ""
 msgid "Online"
 msgstr "Online"
 
-#: ../templates/players.html:33 ../templates/template.html:72
+#: ../templates/players.html:33 ../templates/template.html:81
 msgid "Anonymous"
 msgstr ""
 
@@ -487,100 +1204,842 @@ msgstr ""
 msgid "Top 50"
 msgstr ""
 
-#: ../templates/profile.html:11
-#, python-format
-msgid "%(count)s game"
-msgid_plural "%(count)s games"
-msgstr[0] "%(count)s partijen"
-msgstr[1] "%(count)s partijen"
-
-#: ../templates/profile.html:39
+#: ../templates/profile.html:52
 msgid "Watch games"
 msgstr ""
 
-#: ../templates/profile.html:39 ../templates/template.html:37
+#: ../templates/profile.html:52 ../templates/template.html:38
 msgid "Watch"
 msgstr ""
 
-#: ../templates/profile.html:50
+#: ../templates/profile.html:68
 msgid "Challenge to a game"
 msgstr ""
 
-#: ../templates/profile.html:50
+#: ../templates/profile.html:68
 msgid "Challenge"
 msgstr ""
 
-#: ../templates/profile.html:54 ../templates/template.html:57
+#: ../templates/profile.html:73 ../templates/simul_new.html:52
+#: ../templates/template.html:32 ../templates/template.html:53
+msgid "Variants"
+msgstr ""
+
+#: ../templates/profile.html:75
+msgid "Hosted simuls"
+msgstr ""
+
+#: ../templates/profile.html:75
+msgid "Simuls"
+msgstr ""
+
+#: ../templates/profile.html:80
+msgid "Send a private message"
+msgstr ""
+
+#: ../templates/profile.html:80 ../templates/team-join.html:15
+#: ../templates/team-update-new.html:12
+msgid "Message"
+msgstr ""
+
+#: ../templates/profile.html:83 ../templates/ublog_post.html:34
+#: ../templates/ublog_post.html:35
+msgid "Report to moderators"
+msgstr ""
+
+#: ../templates/profile.html:83
+msgid "Report"
+msgstr ""
+
+#: ../templates/profile.html:87 ../templates/template.html:64
 msgid "Import game"
 msgstr ""
 
-#: ../templates/profile.html:54
+#: ../templates/profile.html:87
 msgid "Import"
 msgstr ""
 
-#: ../templates/profile.html:55
+#: ../templates/profile.html:89
 msgid "Export games"
 msgstr ""
 
-#: ../templates/profile.html:55
+#: ../templates/profile.html:89
 msgid "Export"
 msgstr ""
 
-#: ../templates/profile.html:57
+#: ../templates/profile.html:92
 msgid "Lichess profile"
 msgstr ""
 
-#: ../templates/profile.html:57
+#: ../templates/profile.html:92
 msgid "Lichess"
 msgstr ""
 
-#: ../templates/profile.html:60
+#: ../templates/profile.html:95
 msgid "Lishogi profile"
 msgstr ""
 
-#: ../templates/profile.html:60
+#: ../templates/profile.html:95
 msgid "Lishogi"
 msgstr ""
 
+#: ../templates/profile.html:107
+msgid "More"
+msgstr ""
+
+#: ../templates/simul_history.html:6
+msgid "hosted simuls"
+msgstr ""
+
+#: ../templates/simul_history.html:16
+msgid "Created"
+msgstr ""
+
+#: ../templates/simul_history.html:17
+msgid "Wins"
+msgstr ""
+
+#: ../templates/simul_history.html:17
+msgid "Draws"
+msgstr ""
+
+#: ../templates/simul_history.html:17
+msgid "Losses"
+msgstr ""
+
+#: ../templates/simul_history.html:29 ../templates/simuls.html:45
+#: ../templates/simuls.html:88 ../templates/simuls.html:124
+#: ../templates/simuls.html:160
+#, python-format
+msgid "%(count)s more"
+msgstr ""
+
+#: ../templates/simul_history.html:40
+msgid "hasn't hosted any simuls yet!"
+msgstr ""
+
+#: ../templates/simul_new.html:39
+#, python-format
+msgid "Edit %(name)s"
+msgstr ""
+
+#: ../templates/simul_new.html:39
+msgid "Host a new simul"
+msgstr ""
+
+#: ../templates/simul_new.html:42 ../templates/variants.html:46
+msgid "Name"
+msgstr ""
+
+#: ../templates/simul_new.html:49 ../templates/variants.html:108
+msgid "Games"
+msgstr ""
+
+#: ../templates/simul_new.html:65
+msgid "Search variants"
+msgstr ""
+
+#: ../templates/simul_new.html:69 ../templates/variants.html:50
+msgid "Favorites"
+msgstr ""
+
+#: ../templates/simul_new.html:75
+msgid "Site variants"
+msgstr ""
+
+#: ../templates/simul_new.html:81 ../templates/variants.html:11
+#: ../templates/variants.html:26 ../templates/variants.html:198
+msgid "Community variants"
+msgstr ""
+
+#: ../templates/simul_new.html:90
+#, python-format
+msgid ""
+"Choose up to %(max_variants)s variants. Favorites and site variants are "
+"shown first; search to reach the full public community catalogue. Each "
+"applicant chooses one offered variant."
+msgstr ""
+
+#: ../templates/simul_new.html:93
+msgid "Host color"
+msgstr ""
+
+#: ../templates/simul_new.html:95
+msgid "Random"
+msgstr ""
+
+#: ../templates/simul_new.html:96
+msgid "White"
+msgstr ""
+
+#: ../templates/simul_new.html:97
+msgid "Black"
+msgstr ""
+
+#: ../templates/simul_new.html:102
+msgid "Starting position"
+msgstr ""
+
+#: ../templates/simul_new.html:105
+msgid "Optional. Custom positions require exactly one selected variant."
+msgstr ""
+
+#: ../templates/simul_new.html:106
+msgid "Board editor"
+msgstr ""
+
+#: ../templates/simul_new.html:107
+msgid "to create a position, then paste its FEN here."
+msgstr ""
+
+#: ../templates/simul_new.html:112
+msgid "Clock"
+msgstr ""
+
+#: ../templates/simul_new.html:115
+msgid "Clock initial time"
+msgstr ""
+
+#: ../templates/simul_new.html:118
+#, python-format
+msgid "%(count)s minute"
+msgid_plural "%(count)s minutes"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../templates/simul_new.html:123
+msgid "Clock increment"
+msgstr ""
+
+#: ../templates/simul_new.html:126
+#, python-format
+msgid "%(count)s second"
+msgid_plural "%(count)s seconds"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../templates/simul_new.html:133
+msgid "Host extra initial clock time"
+msgstr ""
+
+#: ../templates/simul_new.html:136 ../templates/simul_new.html:148
+#, python-format
+msgid "%(count)s second (custom)"
+msgid_plural "%(count)s seconds (custom)"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../templates/simul_new.html:142
+msgid "Applied only to the host, just like lichess simuls."
+msgstr ""
+
+#: ../templates/simul_new.html:145
+msgid "Host extra clock time per player"
+msgstr ""
+
+#: ../templates/simul_new.html:154
+msgid ""
+"Added to the host clock once for each accepted opponent when the simul "
+"starts."
+msgstr ""
+
+#: ../templates/simul_new.html:159
+msgid "Entry conditions"
+msgstr ""
+
+#: ../templates/simul_new.html:162
+msgid "Minimum rated games"
+msgstr ""
+
+#: ../templates/simul_new.html:165
+#, python-format
+msgid "%(count)s rated game (custom)"
+msgid_plural "%(count)s rated games (custom)"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../templates/simul_new.html:171
+msgid "Required rated games in this variant before a player can join."
+msgstr ""
+
+#: ../templates/simul_new.html:176
+msgid "Minimum rating"
+msgstr ""
+
+#: ../templates/simul_new.html:179 ../templates/simul_new.html:190
+msgid "custom"
+msgstr ""
+
+#: ../templates/simul_new.html:187
+msgid "Maximum rating"
+msgstr ""
+
+#: ../templates/simul_new.html:200
+msgid "Minimum account age"
+msgstr ""
+
+#: ../templates/simul_new.html:203
+#, python-format
+msgid "%(count)s day (custom)"
+msgid_plural "%(count)s days (custom)"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../templates/simul_new.html:212
+msgid "Only members of team"
+msgstr ""
+
+#: ../templates/simul_new.html:225
+msgid "Estimated start time"
+msgstr ""
+
+#: ../templates/simul_new.html:227
+msgid "Optional. For display only, in your local timezone."
+msgstr ""
+
+#: ../templates/simul_new.html:232
+msgid ""
+"Only the simul name and description can be edited after the simul has "
+"started or finished."
+msgstr ""
+
+#: ../templates/simul_new.html:236
+msgid "Simul description"
+msgstr ""
+
+#: ../templates/simul_new.html:239
+msgid "Anything special you want to tell the participants?"
+msgstr ""
+
+#: ../templates/simul_new.html:245
+msgid "Cancel the simul"
+msgstr ""
+
+#: ../templates/simul_new.html:247 ../templates/simul_new.html:251
+#: ../templates/team-edit.html:54 ../templates/team-join.html:29
+#: ../templates/team-leaders.html:59 ../templates/team-new.html:56
+#: ../templates/team-update-new.html:23 ../templates/ublog_form.html:71
+#: ../templates/ublog_form.html:109
+msgid "Cancel"
+msgstr ""
+
+#: ../templates/simul_new.html:249 ../templates/simul_new.html:252
+msgid "Save"
+msgstr ""
+
+#: ../templates/simul_new.html:249 ../templates/simul_new.html:252
+msgid "Create a new simul"
+msgstr ""
+
 #: ../templates/simuls.html:6
+msgid "Simuls involve a single player facing several players at once."
+msgstr ""
+
+#: ../templates/simuls.html:7 ../templates/simuls.html:8
+msgid ""
+"The chess prodigy Samuel Reshevsky, 8 years old, performing a simultaneous "
+"exhibition against adults in Paris, 1920."
+msgstr ""
+
+#: ../templates/simuls.html:9
+msgid ""
+"The concept is taken from real world events. In real life, this involves the"
+" simul host moving from table to table to play a single move."
+msgstr ""
+
+#: ../templates/simuls.html:10
+msgid ""
+"When the simul starts, every player starts a game with the host. The simul "
+"ends when all games are complete."
+msgstr ""
+
+#: ../templates/simuls.html:11
+msgid ""
+"Simuls are always casual. Rematches, takebacks and adding time are disabled."
+msgstr ""
+
+#: ../templates/simuls.html:17
 msgid "Simultaneous Exhibitions"
 msgstr ""
 
-#: ../templates/simuls.html:8
+#: ../templates/simuls.html:20
 msgid "HOST A NEW SIMUL"
 msgstr ""
 
-#: ../templates/simuls.html:15
-msgid "Newly created simuls"
+#: ../templates/simuls.html:29
+msgid "Your simuls"
 msgstr ""
 
-#: ../templates/simuls.html:40 ../templates/simuls.html:75
-#: ../templates/simuls.html:110 ../templates/tournaments.html:55
+#: ../templates/simuls.html:41 ../templates/simuls.html:84
+#: ../templates/simuls.html:120 ../templates/simuls.html:156
+#: ../templates/team-show.html:197 ../templates/team-show.html:233
+#: ../templates/team-updates.html:66
+msgid "by"
+msgstr ""
+
+#: ../templates/simuls.html:56
+msgid "Host"
+msgstr ""
+
+#: ../templates/simuls.html:58
+msgid "Accepted"
+msgstr ""
+
+#: ../templates/simuls.html:60
+msgid "Pending"
+msgstr ""
+
+#: ../templates/simuls.html:72
+msgid "Featured simuls"
+msgstr ""
+
+#: ../templates/simuls.html:98 ../templates/simuls.html:134
+#: ../templates/simuls.html:170 ../templates/tournaments.html:55
 #, python-format
 msgid "%(count)s player"
 msgid_plural "%(count)s players"
 msgstr[0] "%(count)s speler"
 msgstr[1] "%(count)s spelers"
 
-#: ../templates/simuls.html:50
+#: ../templates/simuls.html:108
 msgid "Playing now"
 msgstr ""
 
-#: ../templates/simuls.html:85 ../templates/tournaments.html:23
+#: ../templates/simuls.html:144 ../templates/tournaments.html:23
 msgid "Finished"
 msgstr "Afgelopen"
 
-#: ../templates/template.html:14
+#: ../templates/team-declined-requests.html:9 ../templates/team-show.html:121
+msgid "Declined requests"
+msgstr ""
+
+#: ../templates/team-declined-requests.html:11
+msgid "Search user"
+msgstr ""
+
+#: ../templates/team-declined-requests.html:27
+#: ../templates/team-requests.html:31 ../templates/team-show.html:179
+msgid "Accept"
+msgstr ""
+
+#: ../templates/team-declined-requests.html:32
+msgid "No declined requests found."
+msgstr ""
+
+#: ../templates/team-declined-requests.html:40
+#: ../templates/team-members.html:31
+#, python-format
+msgid "Page %(page)s"
+msgstr ""
+
+#: ../templates/team-edit.html:8
+msgid "Edit team"
+msgstr ""
+
+#: ../templates/team-edit.html:11 ../templates/team-new.html:19
+msgid "Short introduction"
+msgstr ""
+
+#: ../templates/team-edit.html:13 ../templates/team-new.html:21
+msgid "A short sentence shown in team lists and at the top of the team page."
+msgstr ""
+
+#: ../templates/team-edit.html:17 ../templates/team-new.html:25
+msgid "Description"
+msgstr ""
+
+#: ../templates/team-edit.html:25 ../templates/team-new.html:34
+msgid "Manually review admission requests"
+msgstr ""
+
+#: ../templates/team-edit.html:27 ../templates/team-new.html:36
+msgid "New members must be approved by a team leader."
+msgstr ""
+
+#: ../templates/team-edit.html:30
+msgid "New entry code"
+msgstr ""
+
+#: ../templates/team-edit.html:32
+msgid "Leave blank to keep the current entry code."
+msgstr ""
+
+#: ../templates/team-edit.html:36
+msgid "Remove the current entry code"
+msgstr ""
+
+#: ../templates/team-edit.html:43 ../templates/team-new.html:46
+#: ../templates/team-show.html:225
+msgid "Team forum"
+msgstr ""
+
+#: ../templates/team-edit.html:50 ../templates/team-new.html:52
+msgid ""
+"Who can see the team forum on the team page. Only team members can post."
+msgstr ""
+
+#: ../templates/team-edit.html:55
+msgid "Save changes"
+msgstr ""
+
+#: ../templates/team-edit.html:61 ../templates/team-edit.html:64
+msgid "Close team"
+msgstr ""
+
+#: ../templates/team-edit.html:62
+msgid ""
+"Closing archives the team. Members and historical content are kept, but "
+"joining, updates, forums, and new team tournament participation are "
+"disabled. Only a site administrator can reopen it."
+msgstr ""
+
+#: ../templates/team-join.html:8 ../templates/team-join.html:30
+#: ../templates/team-show.html:77 ../templates/team-show.html:80
+msgid "Join team"
+msgstr ""
+
+#: ../templates/team-join.html:17
+msgid ""
+"Tell the team leaders why you want to join. Your request will be reviewed "
+"before you become a member."
+msgstr ""
+
+#: ../templates/team-join.html:23 ../templates/team-new.html:39
+msgid "Entry code"
+msgstr ""
+
+#: ../templates/team-leaders.html:8 ../templates/team-show.html:111
+msgid "Team leaders"
+msgstr ""
+
+#: ../templates/team-leaders.html:12
+msgid "Add a new leader"
+msgstr ""
+
+#: ../templates/team-leaders.html:13
+msgid "Add"
+msgstr ""
+
+#: ../templates/team-leaders.html:15
+#, python-format
+msgid ""
+"The user must already be a team member. A team can have up to %(count)s "
+"leader."
+msgid_plural ""
+"The user must already be a team member. A team can have up to %(count)s "
+"leaders."
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../templates/team-leaders.html:45
+msgid "for"
+msgstr ""
+
+#: ../templates/team-leaders.html:56
+#, python-format
+msgid ""
+"To remove a leader, remove all permissions. The team creator must keep Admin"
+" permission. At least one Admin is always required, and a team can have at "
+"most %(max_admins)s Admins."
+msgstr ""
+
+#: ../templates/team-leaders.html:60
+msgid "Save permissions"
+msgstr ""
+
+#: ../templates/team-members.html:9 ../templates/teams.html:26
+#, python-format
+msgid "%(count)s member"
+msgid_plural "%(count)s members"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../templates/team-members.html:23
+msgid "No members found."
+msgstr ""
+
+#: ../templates/team-menu.html:3 ../templates/team-show.html:117
+msgid "Join requests"
+msgstr ""
+
+#: ../templates/team-menu.html:6 ../templates/team-updates.html:7
+#: ../templates/teams.html:9
+msgid "My teams"
+msgstr ""
+
+#: ../templates/team-menu.html:7 ../templates/team-show.html:87
+#: ../templates/team-show.html:193 ../templates/team-updates.html:49
+msgid "Team updates"
+msgstr ""
+
+#: ../templates/team-menu.html:9
+msgid "All teams"
+msgstr ""
+
+#: ../templates/team-menu.html:11
+msgid "New team"
+msgstr ""
+
+#: ../templates/team-new.html:8
+msgid "Create a team"
+msgstr ""
+
+#: ../templates/team-new.html:10
+#, python-format
+msgid ""
+"You can create up to %(created)s teams in seven days and join up to "
+"%(joined)s teams."
+msgstr ""
+
+#: ../templates/team-new.html:14
+msgid "Team name"
+msgstr ""
+
+#: ../templates/team-new.html:27
+msgid "Tell players what this team is about."
+msgstr ""
+
+#: ../templates/team-new.html:41
+msgid ""
+"Optional. Players must know this code before they can join or request "
+"membership."
+msgstr ""
+
+#: ../templates/team-new.html:57
+msgid "Create team"
+msgstr ""
+
+#: ../templates/team-requests.html:8 ../templates/team-show.html:167
+#, python-format
+msgid "%(count)s join request"
+msgid_plural "%(count)s join requests"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../templates/team-requests.html:27 ../templates/team-show.html:178
+msgid "Decline"
+msgstr ""
+
+#: ../templates/team-requests.html:40
+msgid "No pending join requests."
+msgstr ""
+
+#: ../templates/team-show.html:11
+msgid "CLOSED"
+msgstr ""
+
+#: ../templates/team-show.html:13
+msgid "member"
+msgid_plural "members"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../templates/team-show.html:23
+msgid "Team leaders:"
+msgstr ""
+
+#: ../templates/team-show.html:29
+msgid "Created by"
+msgstr ""
+
+#: ../templates/team-show.html:36
+msgid "Team closed"
+msgstr ""
+
+#: ../templates/team-show.html:37
+msgid "This team is archived and cannot accept new activity."
+msgstr ""
+
+#: ../templates/team-show.html:41 ../templates/team-show.html:61
+msgid "Leave team"
+msgstr ""
+
+#: ../templates/team-show.html:56
+msgid "You are a member"
+msgstr ""
+
+#: ../templates/team-show.html:57
+msgid "You are a team leader."
+msgstr ""
+
+#: ../templates/team-show.html:66
+msgid "Join request pending"
+msgstr ""
+
+#: ../templates/team-show.html:67
+msgid "A team leader must approve your request."
+msgstr ""
+
+#: ../templates/team-show.html:70
+msgid "Cancel request"
+msgstr ""
+
+#: ../templates/team-show.html:74
+msgid "Join request declined"
+msgstr ""
+
+#: ../templates/team-show.html:75
+msgid ""
+"You cannot request to join this team again unless a team leader restores "
+"your request."
+msgstr ""
+
+#: ../templates/team-show.html:88
+msgid "Read team announcements"
+msgstr ""
+
+#: ../templates/team-show.html:93 ../templates/team-update-new.html:8
+msgid "New team update"
+msgstr ""
+
+#: ../templates/team-show.html:94
+msgid "Message subscribed members"
+msgstr ""
+
+#: ../templates/team-show.html:99
+msgid "Team tournament"
+msgstr ""
+
+#: ../templates/team-show.html:100
+msgid "Create an Arena, Round-Robin, or Swiss"
+msgstr ""
+
+#: ../templates/team-show.html:106
+msgid "Edit team information and access"
+msgstr ""
+
+#: ../templates/team-show.html:118
+msgid "Review requests across your teams"
+msgstr ""
+
+#: ../templates/team-show.html:122
+msgid "Restore previously declined requests"
+msgstr ""
+
+#: ../templates/team-show.html:139
+msgid "Recent members"
+msgstr ""
+
+#: ../templates/team-show.html:144
+msgid "Leader"
+msgstr ""
+
+#: ../templates/team-show.html:154
+#, python-format
+msgid "All %(count)s member »"
+msgid_plural "All %(count)s members »"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../templates/team-show.html:200
+msgid "More »"
+msgstr ""
+
+#: ../templates/team-show.html:207
+msgid "Team tournaments"
+msgstr ""
+
+#: ../templates/team-show.html:237
+#, python-format
+msgid "%(count)s reply"
+msgid_plural "%(count)s replies"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../templates/team-show.html:243
+#, python-format
+msgid "%(team_name)s forum »"
+msgstr ""
+
+#: ../templates/team-show.html:249
+msgid "This team is closed"
+msgstr ""
+
+#: ../templates/team-show.html:250
+msgid ""
+"Memberships and historical content are preserved, but team activity is "
+"disabled."
+msgstr ""
+
+#: ../templates/team-update-new.html:14
+msgid "This update is sent to subscribed team members."
+msgstr ""
+
+#: ../templates/team-update-new.html:18
+#, python-format
+msgid "You can send up to %(max_updates)s team updates in seven days."
+msgstr ""
+
+#: ../templates/team-update-new.html:19
+msgid "remaining in the current rolling window."
+msgstr ""
+
+#: ../templates/team-update-new.html:25
+msgid "Send update"
+msgstr ""
+
+#: ../templates/team-update-new.html:27
+msgid "Limit reached"
+msgstr ""
+
+#: ../templates/team-updates.html:24
+msgid "No recent team updates"
+msgstr ""
+
+#: ../templates/team-updates.html:33
+msgid "All team updates"
+msgstr ""
+
+#: ../templates/team-updates.html:37
+msgid "New update"
+msgstr ""
+
+#: ../templates/team-updates.html:41
+msgid "Unsubscribe"
+msgstr ""
+
+#: ../templates/team-updates.html:44
+msgid "Subscribe"
+msgstr ""
+
+#: ../templates/team-updates.html:55
+msgid ""
+"You are unsubscribed from notifications and the combined Team updates feed "
+"for this team."
+msgstr ""
+
+#: ../templates/team-updates.html:73
+msgid "No team updates yet"
+msgstr ""
+
+#: ../templates/team-updates.html:74
+msgid "You can send the first update to this team."
+msgstr ""
+
+#: ../templates/teams.html:9 ../templates/template.html:52
+msgid "Teams"
+msgstr ""
+
+#: ../templates/teams.html:21
+msgid "joined"
+msgstr ""
+
+#: ../templates/teams.html:33
+msgid "No teams yet"
+msgstr ""
+
+#: ../templates/teams.html:33
+msgid "Create the first one and invite other PyChess players."
+msgstr ""
+
+#: ../templates/template.html:14 ../templates/variants.html:111
+#: ../templates/variants.html:195
 msgid "Play"
 msgstr ""
 
 #: ../templates/template.html:16
 msgid "Create a game"
 msgstr ""
-
-#: ../templates/template.html:17 ../templates/tournaments.html:6
-msgid "Tournaments"
-msgstr "Toernooien"
 
 #: ../templates/template.html:19
 msgid "Simultaneous exhibitions"
@@ -594,51 +2053,59 @@ msgstr ""
 msgid "Learn"
 msgstr ""
 
-#: ../templates/template.html:32
-msgid "Variants"
+#: ../templates/template.html:33
+msgid "Authors"
 msgstr ""
 
-#: ../templates/template.html:33
+#: ../templates/template.html:34
 msgid "Memory"
 msgstr ""
 
-#: ../templates/template.html:39
+#: ../templates/template.html:40
 msgid "Tv"
 msgstr "Tv"
 
-#: ../templates/template.html:40
+#: ../templates/template.html:41
 msgid "Current games"
 msgstr "Lopende partijen"
 
-#: ../templates/template.html:41
+#: ../templates/template.html:42
 msgid "Video library"
 msgstr ""
 
-#: ../templates/template.html:45
-msgid "Community"
+#: ../templates/template.html:50
+msgid "Friends"
 msgstr ""
 
-#: ../templates/template.html:47
-msgid "Players"
-msgstr "Spelers"
-
-#: ../templates/template.html:49
-msgid "Donate"
-msgstr ""
-
-#: ../templates/template.html:53
-msgid "Tools"
+#: ../templates/template.html:54
+msgid "Forum"
 msgstr ""
 
 #: ../templates/template.html:55
+msgid "Blog"
+msgstr ""
+
+#: ../templates/template.html:56
+msgid "Donate"
+msgstr ""
+
+#: ../templates/template.html:60
+msgid "Tools"
+msgstr ""
+
+#: ../templates/template.html:62
 msgid "Editor"
 msgstr "Editor"
 
-#: ../templates/template.html:56
-msgid "Analysis"
-msgstr "Analyse"
+#: ../templates/template.html:65
+msgid "Advanced search"
+msgstr ""
 
-#: ../templates/template.html:81
+#: ../templates/template.html:66
+msgid "My variants"
+msgstr ""
+
+#: ../templates/template.html:90
 msgid "Login"
 msgstr ""
 
@@ -658,14 +2125,408 @@ msgstr "Nu aan het spelen"
 msgid "Starting soon"
 msgstr "Begint binnenkort"
 
-#: ../templates/tournaments.html:43
-msgid "Rated"
-msgstr "Met rating"
+#: ../templates/ublog_community.html:18
+msgid "Community blogs"
+msgstr ""
 
-#: ../templates/tournaments.html:43
-msgid "Casual"
-msgstr "Vrijblijvend"
+#: ../templates/ublog_community.html:21
+msgid "Filtered by"
+msgstr ""
+
+#: ../templates/ublog_form.html:7
+msgid "Published"
+msgstr ""
+
+#: ../templates/ublog_form.html:8 ../templates/ublog_index.html:11
+#: ../templates/ublog_post.html:11
+msgid "Drafts"
+msgstr ""
+
+#: ../templates/ublog_form.html:9 ../templates/ublog_form.html:14
+#: ../templates/ublog_index.html:12
+msgid "New post"
+msgstr ""
+
+#: ../templates/ublog_form.html:14
+msgid "Edit your blog post"
+msgstr ""
+
+#: ../templates/ublog_form.html:21
+msgid "Title must have at least 3 characters."
+msgstr ""
+
+#: ../templates/ublog_form.html:22
+msgid "Intro must have at least 3 characters."
+msgstr ""
+
+#: ../templates/ublog_form.html:23
+msgid "Post body must have at least 3 characters."
+msgstr ""
+
+#: ../templates/ublog_form.html:24
+msgid "Image URL must be absolute http(s) or start with /."
+msgstr ""
+
+#: ../templates/ublog_form.html:33
+msgid "Keep content safe and respectful."
+msgstr ""
+
+#: ../templates/ublog_form.html:34
+msgid "Inappropriate content may lead to account closure."
+msgstr ""
+
+#: ../templates/ublog_form.html:35
+msgid "Use markdown for formatting, links, and code blocks."
+msgstr ""
+
+#: ../templates/ublog_form.html:45
+msgid "Title"
+msgstr ""
+
+#: ../templates/ublog_form.html:48
+msgid "Intro"
+msgstr ""
+
+#: ../templates/ublog_form.html:51
+msgid "Markdown body"
+msgstr ""
+
+#: ../templates/ublog_form.html:55
+msgid "Topics"
+msgstr ""
+
+#: ../templates/ublog_form.html:62
+msgid "Language"
+msgstr ""
+
+#: ../templates/ublog_form.html:72
+msgid "Save draft"
+msgstr ""
+
+#: ../templates/ublog_form.html:76
+msgid "Image"
+msgstr ""
+
+#: ../templates/ublog_form.html:77
+msgid "Image URL"
+msgstr ""
+
+#: ../templates/ublog_form.html:80
+msgid "Image alt text"
+msgstr ""
+
+#: ../templates/ublog_form.html:83
+msgid "Image credit"
+msgstr ""
+
+#: ../templates/ublog_form.html:91
+msgid "Create blog discussion"
+msgstr ""
+
+#: ../templates/ublog_form.html:95
+msgid "Publish on your blog"
+msgstr ""
+
+#: ../templates/ublog_form.html:99
+msgid "Sticky post"
+msgstr ""
+
+#: ../templates/ublog_form.html:104
+msgid "Publish in \"By PyChess\""
+msgstr ""
+
+#: ../templates/ublog_form.html:110
+msgid "Apply"
+msgstr ""
+
+#: ../templates/ublog_form.html:111
+msgid "Save and open post"
+msgstr ""
+
+#: ../templates/ublog_form.html:119
+msgid "Delete post"
+msgstr ""
+
+#: ../templates/ublog_index.html:9 ../templates/ublog_index.html:18
+#: ../templates/ublog_post.html:9
+#, python-format
+msgid "By %(profile)s"
+msgstr ""
+
+#: ../templates/ublog_index.html:18
+#, python-format
+msgid "%(profile)s drafts"
+msgstr ""
+
+#: ../templates/ublog_index.html:32
+msgid "Sticky"
+msgstr ""
+
+#: ../templates/ublog_index.html:42
+msgid "No posts yet."
+msgstr ""
+
+#: ../templates/ublog_post.html:12
+msgid "Edit post"
+msgstr ""
+
+#: ../templates/ublog_post.html:29
+#, python-format
+msgid "%(count)s view"
+msgid_plural "%(count)s views"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../templates/ublog_post.html:43
+msgid "Image credit:"
+msgstr ""
+
+#: ../templates/ublog_post.html:47
+msgid "Discuss this blog post in the forum"
+msgstr ""
+
+#: ../templates/ublog_post.html:53 ../templates/ublog_post.html:55
+msgid "Unlike"
+msgstr ""
+
+#: ../templates/ublog_post.html:53 ../templates/ublog_post.html:55
+msgid "Like"
+msgstr ""
+
+#: ../templates/ublog_post.html:61
+msgid "Likes"
+msgstr ""
+
+#: ../templates/ublog_post.html:67
+msgid "You may also like"
+msgstr ""
+
+#: ../templates/variants.html:8
+msgid "Terminology"
+msgstr ""
+
+#: ../templates/variants.html:14
+msgid "Variant authors"
+msgstr ""
+
+#: ../templates/variants.html:28
+msgid ""
+"Browse public user-defined variants. They stay outside the regular variant "
+"catalog and are always casual/unrated."
+msgstr ""
+
+#: ../templates/variants.html:33
+msgid "Name, description, or uploader"
+msgstr ""
+
+#: ../templates/variants.html:36 ../templates/variants.html:97
+#: ../templates/variants.html:174
+msgid "Uploaded by"
+msgstr ""
+
+#: ../templates/variants.html:37
+msgid "Exact username"
+msgstr ""
+
+#: ../templates/variants.html:42
+msgid "Recently updated"
+msgstr ""
+
+#: ../templates/variants.html:43
+msgid "Favorites first"
+msgstr ""
+
+#: ../templates/variants.html:44
+msgid "Most played"
+msgstr ""
+
+#: ../templates/variants.html:45
+msgid "Newest"
+msgstr ""
+
+#: ../templates/variants.html:49
+msgid "Sign in to use favorites"
+msgstr ""
+
+#: ../templates/variants.html:53
+msgid "Favorites only"
+msgstr ""
+
+#: ../templates/variants.html:61
+#, python-format
+msgid "%(count)s public variant"
+msgid_plural "%(count)s public variants"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../templates/variants.html:77 ../templates/variants.html:78
+msgid "Remove from favorites"
+msgstr ""
+
+#: ../templates/variants.html:77 ../templates/variants.html:78
+msgid "Add to favorites"
+msgstr ""
+
+#: ../templates/variants.html:81
+msgid "Sign in to favorite variants"
+msgstr ""
+
+#: ../templates/variants.html:88 ../templates/variants.html:152
+msgid "References:"
+msgstr ""
+
+#: ../templates/variants.html:107
+msgid "Board"
+msgstr ""
+
+#: ../templates/variants.html:112 ../templates/variants.html:196
+msgid "Play AI"
+msgstr ""
+
+#: ../templates/variants.html:114
+msgid "Rules"
+msgstr ""
+
+#: ../templates/variants.html:118
+#, python-format
+msgid "View %(name)s rules"
+msgstr ""
+
+#: ../templates/variants.html:126
+msgid "No public variants found."
+msgstr ""
+
+#: ../templates/variants.html:132
+#, python-format
+msgid "Page %(page)s / %(pages)s"
+msgstr ""
+
+#: ../templates/variants.html:138
+msgid "Upload or manage my variants"
+msgstr ""
+
+#: ../templates/variants.html:145
+msgid "Community variant"
+msgstr ""
+
+#: ../templates/variants.html:160
+msgid ""
+"This is a curated Fairy-Stockfish built-in variant. Gameplay uses Fairy-"
+"Stockfish's canonical built-in definition."
+msgstr ""
+
+#: ../templates/variants.html:162
+msgid ""
+"The documentation block below mirrors the relevant built-in settings for the"
+" generated overview and movement diagrams."
+msgstr ""
+
+#: ../templates/variants.html:164
+msgid ""
+"The generated overview is based on the available catalogue metadata and may "
+"omit details that are only present in Fairy-Stockfish's built-in "
+"implementation."
+msgstr ""
+
+#: ../templates/variants.html:167
+msgid ""
+"This is a user-catalogued casual variant. Technical details such as board "
+"size, FEN, pieces, and hand rules are defined in the Fairy-Stockfish "
+"variants.ini block below."
+msgstr ""
+
+#: ../templates/variants.html:185
+msgid "Visibility"
+msgstr ""
+
+#: ../templates/variants.html:186
+msgid "public"
+msgstr ""
+
+#: ../templates/variants.html:186
+msgid "unlisted"
+msgstr ""
+
+#: ../templates/variants.html:186
+msgid "private"
+msgstr ""
+
+#: ../templates/variants.html:189
+msgid "Status"
+msgstr ""
+
+#: ../templates/variants.html:190
+msgid "archived"
+msgstr ""
+
+#: ../templates/variants.html:190
+msgid "active"
+msgstr ""
+
+#: ../templates/variants.html:194
+msgid "Catalogued variant actions"
+msgstr ""
+
+#: ../templates/variants.html:197
+msgid "Analysis board"
+msgstr ""
+
+#: ../templates/variants.html:204
+msgid "Fairy-Stockfish rule documentation"
+msgstr ""
+
+#: ../templates/variants.html:204
+msgid "Fairy-Stockfish rules"
+msgstr ""
 
 #: ../templates/videos.html:15
 msgid "Chess variant videos"
+msgstr ""
+
+#: ../templates/catalogued/betza_diagrams.html:3
+msgid "Piece movement"
+msgstr ""
+
+#: ../templates/catalogued/betza_diagrams.html:5
+msgid ""
+"These diagrams show custom pieces and known Fairy-Stockfish built-in fairy "
+"pieces from White's perspective on a compact preview board. Some special "
+"moves, especially hoppers and game-state-dependent moves, can still depend "
+"on blockers or game state."
+msgstr ""
+
+#: ../templates/catalogued/betza_diagrams.html:20
+msgid "Betza diagram legend"
+msgstr ""
+
+#: ../templates/catalogued/betza_diagrams.html:21
+msgid "move"
+msgstr ""
+
+#: ../templates/catalogued/betza_diagrams.html:22
+msgid "capture"
+msgstr ""
+
+#: ../templates/catalogued/betza_diagrams.html:23
+msgid "move or capture"
+msgstr ""
+
+#: ../templates/catalogued/betza_diagrams.html:24
+msgid "initial only"
+msgstr ""
+
+#: ../templates/catalogued/betza_diagrams.html:25
+msgid "hopper target"
+msgstr ""
+
+#: ../templates/catalogued/rule_summary.html:3
+msgid "Generated rule overview"
+msgstr ""
+
+#: ../templates/catalogued/rule_summary.html:16
+msgid "Default starting position"
+msgstr ""
+
+#: ../templates/catalogued/rule_summary.html:31
+msgid "Other technical options"
 msgstr ""
