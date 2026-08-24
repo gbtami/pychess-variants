@@ -12,7 +12,7 @@
                 {% set highscore_user = user.split("|")[0] %}
                 <tr class="player-data">
                     <td><rank>{{ loop.index }}</rank></td>
-                    <td class="player-data"><i-side class="{% if highscore_user in highscore_online %}online{% else %}offline{% endif %} icon {% if highscore_user in highscore_online %}icon-online{% else %}icon-offline{% endif %}{% if highscore_user in highscore_patrons %} icon-patron{% endif %}"{% if highscore_user in highscore_patrons %} title="{{ _('PyChess Patron') }}"{% endif %}></i-side><player><a class="user-link" href="{{ home }}/@/{{ highscore_user }}"><player-title>{{ user.split("|")[1] }}</player-title> {{ highscore_user }}</a></player></td>
+                    <td class="player-data"><i-side class="{% if highscore_user in highscore_online %}online{% else %}offline{% endif %} icon {% if highscore_user in highscore_patrons %}icon-patron-wing{% elif highscore_user in highscore_online %}icon-online{% else %}icon-offline{% endif %}"{% if highscore_user in highscore_patrons %} title="{{ _('PyChess Patron') }}"{% endif %}></i-side><player><a class="user-link" href="{{ home }}/@/{{ highscore_user }}"><player-title>{{ user.split("|")[1] }}</player-title> {{ highscore_user }}</a></player></td>
                     <td><rating>{{ score }}</rating></td>
                 </tr>
             {% endfor %}

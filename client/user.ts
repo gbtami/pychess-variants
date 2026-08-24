@@ -34,25 +34,14 @@ export function displayUsername(username: string, anon?: boolean): string {
     return isAnonUsername(username, anon) ? _('Anonymous') : username;
 }
 
-export function patronWing(patron: boolean, username?: string): VNode | string {
+export function patronWing(patron: boolean): VNode | string {
     return patron
-        ? h('i-side.icon.icon-patron', {
+        ? h('i-side.icon.icon-patron-wing', {
               attrs: {
                   title: _('PyChess Patron'),
-                  ...(username ? { 'data-patron-user': username } : {}),
               },
           })
         : '';
-}
-
-export function updatePatronPresence(username: string, online: boolean): void {
-    document.querySelectorAll<HTMLElement>('[data-patron-user]').forEach(icon => {
-        if (icon.dataset.patronUser !== username) return;
-        icon.classList.toggle('icon-online', online);
-        icon.classList.toggle('online', online);
-        icon.classList.toggle('icon-offline', !online);
-        icon.classList.toggle('offline', !online);
-    });
 }
 
 export function userLink(

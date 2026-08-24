@@ -31,18 +31,18 @@ class PlayersPageAnonymousDisplayTestCase(AioHTTPTestCase):
         self.assertEqual(response.status, 200)
         html = await response.text()
         self.assertIn('/@/winged-user"', html)
-        self.assertIn("icon-offline icon-patron", html)
+        self.assertIn("offline icon icon-patron-wing", html)
 
         response = await self.client.get("/players/chess")
         self.assertEqual(response.status, 200)
         html = await response.text()
         self.assertIn('/@/winged-user"', html)
-        self.assertIn("icon-offline icon-patron", html)
+        self.assertIn("offline icon icon-patron-wing", html)
 
         response = await self.client.get("/@/winged-user")
         self.assertEqual(response.status, 200)
         html = await response.text()
-        self.assertIn("profile-user-status offline icon icon-offline icon-patron", html)
+        self.assertIn("profile-user-status offline icon icon-patron-wing", html)
         self.assertIn('href="/patron"', html)
 
     async def test_materialized_anonymous_user_is_not_listed_by_name(self):

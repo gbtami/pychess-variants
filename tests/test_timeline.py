@@ -25,7 +25,7 @@ class TimelineTestCase(AioHTTPTestCase):
 
     async def test_public_activity_is_fanned_out_to_followers_and_sent_live(self):
         app_state = get_app_state(self.app)
-        alice = User(app_state, username="alice")
+        alice = User(app_state, username="alice", patron=True)
         bob = User(app_state, username="bob")
         app_state.users[alice.username] = alice
         app_state.users[bob.username] = bob
@@ -57,6 +57,7 @@ class TimelineTestCase(AioHTTPTestCase):
         self.assertEqual(1, len(entries))
         self.assertEqual("forum-post", entries[0]["type"])
         self.assertEqual("alice", entries[0]["data"]["actor"])
+        self.assertTrue(entries[0]["patron"])
         self.assertEqual([{"type": "reload_timeline"}], sent)
 
     async def test_shadowbanned_activity_and_blocked_recipients_are_excluded(self):

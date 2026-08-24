@@ -21,8 +21,14 @@ export function player(
     const displayName = displayUsername(name);
     return h(root, [
         h('div.player-data', [
-            h('i-side#' + id + '.online.icon', {
-                class: { 'icon-online': online, 'icon-offline': !online, 'icon-patron': patron },
+            h('i-side#' + id + '.icon', {
+                class: {
+                    online,
+                    offline: !online,
+                    'icon-online': online && !patron,
+                    'icon-offline': !online && !patron,
+                    'icon-patron-wing': patron,
+                },
                 attrs: patron ? { title: _('PyChess Patron') } : {},
             }),
             h('player', [

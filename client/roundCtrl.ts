@@ -50,7 +50,6 @@ import { SimulRoundHostController } from './simul/simulRoundHost';
 import { confirmDialog } from './confirmDialog';
 import { animatePassMove } from './passMove';
 import { premoveForVariant } from './cataloguedPremove';
-import { updatePatronPresence } from './user';
 import {
     parsePendingMove,
     pendingMoveOnOpenAction,
@@ -180,7 +179,6 @@ export class RoundController extends GameController {
 
             const container = document.getElementById('player1') as HTMLElement;
             this.renderPresenceIcon(container, 'player1', false);
-            if (!this.spectator) updatePatronPresence(this.username, false);
         };
 
         this.sock = createWebsocket(
@@ -1805,11 +1803,18 @@ export class RoundController extends GameController {
     };
 
     private renderPresenceIcon(container: HTMLElement, id: 'player0' | 'player1', online: boolean): VNode {
-        const patron = container.classList.contains('icon-patron');
+        const patron = container.classList.contains('icon-patron-wing');
         return patch(
             container,
-            h(`i-side.online#${id}`, {
-                class: { icon: true, 'icon-online': online, 'icon-offline': !online, 'icon-patron': patron },
+            h(`i-side#${id}`, {
+                class: {
+                    icon: true,
+                    online,
+                    offline: !online,
+                    'icon-online': online && !patron,
+                    'icon-offline': !online && !patron,
+                    'icon-patron-wing': patron,
+                },
                 attrs: patron ? { title: _('PyChess Patron') } : {},
             }),
         );
@@ -1828,7 +1833,6 @@ export class RoundController extends GameController {
 
             const container = document.getElementById('player1') as HTMLElement;
             this.renderPresenceIcon(container, 'player1', true);
-            updatePatronPresence(this.username, true);
 
             // prevent sending gameStart message when user just reconnecting
             if (msg.ply === 0) {
@@ -1845,7 +1849,6 @@ export class RoundController extends GameController {
 
     private onMsgUserPresent = (msg: MsgUserPresent) => {
         // console.log(msg);
-        updatePatronPresence(msg.username, true);
         if (msg.username === this.players[0]) {
             const container = document.getElementById('player0') as HTMLElement;
             this.renderPresenceIcon(container, 'player0', true);
@@ -1857,7 +1860,6 @@ export class RoundController extends GameController {
 
     private onMsgUserDisconnected = (msg: MsgUserDisconnected) => {
         // console.log(msg);
-        updatePatronPresence(msg.username, false);
         if (msg.username === this.players[0]) {
             const container = document.getElementById('player0') as HTMLElement;
             this.renderPresenceIcon(container, 'player0', false);

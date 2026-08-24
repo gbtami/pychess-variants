@@ -31,7 +31,6 @@ import { BLACK, WHITE, getTurnColor, uci2LastMove } from '../../chess';
 import { result } from '../../result';
 import { sound, soundThemeSettings } from '../../sound';
 import { notify } from '../../notification';
-import { updatePatronPresence } from '../../user';
 import { chatMessageBug, resetChat } from '@/two-board/round/chat';
 import { TwoBoardController, initBoardSettings, redrawBoards } from '../twoBoardCtrl';
 import {
@@ -266,7 +265,6 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
 
     // online/offline indicator on the player bars of every seat this username occupies
     setPresence(username: string, online: boolean): void {
-        updatePatronPresence(username, online);
         this.seats.all.filter(s => s.player.username === username).forEach(s => this.viewOf(s).setPresence(online));
     }
 

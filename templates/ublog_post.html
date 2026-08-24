@@ -21,7 +21,7 @@
     <div class="ublog-post-meta-headline">
         <div class="ublog-post-meta ublog-post__meta">
             <a class="user-link ublog-post__meta__author" href="/@/{{ ublog_post['author'] }}" data-href="/@/{{ ublog_post['author'] }}">
-                <i-side class="{% if ublog_author_online %}online icon icon-online{% else %}offline icon icon-offline{% endif %}{% if ublog_author_patron %} icon-patron{% endif %}"{% if ublog_author_patron %} title="{{ _('PyChess Patron') }}"{% endif %}></i-side>
+                <i-side class="{% if ublog_author_online %}online{% else %}offline{% endif %} icon {% if ublog_author_patron %}icon-patron-wing{% elif ublog_author_online %}icon-online{% else %}icon-offline{% endif %}"{% if ublog_author_patron %} title="{{ _('PyChess Patron') }}"{% endif %}></i-side>
                 <player-title>{{ ublog_post['author_title'] }} </player-title>
                 <span class="ublog-post__meta__author__name">{{ ublog_post['author'] }}</span>
             </a>

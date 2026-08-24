@@ -340,7 +340,9 @@ class UserMiniWidget {
         head.className = 'umw-head';
 
         const status = document.createElement('span');
-        status.className = `umw-status ${payload.online ? 'online' : 'offline'}${payload.patron ? ' patron' : ''}`;
+        status.className = `umw-status ${payload.online ? 'online' : 'offline'}${
+            payload.patron ? ' patron icon-patron-wing' : ''
+        }`;
         status.setAttribute('aria-hidden', 'true');
         if (payload.patron) status.title = _('PyChess Patron');
         head.appendChild(status);

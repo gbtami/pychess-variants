@@ -448,7 +448,7 @@ export function inboxView(model: PyChessModel) {
         const isSelected = thread.user === contact;
         const statusClass = thread.system
             ? '.system'
-            : `${thread.online ? '.online' : ''}${thread.patron ? '.patron' : ''}`;
+            : `${thread.online ? '.online' : ''}${thread.patron ? '.patron.icon-patron-wing' : ''}`;
         return h(
             `button.inbox-thread${isSelected ? '.active' : ''}${thread.unread ? '.unread' : ''}`,
             {
@@ -559,7 +559,7 @@ export function inboxView(model: PyChessModel) {
                                   ? h('span.inbox-user.system', thread.user)
                                   : h(
                                         `a.user-link.ulpt.inbox-user${contactOnline ? '.online' : ''}${
-                                            contactPatron ? '.patron' : ''
+                                            contactPatron ? '.patron.icon-patron-wing' : ''
                                         }`,
                                         {
                                             attrs: {

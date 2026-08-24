@@ -1724,30 +1724,15 @@ i-side {
   margin-right: 0.4em;
 }
 
-/* Exact Lichess Wings glyph (licon U+E06C), extracted from its AGPLv3 icon font. */
-:root {
-  --patron-wing-mask: url("images/patron-wing.svg");
-}
-.icon-patron {
-  margin-right: 0;
-}
-.icon-patron::before {
-  content: "" !important;
-  display: inline-block;
-  font-size: 1em;
-  width: 1.5em;
-  height: 1em;
+.icon-patron-wing::before {
   margin-right: 0.3em;
-  background-color: currentColor;
-  vertical-align: text-top;
-  -webkit-mask: var(--patron-wing-mask) center / contain no-repeat;
-  mask: var(--patron-wing-mask) center / contain no-repeat;
+  font-size: 1em;
 }
-.icon-online.icon-patron::before {
+.online.icon-patron-wing::before {
   color: var(--good);
   opacity: 1;
 }
-.icon-offline.icon-patron::before {
+.offline.icon-patron-wing::before {
   color: currentColor;
   opacity: 0.7;
 }
@@ -3319,12 +3304,22 @@ div.ctable-container {
   background: #888;
 }
 .umw-status.patron {
-  width: 1.05em;
-  height: 0.95em;
+  width: auto;
+  height: auto;
   border-radius: 0;
-  flex-basis: 1.05em;
-  -webkit-mask: var(--patron-wing-mask) center / contain no-repeat;
-  mask: var(--patron-wing-mask) center / contain no-repeat;
+  flex: 0 0 auto;
+  background: transparent;
+  color: #888;
+}
+.umw-status.patron::before {
+  margin-right: 0;
+}
+.umw-status.patron.online {
+  background: transparent;
+  color: #629924;
+}
+.umw-status.patron.offline {
+  background: transparent;
 }
 .umw-perfs {
   display: grid;

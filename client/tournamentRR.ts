@@ -1091,15 +1091,19 @@ export class TournamentRRController implements ChatController {
 
     modalPlayerLink(username: string): VNode {
         const player = this.playerByName(username);
+        const online = !!this.playerOnline(username);
+        const patron = !!this.playerPatron(username);
         return h('div.rr-arr-player-link', [
-            h('i-side.online', {
+            h('i-side', {
                 class: {
                     icon: true,
-                    'icon-online': !!this.playerOnline(username),
-                    'icon-offline': !this.playerOnline(username),
-                    'icon-patron': !!this.playerPatron(username),
+                    online,
+                    offline: !online,
+                    'icon-online': online && !patron,
+                    'icon-offline': !online && !patron,
+                    'icon-patron-wing': patron,
                 },
-                attrs: this.playerPatron(username) ? { title: _('PyChess Patron') } : {},
+                attrs: patron ? { title: _('PyChess Patron') } : {},
             }),
             userLink(
                 username,

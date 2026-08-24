@@ -93,6 +93,20 @@ class Timeline:
             entry = _serialize_entry(doc)
             if entry is not None:
                 entries.append(entry)
+
+        actors: set[str] = set()
+        for entry in entries:
+            data = entry.get("data")
+            if not isinstance(data, Mapping):
+                continue
+            actor = data.get("actor")
+            if isinstance(actor, str) and actor:
+                actors.add(actor)
+        patrons = await self.app_state.public_users.get_patrons(actors)
+        for entry in entries:
+            data = entry.get("data")
+            actor = data.get("actor") if isinstance(data, Mapping) else None
+            entry["patron"] = isinstance(actor, str) and actor in patrons
         return entries
 
     async def _readable_team_forum_ids(

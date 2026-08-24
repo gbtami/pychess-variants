@@ -4,7 +4,7 @@ import { timeago } from './datetime';
 import { patch } from './document';
 import { _ } from './i18n';
 import { PyChessModel } from './types';
-import { displayUsername, userLink } from './user';
+import { displayUsername, patronWing, userLink } from './user';
 
 export type TimelineEventType =
     | 'follow'
@@ -22,6 +22,7 @@ export interface TimelineEntry {
     type: TimelineEventType;
     data: Record<string, string>;
     date: string;
+    patron?: boolean;
 }
 
 interface TimelineResponse {
@@ -39,7 +40,7 @@ function parseTimelineEntries(raw: string): TimelineEntry[] {
 
 function actorLink(entry: TimelineEntry): VNode {
     const actor = entry.data.actor || '';
-    return userLink(actor, displayUsername(actor));
+    return userLink(actor, [patronWing(!!entry.patron), displayUsername(actor)]);
 }
 
 function teamLink(entry: TimelineEntry): VNode {

@@ -7,6 +7,7 @@ const entries: TimelineEntry[] = [
         type: 'forum-post',
         data: { actor: 'alice', topic: 'Interesting variants', postId: 'post1234' },
         date: new Date(Date.now() - 60_000).toISOString(),
+        patron: true,
     },
     {
         id: 'two',
@@ -33,6 +34,7 @@ test('renders timeline activity links and relative dates', () => {
     expect(document.querySelector('a[href="/forum/redirect/post/post1234"]')).not.toBeNull();
     expect(document.querySelector('a[href="/blogs/@/bob/my-new-variant/blog1234"]')).not.toBeNull();
     expect(document.querySelector('a[href="/blogs/@/alice/liked-post/liked123"]')).not.toBeNull();
+    expect(document.querySelector('a[href="/@/alice"] .icon-patron-wing')).not.toBeNull();
     expect(document.querySelectorAll('info-date')).toHaveLength(3);
 });
 
