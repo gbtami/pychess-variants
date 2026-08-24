@@ -293,7 +293,7 @@ msgstr "İmparatorluk"
 
 #: ../server/deprecated.py:326 ../server/variants.py:178
 msgid "Orda Mirror"
-msgstr "Ordu Ayna"
+msgstr "Ordu Aynası"
 
 #: ../server/deprecated.py:327 ../server/variants.py:179
 msgid "Chak"
@@ -357,35 +357,35 @@ msgstr "Şatranj"
 
 #: ../server/team.py:62
 msgid "Show to everyone"
-msgstr ""
+msgstr "Herkese göster"
 
 #: ../server/team.py:63
 msgid "Show to team members"
-msgstr ""
+msgstr "Takım üyelerine göster"
 
 #: ../server/team.py:64
 msgid "Show to team leaders"
-msgstr ""
+msgstr "Takım yöneticilerine göster"
 
 #: ../server/team.py:65
 msgid "Hide the forum"
-msgstr ""
+msgstr "Forumu gizle"
 
 #: ../server/team.py:78
 msgid "Public"
-msgstr ""
+msgstr "Herkese açık"
 
 #: ../server/team.py:78
 msgid "Visible as leader on the team page"
-msgstr ""
+msgstr "Takım sayfasında yönetici olarak görünür"
 
 #: ../server/team.py:79 ../templates/team-show.html:105
 msgid "Settings"
-msgstr ""
+msgstr "Ayarlar"
 
 #: ../server/team.py:79
 msgid "Change settings and descriptions"
-msgstr ""
+msgstr "Ayarları ve açıklamaları değiştir"
 
 #: ../server/team.py:80 ../templates/template.html:17
 #: ../templates/tournaments.html:6
@@ -394,147 +394,147 @@ msgstr "Turnuvalar"
 
 #: ../server/team.py:80
 msgid "Create and manage team tournaments"
-msgstr ""
+msgstr "Takım turnuvaları oluştur ve yönet"
 
 #: ../server/team.py:81
 msgid "Moderation"
-msgstr ""
+msgstr "Moderasyon"
 
 #: ../server/team.py:81
 msgid "Moderate the team forum"
-msgstr ""
+msgstr "Takım forumunu yönet"
 
 #: ../server/team.py:82
 msgid "Requests"
-msgstr ""
+msgstr "İstekler"
 
 #: ../server/team.py:82
 msgid "Accept and decline join requests"
-msgstr ""
+msgstr "Katılım isteklerini kabul et veya reddet"
 
 #: ../server/team.py:83
 msgid "Updates"
-msgstr ""
+msgstr "Güncellemeler"
 
 #: ../server/team.py:83
 msgid "Send team updates to members"
-msgstr ""
+msgstr "Takım güncellemelerini üyelere gönder"
 
 #: ../server/team.py:84 ../templates/team-show.html:147
 msgid "Kick"
-msgstr ""
+msgstr "Çıkar"
 
 #: ../server/team.py:84
 msgid "Kick members from the team"
-msgstr ""
+msgstr "Üyeleri takımdan çıkar"
 
 #: ../server/team.py:85
 msgid "Admin"
-msgstr ""
+msgstr "Yönetici"
 
 #: ../server/team.py:85 ../templates/team-show.html:112
 msgid "Manage leader permissions"
-msgstr ""
+msgstr "Yönetici izinlerini yönet"
 
 #: ../server/ublog.py:28
 msgid "chess"
-msgstr ""
+msgstr "satranç"
 
 #: ../server/ublog.py:29
 msgid "analysis"
-msgstr ""
+msgstr "analiz"
 
 #: ../server/ublog.py:30
 msgid "puzzle"
-msgstr ""
+msgstr "bulmaca"
 
 #: ../server/ublog.py:31
 msgid "opening"
-msgstr ""
+msgstr "açılış"
 
 #: ../server/ublog.py:32
 msgid "endgame"
-msgstr ""
+msgstr "oyun sonu"
 
 #: ../server/ublog.py:33
 msgid "tactics"
-msgstr ""
+msgstr "taktikler"
 
 #: ../server/ublog.py:34
 msgid "strategy"
-msgstr ""
+msgstr "strateji"
 
 #: ../server/ublog.py:35
 msgid "engine"
-msgstr ""
+msgstr "motor"
 
 #: ../server/ublog.py:36
 msgid "BOT"
-msgstr ""
+msgstr "BOT"
 
 #: ../server/ublog.py:37
 msgid "over the board"
-msgstr ""
+msgstr "tahta başında"
 
 #: ../server/ublog.py:38
 msgid "tournament"
-msgstr ""
+msgstr "turnuva"
 
 #: ../server/ublog.py:39
 msgid "chess variant"
-msgstr ""
+msgstr "satranç varyantı"
 
 #: ../server/ublog.py:40
 msgid "software development"
-msgstr ""
+msgstr "yazılım geliştirme"
 
 #: ../server/ublog.py:41
 msgid "off topic"
-msgstr ""
+msgstr "konu dışı"
 
 #: ../server/ublog.py:42
 msgid "lichess"
-msgstr ""
+msgstr "lichess"
 
 #: ../server/ublog.py:43
 msgid "lishogi"
-msgstr ""
+msgstr "lishogi"
 
 #: ../server/ublog.py:44
 msgid "playstrategy"
-msgstr ""
+msgstr "playstrategy"
 
 #: ../server/ublog.py:45
 msgid "announcement"
-msgstr ""
+msgstr "duyuru"
 
 #: ../server/ublog.py:46
 msgid "fairy"
-msgstr ""
+msgstr "fairy"
 
 #: ../server/ublog.py:47
 msgid "army"
-msgstr ""
+msgstr "ordu"
 
 #: ../server/ublog.py:48
 msgid "makruk"
-msgstr ""
+msgstr "makruk"
 
 #: ../server/ublog.py:49
 msgid "shogi"
-msgstr ""
+msgstr "şogi"
 
 #: ../server/ublog.py:50
 msgid "xiangqi"
-msgstr ""
+msgstr "xiangqi"
 
 #: ../server/ublog.py:51
 msgid "other"
-msgstr ""
+msgstr "diğer"
 
 #: ../server/ublog.py:52
 msgid "all"
-msgstr ""
+msgstr "tümü"
 
 #: ../server/variants.py:128
 msgid "Makrukhouse"
@@ -546,7 +546,7 @@ msgstr "Makbug"
 
 #: ../server/variants.py:143
 msgid "Yokai Shogi"
-msgstr ""
+msgstr "Yokai Şogi"
 
 #: ../server/variants.py:146
 msgid "Xiangqihouse"
@@ -566,7 +566,7 @@ msgstr "Xiang Fu"
 
 #: ../server/variants.py:183
 msgid "CWDA"
-msgstr ""
+msgstr "CWDA"
 
 #: ../server/variants.py:185
 msgid "Borderlands"
@@ -574,7 +574,7 @@ msgstr "Sınırlar"
 
 #: ../server/videos.py:12
 msgid "Howto"
-msgstr "Nasıl"
+msgstr "Nasıl Yapılır"
 
 #: ../server/videos.py:13
 msgid "Introduction"
@@ -640,212 +640,212 @@ msgstr "ileri"
 #: ../server/views/simul.py:66 ../server/views/simul.py:85
 #: ../templates/simul_new.html:214
 msgid "No restriction"
-msgstr ""
+msgstr "Kısıtlama yok"
 
 #: ../server/views/simul.py:38
 msgid "5 rated games"
-msgstr ""
+msgstr "5 puanlı oyun"
 
 #: ../server/views/simul.py:39
 msgid "10 rated games"
-msgstr ""
+msgstr "10 puanlı oyun"
 
 #: ../server/views/simul.py:40
 msgid "20 rated games"
-msgstr ""
+msgstr "20 puanlı oyun"
 
 #: ../server/views/simul.py:41
 msgid "50 rated games"
-msgstr ""
+msgstr "50 puanlı oyun"
 
 #: ../server/views/simul.py:42
 msgid "100 rated games"
-msgstr ""
+msgstr "100 puanlı oyun"
 
 #: ../server/views/simul.py:43
 msgid "200 rated games"
-msgstr ""
+msgstr "200 puanlı oyun"
 
 #: ../server/views/simul.py:86
 msgid "1 day"
-msgstr ""
+msgstr "1 gün"
 
 #: ../server/views/simul.py:87
 msgid "3 days"
-msgstr ""
+msgstr "3 gün"
 
 #: ../server/views/simul.py:88
 msgid "7 days"
-msgstr ""
+msgstr "7 gün"
 
 #: ../server/views/simul.py:89
 msgid "14 days"
-msgstr ""
+msgstr "14 gün"
 
 #: ../server/views/simul.py:90
 msgid "1 month"
-msgstr ""
+msgstr "1 ay"
 
 #: ../server/views/simul.py:91
 msgid "2 months"
-msgstr ""
+msgstr "2 ay"
 
 #: ../server/views/simul.py:92
 msgid "3 months"
-msgstr ""
+msgstr "3 ay"
 
 #: ../server/views/simul.py:93
 msgid "6 months"
-msgstr ""
+msgstr "6 ay"
 
 #: ../server/views/simul.py:94
 msgid "1 year"
-msgstr ""
+msgstr "1 yıl"
 
 #: ../server/views/simul.py:95
 msgid "2 years"
-msgstr ""
+msgstr "2 yıl"
 
 #: ../server/views/simul.py:96
 msgid "3 years"
-msgstr ""
+msgstr "3 yıl"
 
 #: ../server/views/simul.py:100
 msgid "-120 minutes"
-msgstr ""
+msgstr "-120 dakika"
 
 #: ../server/views/simul.py:101
 msgid "-90 minutes"
-msgstr ""
+msgstr "-90 dakika"
 
 #: ../server/views/simul.py:102
 msgid "-60 minutes"
-msgstr ""
+msgstr "-60 dakika"
 
 #: ../server/views/simul.py:103
 msgid "-50 minutes"
-msgstr ""
+msgstr "-50 dakika"
 
 #: ../server/views/simul.py:104
 msgid "-40 minutes"
-msgstr ""
+msgstr "-40 dakika"
 
 #: ../server/views/simul.py:105
 msgid "-30 minutes"
-msgstr ""
+msgstr "-30 dakika"
 
 #: ../server/views/simul.py:106
 msgid "-20 minutes"
-msgstr ""
+msgstr "-20 dakika"
 
 #: ../server/views/simul.py:107
 msgid "-15 minutes"
-msgstr ""
+msgstr "-15 dakika"
 
 #: ../server/views/simul.py:108
 msgid "-10 minutes"
-msgstr ""
+msgstr "-10 dakika"
 
 #: ../server/views/simul.py:109
 msgid "-5 minutes"
-msgstr ""
+msgstr "-5 dakika"
 
 #: ../server/views/simul.py:110
 msgid "0 minutes"
-msgstr ""
+msgstr "0 dakika"
 
 #: ../server/views/simul.py:111
 msgid "+5 minutes"
-msgstr ""
+msgstr "+5 dakika"
 
 #: ../server/views/simul.py:112
 msgid "+10 minutes"
-msgstr ""
+msgstr "+10 dakika"
 
 #: ../server/views/simul.py:113
 msgid "+15 minutes"
-msgstr ""
+msgstr "+15 dakika"
 
 #: ../server/views/simul.py:114
 msgid "+20 minutes"
-msgstr ""
+msgstr "+20 dakika"
 
 #: ../server/views/simul.py:115
 msgid "+30 minutes"
-msgstr ""
+msgstr "+30 dakika"
 
 #: ../server/views/simul.py:116
 msgid "+40 minutes"
-msgstr ""
+msgstr "+40 dakika"
 
 #: ../server/views/simul.py:117
 msgid "+50 minutes"
-msgstr ""
+msgstr "+50 dakika"
 
 #: ../server/views/simul.py:118
 msgid "+60 minutes"
-msgstr ""
+msgstr "+60 dakika"
 
 #: ../server/views/simul.py:119
 msgid "+90 minutes"
-msgstr ""
+msgstr "+90 dakika"
 
 #: ../server/views/simul.py:120
 msgid "+120 minutes"
-msgstr ""
+msgstr "+120 dakika"
 
 #: ../server/views/simul.py:124
 msgid "0 seconds"
-msgstr ""
+msgstr "0 saniye"
 
 #: ../server/views/simul.py:125
 msgid "10 seconds"
-msgstr ""
+msgstr "10 saniye"
 
 #: ../server/views/simul.py:126
 msgid "20 seconds"
-msgstr ""
+msgstr "20 saniye"
 
 #: ../server/views/simul.py:127
 msgid "30 seconds"
-msgstr ""
+msgstr "30 saniye"
 
 #: ../server/views/simul.py:128
 msgid "40 seconds"
-msgstr ""
+msgstr "40 saniye"
 
 #: ../server/views/simul.py:129
 msgid "50 seconds"
-msgstr ""
+msgstr "50 saniye"
 
 #: ../server/views/simul.py:130
 msgid "60 seconds"
-msgstr ""
+msgstr "60 saniye"
 
 #: ../server/views/simul.py:131
 msgid "90 seconds"
-msgstr ""
+msgstr "90 saniye"
 
 #: ../server/views/simul.py:132
 msgid "120 seconds"
-msgstr ""
+msgstr "120 saniye"
 
 #: ../server/views/simul.py:133
 msgid "180 seconds"
-msgstr ""
+msgstr "180 saniye"
 
 #: ../server/views/simul.py:134
 msgid "240 seconds"
-msgstr ""
+msgstr "240 saniye"
 
 #: ../server/views/simul.py:135
 msgid "300 seconds"
-msgstr ""
+msgstr "300 saniye"
 
 #: ../templates/blogs.html:7 ../templates/ublog_community.html:7
 #: ../templates/ublog_index.html:7 ../templates/ublog_post.html:7
 msgid "By PyChess"
-msgstr ""
+msgstr "PyChess tarafından"
 
 #: ../templates/blogs.html:8 ../templates/template.html:46
 #: ../templates/ublog_community.html:8 ../templates/ublog_index.html:8
@@ -863,11 +863,11 @@ msgstr "Bu hesap kapatılmıştır."
 
 #: ../templates/following.html:7
 msgid "Back to profile"
-msgstr ""
+msgstr "Profile dön"
 
 #: ../templates/following.html:8
 msgid "Following"
-msgstr ""
+msgstr "Takip ediliyor"
 
 #: ../templates/following.html:28 ../templates/profile.html:11
 #, python-format
@@ -878,29 +878,29 @@ msgstr[1] "%(count)s oyun"
 
 #: ../templates/following.html:35
 msgid "No players followed yet."
-msgstr ""
+msgstr "Henüz takip edilen oyuncu yok."
 
 #: ../templates/following.html:38 ../templates/simul_history.html:44
 #: ../templates/team-declined-requests.html:38
 #: ../templates/team-members.html:29
 msgid "Pagination"
-msgstr ""
+msgstr "Sayfalama"
 
 #: ../templates/following.html:39 ../templates/simul_history.html:45
 #: ../templates/team-declined-requests.html:39
 #: ../templates/team-members.html:30 ../templates/variants.html:131
 msgid "Previous"
-msgstr ""
+msgstr "Önceki"
 
 #: ../templates/following.html:40 ../templates/simul_history.html:46
 #: ../templates/team-declined-requests.html:41
 #: ../templates/team-members.html:32 ../templates/variants.html:133
 msgid "Next"
-msgstr ""
+msgstr "Sonraki"
 
 #: ../templates/forum_etiquette.html:7
 msgid "Forum Etiquette"
-msgstr ""
+msgstr "Forum kuralları"
 
 #: ../templates/forum_etiquette.html:9
 msgid ""
@@ -908,148 +908,165 @@ msgid ""
 "remove threads that break site rules. Following these guidelines keeps "
 "conversations readable and productive."
 msgstr ""
+"Forum, oyuncular arasında faydalı tartışmaların yapılması içindir. Site "
+"kurallarını ihlal eden konular moderatörler tarafından kapatılabilir veya "
+"kaldırılabilir. Bu kurallara uymak, tartışmaların düzenli ve verimli "
+"kalmasını sağlar."
 
 #: ../templates/forum_etiquette.html:12
 msgid "A descriptive title"
-msgstr ""
+msgstr "Açıklayıcı bir başlık"
 
 #: ../templates/forum_etiquette.html:13
 msgid ""
 "Pick a clear subject line so people can understand your thread before "
 "opening it."
 msgstr ""
+"Konunuzu açmadan önce anlaşılabilmesi için açık ve net bir başlık seçin."
 
 #: ../templates/forum_etiquette.html:14
 msgid "Good:"
-msgstr ""
+msgstr "İyi:"
 
 #: ../templates/forum_etiquette.html:14
 msgid "\"Tournament feature request: from-position pairings\""
-msgstr ""
+msgstr "\"Turnuva özelliği isteği: başlangıç konumundan eşleştirmeler\""
 
 #: ../templates/forum_etiquette.html:15
 msgid "Bad:"
-msgstr ""
+msgstr "Kötü:"
 
 #: ../templates/forum_etiquette.html:15
 msgid "\"Help\", \"Bug\", \"Question\", \"Hi\""
-msgstr ""
+msgstr "\"Yardım\", \"Hata\", \"Soru\", \"Selam\""
 
 #: ../templates/forum_etiquette.html:17
 msgid "Advertising and spam"
-msgstr ""
+msgstr "Reklam ve spam"
 
 #: ../templates/forum_etiquette.html:18
 msgid "Promotional posts are not allowed in forum threads."
-msgstr ""
+msgstr "Forum konularında tanıtım gönderilerine izin verilmez."
 
 #: ../templates/forum_etiquette.html:20
 msgid ""
 "Do not post \"follow me\", \"join my team\", \"join my tournament\", or "
 "channel promotion threads."
 msgstr ""
+"\"Beni takip edin\", \"takımıma katılın\", \"turnuvama katılın\" gibi "
+"gönderiler veya kanal tanıtım konuları paylaşmayın."
 
 #: ../templates/forum_etiquette.html:21
 msgid ""
 "Do not create engagement bait threads such as \"how many likes can this "
 "get\"."
 msgstr ""
+"\"Bakalım kaç beğeni alacak\" gibi etkileşim tuzağı niteliğinde konular "
+"oluşturmayın."
 
 #: ../templates/forum_etiquette.html:22
 msgid ""
 "If you see spam, use the report button on that post instead of replying to "
 "it."
 msgstr ""
+"Spam görürseniz yanıt vermek yerine gönderideki bildirme düğmesini kullanın."
 
 #: ../templates/forum_etiquette.html:25
 msgid "Use the correct sub-forum"
-msgstr ""
+msgstr "Doğru alt forumu kullanın"
 
 #: ../templates/forum_etiquette.html:26
 msgid "Choose the category that matches your topic."
-msgstr ""
+msgstr "Konunuza uygun kategoriyi seçin."
 
 #: ../templates/forum_etiquette.html:28
 msgid "General Variant Discussion"
-msgstr ""
+msgstr "Genel Varyant Tartışması"
 
 #: ../templates/forum_etiquette.html:28
 msgid "for broad chess and variant discussion."
-msgstr ""
+msgstr "genel satranç ve varyant tartışmaları için."
 
 #: ../templates/forum_etiquette.html:29
 msgid "PyChess Feedback"
-msgstr ""
+msgstr "PyChess Geri Bildirimi"
 
 #: ../templates/forum_etiquette.html:29
 msgid "for bug reports and feature feedback."
-msgstr ""
+msgstr "hata bildirimleri ve özellik geri bildirimleri için."
 
 #: ../templates/forum_etiquette.html:30
 msgid "Game Analysis"
-msgstr ""
+msgstr "Oyun Analizi"
 
 #: ../templates/forum_etiquette.html:30
 msgid "for sharing and discussing games."
-msgstr ""
+msgstr "oyunları paylaşmak ve tartışmak için."
 
 #: ../templates/forum_etiquette.html:31
 msgid "Off-Topic Discussion"
-msgstr ""
+msgstr "Konu Dışı Tartışma"
 
 #: ../templates/forum_etiquette.html:31
 msgid "for non-chess conversation."
-msgstr ""
+msgstr "satranç dışı sohbetler için."
 
 #: ../templates/forum_etiquette.html:34
 msgid "Respect other players"
-msgstr ""
+msgstr "Diğer oyunculara saygı gösterin"
 
 #: ../templates/forum_etiquette.html:36
 msgid "Explain disagreement calmly and focus on ideas, not people."
 msgstr ""
+"Anlaşmazlıkları sakin biçimde açıklayın ve kişilere değil fikirlere "
+"odaklanın."
 
 #: ../templates/forum_etiquette.html:37
 msgid "No insults, slurs, harassment, or profanity directed at other users."
 msgstr ""
+"Diğer kullanıcılara yönelik hakaret, aşağılayıcı ifade, taciz veya küfür "
+"yasaktır."
 
 #: ../templates/forum_etiquette.html:38
 msgid "Do not escalate arguments into personal fights."
-msgstr ""
+msgstr "Tartışmaları kişisel kavgalara dönüştürmeyin."
 
 #: ../templates/forum_etiquette.html:39
 msgid "If a post is abusive or trolling, report it instead of retaliating."
 msgstr ""
+"Bir gönderi tacizkârsa veya trol amaçlıysa karşılık vermek yerine bildirin."
 
 #: ../templates/forum_etiquette.html:42
 msgid "No public shaming"
-msgstr ""
+msgstr "Kamuya açık şekilde utandırma yok"
 
 #: ../templates/forum_etiquette.html:44
 msgid ""
 "Do not make accusation threads about named users (\"is X cheating?\", \"X is"
 " toxic\", etc.). Use the dedicated report form instead:"
 msgstr ""
+"Belirli kullanıcıları suçlayan konular (\"X hile mi yapıyor?\", \"X zehirli "
+"biri\" vb.) oluşturmayın. Bunun yerine özel bildirim formunu kullanın:"
 
 #: ../templates/forum_etiquette.html:47
 msgid "Before posting"
-msgstr ""
+msgstr "Göndermeden önce"
 
 #: ../templates/forum_etiquette.html:49
 msgid "Search the forum first to avoid duplicate topics."
-msgstr ""
+msgstr "Aynı konunun tekrar açılmasını önlemek için önce forumda arama yapın."
 
 #: ../templates/forum_etiquette.html:50
 msgid "Read existing FAQ or docs for common questions."
-msgstr ""
+msgstr "Yaygın sorular için mevcut SSS'yi veya belgeleri okuyun."
 
 #: ../templates/forum_etiquette.html:51
 msgid "Keep posts on-topic and readable."
-msgstr ""
+msgstr "Gönderileri konuya uygun ve okunabilir tutun."
 
 #: ../templates/game_search.html:5
 msgid "Advanced game search"
-msgstr ""
+msgstr "Gelişmiş oyun arama"
 
 #: ../templates/game_search.html:10 ../templates/template.html:48
 msgid "Players"
@@ -1057,52 +1074,52 @@ msgstr "Oyuncular"
 
 #: ../templates/game_search.html:16 ../templates/game_search.html:17
 msgid "Player 1"
-msgstr ""
+msgstr "Oyuncu 1"
 
 #: ../templates/game_search.html:24 ../templates/game_search.html:25
 msgid "Player 2"
-msgstr ""
+msgstr "Oyuncu 2"
 
 #: ../templates/game_search.html:31
 msgid "White player"
-msgstr ""
+msgstr "Beyaz oyuncu"
 
 #: ../templates/game_search.html:34 ../templates/game_search.html:42
 #: ../templates/game_search.html:50 ../templates/game_search.html:58
 msgid "Any player"
-msgstr ""
+msgstr "Herhangi bir oyuncu"
 
 #: ../templates/game_search.html:39
 msgid "Black player"
-msgstr ""
+msgstr "Siyah oyuncu"
 
 #: ../templates/game_search.html:47
 msgid "Winner"
-msgstr ""
+msgstr "Kazanan"
 
 #: ../templates/game_search.html:55
 msgid "Loser"
-msgstr ""
+msgstr "Kaybeden"
 
 #: ../templates/game_search.html:63
 msgid "Variant"
-msgstr ""
+msgstr "Varyant"
 
 #: ../templates/game_search.html:67
 msgid "Result"
-msgstr ""
+msgstr "Sonuç"
 
 #: ../templates/game_search.html:70
 msgid "Any result"
-msgstr ""
+msgstr "Herhangi bir sonuç"
 
 #: ../templates/game_search.html:78
 msgid "Game type"
-msgstr ""
+msgstr "Oyun türü"
 
 #: ../templates/game_search.html:81
 msgid "Any type"
-msgstr ""
+msgstr "Herhangi bir tür"
 
 #: ../templates/game_search.html:82 ../templates/tournaments.html:43
 msgid "Casual"
@@ -1114,43 +1131,43 @@ msgstr "Puanlı"
 
 #: ../templates/game_search.html:84
 msgid "Imported"
-msgstr ""
+msgstr "İçe aktarıldı"
 
 #: ../templates/game_search.html:85
 msgid "Correspondence"
-msgstr ""
+msgstr "Yazışmalı"
 
 #: ../templates/game_search.html:90
 msgid "Date"
-msgstr ""
+msgstr "Tarih"
 
 #: ../templates/game_search.html:93 ../templates/game_search.html:126
 msgid "From"
-msgstr ""
+msgstr "Başlangıç"
 
 #: ../templates/game_search.html:102 ../templates/game_search.html:136
 msgid "To"
-msgstr ""
+msgstr "Bitiş"
 
 #: ../templates/game_search.html:113
 msgid "Tournament ID"
-msgstr ""
+msgstr "Turnuva Kimliği"
 
 #: ../templates/game_search.html:123
 msgid "Plies"
-msgstr ""
+msgstr "Yarım hamle"
 
 #: ../templates/game_search.html:148 ../templates/variants.html:40
 msgid "Sort"
-msgstr ""
+msgstr "Sırala"
 
 #: ../templates/game_search.html:151
 msgid "Newest first"
-msgstr ""
+msgstr "En yeni önce"
 
 #: ../templates/game_search.html:152
 msgid "Oldest first"
-msgstr ""
+msgstr "En eskiler önce"
 
 #: ../templates/game_search.html:157 ../templates/template.html:63
 #: ../templates/variants.html:113
@@ -1159,28 +1176,28 @@ msgstr "Analiz"
 
 #: ../templates/game_search.html:161
 msgid "Computer analysis available"
-msgstr ""
+msgstr "Bilgisayar analizi mevcut"
 
 #: ../templates/game_search.html:172
 #: ../templates/team-declined-requests.html:12 ../templates/variants.html:32
 #: ../templates/variants.html:56
 msgid "Search"
-msgstr ""
+msgstr "Ara"
 
 #: ../templates/game_search.html:174
 msgid "Clear"
-msgstr ""
+msgstr "Temizle"
 
 #: ../templates/game_search.html:184
 msgid "Search results"
-msgstr ""
+msgstr "Arama sonuçları"
 
 #: ../templates/patron.html:11
 msgid ""
 "As you know, pychess-variants is a free server and it will remain free forever. However, maintaining and improving the server costs time and money.\n"
 "If you like our work and find our server useful, please donate through patreon or paypal."
 msgstr ""
-"Bildiğiniz gibi, pychess-variants sitesi ücretsiz bir sunucudur ve her zaman ücretsiz olarak kalıcaktır. Ancak sunucunun bakımı, sürdürülmesi ve geliştirilmesi zaman ve maddi açıdan masraf teşkil etmektedir. \n"
+"Bildiğiniz gibi, pychess-variants sitesi ücretsiz bir sunucudur ve her zaman ücretsiz olarak kalacaktır. Ancak sunucunun bakımı, sürdürülmesi ve geliştirilmesi zaman ve maddi açıdan masraf teşkil etmektedir. \n"
 "Eğer sunduğumuz hizmeti beğeniyor ve faydalı buluyorsanız, lütfen patreon veya paypal üzerinden bağışta bulunun. "
 
 #: ../templates/players.html:7
@@ -1230,29 +1247,29 @@ msgstr "Varyantlar"
 
 #: ../templates/profile.html:75
 msgid "Hosted simuls"
-msgstr ""
+msgstr "Düzenlenen eş zamanlı oyunlar"
 
 #: ../templates/profile.html:75
 msgid "Simuls"
-msgstr ""
+msgstr "Eş zamanlı oyunlar"
 
 #: ../templates/profile.html:80
 msgid "Send a private message"
-msgstr ""
+msgstr "Özel mesaj gönder"
 
 #: ../templates/profile.html:80 ../templates/team-join.html:15
 #: ../templates/team-update-new.html:12
 msgid "Message"
-msgstr ""
+msgstr "Mesaj"
 
 #: ../templates/profile.html:83 ../templates/ublog_post.html:34
 #: ../templates/ublog_post.html:35
 msgid "Report to moderators"
-msgstr ""
+msgstr "Moderatörlere bildir"
 
 #: ../templates/profile.html:83
 msgid "Report"
-msgstr ""
+msgstr "Bildir"
 
 #: ../templates/profile.html:87 ../templates/template.html:64
 msgid "Import game"
@@ -1288,72 +1305,72 @@ msgstr "Lishogi"
 
 #: ../templates/profile.html:107
 msgid "More"
-msgstr ""
+msgstr "Daha fazla"
 
 #: ../templates/simul_history.html:6
 msgid "hosted simuls"
-msgstr ""
+msgstr "düzenlenen eş zamanlı oyunlar"
 
 #: ../templates/simul_history.html:16
 msgid "Created"
-msgstr ""
+msgstr "Oluşturuldu"
 
 #: ../templates/simul_history.html:17
 msgid "Wins"
-msgstr ""
+msgstr "Galibiyet"
 
 #: ../templates/simul_history.html:17
 msgid "Draws"
-msgstr ""
+msgstr "Beraberlik"
 
 #: ../templates/simul_history.html:17
 msgid "Losses"
-msgstr ""
+msgstr "Mağlubiyet"
 
 #: ../templates/simul_history.html:29 ../templates/simuls.html:45
 #: ../templates/simuls.html:88 ../templates/simuls.html:124
 #: ../templates/simuls.html:160
 #, python-format
 msgid "%(count)s more"
-msgstr ""
+msgstr "%(count)s daha"
 
 #: ../templates/simul_history.html:40
 msgid "hasn't hosted any simuls yet!"
-msgstr ""
+msgstr "henüz hiç eş zamanlı oyun düzenlemedi!"
 
 #: ../templates/simul_new.html:39
 #, python-format
 msgid "Edit %(name)s"
-msgstr ""
+msgstr "%(name)s düzenle"
 
 #: ../templates/simul_new.html:39
 msgid "Host a new simul"
-msgstr ""
+msgstr "Yeni eş zamanlı oyun düzenle"
 
 #: ../templates/simul_new.html:42 ../templates/variants.html:46
 msgid "Name"
-msgstr ""
+msgstr "Ad"
 
 #: ../templates/simul_new.html:49 ../templates/variants.html:108
 msgid "Games"
-msgstr ""
+msgstr "Oyunlar"
 
 #: ../templates/simul_new.html:65
 msgid "Search variants"
-msgstr ""
+msgstr "Varyant ara"
 
 #: ../templates/simul_new.html:69 ../templates/variants.html:50
 msgid "Favorites"
-msgstr ""
+msgstr "Favoriler"
 
 #: ../templates/simul_new.html:75
 msgid "Site variants"
-msgstr ""
+msgstr "Site varyantları"
 
 #: ../templates/simul_new.html:81 ../templates/variants.html:11
 #: ../templates/variants.html:26 ../templates/variants.html:198
 msgid "Community variants"
-msgstr ""
+msgstr "Topluluk varyantları"
 
 #: ../templates/simul_new.html:90
 #, python-format
@@ -1362,161 +1379,174 @@ msgid ""
 "shown first; search to reach the full public community catalogue. Each "
 "applicant chooses one offered variant."
 msgstr ""
+"En fazla %(max_variants)s varyant seçin. Önce favoriler ve site varyantları "
+"gösterilir; tüm herkese açık topluluk kataloğuna ulaşmak için arama yapın. "
+"Her başvuru sahibi sunulan varyantlardan birini seçer."
 
 #: ../templates/simul_new.html:93
 msgid "Host color"
-msgstr ""
+msgstr "Ev sahibi rengi"
 
 #: ../templates/simul_new.html:95
 msgid "Random"
-msgstr ""
+msgstr "Rastgele"
 
 #: ../templates/simul_new.html:96
 msgid "White"
-msgstr ""
+msgstr "Beyaz"
 
 #: ../templates/simul_new.html:97
 msgid "Black"
-msgstr ""
+msgstr "Siyah"
 
 #: ../templates/simul_new.html:102
 msgid "Starting position"
-msgstr ""
+msgstr "Başlangıç konumu"
 
 #: ../templates/simul_new.html:105
 msgid "Optional. Custom positions require exactly one selected variant."
 msgstr ""
+"İsteğe bağlıdır. Özel konumlar için tam olarak bir varyant seçilmelidir."
 
 #: ../templates/simul_new.html:106
 msgid "Board editor"
-msgstr ""
+msgstr "Tahta düzenleyici"
 
 #: ../templates/simul_new.html:107
 msgid "to create a position, then paste its FEN here."
-msgstr ""
+msgstr "bir konum oluşturun, ardından FEN değerini buraya yapıştırın."
 
 #: ../templates/simul_new.html:112
 msgid "Clock"
-msgstr ""
+msgstr "Saat"
 
 #: ../templates/simul_new.html:115
 msgid "Clock initial time"
-msgstr ""
+msgstr "Başlangıç süresi"
 
 #: ../templates/simul_new.html:118
 #, python-format
 msgid "%(count)s minute"
 msgid_plural "%(count)s minutes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)s dakika"
+msgstr[1] "%(count)s dakika"
 
 #: ../templates/simul_new.html:123
 msgid "Clock increment"
-msgstr ""
+msgstr "Süre artışı"
 
 #: ../templates/simul_new.html:126
 #, python-format
 msgid "%(count)s second"
 msgid_plural "%(count)s seconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)s saniye"
+msgstr[1] "%(count)s saniye"
 
 #: ../templates/simul_new.html:133
 msgid "Host extra initial clock time"
-msgstr ""
+msgstr "Ev sahibine ek başlangıç süresi"
 
 #: ../templates/simul_new.html:136 ../templates/simul_new.html:148
 #, python-format
 msgid "%(count)s second (custom)"
 msgid_plural "%(count)s seconds (custom)"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)s saniye (özel)"
+msgstr[1] "%(count)s saniye (özel)"
 
 #: ../templates/simul_new.html:142
 msgid "Applied only to the host, just like lichess simuls."
 msgstr ""
+"Tıpkı lichess eş zamanlı oyunlarında olduğu gibi yalnızca ev sahibine "
+"uygulanır."
 
 #: ../templates/simul_new.html:145
 msgid "Host extra clock time per player"
-msgstr ""
+msgstr "Oyuncu başına ev sahibine ek süre"
 
 #: ../templates/simul_new.html:154
 msgid ""
 "Added to the host clock once for each accepted opponent when the simul "
 "starts."
 msgstr ""
+"Eş zamanlı oyun başladığında kabul edilen her rakip için ev sahibi saatine "
+"bir kez eklenir."
 
 #: ../templates/simul_new.html:159
 msgid "Entry conditions"
-msgstr ""
+msgstr "Katılım koşulları"
 
 #: ../templates/simul_new.html:162
 msgid "Minimum rated games"
-msgstr ""
+msgstr "En az puanlı oyun"
 
 #: ../templates/simul_new.html:165
 #, python-format
 msgid "%(count)s rated game (custom)"
 msgid_plural "%(count)s rated games (custom)"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)s puanlı oyun (özel)"
+msgstr[1] "%(count)s puanlı oyun (özel)"
 
 #: ../templates/simul_new.html:171
 msgid "Required rated games in this variant before a player can join."
 msgstr ""
+"Bir oyuncunun katılabilmesi için bu varyantta gereken puanlı oyun sayısı."
 
 #: ../templates/simul_new.html:176
 msgid "Minimum rating"
-msgstr ""
+msgstr "Minimum puan"
 
 #: ../templates/simul_new.html:179 ../templates/simul_new.html:190
 msgid "custom"
-msgstr ""
+msgstr "özel"
 
 #: ../templates/simul_new.html:187
 msgid "Maximum rating"
-msgstr ""
+msgstr "Maksimum puan"
 
 #: ../templates/simul_new.html:200
 msgid "Minimum account age"
-msgstr ""
+msgstr "Minimum hesap yaşı"
 
 #: ../templates/simul_new.html:203
 #, python-format
 msgid "%(count)s day (custom)"
 msgid_plural "%(count)s days (custom)"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)s gün (özel)"
+msgstr[1] "%(count)s gün (özel)"
 
 #: ../templates/simul_new.html:212
 msgid "Only members of team"
-msgstr ""
+msgstr "Yalnızca takım üyeleri"
 
 #: ../templates/simul_new.html:225
 msgid "Estimated start time"
-msgstr ""
+msgstr "Tahmini başlangıç zamanı"
 
 #: ../templates/simul_new.html:227
 msgid "Optional. For display only, in your local timezone."
 msgstr ""
+"İsteğe bağlıdır. Yalnızca gösterim içindir ve yerel saat diliminizi "
+"kullanır."
 
 #: ../templates/simul_new.html:232
 msgid ""
 "Only the simul name and description can be edited after the simul has "
 "started or finished."
 msgstr ""
+"Eş zamanlı oyun başladıktan veya bittikten sonra yalnızca adı ve açıklaması "
+"düzenlenebilir."
 
 #: ../templates/simul_new.html:236
 msgid "Simul description"
-msgstr ""
+msgstr "Eş zamanlı oyun açıklaması"
 
 #: ../templates/simul_new.html:239
 msgid "Anything special you want to tell the participants?"
-msgstr ""
+msgstr "Katılımcılara söylemek istediğiniz özel bir şey var mı?"
 
 #: ../templates/simul_new.html:245
 msgid "Cancel the simul"
-msgstr ""
+msgstr "Eş zamanlı oyunu iptal et"
 
 #: ../templates/simul_new.html:247 ../templates/simul_new.html:251
 #: ../templates/team-edit.html:54 ../templates/team-join.html:29
@@ -1524,42 +1554,52 @@ msgstr ""
 #: ../templates/team-update-new.html:23 ../templates/ublog_form.html:71
 #: ../templates/ublog_form.html:109
 msgid "Cancel"
-msgstr ""
+msgstr "İptal"
 
 #: ../templates/simul_new.html:249 ../templates/simul_new.html:252
 msgid "Save"
-msgstr ""
+msgstr "Kaydet"
 
 #: ../templates/simul_new.html:249 ../templates/simul_new.html:252
 msgid "Create a new simul"
-msgstr ""
+msgstr "Yeni eş zamanlı oyun oluştur"
 
 #: ../templates/simuls.html:6
 msgid "Simuls involve a single player facing several players at once."
 msgstr ""
+"Eş zamanlı oyunlarda tek bir oyuncu aynı anda birden fazla oyuncuyla "
+"karşılaşır."
 
 #: ../templates/simuls.html:7 ../templates/simuls.html:8
 msgid ""
 "The chess prodigy Samuel Reshevsky, 8 years old, performing a simultaneous "
 "exhibition against adults in Paris, 1920."
 msgstr ""
+"Satranç dahisi 8 yaşındaki Samuel Reshevsky, 1920'de Paris'te yetişkinlere "
+"karşı eş zamanlı gösteri yaparken."
 
 #: ../templates/simuls.html:9
 msgid ""
 "The concept is taken from real world events. In real life, this involves the"
 " simul host moving from table to table to play a single move."
 msgstr ""
+"Bu kavram gerçek hayattaki etkinliklerden alınmıştır. Gerçekte eş zamanlı "
+"oyun ev sahibi, tek bir hamle yapmak için masadan masaya geçer."
 
 #: ../templates/simuls.html:10
 msgid ""
 "When the simul starts, every player starts a game with the host. The simul "
 "ends when all games are complete."
 msgstr ""
+"Eş zamanlı oyun başladığında her oyuncu ev sahibiyle bir oyun başlatır. Tüm "
+"oyunlar tamamlandığında eş zamanlı oyun sona erer."
 
 #: ../templates/simuls.html:11
 msgid ""
 "Simuls are always casual. Rematches, takebacks and adding time are disabled."
 msgstr ""
+"Eş zamanlı oyunlar her zaman puansızdır. Rövanş, hamleyi geri alma ve süre "
+"ekleme devre dışıdır."
 
 #: ../templates/simuls.html:17
 msgid "Simultaneous Exhibitions"
@@ -1571,30 +1611,30 @@ msgstr "YENİ EŞ ZAMANLI OYUN YÖNET"
 
 #: ../templates/simuls.html:29
 msgid "Your simuls"
-msgstr ""
+msgstr "Eş zamanlı oyunlarım"
 
 #: ../templates/simuls.html:41 ../templates/simuls.html:84
 #: ../templates/simuls.html:120 ../templates/simuls.html:156
 #: ../templates/team-show.html:197 ../templates/team-show.html:233
 #: ../templates/team-updates.html:66
 msgid "by"
-msgstr ""
+msgstr "tarafından"
 
 #: ../templates/simuls.html:56
 msgid "Host"
-msgstr ""
+msgstr "Ev sahibi"
 
 #: ../templates/simuls.html:58
 msgid "Accepted"
-msgstr ""
+msgstr "Kabul edildi"
 
 #: ../templates/simuls.html:60
 msgid "Pending"
-msgstr ""
+msgstr "Beklemede"
 
 #: ../templates/simuls.html:72
 msgid "Featured simuls"
-msgstr ""
+msgstr "Öne çıkan eş zamanlı oyunlar"
 
 #: ../templates/simuls.html:98 ../templates/simuls.html:134
 #: ../templates/simuls.html:170 ../templates/tournaments.html:55
@@ -1606,7 +1646,7 @@ msgstr[1] "%(count)s oyuncu"
 
 #: ../templates/simuls.html:108
 msgid "Playing now"
-msgstr "Şuan oynuyor"
+msgstr "Şu an oynuyor"
 
 #: ../templates/simuls.html:144 ../templates/tournaments.html:23
 msgid "Finished"
@@ -1614,80 +1654,84 @@ msgstr "Bitti"
 
 #: ../templates/team-declined-requests.html:9 ../templates/team-show.html:121
 msgid "Declined requests"
-msgstr ""
+msgstr "Reddedilen istekler"
 
 #: ../templates/team-declined-requests.html:11
 msgid "Search user"
-msgstr ""
+msgstr "Kullanıcı ara"
 
 #: ../templates/team-declined-requests.html:27
 #: ../templates/team-requests.html:31 ../templates/team-show.html:179
 msgid "Accept"
-msgstr ""
+msgstr "Kabul et"
 
 #: ../templates/team-declined-requests.html:32
 msgid "No declined requests found."
-msgstr ""
+msgstr "Reddedilen istek bulunamadı."
 
 #: ../templates/team-declined-requests.html:40
 #: ../templates/team-members.html:31
 #, python-format
 msgid "Page %(page)s"
-msgstr ""
+msgstr "Sayfa %(page)s"
 
 #: ../templates/team-edit.html:8
 msgid "Edit team"
-msgstr ""
+msgstr "Takımı düzenle"
 
 #: ../templates/team-edit.html:11 ../templates/team-new.html:19
 msgid "Short introduction"
-msgstr ""
+msgstr "Kısa tanıtım"
 
 #: ../templates/team-edit.html:13 ../templates/team-new.html:21
 msgid "A short sentence shown in team lists and at the top of the team page."
 msgstr ""
+"Takım listelerinde ve takım sayfasının üst kısmında gösterilen kısa "
+"açıklama."
 
 #: ../templates/team-edit.html:17 ../templates/team-new.html:25
 msgid "Description"
-msgstr ""
+msgstr "Açıklama"
 
 #: ../templates/team-edit.html:25 ../templates/team-new.html:34
 msgid "Manually review admission requests"
-msgstr ""
+msgstr "Katılım isteklerini manuel olarak incele"
 
 #: ../templates/team-edit.html:27 ../templates/team-new.html:36
 msgid "New members must be approved by a team leader."
-msgstr ""
+msgstr "Yeni üyeler bir takım yöneticisi tarafından onaylanmalıdır."
 
 #: ../templates/team-edit.html:30
 msgid "New entry code"
-msgstr ""
+msgstr "Yeni giriş kodu"
 
 #: ../templates/team-edit.html:32
 msgid "Leave blank to keep the current entry code."
-msgstr ""
+msgstr "Mevcut giriş kodunu korumak için boş bırakın."
 
 #: ../templates/team-edit.html:36
 msgid "Remove the current entry code"
-msgstr ""
+msgstr "Mevcut giriş kodunu kaldır"
 
 #: ../templates/team-edit.html:43 ../templates/team-new.html:46
 #: ../templates/team-show.html:225
 msgid "Team forum"
-msgstr ""
+msgstr "Takım forumu"
 
 #: ../templates/team-edit.html:50 ../templates/team-new.html:52
 msgid ""
 "Who can see the team forum on the team page. Only team members can post."
 msgstr ""
+"Takım sayfasındaki takım forumunu kimler görebilir. Yalnızca takım üyeleri "
+"gönderi paylaşabilir."
 
 #: ../templates/team-edit.html:55
 msgid "Save changes"
-msgstr ""
+msgstr "Değişiklikleri kaydet"
 
 #: ../templates/team-edit.html:61 ../templates/team-edit.html:64
 msgid "Close team"
-msgstr ""
+msgstr "Takımı kapat"
 
 #: ../templates/team-edit.html:62
 msgid ""
@@ -1695,33 +1739,38 @@ msgid ""
 "joining, updates, forums, and new team tournament participation are "
 "disabled. Only a site administrator can reopen it."
 msgstr ""
+"Takımın kapatılması onu arşivler. Üyeler ve geçmiş içerik korunur; ancak "
+"katılım, güncellemeler, forumlar ve yeni takım turnuvalarına katılım devre "
+"dışı bırakılır. Takımı yalnızca site yöneticisi yeniden açabilir."
 
 #: ../templates/team-join.html:8 ../templates/team-join.html:30
 #: ../templates/team-show.html:77 ../templates/team-show.html:80
 msgid "Join team"
-msgstr ""
+msgstr "Takıma katıl"
 
 #: ../templates/team-join.html:17
 msgid ""
 "Tell the team leaders why you want to join. Your request will be reviewed "
 "before you become a member."
 msgstr ""
+"Takım yöneticilerine neden katılmak istediğinizi anlatın. Üye olmadan önce "
+"isteğiniz incelenecektir."
 
 #: ../templates/team-join.html:23 ../templates/team-new.html:39
 msgid "Entry code"
-msgstr ""
+msgstr "Giriş kodu"
 
 #: ../templates/team-leaders.html:8 ../templates/team-show.html:111
 msgid "Team leaders"
-msgstr ""
+msgstr "Takım yöneticileri"
 
 #: ../templates/team-leaders.html:12
 msgid "Add a new leader"
-msgstr ""
+msgstr "Yeni yönetici ekle"
 
 #: ../templates/team-leaders.html:13
 msgid "Add"
-msgstr ""
+msgstr "Ekle"
 
 #: ../templates/team-leaders.html:15
 #, python-format
@@ -1732,11 +1781,15 @@ msgid_plural ""
 "The user must already be a team member. A team can have up to %(count)s "
 "leaders."
 msgstr[0] ""
+"Kullanıcı zaten takım üyesi olmalıdır. Bir takımın en fazla %(count)s "
+"yöneticisi olabilir."
 msgstr[1] ""
+"Kullanıcı zaten takım üyesi olmalıdır. Bir takımın en fazla %(count)s "
+"yöneticisi olabilir."
 
 #: ../templates/team-leaders.html:45
 msgid "for"
-msgstr ""
+msgstr "için"
 
 #: ../templates/team-leaders.html:56
 #, python-format
@@ -1745,47 +1798,50 @@ msgid ""
 " permission. At least one Admin is always required, and a team can have at "
 "most %(max_admins)s Admins."
 msgstr ""
+"Bir yöneticiyi kaldırmak için tüm izinlerini kaldırın. Takımın oluşturucusu "
+"Admin iznini korumalıdır. Her zaman en az bir Admin gerekir ve bir takımda "
+"en fazla %(max_admins)s Admin bulunabilir."
 
 #: ../templates/team-leaders.html:60
 msgid "Save permissions"
-msgstr ""
+msgstr "İzinleri kaydet"
 
 #: ../templates/team-members.html:9 ../templates/teams.html:26
 #, python-format
 msgid "%(count)s member"
 msgid_plural "%(count)s members"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)s üye"
+msgstr[1] "%(count)s üye"
 
 #: ../templates/team-members.html:23
 msgid "No members found."
-msgstr ""
+msgstr "Üye bulunamadı."
 
 #: ../templates/team-menu.html:3 ../templates/team-show.html:117
 msgid "Join requests"
-msgstr ""
+msgstr "Katılım istekleri"
 
 #: ../templates/team-menu.html:6 ../templates/team-updates.html:7
 #: ../templates/teams.html:9
 msgid "My teams"
-msgstr ""
+msgstr "Takımlarım"
 
 #: ../templates/team-menu.html:7 ../templates/team-show.html:87
 #: ../templates/team-show.html:193 ../templates/team-updates.html:49
 msgid "Team updates"
-msgstr ""
+msgstr "Takım güncellemeleri"
 
 #: ../templates/team-menu.html:9
 msgid "All teams"
-msgstr ""
+msgstr "Tüm takımlar"
 
 #: ../templates/team-menu.html:11
 msgid "New team"
-msgstr ""
+msgstr "Yeni takım"
 
 #: ../templates/team-new.html:8
 msgid "Create a team"
-msgstr ""
+msgstr "Takım oluştur"
 
 #: ../templates/team-new.html:10
 #, python-format
@@ -1793,247 +1849,258 @@ msgid ""
 "You can create up to %(created)s teams in seven days and join up to "
 "%(joined)s teams."
 msgstr ""
+"Yedi gün içinde en fazla %(created)s takım oluşturabilir ve %(joined)s "
+"takıma katılabilirsiniz."
 
 #: ../templates/team-new.html:14
 msgid "Team name"
-msgstr ""
+msgstr "Takım adı"
 
 #: ../templates/team-new.html:27
 msgid "Tell players what this team is about."
-msgstr ""
+msgstr "Oyunculara bu takımın ne hakkında olduğunu anlatın."
 
 #: ../templates/team-new.html:41
 msgid ""
 "Optional. Players must know this code before they can join or request "
 "membership."
 msgstr ""
+"İsteğe bağlıdır. Oyuncular katılmadan veya üyelik talebinde bulunmadan önce "
+"bu kodu bilmelidir."
 
 #: ../templates/team-new.html:57
 msgid "Create team"
-msgstr ""
+msgstr "Takım oluştur"
 
 #: ../templates/team-requests.html:8 ../templates/team-show.html:167
 #, python-format
 msgid "%(count)s join request"
 msgid_plural "%(count)s join requests"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)s katılım isteği"
+msgstr[1] "%(count)s katılım isteği"
 
 #: ../templates/team-requests.html:27 ../templates/team-show.html:178
 msgid "Decline"
-msgstr ""
+msgstr "Reddet"
 
 #: ../templates/team-requests.html:40
 msgid "No pending join requests."
-msgstr ""
+msgstr "Bekleyen katılım isteği yok."
 
 #: ../templates/team-show.html:11
 msgid "CLOSED"
-msgstr ""
+msgstr "KAPALI"
 
 #: ../templates/team-show.html:13
 msgid "member"
 msgid_plural "members"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "üye"
+msgstr[1] "üye"
 
 #: ../templates/team-show.html:23
 msgid "Team leaders:"
-msgstr ""
+msgstr "Takım yöneticileri:"
 
 #: ../templates/team-show.html:29
 msgid "Created by"
-msgstr ""
+msgstr "Oluşturan"
 
 #: ../templates/team-show.html:36
 msgid "Team closed"
-msgstr ""
+msgstr "Takım kapatıldı"
 
 #: ../templates/team-show.html:37
 msgid "This team is archived and cannot accept new activity."
-msgstr ""
+msgstr "Bu takım arşivlendi ve yeni etkinlik kabul edemez."
 
 #: ../templates/team-show.html:41 ../templates/team-show.html:61
 msgid "Leave team"
-msgstr ""
+msgstr "Takımdan ayrıl"
 
 #: ../templates/team-show.html:56
 msgid "You are a member"
-msgstr ""
+msgstr "Takım üyesisin"
 
 #: ../templates/team-show.html:57
 msgid "You are a team leader."
-msgstr ""
+msgstr "Takım yöneticisisin."
 
 #: ../templates/team-show.html:66
 msgid "Join request pending"
-msgstr ""
+msgstr "Katılım isteği beklemede"
 
 #: ../templates/team-show.html:67
 msgid "A team leader must approve your request."
-msgstr ""
+msgstr "Bir takım yöneticisi isteğinizi onaylamalıdır."
 
 #: ../templates/team-show.html:70
 msgid "Cancel request"
-msgstr ""
+msgstr "İsteği iptal et"
 
 #: ../templates/team-show.html:74
 msgid "Join request declined"
-msgstr ""
+msgstr "Katılım isteği reddedildi"
 
 #: ../templates/team-show.html:75
 msgid ""
 "You cannot request to join this team again unless a team leader restores "
 "your request."
 msgstr ""
+"Bir takım yöneticisi isteğinizi geri yüklemedikçe bu takıma yeniden katılma "
+"isteği gönderemezsiniz."
 
 #: ../templates/team-show.html:88
 msgid "Read team announcements"
-msgstr ""
+msgstr "Takım duyurularını oku"
 
 #: ../templates/team-show.html:93 ../templates/team-update-new.html:8
 msgid "New team update"
-msgstr ""
+msgstr "Yeni takım güncellemesi"
 
 #: ../templates/team-show.html:94
 msgid "Message subscribed members"
-msgstr ""
+msgstr "Abone olan üyelere mesaj gönder"
 
 #: ../templates/team-show.html:99
 msgid "Team tournament"
-msgstr ""
+msgstr "Takım turnuvası"
 
 #: ../templates/team-show.html:100
 msgid "Create an Arena, Round-Robin, or Swiss"
-msgstr ""
+msgstr "Arena, Dairesel veya İsviçre turnuvası oluşturun"
 
 #: ../templates/team-show.html:106
 msgid "Edit team information and access"
-msgstr ""
+msgstr "Takım bilgilerini ve erişimini düzenle"
 
 #: ../templates/team-show.html:118
 msgid "Review requests across your teams"
-msgstr ""
+msgstr "Takımlarınızdaki istekleri inceleyin"
 
 #: ../templates/team-show.html:122
 msgid "Restore previously declined requests"
-msgstr ""
+msgstr "Daha önce reddedilen istekleri geri yükleyin"
 
 #: ../templates/team-show.html:139
 msgid "Recent members"
-msgstr ""
+msgstr "Son üyeler"
 
 #: ../templates/team-show.html:144
 msgid "Leader"
-msgstr ""
+msgstr "Yönetici"
 
 #: ../templates/team-show.html:154
 #, python-format
 msgid "All %(count)s member »"
 msgid_plural "All %(count)s members »"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Tüm %(count)s üye »"
+msgstr[1] "Tüm %(count)s üye »"
 
 #: ../templates/team-show.html:200
 msgid "More »"
-msgstr ""
+msgstr "Daha fazla »"
 
 #: ../templates/team-show.html:207
 msgid "Team tournaments"
-msgstr ""
+msgstr "Takım turnuvaları"
 
 #: ../templates/team-show.html:237
 #, python-format
 msgid "%(count)s reply"
 msgid_plural "%(count)s replies"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)s yanıt"
+msgstr[1] "%(count)s yanıt"
 
 #: ../templates/team-show.html:243
 #, python-format
 msgid "%(team_name)s forum »"
-msgstr ""
+msgstr "%(team_name)s forumu »"
 
 #: ../templates/team-show.html:249
 msgid "This team is closed"
-msgstr ""
+msgstr "Bu takım kapalı"
 
 #: ../templates/team-show.html:250
 msgid ""
 "Memberships and historical content are preserved, but team activity is "
 "disabled."
 msgstr ""
+"Üyelikler ve geçmiş içerik korunur, ancak takım etkinliği devre dışıdır."
 
 #: ../templates/team-update-new.html:14
 msgid "This update is sent to subscribed team members."
-msgstr ""
+msgstr "Bu güncelleme abone olan takım üyelerine gönderilir."
 
 #: ../templates/team-update-new.html:18
 #, python-format
 msgid "You can send up to %(max_updates)s team updates in seven days."
 msgstr ""
+"Yedi gün içinde en fazla %(max_updates)s takım güncellemesi "
+"gönderebilirsiniz."
 
 #: ../templates/team-update-new.html:19
 msgid "remaining in the current rolling window."
-msgstr ""
+msgstr "mevcut kayan zaman aralığında kaldı."
 
 #: ../templates/team-update-new.html:25
 msgid "Send update"
-msgstr ""
+msgstr "Güncellemeyi gönder"
 
 #: ../templates/team-update-new.html:27
 msgid "Limit reached"
-msgstr ""
+msgstr "Sınıra ulaşıldı"
 
 #: ../templates/team-updates.html:24
 msgid "No recent team updates"
-msgstr ""
+msgstr "Son takım güncellemesi yok"
 
 #: ../templates/team-updates.html:33
 msgid "All team updates"
-msgstr ""
+msgstr "Tüm takım güncellemeleri"
 
 #: ../templates/team-updates.html:37
 msgid "New update"
-msgstr ""
+msgstr "Yeni güncelleme"
 
 #: ../templates/team-updates.html:41
 msgid "Unsubscribe"
-msgstr ""
+msgstr "Abonelikten çık"
 
 #: ../templates/team-updates.html:44
 msgid "Subscribe"
-msgstr ""
+msgstr "Abone ol"
 
 #: ../templates/team-updates.html:55
 msgid ""
 "You are unsubscribed from notifications and the combined Team updates feed "
 "for this team."
 msgstr ""
+"Bu takımın bildirimlerinden ve birleşik Takım güncellemeleri akışından "
+"aboneliğinizi kaldırdınız."
 
 #: ../templates/team-updates.html:73
 msgid "No team updates yet"
-msgstr ""
+msgstr "Henüz takım güncellemesi yok"
 
 #: ../templates/team-updates.html:74
 msgid "You can send the first update to this team."
-msgstr ""
+msgstr "Bu takıma ilk güncellemeyi siz gönderebilirsiniz."
 
 #: ../templates/teams.html:9 ../templates/template.html:52
 msgid "Teams"
-msgstr ""
+msgstr "Takımlar"
 
 #: ../templates/teams.html:21
 msgid "joined"
-msgstr ""
+msgstr "katıldı"
 
 #: ../templates/teams.html:33
 msgid "No teams yet"
-msgstr ""
+msgstr "Henüz takım yok"
 
 #: ../templates/teams.html:33
 msgid "Create the first one and invite other PyChess players."
-msgstr ""
+msgstr "İlk takımı oluşturun ve diğer PyChess oyuncularını davet edin."
 
 #: ../templates/template.html:14 ../templates/variants.html:111
 #: ../templates/variants.html:195
@@ -2058,7 +2125,7 @@ msgstr "Öğren"
 
 #: ../templates/template.html:33
 msgid "Authors"
-msgstr ""
+msgstr "Yazarlar"
 
 #: ../templates/template.html:34
 msgid "Memory"
@@ -2078,11 +2145,11 @@ msgstr "Video kütüphanesi"
 
 #: ../templates/template.html:50
 msgid "Friends"
-msgstr ""
+msgstr "Arkadaşlar"
 
 #: ../templates/template.html:54
 msgid "Forum"
-msgstr ""
+msgstr "Forum"
 
 #: ../templates/template.html:55
 msgid "Blog"
@@ -2102,11 +2169,11 @@ msgstr "Editör"
 
 #: ../templates/template.html:65
 msgid "Advanced search"
-msgstr ""
+msgstr "Gelişmiş arama"
 
 #: ../templates/template.html:66
 msgid "My variants"
-msgstr ""
+msgstr "Varyantlarım"
 
 #: ../templates/template.html:90
 msgid "Login"
@@ -2130,299 +2197,306 @@ msgstr "Yakında başlıyor"
 
 #: ../templates/ublog_community.html:18
 msgid "Community blogs"
-msgstr ""
+msgstr "Topluluk blogları"
 
 #: ../templates/ublog_community.html:21
 msgid "Filtered by"
-msgstr ""
+msgstr "Filtreleme:"
 
 #: ../templates/ublog_form.html:7
 msgid "Published"
-msgstr ""
+msgstr "Yayınlandı"
 
 #: ../templates/ublog_form.html:8 ../templates/ublog_index.html:11
 #: ../templates/ublog_post.html:11
 msgid "Drafts"
-msgstr ""
+msgstr "Taslaklar"
 
 #: ../templates/ublog_form.html:9 ../templates/ublog_form.html:14
 #: ../templates/ublog_index.html:12
 msgid "New post"
-msgstr ""
+msgstr "Yeni gönderi"
 
 #: ../templates/ublog_form.html:14
 msgid "Edit your blog post"
-msgstr ""
+msgstr "Blog gönderini düzenle"
 
 #: ../templates/ublog_form.html:21
 msgid "Title must have at least 3 characters."
-msgstr ""
+msgstr "Başlık en az 3 karakter içermelidir."
 
 #: ../templates/ublog_form.html:22
 msgid "Intro must have at least 3 characters."
-msgstr ""
+msgstr "Giriş en az 3 karakter içermelidir."
 
 #: ../templates/ublog_form.html:23
 msgid "Post body must have at least 3 characters."
-msgstr ""
+msgstr "Gönderi metni en az 3 karakter içermelidir."
 
 #: ../templates/ublog_form.html:24
 msgid "Image URL must be absolute http(s) or start with /."
 msgstr ""
+"Görsel URL'i mutlak bir http(s) adresi olmalı veya / ile başlamalıdır."
 
 #: ../templates/ublog_form.html:33
 msgid "Keep content safe and respectful."
-msgstr ""
+msgstr "İçeriği güvenli ve saygılı tutun."
 
 #: ../templates/ublog_form.html:34
 msgid "Inappropriate content may lead to account closure."
-msgstr ""
+msgstr "Uygunsuz içerik hesabın kapatılmasına yol açabilir."
 
 #: ../templates/ublog_form.html:35
 msgid "Use markdown for formatting, links, and code blocks."
-msgstr ""
+msgstr "Biçimlendirme, bağlantılar ve kod blokları için Markdown kullanın."
 
 #: ../templates/ublog_form.html:45
 msgid "Title"
-msgstr ""
+msgstr "Başlık"
 
 #: ../templates/ublog_form.html:48
 msgid "Intro"
-msgstr ""
+msgstr "Giriş"
 
 #: ../templates/ublog_form.html:51
 msgid "Markdown body"
-msgstr ""
+msgstr "Markdown gövdesi"
 
 #: ../templates/ublog_form.html:55
 msgid "Topics"
-msgstr ""
+msgstr "Konular"
 
 #: ../templates/ublog_form.html:62
 msgid "Language"
-msgstr ""
+msgstr "Dil"
 
 #: ../templates/ublog_form.html:72
 msgid "Save draft"
-msgstr ""
+msgstr "Taslağı kaydet"
 
 #: ../templates/ublog_form.html:76
 msgid "Image"
-msgstr ""
+msgstr "Görsel"
 
 #: ../templates/ublog_form.html:77
 msgid "Image URL"
-msgstr ""
+msgstr "Görsel URL'i"
 
 #: ../templates/ublog_form.html:80
 msgid "Image alt text"
-msgstr ""
+msgstr "Görsel alternatif metni"
 
 #: ../templates/ublog_form.html:83
 msgid "Image credit"
-msgstr ""
+msgstr "Görsel kaynağı"
 
 #: ../templates/ublog_form.html:91
 msgid "Create blog discussion"
-msgstr ""
+msgstr "Blog tartışması oluştur"
 
 #: ../templates/ublog_form.html:95
 msgid "Publish on your blog"
-msgstr ""
+msgstr "Blogunda yayınla"
 
 #: ../templates/ublog_form.html:99
 msgid "Sticky post"
-msgstr ""
+msgstr "Sabit gönderi"
 
 #: ../templates/ublog_form.html:104
 msgid "Publish in \"By PyChess\""
-msgstr ""
+msgstr "\"PyChess tarafından\" bölümünde yayınla"
 
 #: ../templates/ublog_form.html:110
 msgid "Apply"
-msgstr ""
+msgstr "Uygula"
 
 #: ../templates/ublog_form.html:111
 msgid "Save and open post"
-msgstr ""
+msgstr "Kaydet ve gönderiyi aç"
 
 #: ../templates/ublog_form.html:119
 msgid "Delete post"
-msgstr ""
+msgstr "Gönderiyi sil"
 
 #: ../templates/ublog_index.html:9 ../templates/ublog_index.html:18
 #: ../templates/ublog_post.html:9
 #, python-format
 msgid "By %(profile)s"
-msgstr ""
+msgstr "%(profile)s tarafından"
 
 #: ../templates/ublog_index.html:18
 #, python-format
 msgid "%(profile)s drafts"
-msgstr ""
+msgstr "%(profile)s taslakları"
 
 #: ../templates/ublog_index.html:32
 msgid "Sticky"
-msgstr ""
+msgstr "Sabitle"
 
 #: ../templates/ublog_index.html:42
 msgid "No posts yet."
-msgstr ""
+msgstr "Henüz gönderi yok."
 
 #: ../templates/ublog_post.html:12
 msgid "Edit post"
-msgstr ""
+msgstr "Gönderiyi düzenle"
 
 #: ../templates/ublog_post.html:29
 #, python-format
 msgid "%(count)s view"
 msgid_plural "%(count)s views"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)s görüntülenme"
+msgstr[1] "%(count)s görüntülenme"
 
 #: ../templates/ublog_post.html:43
 msgid "Image credit:"
-msgstr ""
+msgstr "Görsel kaynağı:"
 
 #: ../templates/ublog_post.html:47
 msgid "Discuss this blog post in the forum"
-msgstr ""
+msgstr "Bu blog gönderisini forumda tartış"
 
 #: ../templates/ublog_post.html:53 ../templates/ublog_post.html:55
 msgid "Unlike"
-msgstr ""
+msgstr "Beğenmekten vazgeç"
 
 #: ../templates/ublog_post.html:53 ../templates/ublog_post.html:55
 msgid "Like"
-msgstr ""
+msgstr "Beğen"
 
 #: ../templates/ublog_post.html:61
 msgid "Likes"
-msgstr ""
+msgstr "Beğeniler"
 
 #: ../templates/ublog_post.html:67
 msgid "You may also like"
-msgstr ""
+msgstr "Bunları da beğenebilirsiniz"
 
 #: ../templates/variants.html:8
 msgid "Terminology"
-msgstr ""
+msgstr "Terminoloji"
 
 #: ../templates/variants.html:14
 msgid "Variant authors"
-msgstr ""
+msgstr "Varyant yazarları"
 
 #: ../templates/variants.html:28
 msgid ""
 "Browse public user-defined variants. They stay outside the regular variant "
 "catalog and are always casual/unrated."
 msgstr ""
+"Kullanıcıların oluşturduğu herkese açık varyantlara göz atın. Bunlar normal "
+"varyant kataloğunun dışında tutulur ve her zaman puansızdır."
 
 #: ../templates/variants.html:33
 msgid "Name, description, or uploader"
-msgstr ""
+msgstr "Ad, açıklama veya yükleyen"
 
 #: ../templates/variants.html:36 ../templates/variants.html:97
 #: ../templates/variants.html:174
 msgid "Uploaded by"
-msgstr ""
+msgstr "Yükleyen"
 
 #: ../templates/variants.html:37
 msgid "Exact username"
-msgstr ""
+msgstr "Tam kullanıcı adı"
 
 #: ../templates/variants.html:42
 msgid "Recently updated"
-msgstr ""
+msgstr "Yakın zamanda güncellendi"
 
 #: ../templates/variants.html:43
 msgid "Favorites first"
-msgstr ""
+msgstr "Favoriler önce"
 
 #: ../templates/variants.html:44
 msgid "Most played"
-msgstr ""
+msgstr "En çok oynanan"
 
 #: ../templates/variants.html:45
 msgid "Newest"
-msgstr ""
+msgstr "En yeni"
 
 #: ../templates/variants.html:49
 msgid "Sign in to use favorites"
-msgstr ""
+msgstr "Favorileri kullanmak için giriş yap"
 
 #: ../templates/variants.html:53
 msgid "Favorites only"
-msgstr ""
+msgstr "Yalnızca favoriler"
 
 #: ../templates/variants.html:61
 #, python-format
 msgid "%(count)s public variant"
 msgid_plural "%(count)s public variants"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)s herkese açık varyant"
+msgstr[1] "%(count)s herkese açık varyant"
 
 #: ../templates/variants.html:77 ../templates/variants.html:78
 msgid "Remove from favorites"
-msgstr ""
+msgstr "Favorilerden kaldır"
 
 #: ../templates/variants.html:77 ../templates/variants.html:78
 msgid "Add to favorites"
-msgstr ""
+msgstr "Favorilere ekle"
 
 #: ../templates/variants.html:81
 msgid "Sign in to favorite variants"
-msgstr ""
+msgstr "Varyantları favorilere eklemek için giriş yap"
 
 #: ../templates/variants.html:88 ../templates/variants.html:152
 msgid "References:"
-msgstr ""
+msgstr "Kaynaklar:"
 
 #: ../templates/variants.html:107
 msgid "Board"
-msgstr ""
+msgstr "Tahta"
 
 #: ../templates/variants.html:112 ../templates/variants.html:196
 msgid "Play AI"
-msgstr ""
+msgstr "AI ile oyna"
 
 #: ../templates/variants.html:114
 msgid "Rules"
-msgstr ""
+msgstr "Kurallar"
 
 #: ../templates/variants.html:118
 #, python-format
 msgid "View %(name)s rules"
-msgstr ""
+msgstr "%(name)s kurallarını görüntüle"
 
 #: ../templates/variants.html:126
 msgid "No public variants found."
-msgstr ""
+msgstr "Herkese açık varyant bulunamadı."
 
 #: ../templates/variants.html:132
 #, python-format
 msgid "Page %(page)s / %(pages)s"
-msgstr ""
+msgstr "Sayfa %(page)s / %(pages)s"
 
 #: ../templates/variants.html:138
 msgid "Upload or manage my variants"
-msgstr ""
+msgstr "Varyantlarımı yükle veya yönet"
 
 #: ../templates/variants.html:145
 msgid "Community variant"
-msgstr ""
+msgstr "Topluluk varyantı"
 
 #: ../templates/variants.html:160
 msgid ""
 "This is a curated Fairy-Stockfish built-in variant. Gameplay uses Fairy-"
 "Stockfish's canonical built-in definition."
 msgstr ""
+"Bu, seçilmiş bir Fairy-Stockfish yerleşik varyantıdır. Oyun, Fairy-"
+"Stockfish'in standart yerleşik tanımını kullanır."
 
 #: ../templates/variants.html:162
 msgid ""
 "The documentation block below mirrors the relevant built-in settings for the"
 " generated overview and movement diagrams."
 msgstr ""
+"Aşağıdaki belge bölümü, oluşturulan genel bakış ve hareket diyagramları için"
+" ilgili yerleşik ayarları yansıtır."
 
 #: ../templates/variants.html:164
 msgid ""
@@ -2430,6 +2504,8 @@ msgid ""
 "omit details that are only present in Fairy-Stockfish's built-in "
 "implementation."
 msgstr ""
+"Oluşturulan genel bakış, mevcut katalog metadata'sına dayanır ve yalnızca "
+"Fairy-Stockfish’in yerleşik uygulamasında bulunan ayrıntıları içermeyebilir."
 
 #: ../templates/variants.html:167
 msgid ""
@@ -2437,50 +2513,53 @@ msgid ""
 "size, FEN, pieces, and hand rules are defined in the Fairy-Stockfish "
 "variants.ini block below."
 msgstr ""
+"Bu, kullanıcı tarafından kataloğa eklenmiş puansız bir varyanttır. Tahta "
+"boyutu, FEN, taşlar ve elde taş bulundurma kuralları gibi teknik ayrıntılar "
+"aşağıdaki Fairy-Stockfish variants.ini bloğunda tanımlıdır."
 
 #: ../templates/variants.html:185
 msgid "Visibility"
-msgstr ""
+msgstr "Görünürlük"
 
 #: ../templates/variants.html:186
 msgid "public"
-msgstr ""
+msgstr "herkese açık"
 
 #: ../templates/variants.html:186
 msgid "unlisted"
-msgstr ""
+msgstr "listelenmemiş"
 
 #: ../templates/variants.html:186
 msgid "private"
-msgstr ""
+msgstr "özel"
 
 #: ../templates/variants.html:189
 msgid "Status"
-msgstr ""
+msgstr "Durum"
 
 #: ../templates/variants.html:190
 msgid "archived"
-msgstr ""
+msgstr "arşivlendi"
 
 #: ../templates/variants.html:190
 msgid "active"
-msgstr ""
+msgstr "etkin"
 
 #: ../templates/variants.html:194
 msgid "Catalogued variant actions"
-msgstr ""
+msgstr "Kataloglanmış varyant işlemleri"
 
 #: ../templates/variants.html:197
 msgid "Analysis board"
-msgstr ""
+msgstr "Analiz tahtası"
 
 #: ../templates/variants.html:204
 msgid "Fairy-Stockfish rule documentation"
-msgstr ""
+msgstr "Fairy-Stockfish kural belgesi"
 
 #: ../templates/variants.html:204
 msgid "Fairy-Stockfish rules"
-msgstr ""
+msgstr "Fairy-Stockfish kuralları"
 
 #: ../templates/videos.html:15
 msgid "Chess variant videos"
@@ -2488,7 +2567,7 @@ msgstr "Satranç varyant videoları"
 
 #: ../templates/catalogued/betza_diagrams.html:3
 msgid "Piece movement"
-msgstr ""
+msgstr "Taş hareketi"
 
 #: ../templates/catalogued/betza_diagrams.html:5
 msgid ""
@@ -2497,39 +2576,43 @@ msgid ""
 "moves, especially hoppers and game-state-dependent moves, can still depend "
 "on blockers or game state."
 msgstr ""
+"Bu diyagramlar, küçük bir önizleme tahtasında Beyaz perspektifinden özel "
+"taşları ve bilinen Fairy-Stockfish yerleşik fairy taşlarını gösterir. Bazı "
+"özel hamleler, özellikle atlayıcılar ve oyun durumuna bağlı hamleler, yine "
+"de engelleyicilere veya oyun durumuna bağlı olabilir."
 
 #: ../templates/catalogued/betza_diagrams.html:20
 msgid "Betza diagram legend"
-msgstr ""
+msgstr "Betza diyagramı açıklaması"
 
 #: ../templates/catalogued/betza_diagrams.html:21
 msgid "move"
-msgstr ""
+msgstr "hamle"
 
 #: ../templates/catalogued/betza_diagrams.html:22
 msgid "capture"
-msgstr ""
+msgstr "alma"
 
 #: ../templates/catalogued/betza_diagrams.html:23
 msgid "move or capture"
-msgstr ""
+msgstr "hamle veya alma"
 
 #: ../templates/catalogued/betza_diagrams.html:24
 msgid "initial only"
-msgstr ""
+msgstr "yalnızca başlangıçta"
 
 #: ../templates/catalogued/betza_diagrams.html:25
 msgid "hopper target"
-msgstr ""
+msgstr "atlayıcı hedefi"
 
 #: ../templates/catalogued/rule_summary.html:3
 msgid "Generated rule overview"
-msgstr ""
+msgstr "Oluşturulan kural özeti"
 
 #: ../templates/catalogued/rule_summary.html:16
 msgid "Default starting position"
-msgstr ""
+msgstr "Varsayılan başlangıç konumu"
 
 #: ../templates/catalogued/rule_summary.html:31
 msgid "Other technical options"
-msgstr ""
+msgstr "Diğer teknik seçenekler"

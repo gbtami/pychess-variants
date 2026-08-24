@@ -35,7 +35,7 @@ msgstr ""
 "“Bana göre, bugün ulaştığımız noktayı BÜYÜK ölçüde Stockfish'e borçluyuz. "
 "Dünyanın dört bir yanından gönüllülerin bir araya gelerek açık kaynak kodu "
 "ruhuna uygun, böylesine güçlü bir makineyi yaratmaları ve ÜCRETSİZ olarak "
-"sunmaları için harekete geçirdiler. Bu bir çok harika beyinin ve işlem "
+"sunmaları için harekete geçirdiler. Bu birçok harika beyinin ve işlem "
 "güçlerinin bir araya gelip güçlerini kullanması demek. "
 
 #: ../client/about.ts:11
@@ -44,7 +44,7 @@ msgid ""
 "source spirit, and it too drew in great people as well. Once Lichess "
 "incorporated Stockfish as its brains, the rest is history."
 msgstr ""
-"Daha sonrasında ise Lichess’e teşekkür etmeliyiz. Lichess’de aynı açık "
+"Daha sonrasında ise Lichess’e teşekkür etmeliyiz. Lichess de aynı açık "
 "kaynak kodu ruhundan doğdu ve harika insanları da kendine çekti. Lichess, "
 "Stockfish’i beyni olarak kendisine dahil ettiğinde ise, gerisi artık tarih "
 "oldu. "
@@ -70,13 +70,13 @@ msgid ""
 "variant support and extensibility. Thus Fairy-Stockfish was born, so "
 "powerful because it builds on the Stockfish project."
 msgstr ""
-"Daha sonra, Lichess projesiyle yakın iş birliği içinde bulunan "
-"geliştiriciler, Çılgınev ve benzeri varyantların desteklenebilmesi için "
-"Stockfish’i Multivariant-Stockfish’e genişlettiler. Fair-Stockfish’in babası"
-" Fabian da (halen) Stockfish’in bu Fork’u üzerine çalışan geliştiricilerden "
-"biridir, ve de daha sonraları varyant desteği ve genişletilebilirlik "
-"açısından birkaç adım daha atmıştır. Fairy-Stockfish, Stockfish projesini "
-"temel aldığı için de çok güçlü olarak doğdu. "
+"Daha sonra, Lichess projesine yakın geliştiriciler, Çılgınev vb. varyantları"
+" desteklemek amacıyla Stockfish’i Multivariant-Stockfish hâline getirecek "
+"şekilde genişlettiler. Fairy-Stockfish’in babası Fabian da (hâlâ) bu "
+"geliştiricilerden biridir ve bu fork üzerinde çalışmaktadır. Daha sonra "
+"varyant desteği ve genişletilebilirlik açısından işi birkaç adım daha ileri "
+"götürdü. Böylece Fairy-Stockfish doğdu; Stockfish projesi üzerine inşa "
+"edildiği için de bu kadar güçlüdür."
 
 #: ../client/about.ts:20
 msgid ""
@@ -142,10 +142,12 @@ msgid ""
 "To play on PyChess, sign in with one of our OAuth providers: Lichess, "
 "Lishogi, Google, or Discord. "
 msgstr ""
+"PyChess'te oynamak için OAuth sağlayıcılarımızdan biriyle giriş yapın: "
+"Lichess, Lishogi, Google veya Discord."
 
 #: ../client/about.ts:169
 msgid "Please read our Privacy Policy and Terms of Service. "
-msgstr ""
+msgstr "Lütfen Gizlilik Politikamızı ve Hizmet Koşullarımızı okuyun."
 
 #: ../client/background.ts:9
 msgid "Light"
@@ -161,7 +163,7 @@ msgstr "Taş animasyonu"
 
 #: ../client/boardSettings.ts:442
 msgid "Confirm resigning"
-msgstr "Çekilmeyi kabul et? "
+msgstr "Çekilmeyi onayla"
 
 #: ../client/boardSettings.ts:457
 msgid "Confirm correspondence move"
@@ -177,27 +179,28 @@ msgstr "Taşların gidebilecekleri kareleri göster"
 
 #: ../client/boardSettings.ts:718
 msgid "Promote to the top choice automatically"
-msgstr "Otomatik olarak en iyi taşa terfi et "
+msgstr "Otomatik olarak en üst seçeneğe terfi ettir"
 
 #: ../client/boardSettings.ts:740
 msgid "Claim draw automatically when available"
-msgstr ""
+msgstr "Mümkün olduğunda beraberliği otomatik olarak talep et"
 
 #: ../client/boardSettings.ts:767
 msgid "Show material difference"
-msgstr "Materyal farkını göster "
+msgstr "Materyal farkını göster"
 
 #: ../client/botChallenge.ts:77
 msgid "BOT"
-msgstr ""
+msgstr "BOT"
 
 #: ../client/botChallenge.ts:87 ../client/directChallenge.ts:266
 msgid "This challenge is no longer available"
-msgstr ""
+msgstr "Bu meydan okuma artık kullanılamıyor"
 
 #: ../client/botChallenge.ts:88 ../client/directChallenge.ts:268
 msgid "It may have been accepted, declined, canceled, or expired."
 msgstr ""
+"Kabul edilmiş, reddedilmiş, iptal edilmiş veya süresi dolmuş olabilir."
 
 #: ../client/botChallenge.ts:90 ../client/directChallenge.ts:271
 #: ../client/invite.ts:19
@@ -206,11 +209,11 @@ msgstr "LOBİYE DÖN"
 
 #: ../client/botChallenge.ts:97 ../client/directChallenge.ts:157
 msgid "Challenge declined"
-msgstr ""
+msgstr "Meydan okuma reddedildi"
 
 #: ../client/botChallenge.ts:99
 msgid "The challenge was declined."
-msgstr ""
+msgstr "Meydan okuma reddedildi."
 
 #: ../client/botChallenge.ts:101 ../client/roundCtrl.ts:1072
 #: ../client/two-board/round/roundControls.ts:222
@@ -219,11 +222,11 @@ msgstr "YENİ RAKİP"
 
 #: ../client/botChallenge.ts:108 ../client/directChallenge.ts:159
 msgid "Challenge accepted"
-msgstr ""
+msgstr "Meydan okuma kabul edildi"
 
 #: ../client/botChallenge.ts:110 ../client/directChallenge.ts:243
 msgid "Starting game..."
-msgstr ""
+msgstr "Oyun başlatılıyor..."
 
 #: ../client/botChallenge.ts:112 ../client/invite.ts:73
 msgid "JOIN THE GAME"
@@ -236,7 +239,7 @@ msgstr "Diğer oyuncu bekleniyor"
 
 #: ../client/botChallenge.ts:120
 msgid "Challenge sent"
-msgstr ""
+msgstr "Meydan okuma gönderildi"
 
 #: ../client/botChallenge.ts:124 ../client/directChallenge.ts:229
 #: ../client/invite.ts:49 ../client/invite.ts:55 ../client/invite.ts:61
@@ -257,33 +260,33 @@ msgstr "Puansız"
 
 #: ../client/challengeView.ts:89
 msgid "Offline"
-msgstr ""
+msgstr "Çevrimdışı"
 
 #: ../client/challengeView.ts:90
 msgid "Declined"
-msgstr ""
+msgstr "Reddedildi"
 
 #: ../client/challengeView.ts:91
 msgid "Accepted"
-msgstr ""
+msgstr "Kabul edildi"
 
 #: ../client/challengeView.ts:215 ../client/simul/simul.ts:675
 #: ../client/simul/simul.ts:676 ../client/tournamentRR.ts:1213
 #: ../client/tournamentRR.ts:1581 ../client/tournamentRR.ts:1630
 msgid "Accept"
-msgstr ""
+msgstr "Kabul et"
 
 #: ../client/challengeView.ts:220
 msgid "Decline"
-msgstr ""
+msgstr "Reddet"
 
 #: ../client/challengeView.ts:227
 msgid "Decline with reason"
-msgstr ""
+msgstr "Gerekçeyle reddet"
 
 #: ../client/challengeView.ts:248 ../client/tournamentRR.ts:773
 msgid "Waiting"
-msgstr ""
+msgstr "Bekleniyor"
 
 #: ../client/analysis/analysisCtrl.ts:890 ../client/challengeView.ts:251
 #: ../client/forum.ts:1488 ../client/forum.ts:1568 ../client/forum.ts:1610
@@ -298,7 +301,7 @@ msgstr "İptal"
 
 #: ../client/challengeView.ts:260
 msgid "No challenges."
-msgstr ""
+msgstr "Meydan okuma yok."
 
 #: ../client/chat.ts:105 ../client/chat.ts:125
 msgid "Sign in to chat"
@@ -342,15 +345,15 @@ msgstr[1] "%1 saat"
 
 #: ../client/communityVariants.ts:43
 msgid "Remove from favorites"
-msgstr ""
+msgstr "Favorilerden kaldır"
 
 #: ../client/communityVariants.ts:43
 msgid "Add to favorites"
-msgstr ""
+msgstr "Favorilere ekle"
 
 #: ../client/communityVariants.ts:68 ../client/communityVariants.ts:79
 msgid "Failed to update favorite"
-msgstr ""
+msgstr "Favori güncellenemedi"
 
 #: ../client/datetime.ts:29
 msgid "in %1 year"
@@ -427,8 +430,8 @@ msgstr[1] "%1 dakika önce"
 #: ../client/datetime.ts:53
 msgid "in %1 second"
 msgid_plural "in %1 seconds"
-msgstr[0] "%1 saniye içinde "
-msgstr[1] "%1 saniye içinde "
+msgstr[0] "%1 saniye içinde"
+msgstr[1] "%1 saniye içinde"
 
 #: ../client/datetime.ts:54
 msgid "%1 second ago"
@@ -450,11 +453,11 @@ msgstr "Siyah"
 
 #: ../client/directChallenge.ts:39
 msgid "Random side"
-msgstr ""
+msgstr "Rastgele taraf"
 
 #: ../client/directChallenge.ts:158
 msgid "Challenge canceled"
-msgstr ""
+msgstr "Meydan okuma iptal edildi"
 
 #: ../client/directChallenge.ts:160 ../client/invite.ts:46
 msgid "Challenge to a game"
@@ -462,260 +465,260 @@ msgstr "Oyuna davet et"
 
 #: ../client/directChallenge.ts:187
 msgid "Decline reason"
-msgstr ""
+msgstr "Reddetme nedeni"
 
 #: ../client/directChallenge.ts:208
 msgid "ACCEPT"
-msgstr ""
+msgstr "KABUL ET"
 
 #: ../client/directChallenge.ts:216
 msgid "DECLINE"
-msgstr ""
+msgstr "REDDET"
 
 #: ../client/directChallenge.ts:246
 msgid "The challenger is currently offline."
-msgstr ""
+msgstr "Meydan okuyan kullanıcı şu anda çevrimdışı."
 
 #: ../client/directChallenge.ts:256 ../client/directChallenge.ts:300
 msgid "Loading challenge..."
-msgstr ""
+msgstr "Meydan okuma yükleniyor..."
 
 #: ../client/fairyStockfish.ts:62 ../client/fairyStockfish.ts:81
 msgid "Failed to load Fairy-Stockfish WASM support."
-msgstr ""
+msgstr "Fairy-Stockfish WASM desteği yüklenemedi."
 
 #: ../client/fairyStockfish.ts:70
 msgid "Timed out while loading Fairy-Stockfish WASM support."
-msgstr ""
+msgstr "Fairy-Stockfish WASM desteği yüklenirken zaman aşımına uğradı."
 
 #: ../client/fairyStockfish.ts:95
 msgid "Fairy-Stockfish WASM is not supported by this browser."
-msgstr ""
+msgstr "Fairy-Stockfish WASM bu tarayıcı tarafından desteklenmiyor."
 
 #: ../client/fairyStockfish.ts:102
 msgid "Fairy-Stockfish WASM did not initialize correctly."
-msgstr ""
+msgstr "Fairy-Stockfish WASM doğru şekilde başlatılamadı."
 
 #: ../client/fairyStockfish.ts:177
 msgid "Fairy-Stockfish rule check timed out."
-msgstr ""
+msgstr "Fairy-Stockfish kural kontrolünde zaman aşımına uğradı."
 
 #: ../client/followButton.ts:4 ../client/profile.ts:440
 msgid "Unfollow"
-msgstr ""
+msgstr "Takibi bırak"
 
 #: ../client/followButton.ts:4 ../client/profile.ts:423
 #: ../client/profile.ts:426
 msgid "Follow"
-msgstr ""
+msgstr "Takip et"
 
 #: ../client/followButton.ts:5 ../client/profile.ts:443
 msgid "Following"
-msgstr ""
+msgstr "Takip ediliyor"
 
 #: ../client/forum.ts:134
 msgid "General Variant Discussion"
-msgstr ""
+msgstr "Genel Varyant Tartışması"
 
 #: ../client/forum.ts:135
 msgid "Discuss variants, and strategy."
-msgstr ""
+msgstr "Varyantları ve stratejiyi tartışın."
 
 #: ../client/forum.ts:138
 msgid "Pychess Feedback"
-msgstr ""
+msgstr "Pychess Geri Bildirimi"
 
 #: ../client/forum.ts:139
 msgid "Feedback and feature requests about the site."
-msgstr ""
+msgstr "Siteyle ilgili geri bildirimler ve özellik istekleri."
 
 #: ../client/forum.ts:142
 msgid "Game Analysis"
-msgstr ""
+msgstr "Oyun Analizi"
 
 #: ../client/forum.ts:143
 msgid "Share and discuss your games."
-msgstr ""
+msgstr "Oyunlarınızı paylaşın ve tartışın."
 
 #: ../client/forum.ts:146
 msgid "Off-Topic Discussion"
-msgstr ""
+msgstr "Konu Dışı Tartışma"
 
 #: ../client/forum.ts:147
 msgid "Everything that isn't related to Pychess."
-msgstr ""
+msgstr "Pychess ile ilgili olmayan her şey."
 
 #: ../client/forum.ts:150
 msgid "Community Blog Discussions"
-msgstr ""
+msgstr "Topluluk Blog Tartışmaları"
 
 #: ../client/forum.ts:151
 msgid "Discuss community blog posts."
-msgstr ""
+msgstr "Topluluk blog gönderilerini tartışın."
 
 #: ../client/forum.ts:167
 msgid "Comments on %1"
-msgstr ""
+msgstr "%1 hakkındaki yorumlar"
 
 #: ../client/forum.ts:180
 msgid "Forum unavailable"
-msgstr ""
+msgstr "Forum kullanılamıyor"
 
 #: ../client/forum.ts:181
 msgid "Invalid category"
-msgstr ""
+msgstr "Geçersiz kategori"
 
 #: ../client/forum.ts:182
 msgid "Category not found"
-msgstr ""
+msgstr "Kategori bulunamadı"
 
 #: ../client/forum.ts:183
 msgid "Not allowed"
-msgstr ""
+msgstr "İzin verilmiyor"
 
 #: ../client/forum.ts:184
 msgid "Invalid topic"
-msgstr ""
+msgstr "Geçersiz konu"
 
 #: ../client/forum.ts:185
 msgid "Invalid topic id"
-msgstr ""
+msgstr "Geçersiz konu kimliği"
 
 #: ../client/forum.ts:186
 msgid "Topic not found"
-msgstr ""
+msgstr "Konu bulunamadı"
 
 #: ../client/forum.ts:187
 msgid "Search text too long"
-msgstr ""
+msgstr "Arama metni çok uzun"
 
 #: ../client/forum.ts:188 ../client/inbox.ts:44
 msgid "Login required"
-msgstr ""
+msgstr "Giriş gerekli"
 
 #: ../client/forum.ts:189
 msgid "You cannot post in this forum"
-msgstr ""
+msgstr "Bu forumda gönderi paylaşamazsınız"
 
 #: ../client/forum.ts:190 ../client/inbox.ts:49
 msgid "Invalid request"
-msgstr ""
+msgstr "Geçersiz istek"
 
 #: ../client/forum.ts:191
 msgid "Topic title is too short"
-msgstr ""
+msgstr "Konu başlığı çok kısa"
 
 #: ../client/forum.ts:192
 msgid "Topic title is too long"
-msgstr ""
+msgstr "Konu başlığı çok uzun"
 
 #: ../client/forum.ts:193
 msgid "Message is too short"
-msgstr ""
+msgstr "Mesaj çok kısa"
 
 #: ../client/forum.ts:194 ../client/inbox.ts:51
 msgid "Message too long (max %1)"
-msgstr ""
+msgstr "Mesaj çok uzun (en fazla %1)"
 
 #: ../client/forum.ts:195 ../client/forum.ts:787 ../client/forum.ts:824
 msgid "Please solve the captcha."
-msgstr ""
+msgstr "Lütfen CAPTCHA'yı çözün."
 
 #: ../client/forum.ts:196 ../client/inbox.ts:52
 msgid "Too many similar messages. Please wait and retry."
-msgstr ""
+msgstr "Çok fazla benzer mesaj var. Lütfen bekleyip tekrar deneyin."
 
 #: ../client/forum.ts:197
 msgid "This topic is closed"
-msgstr ""
+msgstr "Bu konu kapalı"
 
 #: ../client/forum.ts:198
 msgid "Post not found"
-msgstr ""
+msgstr "Gönderi bulunamadı"
 
 #: ../client/forum.ts:199
 msgid "Post can no longer be edited"
-msgstr ""
+msgstr "Gönderi artık düzenlenemez"
 
 #: ../client/forum.ts:200
 msgid "Invalid reaction"
-msgstr ""
+msgstr "Geçersiz tepki"
 
 #: ../client/forum.ts:201
 msgid "Cannot react to deleted posts"
-msgstr ""
+msgstr "Silinen gönderilere tepki verilemez"
 
 #: ../client/forum.ts:202
 msgid "Cannot react to your own post"
-msgstr ""
+msgstr "Kendi gönderinize tepki veremezsiniz"
 
 #: ../client/forum.ts:203
 msgid "Team forum topics cannot be relocated"
-msgstr ""
+msgstr "Takım forumu konuları taşınamaz"
 
 #: ../client/forum.ts:204
 msgid "Only the first post can relocate a thread"
-msgstr ""
+msgstr "Bir konuyu yalnızca ilk gönderi taşıyabilir"
 
 #: ../client/forum.ts:205
 msgid "Invalid target category"
-msgstr ""
+msgstr "Geçersiz hedef kategori"
 
 #: ../client/forum.ts:206
 msgid "Already in that category"
-msgstr ""
+msgstr "Zaten o kategoride"
 
 #: ../client/forum.ts:207
 msgid "Target category not found"
-msgstr ""
+msgstr "Hedef kategori bulunamadı"
 
 #: ../client/forum.ts:422
 msgid "Chess"
-msgstr ""
+msgstr "Satranç"
 
 #: ../client/forum.ts:456
 msgid "Could not load captcha."
-msgstr ""
+msgstr "CAPTCHA yüklenemedi."
 
 #: ../client/forum.ts:502
 msgid "Loading captcha..."
-msgstr ""
+msgstr "CAPTCHA yükleniyor..."
 
 #: ../client/forum.ts:514
 msgid "Retry"
-msgstr ""
+msgstr "Tekrar dene"
 
 #: ../client/forum.ts:519
 msgid "Captcha unavailable. Please retry."
-msgstr ""
+msgstr "CAPTCHA kullanılamıyor. Lütfen tekrar deneyin."
 
 #: ../client/forum.ts:526
 msgid "white"
-msgstr ""
+msgstr "beyaz"
 
 #: ../client/forum.ts:584
 msgid "%1 to checkmate in one move"
-msgstr ""
+msgstr "tek hamlede mat için %1"
 
 #: ../client/forum.ts:585
 msgid "This is a %1 CAPTCHA."
-msgstr ""
+msgstr "Bu bir %1 CAPTCHA'sıdır."
 
 #: ../client/forum.ts:586
 msgid "Click on the board to make your move, and prove you are human."
-msgstr ""
+msgstr "Hamleni yapmak ve insan olduğunu kanıtlamak için tahtaya tıkla."
 
 #: ../client/forum.ts:608
 msgid "Checkmate."
-msgstr ""
+msgstr "Şah mat."
 
 #: ../client/forum.ts:615
 msgid "Not a checkmate. Try again."
-msgstr ""
+msgstr "Şah mat değil. Tekrar dene."
 
 #: ../client/forum.ts:634 ../client/myVariants.ts:1564
 msgid "Previous"
-msgstr ""
+msgstr "Önceki"
 
 #: ../client/forum.ts:642 ../client/myVariants.ts:1575
 #: ../client/tournament.ts:274
@@ -724,252 +727,254 @@ msgstr "Sonraki"
 
 #: ../client/forum.ts:659
 msgid "Could not load forum categories."
-msgstr ""
+msgstr "Forum kategorileri yüklenemedi."
 
 #: ../client/forum.ts:684
 msgid "Could not load forum category."
-msgstr ""
+msgstr "Forum kategorisi yüklenemedi."
 
 #: ../client/forum.ts:720
 msgid "Could not load forum topic."
-msgstr ""
+msgstr "Forum konusu yüklenemedi."
 
 #: ../client/forum.ts:752
 msgid "Could not search forum posts."
-msgstr ""
+msgstr "Forum gönderileri aranamadı."
 
 #: ../client/forum.ts:774
 msgid "Could not load moderation feed."
-msgstr ""
+msgstr "Denetim akışı yüklenemedi"
 
 #: ../client/forum.ts:812
 msgid "Could not create topic."
-msgstr ""
+msgstr "Konu oluşturulamadı."
 
 #: ../client/forum.ts:848
 msgid "Could not post reply."
-msgstr ""
+msgstr "Yanıt gönderilemedi."
 
 #: ../client/forum.ts:881
 msgid "Could not delete post."
-msgstr ""
+msgstr "Gönderi silinemedi."
 
 #: ../client/forum.ts:927
 msgid "Could not edit post."
-msgstr ""
+msgstr "Gönderi düzenlenemedi."
 
 #: ../client/forum.ts:941 ../client/forum.ts:955
 msgid "Could not update topic."
-msgstr ""
+msgstr "Konu güncellenemedi."
 
 #: ../client/forum.ts:982
 msgid "Could not update timeline subscription."
-msgstr ""
+msgstr "Zaman akışı aboneliği güncellenemedi."
 
 #: ../client/forum.ts:1021
 msgid "Could not react to this post."
-msgstr ""
+msgstr "Bu gönderiye tepki verilemedi."
 
 #: ../client/forum.ts:1041
 msgid "Could not relocate this thread."
-msgstr ""
+msgstr "Bu konu taşınamadı."
 
 #: ../client/forum.ts:1108 ../client/forum.ts:1829
 #: ../client/myVariants.ts:1502 ../client/myVariants.ts:1536
 msgid "Search"
-msgstr ""
+msgstr "Ara"
 
 #: ../client/forum.ts:1192
 msgid "Pychess Forum"
-msgstr ""
+msgstr "Pychess Forumu"
 
 #: ../client/forum.ts:1199
 msgid "Category"
-msgstr ""
+msgstr "Kategori"
 
 #: ../client/forum.ts:1200
 msgid "Topics"
-msgstr ""
+msgstr "Konular"
 
 #: ../client/forum.ts:1201
 msgid "Posts"
-msgstr ""
+msgstr "Gönderiler"
 
 #: ../client/forum.ts:1202 ../client/forum.ts:1274
 msgid "Last post"
-msgstr ""
+msgstr "Son gönderi"
 
 #: ../client/forum.ts:1226
 msgid "No posts yet."
-msgstr ""
+msgstr "Henüz gönderi yok."
 
 #: ../client/forum.ts:1245
 msgid "Mod feed"
-msgstr ""
+msgstr "Moderatör akışı"
 
 #: ../client/forum.ts:1256
 msgid "Create a new topic"
-msgstr ""
+msgstr "Yeni konu oluştur"
 
 #: ../client/forum.ts:1269 ../client/timeline.ts:70
 msgid "Forum"
-msgstr ""
+msgstr "Forum"
 
 #: ../client/forum.ts:1274 ../client/forum.ts:1870
 msgid "Topic"
-msgstr ""
+msgstr "Konu"
 
 #: ../client/forum.ts:1274
 msgid "Replies"
-msgstr ""
+msgstr "Yanıtlar"
 
 #: ../client/forum.ts:1359 ../client/forum.ts:1360 ../client/forum.ts:1364
 #: ../client/myVariants.ts:1681
 msgid "Edit"
-msgstr ""
+msgstr "Düzenle"
 
 #: ../client/forum.ts:1373 ../client/forum.ts:1374
 msgid "Relocate"
-msgstr ""
+msgstr "Taşı"
 
 #: ../client/forum.ts:1395 ../client/forum.ts:1396 ../client/inbox.ts:381
 #: ../client/inbox.ts:575 ../client/myVariants.ts:550
 #: ../client/myVariants.ts:662 ../client/myVariants.ts:727
 #: ../client/myVariants.ts:1690
 msgid "Delete"
-msgstr ""
+msgstr "Sil"
 
 #: ../client/forum.ts:1409 ../client/forum.ts:1410 ../client/forum.ts:1414
 msgid "Quote"
-msgstr ""
+msgstr "Alıntıla"
 
 #: ../client/forum.ts:1423 ../client/forum.ts:1424
 msgid "Report"
-msgstr ""
+msgstr "Bildir"
 
 #: ../client/forum.ts:1498
 msgid "Apply"
-msgstr ""
+msgstr "Uygula"
 
 #: ../client/forum.ts:1521
 msgid "Move the entire thread to another forum"
-msgstr ""
+msgstr "Konunun tamamını başka bir foruma taşı"
 
 #: ../client/forum.ts:1570
 msgid "Relocate the thread"
-msgstr ""
+msgstr "Konuyu taşı"
 
 #: ../client/forum.ts:1587 ../client/forum.ts:1612
 msgid "Delete the post"
-msgstr ""
+msgstr "Gönderiyi sil"
 
 #: ../client/forum.ts:1640
 msgid "This topic is now closed."
-msgstr ""
+msgstr "Bu konu artık kapalı."
 
 #: ../client/forum.ts:1642
 msgid "Reply to this topic"
-msgstr ""
+msgstr "Bu konuya yanıt ver"
 
 #: ../client/forum.ts:1643
 msgid "You cannot post yet. Play some games first."
-msgstr ""
+msgstr "Henüz gönderi gönderemezsin. Önce birkaç oyun oyna."
 
 #: ../client/forum.ts:1654
 msgid "Subscribe"
-msgstr ""
+msgstr "Abone ol"
 
 #: ../client/forum.ts:1654
 msgid "Unsubscribe"
-msgstr ""
+msgstr "Abonelikten çık"
 
 #: ../client/forum.ts:1664
 msgid "Reopen"
-msgstr ""
+msgstr "Yeniden aç"
 
 #: ../client/analysis/keyboardHelp.ts:106 ../client/forum.ts:1664
 #: ../client/myVariants.ts:1276 ../client/myVariants.ts:1411
 msgid "Close"
-msgstr ""
+msgstr "Kapat"
 
 #: ../client/forum.ts:1674
 msgid "Unsticky"
-msgstr ""
+msgstr "Sabitlemeyi kaldır"
 
 #: ../client/forum.ts:1674
 msgid "Sticky"
-msgstr ""
+msgstr "Sabitle"
 
 #: ../client/forum.ts:1687 ../client/forum.ts:1773
 msgid "Message"
-msgstr ""
+msgstr "Mesaj"
 
 #: ../client/forum.ts:1691 ../client/forum.ts:1778
 msgid "Please be nice in the forum!"
-msgstr ""
+msgstr "Lütfen forumda saygılı olun!"
 
 #: ../client/forum.ts:1704 ../client/forum.ts:1790
 msgid "Links and mentions available"
-msgstr ""
+msgstr "Bağlantılar ve bahsetmeler kullanılabilir"
 
 #: ../client/forum.ts:1712 ../client/forum.ts:1752 ../client/forum.ts:1798
 msgid "Forum etiquette"
-msgstr ""
+msgstr "Forum kuralları"
 
 #: ../client/forum.ts:1724 ../client/inbox.ts:649
 msgid "Sending..."
-msgstr ""
+msgstr "Gönderiliyor..."
 
 #: ../client/forum.ts:1724
 msgid "Reply"
-msgstr ""
+msgstr "Yanıtla"
 
 #: ../client/forum.ts:1746
 msgid "Important"
-msgstr ""
+msgstr "Önemli"
 
 #: ../client/forum.ts:1747
 msgid "Your question may already be answered in FAQ or community pages."
-msgstr ""
+msgstr "Sorunuz SSS veya topluluk sayfalarında zaten yanıtlanmış olabilir."
 
 #: ../client/forum.ts:1748
 msgid ""
 "Use reports for moderation issues; keep forum posts constructive and "
 "respectful."
 msgstr ""
+"Denetimle ilgili sorunları bildirin; forum gönderilerini yapıcı ve saygılı "
+"tutun."
 
 #: ../client/forum.ts:1750
 msgid "Make sure to read"
-msgstr ""
+msgstr "Okumayı unutmayın"
 
 #: ../client/forum.ts:1762
 msgid "Subject"
-msgstr ""
+msgstr "Konu başlığı"
 
 #: ../client/forum.ts:1814
 msgid "Creating..."
-msgstr ""
+msgstr "Oluşturuluyor..."
 
 #: ../client/forum.ts:1814
 msgid "Create the topic"
-msgstr ""
+msgstr "Konuyu oluştur"
 
 #: ../client/forum.ts:1870
 msgid "User"
-msgstr ""
+msgstr "Kullanıcı"
 
 #: ../client/forum.ts:1870
 msgid "Post"
-msgstr ""
+msgstr "Gönderi"
 
 #: ../client/forum.ts:1870
 msgid "Date"
-msgstr ""
+msgstr "Tarih"
 
 #: ../client/forum.ts:1911 ../client/inbox.ts:511 ../client/inbox.ts:597
 #: ../client/myVariants.ts:1581
 msgid "Loading..."
-msgstr ""
+msgstr "Yükleniyor..."
 
 #: ../client/gameCategoryIntro.ts:56
 msgid "Game category filter"
@@ -1019,23 +1024,23 @@ msgstr "Tüm varyantları tut"
 
 #: ../client/gameCategoryIntro.ts:111
 msgid "Open preferences"
-msgstr "Açık tercihler"
+msgstr "Tercihleri aç"
 
 #: ../client/gameCtrl.ts:282 ../client/movelist.ts:245
 msgid "Show merged board (S)"
-msgstr ""
+msgstr "Birleşik tahtayı göster (S)"
 
 #: ../client/gameCtrl.ts:282 ../client/movelist.ts:245
 msgid "Show separate boards (S)"
-msgstr ""
+msgstr "Ayrı tahtaları göster (S)"
 
 #: ../client/gameCtrl.ts:296
 msgid "Alice board %1 (active)"
-msgstr ""
+msgstr "Alice tahtası %1 (etkin)"
 
 #: ../client/gameCtrl.ts:297
 msgid "Alice board %1; click to activate"
-msgstr ""
+msgstr "Alice tahtası %1; etkinleştirmek için tıklayın"
 
 #: ../client/gameCtrl.ts:683 ../client/gameCtrl.ts:690
 #: ../client/tournament.ts:962 ../client/tournament.ts:969
@@ -1061,11 +1066,11 @@ msgstr "Eş zamanlı oyun"
 
 #: ../client/gameSearch.ts:36
 msgid "Any variant"
-msgstr ""
+msgstr "Herhangi bir varyant"
 
 #: ../client/gameSearch.ts:83
 msgid "Any player"
-msgstr ""
+msgstr "Herhangi bir oyuncu"
 
 #: ../client/i18n.ts:63
 msgid "Game Category"
@@ -1448,11 +1453,11 @@ msgstr "10-Taş HC"
 
 #: ../client/i18n.ts:178
 msgid "Gorogoro Plus N+L"
-msgstr "Gorogoro Artı A+M "
+msgstr "Gorogoro Artı A+M"
 
 #: ../client/i18n.ts:179
 msgid "Original (No N+L)"
-msgstr "Orjinal ( A+M Yok )"
+msgstr "Orijinal (A+M Yok)"
 
 #: ../client/i18n.ts:181
 msgid "Left Quail HC"
@@ -1554,8 +1559,8 @@ msgid ""
 "Thai Chess. A game closely resembling the original Chaturanga. Similar to "
 "Chess but with a different queen and bishop."
 msgstr ""
-"Tay Satrancı. Orjinal Çaturanga oyununa benzeyen bir oyun. Satranca benzer, "
-"ama farklı vezir ve fil ile."
+"Tay Satrancı. Orijinal Çaturanga oyununa benzeyen bir oyun. Satranca benzer,"
+" ama farklı vezir ve fil ile."
 
 #: ../client/i18n.ts:211
 msgid "Makruk variant where kings cannot move to escape out of check."
@@ -1563,7 +1568,7 @@ msgstr "Şahların, şah çekilince kaçamadığı bir Makruk varyantı. "
 
 #: ../client/i18n.ts:212
 msgid "Cambodian Chess. Makruk with a few additional opening abilities."
-msgstr "Kamboçya Satrancı. Birkaç açılış hareket özellikleri olan Makruk.  "
+msgstr "Kamboçya Satrancı. Birkaç açılış hareket özellikleri olan Makruk."
 
 #: ../client/i18n.ts:213
 msgid ""
@@ -1745,8 +1750,8 @@ msgid ""
 "Asymmetric variant where one army has pieces that move like queens but "
 "capture as usual."
 msgstr ""
-"Asimetrik varyantta, bir ordunun taşları vezirler gibi hareket ederken, "
-"farklı şekilde taş alır."
+"Asimetrik varyantta, bir ordunun taşları vezirler gibi hareket eder ancak "
+"her zamanki gibi taş alır."
 
 #: ../client/i18n.ts:242
 msgid "Orda Chess variant. The scout and khatun replaces the pawn and yurt."
@@ -1794,101 +1799,101 @@ msgstr "Gotik, Çılgınev bırakma kurallarıyla."
 
 #: ../client/inbox.ts:45
 msgid "Invalid contact"
-msgstr ""
+msgstr "Geçersiz kişi"
 
 #: ../client/inbox.ts:46
 msgid "User not found"
-msgstr ""
+msgstr "Kullanıcı bulunamadı"
 
 #: ../client/inbox.ts:47
 msgid "Invalid message cursor"
-msgstr ""
+msgstr "Geçersiz mesaj imleci"
 
 #: ../client/inbox.ts:48 ../client/inbox.ts:600
 msgid "PyChess doesn't accept new messages."
-msgstr ""
+msgstr "PyChess yeni mesaj kabul etmiyor."
 
 #: ../client/inbox.ts:50
 msgid "Message is empty"
-msgstr ""
+msgstr "Mesaj boş"
 
 #: ../client/inbox.ts:53
 msgid "Cannot send messages from this account"
-msgstr ""
+msgstr "Bu hesaptan mesaj gönderilemez"
 
 #: ../client/inbox.ts:54
 msgid "User is blocked"
-msgstr ""
+msgstr "Kullanıcı engellenmiş"
 
 #: ../client/inbox.ts:55
 msgid "Cannot message this user"
-msgstr ""
+msgstr "Bu kullanıcıya mesaj gönderilemez"
 
 #: ../client/inbox.ts:56
 msgid "Only friends can message this user"
-msgstr ""
+msgstr "Bu kullanıcıya yalnızca arkadaşları mesaj gönderebilir"
 
 #: ../client/inbox.ts:57
 msgid "PyChess system messages cannot be deleted."
-msgstr ""
+msgstr "PyChess sistem mesajları silinemez."
 
 #: ../client/inbox.ts:112
 msgid "Today"
-msgstr ""
+msgstr "Bugün"
 
 #: ../client/inbox.ts:113
 msgid "Yesterday"
-msgstr ""
+msgstr "Dün"
 
 #: ../client/inbox.ts:257
 msgid "Could not open conversation."
-msgstr ""
+msgstr "Sohbet açılamadı."
 
 #: ../client/inbox.ts:328 ../client/inbox.ts:339
 msgid "Could not send message."
-msgstr ""
+msgstr "Mesaj gönderilemedi."
 
 #: ../client/inbox.ts:360 ../client/inbox.ts:372 ../client/profile.ts:481
 #: ../client/profile.ts:490 ../client/profile.ts:513
 msgid "Could not update block state."
-msgstr ""
+msgstr "Engelleme durumu güncellenemedi."
 
 #: ../client/inbox.ts:380
 msgid "Delete conversation?"
-msgstr ""
+msgstr "Sohbet silinsin mi?"
 
 #: ../client/inbox.ts:393 ../client/inbox.ts:412
 msgid "Could not delete conversation."
-msgstr ""
+msgstr "Sohbet silinemedi."
 
 #: ../client/inbox.ts:511
 msgid "Load more"
-msgstr ""
+msgstr "Daha fazla yükle"
 
 #: ../client/inbox.ts:518
 msgid "No messages yet."
-msgstr ""
+msgstr "Henüz mesaj yok."
 
 #: ../client/inbox.ts:522 ../client/settingsView.ts:72
 msgid "Inbox"
-msgstr ""
+msgstr "Gelen kutusu"
 
 #: ../client/inbox.ts:525
 msgid "Type username and press Enter"
-msgstr ""
+msgstr "Kullanıcı adını yazın ve Enter'a basın"
 
 #: ../client/inbox.ts:539
 msgid "No conversations yet."
-msgstr ""
+msgstr "Henüz sohbet yok."
 
 #: ../client/inbox.ts:556
 msgid "Select a conversation"
-msgstr ""
+msgstr "Bir sohbet seç"
 
 #: ../client/inbox.ts:565 ../client/tournamentRR.ts:664
 #: ../client/userMiniWidget.ts:485
 msgid "Challenge"
-msgstr ""
+msgstr "Meydan okuma"
 
 #: ../client/inbox.ts:570 ../client/profile.ts:406 ../client/profile.ts:409
 msgid "Unblock"
@@ -1900,27 +1905,27 @@ msgstr "Engelle"
 
 #: ../client/inbox.ts:579
 msgid "Report to moderators"
-msgstr ""
+msgstr "Moderatörlere bildir"
 
 #: ../client/inbox.ts:617
 msgid "Select a conversation first"
-msgstr ""
+msgstr "Önce bir sohbet seç"
 
 #: ../client/inbox.ts:619
 msgid "This conversation is blocked"
-msgstr ""
+msgstr "Bu sohbet engellendi"
 
 #: ../client/inbox.ts:621
 msgid "Write a message..."
-msgstr ""
+msgstr "Bir mesaj yaz..."
 
 #: ../client/inbox.ts:622
 msgid "This user only accepts messages from friends"
-msgstr ""
+msgstr "Bu kullanıcı yalnızca arkadaşlarından mesaj kabul ediyor"
 
 #: ../client/inbox.ts:649
 msgid "Send"
-msgstr ""
+msgstr "Gönder"
 
 #: ../client/invite.ts:16
 msgid "This invitation is no longer available"
@@ -1944,24 +1949,24 @@ msgstr "Üzgünüz, kendi kendinize oynayamazsınız."
 
 #: ../client/invite.ts:102 ../client/invite.ts:166
 msgid "To invite someone to play, give them this URL:"
-msgstr "Birini oyuna davet etmek için ona şu URL'yi verin:"
+msgstr "Birini oyuna davet etmek için ona şu URL'i verin:"
 
 #: ../client/invite.ts:118 ../client/invite.ts:127 ../client/invite.ts:148
 #: ../client/invite.ts:157 ../client/invite.ts:180 ../client/invite.ts:189
 msgid "Copy URL"
-msgstr "URL'yi kopyala"
+msgstr "URL'i kopyala"
 
 #: ../client/invite.ts:163
 msgid "The first two people to come to this URL will play with each other."
-msgstr "Bu URL'ye ilk gelen iki kişi birbirleriyle oynayacak."
+msgstr "Bu URL'e ilk gelen iki kişi birbirleriyle oynayacak."
 
 #: ../client/invite.ts:194
 msgid "The first person to come to this URL will play with you."
-msgstr "Bu URL ye gelen ilk kişi sizinle oynayacaktır."
+msgstr "Bu URL'e gelen ilk kişi sizinle oynayacaktır."
 
 #: ../client/lobby.ts:95
 msgid "Play with AI"
-msgstr "YZ ile oyna"
+msgstr "AI ile oyna"
 
 #: ../client/lobby.ts:97
 msgid "Play with a BOT"
@@ -2028,7 +2033,7 @@ msgstr "Random-Mover ile pratik yap"
 
 #: ../client/lobby.ts:913
 msgid "A.I. Level"
-msgstr "Yapay Zeka seviyesi"
+msgstr "AI seviyesi"
 
 #: ../client/lobby.ts:933 ../client/simul/simul.ts:519
 msgid "Random"
@@ -2056,11 +2061,11 @@ msgstr "Geçersiz FEN"
 
 #: ../client/lobby.ts:1360
 msgid "This user-defined variant is not available to you."
-msgstr ""
+msgstr "Bu kullanıcı tanımlı varyant sizin için kullanılamıyor."
 
 #: ../client/analysis/analysisCtrl.ts:803 ../client/lobby.ts:1382
 msgid "You need an account to do that."
-msgstr "Bu işlemi yapabilmek için bir hesap ile oturum açmalısınız. "
+msgstr "Bu işlemi yapabilmek için bir hesap ile oturum açmalısınız."
 
 #: ../client/lobby.ts:1456 ../client/myVariants.ts:1331
 #: ../client/myVariants.ts:1423
@@ -2071,19 +2076,19 @@ msgstr "Özel"
 msgid "%1 player"
 msgid_plural "%1 players"
 msgstr[0] "%1 oyuncu"
-msgstr[1] "%1 oyuncu "
+msgstr[1] "%1 oyuncu"
 
 #: ../client/lobby.ts:1515
 msgid "Leaderboard"
-msgstr ""
+msgstr "Sıralama"
 
 #: ../client/lobby.ts:1516 ../client/lobby.ts:1548
 msgid "More"
-msgstr ""
+msgstr "Daha fazla"
 
 #: ../client/lobby.ts:1547
 msgid "Tournament winners"
-msgstr ""
+msgstr "Turnuva kazananları"
 
 #: ../client/lobby.ts:1627
 msgid "Standing by for auto pairing..."
@@ -2127,7 +2132,7 @@ msgstr[1] "%1 otomatik eşleşme"
 
 #: ../client/lobby.ts:1945
 msgid "Tournament calendar"
-msgstr "Turnuva takvimi "
+msgstr "Turnuva takvimi"
 
 #: ../client/lobby.ts:1979 ../client/tournamentRR.ts:945
 msgid "Player"
@@ -2147,7 +2152,7 @@ msgstr "Mod"
 
 #: ../client/lobby.ts:2023
 msgid "Puzzle of the day"
-msgstr "Günün bulmacası "
+msgstr "Günün bulmacası"
 
 #: ../client/editor/editorCtrl.ts:114 ../client/editor/editorCtrl.ts:115
 #: ../client/lobby.ts:2024
@@ -2180,16 +2185,16 @@ msgstr "Hakkında"
 
 #: ../client/lobby.ts:2250
 msgid "Contact"
-msgstr ""
+msgstr "İletişim"
 
 #: ../client/lobby.ts:2251
 msgid "Terms"
-msgstr ""
+msgstr "Koşullar"
 
 #: ../client/lobby.ts:2252 ../client/settingsView.ts:73
 #: ../client/settingsView.ts:146
 msgid "Privacy"
-msgstr ""
+msgstr "Gizlilik"
 
 #: ../client/main.ts:244
 msgid "Thank you for your support!"
@@ -2213,43 +2218,43 @@ msgstr "Analiz tahtası"
 
 #: ../client/movelist.ts:722 ../client/two-board/common/movelist.ts:398
 msgid "Promote variation"
-msgstr ""
+msgstr "Varyanta yükselt"
 
 #: ../client/movelist.ts:727 ../client/two-board/common/movelist.ts:403
 msgid "Make main line"
-msgstr ""
+msgstr "Ana varyant yap"
 
 #: ../client/movelist.ts:732 ../client/two-board/common/movelist.ts:408
 msgid "Convert to variation"
-msgstr ""
+msgstr "Varyanta dönüştür"
 
 #: ../client/movelist.ts:739 ../client/two-board/common/movelist.ts:415
 msgid "Collapse all"
-msgstr ""
+msgstr "Tümünü daralt"
 
 #: ../client/movelist.ts:743 ../client/two-board/common/movelist.ts:419
 msgid "Expand all"
-msgstr ""
+msgstr "Tümünü genişlet"
 
 #: ../client/movelist.ts:747 ../client/two-board/common/movelist.ts:423
 msgid "Copy main line PGN"
-msgstr ""
+msgstr "Ana varyant PGN'sini kopyala"
 
 #: ../client/movelist.ts:747 ../client/two-board/common/movelist.ts:423
 msgid "Copy variation PGN"
-msgstr ""
+msgstr "Varyant PGN'sini kopyala"
 
 #: ../client/movelist.ts:753 ../client/two-board/common/movelist.ts:429
 msgid "Delete from here"
-msgstr ""
+msgstr "Buradan itibaren sil"
 
 #: ../client/movelist.ts:767
 msgid "Start position"
-msgstr ""
+msgstr "Başlangıç konumu"
 
 #: ../client/myVariants.ts:225
 msgid "Failed to load variants"
-msgstr ""
+msgstr "Varyantlar yüklenemedi"
 
 #: ../client/myVariants.ts:310
 msgid ""
@@ -2257,175 +2262,188 @@ msgid ""
 " use only letters, numbers, spaces, hyphens, underscores, periods, plus "
 "signs, slashes, and parentheses."
 msgstr ""
+"Görünen adlar en fazla 50 karakter olabilir; en az bir harf veya rakam "
+"içermeli ve yalnızca harf, rakam, boşluk, kısa çizgi, alt çizgi, nokta, "
+"artı, eğik çizgi ve parantez kullanmalıdır."
 
 #: ../client/myVariants.ts:363
 msgid "The INI must contain exactly one variant section."
-msgstr ""
+msgstr "INI tam olarak bir varyant bölümü içermelidir."
 
 #: ../client/myVariants.ts:367
 msgid ""
 "Variant names must be 3-32 chars, start with a lowercase letter, and contain"
 " only lowercase letters, digits, hyphens, and underscores."
 msgstr ""
+"Varyant adları 3-32 karakter olmalı, küçük harfle başlamalı ve yalnızca "
+"küçük harfler, rakamlar, kısa çizgiler ve alt çizgiler içermelidir."
 
 #: ../client/myVariants.ts:377
 msgid "This variant name conflicts with an existing site variant."
-msgstr ""
+msgstr "Bu varyant adı mevcut bir site varyantıyla çakışıyor."
 
 #: ../client/myVariants.ts:381
 msgid "A variant with this name already exists."
-msgstr ""
+msgstr "Bu ada sahip bir varyant zaten var."
 
 #: ../client/myVariants.ts:393
 msgid ""
 "Changing rules requires a new variant section name, because Fairy-Stockfish "
 "cannot replace an already loaded runtime variant."
 msgstr ""
+"Kuralları değiştirmek, yeni bir varyant bölümü adı gerektirir; çünkü Fairy-"
+"Stockfish hâlihazırda yüklenmiş bir çalışma zamanı varyantını değiştiremez."
 
 #: ../client/myVariants.ts:421
 msgid ""
 "Fairy-Stockfish built-in catalogue entries do not have editable INI rules."
 msgstr ""
+"Fairy-Stockfish’in yerleşik katalog girdilerinde düzenlenebilir INI "
+"kuralları bulunmuyor."
 
 #: ../client/myVariants.ts:429 ../client/myVariants.ts:471
 msgid "Paste one Fairy-Stockfish variant definition first."
-msgstr ""
+msgstr "Önce bir Fairy-Stockfish varyant tanımı yapıştırın."
 
 #: ../client/myVariants.ts:438
 msgid "These rules are unchanged and already passed validation."
-msgstr ""
+msgstr "Bu kurallar değişmemiş ve doğrulamadan zaten geçmiştir."
 
 #: ../client/myVariants.ts:450 ../client/myVariants.ts:480
 msgid "Variant check failed"
-msgstr ""
+msgstr "Varyant denetimi başarısız"
 
 #: ../client/myVariants.ts:464
 msgid "Invalid display name"
-msgstr ""
+msgstr "Geçersiz görüntüleme adı"
 
 #: ../client/myVariants.ts:490 ../client/myVariants.ts:493
 msgid "Saving metadata and visibility..."
-msgstr ""
+msgstr "Metadata ve görünürlük kaydediliyor..."
 
 #: ../client/myVariants.ts:524
 msgid "Variant updated."
-msgstr ""
+msgstr "Varyant güncellendi."
 
 #: ../client/myVariants.ts:524
 msgid "Variant uploaded."
-msgstr ""
+msgstr "Varyant yüklendi."
 
 #: ../client/myVariants.ts:528
 msgid "Failed to save variant"
-msgstr ""
+msgstr "Varyant kaydedilemedi"
 
 #: ../client/myVariants.ts:542
 msgid "delete"
-msgstr ""
+msgstr "sil"
 
 #: ../client/myVariants.ts:543
 msgid "archive"
-msgstr ""
+msgstr "arşivle"
 
 #: ../client/myVariants.ts:544
 msgid "restore"
-msgstr ""
+msgstr "geri yükle"
 
 #: ../client/myVariants.ts:545
 msgid "clone"
-msgstr ""
+msgstr "klonla"
 
 #: ../client/myVariants.ts:550 ../client/myVariants.ts:1707
 msgid "Archive"
-msgstr ""
+msgstr "Arşivle"
 
 #: ../client/myVariants.ts:571
 msgid "Done."
-msgstr ""
+msgstr "Tamam."
 
 #: ../client/myVariants.ts:574
 msgid "Action failed"
-msgstr ""
+msgstr "İşlem başarısız"
 
 #: ../client/myVariants.ts:646
 msgid "Custom piece set uploaded."
-msgstr ""
+msgstr "Özel taş seti yüklendi."
 
 #: ../client/myVariants.ts:649
 msgid "Failed to upload piece set"
-msgstr ""
+msgstr "Taş seti yüklenemedi"
 
 #: ../client/myVariants.ts:677
 msgid "Custom piece set deleted."
-msgstr ""
+msgstr "Özel taş seti silindi."
 
 #: ../client/myVariants.ts:680
 msgid "Failed to delete piece set"
-msgstr ""
+msgstr "Taş seti silinemedi"
 
 #: ../client/myVariants.ts:690
 msgid "Upload exactly one board SVG file."
-msgstr ""
+msgstr "Tam olarak bir tahta SVG dosyası yükleyin."
 
 #: ../client/myVariants.ts:711
 msgid "Custom board uploaded."
-msgstr ""
+msgstr "Özel tahta yüklendi."
 
 #: ../client/myVariants.ts:714
 msgid "Failed to upload board"
-msgstr ""
+msgstr "Tahta yüklenemedi"
 
 #: ../client/myVariants.ts:743
 msgid "Custom board deleted."
-msgstr ""
+msgstr "Özel tahta silindi."
 
 #: ../client/myVariants.ts:746
 msgid "Failed to delete board"
-msgstr ""
+msgstr "Özel tahta silinemedi"
 
 #: ../client/myVariants.ts:797 ../client/myVariants.ts:1046
 msgid "Public"
-msgstr ""
+msgstr "Herkese açık"
 
 #: ../client/myVariants.ts:799 ../client/myVariants.ts:1041
 msgid "Unlisted"
-msgstr ""
+msgstr "Listelenmemiş"
 
 #: ../client/myVariants.ts:801 ../client/myVariants.ts:1036
 msgid "Private"
-msgstr ""
+msgstr "Özel"
 
 #: ../client/myVariants.ts:808
 msgid ""
 "Public variants appear on the Community variants page and their games are "
 "saved."
 msgstr ""
+"Herkese açık varyantlar Topluluk varyantları sayfasında görünür ve oyunları "
+"kaydedilir."
 
 #: ../client/myVariants.ts:810
 msgid "Unlisted variants stay out of search; their games are not saved."
-msgstr ""
+msgstr "Listelenmemiş varyantlar aramalarda görünmez; oyunları kaydedilmez."
 
 #: ../client/myVariants.ts:812
 msgid ""
 "Private variants are visible only to you and site admins; their games are "
 "not saved."
 msgstr ""
+"Özel varyantlar yalnızca size ve site yöneticilerine görünür; oyunları "
+"kaydedilmez."
 
 #: ../client/myVariants.ts:821 ../client/myVariants.ts:1334
 msgid "Letters"
-msgstr ""
+msgstr "Harfler"
 
 #: ../client/myVariants.ts:848
 msgid "Edit Fairy-Stockfish variant"
-msgstr ""
+msgstr "Fairy-Stockfish varyantını düzenle"
 
 #: ../client/myVariants.ts:850
 msgid "Edit variant"
-msgstr ""
+msgstr "Varyantı düzenle"
 
 #: ../client/myVariants.ts:851
 msgid "Upload new variant"
-msgstr ""
+msgstr "Yeni varyant yükle"
 
 #: ../client/myVariants.ts:856
 msgid ""
@@ -2433,18 +2451,25 @@ msgid ""
 "not editable here, so NNUE files can keep matching the original engine "
 "variant name."
 msgstr ""
+"Bu girdi, yerleşik bir Fairy-Stockfish varyantını temel alır. Kuralları "
+"burada düzenlenemez; böylece NNUE dosyaları, özgün motor varyant adıyla "
+"eşleşmeye devam edebilir."
 
 #: ../client/myVariants.ts:862
 msgid ""
 "Paste exactly one Fairy-Stockfish variant definition. Rules are locked after"
 " the first saved public game."
 msgstr ""
+"Tam olarak bir Fairy-Stockfish varyant tanımı yapıştırın. İlk herkese açık "
+"oyun kaydedildikten sonra kurallar kilitlenir."
 
 #: ../client/myVariants.ts:870
 msgid ""
 "Private and unlisted variants are sandbox variants: games are playable but "
 "are not saved."
 msgstr ""
+"Özel ve listelenmemiş varyantlar sanal alan varyantlarıdır: oyunlar "
+"oynanabilir ancak kaydedilmez."
 
 #: ../client/myVariants.ts:876
 msgid ""
@@ -2452,42 +2477,55 @@ msgid ""
 "name, because Fairy-Stockfish cannot replace an already loaded runtime "
 "variant."
 msgstr ""
+"Kullanılmayan bir varyantın kurallarını değiştirirseniz, INI bölümünün adını"
+" da değiştirin; çünkü Fairy-Stockfish daha önce yüklenmiş bir çalışma zamanı"
+" varyantını değiştiremez."
 
 #: ../client/myVariants.ts:883
 msgid ""
 "Admins can edit metadata, visibility, compatible piece and board styles, "
 "piece SVGs, and board SVGs for this system-owned catalogue entry."
 msgstr ""
+"Yöneticiler, sistem tarafından sahip olunan bu katalog girdisinin "
+"metadata’sını, görünürlüğünü, uyumlu taş ve tahta stillerini, taş ve tahta "
+"SVG’lerini düzenleyebilir."
 
 #: ../client/myVariants.ts:891
 msgid ""
 "This variant already has saved public games. Only metadata and visibility "
 "can be changed; clone it to change the rules."
 msgstr ""
+"Bu varyant için zaten kaydedilmiş herkese açık oyunlar var. Yalnızca "
+"metadata ve görünürlük değiştirilebilir; kuralları değiştirmek için "
+"klonlayın."
 
 #: ../client/myVariants.ts:909 ../client/myVariants.ts:913
 msgid "Display name"
-msgstr ""
+msgstr "Görünen ad"
 
 #: ../client/myVariants.ts:918
 msgid ""
 "Use letters, numbers, spaces, hyphens, underscores, periods, plus signs, "
 "slashes, and parentheses."
 msgstr ""
+"Harf, rakam, boşluk, kısa çizgi, alt çizgi, nokta, artı, eğik çizgi ve "
+"parantez kullanın."
 
 #: ../client/myVariants.ts:932
 msgid ""
 "Up to 50 characters. Repeated spaces, hyphens, and underscores are "
 "collapsed."
 msgstr ""
+"En fazla 50 karakter. Tekrarlanan boşluklar, kısa çizgiler ve alt çizgiler "
+"birleştirilir."
 
 #: ../client/myVariants.ts:936 ../client/myVariants.ts:940
 msgid "Short description"
-msgstr ""
+msgstr "Kısa açıklama"
 
 #: ../client/myVariants.ts:958
 msgid "Piece names (optional)"
-msgstr ""
+msgstr "Taş adları (isteğe bağlı)"
 
 #: ../client/myVariants.ts:980
 msgid ""
@@ -2495,10 +2533,13 @@ msgid ""
 "p:Soldier, z:Zebra. Built-in names can be overridden; missing names use "
 "automatic fallbacks."
 msgstr ""
+"Oluşturulan kurallarda kullanılan, virgülle ayrılmış harf:ad çiftleri; "
+"örneğin p:Asker, z:Zebra. Yerleşik adlar değiştirilebilir; eksik adlar "
+"otomatik yedek adlar kullanır."
 
 #: ../client/myVariants.ts:987
 msgid "Directional custom pieces"
-msgstr ""
+msgstr "Yönlü özel taşlar"
 
 #: ../client/myVariants.ts:1008
 msgid ""
@@ -2506,57 +2547,66 @@ msgid ""
 "complete white or black SVG set can then serve both players. Shogi-derived "
 "variants are detected automatically."
 msgstr ""
+"Taş yönünün sahipliği gösterdiği bağımsız varyantlar için etkinleştirin. "
+"Böylece tek bir tam beyaz veya siyah SVG seti her iki oyuncu için de "
+"kullanılabilir. Şogi türevi varyantlar otomatik olarak algılanır."
 
 #: ../client/myVariants.ts:1014 ../client/myVariants.ts:1595
 #: ../client/myVariants.ts:1636
 msgid "Visibility"
-msgstr ""
+msgstr "Görünürlük"
 
 #: ../client/myVariants.ts:1053
 msgid "Advanced appearance"
-msgstr ""
+msgstr "Gelişmiş görünüm"
 
 #: ../client/myVariants.ts:1055
 msgid "Compatible piece set"
-msgstr ""
+msgstr "Uyumlu taş seti"
 
 #: ../client/myVariants.ts:1081 ../client/myVariants.ts:1131
 msgid "Auto-detect"
-msgstr ""
+msgstr "Otomatik algıla"
 
 #: ../client/myVariants.ts:1099
 msgid ""
 "Overrides automatic built-in piece-set detection; custom SVG piece sets "
 "still take precedence."
 msgstr ""
+"Otomatik yerleşik taş seti algılamasını geçersiz kılar; özel SVG taş setleri"
+" yine önceliklidir."
 
 #: ../client/myVariants.ts:1105
 msgid "Compatible board style"
-msgstr ""
+msgstr "Uyumlu tahta stili"
 
 #: ../client/myVariants.ts:1149
 msgid ""
 "Overrides automatic compatible board detection; an uploaded custom board SVG"
 " still takes precedence."
 msgstr ""
+"Otomatik uyumlu tahta algılamasını geçersiz kılar; yüklenen özel tahta "
+"SVG'si yine önceliklidir."
 
 #: ../client/myVariants.ts:1156
 msgid "Variant definition"
-msgstr ""
+msgstr "Varyant tanımı"
 
 #: ../client/myVariants.ts:1161
 msgid "Built-in Fairy-Stockfish variant; no INI is stored."
-msgstr ""
+msgstr "Yerleşik Fairy-Stockfish varyantı; INI kaydedilmez."
 
 #: ../client/myVariants.ts:1186
 msgid "Fairy-Stockfish variants.ini reference"
-msgstr ""
+msgstr "Fairy-Stockfish variants.ini referansı"
 
 #: ../client/myVariants.ts:1192
 msgid ""
 "The catalogue key remains the Fairy-Stockfish UCI_Variant name. Use display "
 "name and description for nicer wording."
 msgstr ""
+"Katalog anahtarı, Fairy-Stockfish UCI_Variant adı olarak kalır. Daha iyi bir"
+" ifade için görünen adı ve açıklamayı kullanın."
 
 #: ../client/myVariants.ts:1198
 msgid ""
@@ -2566,118 +2616,125 @@ msgid ""
 "it. For locked variants with games, only this pychessPieces metadata can be "
 "changed."
 msgstr ""
+"Devralınan kurallar, pychess’in otomatik olarak algılayamadığı taşlar veya "
+"terfi etmiş taşlar kullanıyorsa, # pychessPieces = k,q,r,+r,p,+p gibi bir "
+"yorum ekleyin. Bu yalnızca taş setinin yüklenmesini ve tahtanın "
+"görüntülenmesini etkiler; Fairy-Stockfish bunu yok sayar. Oyunları bulunan "
+"kilitli varyantlarda yalnızca bu pychessPieces metadata değiştirilebilir."
 
 #: ../client/myVariants.ts:1209
 msgid "Save changes"
-msgstr ""
+msgstr "Değişiklikleri kaydet"
 
 #: ../client/myVariants.ts:1209
 msgid "Upload variant"
-msgstr ""
+msgstr "Varyant yükle"
 
 #: ../client/myVariants.ts:1223
 msgid "Check rules"
-msgstr ""
+msgstr "Kuralları denetle"
 
 #: ../client/myVariants.ts:1264
 msgid "Piece set preview"
-msgstr ""
+msgstr "Taş seti önizlemesi"
 
 #: ../client/myVariants.ts:1304
 msgid "built-in piece styles"
-msgstr ""
+msgstr "yerleşik taş stilleri"
 
 #: ../client/myVariants.ts:1333 ../client/myVariants.ts:1423
 msgid "Built-in"
-msgstr ""
+msgstr "Yerleşik"
 
 #: ../client/myVariants.ts:1344
 msgid "Upload set"
-msgstr ""
+msgstr "Set yükle"
 
 #: ../client/myVariants.ts:1377 ../client/myVariants.ts:1468
 msgid "Hide preview"
-msgstr ""
+msgstr "Önizlemeyi gizle"
 
 #: ../client/myVariants.ts:1377 ../client/myVariants.ts:1468
 msgid "Preview"
-msgstr ""
+msgstr "Önizle"
 
 #: ../client/myVariants.ts:1387
 msgid "Delete set"
-msgstr ""
+msgstr "Seti sil"
 
 #: ../client/myVariants.ts:1399
 msgid "Board preview"
-msgstr ""
+msgstr "Tahta önizlemesi"
 
 #: ../client/myVariants.ts:1423
 msgid "Default"
-msgstr ""
+msgstr "Varsayılan"
 
 #: ../client/myVariants.ts:1427
 msgid "This variant uses its uploaded board SVG."
-msgstr ""
+msgstr "Bu varyant yüklediğiniz tahta SVG'sini kullanıyor."
 
 #: ../client/myVariants.ts:1430
 msgid ""
 "Default generated checkerboard. Upload an SVG board if the variant needs "
 "special regions."
 msgstr ""
+"Varsayılan oluşturulmuş dama tahtası. Varyant özel bölgeler gerektiriyorsa "
+"bir SVG tahta yükleyin."
 
 #: ../client/myVariants.ts:1435
 msgid "Upload board"
-msgstr ""
+msgstr "Tahta yükle"
 
 #: ../client/myVariants.ts:1478
 msgid "Delete board"
-msgstr ""
+msgstr "Tahtayı sil"
 
 #: ../client/myVariants.ts:1504
 msgid "Name, description, or uploader"
-msgstr ""
+msgstr "Ad, açıklama veya yükleyen"
 
 #: ../client/myVariants.ts:1509
 msgid "Uploaded by"
-msgstr ""
+msgstr "Yükleyen"
 
 #: ../client/myVariants.ts:1511
 msgid "Exact username"
-msgstr ""
+msgstr "Tam kullanıcı adı"
 
 #: ../client/myVariants.ts:1516
 msgid "Sort"
-msgstr ""
+msgstr "Sırala"
 
 #: ../client/myVariants.ts:1526
 msgid "Recently updated"
-msgstr ""
+msgstr "Yakın zamanda güncellendi"
 
 #: ../client/myVariants.ts:1527
 msgid "Most played"
-msgstr ""
+msgstr "En çok oynanan"
 
 #: ../client/myVariants.ts:1528
 msgid "Newest"
-msgstr ""
+msgstr "En yeni"
 
 #: ../client/myVariants.ts:1529 ../client/myVariants.ts:1593
 #: ../client/myVariants.ts:1620
 msgid "Name"
-msgstr ""
+msgstr "Ad"
 
 #: ../client/myVariants.ts:1585
 msgid "No variants found."
-msgstr ""
+msgstr "Varyant bulunamadı."
 
 #: ../client/myVariants.ts:1585
 msgid "You have not uploaded any variants yet."
-msgstr ""
+msgstr "Henüz hiç varyant yüklemediniz."
 
 #: ../client/myVariants.ts:1594 ../client/myVariants.ts:1627
 #: ../client/tournamentRR.ts:707 ../client/tournamentRR.ts:1423
 msgid "Status"
-msgstr ""
+msgstr "Durum"
 
 #: ../client/myVariants.ts:1596 ../client/myVariants.ts:1637
 #: ../client/profile.ts:335 ../client/tournamentRR.ts:707
@@ -2687,61 +2744,67 @@ msgstr "Oyunlar"
 
 #: ../client/myVariants.ts:1597 ../client/myVariants.ts:1638
 msgid "Pieces"
-msgstr ""
+msgstr "Taşlar"
 
 #: ../client/analysis/keyboardHelp.ts:63 ../client/myVariants.ts:1598
 #: ../client/myVariants.ts:1639
 msgid "Board"
-msgstr ""
+msgstr "Tahta"
 
 #: ../client/myVariants.ts:1599 ../client/myVariants.ts:1640
 msgid "Actions"
-msgstr ""
+msgstr "İşlemler"
 
 #: ../client/myVariants.ts:1609
 msgid ""
 "This variant already has saved public games. Clone it to change the rules."
 msgstr ""
+"Bu varyantın zaten kaydedilmiş herkese açık oyunları var. Kuralları "
+"değiştirmek için klonlayın."
 
 #: ../client/myVariants.ts:1612
 msgid ""
 "Fairy-Stockfish built-in catalogue entries keep their engine rules and key "
 "fixed."
 msgstr ""
+"Fairy-Stockfish yerleşik katalog kayıtlarının motor kuralları ve anahtarı "
+"sabit kalır."
 
 #: ../client/myVariants.ts:1615
 msgid ""
 "Fairy-Stockfish AI is temporarily disabled for this variant; Random-Mover "
 "can still be used."
 msgstr ""
+"Bu varyant için Fairy-Stockfish AI geçici olarak devre dışıdır; Random-Mover"
+" yine kullanılabilir."
 
 #: ../client/myVariants.ts:1629
 msgid "Archived"
-msgstr ""
+msgstr "Arşivlendi"
 
 #: ../client/myVariants.ts:1631
 msgid "System"
-msgstr ""
+msgstr "Sistem"
 
 #: ../client/myVariants.ts:1633
 msgid "Locked"
-msgstr ""
+msgstr "Kilitli"
 
 #: ../client/myVariants.ts:1634
 msgid "Editable"
-msgstr ""
+msgstr "Düzenlenebilir"
 
 #: ../client/myVariants.ts:1647
 msgid "Play"
-msgstr ""
+msgstr "Oyna"
 
 #: ../client/myVariants.ts:1656
 msgid "Play AI"
-msgstr ""
+msgstr "AI ile oyna"
 
 #: ../client/myVariants.ts:1664
 msgid "Analysis"
-msgstr ""
+msgstr "Analiz"
 
 #: ../client/lobby/layer3.ts:104 ../client/myVariants.ts:1672
 msgid "Rules"
@@ -2749,23 +2812,23 @@ msgstr "Kurallar"
 
 #: ../client/myVariants.ts:1699
 msgid "Restore"
-msgstr ""
+msgstr "Geri yükle"
 
 #: ../client/myVariants.ts:1716
 msgid "Clone"
-msgstr ""
+msgstr "Klonla"
 
 #: ../client/myVariants.ts:1728
 msgid "Variants"
-msgstr ""
+msgstr "Varyantlar"
 
 #: ../client/myVariants.ts:1728
 msgid "My variants"
-msgstr ""
+msgstr "Varyantlarım"
 
 #: ../client/myVariants.ts:1743
 msgid "Manage my variants"
-msgstr ""
+msgstr "Varyantlarımı yönet"
 
 #: ../client/myVariants.ts:1746
 msgid ""
@@ -2773,54 +2836,57 @@ msgid ""
 "casual/unrated, but can be played from this page against humans or Fairy-"
 "Stockfish."
 msgstr ""
+"Yüklenen varyantlar normal varyant kataloğunun dışında tutulur. Her zaman "
+"puansızdır ancak bu sayfadan insanlara veya Fairy-Stockfish'e karşı "
+"oynanabilir."
 
 #: ../client/myVariants.ts:1751
 msgid "Browse community variants"
-msgstr ""
+msgstr "Topluluk varyantlarına göz at"
 
 #: ../client/myVariants.ts:1756
 msgid "Sign in required"
-msgstr ""
+msgstr "Giriş gerekli"
 
 #: ../client/myVariants.ts:1757
 msgid "Please sign in to upload and manage your variants."
-msgstr ""
+msgstr "Varyant yüklemek ve yönetmek için lütfen giriş yapın."
 
 #: ../client/notifyView.ts:86
 msgid "It is your turn"
-msgstr ""
+msgstr "Sıra sende"
 
 #: ../client/notifyView.ts:100
 msgid "Swiss tournament starting soon"
-msgstr ""
+msgstr "İsviçre turnuvası yakında başlıyor"
 
 #: ../client/notifyView.ts:122
 msgid "Round-robin challenge"
-msgstr ""
+msgstr "Dairesel meydan okuma"
 
 #: ../client/notifyView.ts:141
 msgid "Round-robin scheduling"
-msgstr ""
+msgstr "Dairesel planlama"
 
 #: ../client/notifyView.ts:163
 msgid "Round-robin reminder"
-msgstr ""
+msgstr "Dairesel hatırlatıcı"
 
 #: ../client/notifyView.ts:181
 msgid "Team update"
-msgstr ""
+msgstr "Takım güncellemesi"
 
 #: ../client/notifyView.ts:184
 msgid "New team update"
-msgstr ""
+msgstr "Yeni takım güncellemesi"
 
 #: ../client/notifyView.ts:193
 msgid "Inbox message"
-msgstr ""
+msgstr "Gelen kutusu mesajı"
 
 #: ../client/notifyView.ts:200
 msgid "a forum topic"
-msgstr ""
+msgstr "bir forum konusu"
 
 #: ../client/notifyView.ts:231
 msgid "No notifications."
@@ -2849,8 +2915,8 @@ msgstr "Geçersiz PGN"
 #: ../client/profile.ts:200
 msgid "%1 move"
 msgid_plural "%1 moves"
-msgstr[0] "%1 move "
-msgstr[1] "%1 hamle "
+msgstr[0] "%1 hamle"
+msgstr[1] "%1 hamle"
 
 #: ../client/profile.ts:208
 msgid "Computer analysis available"
@@ -2858,7 +2924,7 @@ msgstr "Bilgisayar analizi mevcut"
 
 #: ../client/profile.ts:293
 msgid "Load games"
-msgstr ""
+msgstr "Oyunları yükle"
 
 #: ../client/profile.ts:344
 msgid "Games with you"
@@ -2880,7 +2946,7 @@ msgstr "İçe aktarıldı"
 
 #: ../client/profile.ts:485
 msgid "Block limit reached."
-msgstr ""
+msgstr "Engelleme sınırına ulaşıldı."
 
 #: ../client/puzzleCtrl.ts:91
 msgid "LOGIN"
@@ -2941,7 +3007,7 @@ msgstr "Bu doğru hamle değil!"
 
 #: ../client/puzzleCtrl.ts:370
 msgid "Try something else."
-msgstr "Başka birşey deneyin."
+msgstr "Başka bir şey deneyin."
 
 #: ../client/puzzleCtrl.ts:384
 msgid "Best move!"
@@ -3069,7 +3135,7 @@ msgstr "Varyant bitti"
 
 #: ../client/result.ts:153
 msgid "Claimed variant ending"
-msgstr ""
+msgstr "Talep edilmiş varyant bitişi"
 
 #: ../client/result.ts:153
 msgid "Repetition"
@@ -3111,27 +3177,27 @@ msgstr "İptal"
 
 #: ../client/roundCtrl.ts:721
 msgid "Your opponent proposes a takeback"
-msgstr ""
+msgstr "Rakibin geri alma öneriyor"
 
 #: ../client/roundCtrl.ts:743
 msgid "Takeback offer sent"
-msgstr ""
+msgstr "Geri alma teklifi gönderildi"
 
 #: ../client/roundCtrl.ts:752
 msgid "Are you sure you want to draw?"
-msgstr "Beraberlik istediğinize emin misiniz? "
+msgstr "Beraberlik istediğinize emin misiniz?"
 
 #: ../client/roundCtrl.ts:753 ../client/two-board/round/roundControls.ts:145
 msgid "Offer draw"
-msgstr ""
+msgstr "Beraberlik teklif et"
 
 #: ../client/roundCtrl.ts:758
 msgid "Draw offer sent"
-msgstr "Beraberlik isteği gönderildi "
+msgstr "Beraberlik isteği gönderildi"
 
 #: ../client/roundCtrl.ts:798
 msgid "Your opponent offers a draw"
-msgstr "Rakibin beraberlik isteği gönderdi "
+msgstr "Rakibin beraberlik isteği gönderdi"
 
 #: ../client/roundCtrl.ts:821
 msgid "Confirm move"
@@ -3195,11 +3261,11 @@ msgstr "EŞ ZAMANLIYA DÖN"
 
 #: ../client/roundCtrl.ts:1051
 msgid "VIEW TOURNAMENT"
-msgstr "TURNUVAYI GÖR "
+msgstr "TURNUVAYI GÖR"
 
 #: ../client/roundCtrl.ts:1057
 msgid "BACK TO TOURNAMENT"
-msgstr "TURNUVAYA DÖN "
+msgstr "TURNUVAYA DÖN"
 
 #: ../client/roundCtrl.ts:1061 ../client/tournament.ts:295
 #: ../client/tournament.ts:313 ../client/tournamentRR.ts:565
@@ -3260,7 +3326,7 @@ msgstr "Rahat mod"
 
 #: ../client/settingsView.ts:74
 msgid "Account"
-msgstr ""
+msgstr "Hesap"
 
 #: ../client/settingsView.ts:75 ../client/settingsView.ts:93
 msgid "Log out"
@@ -3272,15 +3338,15 @@ msgstr "Çıkış yapmak istediğinize emin misiniz?"
 
 #: ../client/settingsView.ts:158
 msgid "Only friends can message me"
-msgstr ""
+msgstr "Bana yalnızca arkadaşlarım mesaj gönderebilir"
 
 #: ../client/settingsView.ts:170
 msgid "Correspondence move push notifications"
-msgstr ""
+msgstr "Yazışmalı hamle anlık bildirimleri"
 
 #: ../client/settingsView.ts:182
 msgid "Round-robin appointment push notifications"
-msgstr ""
+msgstr "Dairesel randevu bildirimleri"
 
 #: ../client/sound.ts:261
 msgid "Volume"
@@ -3289,41 +3355,42 @@ msgstr "Ses"
 #: ../client/timeline.ts:52 ../client/tournament.ts:1215
 #: ../client/tournamentRR.ts:1961
 msgid "Team"
-msgstr ""
+msgstr "Takım"
 
 #: ../client/timeline.ts:86 ../client/timeline.ts:102
 msgid "Blog post"
-msgstr ""
+msgstr "Blog gönderisi"
 
 #: ../client/timeline.ts:112 ../client/timeline.ts:122
 msgid "Simultaneous exhibition"
-msgstr ""
+msgstr "Eş zamanlı oyun"
 
 #: ../client/timeline.ts:136
 msgid "Tournament"
-msgstr ""
+msgstr "Turnuva"
 
 #: ../client/timeline.ts:162
 msgid "Sign in"
-msgstr ""
+msgstr "Giriş yap"
 
 #: ../client/timeline.ts:167 ../client/timeline.ts:205
 msgid "No activity yet. Follow players to see what they do."
 msgstr ""
+"Henüz etkinlik yok. Oyuncuların yaptıklarını görmek için onları takip edin."
 
 #: ../client/timeline.ts:169 ../client/timeline.ts:202
 msgid "Timeline"
-msgstr ""
+msgstr "Zaman akışı"
 
 #: ../client/tournament.ts:251 ../client/tournament.ts:253
 #: ../client/tournamentRR.ts:253 ../client/tournamentRR.ts:255
 msgid "Abort tournament"
-msgstr ""
+msgstr "Turnuvayı sonlandır"
 
 #: ../client/tournament.ts:252 ../client/tournamentRR.ts:254
 msgid ""
 "This will end the tournament immediately. This action cannot be undone."
-msgstr ""
+msgstr "Bu işlem turnuvayı hemen sonlandırır. Bu işlem geri alınamaz."
 
 #: ../client/tournament.ts:263
 msgid "First"
@@ -3391,7 +3458,7 @@ msgstr "Tüm oyunları JSON formatında indir"
 
 #: ../client/tournament.ts:400
 msgid "Download TRF pairing state"
-msgstr ""
+msgstr "TRF eşleştirme durumunu indir"
 
 #: ../client/tournament.ts:407 ../client/tournamentRR.ts:1712
 msgid "Tournament complete"
@@ -3399,15 +3466,15 @@ msgstr "Turnuva bitti"
 
 #: ../client/tournament.ts:575
 msgid "Late"
-msgstr ""
+msgstr "Geç katılım"
 
 #: ../client/tournament.ts:575
 msgid "Absent"
-msgstr ""
+msgstr "Devamsız"
 
 #: ../client/tournament.ts:575
 msgid "Bye"
-msgstr ""
+msgstr "Bay"
 
 #: ../client/tournament.ts:619
 msgid "Arena"
@@ -3424,7 +3491,7 @@ msgstr "İsviçre"
 #: ../client/tournament.ts:646 ../client/tournament.ts:741
 #: ../client/tournament.ts:761 ../client/tournament.ts:781
 msgid "Tie Break"
-msgstr ""
+msgstr "Eşitlik bozma"
 
 #: ../client/tournament.ts:648 ../client/tournament.ts:743
 #: ../client/tournament.ts:763 ../client/tournament.ts:783
@@ -3468,26 +3535,26 @@ msgstr "Turnuvayı düzenle"
 
 #: ../client/tournamentClock.ts:34
 msgid "The tournament is starting!"
-msgstr ""
+msgstr "Turnuva başlıyor!"
 
 #: ../client/tournamentClock.ts:101 ../client/tournamentClock.ts:132
 #: ../client/tournamentClock.ts:142
 msgid "%1 ongoing game"
 msgid_plural "%1 ongoing games"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 devam eden oyun"
+msgstr[1] "%1 devam eden oyun"
 
 #: ../client/tournamentClock.ts:109
 msgid "NEXT ROUND READY"
-msgstr ""
+msgstr "SONRAKİ TUR HAZIR"
 
 #: ../client/tournamentClock.ts:109
 msgid "waiting for organizer"
-msgstr ""
+msgstr "organizatör bekleniyor"
 
 #: ../client/tournamentClock.ts:118
 msgid "NEXT ROUND IN"
-msgstr ""
+msgstr "SONRAKİ TUR"
 
 #: ../client/tournamentClock.ts:162
 msgid "STARTING IN"
@@ -3684,17 +3751,17 @@ msgstr ""
 
 #: ../client/tournamentFaq.ts:101
 msgid "How does round-robin work?"
-msgstr ""
+msgstr "Dairesel nasıl işler?"
 
 #: ../client/tournamentFaq.ts:102
 msgid ""
 "In a round-robin tournament, each player can play one game against every "
 "other player."
-msgstr ""
+msgstr "Dairesel'de her oyuncu diğer her oyuncuyla bir oyun oynar."
 
 #: ../client/tournamentFaq.ts:103
 msgid "How do I play a game?"
-msgstr ""
+msgstr "Nasıl oyun oynarım?"
 
 #: ../client/tournamentFaq.ts:106
 msgid ""
@@ -3702,16 +3769,21 @@ msgid ""
 "play against meet. You can schedule a date and time of the game or start the"
 " game right away by sending a challenge to your opponent."
 msgstr ""
+"Oynamak için tabloda sizinle oynamak istediğiniz rakibin kesiştiği hücreye "
+"tıklayın. Oyunun tarih ve saatini planlayabilir veya rakibinize meydan okuma"
+" göndererek oyunu hemen başlatabilirsiniz."
 
 #: ../client/tournamentFaq.ts:110
 msgid "How are points given?"
-msgstr ""
+msgstr "Puanlar nasıl verilir?"
 
 #: ../client/tournamentFaq.ts:113
 msgid ""
 "You get 2 points for a win, 1 for a draw, and 0 for a loss. Every match "
 "counts toward your total score."
 msgstr ""
+"Galibiyet için 2, beraberlik için 1 ve mağlubiyet için 0 puan alırsınız. Her"
+" maç toplam puanınıza katkıda bulunur."
 
 #: ../client/tournamentFaq.ts:120
 msgid ""
@@ -3719,6 +3791,8 @@ msgid ""
 "number of points, the one with the higher tournament performance is ranked "
 "higher."
 msgstr ""
+"Turnuva sonunda en çok puana sahip oyuncu kazanır. Oyuncuların puanları "
+"eşitse turnuva performansı daha yüksek olan üst sırada yer alır."
 
 #: ../client/tournamentFaq.ts:127
 msgid ""
@@ -3726,97 +3800,124 @@ msgid ""
 "configured end time is reached. Aborted games do not count and can be "
 "scheduled and played again later."
 msgstr ""
+"Turnuva, planlanan tüm oyunlar tamamlandığında veya belirlenen bitiş "
+"zamanına ulaşıldığında sona erer. Sonlandırılan oyunlar hesaba katılmaz; "
+"daha sonra yeniden planlanıp oynanabilir."
 
 #: ../client/tournamentFaq.ts:136
 msgid "Swiss Rules"
-msgstr ""
+msgstr "İsviçre Kuralları"
 
 #: ../client/tournamentFaq.ts:139
 msgid ""
 "Swiss tournaments are played in fixed rounds. After each round finishes, the"
 " next round starts and players are paired with others on similar score."
 msgstr ""
+"İsviçre turnuvaları sabit turlarda oynanır. Her tur sona erdiğinde sonraki "
+"tur başlar ve oyuncular benzer puana sahip oyuncularla eşleştirilir."
 
 #: ../client/tournamentFaq.ts:145
 msgid "How does pairing work?"
-msgstr ""
+msgstr "Eşleştirme nasıl çalışır?"
 
 #: ../client/tournamentFaq.ts:146
 msgid ""
 "Players are paired by Swiss rules with score-group logic and color "
 "constraints."
 msgstr ""
+"Oyuncular İsviçre kurallarına, puan grubu mantığına ve renk kısıtlamalarına "
+"göre eşleştirilir."
 
 #: ../client/tournamentFaq.ts:150
 msgid ""
 "You cannot play the same opponent twice, and the system may assign a bye if "
 "no legal opponent exists in a round."
 msgstr ""
+"Aynı rakiple iki kez oynayamazsınız; bir turda yasal bir rakip yoksa sistem "
+"size bay atayabilir."
 
 #: ../client/tournamentFaq.ts:155
 msgid "Most variants use 2/1/0 scoring for win/draw/loss."
 msgstr ""
+"Çoğu varyant galibiyet/beraberlik/mağlubiyet için 2/1/0 puanlamasını "
+"kullanır."
 
 #: ../client/tournamentFaq.ts:157
 msgid ""
 "Janggi uses 7/0 for full win/loss, and 4/2 for point-counting win/loss."
 msgstr ""
+"Janggi tam galibiyet/mağlubiyet için 7/0, puan hesabına dayalı "
+"galibiyet/mağlubiyet için 4/2 kullanır."
 
 #: ../client/tournamentFaq.ts:161
 msgid ""
 "A pairing-allocated bye gives full win points. A late join gives a single "
 "half-bye compensation even if several rounds were missed."
 msgstr ""
+"Eşleştirme yoluyla verilen bay, tam galibiyet puanı kazandırır. Geç katılım,"
+" birkaç tur kaçırılmış olsa bile tek bir yarım bay telafisi sağlar."
 
 #: ../client/tournamentFaq.ts:168
 msgid ""
 "Janggi exception: the late-join half-bye is worth 2 points, pairing-"
 "allocated byes give 7 points, and absent rounds give 0 points."
 msgstr ""
+"Janggi istisnası: geç katılım yarım bayı 2 puan değerindedir, eşleştirme "
+"yoluyla verilen baylar 7 puan verir ve devamsız turlar 0 puandır."
 
 #: ../client/tournamentFaq.ts:172
 msgid "Late join and absences"
-msgstr ""
+msgstr "Geç katılım ve devamsızlıklar"
 
 #: ../client/tournamentFaq.ts:173
 msgid ""
 "You can join a Swiss after it starts, but only until half of the rounds have"
 " been played."
 msgstr ""
+"İsviçre turnuvasına başladıktan sonra katılabilirsiniz, ancak yalnızca "
+"turların yarısı oynanana kadar."
 
 #: ../client/tournamentFaq.ts:177
 msgid ""
 "Most variants: late joiners get one half-point compensation, and no points "
 "for other missed rounds."
 msgstr ""
+"Çoğu varyantta geç katılanlar yarım puan telafisi alır ve kaçırılan diğer "
+"turlar için puan alamaz."
 
 #: ../client/tournamentFaq.ts:180
 msgid ""
 "If you miss a round, you are not paired for that round and score 0 points "
 "for it."
-msgstr ""
+msgstr "Bir turu kaçırırsanız o tur için eşleştirilmez ve 0 puan alırsınız."
 
 #: ../client/tournamentFaq.ts:184
 msgid ""
 "If you miss an actual Swiss game without moving, you are temporarily blocked"
 " from entering a new Swiss until the no-show timeout expires."
 msgstr ""
+"Gerçek bir İsviçre oyununu hamle yapmadan kaçırırsanız, gelmeme zaman aşımı "
+"sona erene kadar yeni bir İsviçre turnuvasına geçici olarak katılamazsınız."
 
 #: ../client/tournamentFaq.ts:191
 msgid ""
 "Absent and late-join placeholder rounds are shown in the standings, and you "
 "can still return for later rounds."
 msgstr ""
+"Devamsızlık ve geç katılım için yer tutucu turlar sıralamalarda gösterilir; "
+"daha sonraki turlara yine dönebilirsiniz."
 
 #: ../client/tournamentFaq.ts:195
 msgid "Tie-break"
-msgstr ""
+msgstr "Eşitlik bozma"
 
 #: ../client/tournamentFaq.ts:196
 msgid ""
 "If players have the same score, Sonneborn-Berger values decide final "
 "ranking."
 msgstr ""
+"Oyuncuların puanları eşitse son sıralamayı Sonneborn-Berger değerleri "
+"belirler."
 
 #: ../client/tournamentFaq.ts:200
 msgid ""
@@ -3824,212 +3925,235 @@ msgid ""
 "allocated byes use a virtual-opponent style value. Late-join and absent "
 "placeholder rounds do not add tie-break credit."
 msgstr ""
+"Galibiyetler rakibin tam puanı kadar, beraberlikler yarısı kadar sayılır; "
+"eşleştirme yoluyla verilen baylar sanal rakip değerini kullanır. Geç katılım"
+" ve devamsızlık yer tutucu turları eşitlik bozma puanına katkı sağlamaz."
 
 #: ../client/tournamentFaq.ts:204
 msgid "What if the event has too many rounds?"
-msgstr ""
+msgstr "Etkinlikte çok fazla tur varsa ne olur?"
 
 #: ../client/tournamentFaq.ts:207
 msgid ""
 "If no legal new pairing can be produced, the Swiss finishes early and the "
 "current standings become final."
 msgstr ""
+"Yeni bir yasal eşleştirme oluşturulamıyorsa İsviçre turnuvası erken biter ve"
+" mevcut sıralama kesinleşir."
 
 #: ../client/tournamentFaq.ts:214
 msgid ""
 "The tournament ends after all scheduled rounds are completed, or earlier if "
 "no further legal pairings exist."
 msgstr ""
+"Turnuva planlanan tüm turlar tamamlandığında veya daha önce başka yasal "
+"eşleştirme kalmadığında sona erer."
 
 #: ../client/tournamentForm.ts:8
 msgid "Only public user-defined variants can be used in tournaments."
 msgstr ""
+"Turnuvalarda yalnızca herkese açık kullanıcı tanımlı varyantlar "
+"kullanılabilir."
 
 #: ../client/tournamentForm.ts:9
 msgid "Unknown tournament variant."
-msgstr ""
+msgstr "Bilinmeyen turnuva varyantı."
 
 #: ../client/tournamentForm.ts:11
 msgid "Two-board variants are not supported in tournaments."
-msgstr ""
+msgstr "İki tahtalı varyantlar turnuvalarda desteklenmez."
 
 #: ../client/tournamentForm.ts:12
 msgid "Invalid tournament time control."
-msgstr ""
+msgstr "Geçersiz turnuva zaman kontrolü."
 
 #: ../client/tournamentForm.ts:13
 msgid "Tournament team not found."
-msgstr ""
+msgstr "Turnuva takımı bulunamadı."
 
 #: ../client/tournamentForm.ts:15
 msgid ""
 "You need the tournament permission in this team to create this tournament."
 msgstr ""
+"Bu turnuvayı oluşturmak için bu takımda turnuva iznine sahip olmalısınız."
 
 #: ../client/tournamentForm.ts:17
 msgid "Round-Robin and Swiss tournaments must belong to a team."
-msgstr ""
+msgstr "Dairesel ve İsviçre turnuvaları bir takıma bağlı olmalıdır."
 
 #: ../client/tournamentForm.ts:19
 msgid ""
 "You need the tournament permission in this team to manage this tournament."
 msgstr ""
+"Bu turnuvayı yönetmek için bu takımda turnuva iznine sahip olmalısınız."
 
 #: ../client/tournamentForm.ts:20
 msgid "Invalid Swiss round count."
-msgstr ""
+msgstr "Geçersiz İsviçre tur sayısı."
 
 #: ../client/tournamentForm.ts:21
 msgid "Invalid tournament start date."
-msgstr ""
+msgstr "Geçersiz turnuva başlangıç tarihi."
 
 #: ../client/tournamentForm.ts:22
 msgid "Invalid tournament end date."
-msgstr ""
+msgstr "Geçersiz turnuva bitiş tarihi."
 
 #: ../client/tournamentForm.ts:23
 msgid "Tournament start date must be in the future."
-msgstr ""
+msgstr "Turnuva başlangıç tarihi gelecekte olmalıdır."
 
 #: ../client/tournamentForm.ts:24
 msgid "Invalid tournament duration or start delay."
-msgstr ""
+msgstr "Geçersiz turnuva süresi veya başlangıç gecikmesi."
 
 #: ../client/tournamentForm.ts:26
 msgid "Tournament end date must be after the start date."
-msgstr ""
+msgstr "Turnuva bitiş tarihi başlangıç tarihinden sonra olmalıdır."
 
 #: ../client/tournamentForm.ts:28
 msgid "Tournament name must be between 2 and 30 characters."
-msgstr ""
+msgstr "Turnuva adı 2 ile 30 karakter arasında olmalıdır."
 
 #: ../client/tournamentForm.ts:30
 msgid "Tournament description is limited to 1000 characters."
-msgstr ""
+msgstr "Turnuva açıklaması 1000 karakterle sınırlıdır."
 
 #: ../client/tournamentForm.ts:32
 msgid "Tournament password is limited to 30 characters."
-msgstr ""
+msgstr "Turnuva parolası 30 karakterle sınırlıdır."
 
 #: ../client/tournamentForm.ts:33
 msgid "Tournament starting position is too long."
-msgstr ""
+msgstr "Turnuva başlangıç konumu çok uzun."
 
 #: ../client/tournamentForm.ts:35
 msgid "This tournament cannot be edited by its creator."
-msgstr ""
+msgstr "Bu turnuva oluşturucusu tarafından düzenlenemez."
 
 #: ../client/tournamentForm.ts:37
 msgid "Tournament creation requires a registered account."
-msgstr ""
+msgstr "Turnuva oluşturmak için kayıtlı bir hesap gerekir."
 
 #: ../client/tournamentForm.ts:38
 msgid "Invalid Arena start delay."
-msgstr ""
+msgstr "Geçersiz Arena başlangıç gecikmesi."
 
 #: ../client/tournamentForm.ts:40
 msgid "Community Arenas can be scheduled at most 24 hours in advance."
-msgstr ""
+msgstr "Topluluk Arenaları en fazla 24 saat önceden planlanabilir."
 
 #: ../client/tournamentForm.ts:42
 msgid "Variant cannot be changed after the tournament has started."
-msgstr ""
+msgstr "Turnuva başladıktan sonra varyant değiştirilemez."
 
 #: ../client/tournamentForm.ts:44
 msgid "Time control cannot be changed after the tournament has started."
-msgstr ""
+msgstr "Turnuva başladıktan sonra zaman kontrolü değiştirilemez."
 
 #: ../client/tournamentForm.ts:46
 msgid "Start date cannot be changed after the tournament has started."
-msgstr ""
+msgstr "Turnuva başladıktan sonra başlangıç tarihi değiştirilemez."
 
 #: ../client/tournamentForm.ts:48
 msgid "Starting position cannot be changed after the tournament has started."
-msgstr ""
+msgstr "Turnuva başladıktan sonra başlangıç konumu değiştirilemez."
 
 #: ../client/tournamentForm.ts:52
 msgid "Swiss tournaments must have %1 to %2 rounds."
-msgstr ""
+msgstr "İsviçre turnuvaları %1 ile %2 tur arasında olmalıdır."
 
 #: ../client/tournamentForm.ts:54
 msgid "Swiss round count cannot be lower than the current round (%1)."
-msgstr ""
+msgstr "İsviçre tur sayısı mevcut turdan (%1) düşük olamaz."
 
 #: ../client/tournamentForm.ts:56
 msgid "Swiss forbidden pairings are limited to %1 lines."
-msgstr ""
+msgstr "İsviçre yasak eşleştirmeleri %1 satırla sınırlıdır."
 
 #: ../client/tournamentForm.ts:58
 msgid "Swiss manual pairings are limited to %1 lines."
-msgstr ""
+msgstr "İsviçre manuel eşleştirmeleri %1 satırla sınırlıdır."
 
 #: ../client/tournamentForm.ts:60
 msgid "Invalid Swiss manual pairing on line %1."
-msgstr ""
+msgstr "%1. satırda geçersiz İsviçre manuel eşleştirmesi."
 
 #: ../client/tournamentForm.ts:62
 msgid ""
 "Invalid Swiss manual pairing on line %1: a player cannot play themself."
 msgstr ""
+"%1. satırda geçersiz İsviçre manuel eşleştirmesi: bir oyuncu kendisiyle "
+"oynayamaz."
 
 #: ../client/tournamentForm.ts:64
 msgid "Invalid Swiss manual pairing on line %1: %2 is used more than once."
 msgstr ""
+"%1. satırda geçersiz İsviçre manuel eşleştirmesi: %2 birden fazla "
+"kullanılmış."
 
 #: ../client/tournamentForm.ts:66
 msgid "User-created Arenas must last between %1 and %2 minutes."
 msgstr ""
+"Kullanıcı tarafından oluşturulan Arenalar %1 ile %2 dakika arasında "
+"sürmelidir."
 
 #: ../client/tournamentForm.ts:69
 msgid "Community Arena schedule conflicts with a protected system tournament."
-msgstr ""
+msgstr "Topluluk Arena programı korumalı bir sistem turnuvasıyla çakışıyor."
 
 #: ../client/tournamentForm.ts:254
 msgid "Selected"
-msgstr ""
+msgstr "Seçildi"
 
 #: ../client/simul/simulForm.ts:206 ../client/simul/simulForm.ts:215
 #: ../client/tournamentForm.ts:255 ../client/tournamentForm.ts:264
 msgid "Favorites"
-msgstr ""
+msgstr "Favoriler"
 
 #: ../client/simul/simulForm.ts:207 ../client/simul/simulForm.ts:216
 #: ../client/tournamentForm.ts:256 ../client/tournamentForm.ts:265
 msgid "Site variants"
-msgstr ""
+msgstr "Site varyantları"
 
 #: ../client/simul/simulForm.ts:209 ../client/tournamentForm.ts:258
 msgid "Type to search all public community variants."
-msgstr ""
+msgstr "Herkese açık tüm topluluk varyantlarında aramak için yazın."
 
 #: ../client/simul/simulForm.ts:217 ../client/tournamentForm.ts:266
 msgid "Community variants"
-msgstr ""
+msgstr "Topluluk varyantları"
 
 #: ../client/simul/simulForm.ts:218 ../client/tournamentForm.ts:268
 msgid "No matching variants."
-msgstr ""
+msgstr "Eşleşen varyant yok."
 
 #: ../client/simul/simulForm.ts:220 ../client/tournamentForm.ts:270
 msgid "Showing the first %1 matches. Refine your search."
-msgstr ""
+msgstr "İlk %1 eşleşme gösteriliyor. Aramanızı daraltın."
 
 #: ../client/tournamentForm.ts:522
 msgid ""
 "Optional. Select a team to restrict this Arena to current team members."
 msgstr ""
+"İsteğe bağlıdır. Bu Arena'yı mevcut takım üyeleriyle sınırlamak için bir "
+"takım seçin."
 
 #: ../client/tournamentForm.ts:523
 msgid ""
 "Required for production Round-Robin and Swiss. Only current team members can"
 " join team tournaments."
 msgstr ""
+"Dairesel ve İsviçre için gereklidir. Takım turnuvalarına yalnızca mevcut "
+"takım üyeleri katılabilir."
 
 #: ../client/tournamentForm.ts:539
 msgid ""
 "Arena runs continuously until the clock expires. Players rejoin from the "
 "lobby after each game."
 msgstr ""
+"Arena saat süresi dolana kadar kesintisiz devam eder. Oyuncular her oyundan "
+"sonra lobiden yeniden katılır."
 
 #: ../client/tournamentForm.ts:542
 msgid ""
@@ -4037,176 +4161,190 @@ msgid ""
 " frozen at start, then the full single-cycle round count is derived "
 "automatically."
 msgstr ""
+"Dairesel, takıma aittir ve azami oyuncu sayısı kullanır. Katılan oyuncu "
+"listesi başlangıçta sabitlenir, ardından tek devrenin toplam tur sayısı "
+"otomatik olarak hesaplanır."
 
 #: ../client/tournamentForm.ts:545
 msgid ""
 "Swiss is team-owned and fixed-round. Players are paired by score with color "
 "balancing and bye handling when needed."
 msgstr ""
+"İsviçre turnuvası takıma aittir ve sabit turludur. Oyuncular puana göre renk"
+" dengesi gözetilerek eşleştirilir ve gerektiğinde bay uygulanır."
 
 #: ../client/tournamentForm.ts:550
 msgid "Rounds (Swiss)"
-msgstr ""
+msgstr "Turlar (İsviçre)"
 
 #: ../client/tournamentForm.ts:554
 msgid "Choose how many rounds the Swiss tournament will play."
-msgstr ""
+msgstr "İsviçre turnuvasının kaç tur oynayacağını seçin."
 
 #: ../client/tournamentForm.ts:559
 msgid ""
 "Choose the maximum Round-Robin field size. When the tournament starts, "
 "rounds are derived from the players who joined."
 msgstr ""
+"Dairesel azami oyuncu sayısını seçin. Turnuva başladığında tur sayısı "
+"katılan oyunculardan hesaplanır."
 
 #: ../client/tournamentForm.ts:564
 msgid "Automatic is based on time control and clamped to 10s-1m."
 msgstr ""
+"Otomatik, zaman kontrolüne göre belirlenir ve 10 sn–1 dk aralığında tutulur."
 
 #: ../client/tournamentForm.ts:565
 msgid ""
 "Automatic is based on time control and clamped to 10s-1m. With manual "
 "rounds, the organizer starts the next round from the tournament controls."
 msgstr ""
+"Otomatik, zaman kontrolüne göre belirlenir ve 10 sn–1 dk aralığında tutulur."
+" Manuel turlarda organizatör sonraki turu turnuva kontrollerinden başlatır."
 
 #: ../client/tournamentForm.ts:569
 msgid "Duration"
-msgstr ""
+msgstr "Süre"
 
 #: ../client/tournamentForm.ts:569
 msgid "Estimated duration"
-msgstr ""
+msgstr "Tahmini süre"
 
 #: ../client/tournamentForm.ts:574
 msgid "Arena uses this as a hard limit."
-msgstr ""
+msgstr "Arena bunu kesin süre sınırı olarak kullanır."
 
 #: ../client/tournamentForm.ts:575
 msgid ""
 "Swiss and Round-Robin only use this as an estimate for scheduling and "
 "display. The event still finishes by rounds."
 msgstr ""
+"İsviçre ve Dairesel bunu yalnızca planlama ve gösterim için tahmin olarak "
+"kullanır. Etkinlik yine turlar üzerinden tamamlanır."
 
 #: ../client/tournamentForm.ts:645 ../client/tournamentForm.ts:651
 msgid "Tournament form submission failed."
-msgstr ""
+msgstr "Turnuva formu gönderilemedi."
 
 #: ../client/tournamentLifecycle.ts:48
 msgid "START NEXT ROUND"
-msgstr ""
+msgstr "SONRAKİ TURU BAŞLAT"
 
 #: ../client/tournamentLifecycle.ts:53
 msgid "ABORT TOURNAMENT"
-msgstr ""
+msgstr "TURNUVAYI SONLANDIR"
 
 #: ../client/tournamentRR.ts:305 ../client/tournamentRR.ts:307
 #: ../client/tournamentRR.ts:1159
 msgid "Annul result"
-msgstr ""
+msgstr "Sonucu iptal et"
 
 #: ../client/tournamentRR.ts:306
 msgid ""
 "This removes the tournament result and reopens the pairing for a replay. The"
 " original game remains in the pairing history."
 msgstr ""
+"Bu, turnuva sonucunu kaldırır ve eşleştirmeyi yeniden oynamak üzere açar. "
+"Orijinal oyun eşleştirme geçmişinde kalır."
 
 #: ../client/tournamentRR.ts:548
 msgid "Back"
-msgstr ""
+msgstr "Geri"
 
 #: ../client/tournamentRR.ts:558
 msgid "JOIN REQUEST PENDING"
-msgstr ""
+msgstr "KATILIM İSTEĞİ BEKLEMEDE"
 
 #: ../client/tournamentRR.ts:560
 msgid "JOIN REQUEST DENIED"
-msgstr ""
+msgstr "KATILIM İSTEĞİ REDDEDİLDİ"
 
 #: ../client/tournamentRR.ts:568
 msgid "JOINING CLOSED"
-msgstr ""
+msgstr "KATILIM KAPATILDI"
 
 #: ../client/tournamentRR.ts:616
 msgid "By"
-msgstr ""
+msgstr "Tarafından"
 
 #: ../client/simul/simul.ts:999 ../client/tournamentRR.ts:661
 msgid "Finished"
-msgstr ""
+msgstr "Tamamlandı"
 
 #: ../client/tournamentRR.ts:662
 msgid "Current game"
-msgstr ""
+msgstr "Mevcut oyun"
 
 #: ../client/tournamentRR.ts:663 ../client/tournamentRR.ts:1444
 msgid "Scheduled"
-msgstr ""
+msgstr "Planlandı"
 
 #: ../client/tournamentRR.ts:665
 msgid "Not played"
-msgstr ""
+msgstr "Oynanmadı"
 
 #: ../client/tournamentRR.ts:707 ../client/tournamentRR.ts:1424
 msgid "When"
-msgstr ""
+msgstr "Ne zaman"
 
 #: ../client/tournamentRR.ts:774 ../client/tournamentRR.ts:1116
 msgid "Open game"
-msgstr ""
+msgstr "Oyunu aç"
 
 #: ../client/tournamentRR.ts:775 ../client/tournamentRR.ts:776
 #: ../client/tournamentRR.ts:1120 ../client/tournamentRR.ts:1121
 msgid "Create challenge"
-msgstr ""
+msgstr "Meydan okuma oluştur"
 
 #: ../client/tournamentRR.ts:777 ../client/tournamentRR.ts:1129
 #: ../client/tournamentRR.ts:1130
 msgid "Accept challenge"
-msgstr ""
+msgstr "Meydan okumayı kabul et"
 
 #: ../client/tournamentRR.ts:778
 msgid "Awaiting response"
-msgstr ""
+msgstr "Yanıt bekleniyor"
 
 #: ../client/tournamentRR.ts:779
 msgid "Game in progress"
-msgstr ""
+msgstr "Oyun devam ediyor"
 
 #: ../client/tournamentRR.ts:993
 msgid "Manage players"
-msgstr ""
+msgstr "Oyuncuları yönet"
 
 #: ../client/tournamentRR.ts:1002
 msgid "Challenges"
-msgstr ""
+msgstr "Meydan okumalar"
 
 #: ../client/tournamentRR.ts:1009
 msgid "Round-robin views"
-msgstr ""
+msgstr "Dairesel görünümleri"
 
 #: ../client/tournamentRR.ts:1126 ../client/tournamentRR.ts:1127
 msgid "View challenge"
-msgstr ""
+msgstr "Meydan okumayı görüntüle"
 
 #: ../client/tournamentRR.ts:1156
 msgid "Annul result and replay"
-msgstr ""
+msgstr "Sonucu iptal et ve yeniden oyna"
 
 #: ../client/tournamentRR.ts:1175 ../client/tournamentRR.ts:1177
 #: ../client/tournamentRR.ts:1237
 msgid "Suggested time"
-msgstr ""
+msgstr "Önerilen zaman"
 
 #: ../client/tournamentRR.ts:1196
 msgid "Accept suggested time"
-msgstr ""
+msgstr "Önerilen zamanı kabul et"
 
 #: ../client/tournamentRR.ts:1237
 msgid "Suggest different time"
-msgstr ""
+msgstr "Farklı bir zaman öner"
 
 #: ../client/tournamentRR.ts:1238
 msgid "Suggest time"
-msgstr ""
+msgstr "Zaman öner"
 
 #: ../client/tournamentRR.ts:1306 ../client/usernameDialog.ts:176
 msgid "Confirm"
@@ -4214,91 +4352,91 @@ msgstr "Onayla"
 
 #: ../client/tournamentRR.ts:1400
 msgid "The game will not start automatically at the scheduled time."
-msgstr ""
+msgstr "Oyun planlanan zamanda otomatik olarak başlamaz."
 
 #: ../client/tournamentRR.ts:1415
 msgid "No current challenges or active pairing actions."
-msgstr ""
+msgstr "Şu anda meydan okuma veya etkin eşleştirme işlemi yok."
 
 #: ../client/tournamentRR.ts:1420
 msgid "Opponent"
-msgstr ""
+msgstr "Rakip"
 
 #: ../client/tournamentRR.ts:1421
 msgid "Round"
-msgstr ""
+msgstr "Tur"
 
 #: ../client/tournamentRR.ts:1422
 msgid "Color"
-msgstr ""
+msgstr "Renk"
 
 #: ../client/tournamentRR.ts:1425
 msgid "Action"
-msgstr ""
+msgstr "İşlem"
 
 #: ../client/tournamentRR.ts:1490
 msgid "Player management is only available to the organizer."
-msgstr ""
+msgstr "Oyuncu yönetimi yalnızca organizatör tarafından kullanılabilir."
 
 #: ../client/tournamentRR.ts:1519
 msgid "Player management"
-msgstr ""
+msgstr "Oyuncu yönetimi"
 
 #: ../client/tournamentRR.ts:1532
 msgid "Open joining"
-msgstr ""
+msgstr "Katılımı aç"
 
 #: ../client/tournamentRR.ts:1532
 msgid "Close joining"
-msgstr ""
+msgstr "Katılımı kapat"
 
 #: ../client/tournamentRR.ts:1536
 msgid "Kick player"
-msgstr ""
+msgstr "Oyuncuyu çıkar"
 
 #: ../client/tournamentRR.ts:1539
 msgid "Enter username"
-msgstr ""
+msgstr "Kullanıcı adını gir"
 
 #: ../client/tournamentRR.ts:1569 ../client/tournamentRR.ts:1609
 msgid "Kick"
-msgstr ""
+msgstr "Çıkar"
 
 #: ../client/tournamentRR.ts:1573
 msgid "Pending requests"
-msgstr ""
+msgstr "Bekleyen istekler"
 
 #: ../client/tournamentRR.ts:1587
 msgid "Deny"
-msgstr ""
+msgstr "Reddet"
 
 #: ../client/tournamentRR.ts:1597
 msgid "No pending requests"
-msgstr ""
+msgstr "Bekleyen istek yok"
 
 #: ../client/tournamentRR.ts:1601
 msgid "Approved players"
-msgstr ""
+msgstr "Onaylanan oyuncular"
 
 #: ../client/tournamentRR.ts:1619
 msgid "No approved players"
-msgstr ""
+msgstr "Onaylanan oyuncu yok"
 
 #: ../client/tournamentRR.ts:1622
 msgid "Denied players"
-msgstr ""
+msgstr "Reddedilen oyuncular"
 
 #: ../client/tournamentRR.ts:1637
 msgid "No denied players"
-msgstr ""
+msgstr "Reddedilen oyuncu yok"
 
 #: ../client/ublogLike.ts:11 ../client/ublogLike.ts:17
 msgid "Unlike"
-msgstr ""
+msgstr "Beğenmekten vazgeç"
 
 #: ../client/ublogLike.ts:11 ../client/ublogLike.ts:17
 msgid "Like"
-msgstr ""
+msgstr "Beğen"
 
 #: ../client/user.ts:34
 msgid "Anonymous"
@@ -4307,16 +4445,16 @@ msgstr "Anonim"
 #: ../client/userMiniWidget.ts:390
 msgid "%1 game"
 msgid_plural "%1 games"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 oyun"
+msgstr[1] "%1 oyun"
 
 #: ../client/userMiniWidget.ts:466
 msgid "Watch"
-msgstr ""
+msgstr "İzle"
 
 #: ../client/two-board/round/round.ts:121 ../client/userMiniWidget.ts:476
 msgid "Chat"
-msgstr ""
+msgstr "Sohbet"
 
 #: ../client/usernameDialog.ts:135
 msgid "Choose your username"
@@ -4348,11 +4486,11 @@ msgstr "Hesap oluşturuluyor..."
 
 #: ../client/variants.ts:2965
 msgid "Favorite custom variants"
-msgstr ""
+msgstr "Favori özel varyantlar"
 
 #: ../client/variants.ts:2976
 msgid "Selected custom variant"
-msgstr ""
+msgstr "Seçili özel varyant"
 
 #: ../client/view.ts:103
 msgid "Page reload required after change"
@@ -4368,7 +4506,7 @@ msgstr "Açık"
 
 #: ../client/zen.ts:42
 msgid "ZEN MODE"
-msgstr "Rahat"
+msgstr "RAHAT MOD"
 
 #: ../client/analysis/analysisChart.ts:24
 msgid "Initial position"
@@ -4401,12 +4539,12 @@ msgstr "UCI/USI kopyala"
 #: ../client/analysis/analysisCtrl.ts:868
 #: ../client/two-board/analysis/pgn.ts:119
 msgid "Download position to PNG image file"
-msgstr "Pozisyonu PGN görseli olarak indir"
+msgstr "Pozisyonu PNG görseli olarak indir"
 
 #: ../client/analysis/analysisCtrl.ts:871
 #: ../client/two-board/analysis/pgn.ts:122
 msgid "PNG image"
-msgstr "PGN görseli"
+msgstr "PNG görseli"
 
 #: ../client/analysis/analysisCtrl.ts:888
 msgid "Are you sure you want to delete this game?"
@@ -4433,7 +4571,7 @@ msgstr "Web tarayıcınızı tekrar yenilemeyi deneyin "
 
 #: ../client/analysis/analysisCtrl.ts:1081
 msgid "Multi-threaded WebAssembly (with NNUE evaluation)"
-msgstr "Çok-işlemcili WebAssembly (NNUE değerlendirmesi ile) "
+msgstr "Çok-işlemcili WebAssembly (NNUE değerlendirmesi ile)"
 
 #: ../client/analysis/analysisCtrl.ts:1274
 #: ../client/two-board/analysis/engine.ts:478
@@ -4453,11 +4591,11 @@ msgstr "yerel tarayıcıda"
 
 #: ../client/analysis/analysisSettings.ts:84
 msgid "Inline notation"
-msgstr ""
+msgstr "Satır içi notasyon"
 
 #: ../client/analysis/analysisSettings.ts:106
 msgid "Disclosure buttons"
-msgstr ""
+msgstr "Açılır-kapanır düğmeleri"
 
 #: ../client/analysis/analysisSettings.ts:125
 msgid "Best move arrow"
@@ -4489,12 +4627,12 @@ msgstr "Motor hata ayıklamasını etkinleştir"
 
 #: ../client/analysis/index.ts:126
 msgid "Computer analysis"
-msgstr "Bilgisayar analizi "
+msgstr "Bilgisayar analizi"
 
 #: ../client/analysis/index.ts:142
 #: ../client/two-board/analysis/analysis.ts:113
 msgid "Move times"
-msgstr "Hamle zamanları "
+msgstr "Hamle zamanları"
 
 #: ../client/analysis/index.ts:159
 msgid "Crosstable"
@@ -4503,107 +4641,107 @@ msgstr "Çapraz tablo"
 #: ../client/analysis/index.ts:177
 #: ../client/two-board/analysis/analysis.ts:117
 msgid "FEN & PGN"
-msgstr "FEN ve PGN "
+msgstr "FEN ve PGN"
 
 #: ../client/analysis/index.ts:252
 msgid "Multi-threaded WebAssembly (classical evaluation)"
-msgstr "Çok-işlemcili WebAssembly (klasik değerlendirme) "
+msgstr "Çok-işlemcili WebAssembly (klasik değerlendirme)"
 
 #: ../client/analysis/keyboardHelp.ts:25
 msgid "Left arrow"
-msgstr ""
+msgstr "Sol ok"
 
 #: ../client/analysis/keyboardHelp.ts:26
 msgid "Right arrow"
-msgstr ""
+msgstr "Sağ ok"
 
 #: ../client/analysis/keyboardHelp.ts:27
 msgid "Up arrow"
-msgstr ""
+msgstr "Yukarı ok"
 
 #: ../client/analysis/keyboardHelp.ts:28
 msgid "Down arrow"
-msgstr ""
+msgstr "Aşağı ok"
 
 #: ../client/analysis/keyboardHelp.ts:29
 msgid "Home"
-msgstr ""
+msgstr "Baş"
 
 #: ../client/analysis/keyboardHelp.ts:30
 msgid "End"
-msgstr ""
+msgstr "Son"
 
 #: ../client/analysis/keyboardHelp.ts:31
 msgid "Shift"
-msgstr ""
+msgstr "Shift"
 
 #: ../client/analysis/keyboardHelp.ts:32
 msgid "Enter"
-msgstr ""
+msgstr "Enter"
 
 #: ../client/analysis/keyboardHelp.ts:33
 msgid "Space"
-msgstr ""
+msgstr "Boşluk"
 
 #: ../client/analysis/keyboardHelp.ts:43
 msgid "or"
-msgstr ""
+msgstr "veya"
 
 #: ../client/analysis/keyboardHelp.ts:50
 msgid "Navigation"
-msgstr ""
+msgstr "Gezinme"
 
 #: ../client/analysis/keyboardHelp.ts:52
 msgid "Previous move"
-msgstr ""
+msgstr "Önceki hamle"
 
 #: ../client/analysis/keyboardHelp.ts:53
 msgid "Next move"
-msgstr ""
+msgstr "Sonraki hamle"
 
 #: ../client/analysis/keyboardHelp.ts:54
 msgid "First move"
-msgstr ""
+msgstr "İlk hamle"
 
 #: ../client/analysis/keyboardHelp.ts:55
 msgid "Last move"
-msgstr ""
+msgstr "Son hamle"
 
 #: ../client/analysis/keyboardHelp.ts:56
 msgid "Previous variation"
-msgstr ""
+msgstr "Önceki varyant"
 
 #: ../client/analysis/keyboardHelp.ts:57
 msgid "Next variation"
-msgstr ""
+msgstr "Sonraki varyant"
 
 #: ../client/analysis/keyboardHelp.ts:58
 msgid "Start of variation"
-msgstr ""
+msgstr "Varyantın başlangıcı"
 
 #: ../client/analysis/keyboardHelp.ts:59
 msgid "End of variation"
-msgstr ""
+msgstr "Varyantın sonu"
 
 #: ../client/analysis/keyboardHelp.ts:66
 msgid "Copy position reference"
-msgstr ""
+msgstr "Konum referansını kopyala"
 
 #: ../client/analysis/keyboardHelp.ts:67
 msgid "Show keyboard shortcuts"
-msgstr ""
+msgstr "Klavye kısayollarını göster"
 
 #: ../client/analysis/keyboardHelp.ts:74
 msgid "Input"
-msgstr ""
+msgstr "Girdi"
 
 #: ../client/analysis/keyboardHelp.ts:75
 msgid "Confirm current move input"
-msgstr ""
+msgstr "Mevcut hamle girişini onayla"
 
 #: ../client/analysis/keyboardHelp.ts:102
 msgid "Keyboard shortcuts"
-msgstr ""
+msgstr "Klavye kısayolları"
 
 #: ../client/editor/editorCtrl.ts:118
 msgid "Castling"
@@ -4631,11 +4769,11 @@ msgstr "BİLGİSAYARA KARŞI OYNA"
 
 #: ../client/editor/editorCtrl.ts:174
 msgid "CONTINUE FROM HERE"
-msgstr "BURDAN DEVAM ET"
+msgstr "BURADAN DEVAM ET"
 
 #: ../client/editor/editorCtrl.ts:177
 msgid "EXPORT TO PNG"
-msgstr "PGN DIŞA AKTAR"
+msgstr "PNG DIŞA AKTAR"
 
 #: ../client/editor/editorCtrl.ts:180
 msgid "COPY FEN TO CLIPBOARD"
@@ -4647,7 +4785,7 @@ msgstr "Taşları aynanın içinden hareket ettirin"
 
 #: ../client/input/duck.ts:38
 msgid "Cancel piece move"
-msgstr ""
+msgstr "Taş hamlesini iptal et"
 
 #: ../client/input/duck.ts:88
 msgid "Place the duck on an empty square."
@@ -4727,7 +4865,7 @@ msgstr "Bırakmasız 9x9"
 
 #: ../client/lobby/layer2shogi.ts:74
 msgid "Modern 9x9 Shogi variant"
-msgstr ""
+msgstr "Modern 9x9 Şogi varyantı"
 
 #: ../client/lobby/layer2shogi.ts:87
 msgid "5x5 Shogi"
@@ -4759,7 +4897,7 @@ msgstr "Antik bir oyun olan Çin Satrancı ve varyantları."
 
 #: ../client/lobby/layer2xiangqi.ts:43
 msgid "Chinese Chess, one of the most played games in the world"
-msgstr "Çin Datrancı, dünyada en çok oynanan oyunlardan biri"
+msgstr "Çin Satrancı, dünyada en çok oynanan oyunlardan biri"
 
 #: ../client/lobby/layer2xiangqi.ts:54
 msgid "Korean Chess, based on Xiangqi but very different"
@@ -4873,7 +5011,7 @@ msgstr "Ejderhanızı erkenden bırakmak çok ta iyi bir fikir olmayabilir."
 
 #: ../client/lobby/layer3.ts:180
 msgid "Initiative is everything!"
-msgstr "Girişimcilik herşeydir!"
+msgstr "İnisiyatif her şeydir!"
 
 #: ../client/lobby/layer3.ts:182
 msgid "The queen actually demotes upon capture, so it is not worth as much."
@@ -4894,6 +5032,7 @@ msgstr ""
 msgid ""
 "Choose both armies with the Alternate Start menu before creating the game."
 msgstr ""
+"Oyunu oluşturmadan önce Alternate Start menüsünden her iki orduyu da seçin."
 
 #: ../client/lobby/layer3.ts:196
 msgid "Be aware of campmate - victory by moving your king into the 8th rank."
@@ -4963,107 +5102,107 @@ msgstr ""
 
 #: ../client/simul/simul.ts:117
 msgid "Anonymous users cannot join simuls."
-msgstr ""
+msgstr "Anonim kullanıcılar eş zamanlı oyunlara katılamaz."
 
 #: ../client/simul/simul.ts:118
 msgid "BOT accounts cannot join simuls."
-msgstr ""
+msgstr "BOT hesapları eş zamanlı oyunlara katılamaz."
 
 #: ../client/simul/simul.ts:119
 msgid "Choose one of the variants offered by this simul."
-msgstr ""
+msgstr "Bu eş zamanlı oyunun sunduğu varyantlardan birini seçin."
 
 #: ../client/simul/simul.ts:120
 msgid "This variant is not offered by this simul."
-msgstr ""
+msgstr "Bu varyant bu eş zamanlı oyun tarafından sunulmuyor."
 
 #: ../client/simul/simul.ts:121
 msgid "This simul already has the maximum of %1 accepted players."
-msgstr ""
+msgstr "Bu eş zamanlı oyun zaten %1 kabul edilmiş oyuncu sınırına ulaştı."
 
 #: ../client/simul/simul.ts:122
 msgid "This simul requires at least %1 rated %2 games."
-msgstr ""
+msgstr "Bu eş zamanlı oyun en az %1 puanlı %2 oyun gerektiriyor."
 
 #: ../client/simul/simul.ts:123
 msgid "This simul requires accounts to be at least %1 days old."
-msgstr ""
+msgstr "Bu eş zamanlı oyun hesapların en az %1 günlük olmasını gerektiriyor."
 
 #: ../client/simul/simul.ts:124
 msgid "Your rating is below the minimum allowed for this simul."
-msgstr ""
+msgstr "Puanınız bu eş zamanlı oyun için izin verilen minimumun altında."
 
 #: ../client/simul/simul.ts:125
 msgid "Your rating is above the maximum allowed for this simul."
-msgstr ""
+msgstr "Puanınız bu eş zamanlı oyun için izin verilen maksimumun üzerinde."
 
 #: ../client/simul/simul.ts:126
 msgid "You must be a member of %1 to join this simul."
-msgstr ""
+msgstr "Bu eş zamanlı oyuna katılmak için %1 üyesi olmalısınız."
 
 #: ../client/simul/simul.ts:127
 msgid "This simul has already started"
-msgstr ""
+msgstr "Bu eş zamanlı oyun zaten başladı"
 
 #: ../client/simul/simul.ts:128
 msgid "Cannot start simul with fewer than 2 opponents"
-msgstr ""
+msgstr "2'den az rakiple eş zamanlı oyun başlatılamaz"
 
 #: ../client/simul/simul.ts:129
 msgid "Cannot start simul with more than %1 opponents"
-msgstr ""
+msgstr "%1 rakipten fazla rakiple eş zamanlı oyun başlatılamaz"
 
 #: ../client/simul/simul.ts:130
 msgid "Invalid host extra time for this clock setup"
-msgstr ""
+msgstr "Bu saat ayarı için geçersiz ev sahibi ek süresi"
 
 #: ../client/simul/simul.ts:131
 msgid "Cannot start simul"
-msgstr ""
+msgstr "Eş zamanlı oyun başlatılamıyor"
 
 #: ../client/simul/simul.ts:483
 msgid "Playing"
-msgstr ""
+msgstr "Oynuyor"
 
 #: ../client/simul/simul.ts:484
 msgid "Wins"
-msgstr ""
+msgstr "Galibiyet"
 
 #: ../client/simul/simul.ts:486
 msgid "Losses"
-msgstr ""
+msgstr "Mağlubiyet"
 
 #: ../client/simul/simul.ts:512
 msgid "Untimed"
-msgstr ""
+msgstr "Süresiz"
 
 #: ../client/simul/simul.ts:558
 msgid "Entry: %1+ rated games in this variant"
-msgstr ""
+msgstr "Katılım: bu varyantta %1+ puanlı oyun"
 
 #: ../client/simul/simul.ts:561
 msgid "Entry: minimum rating %1"
-msgstr ""
+msgstr "Katılım: minimum puan %1"
 
 #: ../client/simul/simul.ts:564
 msgid "Entry: maximum rating %1"
-msgstr ""
+msgstr "Katılım: maksimum puan %1"
 
 #: ../client/simul/simul.ts:567
 msgid "Entry: account age %1+ days"
-msgstr ""
+msgstr "Katılım: hesap yaşı %1+ gün"
 
 #: ../client/simul/simul.ts:594
 msgid "Start (%1)"
-msgstr ""
+msgstr "Başlat (%1)"
 
 #: ../client/simul/simul.ts:611
 msgid "Accept random candidate"
-msgstr ""
+msgstr "Rastgele adayı kabul et"
 
 #: ../client/simul/simul.ts:617
 msgid "Withdraw"
-msgstr ""
+msgstr "Geri çek"
 
 #: ../client/simul/simul.ts:638 ../client/two-board/lobby.ts:89
 #: ../client/two-board/lobby.ts:103 ../client/two-board/lobby.ts:116
@@ -5072,111 +5211,113 @@ msgstr "Katıl"
 
 #: ../client/simul/simul.ts:680 ../client/simul/simul.ts:681
 msgid "Reject"
-msgstr ""
+msgstr "Reddet"
 
 #: ../client/simul/simul.ts:686 ../client/simul/simul.ts:687
 msgid "Remove"
-msgstr ""
+msgstr "Kaldır"
 
 #: ../client/simul/simul.ts:713
 msgid "You have been selected! Hold still, the simul is about to begin."
-msgstr ""
+msgstr "Seçildiniz! Bekleyin, eş zamanlı oyun başlamak üzere."
 
 #: ../client/simul/simul.ts:715
 msgid "Share this page URL to let people enter the simul!"
 msgstr ""
+"İnsanların eş zamanlı oyuna katılabilmesi için bu sayfanın URL'ini paylaşın!"
 
 #: ../client/simul/simul.ts:717
 msgid "Your registration is recorded. Wait for the host to accept you."
-msgstr ""
+msgstr "Kaydınız alındı. Ev sahibinin sizi kabul etmesini bekleyin."
 
 #: ../client/simul/simul.ts:742
 msgid "No pending players"
-msgstr ""
+msgstr "Bekleyen oyuncu yok"
 
 #: ../client/simul/simul.ts:760
 msgid "Now you get to accept some players, then start the simul"
 msgstr ""
+"Şimdi bazı oyuncuları kabul edip ardından eş zamanlı oyunu başlatabilirsiniz"
 
 #: ../client/simul/simul.ts:769
 msgid "No approved players yet"
-msgstr ""
+msgstr "Henüz onaylanan oyuncu yok"
 
 #: ../client/simul/simul.ts:796
 msgid "Games in progress"
-msgstr ""
+msgstr "Devam eden oyunlar"
 
 #: ../client/simul/simul.ts:827
 msgid "Edit simul"
-msgstr ""
+msgstr "Eş zamanlı oyunu düzenle"
 
 #: ../client/simul/simul.ts:835
 msgid "Host color: %1"
-msgstr ""
+msgstr "Ev sahibi rengi: %1"
 
 #: ../client/simul/simul.ts:837
 msgid "Host extra time: %1"
-msgstr ""
+msgstr "Ev sahibi ek süresi: %1"
 
 #: ../client/simul/simul.ts:843
 msgid "Host extra time per player: +%1"
-msgstr ""
+msgstr "Oyuncu başına ev sahibi ek süresi: +%1"
 
 #: ../client/simul/simul.ts:847
 msgid "%1 accepted player"
 msgid_plural "%1 accepted players"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 kabul edilen oyuncu"
+msgstr[1] "%1 kabul edilen oyuncu"
 
 #: ../client/simul/simul.ts:848
 msgid "%1 pending player"
 msgid_plural "%1 pending players"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 beklemede oyuncu"
+msgstr[1] "%1 beklemede oyuncu"
 
 #: ../client/simul/simul.ts:861
 msgid "Custom starting position"
-msgstr ""
+msgstr "Özel başlangıç konumu"
 
 #: ../client/simul/simul.ts:887
 msgid "Estimated start time: %1"
-msgstr ""
+msgstr "Tahmini başlangıç zamanı: %1"
 
 #: ../client/simul/simul.ts:891
 msgid "Started: %1"
-msgstr ""
+msgstr "Başladı: %1"
 
 #: ../client/simul/simul.ts:894
 msgid "Finished: %1"
-msgstr ""
+msgstr "Bitti: %1"
 
 #: ../client/simul/simul.ts:907
 msgid "No games created yet"
-msgstr ""
+msgstr "Henüz oyun oluşturulmadı"
 
 #: ../client/simul/simul.ts:943
 msgid "Host is playing this game"
-msgstr ""
+msgstr "Ev sahibi bu oyunu oynuyor"
 
 #: ../client/simul/simul.ts:999
 msgid "Playing now"
-msgstr ""
+msgstr "Şimdi oynuyor"
 
 #: ../client/simul/simul.ts:999
 msgid "Waiting for players"
-msgstr ""
+msgstr "Oyuncular bekleniyor"
 
 #: ../client/simul/simulForm.ts:108
 msgid "A simul must offer at least one variant"
-msgstr ""
+msgstr "Bir eş zamanlı oyun en az bir varyant sunmalıdır"
 
 #: ../client/simul/simulForm.ts:108
 msgid "Remove %1"
-msgstr ""
+msgstr "%1 kaldır"
 
 #: ../client/simul/simulForm.ts:150
 msgid "A simul can offer at most %1 variants."
-msgstr ""
+msgstr "Bir eş zamanlı oyun en fazla %1 varyant sunabilir."
 
 #: ../client/simul/simulRoundHost.ts:83
 msgid "Auto skip to next game"
@@ -5236,28 +5377,28 @@ msgstr "Güzel"
 
 #: ../client/two-board/round/round.ts:135
 msgid "Moves"
-msgstr ""
+msgstr "Hamleler"
 
 #: ../client/two-board/round/round.ts:138
 msgid "Info"
-msgstr ""
+msgstr "Bilgi"
 
 #: ../client/two-board/round/round.ts:140
 msgid "Round tabs"
-msgstr ""
+msgstr "Tur sekmeleri"
 
 #: ../client/two-board/round/roundControls.ts:145
 msgid "Accept draw"
-msgstr ""
+msgstr "Beraberliği kabul et"
 
 #: ../client/two-board/round/roundControls.ts:155
 msgid "Confirm resignation"
-msgstr ""
+msgstr "İstifayı onayla"
 
 #: ../client/two-board/round/roundControls.ts:219
 msgid "ACCEPT REMATCH"
-msgstr ""
+msgstr "RÖVANŞI KABUL ET"
 
 #: ../client/two-board/round/roundControls.ts:219
 msgid "CANCEL REMATCH"
-msgstr ""
+msgstr "RÖVANŞI İPTAL ET"
