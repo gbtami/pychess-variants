@@ -39,6 +39,16 @@ div.versus vs-swords {
     margin: 0;
     padding: 0;
 }
+.player-head .profile-user-status {
+    display: inline-block;
+    width: 1.5em;
+    margin-right: 0;
+    text-align: center;
+    vertical-align: top;
+}
+.player-head .profile-user-status::before {
+    margin-right: 0;
+}
 .player-social {
     display: flex;
     background: var(--bg-color2);

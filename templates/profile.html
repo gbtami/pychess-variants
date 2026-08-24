@@ -19,7 +19,7 @@
     <div class="player-sum box">
         <div class="player-head">
             <h1 class="player">
-                {% if profile_patron %}<a href="{{ home }}/patron" title="{{ _('PyChess Patron') }}"><i-side class="profile-user-status {% if profile_online %}online{% else %}offline{% endif %} icon icon-patron-wing"></i-side></a>{% endif %}<player-title>{{ profile_title }}</player-title> {{ profile }}
+                {% if profile_patron %}<a href="{{ home }}/patron" title="{{ _('PyChess Patron') }}"><i-side class="profile-user-status {% if profile_online %}online{% else %}offline{% endif %} icon icon-patron-wing"></i-side></a>{% endif %}<player-title>{{ profile_title }}</player-title>{% if profile_title %} {% endif %}{{ profile }}
             </h1>
             <div class="trophies">
             {% for key, kind in trophies %}
