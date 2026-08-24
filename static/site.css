@@ -929,6 +929,34 @@ ul.guide li {
     visibility: visible;
   }
 }
+
+.topnav a.donate-link,
+.topnav a.donate-link:link,
+.topnav a.donate-link:visited,
+.topnav a.donate-link:hover,
+.topnav a.donate-link:active {
+  color: var(--gold);
+}
+.topnav a.donate-link {
+  display: flex;
+  align-items: center;
+  height: calc(var(--site-header-height) - 11px);
+  line-height: calc(var(--site-header-height) - 11px);
+  margin: 6px 0 5px;
+  padding: 0 0.8rem;
+  border-radius: 50px;
+  text-transform: uppercase;
+}
+.topnav a.donate-link::before {
+  position: relative;
+  top: -1px;
+  margin-right: 0.3em;
+  font-size: 1.2em;
+}
+.topnav a.donate-link:hover {
+  background-color: color-mix(in srgb, var(--gold) 15%, transparent);
+}
+
 /* Site buttons */
 
 .site-buttons {
