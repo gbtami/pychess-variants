@@ -484,7 +484,7 @@ class User:
         self.perfs[variant_key] = entry
 
         if self.app_state.db is not None:
-            await self.app_state.db.user.find_one_and_update(
+            await self.app_state.db.user.update_one(
                 {"_id": self.username}, {"$set": {f"perfs.{variant_key}": entry}}
             )
 

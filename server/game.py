@@ -1391,26 +1391,22 @@ class Game:
         w_nb = self.wplayer.perfs[self.variant + ("960" if chess960 else "")]["nb"]
         if w_nb >= HIGHSCORE_MIN_GAMES:
             _id = "%s|%s" % (self.wplayer.username, self.wplayer.title)
-            should_rebuild_lobby_leaderboard = (
-                should_rebuild_lobby_leaderboard
-                or await self.set_highscore(
-                    self.variant,
-                    chess960,
-                    {_id: int(round(new_white_rating.mu, 0))},
-                )
+            changed_top = await self.set_highscore(
+                self.variant,
+                chess960,
+                {_id: int(round(new_white_rating.mu, 0))},
             )
+            should_rebuild_lobby_leaderboard = should_rebuild_lobby_leaderboard or changed_top
 
         b_nb = self.bplayer.perfs[self.variant + ("960" if chess960 else "")]["nb"]
         if b_nb >= HIGHSCORE_MIN_GAMES:
             _id = "%s|%s" % (self.bplayer.username, self.bplayer.title)
-            should_rebuild_lobby_leaderboard = (
-                should_rebuild_lobby_leaderboard
-                or await self.set_highscore(
-                    self.variant,
-                    chess960,
-                    {_id: int(round(new_black_rating.mu, 0))},
-                )
+            changed_top = await self.set_highscore(
+                self.variant,
+                chess960,
+                {_id: int(round(new_black_rating.mu, 0))},
             )
+            should_rebuild_lobby_leaderboard = should_rebuild_lobby_leaderboard or changed_top
 
         if should_rebuild_lobby_leaderboard:
             await refresh_lobby_leaderboard_cache(self.app_state)

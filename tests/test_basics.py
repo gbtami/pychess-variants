@@ -419,6 +419,32 @@ class HighscoreTestCase(AioHTTPTestCase):
             await game.play_move(move, clocks=clocks, ply=i)
         await game.game_ended(player, "resign")
 
+    async def test_highscore_updates_both_players_when_first_changes_top(self):
+        game = Game(
+            get_app_state(self.app),
+            id8(),
+            "crazyhouse",
+            "",
+            self.wplayer,
+            self.bplayer,
+            rated=True,
+            chess960=True,
+            create=True,
+        )
+        white_rating = self.wplayer.get_rating("crazyhouse", True)
+        black_rating = self.bplayer.get_rating("crazyhouse", True)
+
+        set_highscore = AsyncMock(side_effect=[True, False])
+        refresh = AsyncMock()
+        with (
+            patch.object(game, "set_highscore", new=set_highscore),
+            patch("game.refresh_lobby_leaderboard_cache", new=refresh),
+        ):
+            await game.apply_rating_update(white_rating, black_rating)
+
+        self.assertEqual(set_highscore.await_count, 2)
+        refresh.assert_awaited_once_with(game.app_state)
+
     async def test_lost_but_still_there(self):
         game_id = id8()
         game = Game(
