@@ -6,7 +6,7 @@ import logging
 import random
 import traceback
 from abc import ABC, abstractmethod
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from datetime import UTC, datetime, timedelta
 from functools import lru_cache
 from operator import neg
@@ -67,7 +67,7 @@ from typing_defs import (
     TournamentTopGameResponse,
     TournamentUpdateData,
 )
-from websocket_utils import ws_send_json_many
+from websocket_utils import ws_send_json_many, ws_send_json_many_ordered
 
 if TYPE_CHECKING:
     from typing import Literal
@@ -2086,27 +2086,28 @@ class Tournament(ABC):
             else:
                 await self.set_next_round_starts_at(now + timedelta(seconds=interval_seconds))
 
-        await self.broadcast(self.duels_json)
-
-        self.app_state.create_background_task(self.delayed_free(live_game), name="t-delayed-free")
-
-        await self.broadcast(
+        responses: list[Mapping[str, object]] = [
+            self.duels_json,
             {
                 "type": "game_update",
                 "wname": game.wplayer.username,
                 "bname": game.bplayer.username,
-            }
-        )
-        await self.broadcast(self.live_status(now))
+            },
+            self.live_status(now),
+        ]
 
         if self.top_game is not None and self.top_game.id == game.id:
-            response = {
-                "type": "gameEnd",
-                "status": game.status,
-                "result": game.result,
-                "gameId": game.id,
-            }
-            await self.broadcast(response)
+            responses.append(
+                {
+                    "type": "gameEnd",
+                    "status": game.status,
+                    "result": game.result,
+                    "gameId": game.id,
+                }
+            )
+
+        self.app_state.create_background_task(self.delayed_free(live_game), name="t-delayed-free")
+        await self.broadcast_many(responses)
 
     def _player_game_index(self, player_data: PlayerData, game_id: str) -> int | None:
         for index, player_game in enumerate(player_data.games):
@@ -2253,7 +2254,7 @@ class Tournament(ABC):
             wplayer.free = True
             bplayer.free = True
 
-    async def broadcast(self, response: Mapping[str, object]) -> None:
+    def _broadcast_sockets(self) -> list[Any]:
         sockets = []
         for spectator in self.spectators:
             try:
@@ -2262,7 +2263,13 @@ class Tournament(ABC):
                 log.error("tournament broadcast() spectator socket was removed")
             except Exception:
                 log.error("Exception in tournament broadcast()")
-        await ws_send_json_many(sockets, response)
+        return sockets
+
+    async def broadcast_many(self, responses: Iterable[Mapping[str, object]]) -> None:
+        await ws_send_json_many_ordered(self._broadcast_sockets(), responses)
+
+    async def broadcast(self, response: Mapping[str, object]) -> None:
+        await self.broadcast_many((response,))
 
     async def db_insert_pairing(self, games: list[Game]) -> None:
         if self.app_state.db is None:

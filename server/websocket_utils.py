@@ -292,3 +292,44 @@ async def ws_send_json_many(
         return 0
 
     return await ws_send_str_many(ws_set, payload)
+
+
+async def ws_send_json_many_ordered(
+    ws_set: Iterable[WebSocketResponse | None],
+    messages: Iterable[Mapping[str, object] | None],
+) -> int:
+    try:
+        payloads = [_ws_json_dumps(message) for message in messages]
+    except Exception:
+        log.exception("Exception in ws_send_json_many_ordered()")
+        return 0
+
+    sockets = [ws for ws in ws_set if ws is not None]
+    if len(sockets) == 0 or len(payloads) == 0:
+        return 0
+
+    # Fan out across sockets, but keep each socket's message sequence ordered.
+    # This avoids multiplying the normal broadcast concurrency when several
+    # related messages need to be delivered together.
+    sem = asyncio.Semaphore(min(_SEND_CONCURRENCY, len(sockets)))
+
+    async def one(ws: WebSocketResponse) -> int:
+        sent = 0
+        for payload in payloads:
+            async with sem:
+                try:
+                    await asyncio.wait_for(ws.send_str(payload), timeout=_SEND_TIMEOUT_SECS)
+                    sent += 1
+                except (
+                    TimeoutError,
+                    ConnectionResetError,
+                    ClientConnectionResetError,
+                    RuntimeError,
+                ):
+                    break
+                except Exception:
+                    break
+        return sent
+
+    results = await asyncio.gather(*(one(ws) for ws in sockets))
+    return sum(results)
