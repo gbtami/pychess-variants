@@ -528,8 +528,14 @@ export abstract class GameController extends ChessgroundController implements Ch
     };
 
     protected onMove = () => {
-        return (_orig: cg.Key, _dest: cg.Key, capturedPiece: cg.Piece) => {
-            sound.moveSound(this.variant, !!capturedPiece);
+        return (orig: cg.Key, dest: cg.Key, capturedPiece?: cg.Piece) => {
+            const isEnPassant =
+                capturedPiece === undefined &&
+                this.chessground.state.boardState.pieces.get(dest)?.role === 'p-piece' &&
+                orig[0] !== dest[0] &&
+                this.variant.rules.enPassant;
+
+            sound.moveSound(this.variant, capturedPiece !== undefined || isEnPassant);
         };
     };
 
