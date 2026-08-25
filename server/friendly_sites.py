@@ -18,6 +18,12 @@ FRIENDLY_SITES: tuple[FriendlySite, ...] = tuple(
     sorted(
         (
             FriendlySite(
+                name="81Dojo",
+                url="https://81dojo.com/en/",
+                description="Free international shogi server with shared analysis, handicaps, and shogi variants.",
+                icon_url="/static/images/friendly-sites/81dojo.svg",
+            ),
+            FriendlySite(
                 name="Fairy-Stockfish",
                 url="https://fairy-stockfish.github.io/",
                 description="Strong open-source engine powering analysis for many chess variants.",
@@ -52,6 +58,18 @@ FRIENDLY_SITES: tuple[FriendlySite, ...] = tuple(
                 url="https://pychess.github.io/",
                 description="Desktop chess client with engines, variants, and offline play.",
                 icon_url="https://raw.githubusercontent.com/pychess/pychess/master/pychess.svg",
+            ),
+            FriendlySite(
+                name="SchemingMind",
+                url="https://www.schemingmind.com/",
+                description="Non-profit correspondence chess community with variants, tournaments, and free play.",
+                icon_url="/static/images/friendly-sites/schemingmind-alice.png",
+            ),
+            FriendlySite(
+                name="The Chess Variant Pages",
+                url="https://www.chessvariants.org/",
+                description="Volunteer-run home of chess variants since 1995, with rules and free Game Courier play.",
+                icon_url="/static/images/friendly-sites/chessvariants.svg",
             ),
         ),
         key=lambda site: site.name.casefold(),

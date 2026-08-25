@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="81Dojo">
+  <defs>
+    <linearGradient id="board" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff5ae"/>
+      <stop offset="1" stop-color="#f4c84d"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="28" fill="url(#board)"/>
+  <g stroke="#fff" stroke-width="3" opacity=".48">
+    <path d="M28 0v256M78 0v256M128 0v256M178 0v256M228 0v256"/>
+    <path d="M0 28h256M0 78h256M0 128h256M0 178h256M0 228h256"/>
+  </g>
+  <text x="21" y="174" font-family="Arial, Helvetica, sans-serif" font-size="158" font-weight="900" letter-spacing="-14" fill="#08ad1e" stroke="#078818" stroke-width="2">81</text>
+  <text x="61" y="225" font-family="Arial, Helvetica, sans-serif" font-size="62" font-weight="800" fill="#f0a11d" stroke="#8b5d00" stroke-width="1.4">Dojo</text>
+</svg>
