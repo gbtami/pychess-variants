@@ -45,6 +45,9 @@
         grid-template-rows: min-content 1fr;
         grid-template-areas: 'side . board gauge pocket-top' 'side . board gauge tools' 'side . board gauge tools' 'side . board gauge pocket-bot' 'uleft . uboard . move-controls';
     }
+    body[data-view='analysis'] .analysis-app:not(.bug) > under-left#spectators {
+        margin-top: 2vmin;
+    }
     /* move rank numbers to the left side of the board */
     .cg-wrap coords.side {
         right: auto;
