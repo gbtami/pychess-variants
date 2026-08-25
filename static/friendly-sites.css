@@ -101,8 +101,7 @@
 }
 
 .friendly-site-title,
-.friendly-site-description,
-.friendly-site-visit {
+.friendly-site-description {
     display: block;
 }
 
@@ -119,11 +118,6 @@
     opacity: 0.82;
 }
 
-.friendly-site-visit {
-    margin-top: 0.9rem;
-    color: var(--link-color);
-    font-weight: bold;
-}
 
 @media (max-width: 640px) {
     .friendly-sites-page {

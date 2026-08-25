@@ -24,10 +24,10 @@ FRIENDLY_SITES: tuple[FriendlySite, ...] = tuple(
                 icon_url="/static/images/Fairy-Stockfish.webp",
             ),
             FriendlySite(
-                name="GrenChess",
-                url="https://grenchess.net/",
-                description="A friendly online chess site and community.",
-                icon_url="https://grenchess.net/favicon.ico",
+                name="Green Chess",
+                url="https://greenchess.net/",
+                description="Online chess and chess variants, with a focus on correspondence play.",
+                icon_url="/static/images/greenchess-logo.png",
             ),
             FriendlySite(
                 name="Lichess",
@@ -51,7 +51,7 @@ FRIENDLY_SITES: tuple[FriendlySite, ...] = tuple(
                 name="PyChess Desktop",
                 url="https://pychess.github.io/",
                 description="Desktop chess client with engines, variants, and offline play.",
-                icon_url="https://pychess.github.io/favicon.ico",
+                icon_url="https://raw.githubusercontent.com/pychess/pychess/master/pychess.svg",
             ),
         ),
         key=lambda site: site.name.casefold(),
