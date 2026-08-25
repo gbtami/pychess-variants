@@ -177,10 +177,12 @@ export const BOARD_FAMILIES: Record<string, BoardFamily> = {
         dimensions: { width: 8, height: 8 },
         cg: 'cg-512',
         boardCSS: [
-            'ShogunPlain.svg',
+            'ShogunRed.svg',
+            'ShogunRedShadow.svg',
             'ShogunMaple.png',
             'ShogunMaple2.png',
             'ShogunBlue.svg',
+            'ShogunBlueShadow.svg',
             '8x8brown.svg',
             '8x8maple.jpg',
         ],
@@ -317,7 +319,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     courier: { pieceCSS: ['courier', 'disguised'] },
     shako: { pieceCSS: ['shako0', 'shako1', 'shako2', 'disguised'] },
     pemba: { pieceCSS: ['alfaerie', 'disguised'] },
-    shogun: { pieceCSS: ['shogun0', 'shogun1', 'shogun2', 'shogun3', 'shogun4', 'shogun5', 'disguised'] },
+    shogun: { pieceCSS: ['shogun0', 'shogun1', 'shogun2', 'shogun3', 'shogun4', 'shogun5', 'shogun6', 'disguised'] },
     orda: { pieceCSS: ['orda0', 'orda1', 'disguised'] },
     khans: { pieceCSS: ['khans0', 'khans1', 'disguised'] },
     synochess: {

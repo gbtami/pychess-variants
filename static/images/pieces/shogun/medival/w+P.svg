@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="177.17" height="177.17" fill-rule="evenodd" clip-rule="evenodd" image-rendering="optimizeQuality" shape-rendering="geometricPrecision" viewBox="0 0 50 50">
+  <defs>
+    <linearGradient id="a">
+      <stop offset="0" style="stop-color:#fff;stop-opacity:1"/>
+      <stop offset="1" style="stop-color:#9898cc;stop-opacity:1"/>
+    </linearGradient>
+    <linearGradient xlink:href="#a" id="l" x1="9.5714" x2="40.4286" y1="24.3535" y2="24.3535" gradientUnits="userSpaceOnUse"/>
+    <linearGradient xlink:href="#a" id="m" x1="9.5714" x2="40.4286" y1="24.3535" y2="24.3535" gradientUnits="userSpaceOnUse"/>
+    <linearGradient id="b">
+      <stop offset="0" style="stop-color:#fff;stop-opacity:1"/>
+      <stop offset="1" style="stop-color:#838383;stop-opacity:1"/>
+    </linearGradient>
+    <linearGradient xlink:href="#a" id="i" x1="64.8519" x2="84.5432" y1="43.0248" y2="37.179" gradientTransform="matrix(.543713 0 0 -.811628 -14.4287 69.1594)" gradientUnits="userSpaceOnUse"/>
+    <linearGradient xlink:href="#a" id="j" x1="23.0579" x2="31.9325" y1="19.8688" y2="41.2931" gradientUnits="userSpaceOnUse"/>
+    <linearGradient xlink:href="#a" id="h" x1="-3.6016" x2="55.4228" y1="67.167" y2="67.167" gradientTransform="translate(8.481 -2.1299)scale(.639198)" gradientUnits="userSpaceOnUse"/>
+  </defs>
+  <g style="display:inline">
+    <path d="M43.366 31.6419A18.323 18.323 0 0 1 34.2044 47.51a18.323 18.323 0 0 1-18.323 0A18.323 18.323 0 0 1 6.72 31.6419h18.323Z" style="display:inline;opacity:1;fill:url(#h);stroke:navy;stroke-width:1.75317;stroke-linecap:round;stroke-linejoin:bevel;stroke-dasharray:none;stroke-dashoffset:4.19999;stroke-opacity:1;paint-order:normal" transform="translate(0 -5.808)"/>
+    <path d="M17.8262 39.2548V26.0474c4.6827-3.8258 9.4637-3.8007 14.3406 0l.0066 13.1495c-5.1795 3.9318-9.8976 3.318-14.3471.058z" style="display:inline;opacity:1;fill:url(#i);stroke:navy;stroke-width:1.74364;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" transform="translate(-.0366 -5.692)"/>
+    <path d="M25.0371 14.584c-.411.1443-11.0979 3.9623-11.8906 11.039-.3737 3.336 2.113 7.728.1504 13.6446 1.529 2.9207 6.0746 5.1122 8.4863 4.8886-1.9948-5.0149-3.513-11.4536-3.6289-16.244-.1133-4.6805 3.4862-.9574 6.8828-.9669 3.3967.0095 6.9942-3.7136 6.8809.9668-.116 4.7905-1.6322 11.2292-3.627 16.2442 2.4118.2235 6.9574-1.968 8.4863-4.8887-1.9626-5.9165.5241-10.3086.1504-13.6446-.7927-7.0767-11.4795-10.8947-11.8906-11.039Z" style="display:inline;opacity:1;fill:url(#j);fill-opacity:1;stroke:navy;stroke-width:1.69329;stroke-linejoin:round;stroke-dashoffset:.415749;stroke-opacity:1;paint-order:fill markers stroke" transform="translate(-.0366 -5.692)"/>
+    <g style="display:inline;opacity:1">
+      <path d="m22.6621 11.0137-4.0996 7.0566c-1.8147.0798-3.7764-1.0137-5.8008-2.6094l-2.3906 1.7813 1.668 8.3242s6.3583 2.3274 10.7695 2.836v8.246c.7304.7623 1.461 1.0767 2.1914 1.043.7304.0337 1.461-.2807 2.1914-1.043v-8.246c4.4112-.5086 10.7695-2.836 10.7695-2.836l1.668-8.3242-2.3906-1.7813c-2.0244 1.5957-3.986 2.6892-5.8008 2.6094l-4.0996-7.0566H25Z" style="display:inline;fill:url(#l);fill-opacity:1;stroke:navy;stroke-width:1.59996;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:.415749;stroke-opacity:1" transform="translate(0 -5.808)"/>
+      <path d="m22.6621 11.0137-4.0996 7.0566c-.7461 1.1987 2.8384 1.6884 6.4375 1.6465 3.5991.042 7.1836-.4478 6.4375-1.6465l-4.0996-7.0566H25Z" style="fill:url(#m);fill-opacity:1;stroke:navy;stroke-width:2.75794;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:.415749;stroke-opacity:1;paint-order:normal" transform="translate(14.7672 10.419)scale(.409312)"/>
+      <path d="M11.5132 20.9009c4.349 1.7822 8.87 3.0117 13.4868 3.2249 4.6168-.2132 9.1378-1.4427 13.4868-3.225" style="fill:none;stroke:navy;stroke-width:1.12886;stroke-linecap:square;stroke-linejoin:bevel;stroke-dasharray:none;stroke-opacity:1;paint-order:normal" transform="translate(0 -5.6346)"/>
+      <path d="M34.0668 38.0714c2.1713-1.7088 2.092-3.3932 2.092-3.3932M16.0309 38.0714c-2.1713-1.7088-2.092-3.3932-2.092-3.3932" style="fill:none;fill-opacity:1;stroke:navy;stroke-width:1.12886;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:.415749;stroke-opacity:1;paint-order:fill markers stroke" transform="translate(0 -5.808)"/>
+    </g>
+  </g>
+</svg>
