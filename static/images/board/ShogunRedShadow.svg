@@ -18,6 +18,22 @@
        id="0"
        x="0"
        y="0" />
+    <linearGradient
+       id="shogun"
+       inkscape:collect="always"
+       x1="0"
+       y1="0"
+       x2="0"
+       y2="1">
+      <stop
+         style="stop-color:#010101;stop-opacity:0.6;"
+         offset="0"
+         id="stop22" />
+      <stop
+         style="stop-color:#000000;stop-opacity:0;"
+         offset="0.64541835"
+         id="stop23" />
+    </linearGradient>
   </defs>
   <sodipodi:namedview
      id="namedview10"
@@ -42,29 +58,30 @@
      inkscape:groupmode="layer"
      id="area">
     <rect
-       style="fill:#8c8ead"
+       style="fill:#b56363"
        width="800"
        height="300"
        y="500"
        id="bottom3" />
     <rect
-       style="fill:#8ca2ad"
+       style="fill:#b58863"
        id="middle2"
        width="800"
        height="200"
        y="300" />
     <rect
-       style="fill:#8c8ead"
+       style="fill:#b56363"
        id="top3"
        width="800"
        height="300" />
   </g>
   <g
      inkscape:groupmode="layer"
-     id="fields">
+     id="fields"
+     style="fill:#f0d9b5;">
     <g
        id="light"
-       style="fill:#dee3e6;">
+       style="fill:#f0d9b5;">
       <g
          transform="translate(700,100)"
          id="h">
@@ -218,5 +235,22 @@
            id="a2" />
       </g>
     </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="shaddow">
+    <rect
+       style="fill:url(#shogun)"
+       width="800"
+       height="100"
+       y="300"
+       id="rank5" />
+    <rect
+       style="fill:url(#shogun)"
+       width="800"
+       height="100"
+       y="-500"
+       transform="scale(1,-1)"
+       id="rank4" />
   </g>
 </svg>
