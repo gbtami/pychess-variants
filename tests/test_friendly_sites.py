@@ -1,6 +1,6 @@
 import unittest
 
-from friendly_sites import FRIENDLY_SITES, public_friendly_sites
+from friendly_sites import FRIENDLY_SITES
 
 
 class FriendlySitesTestCase(unittest.TestCase):
