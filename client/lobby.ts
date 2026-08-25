@@ -2183,7 +2183,19 @@ export function lobbyView(model: PyChessModel): VNode[] {
             ]),
             h('div.seekdialog'),
         ]),
-        h('div.tv', [h('a#tv-game', { attrs: { href: '/tv' } })]),
+        h('div.tv', [
+            h('a.lobby-support-link', { attrs: { href: '/patron' } }, [
+                h(
+                    'span.lobby-support-link__icon.icon-patron-wing',
+                    { attrs: { 'aria-hidden': 'true' } },
+                ),
+                h('span.lobby-support-link__text', [
+                    h('strong', _('Donate')),
+                    h('span', _('Become a PyChess Patron')),
+                ]),
+            ]),
+            h('a#tv-game', { attrs: { href: '/tv' } }),
+        ]),
         h('under-lobby', [
             h(
                 'posts',

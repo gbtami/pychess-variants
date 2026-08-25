@@ -178,6 +178,50 @@
 .puzzle > a {
     display: block;
 }
+.tv > .lobby-support-link,
+.tv > .lobby-support-link:link,
+.tv > .lobby-support-link:visited {
+    display: flex;
+    align-items: center;
+    margin-bottom: var(--block-gap);
+    padding: 0.5em;
+    border-radius: 5px;
+    background: var(--bg-color0);
+    box-shadow: var(--base-shadow);
+    color: var(--gold);
+    font-size: 1.3em;
+    transition: background-color 150ms ease, color 150ms ease;
+}
+.lobby-support-link:hover,
+.lobby-support-link:active {
+    background: color-mix(in srgb, var(--gold) 12%, var(--bg-color0));
+    color: var(--gold);
+}
+.lobby-support-link__icon {
+    flex: 0 0 auto;
+    margin: 0 0.5em;
+}
+.lobby-support-link__icon::before {
+    margin-right: 0;
+    font-size: 2.6em;
+}
+.lobby-support-link__text {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+.lobby-support-link__text strong,
+.lobby-support-link__text span {
+    display: block;
+}
+.lobby-support-link__text strong {
+    font-weight: normal;
+}
+.lobby-support-link__text span {
+    overflow: hidden;
+    font-size: 0.8em;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
 .tv #mainboard,
 .puzzle #mainboard {
     margin-inline: auto;
