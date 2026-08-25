@@ -13,9 +13,9 @@ dependencies = [
     "aiohttp-session==2.12.1",
     "aiohttp-sse==2.2.0",
     "aiohttp-swagger3==0.10.0",
-    "betza-visualizer==0.1.0",
+    "betza-visualizer==0.1.1",
     "brotli==1.2.0",
-    "cryptography==49.0.0",
+    "cryptography==50.0.0",
     "discord-py==2.7.1",
     "dnspython==2.8.0",
     "jinja2==3.1.6",
@@ -24,9 +24,9 @@ dependencies = [
     "pyffish-alice==0.0.3",
     "py4swiss==0.3.1",
     "pymongo==4.17.0",
-    "pywebpush==2.3.0",
+    "pywebpush==2.4.0",
     "rapidfuzz==3.14.5",
-    "pyopenssl==26.3.0",
+    "pyopenssl==26.4.0",
     "python-gettext==5.0",
     "rustworkx==0.18.1",
     "sortedcollections==2.1.0",
@@ -41,17 +41,19 @@ dev = [
     "motor==3.7.1",
     "objgraph==3.6.2",
     "playwright==1.62.0",
-    "pre-commit>=4.6.1",
+    "pre-commit>=4.6.2",
     "pytest<10.0.0",
     "pytest-aiohttp==1.1.1",
     "pyright==1.1.411",
-    "ruff==0.16.1",
+    "ruff==0.16.4",
     "textual==8.2.8",
     "tqdm>=4.70.0",
 ]
 
 [tool.ruff]
 line-length = 100
+# Keep linting on the real runtime target. Formatting is intentionally invoked with
+# `--target-version py313` to preserve 3.13-parseable parenthesized multi-exception clauses.
 target-version = "py314"
 
 [tool.ruff.lint]
@@ -78,7 +80,6 @@ ignore = ["UP031"]
 # recovery behavior, so retain it while keeping these rules active elsewhere.
 "monitor/monitor.py" = ["BLE001", "DTZ901"]
 "scripts/backfill_user_created_at_from_games.py" = ["BLE001"]
-"scripts/create_game_profile_indexes.py" = ["ASYNC230"]
 "scripts/fix_dragonfly_castling_rights.py" = ["TRY004"]
 "scripts/fix_makpong.py" = ["DTZ001"]
 "scripts/inspect_game_indexes.py" = ["ASYNC230", "BLE001"]

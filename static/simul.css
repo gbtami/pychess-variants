@@ -215,8 +215,12 @@ td.header:hover {
     transform: translateX(3px);
 }
 
-.header .name, .header .system {
-    letter-spacing: 2px;
+.simul-list .header .name,
+.simul-list .header .system,
+.simul-history .header .name,
+.simul-history .header .system {
+    letter-spacing: normal;
+    overflow-wrap: anywhere;
 }
 
 .name {
@@ -384,6 +388,7 @@ td.header:hover {
     margin: 0;
     font-size: 2.2em;
     line-height: 1.1;
+    overflow-wrap: anywhere;
 }
 
 .simul .box__top h1 .author {
@@ -444,6 +449,19 @@ td.header:hover {
     margin: 0 0 0.8rem;
     text-align: center;
     color: var(--link-color);
+}
+
+.simul .simul-text {
+    margin: 0 0.5rem 1rem;
+    padding: 1rem 1.2rem;
+    border-radius: 3px;
+    background: var(--bg-color2);
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
+.simul .simul-text p {
+    line-height: 1.45;
 }
 
 .simul .halves {
@@ -609,10 +627,6 @@ td.header:hover {
     font-size: 0.82rem;
 }
 
-.simul__meta__description {
-    white-space: pre-wrap;
-}
-
 .simul__meta__error {
     margin-top: 0.5rem;
     color: var(--error);
@@ -696,6 +710,12 @@ td.header:hover {
     box-shadow: inset 0 0 0 2px var(--link-color-blue);
 }
 
+.simul__games a.host-current {
+    border-radius: 3px;
+    background: color-mix(in srgb, var(--green-switch) 24%, transparent);
+    box-shadow: 0 0 0 0.3rem color-mix(in srgb, var(--green-switch) 24%, transparent);
+}
+
 .simul__games .mini-game__player {
     display: flex;
     align-items: center;
@@ -757,4 +777,205 @@ td.header:hover {
         border-inline-end: none;
         border-bottom: 1px solid var(--border-color);
     }
+
+    .simul__games {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 600px) {
+    .simul-list .slist td:first-child,
+    .simul-list .slist td.infos,
+    .simul-history .slist td:first-child,
+    .simul-history .slist td.infos,
+    .simul-history .slist th:first-child,
+    .simul-history .slist th:nth-child(3) {
+        display: none;
+    }
+
+    .simul-list .slist td,
+    .simul-history .slist td {
+        padding: 0.7rem 0.45rem;
+    }
+
+    .simul-list .slist td.header,
+    .simul-history .slist td.header {
+        padding: 0;
+    }
+
+    .simul-list .slist td.header a,
+    .simul-history .slist td.header a {
+        padding: 0.7rem;
+    }
+
+    .simul-list .header a .name,
+    .simul-history .header a .name {
+        font-size: 1.25em;
+    }
+
+    .simul-list .slist td:last-child,
+    .simul-history .simul-history__score {
+        white-space: nowrap;
+    }
+}
+
+/* Searchable multi-variant picker for Simul forms. */
+.simul-new .variant-picker {
+    position: relative;
+}
+
+.simul-new .variant-picker-source {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.simul-new .variant-picker-results {
+    position: absolute;
+    z-index: 30;
+    top: calc(100% + 0.25rem);
+    left: 0;
+    right: 0;
+    max-height: 24rem;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-color1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+}
+
+.simul-new .variant-picker-group {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 0.45rem 0.75rem 0.3rem;
+    color: var(--button-text);
+    background: var(--bg-color2);
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.simul-new .variant-picker-option {
+    display: flex;
+    gap: 0.75rem;
+    align-items: baseline;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0.55rem 0.75rem;
+    border: 0;
+    border-radius: 0;
+    color: inherit;
+    background: var(--bg-input);
+    text-align: left;
+    cursor: pointer;
+}
+
+.simul-new .variant-picker-option:hover,
+.simul-new .variant-picker-option.is-active {
+    background: var(--bg-color2);
+}
+
+.simul-new .variant-picker-option[aria-selected="true"] .variant-picker-option-name {
+    font-weight: bold;
+}
+
+.simul-new .variant-picker-option-key {
+    flex: 0 1 auto;
+    overflow: hidden;
+    color: var(--button-text);
+    font-size: 0.78rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.simul-new .variant-picker-hint {
+    padding: 0.65rem 0.75rem;
+    color: var(--button-text);
+    background: var(--bg-input);
+    font-size: 0.85rem;
+}
+
+.simul-variant-picker__selected {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.5rem;
+}
+
+.simul-variant-picker__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.55rem;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    background: var(--bg-color1);
+    color: var(--font-color);
+    cursor: pointer;
+}
+
+.simul-variant-picker__chip:disabled {
+    color: var(--font-color);
+    cursor: default;
+    opacity: 0.85;
+}
+
+.simul-variant-picker__remove {
+    font-size: 1.15em;
+    line-height: 1;
+}
+
+@media (max-width: 600px) {
+    .simul-new .variant-picker-results {
+        max-height: 18rem;
+    }
+
+    .simul-new .variant-picker-option-key {
+        max-width: 42%;
+    }
+}
+
+.simul__join-variant {
+    max-width: min(18rem, 100%);
+    padding: 0.55em 0.7em;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-color2);
+    color: var(--font-color);
+}
+
+
+/* Hosted simul history */
+.simul-history {
+    grid-area: main;
+    max-width: 900px;
+    width: 100%;
+    margin-inline: auto;
+}
+
+.simul-history__count {
+    font-size: 1.25em;
+}
+
+.simul-history__score {
+    white-space: nowrap;
+}
+
+.simul-history__empty {
+    padding: 2rem 0;
+}
+
+.simul-history__pagination {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.simul-history__pagination a {
+    font-weight: 600;
 }

@@ -18,13 +18,19 @@ import { TwoBoardPlayer } from '../common/seat';
 // all four views before a model, a viewer or a controller exists, the same way
 // the analysis clocks are keyed by physical position rather than by color.
 //
-// The composed block vnode is built once in the constructor and returned by
-// view(); round.ts embeds that very object, so the page's own top-level patch
-// populates every leaf's .elm and no id lookup is ever needed. After that the
-// block itself is never patched again — only leaves are — which is what keeps
-// the inline style.gridArea values that flipBoards()/switchBoards() write on
-// .info-wrap* from being wiped by a later render.
+// The composed block vnode is built once in the constructor and returned inside
+// the strip by view(); round.ts embeds that very object, so the page's own
+// top-level patch populates every leaf's .elm and no id lookup is ever needed.
+//
+// view() wraps the block together with the seat's pocket in a *seat strip*: the
+// one element a layout places, and the one thing flip and switch move. Before it
+// existed, a seat's furniture was two siblings that every layout positioned
+// separately, and rearranging seats meant writing inline style.gridArea onto the
+// block — which in turn meant the block could never be re-patched without losing
+// its position. Neither constraint applies now.
 export class RoundSeatView {
+    private readonly slot: string;
+    private readonly stripSel: string;
     private readonly clockId: string;
     private readonly differenceId: string;
     private readonly presenceId: string;
@@ -45,6 +51,10 @@ export class RoundSeatView {
         const slot = `${position}${board}`;
         const bug = board === 'b' ? '.bug' : '';
 
+        this.slot = slot;
+        // id so flip/switch can address one strip without searching by class, and
+        // the position/bug classes so CSS can place it — the same idiom the block uses
+        this.stripSel = `div#seatstrip${slot}.seat-strip${position}${bug}`;
         this.clockId = `clock${slot}`;
         this.differenceId = `difference${slot}`;
         this.presenceId = `player${slot}`;
@@ -67,8 +77,21 @@ export class RoundSeatView {
         ]);
     }
 
-    view(): VNode {
-        return this.block;
+    // The seat's strip: its pocket and its clock/name block, in that order, as one
+    // grid item. The caller owns the pocket because chessgroundx is handed that
+    // element directly; the strip owns where it sits.
+    view(pocket: VNode): VNode {
+        return h(this.stripSel, [pocket, this.block]);
+    }
+
+    // The placed element, for flip and switch. Valid only after the page's patch.
+    stripElement(): HTMLElement {
+        return document.getElementById(`seatstrip${this.slot}`) as HTMLElement;
+    }
+
+    // The block that moves between strips on a flip.
+    blockElement(): HTMLElement {
+        return this.block.elm as HTMLElement;
     }
 
     // The ticking clock for whichever seat sits in this slot. Built here rather than
@@ -109,6 +132,7 @@ export class RoundSeatView {
                 this.level,
                 this.online,
                 this.playerBarSel,
+                player.patron,
             ),
         );
     }

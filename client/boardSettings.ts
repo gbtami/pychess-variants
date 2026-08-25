@@ -17,6 +17,8 @@ import { slider, checkbox } from './view';
 import { BoardName, PyChessModel } from './types';
 import { BOARD_FAMILIES, cwdaArmyClassNames, isCataloguedVariant, PIECE_FAMILIES, Variant, VARIANTS } from './variants';
 import { renderResized, updateBounds } from 'chessgroundx/render';
+import { setSquareColors } from './boardColors';
+import { setBoardZoom } from './two-board/squareUnit';
 
 export interface BoardController {
     readonly chessground: Api;
@@ -32,6 +34,7 @@ export interface BoardController {
 
     model?: PyChessModel;
     autoPromote?: boolean;
+    autoClaimDraw?: boolean;
     arrow?: boolean;
     multipv?: number;
     evalFile?: string;
@@ -100,6 +103,9 @@ function selectedBoardCSS(boardFamily: keyof typeof BOARD_FAMILIES | string, idx
 function setBoardStyle(target: HTMLElement, assetURL: string, css: string): void {
     ensureBoardStyleOverride();
     target.style.setProperty('--board-image', `url(${assetURL}/images/board/${css})`);
+    // The theme's two square colours, published for anything drawn on a square that has
+    // to contrast with it. Set here so they change with the image and never separately.
+    setSquareColors(target, css);
 }
 
 function setCataloguedBoardStyle(target: HTMLElement, variant: Variant): void {
@@ -168,6 +174,7 @@ class BoardSettings {
         this.settings['confirmresign'] = new ConfirmResignSettings(this);
         this.settings['showDests'] = new ShowDestsSettings(this);
         this.settings['autoPromote'] = new AutoPromoteSettings(this);
+        this.settings['autoClaimDraw'] = new AutoClaimDrawSettings(this);
         this.settings['confirmCorrMove'] = new ConfirmCorrMoveSettings(this);
         this.settings['materialDifference'] = new MaterialDifferenceSettings(this);
     }
@@ -311,6 +318,28 @@ class BoardSettings {
         }
     }
 
+    // The board this slider resizes, which is NOT the board it is named after.
+    //
+    // A zoom slider is keyed by COLUMN: `--zoom-a` scales the left column, whose
+    // board is the viewer's own in every seating, because roundCtrl switches the
+    // boards between columns rather than re-keying the tracks. `boardName` names a
+    // board by IDENTITY. The two coincide only for a board-A viewer, and for a
+    // board-B one they cross: measured on a live game, moving slider `a` took the
+    // left column's track from 453px to 226px while the board sitting in it stayed
+    // at 446.67 — never told to re-measure, and therefore resolving every click
+    // against bounds for a box it no longer occupies.
+    //
+    // Read from the role classes, which is where markRoles() records which board is
+    // in which column and the same thing the stylesheet selects on. Absent — the
+    // analysis page marks no roles — this falls back to identity, which is what
+    // that page's own single grid means by A and B.
+    zoomedBoard(boardName: BoardName): BoardController | undefined {
+        if (!boardName) return this.ctrl;
+        const el = document.querySelector(boardName === 'a' ? '.own-board' : '.partner-board');
+        const inColumn = el?.id === 'bugboard' ? 'b' : el?.id === 'mainboard' ? 'a' : boardName;
+        return inColumn === this.ctrl2?.boardName ? this.ctrl2 : this.ctrl;
+    }
+
     updateZoom(family: keyof typeof BOARD_FAMILIES, boardName: BoardName = '') {
         const variant = this.ctrl?.variant;
         if (variant && variant.boardFamily === family) {
@@ -320,6 +349,12 @@ class BoardSettings {
             const el = document.querySelector('.cg-wrap') as HTMLElement;
             if (el) {
                 document.body.style.setProperty('--zoom' + suffix, `${zoom}`);
+
+                // The bughouse tracks are built from a unit that is quantised at
+                // this scale, so the unit has to be republished before the board
+                // is measured against it. Arithmetic, not a measurement — see
+                // setBoardZoom().
+                if (boardName) setBoardZoom(boardName, zoom);
 
                 // Analysis needs to zoom analysisChart and movetimeChart as well
                 if ('chartFunctions' in this.ctrl && this.ctrl.chartFunctions) {
@@ -347,6 +382,8 @@ class BoardSettings {
         settingsList.push(this.settings['showDests'].view());
 
         if (variant.promotion.autoPromoteable) settingsList.push(this.settings['autoPromote'].view());
+
+        settingsList.push(this.settings['autoClaimDraw'].view());
 
         settingsList.push(this.settings['confirmCorrMove'].view());
 
@@ -573,14 +610,32 @@ class PieceStyleSettings extends NumberSettings {
     }
 }
 
+const ZOOM_DEFAULT = 80;
+
+function zoomSettingName(boardFamily: string, boardName: BoardName = ''): string {
+    return boardFamily + '-zoom' + (boardName ? '-' + boardName : '');
+}
+
+// The zoom a board will be drawn at, read the way NumberSettings reads it.
+//
+// Exported because the square unit has to be quantised at the scale the board
+// actually draws at, and squareUnit.ts has to publish that before any board — and
+// therefore before any ZoomSettings instance — exists. Reading the CSS variable
+// instead would give the wrong answer on a first load: `--zoom-a` is only written
+// once initBoardSettings() runs, which is after the boards are built, so the
+// stylesheet's 100 would be quantised against for a board about to draw at 80.
+export function boardZoom(boardFamily: string, boardName: BoardName = ''): number {
+    const name = zoomSettingName(boardFamily, boardName);
+    return Number(getDocumentData(name) ?? localStorage[name] ?? ZOOM_DEFAULT);
+}
+
 class ZoomSettings extends NumberSettings {
     readonly boardSettings: BoardSettings;
     readonly boardFamily: string;
     readonly boardName: BoardName;
 
     constructor(boardSettings: BoardSettings, boardFamily: string, boardName: BoardName = '') {
-        const suffix = boardName ? '-' + boardName : '';
-        super(boardFamily + '-zoom' + suffix, 80);
+        super(zoomSettingName(boardFamily, boardName), ZOOM_DEFAULT);
         this.boardSettings = boardSettings;
         this.boardFamily = boardFamily;
         this.boardName = boardName;
@@ -589,16 +644,22 @@ class ZoomSettings extends NumberSettings {
     update(): void {
         this.boardSettings.updateZoom(this.boardFamily, this.boardName);
         if (this.boardName) {
-            // In case of bughouse updateZoom() doesn't trigger chessgroundx onResize() via ResizeObserver
-            // to prevent recursive call, so we have to force manual onResize() here
-            setTimeout(() => {
-                const state =
-                    this.boardName === this.boardSettings.ctrl2.boardName
-                        ? this.boardSettings.ctrl2.chessground.state
-                        : this.boardSettings.ctrl.chessground.state;
-                updateBounds(state);
-                renderResized(state);
-            }, 100);
+            // A bughouse board is not observed — nothing watches it resize, by
+            // design — so the redraw has to be asked for here, on the user's action,
+            // which is one of the two points at which a board may be redrawn at all.
+            //
+            // Synchronous, not on a timer. This used to wait 100ms for "the style to
+            // reach layout", which is a guess at a duration rather than an ordering:
+            // updateBounds() reads getBoundingClientRect(), and reading layout
+            // flushes the pending style and layout first, so it cannot observe a
+            // stale box however soon it runs. The variable written just above is
+            // therefore already in effect by the time it is measured, and the timer
+            // only delayed the redraw by 100ms and made the ordering unprovable.
+            const ctrl = this.boardSettings.zoomedBoard(this.boardName);
+            if (ctrl) {
+                updateBounds(ctrl.chessground.state);
+                renderResized(ctrl.chessground.state);
+            }
         }
     }
 
@@ -655,6 +716,28 @@ class AutoPromoteSettings extends BooleanSettings {
 
     view(): VNode {
         return h('div', checkbox(this, 'autoPromote', _('Promote to the top choice automatically')));
+    }
+}
+
+class AutoClaimDrawSettings extends BooleanSettings {
+    readonly boardSettings: BoardSettings;
+
+    constructor(boardSettings: BoardSettings) {
+        super('autoClaimDraw', false);
+        this.boardSettings = boardSettings;
+    }
+
+    update(): void {
+        this.updateCtrl(this.boardSettings.ctrl);
+        if (this.boardSettings.ctrl2) this.updateCtrl(this.boardSettings.ctrl2);
+    }
+
+    updateCtrl(ctrl: BoardController): void {
+        if ('autoClaimDraw' in ctrl) ctrl.autoClaimDraw = this.value;
+    }
+
+    view(): VNode {
+        return h('div', checkbox(this, 'autoClaimDraw', _('Claim draw automatically when available')));
     }
 }
 

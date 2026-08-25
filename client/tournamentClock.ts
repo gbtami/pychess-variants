@@ -3,6 +3,8 @@ import { h } from 'snabbdom';
 import { _, ngettext } from './i18n';
 import { patch } from './document';
 import { TournamentController } from './tournament';
+import { sound } from './sound';
+import { notifyTournamentStarting } from './tournamentAlerts';
 
 export const localeOptions: Intl.DateTimeFormatOptions = {
     year: 'numeric',
@@ -11,6 +13,60 @@ export const localeOptions: Intl.DateTimeFormatOptions = {
     hour: 'numeric',
     minute: 'numeric',
 };
+
+let countDownTimeout: ReturnType<typeof setTimeout> | null = null;
+
+function stopStartCountDown() {
+    if (countDownTimeout !== null) clearTimeout(countDownTimeout);
+    countDownTimeout = null;
+}
+
+function startCountDown(targetTime: number) {
+    let notified = false;
+
+    const tick = () => {
+        const secondsToStart = (targetTime - window.performance.now()) / 1000;
+        const bestTick = Math.max(0, Math.round(secondsToStart));
+
+        if (bestTick <= 10) sound.countDown(bestTick);
+        if (!notified && bestTick <= 10) {
+            notified = true;
+            notifyTournamentStarting(_('The tournament is starting!'));
+        }
+
+        if (bestTick > 0) {
+            const nextTick = Math.min(10, bestTick - 1);
+            countDownTimeout = window.setTimeout(
+                tick,
+                1000 * Math.min(1.1, Math.max(0.8, secondsToStart - nextTick)),
+            );
+        } else {
+            countDownTimeout = null;
+        }
+    };
+
+    return tick;
+}
+
+export function syncTournamentStartAlerts(ctrl: TournamentController) {
+    const startsAt = new Date(ctrl.startDate).getTime();
+    const secondsToStart = Number.isFinite(startsAt)
+        ? Math.max(0, (startsAt - Date.now()) / 1000)
+        : ctrl.secondsToStart;
+
+    if (ctrl.tournamentStatus !== 'created' || ctrl.userStatus !== 'joined' || secondsToStart <= 0) {
+        stopStartCountDown();
+        return;
+    }
+
+    if (countDownTimeout !== null || secondsToStart > 60 * 60 * 24) return;
+
+    sound.preloadCountDown();
+    countDownTimeout = window.setTimeout(
+        startCountDown(window.performance.now() + 1000 * secondsToStart - 100),
+        900,
+    );
+}
 
 function getTimeRemaining(endtime: number) {
     const totalSecs = endtime - Date.now();
@@ -30,6 +86,7 @@ function renderHHMMSS(endtime: number) {
 
 export function initializeClock(ctrl: TournamentController) {
     // console.log('initializeClock', ctrl.tournamentStatus, ctrl.secondsToStart, ctrl.secondsToFinish);
+    syncTournamentStartAlerts(ctrl);
     if (ctrl.clockInterval !== null) {
         clearInterval(ctrl.clockInterval);
         ctrl.clockInterval = null;

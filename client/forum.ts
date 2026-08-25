@@ -20,6 +20,7 @@ interface ForumCategory {
     _id: string;
     name: string;
     desc: string;
+    teamId?: string;
     nbTopics: number;
     nbPosts: number;
     lastPostAt?: string | null;
@@ -80,6 +81,8 @@ interface ForumSearchResult {
         _id: string;
         slug: string;
         name: string;
+        blogPostId?: string;
+        blogPostUrl?: string;
     };
     categ: {
         _id: string;
@@ -94,6 +97,8 @@ interface ForumModFeedItem {
         _id: string;
         slug: string;
         name: string;
+        blogPostId?: string;
+        blogPostUrl?: string;
     };
 }
 
@@ -123,6 +128,86 @@ const FORUM_MAX_POST_LEN = 5000;
 const FORUM_MAX_TOPIC_NAME_LEN = 100;
 const ERASED_POST_USER = '<erased>';
 const ERASED_POST_TEXT = '<Comment deleted by user>';
+
+const DEFAULT_FORUM_CATEGORY_TRANSLATIONS: Record<string, { name: string; desc: string }> = {
+    'general-chess-discussion': {
+        name: _('General Variant Discussion'),
+        desc: _('Discuss variants, and strategy.'),
+    },
+    'pychess-feedback': {
+        name: _('Pychess Feedback'),
+        desc: _('Feedback and feature requests about the site.'),
+    },
+    'game-analysis': {
+        name: _('Game Analysis'),
+        desc: _('Share and discuss your games.'),
+    },
+    'off-topic-discussion': {
+        name: _('Off-Topic Discussion'),
+        desc: _("Everything that isn't related to Pychess."),
+    },
+    'community-blog-discussions': {
+        name: _('Community Blog Discussions'),
+        desc: _('Discuss community blog posts.'),
+    },
+};
+
+function translateForumCategory(category: ForumCategory | null): ForumCategory | null {
+    if (!category || category.teamId) return category;
+    const translated = DEFAULT_FORUM_CATEGORY_TRANSLATIONS[category._id];
+    return translated ? { ...category, ...translated } : category;
+}
+
+function forumCategoryName(categoryId: string, fallback: string): string {
+    return DEFAULT_FORUM_CATEGORY_TRANSLATIONS[categoryId]?.name || fallback;
+}
+
+function forumTopicName(topic: { name: string; blogPostId?: string }): string {
+    if (topic.blogPostId && topic.name.startsWith('Comments on ')) {
+        return _('Comments on %1', topic.name.slice('Comments on '.length));
+    }
+    return topic.name;
+}
+
+interface ForumApiError {
+    type?: string;
+    code?: string;
+    message?: string;
+}
+
+function forumApiErrorMessage(data: ForumApiError, status: number): string {
+    switch (data.code) {
+        case 'forum_unavailable': return _('Forum unavailable');
+        case 'invalid_category': return _('Invalid category');
+        case 'category_not_found': return _('Category not found');
+        case 'not_allowed': return _('Not allowed');
+        case 'invalid_topic': return _('Invalid topic');
+        case 'invalid_topic_id': return _('Invalid topic id');
+        case 'topic_not_found': return _('Topic not found');
+        case 'search_text_too_long': return _('Search text too long');
+        case 'login_required': return _('Login required');
+        case 'cannot_post': return _('You cannot post in this forum');
+        case 'invalid_request': return _('Invalid request');
+        case 'topic_title_too_short': return _('Topic title is too short');
+        case 'topic_title_too_long': return _('Topic title is too long');
+        case 'message_too_short': return _('Message is too short');
+        case 'message_too_long': return _('Message too long (max %1)', FORUM_MAX_POST_LEN);
+        case 'captcha_required': return _('Please solve the captcha.');
+        case 'too_many_similar_messages': return _('Too many similar messages. Please wait and retry.');
+        case 'topic_closed': return _('This topic is closed');
+        case 'post_not_found': return _('Post not found');
+        case 'post_edit_expired': return _('Post can no longer be edited');
+        case 'invalid_reaction': return _('Invalid reaction');
+        case 'cannot_react_deleted_post': return _('Cannot react to deleted posts');
+        case 'cannot_react_own_post': return _('Cannot react to your own post');
+        case 'team_topic_relocation_forbidden': return _('Team forum topics cannot be relocated');
+        case 'first_post_required': return _('Only the first post can relocate a thread');
+        case 'invalid_target_category': return _('Invalid target category');
+        case 'already_in_category': return _('Already in that category');
+        case 'target_category_not_found': return _('Target category not found');
+        default: return data.message || data.type || `HTTP ${status}`;
+    }
+}
 /** Supported forum reactions mirrored from the server and lila conventions. */
 const REACTIONS: ForumReaction[] = [
     { key: '+1', emoji: '+1' },
@@ -273,6 +358,8 @@ export function forumView(model: PyChessModel) {
     let canReply = false;
     let canClose = false;
     let canSticky = false;
+    let timelineUnsubscribed: boolean | null = null;
+    let updatingTimelineSubscription = false;
 
     let relocateTargets: ForumCategory[] = [];
 
@@ -305,8 +392,8 @@ export function forumView(model: PyChessModel) {
     }
 
     /** Convert API errors into thrown exceptions for shared catch handling. */
-    function handleApiError(data: { type?: string; message?: string }, status: number) {
-        throw new Error(data.message || data.type || `HTTP ${status}`);
+    function handleApiError(data: ForumApiError, status: number) {
+        throw new Error(forumApiErrorMessage(data, status));
     }
 
     /** Parse compact captcha destination encoding into chessground destination map. */
@@ -332,7 +419,7 @@ export function forumView(model: PyChessModel) {
     function captchaVariantLabel(variantKey: string): string {
         const variant = VARIANTS[variantKey];
         const rawName = (variant?._displayName || variant?.name || 'chess').trim();
-        return rawName ? rawName.charAt(0).toUpperCase() + rawName.slice(1) : 'Chess';
+        return rawName ? rawName.charAt(0).toUpperCase() + rawName.slice(1) : _('Chess');
     }
 
     /** Reset captcha interaction state while preserving loaded challenge payload. */
@@ -563,7 +650,7 @@ export function forumView(model: PyChessModel) {
             .then(parseJsonResponse)
             .then(({ status, data }) => {
                 if (status >= 400 || data.type === 'error') handleApiError(data, status);
-                categories = data.categs || [];
+                categories = (data.categs || []).map((category: ForumCategory) => translateForumCategory(category) as ForumCategory);
                 loading = false;
                 redraw();
             })
@@ -581,7 +668,7 @@ export function forumView(model: PyChessModel) {
             .then(parseJsonResponse)
             .then(({ status, data }) => {
                 if (status >= 400 || data.type === 'error') handleApiError(data, status);
-                categData = data.categ || null;
+                categData = translateForumCategory(data.categ || null);
                 topics = data.topics || [];
                 page = data.page || 1;
                 nbPages = data.nbPages || 1;
@@ -606,7 +693,7 @@ export function forumView(model: PyChessModel) {
             .then(parseJsonResponse)
             .then(({ status, data }) => {
                 if (status >= 400 || data.type === 'error') handleApiError(data, status);
-                categData = data.categ || null;
+                categData = translateForumCategory(data.categ || null);
                 topicData = data.topic || null;
                 topicPosts = data.posts || [];
                 page = data.page || 1;
@@ -617,7 +704,9 @@ export function forumView(model: PyChessModel) {
                 canReply = Boolean(data.canReply);
                 canClose = Boolean(data.canClose);
                 canSticky = Boolean(data.canSticky);
-                relocateTargets = data.relocateTargets || [];
+                timelineUnsubscribed =
+                    typeof data.timelineUnsubscribed === 'boolean' ? data.timelineUnsubscribed : null;
+                relocateTargets = (data.relocateTargets || []).map((category: ForumCategory) => translateForumCategory(category) as ForumCategory);
                 setFormCaptcha((data.captcha || null) as ForumCaptcha | null);
                 if (canReply && !formCaptcha) loadCaptcha();
                 if (relocateTargetDraft === '' && relocateTargets.length > 0) {
@@ -672,7 +761,7 @@ export function forumView(model: PyChessModel) {
             .then(parseJsonResponse)
             .then(({ status, data }) => {
                 if (status >= 400 || data.type === 'error') handleApiError(data, status);
-                categData = data.categ || null;
+                categData = translateForumCategory(data.categ || null);
                 modFeedItems = data.items || [];
                 page = data.page || 1;
                 nbPages = data.nbPages || 1;
@@ -864,6 +953,38 @@ export function forumView(model: PyChessModel) {
             .catch(err => {
                 console.warn('Failed to toggle topic sticky state.', err);
                 void alertDialog({ text: err instanceof Error ? err.message : _('Could not update topic.') });
+            });
+    }
+
+    /** Subscribe or unsubscribe from future timeline posts in this forum topic. */
+    function toggleTimelineSubscription() {
+        if (timelineUnsubscribed === null || updatingTimelineSubscription || !topicData) return;
+        const next = !timelineUnsubscribed;
+        updatingTimelineSubscription = true;
+        redraw();
+
+        fetch('/api/timeline/unsubscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+            body: new URLSearchParams({
+                channel: `forum:${topicData._id}`,
+                unsubscribed: String(next),
+            }).toString(),
+        })
+            .then(parseJsonResponse)
+            .then(({ status, data }) => {
+                if (status >= 400 || data.type === 'error') handleApiError(data, status);
+                timelineUnsubscribed = Boolean(data.unsubscribed);
+            })
+            .catch(err => {
+                console.warn('Failed to update timeline subscription.', err);
+                void alertDialog({
+                    text: err instanceof Error ? err.message : _('Could not update timeline subscription.'),
+                });
+            })
+            .finally(() => {
+                updatingTimelineSubscription = false;
+                redraw();
             });
     }
 
@@ -1137,9 +1258,16 @@ export function forumView(model: PyChessModel) {
             );
         }
 
+        const backHref = categData?.teamId
+            ? `/team/${encodeURIComponent(categData.teamId)}`
+            : '/forum';
         return h('main.forum.forum-categ.box', [
             h('div.box__top', [
-                h('h1', [h('a.text', { attrs: { href: '/forum' } }, '‹'), ` ${categData?.name || _('Forum')}`]),
+                h('h1', [
+                    h('a.text', { attrs: { href: backHref } }, '‹'),
+                    ...(categData?.teamId ? [h('span.team-icon.forum-team-icon', { attrs: { 'aria-hidden': 'true' } })] : []),
+                    h('span.forum-categ__title', categData?.name || _('Forum')),
+                ]),
                 h('div.box__top__actions', actions),
             ]),
             h('table.topics.slist.slist-pad', [
@@ -1156,7 +1284,7 @@ export function forumView(model: PyChessModel) {
                                             href: `/forum/${encodeURIComponent(categ)}/${encodeURIComponent(t.slug)}`,
                                         },
                                     },
-                                    t.name,
+                                    forumTopicName(t),
                                 ),
                             ]),
                             h('td.right', `${t.nbReplies || 0}`),
@@ -1499,7 +1627,7 @@ export function forumView(model: PyChessModel) {
             'main.forum.forum-topic.page-small.box.box-pad',
             [
                 h('div.box__top', [
-                    h('h1', [h('a.text', { attrs: { href: backHref } }, '‹'), ` ${topicData?.name || ''}`]),
+                    h('h1', [h('a.text', { attrs: { href: backHref } }, '‹'), topicData ? ` ${forumTopicName(topicData)}` : '']),
                 ]),
                 renderPagination(topicUrl),
                 h(
@@ -1516,6 +1644,16 @@ export function forumView(model: PyChessModel) {
                     h(
                         'div',
                         [
+                            timelineUnsubscribed !== null
+                                ? h(
+                                      'button.button.button-empty.text.timeline-unsubscribe',
+                                      {
+                                          props: { type: 'button', disabled: updatingTimelineSubscription },
+                                          on: { click: toggleTimelineSubscription },
+                                      },
+                                      timelineUnsubscribed ? _('Subscribe') : _('Unsubscribe'),
+                                  )
+                                : null,
                             canClose
                                 ? h(
                                       'button.button.button-empty.button-red',
@@ -1702,7 +1840,7 @@ export function forumView(model: PyChessModel) {
                         const postHref = postRedirectHref(post._id);
                         return h('tr.stack-row', [
                             h('td', [
-                                h('a.post', { attrs: { href: postHref } }, `${row.categ.name} - ${row.topic.name}`),
+                                h('a.post', { attrs: { href: postHref } }, `${forumCategoryName(row.categ._id, row.categ.name)} - ${forumTopicName(row.topic)}`),
                                 h('p', shorten(erased ? ERASED_POST_TEXT : post.text, 220)),
                             ]),
                             h('td.info', [

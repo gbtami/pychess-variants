@@ -112,7 +112,7 @@ def cwda_engine_variant(initial_fen: str | None) -> str:
         ranks = initial_fen.split()[0].split("/")
         black_back_rank = ranks[0].lower()
         white_back_rank = ranks[-1].lower()
-    except IndexError, AttributeError:
+    except (IndexError, AttributeError):
         return "cwda"
 
     return _PROFILE_BY_ARMIES.get(frozenset((white_back_rank, black_back_rank)), "cwda")

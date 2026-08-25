@@ -6,7 +6,7 @@ from time import monotonic
 
 import aiohttp_session
 from aiohttp import web
-from const import ANON_PREFIX, DARK_FEN, STARTED
+from const import ANON_PREFIX, DARK_FEN, STARTED, SYSTEM_USER
 from glicko2.glicko2 import PROVISIONAL_PHI
 from json_utils import json_response
 from public_users import PublicProfile
@@ -194,7 +194,7 @@ async def _can_message_profile(
     session_user: str | None,
     request: web.Request,
 ) -> bool:
-    if session_user is None or session_user == profile_id:
+    if session_user is None or session_user == profile_id or profile_id == SYSTEM_USER:
         return False
     if session_user.startswith(ANON_PREFIX) or profile.username.startswith(ANON_PREFIX):
         return False
@@ -229,14 +229,14 @@ async def _follow_state_for_profile(
         return (False, False)
     if session_user.startswith(ANON_PREFIX) or profile.username.startswith(ANON_PREFIX):
         return (False, False)
-    if profile.bot:
-        return (False, False)
-    if session_user in profile.blocked:
-        return (False, False)
 
     app_state = get_app_state(request.app)
     me = await app_state.users.get(session_user)
-    if profile_id in me.blocked:
+    if profile_id == SYSTEM_USER:
+        return (True, profile_id in me.following)
+    if profile.bot:
+        return (False, False)
+    if session_user in profile.blocked or profile_id in me.blocked:
         return (False, False)
     return (True, profile_id in me.following)
 
@@ -284,8 +284,10 @@ async def user_mini(request: web.Request) -> web.StreamResponse:
 
     payload: dict[str, object] = {
         "username": profile.username,
+        "system": profile_id == SYSTEM_USER,
         "title": profile.title,
         "online": online,
+        "patron": profile.patron,
         "canMessage": can_message,
         "joinedAt": _joined_at_for_payload(profile.created_at),
         "count": profile.count,

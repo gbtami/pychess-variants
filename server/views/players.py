@@ -30,10 +30,20 @@ async def players(request: web.Request) -> ViewContext:
 
     if variant is None:
         allowed_variants = context["category_variant_set"]
-        context["highscore"] = {
+        highscore = {
             variant: dict(app_state.highscore[variant].items()[:10])
             for variant in app_state.highscore
             if variant in allowed_variants
+        }
+        context["highscore"] = highscore
+        highscore_usernames = {
+            entry.split("|", 1)[0] for scores in highscore.values() for entry in scores
+        }
+        context["highscore_patrons"] = await app_state.public_users.get_patrons(highscore_usernames)
+        context["highscore_online"] = {
+            username
+            for username in highscore_usernames
+            if (live_user := app_state.users.data.get(username)) is not None and live_user.online
         }
 
     return context

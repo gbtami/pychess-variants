@@ -17,34 +17,42 @@ UBLOG_STEP_CONTENT = "content"
 UBLOG_STEP_MEDIA = "media"
 UBLOG_STEP_PUBLISH = "publish"
 UBLOG_STEPS = {UBLOG_STEP_CONTENT, UBLOG_STEP_MEDIA, UBLOG_STEP_PUBLISH}
+
+
+# Deferred translations for stable topic identifiers rendered through Jinja gettext.
+def _(message: str) -> str:
+    return message
+
+
 UBLOG_TOPIC_WHITELIST = (
-    "chess",
-    "analysis",
-    "puzzle",
-    "opening",
-    "endgame",
-    "tactics",
-    "strategy",
-    "engine",
-    "BOT",
-    "over the board",
-    "tournament",
-    "chess variant",
-    "software development",
-    "off topic",
-    "lichess",
-    "lishogi",
-    "playstrategy",
-    "announcement",
-    "fairy",
-    "army",
-    "makruk",
-    "shogi",
-    "xiangqi",
-    "other",
-    "all",
+    _("chess"),
+    _("analysis"),
+    _("puzzle"),
+    _("opening"),
+    _("endgame"),
+    _("tactics"),
+    _("strategy"),
+    _("engine"),
+    _("BOT"),
+    _("over the board"),
+    _("tournament"),
+    _("chess variant"),
+    _("software development"),
+    _("off topic"),
+    _("lichess"),
+    _("lishogi"),
+    _("playstrategy"),
+    _("announcement"),
+    _("fairy"),
+    _("army"),
+    _("makruk"),
+    _("shogi"),
+    _("xiangqi"),
+    _("other"),
+    _("all"),
 )
 UBLOG_TOPIC_LOOKUP = {topic.casefold(): topic for topic in UBLOG_TOPIC_WHITELIST}
+del _
 
 
 def slugify_title(title: str) -> str:

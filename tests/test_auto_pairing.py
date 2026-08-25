@@ -2,7 +2,6 @@ import unittest
 from itertools import product
 
 import test_logger
-from aiohttp.test_utils import AioHTTPTestCase
 from auto_pair import (
     add_to_auto_pairings,
     find_matching_seek,
@@ -16,7 +15,7 @@ from seek import Seek
 from user import User
 from variants import VARIANTS
 
-from server import make_app
+from server import init_state, make_app
 
 test_logger.init_test_logger()
 
@@ -71,8 +70,10 @@ DATA = {
 }
 
 
-class AutoPairingTestCase(AioHTTPTestCase):
-    async def startup(self, app):
+class AutoPairingTestCase(unittest.IsolatedAsyncioTestCase):
+    async def asyncSetUp(self):
+        self.app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
+        await init_state(self.app)
         app_state = get_app_state(self.app)
         # players with default ratings
         self.aplayer = User(app_state, username="aplayer", perfs=PERFS)
@@ -95,13 +96,8 @@ class AutoPairingTestCase(AioHTTPTestCase):
         app_state.users["lplayer"] = self.lplayer
         app_state.users["hplayer"] = self.hplayer
 
-    async def get_application(self):
-        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
-        app.on_startup.append(self.startup)
-        return app
-
-    async def tearDownAsync(self):
-        await self.client.close()
+    async def asyncTearDown(self):
+        await get_app_state(self.app).server_shutdown()
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     def test_add_to_auto_pairings(self):
@@ -128,7 +124,7 @@ class AutoPairingTestCase(AioHTTPTestCase):
         self.assertTrue(self.aplayer.ready_for_auto_pairing)
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
-    def remove_from_auto_pairings(self):
+    def test_remove_from_auto_pairings(self):
         app_state = get_app_state(self.app)
 
         variant_tc = ("chess", False, 5, 5, 0)
@@ -137,7 +133,7 @@ class AutoPairingTestCase(AioHTTPTestCase):
 
         self.assertNotIn(self.bplayer, app_state.auto_pairing_users)
         self.assertNotIn(self.bplayer, app_state.auto_pairings[variant_tc])
-        self.assretFalse(self.bplayer.ready_for_auto_pairing)
+        self.assertFalse(self.bplayer.ready_for_auto_pairing)
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     def test_auto_compatible_with_seek0(self):

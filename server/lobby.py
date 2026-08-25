@@ -1,24 +1,16 @@
 from __future__ import annotations
 
-import collections
 from collections.abc import Mapping
 from typing import TYPE_CHECKING
 
 from aiohttp.web_ws import WebSocketResponse
-from const import MAX_CHAT_LINES
 from seek import get_seeks
 from websocket_utils import ws_send_json_many
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
     from user import User
-    from ws_types import (
-        ChatLine,
-        LobbyChatMessage,
-        LobbyChatMessageDb,
-        LobbyCountMessage,
-        LobbySeeksMessage,
-    )
+    from ws_types import LobbyCountMessage, LobbySeeksMessage
 # from logger import log
 
 
@@ -28,7 +20,6 @@ class Lobby:
         self.lobbysockets: dict[
             str, set[WebSocketResponse]
         ] = {}  # one dict only! {user.username: user.tournament_sockets, ...}
-        self.lobbychat: collections.deque[ChatLine] = collections.deque([], MAX_CHAT_LINES)
         # Cache the last broadcast count so we can skip the broadcast when the
         # online count hasn't actually changed (e.g. a page-refresh causes a
         # rapid leave+join that triggers two calls but net count is the same).
@@ -65,33 +56,12 @@ class Lobby:
             response: LobbySeeksMessage = {"type": "get_seeks", "seeks": compatible_seeks}
             await ws_send_json_many(ws_set, response)
 
-    async def lobby_chat(self, username: str, message: str, time: int | None = None) -> None:
-        response: LobbyChatMessage = {"type": "lobbychat", "user": username, "message": message}
-        if time is not None:
-            response["time"] = time
-        await self.lobby_chat_save(response)
-        await self.lobby_broadcast(response)
-
-    async def lobby_chat_save(self, response: LobbyChatMessage) -> None:
-        self.lobbychat.append(response)
-        # Insert a copy so MongoDB-added _id does not leak into the live chat payload.
-        response_db: LobbyChatMessageDb = {
-            "type": response["type"],
-            "user": response["user"],
-            "message": response["message"],
-        }
-        if "time" in response:
-            response_db["time"] = response["time"]
-        await self.app_state.db.lobbychat.insert_one(response_db)
-
     async def handle_user_closes_lobby(self, user: User) -> None:
         # todo: maybe get rid of lobbysockets at some point and use app_state.users.loobby_sockets instead.
         #       On this event we could clean-up also app_state.users etc. if user is considered no longer online
         # online user counter will be updated in quit_lobby also!
         if len(user.lobby_sockets) == 0 and user.username in self.lobbysockets:
             del self.lobbysockets[user.username]
-            # response = {"type": "lobbychat", "user": "", "message": "%s left the lobby" % user.username}
-            # await lobby_broadcast(sockets, response)
 
     async def close_lobby_sockets(self) -> None:
         for ws_set in tuple(self.lobbysockets.values()):

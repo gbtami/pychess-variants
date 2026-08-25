@@ -5,6 +5,8 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
 from catalogued_variants import (
+    CATALOGUED_SOURCE_FSF_BUILTIN,
+    FSF_CATALOGUED_BUILTIN_DESCRIPTION,
     CataloguedVariantValidation,
     _build_doc,
     update_catalogued_variant,
@@ -61,6 +63,57 @@ class AppearanceDatabase:
 
 
 class CataloguedVariantAppearanceAccessTestCase(unittest.IsolatedAsyncioTestCase):
+    async def test_builtin_update_does_not_persist_default_description(self):
+        existing = {
+            "_id": "yarishogi",
+            "name": "yarishogi",
+            "source": CATALOGUED_SOURCE_FSF_BUILTIN,
+            "fsfBuiltinVariant": "yarishogi",
+            "displayName": "Yari Shogi",
+            "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+            "references": [],
+            "width": 7,
+            "height": 9,
+        }
+        collection = SimpleNamespace(
+            update_one=AsyncMock(),
+            find_one=AsyncMock(
+                return_value={key: value for key, value in existing.items() if key != "description"}
+            ),
+        )
+        app_state = SimpleNamespace(
+            db=AppearanceDatabase(collection),
+            catalogued_variants={"yarishogi": existing},
+        )
+        request = SimpleNamespace(app=object())
+        payload = (
+            "",
+            "Yari Shogi",
+            FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+            "",
+            False,
+            "",
+            "",
+            "public",
+        )
+
+        with (
+            patch(
+                "catalogued_variants._load_owned_doc",
+                new=AsyncMock(return_value=(app_state, "admin", "yarishogi", existing)),
+            ),
+            patch("catalogued_variants._read_upload_payload", new=AsyncMock(return_value=payload)),
+            patch("catalogued_variants.register_catalogued_variant_doc"),
+            patch("catalogued_variants._game_count", new=AsyncMock(return_value=0)),
+            patch("catalogued_variants._client_doc", return_value={"name": "yarishogi"}),
+        ):
+            response = await update_catalogued_variant(request)
+
+        self.assertEqual(response.status, 200)
+        update = collection.update_one.await_args.args[1]
+        self.assertNotIn("description", update["$set"])
+        self.assertEqual(update["$unset"]["description"], "")
+
     async def test_non_admin_upload_keeps_appearance_overrides(self):
         collection = AppearanceCollection()
         app_state = SimpleNamespace(

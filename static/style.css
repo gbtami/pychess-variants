@@ -39,6 +39,9 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+.icon-patron-wing:before {
+  content: "\1f302";
+}
 .icon-admin:before {
   content: "\e900";
 }
@@ -472,4 +475,7 @@
 }
 .icon-bubbles4:before {
   content: "\e970";
+}
+.icon-checkbox-unchecked:before {
+  content: "\2610";
 }

@@ -4,29 +4,35 @@
 <main class="page-menu ublog-page">
 <aside>
     <ul class="guide">
-        <li><a href="/blogs/@/{{ profile }}"><span>Published</span></a></li>
-        <li><a href="/blogs/@/{{ profile }}/drafts"><span>Drafts</span></a></li>
-        <li><a href="/blogs/@/{{ profile }}/new"><span>New post</span></a></li>
+        <li><a href="/blogs/@/{{ profile }}"><span>{% trans %}Published{% endtrans %}</span></a></li>
+        <li><a href="/blogs/@/{{ profile }}/drafts"><span>{% trans %}Drafts{% endtrans %}</span></a></li>
+        <li><a href="/blogs/@/{{ profile }}/new"><span>{% trans %}New post{% endtrans %}</span></a></li>
     </ul>
 </aside>
 <div class="ublog-box box ublog-post-form">
     <div class="box-top ublog-post-form__header">
-        <h1>{% if ublog_create_mode %}New post{% else %}Edit your blog post{% endif %}</h1>
+        <h1>{% if ublog_create_mode %}{% trans %}New post{% endtrans %}{% else %}{% trans %}Edit your blog post{% endtrans %}{% endif %}</h1>
     </div>
 
     {% if ublog_errors %}
     <ul class="ublog-errors">
     {% for err in ublog_errors %}
-        <li>{{ err }}</li>
+        <li>
+        {% if err == 'title_too_short' %}{% trans %}Title must have at least 3 characters.{% endtrans %}
+        {% elif err == 'intro_too_short' %}{% trans %}Intro must have at least 3 characters.{% endtrans %}
+        {% elif err == 'body_too_short' %}{% trans %}Post body must have at least 3 characters.{% endtrans %}
+        {% elif err == 'invalid_image_url' %}{% trans %}Image URL must be absolute http(s) or start with /.{% endtrans %}
+        {% else %}{{ err }}{% endif %}
+        </li>
     {% endfor %}
     </ul>
     {% endif %}
 
     {% if ublog_create_mode %}
     <div class="ublog-post-form__etiquette">
-        <p>Keep content safe and respectful.</p>
-        <p>Inappropriate content may lead to account closure.</p>
-        <p>Use markdown for formatting, links, and code blocks.</p>
+        <p>{% trans %}Keep content safe and respectful.{% endtrans %}</p>
+        <p>{% trans %}Inappropriate content may lead to account closure.{% endtrans %}</p>
+        <p>{% trans %}Use markdown for formatting, links, and code blocks.{% endtrans %}</p>
     </div>
     {% endif %}
 
@@ -36,24 +42,24 @@
     <form class="ublog-form form3 ublog-post-form__main" method="post" action="/blogs/@/{{ profile }}/create">
     {% endif %}
         {% set selected_topics = (ublog_values['topics'] or '').split(',') %}
-        <label>Title
+        <label>{% trans %}Title{% endtrans %}
             <input type="text" name="title" maxlength="80" value="{{ ublog_values['title'] }}" required>
         </label>
-        <label>Intro
+        <label>{% trans %}Intro{% endtrans %}
             <input type="text" name="intro" maxlength="1000" value="{{ ublog_values['intro'] }}" required>
         </label>
-        <label>Markdown body
+        <label>{% trans %}Markdown body{% endtrans %}
             <textarea id="ublog-form-markdown" name="markdown" rows="16" maxlength="100000" required>{{ ublog_values['markdown'] }}</textarea>
             <div class="markdown-toastui"></div>
         </label>
-        <label>Topics
+        <label>{% trans %}Topics{% endtrans %}
             <select id="form3-topics" name="topics" multiple size="10">
             {% for topic in ublog_topic_whitelist %}
-                <option value="{{ topic }}" {% if topic in selected_topics %}selected{% endif %}>{{ topic }}</option>
+                <option value="{{ topic }}" {% if topic in selected_topics %}selected{% endif %}>{{ _(topic) }}</option>
             {% endfor %}
             </select>
         </label>
-        <label>Language
+        <label>{% trans %}Language{% endtrans %}
             <select name="language">
             {% for lang in languages %}
                 <option value="{{ lang }}" {% if lang == ublog_values['language'] %}selected{% endif %}>{{ lang }}</option>
@@ -62,19 +68,19 @@
         </label>
         {% if ublog_create_mode %}
         <div class="ublog-form-actions">
-            <a class="button button-empty ublog-action ublog-action--cancel" href="{{ ublog_cancel_url }}">Cancel</a>
-            <button class="button ublog-action ublog-action--draft" type="submit" name="action" value="save">Save draft</button>
+            <a class="button button-empty ublog-action ublog-action--cancel" href="{{ ublog_cancel_url }}">{% trans %}Cancel{% endtrans %}</a>
+            <button class="button ublog-action ublog-action--draft" type="submit" name="action" value="save">{% trans %}Save draft{% endtrans %}</button>
         </div>
         {% else %}
         <fieldset class="ublog-image-fieldset">
-            <legend>Image</legend>
-            <label>Image URL
+            <legend>{% trans %}Image{% endtrans %}</legend>
+            <label>{% trans %}Image URL{% endtrans %}
                 <input type="text" name="image" maxlength="400" value="{{ ublog_values['image'] }}" placeholder="https://... or /images/...">
             </label>
-            <label>Image alt text
+            <label>{% trans %}Image alt text{% endtrans %}
                 <input type="text" name="imageAlt" maxlength="200" value="{{ ublog_values['imageAlt'] }}">
             </label>
-            <label>Image credit
+            <label>{% trans %}Image credit{% endtrans %}
                 <input type="text" name="imageCredit" maxlength="200" value="{{ ublog_values['imageCredit'] }}">
             </label>
         </fieldset>
@@ -82,27 +88,27 @@
             <div class="ublog-checks">
                 <label class="checkbox-row">
                     <input type="checkbox" name="discuss" {% if ublog_values['discuss'] %}checked{% endif %}>
-                    Create blog discussion
+                    {% trans %}Create blog discussion{% endtrans %}
                 </label>
                 <label class="checkbox-row">
                     <input type="checkbox" name="live" {% if ublog_values['live'] %}checked{% endif %}>
-                    Publish on your blog
+                    {% trans %}Publish on your blog{% endtrans %}
                 </label>
                 <label class="checkbox-row">
                     <input type="checkbox" name="sticky" {% if ublog_values['sticky'] %}checked{% endif %}>
-                    Sticky post
+                    {% trans %}Sticky post{% endtrans %}
                 </label>
                 {% if ublog_can_publish_site %}
                 <label class="checkbox-row">
                     <input type="checkbox" name="siteBlog" {% if ublog_values['siteBlog'] %}checked{% endif %}>
-                    Publish in "By PyChess"
+                    {% trans %}Publish in "By PyChess"{% endtrans %}
                 </label>
                 {% endif %}
             </div>
             <div class="ublog-form-actions">
-                <a class="button button-empty ublog-action ublog-action--cancel" href="{{ ublog_cancel_url }}">Cancel</a>
-                <button class="button ublog-action ublog-action--apply" type="submit" name="action" value="apply">Apply</button>
-                <button class="button ublog-action ublog-action--publish" type="submit" name="action" value="view-post">Save and open post</button>
+                <a class="button button-empty ublog-action ublog-action--cancel" href="{{ ublog_cancel_url }}">{% trans %}Cancel{% endtrans %}</a>
+                <button class="button ublog-action ublog-action--apply" type="submit" name="action" value="apply">{% trans %}Apply{% endtrans %}</button>
+                <button class="button ublog-action ublog-action--publish" type="submit" name="action" value="view-post">{% trans %}Save and open post{% endtrans %}</button>
             </div>
         </div>
         {% endif %}
@@ -110,7 +116,7 @@
 
     {% if ublog_post %}
     <form method="post" class="ublog-delete-form ublog-post-form__delete" action="/blogs/@/{{ profile }}/{{ ublog_post['_id'] }}/delete">
-        <button class="button ublog-action ublog-action--delete" type="submit">Delete post</button>
+        <button class="button ublog-action ublog-action--delete" type="submit">{% trans %}Delete post{% endtrans %}</button>
     </form>
     {% endif %}
 </div>

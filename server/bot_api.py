@@ -5,6 +5,7 @@ import logging
 from collections.abc import Awaitable, Callable
 from typing import TYPE_CHECKING, Any, TypeAlias, cast
 
+import msgspec
 from aiohttp import web
 from bot_accounts import (
     BOT_TOKEN_SCOPE,
@@ -24,6 +25,7 @@ from sse_utils import enqueue_sse_payload
 from typing_defs import UserDocument
 from user import User
 from utils import load_game, new_game, play_move, send_bot_game_start_unless_streaming
+from variants import ALL_VARIANTS
 
 log = logging.getLogger(__name__)
 Handler: TypeAlias = Callable[[web.Request], Awaitable[web.StreamResponse]]
@@ -31,6 +33,9 @@ BOT_EVENT_STREAM_KEEPALIVE_SECONDS = 6
 BOT_API_ONLINE_TTL_SECONDS = 10
 BOT_STREAM_WRITE_TIMEOUT_SECONDS = 10
 BOT_STREAM_PING = '{"type":"ping"}\n'
+BOT_CAPABILITIES_HEADER = "X-PyChess-Bot-Capabilities"
+BOT_CAPABILITIES_VERSION = 1
+BOT_CAPABILITIES_MAX_BYTES = 6 * 1024
 
 if TYPE_CHECKING:
     from seek import Seek
@@ -50,6 +55,38 @@ def _request_title(request: web.Request) -> str:
 def _require_bot_invite_owner(username: str, seek: Seek) -> None:
     if seek.player2 is None or seek.player2.username != username:
         raise web.HTTPForbidden()
+
+
+def _parse_bot_supported_variants(request: web.Request) -> set[str]:
+    raw_capabilities = request.headers.get(BOT_CAPABILITIES_HEADER)
+    if raw_capabilities is None:
+        raise web.HTTPBadRequest(text=f"Missing required {BOT_CAPABILITIES_HEADER} header.")
+    if len(raw_capabilities.encode("utf-8")) > BOT_CAPABILITIES_MAX_BYTES:
+        raise web.HTTPBadRequest(text="BOT capability header is too large.")
+
+    try:
+        capabilities = msgspec.json.decode(raw_capabilities)
+    except msgspec.DecodeError as exc:
+        raise web.HTTPBadRequest(text="Invalid BOT capability header.") from exc
+
+    if (
+        not isinstance(capabilities, dict)
+        or capabilities.get("version") != BOT_CAPABILITIES_VERSION
+    ):
+        raise web.HTTPBadRequest(text="Unsupported BOT capability version.")
+
+    variants = capabilities.get("variants")
+    if not isinstance(variants, list) or not all(isinstance(name, str) for name in variants):
+        raise web.HTTPBadRequest(text="BOT capabilities must contain a variant list.")
+
+    supported_variants = {
+        "chess" if name == "standard" else name
+        for name in variants
+        if ("chess" if name == "standard" else name) in ALL_VARIANTS
+    }
+    if not supported_variants:
+        raise web.HTTPBadRequest(text="BOT does not advertise any PyChess-supported variants.")
+    return supported_variants
 
 
 def _refresh_bot_api_online(bot_player: User) -> None:
@@ -78,7 +115,7 @@ def _enqueue_bot_ping_if_idle(queue: asyncio.Queue[str]) -> bool:
     try:
         queue.put_nowait(BOT_STREAM_PING)
         return True
-    except asyncio.QueueFull, asyncio.QueueShutDown:
+    except (asyncio.QueueFull, asyncio.QueueShutDown):
         return False
 
 
@@ -306,6 +343,7 @@ async def challenge_decline(request: web.Request) -> web.StreamResponse:
 async def event_stream(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     username = _request_username(request)
+    supported_variants = _parse_bot_supported_variants(request)
 
     resp = web.StreamResponse()
     resp.content_type = "application/x-ndjson"
@@ -333,6 +371,8 @@ async def event_stream(request: web.Request) -> web.StreamResponse:
                 }
             )
             log.debug("db insert user result %r", result.inserted_id)
+
+    bot_player.bot_supported_variants = supported_variants
 
     _refresh_bot_api_online(bot_player)
 

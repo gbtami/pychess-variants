@@ -7,11 +7,13 @@ import { JSONObject, PyChessModel } from './types';
 import { _ } from './i18n';
 import { patch } from './document';
 import { alertDialog } from './alertDialog';
+import { confirmDialog } from './confirmDialog';
 import { chatMessage, chatView, ChatController } from './chat';
 import { colorIcon } from './chess';
 import { getLastMoveFen, VARIANTS, Variant } from './variants';
 import { timeControlStr } from './view';
-import { initializeClock, localeOptions } from './tournamentClock';
+import { initializeClock, localeOptions, syncTournamentStartAlerts } from './tournamentClock';
+import { tournamentLifecycleView } from './tournamentLifecycle';
 import { gameType } from './result';
 import { boardSettings } from './boardSettings';
 import { MsgBoard, MsgChat, MsgFullChat, MsgSpectators, MsgGameEnd, MsgNewGame } from './messages';
@@ -30,6 +32,8 @@ import {
 import { newWebsocket } from '@/socket/webSocketUtils';
 import { faq, roundRobinFaq, swissFaq } from './tournamentFaq';
 import { displayUsername, userLink } from './user';
+import { sound } from './sound';
+import { redirectFirst } from './tournamentAlerts';
 
 interface Duel {
     id: string; // game id
@@ -70,6 +74,7 @@ export class TournamentController implements ChatController {
     tournamentId: string;
     readyState: number; // seems unused
     buttons: VNode;
+    lifecycleActions: VNode;
     system: number;
     rounds: number;
     currentRound: number;
@@ -101,10 +106,17 @@ export class TournamentController implements ChatController {
     username: string;
     anon: boolean;
     private: boolean;
+    creatorCanManage: boolean;
+    isTournamentDirector: boolean;
+    isTeamTournament: boolean;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         console.log('TournamentController constructor', el, model);
         this.tournamentId = model['tournamentId'];
+        this.username = model['username'];
+        this.creatorCanManage = model.tournamentmanager;
+        this.isTournamentDirector = model['tournamentDirector'];
+        this.isTeamTournament = !!model.tournamentteamid;
         this.nbPlayers = 0;
         this.page = 1;
         this.rounds = model['rounds'] || 0;
@@ -139,6 +151,10 @@ export class TournamentController implements ChatController {
         this.rated = model['rated'];
 
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, 'lobbychat'));
+        this.lifecycleActions = patch(
+            document.getElementById('tournament-lifecycle') as HTMLElement,
+            this.renderLifecycleActions(),
+        );
         this.buttons = patch(document.getElementById('page-controls') as HTMLElement, this.renderButtons());
 
         if (this.tournamentStatus === 'created') {
@@ -158,7 +174,6 @@ export class TournamentController implements ChatController {
 
         this.vDuels = document.querySelector('div.duels') as HTMLElement;
 
-        this.username = model['username'];
         this.anon = model['anon'] === 'True';
 
         boardSettings.assetURL = model.assetURL;
@@ -210,6 +225,35 @@ export class TournamentController implements ChatController {
 
     withdraw() {
         this.doSend({ type: 'withdraw', tournamentId: this.tournamentId });
+    }
+
+    renderLifecycleActions() {
+        return tournamentLifecycleView(
+            {
+                status: this.tournamentStatus,
+                system: this.system,
+                manualNextRoundPending: this.manualNextRoundPending,
+                creatorCanManage: this.creatorCanManage,
+                isDirector: this.isTournamentDirector,
+                isTeamTournament: this.isTeamTournament,
+            },
+            () => this.doSend({ type: 'start_next_round', tournamentId: this.tournamentId }),
+            () => void this.abortTournament(),
+        );
+    }
+
+    updateLifecycleActions() {
+        this.lifecycleActions = patch(this.lifecycleActions, this.renderLifecycleActions());
+    }
+
+    async abortTournament() {
+        const confirmed = await confirmDialog({
+            title: _('Abort tournament'),
+            text: _('This will end the tournament immediately. This action cannot be undone.'),
+            confirmText: _('Abort tournament'),
+            danger: true,
+        });
+        if (confirmed) this.doSend({ type: 'abort_tournament', tournamentId: this.tournamentId });
     }
 
     renderButtons() {
@@ -781,12 +825,22 @@ export class TournamentController implements ChatController {
 
             const oldPlayers = document.getElementById('players') as Element;
             oldPlayers.innerHTML = '';
-            patch(oldPlayers, h('table#players.players.box', [h('tbody', this.renderPlayers(msg.players))]));
+            patch(
+                oldPlayers,
+                h('table#players.players.box', { class: { 'fixed-rounds': this.system > 0 } }, [
+                    h('tbody', this.renderPlayers(msg.players)),
+                ]),
+            );
         }
     }
 
     private onMsgNewGame(msg: MsgNewGame) {
-        window.location.assign('/' + msg.gameId);
+        redirectFirst(msg.gameId, () => {
+            sound.genericNotify();
+            // Give the short notification sound time to become audible before
+            // unloading this tab, like lila's beeping redirect does.
+            window.setTimeout(() => window.location.assign('/' + msg.gameId), 700);
+        });
     }
 
     private onMsgGameUpdate() {
@@ -840,6 +894,7 @@ export class TournamentController implements ChatController {
         const tminutes = document.getElementById('tminutes') as Element;
         patch(tminutes, h('span#tminutes', this.durationString(msg.tminutes)));
 
+        this.startDate = msg.startsAt;
         const startsAtDate = new Date(msg.startsAt);
         const startsAt = document.getElementById('startsAt') as Element;
         if (startsAt) patch(startsAt, h('date', startsAtDate.toLocaleString('default', localeOptions)));
@@ -882,10 +937,12 @@ export class TournamentController implements ChatController {
         this.roundOngoingGames = msg.roundOngoingGames ?? 0;
         this.secondsToNextRound = msg.secondsToNextRound ?? 0;
         this.manualNextRoundPending = msg.manualNextRound ?? false;
+        this.creatorCanManage = msg.creatorCanManage;
         this.private = msg.private;
         this.updateTournamentSystemLabel();
 
         this.updateActionButton();
+        this.updateLifecycleActions();
 
         if (!this.completed()) {
             initializeClock(this);
@@ -923,6 +980,7 @@ export class TournamentController implements ChatController {
 
     private onMsgUserStatus(msg: MsgUserStatus) {
         this.userStatus = msg.ustatus;
+        syncTournamentStartAlerts(this);
         this.updateActionButton();
     }
 
@@ -964,6 +1022,7 @@ export class TournamentController implements ChatController {
         }
         this.updateTournamentSystemLabel();
         this.updateActionButton();
+        this.updateLifecycleActions();
         const fixedRoundRoundStarted =
             this.system > 0 &&
             this.tournamentStatus === 'started' &&
@@ -1130,7 +1189,7 @@ export function tournamentView(model: PyChessModel): VNode[] {
         'style',
         `--ranks: ${variant.board.dimensions.height}; --files: ${variant.board.dimensions.width};`,
     );
-    const canEdit = model.username === model.tournamentcreator && model.status === 0;
+    const canEdit = model.tournamentmanager && model.status === 0;
     return [
         h('aside.sidebar-first', [
             h('div.game-info', [
@@ -1151,6 +1210,17 @@ export function tournamentView(model: PyChessModel): VNode[] {
                             h('span#tminutes'),
                         ]),
                         h('div#tsystem'),
+                        model.tournamentteamid
+                            ? h('div.tournament-team', [
+                                  h('strong', _('Team')),
+                                  ' ',
+                                  h(
+                                      'a',
+                                      { attrs: { href: `/team/${model.tournamentteamid}` } },
+                                      model.tournamentteamname || model.tournamentteamid,
+                                  ),
+                              ])
+                            : null,
                         canEdit
                             ? h('a.icon-cog.edit-tournament', {
                                   attrs: {
@@ -1168,6 +1238,7 @@ export function tournamentView(model: PyChessModel): VNode[] {
                 h('div#startsAt'),
                 h('div#startFen'),
             ]),
+            h('div#tournament-lifecycle'),
             h('div#lobbychat'),
         ]),
         h(`div.players.${model['variant']}`, [
@@ -1175,7 +1246,12 @@ export function tournamentView(model: PyChessModel): VNode[] {
                 h('div.tour-header', [h('div#trophy'), h('h1', model['tournamentname']), h('div#clockdiv')]),
                 h('div#podium'),
                 h('div#page-controls'),
-                h('table#players', { hook: { insert: vnode => runTournament(vnode, model) } }),
+                h('div.tournament-standing-wrap', [
+                    h('table#players', {
+                        class: { 'fixed-rounds': model.tsystem > 0 },
+                        hook: { insert: vnode => runTournament(vnode, model) },
+                    }),
+                ]),
                 h('div.tour-faq'),
             ]),
         ]),

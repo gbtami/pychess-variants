@@ -1,0 +1,71 @@
+{% extends "team-base.html" %}
+{% block content %}
+<div id="main-wrap">
+    <main class="team-form-page page-menu page-small team-edit">
+        {% set team_menu_active = '' %}
+        {% include "team-menu.html" %}
+        <div class="page-menu__content box box-pad">
+            <h1 class="box__top">{% trans %}Edit team{% endtrans %} <a href="/team/{{ team['_id'] }}">{{ team['name'] }}</a></h1>
+            <form method="post" action="/team/{{ team['_id'] }}/edit" class="team-form form3">
+                <div class="form-group">
+                    <label class="form-label" for="team-intro">{% trans %}Short introduction{% endtrans %}</label>
+                    <textarea class="form-control" id="team-intro" name="intro" minlength="3" maxlength="200" rows="2">{{ team.get('intro', '') }}</textarea>
+                    <small class="form-help">{% trans %}A short sentence shown in team lists and at the top of the team page.{% endtrans %}</small>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="team-description">{% trans %}Description{% endtrans %}</label>
+                    <textarea class="form-control" id="team-description" name="description" required minlength="30" maxlength="4000" rows="10">{{ team.get('description', '') }}</textarea>
+                </div>
+
+                <div class="form-split team-entry-fields">
+                    <div class="form-group form-half team-form-check-group">
+                        <label class="team-check form-check" for="team-request-required">
+                            <input id="team-request-required" type="checkbox" name="requestRequired" value="1"{% if team.get('requestRequired') %} checked{% endif %}>
+                            <span>{% trans %}Manually review admission requests{% endtrans %}</span>
+                        </label>
+                        <small class="form-help">{% trans %}New members must be approved by a team leader.{% endtrans %}</small>
+                    </div>
+                    <div class="form-group form-half">
+                        <label class="form-label" for="team-entry-code">{% trans %}New entry code{% endtrans %}</label>
+                        <input class="form-control" id="team-entry-code" name="entryCode" maxlength="60" autocomplete="new-password">
+                        <small class="form-help">{% trans %}Leave blank to keep the current entry code.{% endtrans %}</small>
+                        {% if team.get('entryCodeHash') %}
+                        <label class="team-check team-clear-entry-code" for="team-clear-entry-code">
+                            <input id="team-clear-entry-code" type="checkbox" name="clearEntryCode" value="1">
+                            <span>{% trans %}Remove the current entry code{% endtrans %}</span>
+                        </label>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="team-forum-access">{% trans %}Team forum{% endtrans %}</label>
+                    {% set current_forum_access = team.get('forumAccess', team_forum_access_none) %}
+                    <select class="form-control" id="team-forum-access" name="forumAccess">
+                        {% for value, label in team_forum_access_options %}
+                        <option value="{{ value }}"{% if value == current_forum_access %} selected{% endif %}>{{ _(label) }}</option>
+                        {% endfor %}
+                    </select>
+                    <small class="form-help">{% trans %}Who can see the team forum on the team page. Only team members can post.{% endtrans %}</small>
+                </div>
+
+                <div class="form-actions">
+                    <a href="/team/{{ team['_id'] }}">{% trans %}Cancel{% endtrans %}</a>
+                    <button class="button" type="submit">{% trans %}Save changes{% endtrans %}</button>
+                </div>
+            </form>
+
+            {% if team_can_close %}
+            <section class="team-lifecycle-danger">
+                <h2>{% trans %}Close team{% endtrans %}</h2>
+                <p>{% trans %}Closing archives the team. Members and historical content are kept, but joining, updates, forums, and new team tournament participation are disabled. Only a site administrator can reopen it.{% endtrans %}</p>
+                <form method="post" action="/team/{{ team['_id'] }}/close">
+                    <button class="button button-empty red team-lifecycle-danger__button" type="submit">{% trans %}Close team{% endtrans %}</button>
+                </form>
+            </section>
+            {% endif %}
+        </div>
+    </main>
+</div>
+{% endblock %}

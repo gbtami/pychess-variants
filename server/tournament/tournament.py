@@ -6,7 +6,7 @@ import logging
 import random
 import traceback
 from abc import ABC, abstractmethod
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from datetime import UTC, datetime, timedelta
 from functools import lru_cache
 from operator import neg
@@ -50,6 +50,7 @@ from pymongo import ReturnDocument
 from rated_start import can_rate_start
 from sortedcollections import ValueSortedDict
 from sortedcontainers import SortedKeysView
+from team import is_enabled_team_member
 from typing_defs import (
     TournamentDuelItem,
     TournamentDuelsResponse,
@@ -66,7 +67,7 @@ from typing_defs import (
     TournamentTopGameResponse,
     TournamentUpdateData,
 )
-from websocket_utils import ws_send_json_many
+from websocket_utils import ws_send_json_many, ws_send_json_many_ordered
 
 if TYPE_CHECKING:
     from typing import Literal
@@ -97,6 +98,8 @@ MIN_AUTO_ROUND_INTERVAL_SECONDS = 10
 MAX_AUTO_ROUND_INTERVAL_SECONDS = 60
 RR_DEFAULT_MAX_PLAYERS = 10
 RR_MAX_SUPPORTED_PLAYERS = 16
+SWISS_MAX_PLAYERS = 64
+SWISS_FIRST_ROUND_START_GRACE = timedelta(hours=1)
 
 SWISS_FINISH_REASON_NOT_ENOUGH_PLAYERS = "notEnoughPlayers"
 SWISS_FINISH_REASON_NO_LEGAL_PAIRING = "noLegalPairing"
@@ -253,6 +256,7 @@ class GameData:
         "bberserk",
         "bname",
         "brating",
+        "brdiff",
         "date",
         "id",
         "ply",
@@ -262,6 +266,7 @@ class GameData:
         "wberserk",
         "wname",
         "wrating",
+        "wrdiff",
     )
 
     def __init__(
@@ -280,6 +285,8 @@ class GameData:
         status: int | None = None,
         ply: int | None = None,
         round_no: int | None = None,
+        wrdiff: int | str = 0,
+        brdiff: int | str = 0,
     ) -> None:
         self.id: str = _id
         self.wname = wplayer
@@ -290,6 +297,8 @@ class GameData:
         self.date: datetime = date
         self.wrating: str = wrating
         self.brating: str = brating
+        self.wrdiff: int | str = wrdiff
+        self.brdiff: int | str = brdiff
         self.wberserk: bool = wberserk
         self.bberserk: bool = bberserk
         self.status: int = FLAG if status is None else status
@@ -339,6 +348,7 @@ class Tournament(ABC):
     They have to implement create_pairing() for waiting_players"""
 
     system: ClassVar[int] = ARENA
+    clock_interval: ClassVar[float] = 1.0
     beforeStart: int
     bp: int
     round_interval: int
@@ -390,6 +400,7 @@ class Tournament(ABC):
         entry_titled_only: bool = False,
         forbidden_pairings: str = "",
         manual_pairings: str = "",
+        team_id: str = "",
     ) -> None:
         self.app_state: PychessGlobalAppState = app_state
         self.id: str = tournamentId
@@ -422,6 +433,7 @@ class Tournament(ABC):
         self.entry_titled_only: bool = entry_titled_only
         self.forbidden_pairings: str = forbidden_pairings
         self.manual_pairings: str = manual_pairings
+        self.team_id: str = team_id
         self.created_by: str = created_by
         self.starts_at: datetime = starts_at  # type: ignore[assignment]
         self.created_at: datetime = datetime.now(UTC) if created_at is None else created_at
@@ -437,6 +449,7 @@ class Tournament(ABC):
         self.wave_delta = timedelta(seconds=1)
         self.current_round = 0
         self.pairing_in_progress_round: int | None = None
+        self.manual_pairings_in_progress: str | None = None
         self.next_round_starts_at: datetime | None = None
         self.manual_next_round_pending = False
         self.prev_pairing: datetime | None = None
@@ -1016,6 +1029,9 @@ class Tournament(ABC):
 
         return waiting
 
+    async def send_scheduled_start_reminders(self) -> None:
+        """Hook for tournament systems that notify registered players before start."""
+
     async def clock(self):
         try:
             while self.status not in (T_ABORTED, T_FINISHED, T_ARCHIVED):
@@ -1028,11 +1044,23 @@ class Tournament(ABC):
                     )
                     if now >= self.starts_at:
                         min_players_to_start = 0
+                        joined_players = len(self.players)
                         if self.system == RR:
                             min_players_to_start = 3
                         elif self.system == SWISS:
                             min_players_to_start = 2
-                        if min_players_to_start > 0 and len(self.players) < min_players_to_start:
+                            # Withdrawn pre-start registrations remain in self.players for
+                            # durable history, so use the active leaderboard count here.
+                            joined_players = self.nb_players
+
+                        not_enough_players = (
+                            min_players_to_start > 0 and joined_players < min_players_to_start
+                        )
+                        swiss_start_grace_active = (
+                            self.system == SWISS
+                            and now < self.starts_at + SWISS_FIRST_ROUND_START_GRACE
+                        )
+                        if not_enough_players and not swiss_start_grace_active:
                             await self.abort()
                             log.info(
                                 "T_ABORTED: less than %s player(s) joined for %s",
@@ -1040,13 +1068,17 @@ class Tournament(ABC):
                                 "RR" if self.system == RR else "Swiss",
                             )
                             break
-
-                        await self.start(now)
-                        continue
+                        if not not_enough_players:
+                            await self.start(now)
+                            continue
+                        # A Swiss inside its first-round grace remains created and retries on
+                        # the normal clock tick. The deadline comes from persisted starts_at,
+                        # so restart during the wait needs no extra recovery state.
 
                     elif (not self.notify2) and remaining_mins_to_start <= NOTIFY2_MINUTES:
                         self.notify1 = True
                         self.notify2 = True
+                        await self.send_scheduled_start_reminders()
                         await self.app_state.discord.send_to_discord(
                             "notify_tournament",
                             self.notify_discord_msg(remaining_mins_to_start),
@@ -1102,7 +1134,7 @@ class Tournament(ABC):
                             )
                         )
 
-                await asyncio.sleep(1)
+                await asyncio.sleep(self.clock_interval)
         except Exception as exc:
             log.critical("".join(traceback.format_exception(exc)))
         finally:
@@ -1116,9 +1148,6 @@ class Tournament(ABC):
         self.first_pairing = True
         self.next_round_starts_at = None
         self.manual_next_round_pending = False
-
-        response = self.live_status(now)
-        await self.broadcast(response)
 
         # force first pairing wave in arena
         if self.system == ARENA:
@@ -1138,6 +1167,12 @@ class Tournament(ABC):
                 )
             else:
                 log.info("Updated status: tournament %s status=%s", self.id, u.get("status"))
+
+        # Only acknowledge the started state after it is durable. Otherwise a
+        # process death between broadcast and MongoDB update can make clients
+        # enter a tournament which reloads as T_CREATED.
+        response = self.live_status(now)
+        await self.broadcast(response)
 
     @property
     def summary(self) -> TournamentStatusResponse:
@@ -1250,7 +1285,7 @@ class Tournament(ABC):
             if interval_seconds <= 0:
                 self.next_round_starts_at = now
             elif self.next_round_starts_at is None:
-                self.next_round_starts_at = now + timedelta(seconds=interval_seconds)
+                await self.set_next_round_starts_at(now + timedelta(seconds=interval_seconds))
                 log.debug(
                     "%s round %s complete; waiting %ss before next round",
                     "RR" if self.system == RR else "Swiss",
@@ -1358,8 +1393,10 @@ class Tournament(ABC):
             if latest and isinstance(latest, Game) and latest.status in (CREATED, STARTED):
                 player_data.games.pop()
 
-        await self.broadcast(self.summary)
         await self.save()
+
+        # Persist the terminal status/result before exposing it to clients.
+        await self.broadcast(self.summary)
 
         await self.broadcast_spotlight()
         self.app_state.schedule_tournament_cache_removal(self)
@@ -1403,6 +1440,9 @@ class Tournament(ABC):
             return "BOT accounts cannot join tournaments."
         log.debug("JOIN: %s in tournament %s", user.username, self.id)
 
+        if not await self.user_is_team_member(user):
+            return "You must be a member of the tournament team to join."
+
         if self.password and self.password != password:
             return "401"
 
@@ -1418,11 +1458,31 @@ class Tournament(ABC):
         await self._join_approved_user(user, player_data=player_data)
         return None
 
+    async def user_is_team_member(self, user: User) -> bool:
+        return not self.team_id or await is_enabled_team_member(
+            self.app_state, self.team_id, user.username
+        )
+
+    async def team_member_removed(self, user: User) -> None:
+        if self.player_data_by_name(user.username) is not None:
+            await self.withdraw(user)
+
+    async def _prepare_player_join(
+        self, player: User, player_data: PlayerData, *, is_new_player: bool
+    ) -> None:
+        """Prepare durable player state before the join document is written."""
+
+    async def _persist_player_join_side_data(
+        self, player: User, player_data: PlayerData, *, is_new_player: bool
+    ) -> None:
+        """Persist join-related records that can be reconstructed from player state."""
+
     async def _join_approved_user(
         self, user: User, *, player_data: PlayerData | None = None
     ) -> None:
 
         rating, provisional = user.get_rating(self.variant, self.chess960).rating_prov
+        is_new_player = player_data is None
 
         player = self.get_player_by_name(user.username) or user
         if player is not user and self.id in user.tournament_sockets:
@@ -1453,13 +1513,25 @@ class Tournament(ABC):
         player_data.paused = False
         player_data.withdrawn = False
 
+        await self._prepare_player_join(player, player_data, is_new_player=is_new_player)
+
+        # Persist first so a successfully acknowledged join cannot disappear
+        # if the process dies during the following websocket broadcasts.
+        await self.db_update_player(player, "JOIN")
+        await self._persist_player_join_side_data(player, player_data, is_new_player=is_new_player)
+
+        if is_new_player and not self.password:
+            await self.app_state.timeline.publish(
+                "tournament-join",
+                user,
+                {"tournamentId": self.id, "name": self.name},
+            )
+
         response = self.players_json(user=player)
         await self.broadcast(response)
 
         if self.status == T_CREATED:
             await self.broadcast_spotlight()
-
-        await self.db_update_player(player, "JOIN")
 
     async def join_precheck(self, user: User, player_data: PlayerData | None) -> str | None:
         return None
@@ -1469,7 +1541,7 @@ class Tournament(ABC):
         perf = user.perfs.get(perf_key, {})
         try:
             rated_games = int(perf.get("nb", 0))
-        except TypeError, ValueError:
+        except (TypeError, ValueError):
             rated_games = 0
 
         if self.entry_min_rated_games > 0 and rated_games < self.entry_min_rated_games:
@@ -1511,13 +1583,13 @@ class Tournament(ABC):
         if self.pop_leaderboard_player_by_username(user.username) is not None:
             self.nb_players -= 1
 
+        await self.db_update_player(user, "WITHDRAW")
+
         response_player = self.get_player_by_name(user.username) or user
         response = self.players_json(user=response_player)
         await self.broadcast(response)
 
         await self.broadcast_spotlight()
-
-        await self.db_update_player(user, "WITHDRAW")
 
     async def pause(self, user: User) -> None:
         log.debug("PAUSE: %s in tournament %s", user.username, self.id)
@@ -1529,12 +1601,12 @@ class Tournament(ABC):
             return
         player_data.paused = True
 
+        await self.db_update_player(user, "PAUSE")
+
         # pause is different from withdraw and join because pause can be initiated from finished games page as well
         response_player = self.get_player_by_name(user.username) or user
         response = self.players_json(user=response_player)
         await self.broadcast(response)
-
-        await self.db_update_player(user, "PAUSE")
 
     def spactator_join(self, spectator: User) -> None:
         self.spectators.add(spectator)
@@ -1904,6 +1976,7 @@ class Tournament(ABC):
         if self.status in (T_FINISHED, T_ABORTED) or game.status == ABORTED:
             return
 
+        no_show_username = self._mark_no_show_paused(game)
         touched_users = self._apply_missing_game_result(game)
         if touched_users is None:
             return
@@ -1913,6 +1986,11 @@ class Tournament(ABC):
 
         for username in touched_users:
             await self.db_update_player(username, "GAME_END")
+        if no_show_username is not None and no_show_username not in touched_users:
+            # ``GAME_END`` persists the paused flag for newly-applied results.
+            # On a partial recovery the no-show player's score may already be
+            # durable, so persist the pause explicitly as well.
+            await self.db_update_player(no_show_username, "PAUSE")
         await self.db_update_pairing(game)
 
         if warn_on_recovery and touched_users:
@@ -1923,6 +2001,31 @@ class Tournament(ABC):
             )
 
         await self._finalize_finished_game_once(game)
+
+    def _mark_no_show_paused(self, game: Game | GameData) -> str | None:
+        """Make arena-style first-move no-show pausing durable with scoring.
+
+        ``delayed_free()`` intentionally waits a few seconds before updating
+        the UI/free flags, but the actual pause must not live only in that
+        background task. Mark it before the GAME_END player documents are
+        persisted so a restart during the delay cannot lose the penalty.
+        """
+        if game.status != FLAG:
+            return None
+
+        ply = self._game_ply(game)
+        if ply == 0:
+            username = game.wplayer.username
+        elif ply == 1:
+            username = game.bplayer.username
+        else:
+            return None
+
+        player_data = self.player_data_by_name(username)
+        if player_data is None:
+            return None
+        player_data.paused = True
+        return username
 
     def _apply_missing_game_result(self, game: Game | GameData) -> list[str] | None:
         player_data = self.game_player_data(game)
@@ -1977,31 +2080,34 @@ class Tournament(ABC):
             and 0 < self.current_round < self.rounds
             and self.next_round_starts_at is None
         ):
-            self.next_round_starts_at = now + timedelta(
-                seconds=self.effective_round_interval_seconds()
-            )
+            interval_seconds = self.effective_round_interval_seconds()
+            if interval_seconds <= 0:
+                self.next_round_starts_at = now
+            else:
+                await self.set_next_round_starts_at(now + timedelta(seconds=interval_seconds))
 
-        await self.broadcast(self.duels_json)
-
-        self.app_state.create_background_task(self.delayed_free(live_game), name="t-delayed-free")
-
-        await self.broadcast(
+        responses: list[Mapping[str, object]] = [
+            self.duels_json,
             {
                 "type": "game_update",
                 "wname": game.wplayer.username,
                 "bname": game.bplayer.username,
-            }
-        )
-        await self.broadcast(self.live_status(now))
+            },
+            self.live_status(now),
+        ]
 
         if self.top_game is not None and self.top_game.id == game.id:
-            response = {
-                "type": "gameEnd",
-                "status": game.status,
-                "result": game.result,
-                "gameId": game.id,
-            }
-            await self.broadcast(response)
+            responses.append(
+                {
+                    "type": "gameEnd",
+                    "status": game.status,
+                    "result": game.result,
+                    "gameId": game.id,
+                }
+            )
+
+        self.app_state.create_background_task(self.delayed_free(live_game), name="t-delayed-free")
+        await self.broadcast_many(responses)
 
     def _player_game_index(self, player_data: PlayerData, game_id: str) -> int | None:
         for index, player_game in enumerate(player_data.games):
@@ -2148,7 +2254,7 @@ class Tournament(ABC):
             wplayer.free = True
             bplayer.free = True
 
-    async def broadcast(self, response: Mapping[str, object]) -> None:
+    def _broadcast_sockets(self) -> list[Any]:
         sockets = []
         for spectator in self.spectators:
             try:
@@ -2157,7 +2263,13 @@ class Tournament(ABC):
                 log.error("tournament broadcast() spectator socket was removed")
             except Exception:
                 log.error("Exception in tournament broadcast()")
-        await ws_send_json_many(sockets, response)
+        return sockets
+
+    async def broadcast_many(self, responses: Iterable[Mapping[str, object]]) -> None:
+        await ws_send_json_many_ordered(self._broadcast_sockets(), responses)
+
+    async def broadcast(self, response: Mapping[str, object]) -> None:
+        await self.broadcast_many((response,))
 
     async def db_insert_pairing(self, games: list[Game]) -> None:
         if self.app_state.db is None:
@@ -2177,6 +2289,8 @@ class Tournament(ABC):
                 "d": game.date,
                 "wr": game.wrating,
                 "br": game.brating,
+                "wrd": getattr(game, "wrdiff", 0),
+                "brd": getattr(game, "brdiff", 0),
                 "wb": game.wberserk,
                 "bb": game.bberserk,
                 "s": game.status,
@@ -2193,6 +2307,7 @@ class Tournament(ABC):
         *,
         round_no: int | None = None,
         bye_token: str = "U",
+        date: datetime | None = None,
     ) -> None:
         if self.app_state.db is None:
             return
@@ -2209,7 +2324,7 @@ class Tournament(ABC):
             "tid": self.id,
             "u": (player.username, player.username),
             "r": R2C["*"],
-            "d": datetime.now(UTC),
+            "d": date or datetime.now(UTC),
             "wr": rating,
             "br": rating,
             "wb": False,
@@ -2238,6 +2353,8 @@ class Tournament(ABC):
                 "d": game.date,
                 "wr": game.wrating,
                 "br": game.brating,
+                "wrd": getattr(game, "wrdiff", 0),
+                "brd": getattr(game, "brdiff", 0),
                 "wb": game.wberserk,
                 "bb": game.bberserk,
                 "s": game.status,
@@ -2258,25 +2375,79 @@ class Tournament(ABC):
             )
 
     async def save_current_round(self) -> None:
+        manual_pairings_consumed = (
+            self.pairing_in_progress_round == self.current_round
+            and self.manual_pairings_in_progress is not None
+        )
+        clear_consumed_manual_pairings = (
+            manual_pairings_consumed and self.manual_pairings == self.manual_pairings_in_progress
+        )
+
         if self.app_state.db is None:
+            self.next_round_starts_at = None
+            if clear_consumed_manual_pairings:
+                self.manual_pairings = ""
+            if manual_pairings_consumed:
+                self.manual_pairings_in_progress = None
+            if self.pairing_in_progress_round == self.current_round:
+                self.pairing_in_progress_round = None
             return
 
         try:
-            update_doc: dict[str, object] = {"$set": {"cr": self.current_round}}
+            set_fields: dict[str, object] = {"cr": self.current_round}
+            unset_fields: dict[str, str] = {"nextRoundStartsAt": ""}
+            if clear_consumed_manual_pairings:
+                set_fields["manualPairings"] = ""
+            if manual_pairings_consumed:
+                unset_fields["manualPairingsInProgress"] = ""
             if self.pairing_in_progress_round == self.current_round:
-                update_doc["$unset"] = {"pairingInProgressRound": ""}
+                unset_fields["pairingInProgressRound"] = ""
 
             await self.app_state.db.tournament.update_one(
                 {"_id": self.id},
-                update_doc,
+                {
+                    "$set": set_fields,
+                    "$unset": unset_fields,
+                },
             )
+            self.next_round_starts_at = None
+            if clear_consumed_manual_pairings:
+                self.manual_pairings = ""
+            if manual_pairings_consumed:
+                self.manual_pairings_in_progress = None
             if self.pairing_in_progress_round == self.current_round:
                 self.pairing_in_progress_round = None
         except Exception:
             log.exception("Failed to save current round for %s", self.id)
 
-    async def set_pairing_in_progress_round(self, round_no: int | None) -> None:
+    async def set_next_round_starts_at(self, starts_at: datetime | None) -> None:
+        self.next_round_starts_at = starts_at
+        if self.app_state.db is None:
+            return
+
+        try:
+            if starts_at is None:
+                await self.app_state.db.tournament.update_one(
+                    {"_id": self.id},
+                    {"$unset": {"nextRoundStartsAt": ""}},
+                )
+            else:
+                await self.app_state.db.tournament.update_one(
+                    {"_id": self.id},
+                    {"$set": {"nextRoundStartsAt": starts_at}},
+                )
+        except Exception:
+            log.exception(
+                "Failed to update next round start time %s for %s",
+                starts_at,
+                self.id,
+            )
+
+    async def set_pairing_in_progress_round(
+        self, round_no: int | None, *, manual_pairings: str | None = None
+    ) -> None:
         self.pairing_in_progress_round = round_no
+        self.manual_pairings_in_progress = manual_pairings
         if self.app_state.db is None:
             return
 
@@ -2284,12 +2455,24 @@ class Tournament(ABC):
             if round_no is None:
                 await self.app_state.db.tournament.update_one(
                     {"_id": self.id},
-                    {"$unset": {"pairingInProgressRound": ""}},
+                    {
+                        "$unset": {
+                            "pairingInProgressRound": "",
+                            "manualPairingsInProgress": "",
+                        }
+                    },
                 )
             else:
+                update: dict[str, dict[str, object]] = {
+                    "$set": {"pairingInProgressRound": round_no}
+                }
+                if manual_pairings is not None:
+                    update["$set"]["manualPairingsInProgress"] = manual_pairings
+                else:
+                    update["$unset"] = {"manualPairingsInProgress": ""}
                 await self.app_state.db.tournament.update_one(
                     {"_id": self.id},
-                    {"$set": {"pairingInProgressRound": round_no}},
+                    update,
                 )
         except Exception:
             log.exception(
@@ -2323,22 +2506,23 @@ class Tournament(ABC):
             if player_data.id is None:  # new player JOIN
                 player_id = await new_id(player_table)
                 player_data.id = player_id
+                full_score = self.leaderboard_score_by_username(player_data.username)
                 player_update = {
                     "_id": player_id,
                     "tid": self.id,
                     "uid": player_data.username,
                     "r": player_data.rating,
                     "pr": player_data.provisional,
-                    "a": False,
-                    "f": 0,
-                    "s": 0,
-                    "w": 0,
-                    "b": 0,
-                    "e": 0,
-                    "g": 0,
-                    "p": [],
+                    "a": player_data.paused,
+                    "f": player_data.win_streak,
+                    "s": int(full_score / SCORE_SHIFT),
+                    "w": player_data.nb_win,
+                    "b": player_data.nb_berserk,
+                    "e": player_data.performance,
+                    "g": player_data.berger,
+                    "p": player_data.points,
                     "jr": player_data.joined_round,
-                    "wd": False,
+                    "wd": player_data.withdrawn,
                 }
             else:
                 player_update = {
@@ -2350,7 +2534,7 @@ class Tournament(ABC):
                 }
 
         elif action == "WITHDRAW":
-            player_update = {"wd": True}
+            player_update = {"a": False, "wd": True}
 
         elif action == "PAUSE":
             player_update = {"a": True}
@@ -2417,13 +2601,17 @@ class Tournament(ABC):
         if self.app_state.db is None:
             return
 
-        if self.nb_games_finished == 0 and self.nb_players == 0:
+        if (
+            self.nb_games_finished == 0
+            and self.nb_players == 0
+            and not (self.system == RR and self.status == T_CREATED)
+        ):
             d = await self.app_state.db.tournament.delete_many({"_id": self.id})
             log.info("Deleted %r", d)
             log.info("Deleted empty tournament %s" % self.id)
             return
 
-        winner = self.leaderboard.peekitem(0)[0].username
+        winner = "" if len(self.leaderboard) == 0 else self.leaderboard.peekitem(0)[0].username
         new_data: TournamentUpdateData = {
             "status": self.status,
             "nbPlayers": self.nb_players,
@@ -2432,6 +2620,11 @@ class Tournament(ABC):
             "rounds": self.rounds,
             "cr": self.current_round,
         }
+        if self.system == RR:
+            new_data["rrJoiningClosed"] = self.rr_joining_closed
+            new_data["rrPendingPlayers"] = sorted(self.rr_pending_players)
+            new_data["rrDeniedPlayers"] = sorted(self.rr_denied_players)
+
         if self.finish_reason is not None:
             new_data["finishReason"] = self.finish_reason
 
@@ -2610,6 +2803,7 @@ async def upsert_tournament_to_db(tournament: Tournament, app_state: PychessGlob
         "entryMinAccountAgeDays": tournament.entry_min_account_age_days,
         "forbiddenPairings": tournament.forbidden_pairings,
         "manualPairings": tournament.manual_pairings,
+        "teamId": tournament.team_id,
         "nbPlayers": 0,
         "cr": tournament.current_round,
         "createdBy": tournament.created_by,
@@ -2622,6 +2816,8 @@ async def upsert_tournament_to_db(tournament: Tournament, app_state: PychessGlob
         new_data["finishReason"] = tournament.finish_reason
     if tournament.pairing_in_progress_round is not None:
         new_data["pairingInProgressRound"] = tournament.pairing_in_progress_round
+    if tournament.manual_pairings_in_progress is not None:
+        new_data["manualPairingsInProgress"] = tournament.manual_pairings_in_progress
 
     try:
         await app_state.db.tournament.find_one_and_update(

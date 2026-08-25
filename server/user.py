@@ -26,6 +26,7 @@ from const import (
     GAME_CATEGORY_ALL,
     MAX_USER_BLOCK,
     STARTED,
+    SYSTEM_USER,
     TEST_PREFIX,
     normalize_game_category,
     reserved,
@@ -35,7 +36,7 @@ from json_utils import json_response
 from newid import id8
 from notify import notify
 from user_stats import normalize_user_count
-from websocket_utils import ws_send_json_many, ws_send_str_many
+from websocket_utils import ws_send_json_many
 
 if TYPE_CHECKING:
     from typing_defs import (
@@ -158,12 +159,15 @@ class User:
         game_category: str = "all",
         pm_friends_only: bool = False,
         corr_push: bool = True,
+        rr_push: bool = False,
         catalogued_variant_favorites: list[str] | set[str] | None = None,
         oauth_id: str = "",
         oauth_provider: str = "",
         created_at: datetime | None = None,
         swiss_ban_until: datetime | None = None,
         swiss_ban_hours: int = 0,
+        swiss_ban_game_id: str | None = None,
+        patron: bool = False,
     ) -> None:
         self.app_state: PychessGlobalAppState = app_state
         self.bot: bool = bot
@@ -174,6 +178,7 @@ class User:
         self.game_category_set: bool = False
         self.pm_friends_only: bool = pm_friends_only
         self.corr_push_enabled: bool = corr_push
+        self.rr_push_enabled: bool = rr_push
         self.catalogued_variant_favorites: set[str] = {
             str(name) for name in (catalogued_variant_favorites or []) if isinstance(name, str)
         }
@@ -186,6 +191,7 @@ class User:
         )
         self.swiss_ban_until: datetime | None = _as_utc(swiss_ban_until)
         self.swiss_ban_hours: int = swiss_ban_hours
+        self.swiss_ban_game_id: str | None = swiss_ban_game_id
         self.notifications: list[NotificationDocument] | None = None
         self.update_game_category(game_category)
 
@@ -250,16 +256,18 @@ class User:
         self.perfs = sparse_perf_map(RATED_VARIANTS, perfs)
         self.pperfs = sparse_perf_map(RATED_VARIANTS, pperfs)
         self.count = normalize_user_count(count)
+        self.tournament_game_effect_ids: set[str] = set()
 
         self.enabled: bool = enabled
         self.shadowban: bool = shadowban
+        self.patron: bool = patron
 
         self.last_seen: datetime = datetime(MINYEAR, 1, 1, tzinfo=UTC)
 
         # last game played
         self.tv: str | None = None
 
-        # lobby chat spammer time out (15 min)
+        # public chat spammer time out (15 min)
         self.silence: int = 0
 
         # purge inactive anon users after ANON_TIMEOUT sec
@@ -283,6 +291,10 @@ class User:
             self.active_game_streams = set()
         if not hasattr(self, "bot_online_expire_task"):
             self.bot_online_expire_task: asyncio.Task[None] | None = None
+        if not hasattr(self, "bot_supported_variants"):
+            # External BOTs replace this during their authenticated event-stream
+            # handshake. None is reserved for PyChess's built-in BOTs.
+            self.bot_supported_variants: set[str] | None = None
 
     async def remove(self) -> None:
         def can_remove_anon() -> bool:
@@ -472,7 +484,7 @@ class User:
         self.perfs[variant_key] = entry
 
         if self.app_state.db is not None:
-            await self.app_state.db.user.find_one_and_update(
+            await self.app_state.db.user.update_one(
                 {"_id": self.username}, {"$set": {f"perfs.{variant_key}": entry}}
             )
 
@@ -494,6 +506,80 @@ class User:
             await self.app_state.db.user.find_one_and_update(
                 {"_id": self.username}, {"$set": {f"pperfs.{variant_key}": entry}}
             )
+
+    async def apply_tournament_game_effect_once(
+        self,
+        game_id: str,
+        result: int,
+        rated: bool,
+        *,
+        variant_key: str,
+        perf_entry: PerfEntry | None = None,
+    ) -> bool:
+        """Apply one tournament game's user side effects atomically and at most once.
+
+        The bounded game-id list is only an idempotency guard for the tiny window
+        between the authoritative finished-game write and ``fx=2`` on that game.
+        Startup repairs pending games before accepting traffic, so a short recent
+        history is sufficient and avoids unbounded user-document growth.
+        """
+        if self.anon:
+            return False
+
+        inc: dict[str, int] = {"count.game": 1}
+        if rated:
+            inc["count.rated"] = 1
+        if result > 0:
+            inc["count.win"] = 1
+        elif result < 0:
+            inc["count.loss"] = 1
+        else:
+            inc["count.draw"] = 1
+
+        if self.app_state.db is None:
+            return False
+
+        update: dict[str, Any] = {
+            "$inc": inc,
+            "$push": {
+                "tournamentGameEffectIds": {
+                    "$each": [game_id],
+                    "$slice": -32,
+                }
+            },
+        }
+        if perf_entry is not None:
+            update["$set"] = {f"perfs.{variant_key}": perf_entry}
+
+        result_doc = await self.app_state.db.user.update_one(
+            {
+                "_id": self.username,
+                "tournamentGameEffectIds": {"$ne": game_id},
+            },
+            update,
+        )
+        # Tournament auto-play tests use intentionally in-memory-only users.
+        # Preserve their normal rating/count behavior without weakening the
+        # production DB idempotency contract.
+        if result_doc.modified_count == 0 and (
+            not self.app_state.is_test_user(self.username)
+            or game_id in self.tournament_game_effect_ids
+        ):
+            return False
+
+        self.tournament_game_effect_ids.add(game_id)
+        self.count["game"] += 1
+        if rated:
+            self.count["rated"] += 1
+        if result > 0:
+            self.count["win"] += 1
+        elif result < 0:
+            self.count["loss"] += 1
+        else:
+            self.count["draw"] += 1
+        if perf_entry is not None:
+            self.perfs[variant_key] = perf_entry
+        return True
 
     async def increment_game_count(self, result: int, rated: bool) -> None:
         if self.anon:
@@ -668,15 +754,6 @@ class User:
         #        )
         #    return
         await ws_send_json_many(ws_set, message)
-
-    async def send_game_message_str(self, game_id: str, payload: str) -> None:
-        # Same as send_game_message(), but takes an already-serialized JSON string.
-        # Used by round_broadcast() so one broadcast to many spectators encodes
-        # the message once instead of once per recipient.
-        ws_set = self.game_sockets.get(game_id)
-        if ws_set is None or len(ws_set) == 0:
-            return
-        await ws_send_str_many(ws_set, payload)
 
     async def close_all_game_sockets(self) -> None:
         for ws_set in tuple(self.game_sockets.values()):
@@ -914,6 +991,28 @@ async def set_corr_push(request: web.Request) -> web.StreamResponse:
     return web.Response(status=204)
 
 
+async def set_rr_push(request: web.Request) -> web.StreamResponse:
+    app_state = get_app_state(request.app)
+    post_data = await read_post_data(request)
+    if post_data is None:
+        return web.Response(status=204)
+
+    session = await aiohttp_session.get_session(request)
+    session_user = session.get("user_name")
+    user = await app_state.users.get(session_user)
+    if user.anon:
+        return web.Response(status=403)
+
+    raw = str(post_data.get("rr_push", "")).strip().lower()
+    value = raw in {"1", "true", "yes", "on"}
+    user.rr_push_enabled = value
+    if app_state.db is not None:
+        await app_state.db.user.find_one_and_update(
+            {"_id": user.username}, {"$set": {"rps": value}}
+        )
+    return web.Response(status=204)
+
+
 def _relation_id(user1: str, user2: str) -> str:
     return f"{user1}/{user2}"
 
@@ -935,13 +1034,20 @@ async def follow_user(request: web.Request) -> web.StreamResponse:
     rel_id = _relation_id(user.username, profileId)
     try:
         if follow:
-            await app_state.db.relation.find_one_and_update(
+            previous_relation = await app_state.db.relation.find_one_and_update(
                 {"_id": rel_id},
                 {"$set": {"u1": user.username, "u2": profileId, "r": FOLLOW}},
                 upsert=True,
             )
             user.following.add(profileId)
             user.blocked.discard(profileId)
+            if previous_relation is None or previous_relation.get("r") != FOLLOW:
+                await app_state.timeline.publish(
+                    "follow",
+                    user,
+                    {"target": profileId},
+                    friends_only=True,
+                )
         else:
             await app_state.db.relation.delete_one({"_id": rel_id, "r": FOLLOW})
             user.following.discard(profileId)
@@ -959,7 +1065,7 @@ async def block_user(request: web.Request) -> web.StreamResponse:
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
     user = await app_state.users.get(session_user)
-    if user.anon or profileId == user.username:
+    if user.anon or profileId == user.username or profileId.casefold() == SYSTEM_USER.casefold():
         return web.Response(status=403)
 
     post_data = await read_post_data(request)
@@ -981,6 +1087,7 @@ async def block_user(request: web.Request) -> web.StreamResponse:
             )
             user.blocked.add(profileId)
             user.following.discard(profileId)
+            await app_state.timeline.remove_between(user.username, profileId)
         else:
             await app_state.db.relation.delete_one({"_id": rel_id, "r": BLOCK})
             user.blocked.discard(profileId)
@@ -1021,7 +1128,9 @@ async def get_status(request: web.Request) -> web.StreamResponse:
     status_list: list[UserStatusJson] = []
     for uid in ids:
         user = await app_state.users.get(uid)
-        status_entry: UserStatusJson = {"status": user.online, "id": uid}
+        status_entry: UserStatusJson = {"online": user.online, "id": uid}
+        if user.patron:
+            status_entry["patron"] = True
         status_list.append(status_entry)
 
     return json_response(status_list)

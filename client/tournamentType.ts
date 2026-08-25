@@ -69,6 +69,7 @@ export interface MsgUserConnectedTournament {
     chatClosed: boolean;
     private: boolean;
     createdBy: string;
+    creatorCanManage: boolean;
     rrRequiresApproval?: boolean;
     rrJoiningClosed?: boolean;
 }
@@ -126,6 +127,7 @@ export interface RRArrangementCell {
     whiteSuggestedAt: string;
     blackSuggestedAt: string;
     scheduledAt: string;
+    previousGameIds: string[];
     result?: string;
     points?: number | string;
 }

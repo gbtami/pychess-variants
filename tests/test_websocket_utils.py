@@ -1,12 +1,13 @@
 import unittest
 from typing import cast
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, call, patch
 
 from aiohttp.web_ws import WebSocketResponse
 from websocket_utils import (
     _ws_json_loads,
     ws_send_json,
     ws_send_json_many,
+    ws_send_json_many_ordered,
     ws_send_str,
     ws_send_str_many,
 )
@@ -44,6 +45,44 @@ class WebSocketUtilsTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(sent, 1)
         ws1.send_str.assert_awaited_once_with('{"type":"ping"}')
         ws2.send_str.assert_awaited_once_with('{"type":"ping"}')
+
+    async def test_ws_send_json_many_ordered_preserves_order_per_socket(self):
+        ws1 = cast(WebSocketResponse, AsyncMock())
+        ws2 = cast(WebSocketResponse, AsyncMock())
+
+        sent = await ws_send_json_many_ordered(
+            [ws1, ws2],
+            [
+                {"type": "duels"},
+                {"type": "game_update"},
+                {"type": "tstatus"},
+            ],
+        )
+
+        self.assertEqual(sent, 6)
+        expected = [
+            call('{"type":"duels"}'),
+            call('{"type":"game_update"}'),
+            call('{"type":"tstatus"}'),
+        ]
+        self.assertEqual(ws1.send_str.await_args_list, expected)
+        self.assertEqual(ws2.send_str.await_args_list, expected)
+
+    async def test_ws_send_json_many_ordered_stops_after_socket_failure(self):
+        ws = cast(WebSocketResponse, AsyncMock())
+        ws.send_str.side_effect = [None, ConnectionResetError]
+
+        sent = await ws_send_json_many_ordered(
+            [ws],
+            [
+                {"type": "duels"},
+                {"type": "game_update"},
+                {"type": "tstatus"},
+            ],
+        )
+
+        self.assertEqual(sent, 1)
+        self.assertEqual(ws.send_str.await_count, 2)
 
     async def test_ws_send_str_many_ignores_none_socket(self):
         ws = cast(WebSocketResponse, AsyncMock())

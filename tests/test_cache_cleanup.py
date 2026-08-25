@@ -16,7 +16,7 @@ from ai import bot_game_tasks
 from aiohttp.test_utils import AioHTTPTestCase
 from clock import BOT_FIRST_MOVE_TIMEOUT, Clock, CorrClock
 from compress import R2C
-from const import ABORTED, CASUAL, T_FINISHED
+from const import ABORTED, BLOCK, CASUAL, FOLLOW, MAX_USER_BLOCK, T_FINISHED
 from fairy import FairyBoard
 from game import Game
 from mongomock_motor import AsyncMongoMockClient
@@ -585,6 +585,79 @@ class CacheCleanupTestCase(AioHTTPTestCase):
         self.assertIsNone(black.game_in_progress)
         self.assertNotIn(game.id, app_state.games)
 
+    async def test_concurrent_registered_user_loads_are_singleflight_and_fully_initialized(self):
+        app_state = get_app_state(self.app)
+        username = "singleflight-user"
+        await self._insert_user_doc(username)
+        await app_state.db.relation.insert_many(
+            [
+                {
+                    "_id": f"{username}/blocked-{i}",
+                    "u1": username,
+                    "u2": f"blocked-{i}",
+                    "r": BLOCK,
+                }
+                for i in range(MAX_USER_BLOCK + 1)
+            ]
+            + [
+                {
+                    "_id": f"{username}/followed",
+                    "u1": username,
+                    "u2": "followed",
+                    "r": FOLLOW,
+                }
+            ]
+        )
+
+        collection_type = type(app_state.db.relation)
+        real_find = collection_type.find
+        entered = asyncio.Event()
+        release = asyncio.Event()
+        relation_find_calls = 0
+
+        class DelayedCursor:
+            def __init__(self, cursor):
+                self.cursor = cursor
+
+            async def to_list(self, length):
+                entered.set()
+                await release.wait()
+                return await self.cursor.to_list(length)
+
+        def delayed_find(collection, *args, **kwargs):
+            cursor = real_find(collection, *args, **kwargs)
+            if collection.name != "relation":
+                return cursor
+            nonlocal relation_find_calls
+            relation_find_calls += 1
+            return DelayedCursor(cursor)
+
+        with patch.object(collection_type, "find", delayed_find):
+            first = asyncio.create_task(app_state.users.get(username))
+            entered_wait = asyncio.create_task(entered.wait())
+            done, _ = await asyncio.wait({first, entered_wait}, return_when=asyncio.FIRST_COMPLETED)
+            if first in done:
+                await first
+            await entered_wait
+
+            # Never expose the freshly constructed User with empty relation sets.
+            self.assertNotIn(username, app_state.users.data)
+
+            second = asyncio.create_task(app_state.users.get(username))
+            await asyncio.sleep(0)
+            self.assertFalse(second.done())
+
+            release.set()
+            first_user, second_user = await asyncio.gather(first, second)
+
+        await asyncio.sleep(0)
+        self.assertEqual(1, relation_find_calls)
+        self.assertIs(first_user, second_user)
+        self.assertIs(first_user, app_state.users[username])
+        self.assertEqual(MAX_USER_BLOCK, len(first_user.blocked))
+        self.assertEqual({"followed"}, first_user.following)
+        self.assertNotIn(username, app_state.users.load_tasks)
+
     async def test_registered_user_cache_evicts_only_idle_unreferenced_users(self):
         app_state = get_app_state(self.app)
         for username in ("cache-idle", "cache-fresh", "cache-protected"):
@@ -624,8 +697,9 @@ class CacheCleanupTestCase(AioHTTPTestCase):
         self.assertIn((user.username, user), list(app_state.users.items()))
         self.assertEqual(100, app_state.users.cache_access[user.username])
 
-        self.assertIs(user, app_state.users[user.username])
-        self.assertGreater(app_state.users.cache_access[user.username], 100)
+        with patch("users.monotonic", return_value=200):
+            self.assertIs(user, app_state.users[user.username])
+        self.assertEqual(200, app_state.users.cache_access[user.username])
 
     async def test_registered_user_cache_protects_players_in_cached_finished_game(self):
         app_state = get_app_state(self.app)

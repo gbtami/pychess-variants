@@ -44,6 +44,7 @@ type State = {
     saving: boolean;
     variants: ManagedVariant[];
     maxVariants: number | null;
+    variantSlotsUsed: number;
     total: number;
     page: number;
     pages: number;
@@ -74,6 +75,7 @@ const state: State = {
     saving: false,
     variants: [],
     maxVariants: null,
+    variantSlotsUsed: 0,
     total: 0,
     page: 1,
     pages: 1,
@@ -192,6 +194,7 @@ async function loadMine(model: PyChessModel, options: { clearMessage?: boolean }
         const payload = (await response.json()) as {
             variants: ManagedVariant[];
             maxVariants?: number | null;
+            variantSlotsUsed?: number | null;
             total?: number;
             page?: number;
             pages?: number;
@@ -203,6 +206,7 @@ async function loadMine(model: PyChessModel, options: { clearMessage?: boolean }
         };
         state.variants = payload.variants || [];
         state.maxVariants = payload.maxVariants ?? null;
+        state.variantSlotsUsed = payload.variantSlotsUsed ?? 0;
         state.total = payload.total ?? state.variants.length;
         state.page = payload.page ?? 1;
         state.pages = payload.pages ?? 1;
@@ -1765,7 +1769,7 @@ function renderRoot(model: PyChessModel): VNode {
                                 )
                               : h(
                                     'p.catalogued-help',
-                                    `${state.total}/${state.maxVariants} ${_('variant slots used')}`,
+                                    `${state.variantSlotsUsed}/${state.maxVariants} ${_('variant slots used')}`,
                                 ),
                           renderRows(model),
                           renderPagination(model),

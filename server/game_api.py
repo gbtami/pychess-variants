@@ -26,12 +26,13 @@ from const import (
     VARIANTEND,
 )
 from convert import zero2grand
-from json_utils import json_response
+from json_utils import json_dumps, json_response
 from preferences import effective_game_category
 from pychess_global_app_state_utils import get_app_state
 from pymongo.errors import BulkWriteError, ExecutionTimeout
+from seek import BOT_CHALLENGE_DECLINED
 from settings import ADMINS
-from sse_utils import consume_sse_queue
+from sse_utils import consume_sse_queue, enqueue_sse_payload
 from tournament.tournaments import get_tournament_name, load_tournament
 from utils import pgn
 from variants import C2V, GRANDS, VARIANTS, get_server_variant
@@ -568,6 +569,28 @@ async def cancel_invite(request: web.Request) -> web.StreamResponse:
     return web.HTTPFound("/")
 
 
+def invite_resolution_snapshot(app_state: PychessGlobalAppState, game_id: str) -> str | None:
+    """Return invite state that may have changed before the browser subscribed."""
+    if game_id in app_state.games:
+        return json_dumps({"gameId": game_id, "accept": True})
+
+    seek = app_state.invites.get(game_id)
+    if (
+        seek is not None
+        and seek.is_bot_challenge
+        and seek.bot_challenge_status == BOT_CHALLENGE_DECLINED
+    ):
+        return json_dumps(
+            {
+                "gameId": game_id,
+                "accept": False,
+                "declineReason": seek.bot_challenge_decline_reason or "",
+            }
+        )
+
+    return None
+
+
 async def subscribe_invites(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     gameId = request.match_info.get("gameId")
@@ -579,10 +602,9 @@ async def subscribe_invites(request: web.Request) -> web.StreamResponse:
         app_state.invite_channels[gameId] = set()
     app_state.invite_channels[gameId].add(queue)
 
-    # Signal challenge_accept/decline that the SSE channel is now ready.
-    event = app_state.invite_events.get(gameId)
-    if event is not None:
-        event.set()
+    snapshot = invite_resolution_snapshot(app_state, gameId)
+    if snapshot is not None:
+        enqueue_sse_payload(queue, snapshot, replace_pending=True)
 
     response: web.StreamResponse = web.Response(status=200)
     try:
@@ -698,7 +720,7 @@ async def _stream_pgn_cursor(
                 if pgn_text is not None:
                     await response.write(pgn_text.encode())
                     await asyncio.sleep(0)
-            except ConnectionResetError, ClientConnectionResetError:
+            except (ConnectionResetError, ClientConnectionResetError):
                 log.debug("%s", disconnect_message)
                 break
             except Exception:
@@ -714,7 +736,7 @@ async def _stream_pgn_cursor(
                 "PGN export skipped invalid/legacy games: %s",
                 "; ".join(failed_games),
             )
-    except ConnectionResetError, ClientConnectionResetError:
+    except (ConnectionResetError, ClientConnectionResetError):
         log.debug("%s", disconnect_message)
     except Exception:
         log.exception("An unexpected error occurred: ")
@@ -845,7 +867,7 @@ async def export_tournament_trf(request: web.Request) -> web.StreamResponse:
 async def safe_write_eof(response: web.StreamResponse) -> None:
     try:
         await response.write_eof()
-    except ConnectionResetError, ClientConnectionResetError:
+    except (ConnectionResetError, ClientConnectionResetError):
         log.debug("Connection closed before PGN export EOF write.")
 
 
@@ -868,7 +890,12 @@ async def _canonical_search_username(app_state: PychessGlobalAppState, raw_usern
         {
             "$or": [
                 {"_id": candidate},
-                {"username_lower": candidate.lower()},
+                {
+                    "username_lower": {
+                        "$eq": candidate.lower(),
+                        "$type": "string",
+                    }
+                },
             ]
         },
         projection={"_id": 1},

@@ -7,12 +7,13 @@ import logging
 from collections.abc import Callable, Mapping, Sequence
 from datetime import UTC, datetime, timedelta
 from time import monotonic
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Literal, cast
 
 from broadcast import round_broadcast
 from catalogued_variants import (
     catalogued_variant_games_are_persisted,
     increment_catalogued_variant_game_count,
+    increment_catalogued_variant_game_count_once,
 )
 from clock import Clock, CorrClock
 from compress import R2C
@@ -41,7 +42,7 @@ from const import (
 from convert import grand2zero, mirror5, mirror9, uci2usi
 from draw import reject_draw
 from fairy import BLACK, NOTATION_SAN, WHITE, FairyBoard, get_fog_fen, get_san_moves, modded_variant
-from glicko2.glicko2 import gl2
+from glicko2.glicko2 import Rating, gl2
 from lobby_panels_cache import refresh_lobby_leaderboard_cache
 from rated_start import can_rate_start, can_rate_variant
 from settings import URI
@@ -54,6 +55,7 @@ from typing_defs import (
     GameEndResponse,
     GameStep,
     GameSummaryJson,
+    PerfEntry,
     TvGameJson,
 )
 from variants import (
@@ -208,6 +210,7 @@ class Game:
             # tournament link even if only the arrangement id is provided.
             self.tournamentId = self.tournamentArrangementId.split(":", 1)[0]
         self.simulId: str | None = simulId
+        self.simulHostColor: str | None = None
         self.chess960: bool | None = chess960
         self.corr: bool = corr
         self.create: bool = create
@@ -294,6 +297,12 @@ class Game:
         self.result: str = "*"
         self.last_server_clock: float = monotonic()
         self.last_move_time: datetime | None = None
+        # Wall-clock time which elapsed on the current turn before this Game
+        # instance was reconstructed after a server restart. ``monotonic()``
+        # cannot span processes, so restart recovery records the missing part
+        # once. Games with durable clock history use it for authoritative clock
+        # decisions; other games retain it only for the existing UI adjustment.
+        self.restart_elapsed_ms: int = 0
 
         self.id: str = gameId
 
@@ -447,6 +456,12 @@ class Game:
             self.stopwatch = CorrClock(self)
         else:
             self.stopwatch = Clock(self)
+            if not self.create:
+                # ``load_game_from_doc()`` restores the persisted move stack
+                # after constructing Game. Do not let a temporary ply-0 clock
+                # run while that reconstruction (and any DB reads) is in
+                # progress; it is restarted from the real position at the end.
+                self.stopwatch.stop()
 
         if self.create and (not self.corr) and (not self.bplayer.bot):
             self.bplayer.game_in_progress = self.id
@@ -461,6 +476,95 @@ class Game:
     async def cancel_clocks_for_eviction(self) -> None:
         await self.stopwatch.cancel()
 
+    @property
+    def persist_clock_history(self) -> bool:
+        """Whether in-progress clock arrays must be durable after every move.
+
+        Casual games normally omit incremental clocks because they may be
+        taken back. Tournament games never allow takebacks, so their clocks
+        must be persisted even when the tournament itself is casual.
+        """
+        return (
+            self.rated == RATED
+            or self.tournamentId is not None
+            or self.tournamentArrangementId is not None
+        )
+
+    def elapsed_on_current_turn_ms(self) -> int:
+        """Wall-clock elapsed time on the current turn across restarts."""
+        live_elapsed = round((monotonic() - self.last_server_clock) * 1000)
+        return max(0, self.restart_elapsed_ms + live_elapsed)
+
+    def authoritative_clock_elapsed_ms(self) -> int:
+        """Elapsed time usable for server clock decisions.
+
+        Restart downtime is authoritative only when the game's move clocks are
+        durable. Non-tournament casual games deliberately omit clock history
+        because takebacks are allowed, so they retain their pre-existing
+        restart semantics rather than pretending their reconstructed base
+        clocks are exact.
+        """
+        live_elapsed = round((monotonic() - self.last_server_clock) * 1000)
+        restart_elapsed = self.restart_elapsed_ms if self.persist_clock_history else 0
+        return max(0, restart_elapsed + live_elapsed)
+
+    def restore_realtime_clock_after_load(self, loaded_at: datetime) -> None:
+        """Restore a real-time stopwatch from persisted wall-clock state.
+
+        ``monotonic()`` starts afresh in a new process, therefore the time
+        between the persisted turn start and ``loaded_at`` has to be carried
+        separately. Once a move is played that restart offset is reset to 0.
+        """
+        if self.corr or self.status > STARTED:
+            return
+
+        self.loaded_at = loaded_at
+
+        turn_started_at = self.last_move_time if self.board.ply > 0 else self.date
+        if turn_started_at is not None:
+            if turn_started_at.tzinfo is None:
+                turn_started_at = turn_started_at.replace(tzinfo=UTC)
+            if loaded_at.tzinfo is None:
+                loaded_at = loaded_at.replace(tzinfo=UTC)
+            self.restart_elapsed_ms = max(
+                0,
+                round((loaded_at - turn_started_at).total_seconds() * 1000),
+            )
+        else:
+            self.restart_elapsed_ms = 0
+
+        # Start the new monotonic epoch only after the wall-clock restart gap
+        # has been captured above.
+        self.last_server_clock = monotonic()
+
+        if TYPE_CHECKING:
+            assert isinstance(self.stopwatch, Clock)
+
+        if not self.persist_clock_history:
+            # Casual non-tournament games can have takebacks and therefore do
+            # not persist exact clocks. Preserve their old restart behaviour;
+            # restart_elapsed_ms is still useful for the browser-side display
+            # adjustment that existed before durable tournament clocks.
+            self.stopwatch.restart()
+            return
+
+        if self.board.ply < 2 and not self.server_variant.two_boards:
+            if self.tournamentId is None and not self.bot_game:
+                # Preserve the existing unlimited first-move behaviour of
+                # ordinary human games.
+                self.stopwatch.restart()
+                return
+            remaining = self.stopwatch.time_for_first_move - self.restart_elapsed_ms
+        else:
+            saved = self.clocks_w[-1] if self.board.color == WHITE else self.clocks_b[-1]
+            correction = self.byo_correction if self.byoyomi else 0
+            remaining = saved + correction - self.restart_elapsed_ms
+
+        # Do not clamp to zero. A negative value lets the clock task and a
+        # reconnecting client's flag claim immediately observe that the turn
+        # expired while the server was down.
+        self.stopwatch.restart(remaining)
+
     def berserk(self, color: str) -> None:
         if color == "white" and not self.wberserk:
             self.wberserk = True
@@ -470,6 +574,9 @@ class Game:
             self.clocks_b[0] = self.berserk_time
 
     async def save_berserk(self) -> None:
+        if self.app_state.db is None or not self.persist_to_db:
+            return
+
         new_data = {
             "wb": self.wberserk,
             "bb": self.bberserk,
@@ -523,9 +630,7 @@ class Game:
 
         # BOT players doesn't send times used for moves
         if self.bot_game:
-            movetime = (
-                round((cur_time - self.last_server_clock) * 1000) if self.board.ply >= 2 else 0
-            )
+            movetime = self.authoritative_clock_elapsed_ms() if self.board.ply >= 2 else 0
             if cur_player.bot and self.board.ply >= 2:
                 if self.byoyomi:
                     if self.overtime:
@@ -560,6 +665,7 @@ class Game:
                     clocks[BLACK] = self.berserk_time  # pyright: ignore[reportIndexIssue]
 
         self.last_server_clock = cur_time
+        self.restart_elapsed_ms = 0
 
         if self.status <= STARTED:
             try:
@@ -678,9 +784,9 @@ class Game:
         regardless of game length. ``save_game()`` writes the authoritative
         full arrays at game end, so the document is always consistent on close.
 
-        Takebacks are only allowed in CASUAL games, so clock arrays are never
-        written for games that can call ``pop_move_from_db`` and no matching
-        clock ``$pop`` is required here.
+        Takebacks are available only in non-tournament CASUAL games. Those
+        games still omit clock arrays, while tournament games cannot take back
+        moves and can safely persist clocks without a matching clock ``$pop``.
         """
         self.last_move_time = datetime.now(UTC)
         move_encoded = self.encode_method(grand2zero(move) if self.variant in GRANDS else move)
@@ -701,7 +807,7 @@ class Game:
                 "c": correction,
             }
             set_data.update(self.byoyomi_state_document())
-        if self.rated == RATED:
+        if self.persist_clock_history:
             if cur_color == WHITE:
                 push_data["cw"] = self.clocks_w[-1]
             else:
@@ -792,6 +898,19 @@ class Game:
                 {"_id": self.id}, {"$set": self.byoyomi_state_document()}
             )
 
+    async def save_manual_count_state(self) -> None:
+        if not self.manual_count or not self.persist_to_db or self.app_state.db is None:
+            return
+        await self.app_state.db.game.update_one(
+            {"_id": self.id},
+            {
+                "$set": {
+                    "mc": self.board.count_started,
+                    "mct": self.manual_count_toggled,
+                }
+            },
+        )
+
     async def save_takeback_state(self) -> None:
         if self.app_state.db is None:
             return
@@ -856,13 +975,19 @@ class Game:
                 result.deleted_count,
             )
         else:
-            if self.result != "*":
-                if self.rated == RATED:
-                    await self.update_ratings()
-                if self.persist_to_db:
-                    await self.update_players_game_counts()
-                    if (not self.bot_game) and (not self.wplayer.anon) and (not self.bplayer.anon):
-                        await self.save_crosstable()
+            rating_update: tuple[Rating, Rating] | None = None
+            if self.result != "*" and self.rated == RATED:
+                # Calculate rating deltas before the authoritative game write so
+                # p0/p1 are part of the durable finished-game record. Applying
+                # the user-rating side effects happens only after that write.
+                rating_update = self.prepare_rating_update()
+
+            tournament_effects_pending = (
+                self.tournamentId is not None
+                and self.persist_to_db
+                and self.app_state.db is not None
+                and self.result in ("1-0", "0-1", "1/2-1/2")
+            )
 
             new_data = {
                 "f": self.board.fen,
@@ -881,16 +1006,36 @@ class Game:
                 ],
             }
 
-            if self.rated == RATED and self.result != "*":
-                new_data["p0"] = self.p0
-                new_data["p1"] = self.p1
+            if rating_update is not None:
+                if tournament_effects_pending:
+                    applied_at = datetime.now(UTC)
+                    new_data["p0"] = {
+                        **self.p0,
+                        "n": self.tournament_rating_effect_entry(
+                            self.wplayer, rating_update[0], applied_at
+                        ),
+                    }
+                    new_data["p1"] = {
+                        **self.p1,
+                        "n": self.tournament_rating_effect_entry(
+                            self.bplayer, rating_update[1], applied_at
+                        ),
+                    }
+                else:
+                    new_data["p0"] = self.p0
+                    new_data["p1"] = self.p1
+
+            if tournament_effects_pending:
+                # fx=1 means the authoritative result is durable but one or more
+                # global result side effects may still need restart recovery.
+                new_data["fx"] = 1
 
             # Janggi game starts with a prelude phase to set up horses and elephants, so
             # initial FEN may be different compared to one we used when db game document was created
             if self.variant == "janggi":
                 new_data["if"] = self.board.initial_fen
 
-            if self.rated == RATED:
+            if self.persist_clock_history:
                 new_data["cw"] = self.clocks_w[1:]
                 new_data["cb"] = self.clocks_b[1:]
 
@@ -902,17 +1047,40 @@ class Game:
                     new_data["rn"] = round_no
 
             if self.manual_count:
+                manual_count_toggled = list(self.manual_count_toggled)
                 if self.board.count_started > 0:
-                    self.manual_count_toggled.append((self.board.count_started, self.board.ply + 1))
-                new_data["mct"] = self.manual_count_toggled
+                    manual_count_toggled.append((self.board.count_started, self.board.ply + 1))
+                new_data["mct"] = manual_count_toggled
+                # A finished game has no outstanding manual count, even if the
+                # count was active immediately before the result was recorded.
+                new_data["mc"] = -1
 
             if self.persist_to_db and self.app_state.db is not None:
-                # update_one is sufficient — the returned document is never used.
+                # Persist the authoritative final game state before any external
+                # result side effects. If the process dies after this write,
+                # tournament startup recovery can still reconstruct the result.
                 await self.app_state.db.game.update_one({"_id": self.id}, {"$set": new_data})
-                if is_catalogued_variant(self.variant) and self.result in (
-                    "1-0",
-                    "0-1",
-                    "1/2-1/2",
+
+            if tournament_effects_pending:
+                await self.complete_tournament_final_side_effects(new_data)
+            else:
+                if self.result != "*":
+                    if rating_update is not None:
+                        await self.apply_rating_update(*rating_update)
+                    if self.persist_to_db:
+                        await self.update_players_game_counts()
+                        if (
+                            (not self.bot_game)
+                            and (not self.wplayer.anon)
+                            and (not self.bplayer.anon)
+                        ):
+                            await self.save_crosstable()
+
+                if (
+                    self.persist_to_db
+                    and self.app_state.db is not None
+                    and is_catalogued_variant(self.variant)
+                    and self.result in ("1-0", "0-1", "1/2-1/2")
                 ):
                     await increment_catalogued_variant_game_count(self.app_state, self.variant)
 
@@ -953,7 +1121,7 @@ class Game:
             return
         crosstable: Crosstable = self.crosstable  # type: ignore[assignment]
 
-        if len(crosstable["r"]) > 0 and crosstable["r"][-1].startswith(self.id):
+        if any(result.startswith(self.id) for result in crosstable["r"]):
             log.info("Crosstable was already updated with %s result", self.id)
             return
 
@@ -1009,7 +1177,14 @@ class Game:
             )
         return (0, 0)
 
-    async def set_highscore(self, variant: str, chess960: bool, value: dict[str, int]) -> bool:
+    async def set_highscore(
+        self,
+        variant: str,
+        chess960: bool,
+        value: dict[str, int],
+        *,
+        raise_on_error: bool = False,
+    ) -> bool:
         variant_key = variant + ("960" if chess960 else "")
         variant_scores = self.app_state.highscore[variant_key]
         prev_top = (
@@ -1035,9 +1210,11 @@ class Game:
             )
         except Exception:
             log.error("Failed to save new %s highscore to mongodb!", variant)
+            if raise_on_error:
+                raise
         return prev_top != new_top
 
-    async def update_ratings(self) -> None:
+    def prepare_rating_update(self) -> tuple[Rating, Rating]:
         if self.result == "1-0":
             (white_score, black_score) = (1.0, 0.0)
         elif self.result == "1/2-1/2":
@@ -1067,9 +1244,143 @@ class Game:
         self.brdiff = int(round(brdiff, 0))
         self.p1 = {"e": self.brating, "d": self.brdiff}
 
-        new_white_rating = gl2.create_rating(wcurr.mu + wrdiff, wr.phi, wr.sigma, wr.ltime)
-        new_black_rating = gl2.create_rating(bcurr.mu + brdiff, br.phi, br.sigma, br.ltime)
+        return (
+            gl2.create_rating(wcurr.mu + wrdiff, wr.phi, wr.sigma, wr.ltime),
+            gl2.create_rating(bcurr.mu + brdiff, br.phi, br.sigma, br.ltime),
+        )
 
+    def tournament_rating_effect_entry(
+        self, player: User, rating: Rating, applied_at: datetime
+    ) -> PerfEntry:
+        chess960 = self.chess960
+        if TYPE_CHECKING:
+            assert chess960 is not None
+        variant_key = self.variant + ("960" if chess960 else "")
+        previous = player.perfs.get(variant_key)
+        return {
+            "gl": {"r": rating.mu, "d": rating.phi, "v": rating.sigma},
+            "la": applied_at,
+            "nb": (0 if previous is None else previous["nb"]) + 1,
+        }
+
+    @staticmethod
+    def result_for_player(result: str, *, white: bool) -> int:
+        if result == "1-0":
+            return 1 if white else -1
+        if result == "0-1":
+            return -1 if white else 1
+        return 0
+
+    async def apply_tournament_user_side_effects_once(self, game_doc: Mapping[str, object]) -> None:
+        """Apply tournament rating/count changes atomically per player.
+
+        A finished tournament game is persisted with ``fx=1`` before this runs.
+        Each user update carries a bounded game-id marker in the same MongoDB
+        operation as the rating/count changes, making retries after restart safe.
+        """
+        if self.result not in ("1-0", "0-1", "1/2-1/2"):
+            return
+
+        rated = self.rated == RATED
+        chess960 = bool(self.chess960)
+        variant_key = self.variant + ("960" if chess960 else "")
+        p0 = game_doc.get("p0")
+        p1 = game_doc.get("p1")
+        white_perf = p0.get("n") if rated and isinstance(p0, Mapping) else None
+        black_perf = p1.get("n") if rated and isinstance(p1, Mapping) else None
+
+        white_perf_entry = cast(PerfEntry, white_perf) if isinstance(white_perf, dict) else None
+        black_perf_entry = cast(PerfEntry, black_perf) if isinstance(black_perf, dict) else None
+        await self.wplayer.apply_tournament_game_effect_once(
+            self.id,
+            self.result_for_player(self.result, white=True),
+            rated,
+            variant_key=variant_key,
+            perf_entry=white_perf_entry,
+        )
+        await self.bplayer.apply_tournament_game_effect_once(
+            self.id,
+            self.result_for_player(self.result, white=False),
+            rated,
+            variant_key=variant_key,
+            perf_entry=black_perf_entry,
+        )
+
+    async def update_tournament_highscore_side_effect(self) -> None:
+        if self.rated != RATED:
+            return
+
+        chess960 = self.chess960
+        if TYPE_CHECKING:
+            assert chess960 is not None
+        variant_key = self.variant + ("960" if chess960 else "")
+        should_rebuild_lobby_leaderboard = False
+        for player in (self.wplayer, self.bplayer):
+            perf = player.perfs.get(variant_key)
+            if perf is None or perf["nb"] < HIGHSCORE_MIN_GAMES:
+                continue
+            _id = "%s|%s" % (player.username, player.title)
+            changed_top = await self.set_highscore(
+                self.variant,
+                chess960,
+                {_id: int(round(perf["gl"]["r"], 0))},
+                raise_on_error=True,
+            )
+            should_rebuild_lobby_leaderboard = should_rebuild_lobby_leaderboard or changed_top
+
+        if should_rebuild_lobby_leaderboard:
+            await refresh_lobby_leaderboard_cache(self.app_state)
+
+    async def ensure_tournament_crosstable_side_effect(self) -> None:
+        if (not self.has_crosstable) or self.app_state.db is None:
+            return
+        current = await self.app_state.db.crosstable.find_one({"_id": self.ct_id})
+        if current is None:
+            self.crosstable = {
+                "_id": self.ct_id,
+                "s1": 0,
+                "s2": 0,
+                "r": [],
+            }
+        else:
+            self.crosstable = current
+        self.need_crosstable_save = False
+        self.set_crosstable()
+        if not self.need_crosstable_save:
+            return
+        crosstable: Crosstable = self.crosstable  # type: ignore[assignment]
+        await self.app_state.db.crosstable.update_one(
+            {"_id": self.ct_id},
+            {
+                "$set": {
+                    "s1": crosstable["s1"],
+                    "s2": crosstable["s2"],
+                    "r": crosstable["r"],
+                }
+            },
+            upsert=True,
+        )
+        self.need_crosstable_save = False
+
+    async def complete_tournament_final_side_effects(
+        self, game_doc: Mapping[str, object], *, users_only: bool = False
+    ) -> None:
+        """Complete retry-safe global side effects for a finished tournament game."""
+        await self.apply_tournament_user_side_effects_once(game_doc)
+        if users_only:
+            return
+
+        await self.update_tournament_highscore_side_effect()
+        await self.ensure_tournament_crosstable_side_effect()
+        if is_catalogued_variant(self.variant):
+            await increment_catalogued_variant_game_count_once(
+                self.app_state, self.variant, self.id
+            )
+
+        if self.app_state.db is not None:
+            await self.app_state.db.game.update_one({"_id": self.id, "fx": 1}, {"$set": {"fx": 2}})
+
+    async def apply_rating_update(self, new_white_rating: Rating, new_black_rating: Rating) -> None:
         chess960 = self.chess960
         if TYPE_CHECKING:
             assert chess960 is not None
@@ -1080,29 +1391,28 @@ class Game:
         w_nb = self.wplayer.perfs[self.variant + ("960" if chess960 else "")]["nb"]
         if w_nb >= HIGHSCORE_MIN_GAMES:
             _id = "%s|%s" % (self.wplayer.username, self.wplayer.title)
-            should_rebuild_lobby_leaderboard = (
-                should_rebuild_lobby_leaderboard
-                or await self.set_highscore(
-                    self.variant,
-                    chess960,
-                    {_id: int(round(wcurr.mu + wrdiff, 0))},
-                )
+            changed_top = await self.set_highscore(
+                self.variant,
+                chess960,
+                {_id: int(round(new_white_rating.mu, 0))},
             )
+            should_rebuild_lobby_leaderboard = should_rebuild_lobby_leaderboard or changed_top
 
         b_nb = self.bplayer.perfs[self.variant + ("960" if chess960 else "")]["nb"]
         if b_nb >= HIGHSCORE_MIN_GAMES:
             _id = "%s|%s" % (self.bplayer.username, self.bplayer.title)
-            should_rebuild_lobby_leaderboard = (
-                should_rebuild_lobby_leaderboard
-                or await self.set_highscore(
-                    self.variant,
-                    chess960,
-                    {_id: int(round(bcurr.mu + brdiff, 0))},
-                )
+            changed_top = await self.set_highscore(
+                self.variant,
+                chess960,
+                {_id: int(round(new_black_rating.mu, 0))},
             )
+            should_rebuild_lobby_leaderboard = should_rebuild_lobby_leaderboard or changed_top
 
         if should_rebuild_lobby_leaderboard:
             await refresh_lobby_leaderboard_cache(self.app_state)
+
+    async def update_ratings(self) -> None:
+        await self.apply_rating_update(*self.prepare_rating_update())
 
     def get_player_at(self, color: int, board: FairyBoard) -> User:
         return self.bplayer if color == BLACK else self.wplayer
@@ -1572,8 +1882,11 @@ class Game:
             show_promoted=self.server_variant.show_promoted,
             legal_moves_need_history=self.server_variant.legal_moves_need_history,
         )
-        if self.board.jieqi_covered_pieces is not None:
-            replay_board.jieqi_covered_pieces = dict(self.board.jieqi_covered_pieces)
+        if self.board.jieqi_initial_covered_pieces is not None:
+            replay_board.jieqi_initial_covered_pieces = dict(
+                self.board.jieqi_initial_covered_pieces
+            )
+            replay_board.jieqi_covered_pieces = dict(self.board.jieqi_initial_covered_pieces)
 
         if should_use_legacy_capablanca_replay(
             self.variant,
@@ -1727,16 +2040,11 @@ class Game:
                 # We have to adjust current player latest saved clock time
                 # otherwise he will get free extra time on browser page refresh
                 # (also needed for spectators entering to see correct clock times)
-
-                elapsed0 = 0.0
-                # Extra adjustment needed when game resumed after server restart
-                if (self.last_move_time is not None) and (self.loaded_at is not None):
-                    elapsed0 = ((self.loaded_at - self.last_move_time).total_seconds()) * 1000
-
-                cur_time = monotonic()
-                elapsed1 = round((cur_time - self.last_server_clock) * 1000)
                 clocks[self.board.color] = max(
-                    0, clocks[self.board.color] + self.byo_correction - elapsed0 - elapsed1
+                    0,
+                    clocks[self.board.color]
+                    + self.byo_correction
+                    - self.elapsed_on_current_turn_ms(),
                 )
             crosstable = self.crosstable
         else:
@@ -1922,6 +2230,7 @@ class Game:
         self.check = self.board.is_checked()
         await self.save_takeback_state()
         self.last_server_clock = monotonic()
+        self.restart_elapsed_ms = 0
         self.stopwatch.restart()
 
     def handle_chat_message(self, chat_message: Mapping[str, object]) -> None:

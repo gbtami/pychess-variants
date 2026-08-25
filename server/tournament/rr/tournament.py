@@ -4,7 +4,16 @@ import asyncio
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
-from const import ABORTED, RR, T_ABORTED, T_ARCHIVED, T_CREATED, T_FINISHED, T_STARTED
+from const import (
+    ABORTED,
+    RR,
+    T_ABORTED,
+    T_ARCHIVED,
+    T_CREATED,
+    T_FINISHED,
+    T_STARTED,
+    VARIANTEND,
+)
 from notify import notify_by_username
 from seek import SeekCreateData, create_seek
 from typing_defs import (
@@ -14,18 +23,27 @@ from typing_defs import (
     TournamentRRManagementResponse,
     TournamentRRSettingsResponse,
 )
-from utils import join_seek
+from utils import join_seek, remove_seek
 from websocket_utils import ws_send_json_many
 
-from tournament.tournament import RR_MAX_SUPPORTED_PLAYERS, ByeGame, PlayerData, Tournament
+from tournament.tournament import (
+    RR_MAX_SUPPORTED_PLAYERS,
+    SCORE,
+    ByeGame,
+    GameData,
+    PlayerData,
+    Tournament,
+)
 
 from .arrangements import (
     ARR_REMINDER_COOLDOWN_AFTER_AGREEMENT,
     ARR_REMINDER_REPEAT,
     ARR_REMINDER_WINDOW_END,
     ARR_REMINDER_WINDOW_START,
+    ARR_SCHEDULE_PAST_TOLERANCE,
     ARR_SCHEDULE_TOLERANCE,
     ARR_STATUS_CHALLENGED,
+    ARR_STATUS_EXPIRED,
     ARR_STATUS_FINISHED,
     ARR_STATUS_PENDING,
     ARR_STATUS_STARTED,
@@ -43,6 +61,12 @@ class RRTournament(Tournament):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.arrangements: dict[str, RRArrangement] = {}
+        # Arrangement requests can arrive concurrently from both players while the
+        # tournament clock and game-end callbacks mutate the same records. Sequence
+        # all live arrangement writes per tournament, like Lishogi's tournament
+        # work queue, so validation and the matching MongoDB update are atomic with
+        # respect to other arrangement operations.
+        self._arrangement_mutation_lock = asyncio.Lock()
 
     def create_pairing(self, waiting_players: list[User]) -> list[tuple[User, User]]:
         return []
@@ -171,11 +195,18 @@ class RRTournament(Tournament):
         ):
             return "Unknown round-robin player."
 
-        self.rr_pending_players.discard(username)
-        self.rr_denied_players.discard(username)
         user = await self.app_state.users.get(username)
         if user.username != username:
             return "Unknown round-robin player."
+        if not await self.user_is_team_member(user):
+            self.rr_pending_players.discard(username)
+            await self.save()
+            await self.send_rr_user_status_update(username)
+            await self.send_rr_management_update()
+            return "This player is no longer a member of the tournament team."
+
+        self.rr_pending_players.discard(username)
+        self.rr_denied_players.discard(username)
         await self._join_approved_user(user, player_data=player_data)
         await self.save()
         await self.send_rr_user_status_update(username)
@@ -233,6 +264,46 @@ class RRTournament(Tournament):
         await self.send_rr_settings_update()
         await self.send_rr_management_update()
         return None
+
+    async def team_member_removed(self, user: User) -> None:
+        async with self._arrangement_mutation_lock:
+            await self._team_member_removed(user)
+
+    async def _team_member_removed(self, user: User) -> None:
+        username = user.username
+        self.rr_pending_players.discard(username)
+        self.rr_denied_players.discard(username)
+
+        await super().team_member_removed(user)
+
+        arrangements_changed = False
+        for arrangement in self.arrangements.values():
+            if not arrangement.involves(username) or arrangement.status in (
+                ARR_STATUS_STARTED,
+                ARR_STATUS_FINISHED,
+                ARR_STATUS_EXPIRED,
+            ):
+                continue
+            if arrangement.invite_id is not None:
+                self.app_state.invites.pop(arrangement.invite_id, None)
+            arrangement.status = ARR_STATUS_PENDING
+            arrangement.invite_id = None
+            arrangement.challenger = None
+            arrangement.scheduled_at = None
+            arrangement.last_reminded_at = None
+            if arrangement.white == username:
+                arrangement.white_date = None
+            else:
+                arrangement.black_date = None
+            arrangement.date = datetime.now(UTC)
+            await self.db_update_arrangement(arrangement)
+            arrangements_changed = True
+
+        await self.save()
+        await self.send_rr_user_status_update(username)
+        await self.send_rr_management_update()
+        if arrangements_changed:
+            await self.broadcast_arrangements()
 
     def arrangement_list(self) -> list[RRArrangement]:
         if self.status == T_CREATED:
@@ -340,6 +411,190 @@ class RRTournament(Tournament):
 
         return None
 
+    def _find_arrangement_game(
+        self, arrangement: RRArrangement, game_id: str
+    ) -> Game | GameData | None:
+        for username in arrangement.players():
+            player_data = self.player_data_by_name(username)
+            if player_data is None:
+                continue
+            for player_game in player_data.games:
+                if isinstance(player_game, ByeGame):
+                    continue
+                if player_game.id == game_id:
+                    return player_game
+        return None
+
+    def _rr_point_for_game(self, game: Game | GameData, username: str) -> tuple[int, int]:
+        is_white = username == game.wplayer.username
+        won = (game.result == "1-0" and is_white) or (game.result == "0-1" and not is_white)
+
+        point_value = 0
+        if self.variant == "janggi":
+            if game.status == VARIANTEND:
+                if game.result == "1-0":
+                    point_value = 4 if is_white else 2
+                elif game.result == "0-1":
+                    point_value = 2 if is_white else 4
+            elif won:
+                point_value = 7
+        elif game.result == "1/2-1/2":
+            point_value = 1
+        elif won:
+            point_value = 2
+            berserk = game.wberserk if is_white else game.bberserk
+            if berserk and self._game_ply(game) >= (13 if is_white else 14):
+                point_value += 1
+
+        return (point_value, SCORE)
+
+    def _scored_rr_games(self, player_data: PlayerData) -> list[Game | GameData]:
+        return [
+            game
+            for game in player_data.games
+            if not isinstance(game, ByeGame) and game.result != "*" and game.status != ABORTED
+        ]
+
+    async def _repair_annulled_player_scores(self) -> None:
+        # The pairing-level annul marker is written first. If a process dies before
+        # both tournament_player documents are rewritten, rebuild their points from
+        # the remaining non-annulled game history instead of trusting stale scores.
+        for player_data in self.players.values():
+            previous_state = (
+                list(player_data.points),
+                player_data.nb_win,
+                player_data.nb_berserk,
+                player_data.performance,
+                player_data.win_streak,
+                self.leaderboard_score_by_username(player_data.username),
+            )
+            player_data.points = [
+                self._rr_point_for_game(game, player_data.username)
+                for game in self._scored_rr_games(player_data)
+            ]
+            self._recompute_rr_player_aggregate(player_data)
+            current_state = (
+                list(player_data.points),
+                player_data.nb_win,
+                player_data.nb_berserk,
+                player_data.performance,
+                player_data.win_streak,
+                self.leaderboard_score_by_username(player_data.username),
+            )
+            if current_state != previous_state:
+                await self.db_update_player(player_data.username, "GAME_END")
+
+    def _recompute_rr_player_aggregate(self, player_data: PlayerData) -> None:
+        performance = 0
+        nb_win = 0
+        nb_berserk = 0
+
+        for scored_game_count, (game, _point) in enumerate(
+            zip(self._scored_rr_games(player_data), player_data.points, strict=False),
+            start=1,
+        ):
+            wname, _bname = self.game_player_usernames(game)
+            is_white = player_data.username == wname
+            opponent_rating = game.brating if is_white else game.wrating
+            perf = int(str(opponent_rating).rstrip("?"))
+            won = (game.result == "1-0" and is_white) or (game.result == "0-1" and not is_white)
+            lost = (game.result == "0-1" and is_white) or (game.result == "1-0" and not is_white)
+
+            if not (self.variant == "janggi" and game.status == VARIANTEND):
+                if won:
+                    nb_win += 1
+                    perf += 500
+                elif lost:
+                    perf -= 500
+
+            berserk = game.wberserk if is_white else game.bberserk
+            if berserk:
+                nb_berserk += 1
+
+            performance = int(
+                round(
+                    (performance * (scored_game_count - 1) + perf) / scored_game_count,
+                    0,
+                )
+            )
+
+        player_data.nb_win = nb_win
+        player_data.nb_berserk = nb_berserk
+        player_data.performance = performance
+        player_data.win_streak = 0
+
+        score_points = sum(
+            point[0]
+            for point in player_data.points
+            if isinstance(point, tuple) and isinstance(point[0], int)
+        )
+        self.set_leaderboard_score_by_username(
+            player_data.username,
+            self.compose_leaderboard_score(score_points, player_data),
+        )
+
+    async def annul_arrangement_game(self, arrangement_id: str, game_id: str) -> str | None:
+        async with self._arrangement_mutation_lock:
+            if self.status not in (T_CREATED, T_STARTED):
+                return "Only an active round-robin result can be annulled."
+            if self.status == T_STARTED and self.deadline_reached():
+                return "The round-robin deadline has passed, so this game cannot be replayed."
+
+            arrangement = self.arrangement_by_id(arrangement_id)
+            if arrangement is None:
+                return "Unknown round-robin pairing."
+            if arrangement.status != ARR_STATUS_FINISHED or arrangement.game_id != game_id:
+                return "This game is no longer the current round-robin result."
+            if game_id in arrangement.previous_game_ids:
+                return "This round-robin result was already annulled."
+
+            game = self._find_arrangement_game(arrangement, game_id)
+            if game is None or game.result == "*" or game.status == ABORTED:
+                return "The finished round-robin game could not be loaded."
+
+            # Keep the original pairing/game documents for auditability. The
+            # explicit pairing marker prevents startup recovery from scoring or
+            # re-attaching this historical result after the arrangement reopens.
+            if self.app_state.db is not None:
+                await self.app_state.db.tournament_pairing.update_one(
+                    {"_id": game_id, "tid": self.id},
+                    {"$set": {"an": True}},
+                )
+
+            for username in arrangement.players():
+                player_data = self.player_data_by_name(username)
+                if player_data is None:
+                    continue
+                game_index = self._player_game_index(player_data, game_id)
+                if game_index is None:
+                    continue
+                player_data.games.pop(game_index)
+                if game_index < len(player_data.points):
+                    player_data.points.pop(game_index)
+                self._recompute_rr_player_aggregate(player_data)
+                await self.db_update_player(username, "GAME_END")
+
+            self.nb_games_finished = max(0, self.nb_games_finished - 1)
+            if game.result == "1-0":
+                self.w_win = max(0, self.w_win - 1)
+            elif game.result == "0-1":
+                self.b_win = max(0, self.b_win - 1)
+            elif game.result == "1/2-1/2":
+                self.draw = max(0, self.draw - 1)
+            self.nb_berserk = max(
+                0,
+                self.nb_berserk - int(bool(game.wberserk)) - int(bool(game.bberserk)),
+            )
+
+            annulled_game_id = arrangement.annul_game()
+            if annulled_game_id != game_id:
+                return "This game is no longer the current round-robin result."
+            await self.db_update_arrangement(arrangement)
+
+            await self.broadcast_arrangements()
+            await self.broadcast(self.live_status())
+            return None
+
     async def broadcast_arrangements(self) -> None:
         await self.broadcast(self.arrangement_payload())
 
@@ -417,7 +672,7 @@ class RRTournament(Tournament):
         self.arrangements = projected
         return stale_ids
 
-    async def create_arrangements(self) -> None:
+    async def _create_arrangements(self) -> None:
         stale_ids = self.sync_projected_arrangements()
 
         if self.app_state.db is not None:
@@ -454,6 +709,7 @@ class RRTournament(Tournament):
                 black_date=doc.get("d2"),
                 scheduled_at=doc.get("sa"),
                 last_reminded_at=doc.get("ln"),
+                previous_game_ids=list(doc.get("pg", [])),
             )
             self.arrangements[arrangement.id] = arrangement
 
@@ -461,6 +717,113 @@ class RRTournament(Tournament):
             (arrangement.round_no for arrangement in self.arrangements.values()),
             default=self.rounds,
         )
+        await self._reconcile_arrangements_from_games()
+        if await self._repair_stale_loaded_challenges():
+            await self.broadcast_arrangements()
+
+    async def _repair_stale_loaded_challenges(self) -> bool:
+        repaired = False
+        for arrangement in self.arrangements.values():
+            if arrangement.status != ARR_STATUS_CHALLENGED:
+                continue
+            if arrangement.invite_id and arrangement.invite_id in self.app_state.invites:
+                continue
+
+            arrangement.status = ARR_STATUS_PENDING
+            arrangement.invite_id = None
+            arrangement.challenger = None
+            await self.db_update_arrangement(arrangement)
+            repaired = True
+
+        return repaired
+
+    async def _reconcile_arrangements_from_games(self) -> None:
+        if self.app_state.db is None or not self.arrangements:
+            return
+
+        annulled_pairing_docs = await self.app_state.db.tournament_pairing.find(
+            {"tid": self.id, "an": True},
+            projection={"_id": 1},
+        ).to_list(length=None)
+        annulled_game_ids = {doc["_id"] for doc in annulled_pairing_docs}
+
+        # The pairing row is the durable annul marker. If the process died after
+        # marking it but before the arrangement reset was persisted, complete the
+        # reset here instead of resurrecting that historical game from db.game.
+        for arrangement in self.arrangements.values():
+            if arrangement.game_id not in annulled_game_ids:
+                continue
+            arrangement.annul_game()
+            await self.db_update_arrangement(arrangement)
+
+        if annulled_game_ids:
+            await self._repair_annulled_player_scores()
+
+        arrangement_ids = list(self.arrangements)
+        game_docs = await self.app_state.db.game.find(
+            {"aid": {"$in": arrangement_ids}},
+            projection={"_id": 1, "aid": 1, "s": 1, "d": 1},
+        ).to_list(length=None)
+
+        games_by_arrangement: dict[str, list[dict[str, Any]]] = {}
+        for game_doc in game_docs:
+            arrangement_id = game_doc.get("aid")
+            arrangement = self.arrangements.get(arrangement_id)
+            if arrangement is None:
+                continue
+            if game_doc["_id"] in annulled_game_ids:
+                continue
+            if game_doc["_id"] in arrangement.previous_game_ids:
+                continue
+            games_by_arrangement.setdefault(arrangement_id, []).append(game_doc)
+
+        for arrangement_id, arrangement_games in games_by_arrangement.items():
+            arrangement = self.arrangements[arrangement_id]
+            if arrangement.status == ARR_STATUS_FINISHED:
+                continue
+
+            finished_games = [
+                game_doc for game_doc in arrangement_games if game_doc.get("s", ABORTED) > ABORTED
+            ]
+            started_games = [
+                game_doc for game_doc in arrangement_games if game_doc.get("s", ABORTED) < ABORTED
+            ]
+
+            desired_status: str | None = None
+            desired_game_id: str | None = None
+            if finished_games:
+                authoritative_game = max(finished_games, key=lambda game_doc: game_doc["d"])
+                desired_status = ARR_STATUS_FINISHED
+                desired_game_id = authoritative_game["_id"]
+            elif started_games:
+                authoritative_game = max(started_games, key=lambda game_doc: game_doc["d"])
+                desired_status = ARR_STATUS_STARTED
+                desired_game_id = authoritative_game["_id"]
+            elif arrangement.status == ARR_STATUS_STARTED and arrangement.game_id is not None:
+                aborted_game_ids = {
+                    game_doc["_id"]
+                    for game_doc in arrangement_games
+                    if game_doc.get("s") == ABORTED
+                }
+                if arrangement.game_id in aborted_game_ids:
+                    desired_status = ARR_STATUS_PENDING
+
+            if desired_status is None:
+                continue
+            if arrangement.status == desired_status and arrangement.game_id == desired_game_id:
+                continue
+
+            if arrangement.invite_id is not None:
+                self.app_state.invites.pop(arrangement.invite_id, None)
+            arrangement.status = desired_status
+            arrangement.game_id = desired_game_id
+            arrangement.invite_id = None
+            arrangement.challenger = None
+            arrangement.white_date = None
+            arrangement.black_date = None
+            arrangement.scheduled_at = None
+            arrangement.last_reminded_at = None
+            await self.db_update_arrangement(arrangement)
 
     async def db_update_arrangement(self, arrangement: RRArrangement) -> None:
         if self.app_state.db is None:
@@ -486,15 +849,79 @@ class RRTournament(Tournament):
         return arrangement
 
     async def start(self, now: datetime) -> None:
-        self.rounds = self.rr_rounds_for_start()
-        await self.create_arrangements()
-        await super().start(now)
-        await self.broadcast_arrangements()
+        async with self._arrangement_mutation_lock:
+            self.rounds = self.rr_rounds_for_start()
+            await self._create_arrangements()
+            await super().start(now)
+            await self.broadcast_arrangements()
 
     def all_arrangements_finished(self) -> bool:
         return bool(self.arrangements) and all(
             arrangement.status == ARR_STATUS_FINISHED for arrangement in self.arrangements.values()
         )
+
+    def deadline_reached(self, now: datetime | None = None) -> bool:
+        if now is None:
+            now = datetime.now(UTC)
+        return now >= self.ends_at
+
+    def _remove_arrangement_seeks(self, arrangement_id: str) -> None:
+        for seek in tuple(self.app_state.seeks.values()):
+            if seek.rr_arrangement_id != arrangement_id:
+                continue
+            if seek.game_id is not None:
+                self.app_state.invites.pop(seek.game_id, None)
+            remove_seek(self.app_state.seeks, seek)
+
+        for invite_id, seek in tuple(self.app_state.invites.items()):
+            if seek.rr_arrangement_id != arrangement_id:
+                continue
+            self.app_state.invites.pop(invite_id, None)
+            remove_seek(self.app_state.seeks, seek)
+
+    async def expire_unstarted_arrangements(
+        self, now: datetime | None = None, *, broadcast: bool = True
+    ) -> bool:
+        async with self._arrangement_mutation_lock:
+            return await self._expire_unstarted_arrangements(now, broadcast=broadcast)
+
+    async def _expire_unstarted_arrangements(
+        self, now: datetime | None = None, *, broadcast: bool = True
+    ) -> bool:
+        if now is None:
+            now = datetime.now(UTC)
+        if now < self.ends_at:
+            return False
+
+        changed = False
+        expired_ids: list[str] = []
+        for arrangement in self.arrangements.values():
+            if arrangement.status in (
+                ARR_STATUS_STARTED,
+                ARR_STATUS_FINISHED,
+                ARR_STATUS_EXPIRED,
+            ):
+                continue
+
+            self._remove_arrangement_seeks(arrangement.id)
+            arrangement.status = ARR_STATUS_EXPIRED
+            arrangement.invite_id = None
+            arrangement.challenger = None
+            arrangement.white_date = None
+            arrangement.black_date = None
+            arrangement.scheduled_at = None
+            arrangement.last_reminded_at = None
+            arrangement.date = now
+            await self.db_update_arrangement(arrangement)
+            expired_ids.append(arrangement.id)
+            changed = True
+
+        if expired_ids and self.app_state.db is not None:
+            await self.app_state.db.seek.delete_many({"rrArrangementId": {"$in": expired_ids}})
+
+        if changed and broadcast:
+            await self.broadcast_arrangements()
+        return changed
 
     async def clock(self):
         try:
@@ -508,11 +935,17 @@ class RRTournament(Tournament):
                         await self.start(now)
                         continue
                 elif self.status == T_STARTED:
-                    await self.send_arrangement_reminders(now)
-                    if self.all_arrangements_finished() or now >= self.ends_at:
+                    if self.deadline_reached(now):
+                        await self.expire_unstarted_arrangements(now)
+                        if len(self.ongoing_games) == 0:
+                            await self.finish()
+                            break
+                    elif self.all_arrangements_finished():
                         await self.finish()
                         break
-                await asyncio.sleep(1)
+                    else:
+                        await self.send_arrangement_reminders(now)
+                await asyncio.sleep(self.clock_interval)
         finally:
             self.clock_task = None
 
@@ -544,8 +977,19 @@ class RRTournament(Tournament):
     async def set_arrangement_time(
         self, user: User, arrangement_id: str, date: datetime | None
     ) -> str | None:
+        async with self._arrangement_mutation_lock:
+            return await self._set_arrangement_time(user, arrangement_id, date)
+
+    async def _set_arrangement_time(
+        self, user: User, arrangement_id: str, date: datetime | None
+    ) -> str | None:
         if self.status not in (T_CREATED, T_STARTED):
             return "Round-robin scheduling is not available for this tournament."
+        now = datetime.now(UTC)
+        if self.deadline_reached(now):
+            return "The round-robin scheduling deadline has passed."
+        if not await self.user_is_team_member(user):
+            return "You must be a member of the tournament team to schedule games."
 
         arrangement = self.arrangement_by_id(arrangement_id)
         if arrangement is None:
@@ -555,6 +999,7 @@ class RRTournament(Tournament):
         if arrangement.game_id is not None or arrangement.status in (
             ARR_STATUS_STARTED,
             ARR_STATUS_FINISHED,
+            ARR_STATUS_EXPIRED,
         ):
             return "This round-robin pairing can no longer be rescheduled."
 
@@ -564,6 +1009,12 @@ class RRTournament(Tournament):
 
         previous_scheduled_at = arrangement.scheduled_at
         date = self._normalize_arrangement_date(date)
+        if date is not None:
+            if date < now - ARR_SCHEDULE_PAST_TOLERANCE:
+                return "Round-robin game times cannot be scheduled in the past."
+            deadline = self.ends_at.astimezone(UTC).replace(microsecond=0)
+            if date >= deadline:
+                return "Round-robin game times must be before the tournament deadline."
         arrangement.set_suggested_time(user.username, date)
         arrangement.scheduled_at = None
 
@@ -593,17 +1044,29 @@ class RRTournament(Tournament):
                     "date": arrangement.scheduled_at.isoformat(),
                 }
                 await notify_by_username(self.app_state, opponent, "rrArrangementTime", content)
+                await self.app_state.push_notifier.enqueue_rr_arrangement(
+                    opponent,
+                    tournament_id=self.id,
+                    arrangement_id=arrangement.id,
+                    opponent=user.username,
+                    kind="confirmed",
+                )
 
         await self.broadcast_arrangements()
         return None
 
     async def send_arrangement_reminders(self, now: datetime) -> None:
+        async with self._arrangement_mutation_lock:
+            await self._send_arrangement_reminders(now)
+
+    async def _send_arrangement_reminders(self, now: datetime) -> None:
         for arrangement in self.arrangements.values():
             if arrangement.scheduled_at is None:
                 continue
             if arrangement.game_id is not None or arrangement.status in (
                 ARR_STATUS_STARTED,
                 ARR_STATUS_FINISHED,
+                ARR_STATUS_EXPIRED,
             ):
                 continue
 
@@ -629,13 +1092,28 @@ class RRTournament(Tournament):
                     "date": arrangement.scheduled_at.isoformat(),
                 }
                 await notify_by_username(self.app_state, username, "rrArrangementReminder", content)
+                await self.app_state.push_notifier.enqueue_rr_arrangement(
+                    username,
+                    tournament_id=self.id,
+                    arrangement_id=arrangement.id,
+                    opponent=opponent,
+                    kind="reminder",
+                )
 
             arrangement.last_reminded_at = now
             await self.db_update_arrangement(arrangement)
 
     async def create_arrangement_challenge(self, user: User, arrangement_id: str) -> str | None:
+        async with self._arrangement_mutation_lock:
+            return await self._create_arrangement_challenge(user, arrangement_id)
+
+    async def _create_arrangement_challenge(self, user: User, arrangement_id: str) -> str | None:
         if self.status not in (T_CREATED, T_STARTED):
             return "Round-robin challenges are not available for this tournament."
+        if self.status == T_STARTED and self.deadline_reached():
+            return "The round-robin challenge deadline has passed."
+        if not await self.user_is_team_member(user):
+            return "You must be a member of the tournament team to play this tournament."
 
         arrangement = self.arrangement_by_id(arrangement_id)
         if arrangement is None:
@@ -646,6 +1124,8 @@ class RRTournament(Tournament):
             return "This round-robin game is already finished."
         if arrangement.status == ARR_STATUS_STARTED:
             return "This round-robin game is already in progress."
+        if arrangement.status == ARR_STATUS_EXPIRED:
+            return "The round-robin deadline has passed for this game."
         if (
             self.player_data_by_name(user.username) is None
             or self.player_data_by_name(user.username).paused
@@ -670,8 +1150,6 @@ class RRTournament(Tournament):
             "chess960": self.chess960,
             "target": opponent,
             "reserveGameId": True,
-            "tournamentId": self.id,
-            "rrArrangementId": arrangement.id,
         }
         seek = await create_seek(
             self.app_state.db,
@@ -679,6 +1157,8 @@ class RRTournament(Tournament):
             self.app_state.seeks,
             user,
             seek_data,
+            tournament_id=self.id,
+            rr_arrangement_id=arrangement.id,
         )
         if seek is None or seek.game_id is None:
             return "Could not create a round-robin challenge."
@@ -698,11 +1178,32 @@ class RRTournament(Tournament):
         return None
 
     async def accept_arrangement_challenge(self, user: User, arrangement_id: str):
+        async with self._arrangement_mutation_lock:
+            return await self._accept_arrangement_challenge(user, arrangement_id)
+
+    async def _accept_arrangement_challenge(self, user: User, arrangement_id: str):
+        if self.status not in (T_CREATED, T_STARTED):
+            return {
+                "type": "error",
+                "message": "Round-robin challenges are not available for this tournament.",
+            }
+        if self.status == T_STARTED and self.deadline_reached():
+            return {"type": "error", "message": "The round-robin challenge deadline has passed."}
+        if not await self.user_is_team_member(user):
+            return {
+                "type": "error",
+                "message": "You must be a member of the tournament team to play this tournament.",
+            }
         arrangement = self.arrangement_by_id(arrangement_id)
         if arrangement is None:
             return {"type": "error", "message": "Unknown round-robin pairing."}
         if not arrangement.involves(user.username):
             return {"type": "error", "message": "You are not part of this round-robin pairing."}
+        if arrangement.status == ARR_STATUS_EXPIRED:
+            return {
+                "type": "error",
+                "message": "The round-robin deadline has passed for this game.",
+            }
         if arrangement.challenger == user.username:
             return {"type": "error", "message": "Waiting for your opponent to accept."}
         if arrangement.invite_id is None:
@@ -721,10 +1222,12 @@ class RRTournament(Tournament):
         if result["type"] == "new_game":
             game = self.app_state.games.get(result["gameId"])
             if game is not None:
-                await self.register_arrangement_game(arrangement, game)
+                await self._register_arrangement_game(arrangement, game)
         return result
 
-    async def register_arrangement_game(self, arrangement: RRArrangement, game: Game | Any) -> None:
+    async def _register_arrangement_game(
+        self, arrangement: RRArrangement, game: Game | Any
+    ) -> None:
         game.round = arrangement.round_no  # type: ignore[attr-defined]
         arrangement.status = ARR_STATUS_STARTED
         arrangement.game_id = game.id
@@ -744,17 +1247,30 @@ class RRTournament(Tournament):
         await self.broadcast(self.live_status())
 
     async def game_update(self, game: Game) -> None:
-        await super().game_update(game)
+        async with self._arrangement_mutation_lock:
+            await self._game_update(game)
 
+    async def _game_update(self, game: Game) -> None:
         arrangement_id = getattr(game, "tournamentArrangementId", None)
         if arrangement_id is None:
+            await super().game_update(game)
             return
 
         arrangement = self.arrangements.get(arrangement_id)
         if arrangement is None:
+            await super().game_update(game)
+            return
+        if game.id in arrangement.previous_game_ids:
             return
 
+        await super().game_update(game)
+
         if game.status == ABORTED:
+            live_game = self._take_ongoing_game(game)
+            if live_game is not None:
+                self.app_state.create_background_task(
+                    self.delayed_free(live_game), name="t-delayed-free"
+                )
             arrangement.status = ARR_STATUS_PENDING
             arrangement.game_id = None
         else:
@@ -766,9 +1282,16 @@ class RRTournament(Tournament):
         arrangement.black_date = None
         arrangement.scheduled_at = None
         arrangement.last_reminded_at = None
-        arrangement.date = datetime.now(UTC)
+        now = datetime.now(UTC)
+        arrangement.date = now
         await self.db_update_arrangement(arrangement)
+
+        if self.status == T_STARTED and self.deadline_reached(now):
+            await self._expire_unstarted_arrangements(now, broadcast=False)
         await self.broadcast_arrangements()
 
-        if self.status == T_STARTED and self.all_arrangements_finished():
+        if self.status == T_STARTED and (
+            self.all_arrangements_finished()
+            or (self.deadline_reached(now) and len(self.ongoing_games) == 0)
+        ):
             await self.finish()

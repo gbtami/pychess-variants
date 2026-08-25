@@ -41,7 +41,6 @@ log = logging.getLogger(__name__)
 
 CATALOGUED_VARIANT_COLLECTION = "catalogued_variant"
 CATALOGUED_CATEGORY = "other"
-CATALOGUED_ICON = "◇"
 CATALOGUED_VISIBILITY_PRIVATE = "private"
 CATALOGUED_VISIBILITY_UNLISTED = "unlisted"
 CATALOGUED_VISIBILITY_PUBLIC = "public"
@@ -117,6 +116,7 @@ CATALOGUED_PIECE_FAMILY_OVERRIDES = frozenset(
         "mansindam",
         "orda",
         "ordamirror",
+        "pemba",
         "seirawan",
         "shako",
         "shatranj",
@@ -1106,7 +1106,7 @@ class CataloguedVariantDocument(TypedDict):
     _id: str
     name: str
     displayName: str
-    description: str
+    description: NotRequired[str]
     pieceNames: NotRequired[dict[str, str]]
     author: str
     ini: str
@@ -1132,7 +1132,6 @@ class CataloguedVariantDocument(TypedDict):
     legalMovesNeedHistory: bool
     nFoldIsDraw: bool
     showCheckCounters: bool
-    icon: str
     category: str
     visibility: str
     source: NotRequired[str]
@@ -1152,6 +1151,7 @@ class CataloguedVariantDocument(TypedDict):
     aiDisabledUntil: NotRequired[datetime]
     aiDisabledReason: NotRequired[str]
     gameCount: int
+    gameCountEffectIds: NotRequired[list[str]]
     createdAt: datetime
     updatedAt: datetime
 
@@ -1180,7 +1180,6 @@ class CataloguedVariantClientDocument(TypedDict):
     rulesGate: bool
     rulesPass: bool
     showCheckCounters: bool
-    icon: str
     category: str
     author: NotRequired[str]
     source: NotRequired[str]
@@ -1335,6 +1334,15 @@ def _ensure_board_family_dimensions(board_family: str, width: int, height: int) 
 
 def _is_fsf_builtin_catalogued_doc(doc: Mapping[str, Any]) -> bool:
     return _catalogued_source(doc) == CATALOGUED_SOURCE_FSF_BUILTIN
+
+
+def _catalogued_description(doc: Mapping[str, Any]) -> str:
+    description = str(doc.get("description") or "")
+    if description or not _is_fsf_builtin_catalogued_doc(doc):
+        return description
+    name = str(doc.get("fsfBuiltinVariant") or doc.get("name") or doc.get("_id") or "")
+    metadata = FSF_CATALOGUED_BUILTIN_VARIANTS.get(name, {})
+    return str(metadata.get("description") or FSF_CATALOGUED_BUILTIN_DESCRIPTION)
 
 
 def _fsf_builtin_variant_name(doc: Mapping[str, Any]) -> str:
@@ -2798,7 +2806,7 @@ def _client_doc(
     game_count: int | None = None,
     favorite_names: set[str] | None = None,
 ) -> CataloguedVariantClientDocument:
-    description = str(doc.get("description") or "")
+    description = _catalogued_description(doc)
     tooltip = description or "Catalogued variant"
     ini = str(doc.get("ini") or "")
     start_fen = str(doc["startFen"])
@@ -2843,7 +2851,6 @@ def _client_doc(
         "rulesGate": rules_gate,
         "rulesPass": rules_pass,
         "showCheckCounters": show_check_counters,
-        "icon": str(doc.get("icon") or CATALOGUED_ICON),
         "category": CATALOGUED_CATEGORY,
         "author": str(doc.get("author") or ""),
         "source": _catalogued_source(doc),
@@ -3117,7 +3124,7 @@ def catalogued_variant_rule_context(doc: Mapping[str, Any]) -> dict[str, Any]:
         "displayName": str(
             doc.get("displayName") or doc.get("name") or doc.get("_id") or "Catalogued variant"
         ),
-        "description": str(doc.get("description") or ""),
+        "description": _catalogued_description(doc),
         "author": str(doc.get("author") or ""),
         "references": _catalogued_references_for_display(doc),
         "ini": ini,
@@ -3188,7 +3195,6 @@ def register_catalogued_variant_doc(
     register_catalogued_server_variant(
         name,
         str(doc.get("displayName") or name),
-        str(doc.get("icon") or CATALOGUED_ICON),
         grand=_catalogued_grand_from_dimensions(width, height),
         extended_move_codec=_catalogued_extended_move_codec_from_dimensions(width, height),
         show_promoted=bool(doc.get("showPromoted", catalogued_show_promoted(ini, start_fen))),
@@ -3240,7 +3246,6 @@ def ensure_catalogued_variant_from_game_doc(app_state: Any, doc: Mapping[str, An
             "legalMovesNeedHistory": validated.legal_moves_need_history,
             "nFoldIsDraw": validated.n_fold_is_draw,
             "showCheckCounters": validated.show_check_counters,
-            "icon": CATALOGUED_ICON,
             "category": CATALOGUED_CATEGORY,
             "visibility": CATALOGUED_VISIBILITY_PRIVATE,
             "createdAt": now,
@@ -3250,20 +3255,38 @@ def ensure_catalogued_variant_from_game_doc(app_state: Any, doc: Mapping[str, An
     )
 
 
-async def init_catalogued_variants(app_state: Any, db_collections: list[str]) -> None:
+async def _remove_legacy_catalogued_icon_fields(collection: Any) -> None:
+    """Drop the old persisted copy of the code-defined catalogue icon."""
+    result = await collection.update_many(
+        {"icon": {"$exists": True}},
+        {"$unset": {"icon": ""}},
+    )
+    if result.modified_count:
+        log.info("Removed legacy icon field from %d catalogued variants", result.modified_count)
+
+
+async def _remove_legacy_fsf_builtin_description_fields(collection: Any) -> None:
+    """Drop the persisted copy of the code-defined built-in description."""
+    result = await collection.update_many(
+        {
+            "source": CATALOGUED_SOURCE_FSF_BUILTIN,
+            "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        },
+        {"$unset": {"description": ""}},
+    )
+    if result.modified_count:
+        log.info(
+            "Removed legacy default description from %d Fairy-Stockfish built-ins",
+            result.modified_count,
+        )
+
+
+async def init_catalogued_variants(app_state: Any) -> None:
     app_state.catalogued_variants = {}
 
-    if CATALOGUED_VARIANT_COLLECTION not in db_collections:
-        await app_state.db.create_collection(CATALOGUED_VARIANT_COLLECTION)
-
     collection = app_state.db[CATALOGUED_VARIANT_COLLECTION]
-    await collection.create_index("name", unique=True)
-    await collection.create_index("enabled")
-    await collection.create_index("archived")
-    await collection.create_index("author")
-    await collection.create_index("visibility")
-    await collection.create_index("createdAt")
-    await collection.create_index("source")
+    await _remove_legacy_catalogued_icon_fields(collection)
+    await _remove_legacy_fsf_builtin_description_fields(collection)
 
     await ensure_fsf_catalogued_builtin_variants(app_state)
 
@@ -3380,21 +3403,59 @@ async def increment_catalogued_variant_game_count(app_state: Any, name: str) -> 
         doc["gameCount"] = int(doc.get("gameCount") or 0) + 1
 
 
-async def _catalogued_variant_count_for_user(app_state: Any, username: str) -> int:
+async def increment_catalogued_variant_game_count_once(
+    app_state: Any, name: str, game_id: str
+) -> None:
+    """Count a tournament game exactly once across restart recovery."""
+
+    if app_state.db is None or not _is_valid_variant_name(name):
+        return
+
+    result = await app_state.db[CATALOGUED_VARIANT_COLLECTION].update_one(
+        {
+            "_id": name,
+            "gameCountEffectIds": {"$ne": game_id},
+        },
+        {
+            "$inc": {"gameCount": 1},
+            "$push": {
+                "gameCountEffectIds": {
+                    "$each": [game_id],
+                    "$slice": -64,
+                }
+            },
+        },
+    )
+    if not result.modified_count:
+        return
+
+    doc = getattr(app_state, "catalogued_variants", {}).get(name)
+    if doc is not None:
+        doc["gameCount"] = int(doc.get("gameCount") or 0) + 1
+
+
+async def _catalogued_variant_slot_count_for_user(app_state: Any, username: str) -> int:
     if app_state.db is None:
         return 0
-    return await app_state.db[CATALOGUED_VARIANT_COLLECTION].count_documents({"author": username})
+    # Archived variants are historical records, not active variant slots. In
+    # particular, variants with saved public games may need to be archived
+    # instead of deleted, so counting them here could permanently exhaust a
+    # user's quota.
+    return await app_state.db[CATALOGUED_VARIANT_COLLECTION].count_documents(
+        {"author": username, "archived": {"$ne": True}}
+    )
 
 
 async def _ensure_catalogued_variant_quota(app_state: Any, username: str) -> None:
     if _is_admin_username(username):
         return
-    count = await _catalogued_variant_count_for_user(app_state, username)
+    count = await _catalogued_variant_slot_count_for_user(app_state, username)
     if count >= MAX_CATALOGUED_VARIANTS_PER_USER:
         raise web.HTTPConflict(
             text=(
                 f"You can have at most {MAX_CATALOGUED_VARIANTS_PER_USER} user-defined variants. "
-                "Delete an unused variant before uploading or cloning another one."
+                "Archive or delete an active variant before uploading, cloning, or restoring "
+                "another one."
             )
         )
 
@@ -3516,7 +3577,7 @@ async def community_catalogued_variants_page(
             {
                 "name": name,
                 "displayName": str(doc.get("displayName") or name),
-                "description": str(doc.get("description") or ""),
+                "description": _catalogued_description(doc),
                 "author": str(doc.get("author") or ""),
                 "system": _is_fsf_builtin_catalogued_doc(doc),
                 "references": _catalogued_references_for_display(doc),
@@ -3913,7 +3974,6 @@ def _build_doc(
         "legalMovesNeedHistory": legal_moves_need_history,
         "nFoldIsDraw": n_fold_is_draw,
         "showCheckCounters": show_check_counters,
-        "icon": CATALOGUED_ICON,
         "category": CATALOGUED_CATEGORY,
         "visibility": _clean_visibility(visibility),
         "pieceSetDirectional": piece_set_directional,
@@ -4030,10 +4090,9 @@ def _fsf_builtin_description_for_doc(
     existing: Mapping[str, Any] | None,
     references: list[CataloguedVariantReference],
 ) -> str:
-    metadata_description = str(metadata.get("description") or FSF_CATALOGUED_BUILTIN_DESCRIPTION)
     existing_description = str((existing or {}).get("description") or "")
     if _fsf_builtin_description_is_auto(existing_description, metadata, references):
-        return metadata_description
+        return ""
     return existing_description
 
 
@@ -4072,13 +4131,14 @@ def _build_fsf_builtin_doc(
     ) or catalogued_promotion_order("", promotion_type)
     references = _clean_catalogued_references(metadata.get("references"))
 
+    description = _fsf_builtin_description_for_doc(metadata, existing, references)
     doc = _build_doc(
         name=name,
         base_variant=str(metadata.get("baseVariant") or ""),
         display_name=str(
             (existing or {}).get("displayName") or metadata.get("displayName") or name
         ),
-        description=_fsf_builtin_description_for_doc(metadata, existing, references),
+        description=description,
         piece_names=(existing or {}).get("pieceNames") or metadata.get("pieceNames"),
         username=CATALOGUED_FSF_BUILTIN_AUTHOR,
         ini="",
@@ -4111,6 +4171,8 @@ def _build_fsf_builtin_doc(
     )
     doc["references"] = references
     doc["rulesIni"] = str(metadata.get("rulesIni") or "").strip()
+    if not description:
+        doc.pop("description", None)
     return doc
 
 
@@ -4147,7 +4209,6 @@ def _fsf_builtin_synced_fields(doc: Mapping[str, Any]) -> dict[str, Any]:
         "legalMovesNeedHistory",
         "nFoldIsDraw",
         "showCheckCounters",
-        "icon",
         "category",
         "source",
         "fsfBuiltinVariant",
@@ -4211,8 +4272,6 @@ async def ensure_fsf_catalogued_builtin_variants(app_state: Any) -> None:
         synced_fields = _fsf_builtin_synced_fields(doc)
         existing_description = str(existing.get("description") or "")
         references = _clean_catalogued_references(doc.get("references"))
-        if _fsf_builtin_description_is_auto(existing_description, metadata, references):
-            synced_fields["description"] = doc["description"]
 
         update: dict[str, Any] = {"$set": synced_fields}
         unset_fields = {
@@ -4220,6 +4279,8 @@ async def ensure_fsf_catalogued_builtin_variants(app_state: Any) -> None:
             for field in ("clientVariant", "premoveVariant")
             if field in existing and field not in doc
         }
+        if _fsf_builtin_description_is_auto(existing_description, metadata, references):
+            unset_fields["description"] = ""
         if unset_fields:
             update["$unset"] = unset_fields
         await collection.update_one(
@@ -4609,10 +4670,14 @@ async def get_my_catalogued_variants(request: web.Request) -> web.Response:
             variants.append(_client_doc(doc, game_count=count))
 
     max_variants = None if admin else MAX_CATALOGUED_VARIANTS_PER_USER
+    variant_slots_used = None
+    if not admin:
+        variant_slots_used = await _catalogued_variant_slot_count_for_user(app_state, username)
     return json_response(
         {
             "variants": variants,
             "maxVariants": max_variants,
+            "variantSlotsUsed": variant_slots_used,
             "q": q,
             "author": author,
             "sort": sort,
@@ -4646,6 +4711,7 @@ CATALOGUED_METADATA_OPTIONAL_FIELDS = (
     "pieceNames",
     "pieceFamilyOverride",
     "boardFamilyOverride",
+    "icon",
 )
 
 CATALOGUED_CONCURRENTLY_UPDATED_FIELDS = frozenset(
@@ -4764,16 +4830,22 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
         piece_set_directional = bool(existing.get("pieceSetDirectional", False))
     if _is_fsf_builtin_catalogued_doc(existing):
         now = datetime.now(UTC)
+        cleaned_description = _clean_description(description)
         update: dict[str, Any] = {
             "$set": {
                 "displayName": _clean_display_name(display_name, old_name),
-                "description": _clean_description(description),
                 "visibility": visibility,
                 "pieceSetDirectional": piece_set_directional,
                 "updatedAt": now,
             }
         }
         unset_fields: dict[str, str] = {}
+        metadata = FSF_CATALOGUED_BUILTIN_VARIANTS.get(_fsf_builtin_variant_name(existing), {})
+        references = _clean_catalogued_references(existing.get("references"))
+        if _fsf_builtin_description_is_auto(cleaned_description, metadata, references):
+            unset_fields["description"] = ""
+        else:
+            update["$set"]["description"] = cleaned_description
         if piece_names:
             update["$set"]["pieceNames"] = piece_names
         else:
@@ -4971,7 +5043,9 @@ async def archive_catalogued_variant(request: web.Request) -> web.Response:
 
 
 async def restore_catalogued_variant(request: web.Request) -> web.Response:
-    app_state, _username, name, doc = await _load_owned_doc(request)
+    app_state, username, name, doc = await _load_owned_doc(request)
+    if bool(doc.get("archived", False)):
+        await _ensure_catalogued_variant_quota(app_state, username)
     now = datetime.now(UTC)
     restored = dict(doc)
     restored["archived"] = False

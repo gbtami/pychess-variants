@@ -17,8 +17,8 @@ export function gameType(rated: string | number) {
     }
 }
 
-export function aiLevel(title: string, level: number) {
-    return title === 'BOT' && level >= 0 ? ' ' + _('level %1', level) : '';
+export function aiLevel(username: string, level: number) {
+    return username === 'Fairy-Stockfish' && level >= 0 ? ' ' + _('level %1', level) : '';
 }
 
 export function renderRdiff(rdiff: number) {

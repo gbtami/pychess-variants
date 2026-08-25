@@ -1,0 +1,276 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap" class="admin-shell">
+    <div class="admin-layout">
+        {% include "admin_nav.html" %}
+        <main class="admin-page admin-users box box-pad">
+            <h1>User search</h1>
+            <form class="admin-user-search" action="/admin/users" method="get">
+                <label for="admin-username">Username</label>
+                <div class="admin-user-search__controls">
+                    <input id="admin-username" name="username" value="{{ admin_user_query }}" placeholder="Username" autocomplete="off" spellcheck="false" required>
+                    <button class="button" type="submit">Search</button>
+                </div>
+            </form>
+
+            {% if admin_user_error %}
+            <p class="admin-user-error" role="alert">{{ admin_user_error }}</p>
+            {% elif admin_user_status %}
+            {% if admin_action_notice %}
+            <p class="admin-action-notice" role="status">{{ admin_action_notice }} completed.</p>
+            {% endif %}
+            <p class="admin-action-feedback" role="alert" aria-live="assertive"></p>
+            <section class="admin-user-card" aria-labelledby="admin-user-name">
+                <div class="admin-user-card__header">
+                    <div>
+                        <span class="admin-user-card__eyebrow">Account</span>
+                        <h2 id="admin-user-name">
+                            {% if admin_user_status.title %}<span class="admin-user-title">{{ admin_user_status.title }}</span>{% endif %}
+                            <a class="user-link" href="/@/{{ admin_user_status.username }}">{{ admin_user_status.username }}</a>
+                        </h2>
+                    </div>
+                    <div class="admin-user-badges">
+                        <span class="admin-status{% if admin_user_status.enabled %} is-ok{% else %} is-danger{% endif %}">
+                            {{ "Enabled" if admin_user_status.enabled else "Closed" }}
+                        </span>
+                        {% if admin_user_status.patron %}<span class="admin-status is-ok">Patron</span>{% endif %}
+                        {% if admin_user_status.shadowban %}<span class="admin-status is-warning">Shadowbanned</span>{% endif %}
+                        {% if admin_user_status.timed_out %}<span class="admin-status is-warning">Chat timeout</span>{% endif %}
+                        <span class="admin-status{% if admin_user_status.online %} is-online{% endif %}">
+                            {{ "Online" if admin_user_status.online else "Offline" }}
+                        </span>
+                    </div>
+                </div>
+
+                <dl class="admin-user-facts">
+                    <div>
+                        <dt>Created</dt>
+                        <dd>
+                            {% if admin_user_status.created_at %}
+                            <info-date timestamp="{{ admin_user_status.created_at.isoformat() }}"></info-date>
+                            {% else %}
+                            Unknown
+                            {% endif %}
+                        </dd>
+                    </div>
+                    <div>
+                        <dt>Games</dt>
+                        <dd>{{ admin_user_status.games }} total · {{ admin_user_status.wins }} wins · {{ admin_user_status.losses }} losses · {{ admin_user_status.draws }} draws</dd>
+                    </div>
+                    <div>
+                        <dt>Stored signals</dt>
+                        <dd>IP {{ admin_user_status.stored_signals.ip }} · fingerprint {{ admin_user_status.stored_signals.fp }} · combined {{ admin_user_status.stored_signals.ipfp }}</dd>
+                    </div>
+                    <div>
+                        <dt>Active ban signals</dt>
+                        <dd>IP {{ admin_user_status.active_signals.ip }} · fingerprint {{ admin_user_status.active_signals.fp }} · combined {{ admin_user_status.active_signals.ipfp }}</dd>
+                    </div>
+                    <div>
+                        <dt>Last automatic closure</dt>
+                        <dd>
+                            {% if admin_user_status.last_auto_close_reason %}
+                            {{ admin_user_status.last_auto_close_reason }}
+                            {% if admin_user_status.last_auto_close_at %}
+                            · <info-date timestamp="{{ admin_user_status.last_auto_close_at.isoformat() }}"></info-date>
+                            {% endif %}
+                            {% else %}
+                            None
+                            {% endif %}
+                        </dd>
+                    </div>
+                </dl>
+
+                <div class="admin-user-actions">
+                    <h3>Patron status</h3>
+                    <div class="admin-user-actions__buttons">
+                        {% if admin_user_status.patron %}
+                        <button
+                            class="admin-action-button"
+                            type="button"
+                            data-admin-action="unpatron"
+                            data-action-url="/api/admin/users/{{ admin_user_status.username }}/unpatron"
+                            data-confirm-title="Remove patron wings?"
+                            data-confirm-text="Remove patron status from {{ admin_user_status.username }}."
+                        >Remove patron</button>
+                        {% else %}
+                        <button
+                            class="admin-action-button is-positive"
+                            type="button"
+                            data-admin-action="patron"
+                            data-action-url="/api/admin/users/{{ admin_user_status.username }}/patron"
+                            data-confirm-title="Grant patron wings?"
+                            data-confirm-text="Grant patron status to {{ admin_user_status.username }}."
+                        >Grant patron</button>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="admin-user-actions">
+                    <h3>Moderation actions</h3>
+                    {% if admin_user_status.protected %}
+                    <p class="admin-protected-note">This is a protected account. Moderation actions are unavailable.</p>
+                    {% else %}
+                    <div class="admin-user-actions__buttons">
+                        <button
+                            class="admin-action-button"
+                            type="button"
+                            data-admin-action="timeout"
+                            data-action-url="/api/admin/users/{{ admin_user_status.username }}/timeout"
+                            data-confirm-title="Apply chat timeout?"
+                            data-confirm-text="Apply a 15-minute public chat timeout to {{ admin_user_status.username }}."
+                            data-needs-reason="true"
+                            {% if not admin_user_status.online or admin_user_status.timed_out %}disabled{% endif %}
+                            title="{% if admin_user_status.timed_out %}This user already has a chat timeout{% elif not admin_user_status.online %}The user must be online{% else %}Apply a 15-minute chat timeout{% endif %}"
+                        >Timeout 15m</button>
+
+                        {% if admin_user_status.shadowban %}
+                        <button
+                            class="admin-action-button"
+                            type="button"
+                            data-admin-action="unshadowban"
+                            data-action-url="/api/admin/users/{{ admin_user_status.username }}/unshadowban"
+                            data-confirm-title="Remove shadowban?"
+                            data-confirm-text="Make {{ admin_user_status.username }}'s chat and private messages visible again."
+                        >Remove shadowban</button>
+                        {% else %}
+                        <button
+                            class="admin-action-button is-warning"
+                            type="button"
+                            data-admin-action="shadowban"
+                            data-action-url="/api/admin/users/{{ admin_user_status.username }}/shadowban"
+                            data-confirm-title="Shadowban user?"
+                            data-confirm-text="Hide {{ admin_user_status.username }}'s chat and private messages from other users."
+                        >Shadowban</button>
+                        {% endif %}
+
+                        {% if admin_user_status.enabled %}
+                        <button
+                            class="admin-action-button is-danger"
+                            type="button"
+                            data-admin-action="close"
+                            data-action-url="/api/admin/users/{{ admin_user_status.username }}/close"
+                            data-confirm-title="Close account?"
+                            data-confirm-text="Disable {{ admin_user_status.username }}, sign them out, remove or pause tournament entries, and activate their stored ban-evasion signals."
+                            data-danger="true"
+                        >Close account</button>
+                        {% else %}
+                        <button
+                            class="admin-action-button is-positive"
+                            type="button"
+                            data-admin-action="reopen"
+                            data-action-url="/api/admin/users/{{ admin_user_status.username }}/reopen"
+                            data-confirm-title="Reopen account?"
+                            data-confirm-text="Re-enable {{ admin_user_status.username }} and remove this account as a source from active ban-evasion signals."
+                        >Reopen account</button>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="admin-mod-history">
+                    <h3>Recent moderation actions</h3>
+                    {% if admin_user_status.moderation_history %}
+                    <ol>
+                        {% for entry in admin_user_status.moderation_history %}
+                        <li>
+                            <strong>{{ entry.action_label }}</strong>
+                            {% if entry.details %}<span>· {{ entry.details }}</span>{% endif %}
+                            <span class="admin-mod-history__meta">
+                                by <a class="user-link" href="/@/{{ entry.moderator }}">{{ entry.moderator }}</a>
+                                {% if entry.created_at %}· <info-date timestamp="{{ entry.created_at.isoformat() }}"></info-date>{% endif %}
+                            </span>
+                        </li>
+                        {% endfor %}
+                    </ol>
+                    {% else %}
+                    <p>No recorded moderation actions.</p>
+                    {% endif %}
+                </div>
+            </section>
+
+            <dialog id="admin-action-dialog" class="admin-action-dialog">
+                <form method="dialog">
+                    <h2 class="admin-action-dialog__title">Confirm admin action</h2>
+                    <p class="admin-action-dialog__text"></p>
+                    <label class="admin-action-dialog__reason" hidden>
+                        Reason
+                        <select>
+                            {% for value, label in admin_timeout_reasons.items() %}
+                            <option value="{{ value }}"{% if value == 'spam' %} selected{% endif %}>{{ label|capitalize }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <div class="admin-action-dialog__buttons">
+                        <button class="admin-action-dialog__confirm button" type="button">Confirm</button>
+                        <button class="button" value="cancel">Cancel</button>
+                    </div>
+                </form>
+            </dialog>
+            {% endif %}
+        </main>
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+<script src="{{ js }}"></script>
+<script>
+(() => {
+  const dialog = document.getElementById('admin-action-dialog');
+  if (!dialog) return;
+
+  const title = dialog.querySelector('.admin-action-dialog__title');
+  const text = dialog.querySelector('.admin-action-dialog__text');
+  const reasonRow = dialog.querySelector('.admin-action-dialog__reason');
+  const reason = reasonRow?.querySelector('select');
+  const confirmButton = dialog.querySelector('.admin-action-dialog__confirm');
+  const feedback = document.querySelector('.admin-action-feedback');
+  let selectedButton = null;
+
+  document.querySelectorAll('[data-admin-action]').forEach((button) => {
+    button.addEventListener('click', () => {
+      selectedButton = button;
+      title.textContent = button.dataset.confirmTitle || 'Confirm admin action';
+      text.textContent = button.dataset.confirmText || '';
+      reasonRow.hidden = button.dataset.needsReason !== 'true';
+      confirmButton.classList.toggle('is-danger', button.dataset.danger === 'true');
+      dialog.showModal();
+    });
+  });
+
+  confirmButton?.addEventListener('click', async () => {
+    if (!selectedButton) return;
+    confirmButton.disabled = true;
+    if (feedback) feedback.textContent = '';
+
+    const body = new URLSearchParams();
+    if (selectedButton.dataset.needsReason === 'true' && reason) {
+      body.set('reason', reason.value);
+    }
+
+    try {
+      const response = await fetch(selectedButton.dataset.actionUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+        body: body.toString(),
+      });
+      const payload = await response.json();
+      if (!response.ok) {
+        if (feedback) feedback.textContent = payload.message || `Action failed (HTTP ${response.status}).`;
+        dialog.close();
+        return;
+      }
+
+      const next = new URL(window.location.href);
+      next.searchParams.set('username', payload.username);
+      next.searchParams.set('done', payload.action);
+      window.location.assign(next);
+    } catch (_) {
+      if (feedback) feedback.textContent = 'Action failed. Please try again.';
+      dialog.close();
+    } finally {
+      confirmButton.disabled = false;
+    }
+  });
+})();
+</script>
+{% endblock %}

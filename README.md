@@ -66,7 +66,7 @@ uv run server/server.py
 
 ### Python checks and tests
 ```bash
-uv run ruff format .
+uv run ruff format --target-version py313 .
 uv run ruff check .
 uv run pyright
 env PYTHONPATH=server uv run python -m unittest discover -s tests

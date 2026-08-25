@@ -25,7 +25,7 @@ from middlewares import (
     request_timing_middleware,
     set_user_locale,
 )
-from pychess_global_app_state import PychessGlobalAppState
+from pychess_global_app_state import PychessGlobalAppState, is_test_run
 from pychess_global_app_state_utils import get_app_state
 from pymongo import AsyncMongoClient
 from request_protection import RequestProtectionState, request_protection_middleware
@@ -56,17 +56,24 @@ def make_app(
     db_client: AsyncMongoClient | None = None,
     simple_cookie_storage: bool = False,
     anon_as_test_users: bool = False,
+    with_openapi: bool | None = None,
 ) -> Application:
     startup = StartupTimer(log, "make_app")
+    if with_openapi is None:
+        with_openapi = not is_test_run()
 
     with startup.phase("create aiohttp application"):
         app = web.Application()
 
     with startup.phase("configure swagger + middleware"):
-        swagger = SwaggerDocs(
-            app,
-            validate=False,
-            info=SwaggerInfo(title="Pychess API", version="1.0.0"),
+        swagger = (
+            SwaggerDocs(
+                app,
+                validate=False,
+                info=SwaggerInfo(title="Pychess API", version="1.0.0"),
+            )
+            if with_openapi
+            else None
         )
 
         app.middlewares.append(redirect_to_https)
@@ -119,10 +126,12 @@ def make_app(
         app.on_shutdown.append(shutdown)
         app.on_cleanup.append(close_mongodb_client)
 
-        async def openapi_json(request):
-            return web.json_response(swagger.spec)
+        if swagger is not None:
 
-        app.router.add_get("/openapi.json", openapi_json)
+            async def openapi_json(request):
+                return web.json_response(swagger.spec)
+
+            app.router.add_get("/openapi.json", openapi_json)
 
     with startup.phase("register routes"):
         # Setup routes.
@@ -134,7 +143,7 @@ def make_app(
         }
         for route in get_routes:
             path, handler = route
-            if path in swagger_get_routes:
+            if path in swagger_get_routes and swagger is not None:
                 swagger.add_get(
                     path,
                     handler,
@@ -192,9 +201,13 @@ async def init_state(app: Application) -> None:
         await ensure_categs(app_state)
 
     with startup.phase("start logging config refresh"):
-        refresh_task = await logger.start_config_refresh_timer(app[db_key])
-        if refresh_task is not None:
-            app_state.track_background_task(refresh_task)
+        # Test apps use the quiet logger configured by tests/test_logger.py.
+        # Do not immediately replace it with the production DEBUG config from
+        # the mock database, nor start a periodic production-only refresh task.
+        if not is_test_run():
+            refresh_task = await logger.start_config_refresh_timer(app[db_key])
+            if refresh_task is not None:
+                app_state.track_background_task(refresh_task)
 
     with startup.phase("schedule forum captcha refresher"):
         from forum import forum_captcha_refresher

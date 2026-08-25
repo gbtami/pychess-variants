@@ -929,6 +929,34 @@ ul.guide li {
     visibility: visible;
   }
 }
+
+.topnav a.donate-link,
+.topnav a.donate-link:link,
+.topnav a.donate-link:visited,
+.topnav a.donate-link:hover,
+.topnav a.donate-link:active {
+  color: var(--gold);
+}
+.topnav a.donate-link {
+  display: flex;
+  align-items: center;
+  height: calc(var(--site-header-height) - 11px);
+  line-height: calc(var(--site-header-height) - 11px);
+  margin: 6px 0 5px;
+  padding: 0 0.8rem;
+  border-radius: 50px;
+  text-transform: uppercase;
+}
+.topnav a.donate-link::before {
+  position: relative;
+  top: -1px;
+  margin-right: 0.3em;
+  font-size: 1.2em;
+}
+.topnav a.donate-link:hover {
+  background-color: color-mix(in srgb, var(--gold) 15%, transparent);
+}
+
 /* Site buttons */
 
 .site-buttons {
@@ -1723,6 +1751,19 @@ i-side {
   color: LightGray;
   margin-right: 0.4em;
 }
+
+.icon-patron-wing::before {
+  margin-right: 0.3em;
+  font-size: 1em;
+}
+.online.icon-patron-wing::before {
+  color: var(--good);
+  opacity: 1;
+}
+.offline.icon-patron-wing::before {
+  color: currentColor;
+  opacity: 0.7;
+}
 .icon-left:before {
   color: var(--green-hover);
   margin-right: 0.4em;
@@ -2142,11 +2183,11 @@ button[disabled] i {
 }
 @media (max-width: 799px) and (orientation: portrait) {
   .info-wrap0 {
-    grid-area: 4 / 1 / 4 / 2;
+    grid-area: user-top;
     justify-self: flex-end;
   }
   .info-wrap1 {
-    grid-area: 8 / 1 / 8 / 2;
+    grid-area: user-bot;
     justify-self: flex-end;
   }
 }
@@ -2377,20 +2418,6 @@ form#game-mode label {
   display: inline-flex;
   margin-right: 3px;
   color: var(--time-text);
-}
-
-.chat .discord-icon-container {
-  display: inline-flex;
-  align-items: center;
-  margin-right: 3px;
-  width: 0.8em;
-  height: 0.55em;
-  background: white;
-  background-position: center;
-  transform: translateY(2px);
-}
-.chat .discord-icon {
-  fill: #5865f2;
 }
 
 user {
@@ -3303,6 +3330,24 @@ div.ctable-container {
 }
 .umw-status.offline {
   background: #888;
+}
+.umw-status.patron {
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  flex: 0 0 auto;
+  background: transparent;
+  color: #888;
+}
+.umw-status.patron::before {
+  margin-right: 0;
+}
+.umw-status.patron.online {
+  background: transparent;
+  color: #629924;
+}
+.umw-status.patron.offline {
+  background: transparent;
 }
 .umw-perfs {
   display: grid;

@@ -1,0 +1,73 @@
+.pemba piece.p-piece.white {
+  background-image: url('../../images/pieces/alfaerie/wpawn.svg');
+}
+.pemba piece.r-piece.white {
+  background-image: url('../../images/pieces/alfaerie/wrook.svg');
+}
+.pemba piece.n-piece.white {
+  background-image: url('../../images/pieces/alfaerie/wknight.svg');
+}
+.pemba piece.b-piece.white {
+  background-image: url('../../images/pieces/alfaerie/wbishop.svg');
+}
+.pemba piece.q-piece.white {
+  background-image: url('../../images/pieces/alfaerie/wqueen.svg');
+}
+.pemba piece.k-piece.white {
+  background-image: url('../../images/pieces/alfaerie/wking.svg');
+}
+.pemba piece.c-piece.white {
+  background-image: url('../../images/pieces/alfaerie/wcannon.svg');
+}
+.pemba piece.e-piece.white {
+  background-image: url('../../images/pieces/alfaerie/welephant.svg');
+}
+.pemba piece.l-piece.white {
+  background-image: url('../../images/pieces/alfaerie/wcamel.svg');
+}
+.pemba piece.g-piece.white {
+  background-image: url('../../images/pieces/alfaerie/wgiraffe.svg');
+}
+.pemba piece.a-piece.white {
+  background-image: url('../../images/pieces/alfaerie/wvao.svg');
+}
+.pemba piece.m-piece.white {
+  background-image: url('../../images/pieces/alfaerie/wwarmachinewazir.svg');
+}
+
+.pemba piece.p-piece.black {
+  background-image: url('../../images/pieces/alfaerie/bpawn.svg');
+}
+.pemba piece.r-piece.black {
+  background-image: url('../../images/pieces/alfaerie/brook.svg');
+}
+.pemba piece.n-piece.black {
+  background-image: url('../../images/pieces/alfaerie/bknight.svg');
+}
+.pemba piece.b-piece.black {
+  background-image: url('../../images/pieces/alfaerie/bbishop.svg');
+}
+.pemba piece.q-piece.black {
+  background-image: url('../../images/pieces/alfaerie/bqueen.svg');
+}
+.pemba piece.k-piece.black {
+  background-image: url('../../images/pieces/alfaerie/bking.svg');
+}
+.pemba piece.c-piece.black {
+  background-image: url('../../images/pieces/alfaerie/bcannon.svg');
+}
+.pemba piece.e-piece.black {
+  background-image: url('../../images/pieces/alfaerie/belephant.svg');
+}
+.pemba piece.l-piece.black {
+  background-image: url('../../images/pieces/alfaerie/bcamel.svg');
+}
+.pemba piece.g-piece.black {
+  background-image: url('../../images/pieces/alfaerie/bgiraffe.svg');
+}
+.pemba piece.a-piece.black {
+  background-image: url('../../images/pieces/alfaerie/bvao.svg');
+}
+.pemba piece.m-piece.black {
+  background-image: url('../../images/pieces/alfaerie/bwarmachinewazir.svg');
+}

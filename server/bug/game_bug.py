@@ -77,6 +77,7 @@ class GameBug:
         self.inc = inc
         self.level = level if level is not None else 0
         self.tournamentId = tournamentId
+        self.simulId: str | None = None
         self.chess960 = chess960
         self.create = create
         self.new_960_fen_needed_for_rematch = new_960_fen_needed_for_rematch
@@ -112,7 +113,22 @@ class GameBug:
         self.bot_game = False
 
         self.spectators = set()
+        # Kept because shared code still reads it; bughouse never writes to it. A set of
+        # usernames compared against wplayer/bplayer has no four-player reading, and
+        # save_draw_offer() persists it into the wd/bd columns, which describe one board.
         self.draw_offers = set()
+        # THE TWO TEAM OFFERS. Both belong to a team here rather than to a player, which
+        # is the whole difference from the single-board game.
+        #
+        # `draw_offer_team` is the team that has offered; either member of the OTHER team
+        # answers it. Held as the team's own list object, so `is` settles membership and
+        # no second copy can drift from team1/team2.
+        #
+        # `resign_offer` is the username of the player who asked their partner to resign.
+        # One name gives both facts needed: which team is resigning, and which of the two
+        # is the one who may confirm (the other one).
+        self.draw_offer_team: list[str] | None = None
+        self.resign_offer: str | None = None
         self.takeback_offer: tuple[str, int] | None = None
         self.rematch_offers = set()
         self.rematch_id: str | None = None
@@ -386,6 +402,25 @@ class GameBug:
     def non_bot_players(self):
         return set(filter(lambda p: not p.bot, self.all_players))
 
+    def team_of(self, username: str) -> list[str] | None:
+        """The team list a player belongs to, or None for a spectator.
+
+        Returns the actual team1/team2 object rather than a copy, so callers can compare
+        teams with `is` and never have to hold a username set of their own.
+        """
+        if username in self.team1:
+            return self.team1
+        if username in self.team2:
+            return self.team2
+        return None
+
+    def partner_of(self, username: str) -> str | None:
+        """The other member of this player's team, or None for a spectator."""
+        team = self.team_of(username)
+        if team is None:
+            return None
+        return next((name for name in team if name != username), None)
+
     @property
     def wplayer(self):
         return self.wplayerA  # temporary for compatibitly everywhere this stuff is accessed now
@@ -595,17 +630,8 @@ class GameBug:
             "pgn": self.pgn,
         }
 
-    async def game_ended(self, user, reason):
-        """Abort, resign, flag, abandone"""
-        if self.result == "*":
-            if reason == "abort":
-                result = "*"
-            else:
-                result = "0-1" if user.username in self.team1 else "1-0"
-
-            self.update_status(LOSERS[reason], result)
-            await self.save_game()
-
+    def game_end_payload(self):
+        """The gameEnd message, shared by every way a bughouse game can finish."""
         return {
             "type": "gameEnd",
             "status": self.status,
@@ -619,6 +645,35 @@ class GameBug:
                 else ""
             ),
         }
+
+    async def game_ended(self, user, reason):
+        """Abort, resign, flag, abandone"""
+        if self.result == "*":
+            if reason == "abort":
+                result = "*"
+            else:
+                result = "0-1" if user.username in self.team1 else "1-0"
+
+            self.update_status(LOSERS[reason], result)
+            await self.save_game()
+
+        return self.game_end_payload()
+
+    async def game_drawn(self):
+        """Both teams agreed a draw.
+
+        The counterpart of game_ended() for the one result that is nobody's loss, and the
+        reason bughouse does not go through draw.py's draw(): that function decides
+        agreement from `is_claimable_draw` and the two-player draw_offers set, and
+        persists the outcome into wd/bd columns that describe a single board. Agreement
+        here is settled before this is called — by the offer belonging to one team and the
+        acceptance coming from the other.
+        """
+        if self.result == "*":
+            self.update_status(DRAW, "1/2-1/2")
+            await self.save_game()
+
+        return self.game_end_payload()
 
     def get_board(self, full=False, persp_color=None):
         [clocks_a, clocks_b] = self.gameClocks.get_clocks_for_board_msg(full)

@@ -3,12 +3,12 @@
 <div id="main-wrap">
 <main class="page-menu simul-list">
     <aside class="simul-list__help">
-        <p>Simuls involve a single player facing several players at once.</p>
-        <img src="{{ static('images/Samuel_Reshevsky_versus_the_World.JPG') }}" alt="The chess prodigy Samuel Reshevsky, 8 years old, performing a simultaneous exhibition against adults in Paris, 1920.">
-        <em>The chess prodigy Samuel Reshevsky, 8 years old, performing a simultaneous exhibition against adults in Paris, 1920.</em>
-        <p>The concept is taken from real world events. In real life, this involves the simul host moving from table to table to play a single move.</p>
-        <p>When the simul starts, every player starts a game with the host. The simul ends when all games are complete.</p>
-        <p>Simuls are always casual. Rematches, takebacks and adding time are disabled.</p>
+        <p>{% trans %}Simuls involve a single player facing several players at once.{% endtrans %}</p>
+        <img src="{{ static('images/Samuel_Reshevsky_versus_the_World.JPG') }}" alt="{% trans %}The chess prodigy Samuel Reshevsky, 8 years old, performing a simultaneous exhibition against adults in Paris, 1920.{% endtrans %}">
+        <em>{% trans %}The chess prodigy Samuel Reshevsky, 8 years old, performing a simultaneous exhibition against adults in Paris, 1920.{% endtrans %}</em>
+        <p>{% trans %}The concept is taken from real world events. In real life, this involves the simul host moving from table to table to play a single move.{% endtrans %}</p>
+        <p>{% trans %}When the simul starts, every player starts a game with the host. The simul ends when all games are complete.{% endtrans %}</p>
+        <p>{% trans %}Simuls are always casual. Rematches, takebacks and adding time are disabled.{% endtrans %}</p>
     </aside>
 
     <div class="simul-list__content">
@@ -16,32 +16,76 @@
             <div class="box-top">
                 <h1>{% trans %}Simultaneous Exhibitions{% endtrans %}</h1>
                 <div class="actions">
-                    {% if not anon %}
+                    {% if not anon and not user.bot %}
                     <a class="button icon icon-plus-square text" href="{{ home }}/simul/new">{% trans %}HOST A NEW SIMUL{% endtrans %}</a>
                     {% endif %}
                 </div>
             </div>
 
+            {% if my_simuls %}
             <table class="slist">
                 <thead>
                     <tr>
-                        <th colspan="4">{% trans %}Newly created simuls{% endtrans %}</th>
+                        <th colspan="4">{% trans %}Your simuls{% endtrans %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for simul in my_simuls %}
+                    <tr>
+                        <td>
+                            <div class="icon" data-icon="{{ simul.icon }}"></div>
+                        </td>
+                        <td class="header">
+                            <a href="/simul/{{ simul.id }}">
+                                <span class="name">{{ simul.name }}</span>
+                                {% trans %}by{% endtrans %}
+                                <span class="by">{{ simul.created_by }}</span>
+                                <span class="system">
+                                    {{ time_control_str(simul.base, simul.inc, 0) }} •
+                                    {% for variant_key in simul.variants[:3] %}{{ variant_display_name(variant_key) }}{% if not loop.last %}, {% endif %}{% endfor %}{% if simul.variants|length > 3 %} +{% trans count=simul.variants|length - 3 %}{{ count }} more{% endtrans %}{% endif %}
+                                </span>
+                            </a>
+                        </td>
+                        <td class="infos">
+                            <span class="starts">
+                                <info-date timestamp="{{ simul.display_date }}"></info-date>
+                            </span>
+                        </td>
+                        <td>
+                            {% if simul.participation == 'host' %}
+                            <span>{% trans %}Host{% endtrans %}</span>
+                            {% elif simul.participation == 'accepted' %}
+                            <span>{% trans %}Accepted{% endtrans %}</span>
+                            {% else %}
+                            <span>{% trans %}Pending{% endtrans %}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+
+            <table class="slist">
+                <thead>
+                    <tr>
+                        <th colspan="4">{% trans %}Featured simuls{% endtrans %}</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for simul in created_simuls %}
                     <tr>
                         <td>
-                            <div class="icon" data-icon="{{ icons[simul.variant + ('960' if simul.chess960 else '')] }}"></div>
+                            <div class="icon" data-icon="{{ simul.icon }}"></div>
                         </td>
                         <td class="header">
                             <a href="/simul/{{ simul.id }}">
                                 <span class="name">{{ simul.name }}</span>
-                                by
+                                {% trans %}by{% endtrans %}
                                 <span class="by">{{ simul.created_by }}</span>
                                 <span class="system">
                                     {{ time_control_str(simul.base, simul.inc, 0) }} •
-                                    {{ variant_display_name(simul.variant + ('960' if simul.chess960 else '')) }}
+                                    {% for variant_key in simul.variants[:3] %}{{ variant_display_name(variant_key) }}{% if not loop.last %}, {% endif %}{% endfor %}{% if simul.variants|length > 3 %} +{% trans count=simul.variants|length - 3 %}{{ count }} more{% endtrans %}{% endif %}
                                 </span>
                             </a>
                         </td>
@@ -68,16 +112,16 @@
                     {% for simul in started_simuls %}
                     <tr>
                         <td>
-                            <div class="icon" data-icon="{{ icons[simul.variant + ('960' if simul.chess960 else '')] }}"></div>
+                            <div class="icon" data-icon="{{ simul.icon }}"></div>
                         </td>
                         <td class="header">
                             <a href="/simul/{{ simul.id }}">
                                 <span class="name">{{ simul.name }}</span>
-                                by
+                                {% trans %}by{% endtrans %}
                                 <span class="by">{{ simul.created_by }}</span>
                                 <span class="system">
                                     {{ time_control_str(simul.base, simul.inc, 0) }} •
-                                    {{ variant_display_name(simul.variant + ('960' if simul.chess960 else '')) }}
+                                    {% for variant_key in simul.variants[:3] %}{{ variant_display_name(variant_key) }}{% if not loop.last %}, {% endif %}{% endfor %}{% if simul.variants|length > 3 %} +{% trans count=simul.variants|length - 3 %}{{ count }} more{% endtrans %}{% endif %}
                                 </span>
                             </a>
                         </td>
@@ -104,16 +148,16 @@
                     {% for simul in finished_simuls %}
                     <tr>
                         <td>
-                            <div class="icon" data-icon="{{ icons[simul.variant + ('960' if simul.chess960 else '')] }}"></div>
+                            <div class="icon" data-icon="{{ simul.icon }}"></div>
                         </td>
                         <td class="header">
                             <a href="/simul/{{ simul.id }}">
                                 <span class="name">{{ simul.name }}</span>
-                                by
+                                {% trans %}by{% endtrans %}
                                 <span class="by">{{ simul.created_by }}</span>
                                 <span class="system">
                                     {{ time_control_str(simul.base, simul.inc, 0) }} •
-                                    {{ variant_display_name(simul.variant + ('960' if simul.chess960 else '')) }}
+                                    {% for variant_key in simul.variants[:3] %}{{ variant_display_name(variant_key) }}{% if not loop.last %}, {% endif %}{% endfor %}{% if simul.variants|length > 3 %} +{% trans count=simul.variants|length - 3 %}{{ count }} more{% endtrans %}{% endif %}
                                 </span>
                             </a>
                         </td>

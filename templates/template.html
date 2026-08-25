@@ -46,10 +46,13 @@
                     <a class="nav-link" href="/players">{% trans %}Community{% endtrans %}</a>
                     <div class="drp" >
                         <a class="nav-link" href="/players">{% trans %}Players{% endtrans %}</a>
+                        {% if not anon %}
+                        <a class="nav-link" href="/@/{{ username }}/following">{% trans %}Friends{% endtrans %}</a>
+                        {% endif %}
+                        <a class="nav-link" href="/team">{% trans %}Teams{% endtrans %}</a>
                         <a class="nav-link" href="/variants/community">{% trans %}Variants{% endtrans %}</a>
                         <a class="nav-link" href="/forum">{% trans %}Forum{% endtrans %}</a>
                         <a class="nav-link" href="/blogs">{% trans %}Blog{% endtrans %}</a>
-                        <a class="nav-link" href="/patron">{% trans %}Donate{% endtrans %}</a>
                     </div>
                 </section>
                 <section>
@@ -62,6 +65,7 @@
                         <a class="nav-link" href="/my-variants">{% trans %}My variants{% endtrans %}</a>
                     </div>
                 </section>
+                <a class="nav-link donate-link icon-patron-wing" href="/patron">{% trans %}Donate{% endtrans %}</a>
             </div>
         </div>
         <div class="site-buttons">
@@ -127,7 +131,7 @@
             </div>
             {% endif %}
             {% if admin and not anon %}
-            <a id="btn-mod" class="mod-link" href="/reports?status=open" aria-label="Moderation" title="Moderation">
+            <a id="btn-mod" class="mod-link" href="/admin" aria-label="Administration" title="Administration">
                 <div class="icon icon-warning data-count" data-count="{{ mod_report_score }}"></div>
             </a>
             {% endif %}

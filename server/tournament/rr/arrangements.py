@@ -9,7 +9,9 @@ ARR_STATUS_PENDING = "pending"
 ARR_STATUS_CHALLENGED = "challenged"
 ARR_STATUS_STARTED = "started"
 ARR_STATUS_FINISHED = "finished"
+ARR_STATUS_EXPIRED = "expired"
 ARR_SCHEDULE_TOLERANCE = timedelta(seconds=60)
+ARR_SCHEDULE_PAST_TOLERANCE = timedelta(minutes=5)
 ARR_REMINDER_WINDOW_START = timedelta(hours=23)
 ARR_REMINDER_WINDOW_END = timedelta(hours=24)
 ARR_REMINDER_REPEAT = timedelta(hours=2)
@@ -26,6 +28,7 @@ class RRArrangement:
         "id",
         "invite_id",
         "last_reminded_at",
+        "previous_game_ids",
         "round_no",
         "scheduled_at",
         "status",
@@ -49,6 +52,7 @@ class RRArrangement:
         black_date: datetime | None = None,
         scheduled_at: datetime | None = None,
         last_reminded_at: datetime | None = None,
+        previous_game_ids: list[str] | None = None,
     ) -> None:
         self.id = arrangement_id
         self.white = white
@@ -63,6 +67,7 @@ class RRArrangement:
         self.black_date = black_date
         self.scheduled_at = scheduled_at
         self.last_reminded_at = last_reminded_at
+        self.previous_game_ids = list(previous_game_ids or ())[:10]
 
     def players(self) -> tuple[str, str]:
         return (self.white, self.black)
@@ -96,6 +101,7 @@ class RRArrangement:
             "gid": self.game_id or "",
             "iid": self.invite_id or "",
             "ch": self.challenger or "",
+            "pg": self.previous_game_ids,
         }
         if self.white_date is not None:
             doc["d1"] = self.white_date
@@ -122,6 +128,7 @@ class RRArrangement:
             "d2": self.black_date,
             "sa": self.scheduled_at,
             "ln": self.last_reminded_at,
+            "pg": self.previous_game_ids,
         }
 
     def cell_json(self, row_username: str) -> dict[str, Any]:
@@ -139,7 +146,28 @@ class RRArrangement:
             "whiteSuggestedAt": self.white_date.isoformat() if self.white_date else "",
             "blackSuggestedAt": self.black_date.isoformat() if self.black_date else "",
             "scheduledAt": self.scheduled_at.isoformat() if self.scheduled_at else "",
+            "previousGameIds": list(self.previous_game_ids),
         }
+
+    def annul_game(self) -> str | None:
+        game_id = self.game_id
+        if game_id is None:
+            return None
+
+        self.previous_game_ids = [
+            game_id,
+            *(previous_id for previous_id in self.previous_game_ids if previous_id != game_id),
+        ][:10]
+        self.status = ARR_STATUS_PENDING
+        self.game_id = None
+        self.invite_id = None
+        self.challenger = None
+        self.white_date = None
+        self.black_date = None
+        self.scheduled_at = None
+        self.last_reminded_at = None
+        self.date = datetime.now(UTC)
+        return game_id
 
     def suggested_time(self, username: str) -> datetime | None:
         if username == self.white:

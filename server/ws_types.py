@@ -24,16 +24,7 @@ class TournamentChatMessage(ChatMessage, total=False):
     _id: object
 
 
-class LobbyChatMessage(ChatMessage):
-    type: Literal["lobbychat"]
-    _id: NotRequired[object]
-
-
-class LobbyChatMessageDb(LobbyChatMessage):
-    pass
-
-
-ChatLine: TypeAlias = ChatMessage | LobbyChatMessage | TournamentChatMessage
+ChatLine: TypeAlias = ChatMessage | TournamentChatMessage
 
 
 class LobbyCountMessage(TypedDict):
@@ -437,6 +428,7 @@ class TournamentUserConnectedMessage(TypedDict):
     chatClosed: bool
     private: bool
     createdBy: str
+    creatorCanManage: bool
     rrRequiresApproval: NotRequired[bool]
     rrJoiningClosed: NotRequired[bool]
     defender_title: NotRequired[str]
@@ -523,7 +515,6 @@ LobbyInboundMessage = (
     | DeleteSeekMessage
     | LeaveSeekMessage
     | AcceptSeekMessage
-    | LobbyChatMessage
     | CreateAutoPairingMessage
     | CancelAutoPairingMessage
 )
@@ -565,6 +556,12 @@ class TournamentRRChallengeMessage(TournamentIdMessage):
     arrangementId: str
 
 
+class TournamentRRAnnulGameMessage(TournamentIdMessage):
+    type: Literal["rr_annul_game"]
+    arrangementId: str
+    gameId: str
+
+
 class TournamentRRSetTimeMessage(TournamentIdMessage):
     type: Literal["rr_set_time"]
     arrangementId: str
@@ -589,6 +586,14 @@ class TournamentWithdrawMessage(TournamentIdMessage):
     type: Literal["withdraw"]
 
 
+class TournamentStartNextRoundMessage(TournamentIdMessage):
+    type: Literal["start_next_round"]
+
+
+class TournamentAbortMessage(TournamentIdMessage):
+    type: Literal["abort_tournament"]
+
+
 class TournamentUserConnectedRequest(TournamentIdMessage):
     type: Literal["tournament_user_connected"]
     username: NotRequired[str]
@@ -608,11 +613,14 @@ TournamentInboundMessage = (
     | TournamentRRManagementMessage
     | TournamentRRSetJoiningMessage
     | TournamentRRChallengeMessage
+    | TournamentRRAnnulGameMessage
     | TournamentRRSetTimeMessage
     | TournamentRRManagePlayerMessage
     | TournamentJoinMessage
     | TournamentPauseMessage
     | TournamentWithdrawMessage
+    | TournamentStartNextRoundMessage
+    | TournamentAbortMessage
     | TournamentUserConnectedRequest
     | TournamentLobbyChatMessage
 )
@@ -638,6 +646,11 @@ class SimulStartRequest(SimulIdMessage):
 
 class SimulJoinRequest(SimulIdMessage):
     type: Literal["join"]
+    variant: NotRequired[str]
+
+
+class SimulWithdrawRequest(SimulIdMessage):
+    type: Literal["withdraw"]
 
 
 class SimulApprovePlayerRequest(SimulIdMessage):
@@ -655,6 +668,7 @@ SimulInboundMessage = (
     | SimulLobbyChatMessage
     | SimulStartRequest
     | SimulJoinRequest
+    | SimulWithdrawRequest
     | SimulApprovePlayerRequest
     | SimulDenyPlayerRequest
 )

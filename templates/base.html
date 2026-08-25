@@ -20,6 +20,9 @@
         <link rel="stylesheet" href={{ static("reconnecting.css") }}>
         <link rel="stylesheet" href={{ static("bughouse.css") }}>
         <link rel="stylesheet" href={{ static("piece/mono/mono.css") }}>
+        {% if admin_section and view_css != "admin.css" %}
+        <link rel="stylesheet" href={{ static("admin.css") }}>
+        {% endif %}
         <link rel="stylesheet" href={{ static(view_css) }}>
         {% if view in ["round", "tv", "analysis", "puzzle", "editor", "embed", "paste"] %}
         <link
@@ -51,6 +54,7 @@
                                 data-catalogued-variants="{{ catalogued_variants }}"
                                 data-pm-friends-only="{{ pm_friends_only }}"
                                 data-corr-push-enabled="{{ corr_push_enabled }}"
+                                data-rr-push-enabled="{{ rr_push_enabled }}"
                                 data-home="{{ home }}"
                                 data-username="{{ username }}"
                                 data-admin="{{ admin }}"
@@ -65,6 +69,7 @@
                                 data-bot-challenge-status="{{ bot_challenge_status }}"
                                 data-bot-challenge-decline-reason="{{ bot_challenge_decline_reason }}"
                                 data-bot-challenge-opponent="{{ bot_challenge_opponent }}"
+                                data-bot-supported-variants="{{ bot_supported_variants }}"
                                 data-ply="{{ ply }}"
                                 data-initialfen="{{ initialFen}}"
                                 data-ct="{{ ct }}"
@@ -84,11 +89,13 @@
                                 data-level="{{ level }}"
                                 data-wplayer="{{ wplayer }}"
                                 data-wtitle="{{ wtitle }}"
+                                data-wpatron="{{ wpatron }}"
                                 data-wrating="{{ wrating }}"
                                 data-wrdiff="{{ wrdiff }}"
                                 data-wberserk="{{ wberserk }}"
                                 data-bplayer="{{ bplayer }}"
                                 data-btitle="{{ btitle }}"
+                                data-bpatron="{{ bpatron }}"
                                 data-brating="{{ brating }}"
                                 data-brdiff="{{ brdiff }}"
                                 data-bberserk="{{ bberserk }}"
@@ -103,7 +110,11 @@
                                 data-simulgames="{{ simul_games }}"
                                 data-simulhost="{{ simulhost }}"
                                 data-blogs="{{ blogs }}"
+                                data-timeline="{{ timeline }}"
                                 data-tournamentcreator="{{ tournamentcreator }}"
+                                data-tournamentmanager="{{ tournamentmanager }}"
+                                data-tournamentteamid="{{ tournamentteamid }}"
+                                data-tournamentteamname="{{ tournamentteamname }}"
                                 data-tournamentdirector="{{ tournamentdirector }}"
                                 data-challengeid="{{ challengeid }}"
                                 {% if oauth_username_selection %}
@@ -115,9 +126,11 @@
 
                                 data-wplayer-b="{{ wplayerB }}"
                                 data-wtitle-b="{{ wtitleB }}"
+                                data-wpatron-b="{{ wpatronB }}"
                                 data-wrating-b="{{ wratingB }}"
                                 data-bplayer-b="{{ bplayerB }}"
                                 data-btitle-b="{{ btitleB }}"
+                                data-bpatron-b="{{ bpatronB }}"
                                 data-brating-b="{{ bratingB }}"
                                 data-vapid="{{ vapid_public_key }}"
     >

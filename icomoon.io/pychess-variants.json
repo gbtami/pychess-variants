@@ -18717,8 +18717,11 @@
         {
           "ligatures": "checkbox-unchecked, checkbox2",
           "name": "checkbox-unchecked",
-          "order": 0,
-          "id": 340
+          "order": 534,
+          "id": 340,
+          "prevSize": 32,
+          "code": 9744,
+          "tempChar": ""
         },
         {
           "ligatures": "radio-checked, radio-button",
@@ -27165,7 +27168,7 @@
     "showCodes": true,
     "gridSize": 16,
     "quickUsageToken": {
-      "pychess-variants": "NjRlOGMwZGFhYiMxNzc5NjIxMTc2I0NjMVJsamhVQ2xrYTdJUEphN016aUVVSFBzSkNkTEZnU2pUVjAzOGFlYmtn"
+      "pychess-variants": "NjYyNDkxODRlNCMxNzg2MzQ3ODEwI3Z2MzZpb1pOS0pSM0p0WjlKSVJaTFN4Wjc0L01ZN2t0U3VQUUQ3aW4vQWtS"
     },
     "showLiga": false
   },

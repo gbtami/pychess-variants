@@ -7,10 +7,11 @@ from datetime import UTC, datetime
 import aiohttp_session
 from aiohttp import web
 from aiohttp_sse import sse_response
-from const import SSE_EVENT_QUEUE_MAXSIZE
-from json_utils import json_dumps, json_response
+from const import SSE_EVENT_QUEUE_MAXSIZE, SYSTEM_USER
+from json_utils import json_dumps
+from json_utils import json_response as raw_json_response
 from link_filter import sanitize_user_message
-from newid import new_id
+from newid import id8, new_id
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
 from sse_utils import consume_sse_queue, enqueue_sse_payload, send_sse_payload
@@ -21,10 +22,149 @@ MAX_MSG_LEN = 2000
 THREAD_MSG_PAGE_SIZE = 100
 THREAD_LIST_LIMIT = 80
 
+INBOX_ERROR_CODES = {
+    "Login required": "login_required",
+    "Invalid contact": "invalid_contact",
+    "User not found": "user_not_found",
+    "Invalid before value": "invalid_before",
+    "Invalid request": "invalid_request",
+    "Message is empty": "message_empty",
+    "Too many similar messages. Please wait and retry.": "too_many_similar_messages",
+    "Cannot send messages from this account": "cannot_send_from_account",
+    "User is blocked": "user_blocked",
+    "Cannot message this user": "cannot_message_user",
+    "Only friends can message this user": "friends_only",
+}
+
+
+def inbox_error_code(message: str) -> str | None:
+    if message.startswith("Message too long (max "):
+        return "message_too_long"
+    if message == f"{SYSTEM_USER} doesn't accept new messages.":
+        return "system_user_no_messages"
+    if message == f"{SYSTEM_USER} system messages cannot be deleted.":
+        return "system_messages_cannot_delete"
+    return INBOX_ERROR_CODES.get(message)
+
+
+def json_response(payload: dict[str, object], *, status: int = 200) -> web.Response:
+    if payload.get("type") == "error" and "code" not in payload:
+        message = payload.get("message")
+        if isinstance(message, str):
+            code = inbox_error_code(message)
+            if code is not None:
+                payload = {**payload, "code": code}
+    return raw_json_response(payload, status=status)
+
 
 def _thread_id(user1: str, user2: str) -> str:
     first, second = sorted((user1, user2), key=lambda x: (x.lower(), x))
     return f"{first}:{second}"
+
+
+def _message_doc(
+    sender: str, recipient: str, text: str, now: datetime, *, message_id: str
+) -> dict[str, object]:
+    return {
+        "_id": message_id,
+        "tid": _thread_id(sender, recipient),
+        "from": sender,
+        "to": recipient,
+        "text": text,
+        "createdAt": now,
+    }
+
+
+def _thread_update(sender: str, recipient: str, text: str, now: datetime) -> dict[str, object]:
+    return {
+        "$set": {
+            "users": [sender, recipient],
+            "updatedAt": now,
+            "lastMsg": {
+                "user": sender,
+                "text": text,
+                "createdAt": now,
+            },
+            "readBy": [sender],
+        },
+        "$pull": {"deletedBy": {"$in": [sender, recipient]}},
+    }
+
+
+async def send_system_inbox_messages(
+    app_state, recipients: list[str], text: str, *, batch_size: int = 200
+) -> int:
+    """Persist one PyChess inbox message per recipient without loading offline users."""
+    if app_state.db is None or not recipients:
+        return 0
+
+    now = datetime.now(UTC)
+    sent = 0
+    unique_recipients = list(dict.fromkeys(user for user in recipients if user != SYSTEM_USER))
+
+    for offset in range(0, len(unique_recipients), batch_size):
+        batch = unique_recipients[offset : offset + batch_size]
+        message_docs = [
+            _message_doc(
+                SYSTEM_USER,
+                recipient,
+                text,
+                now,
+                message_id=id8() + id8(),
+            )
+            for recipient in batch
+        ]
+        await app_state.db.inbox_msg.insert_many(message_docs, ordered=False)
+
+        thread_ids = {_thread_id(SYSTEM_USER, recipient) for recipient in batch}
+        existing_ids = {
+            doc["_id"]
+            async for doc in app_state.db.inbox_thread.find(
+                {"_id": {"$in": list(thread_ids)}}, projection={"_id": 1}
+            )
+        }
+        if existing_ids:
+            await app_state.db.inbox_thread.update_many(
+                {"_id": {"$in": list(existing_ids)}},
+                {
+                    "$set": {
+                        "updatedAt": now,
+                        "lastMsg": {
+                            "user": SYSTEM_USER,
+                            "text": text,
+                            "createdAt": now,
+                        },
+                        "readBy": [SYSTEM_USER],
+                        "deletedBy": [],
+                    }
+                },
+            )
+
+        new_threads = [
+            {
+                "_id": _thread_id(SYSTEM_USER, recipient),
+                "users": [SYSTEM_USER, recipient],
+                "updatedAt": now,
+                "lastMsg": {
+                    "user": SYSTEM_USER,
+                    "text": text,
+                    "createdAt": now,
+                },
+                "readBy": [SYSTEM_USER],
+            }
+            for recipient in batch
+            if _thread_id(SYSTEM_USER, recipient) not in existing_ids
+        ]
+        if new_threads:
+            await app_state.db.inbox_thread.insert_many(new_threads, ordered=False)
+        sent += len(batch)
+
+        for recipient in batch:
+            if recipient in app_state.users.data:
+                await _push_inbox_state(app_state, recipient, SYSTEM_USER)
+        await asyncio.sleep(0)
+
+    return sent
 
 
 def _other_user(users: list[str], me: str) -> str | None:
@@ -118,7 +258,8 @@ async def inbox_threads(request: web.Request) -> web.Response:
         for contact in (_other_user(doc.get("users", []), username) for doc in docs)
         if contact is not None
     ]
-    titles = await app_state.public_users.get_titles(contacts)
+    ordinary_contacts = [contact for contact in contacts if contact != SYSTEM_USER]
+    titles, patrons = await app_state.public_users.get_titles_and_patrons(ordinary_contacts)
 
     threads: list[dict[str, object]] = []
     for doc in docs:
@@ -133,8 +274,10 @@ async def inbox_threads(request: web.Request) -> web.Response:
         threads.append(
             {
                 "user": contact,
-                "title": titles.get(contact, ""),
+                "title": "" if contact == SYSTEM_USER else titles.get(contact, ""),
+                "system": contact == SYSTEM_USER,
                 "online": bool(live_contact and live_contact.online),
+                "patron": contact in patrons,
                 "updatedAt": doc.get("updatedAt"),
                 "unread": unread,
                 "lastMsg": {
@@ -163,10 +306,12 @@ async def inbox_thread(request: web.Request) -> web.Response:
     profile = await app_state.public_users.get_profile(contact)
     if profile is None or not profile.enabled or profile.username.startswith("Anon-"):
         return json_response({"type": "error", "message": "User not found"}, status=404)
-    blocked_by_me = contact in me.blocked
-    blocked_by_them = username in profile.blocked
+    system_contact = contact == SYSTEM_USER
+    blocked_by_me = False if system_contact else contact in me.blocked
+    blocked_by_them = False if system_contact else username in profile.blocked
     can_message = (
-        (not blocked_by_me)
+        (not system_contact)
+        and (not blocked_by_me)
         and (not blocked_by_them)
         and await _can_send_to_contact(app_state, me, contact, profile)
     )
@@ -212,7 +357,9 @@ async def inbox_thread(request: web.Request) -> web.Response:
         {
             "contact": {
                 "name": profile.username,
-                "title": profile.title,
+                "title": "" if system_contact else profile.title,
+                "system": system_contact,
+                "patron": profile.patron,
                 "online": bool(
                     app_state.users.data.get(profile.username)
                     and app_state.users.data[profile.username].online
@@ -237,6 +384,11 @@ async def inbox_post(request: web.Request) -> web.Response:
 
     if not USERNAME_RE.match(contact) or contact == username:
         return json_response({"type": "error", "message": "Invalid contact"}, status=400)
+    if contact == SYSTEM_USER:
+        return json_response(
+            {"type": "error", "message": f"{SYSTEM_USER} doesn't accept new messages."},
+            status=403,
+        )
 
     data = await read_post_data(request)
     if data is None:
@@ -281,31 +433,12 @@ async def inbox_post(request: web.Request) -> web.Response:
     tid = _thread_id(username, contact)
 
     msg_id = await new_id(app_state.db.inbox_msg)
-    msg_doc = {
-        "_id": msg_id,
-        "tid": tid,
-        "from": username,
-        "to": contact,
-        "text": text,
-        "createdAt": now,
-    }
+    msg_doc = _message_doc(username, contact, text, now, message_id=msg_id)
 
     await app_state.db.inbox_msg.insert_one(msg_doc)
     await app_state.db.inbox_thread.update_one(
         {"_id": tid},
-        {
-            "$set": {
-                "users": [username, contact],
-                "updatedAt": now,
-                "lastMsg": {
-                    "user": username,
-                    "text": text,
-                    "createdAt": now,
-                },
-                "readBy": [username],
-            },
-            "$pull": {"deletedBy": {"$in": [username, contact]}},
-        },
+        _thread_update(username, contact, text, now),
         upsert=True,
     )
 
@@ -346,6 +479,11 @@ async def inbox_delete(request: web.Request) -> web.Response:
 
     if not USERNAME_RE.match(contact) or contact == username:
         return json_response({"type": "error", "message": "Invalid contact"}, status=400)
+    if contact == SYSTEM_USER:
+        return json_response(
+            {"type": "error", "message": f"{SYSTEM_USER} system messages cannot be deleted."},
+            status=403,
+        )
 
     tid = _thread_id(username, contact)
     await app_state.db.inbox_msg.update_many({"tid": tid}, {"$addToSet": {"deletedBy": username}})

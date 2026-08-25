@@ -1,5 +1,6 @@
 import asyncio
 from datetime import UTC, datetime
+from unittest.mock import AsyncMock, patch
 
 from const import FLAG, TEST_PREFIX
 from glicko2.glicko2 import new_default_perf_map
@@ -167,6 +168,58 @@ class TournamentScoringTestCase(TournamentTestCase):
                 await reloaded_tournament.clock_task
             except asyncio.CancelledError:
                 pass
+
+    async def test_finished_game_broadcasts_updates_as_one_ordered_batch(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = ArenaTournament(
+            app_state, tid, variant="chess", before_start=0, minutes=10, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        player_a = User(
+            app_state, username=f"{TEST_PREFIX}A", title="TEST", perfs=make_test_perfs()
+        )
+        player_b = User(
+            app_state, username=f"{TEST_PREFIX}B", title="TEST", perfs=make_test_perfs()
+        )
+        app_state.users[player_a.username] = player_a
+        app_state.users[player_b.username] = player_b
+        player_a.tournament_sockets[tid] = {None}
+        player_b.tournament_sockets[tid] = {None}
+        await self.tournament.join(player_a)
+        await self.tournament.join(player_b)
+        await self.tournament.start(datetime.now(UTC))
+
+        _, games = await self.tournament.create_new_pairings(self.tournament.waiting_players())
+        game = games[0]
+        self.tournament.top_game = game
+        game.result = "1-0"
+        game.status = FLAG
+        game.board.ply = 20
+
+        broadcast_many = AsyncMock()
+
+        def discard_background_task(coro, *, name=None):
+            coro.close()
+
+        with (
+            patch.object(self.tournament, "broadcast_many", broadcast_many),
+            patch.object(
+                app_state,
+                "create_background_task",
+                side_effect=discard_background_task,
+            ),
+        ):
+            await self.tournament.game_update(game)
+
+        broadcast_many.assert_awaited_once()
+        responses = broadcast_many.await_args.args[0]
+        self.assertEqual(
+            [response["type"] for response in responses],
+            ["duels", "game_update", "tstatus", "gameEnd"],
+        )
 
     async def test_arena_berserk_bonus_points_persisted(self):
         app_state = get_app_state(self.app)

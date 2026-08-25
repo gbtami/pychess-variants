@@ -11,6 +11,7 @@ export class TwoBoardPlayer {
         readonly username: string,
         readonly title: string,
         readonly rating: string,
+        readonly patron: boolean,
     ) {}
 }
 

@@ -34,6 +34,16 @@ export function displayUsername(username: string, anon?: boolean): string {
     return isAnonUsername(username, anon) ? _('Anonymous') : username;
 }
 
+export function patronWing(patron: boolean): VNode | string {
+    return patron
+        ? h('i-side.icon.icon-patron-wing', {
+              attrs: {
+                  title: _('PyChess Patron'),
+              },
+          })
+        : '';
+}
+
 export function userLink(
     username: string,
     children: VNode | string | Array<VNode | string>,

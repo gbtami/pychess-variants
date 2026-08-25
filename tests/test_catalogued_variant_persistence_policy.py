@@ -3,19 +3,64 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
 from catalogued_variants import (
+    _client_doc,
     _has_active_catalogued_games,
+    _remove_legacy_catalogued_icon_fields,
     archive_catalogued_variant,
     catalogued_variant_client_doc_for_game,
     catalogued_variant_games_are_persisted,
     ensure_catalogued_variant_from_game_doc,
     find_catalogued_variant_doc,
+    restore_catalogued_variant,
 )
 from const import ABORTED, STARTED
 from variants import (
+    CATALOGUED_VARIANT_ICON,
     is_catalogued_variant,
     register_catalogued_server_variant,
     unregister_catalogued_server_variant,
 )
+
+
+class CataloguedVariantIconPolicyTest(unittest.TestCase):
+    def test_client_metadata_does_not_expose_legacy_stored_icon(self) -> None:
+        client_doc = _client_doc(
+            {
+                "name": "legacy_icon_test",
+                "displayName": "Legacy icon test",
+                "ini": "[legacy_icon_test:chess]\n",
+                "startFen": "8/8/8/8/8/8/8/K6k w - - 0 1",
+                "width": 8,
+                "height": 8,
+                "pieces": ["k"],
+                "icon": "◇",
+            }
+        )
+
+        self.assertNotIn("icon", client_doc)
+
+    def test_runtime_registration_uses_code_defined_icon(self) -> None:
+        name = "runtime_icon_test"
+        unregister_catalogued_server_variant(name)
+        self.addCleanup(unregister_catalogued_server_variant, name)
+
+        variant = register_catalogued_server_variant(name, "Runtime icon test")
+
+        self.assertEqual(variant.icon, CATALOGUED_VARIANT_ICON)
+
+
+class CataloguedVariantLegacyIconMigrationTest(unittest.IsolatedAsyncioTestCase):
+    async def test_removes_persisted_icon_fields(self) -> None:
+        collection = SimpleNamespace(
+            update_many=AsyncMock(return_value=SimpleNamespace(modified_count=2))
+        )
+
+        await _remove_legacy_catalogued_icon_fields(collection)
+
+        collection.update_many.assert_awaited_once_with(
+            {"icon": {"$exists": True}},
+            {"$unset": {"icon": ""}},
+        )
 
 
 class CataloguedVariantPersistencePolicyTest(unittest.TestCase):
@@ -53,7 +98,7 @@ class CataloguedVariantPersistencePolicyTest(unittest.TestCase):
 
 class CataloguedVariantGameClientDocumentTest(unittest.IsolatedAsyncioTestCase):
     def make_game(self, name: str):
-        server_variant = register_catalogued_server_variant(name, name, "V")
+        server_variant = register_catalogued_server_variant(name, name)
         self.addCleanup(unregister_catalogued_server_variant, name)
         return SimpleNamespace(
             id="game-id",
@@ -151,7 +196,7 @@ class CataloguedVariantArchiveActiveGameTest(unittest.IsolatedAsyncioTestCase):
         )
         request = SimpleNamespace()
 
-        register_catalogued_server_variant(name, "Archive active game test", "V")
+        register_catalogued_server_variant(name, "Archive active game test")
         self.addCleanup(unregister_catalogued_server_variant, name)
 
         with patch(
@@ -168,6 +213,70 @@ class CataloguedVariantArchiveActiveGameTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(active_game.status, STARTED)
         self.assertNotIn(name, app_state.catalogued_variants)
         self.assertFalse(is_catalogued_variant(name))
+
+    async def test_restore_checks_quota_before_reactivating_archived_variant(self) -> None:
+        name = "restore_quota_test"
+        doc = {
+            "name": name,
+            "displayName": "Restore quota test",
+            "author": "author",
+            "archived": True,
+            "enabled": False,
+        }
+        collection = SimpleNamespace(update_one=AsyncMock())
+        app_state = SimpleNamespace(db={"catalogued_variant": collection}, catalogued_variants={})
+        request = SimpleNamespace()
+
+        with (
+            patch(
+                "catalogued_variants._load_owned_doc",
+                AsyncMock(return_value=(app_state, "author", name, doc)),
+            ),
+            patch(
+                "catalogued_variants._ensure_catalogued_variant_quota",
+                AsyncMock(side_effect=Exception("quota checked")),
+            ) as ensure_quota,
+            self.assertRaisesRegex(Exception, "quota checked"),
+        ):
+            await restore_catalogued_variant(request)
+
+        ensure_quota.assert_awaited_once_with(app_state, "author")
+        collection.update_one.assert_not_awaited()
+
+    async def test_restore_does_not_recheck_quota_for_already_active_variant(self) -> None:
+        name = "restore_active_test"
+        doc = {
+            "name": name,
+            "displayName": "Restore active test",
+            "author": "author",
+            "archived": False,
+            "enabled": True,
+        }
+        collection = SimpleNamespace(update_one=AsyncMock())
+        app_state = SimpleNamespace(db={"catalogued_variant": collection}, catalogued_variants={})
+        request = SimpleNamespace()
+
+        with (
+            patch(
+                "catalogued_variants._load_owned_doc",
+                AsyncMock(return_value=(app_state, "author", name, doc)),
+            ),
+            patch(
+                "catalogued_variants._ensure_catalogued_variant_quota",
+                new=AsyncMock(),
+            ) as ensure_quota,
+            patch("catalogued_variants.register_catalogued_variant_doc"),
+            patch("catalogued_variants._game_count", new=AsyncMock(return_value=0)),
+            patch(
+                "catalogued_variants._client_doc",
+                return_value={"name": name},
+            ),
+        ):
+            response = await restore_catalogued_variant(request)
+
+        self.assertEqual(response.status, 200)
+        ensure_quota.assert_not_awaited()
+        collection.update_one.assert_awaited_once()
 
     def test_saved_game_inline_ini_restores_archived_variant_after_restart(self) -> None:
         name = "archive_reload_test"
@@ -213,6 +322,7 @@ class CataloguedVariantArchiveActiveGameTest(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(is_catalogued_variant(name))
         self.assertIn(name, app_state.catalogued_variants)
         restored = app_state.catalogued_variants[name]
+        self.assertNotIn("icon", restored)
         self.assertEqual(restored["ini"], game_doc["vini"])
         self.assertEqual(restored["displayName"], game_doc["vd"])
         self.assertEqual(restored["author"], game_doc["vby"])

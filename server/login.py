@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import base64
 import hashlib
 import logging
@@ -52,7 +54,17 @@ def normalized_username(username: str) -> str:
 async def username_exists(app_state, username: str) -> bool:
     username_lower = normalized_username(username)
     existing_user = await app_state.db.user.find_one(
-        {"$or": [{"_id": username}, {USERNAME_LOWER_FIELD: username_lower}]},
+        {
+            "$or": [
+                {"_id": username},
+                {
+                    USERNAME_LOWER_FIELD: {
+                        "$eq": username_lower,
+                        "$type": "string",
+                    }
+                },
+            ]
+        },
         projection={"_id": 1},
     )
     return existing_user is not None

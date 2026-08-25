@@ -26,6 +26,7 @@ import { profileView } from './profile';
 import { tournamentView } from './tournament';
 import { tournamentRRView } from './tournamentRR';
 import { simulView } from './simul/simul';
+import { initSimulForm } from './simul/simulForm';
 import { calendarView } from './calendar';
 import { pasteView, recordImportFfishError } from './paste';
 import { myVariantsView } from './myVariants';
@@ -59,6 +60,8 @@ import { gameSearchView, initGameSearch } from './gameSearch';
 import { initProfileActionOverflow } from './profileActionOverflow';
 import { initVariantAuthors } from './variantAuthors';
 import { initSearchBarDismissal } from './searchBar';
+import { timelinePageView } from './timeline';
+import { initAdminSystemMessages } from './adminSystemMessages';
 
 // redirect to correct URL except Heroku preview/dev apps
 if (
@@ -108,10 +111,16 @@ function initModel(el: HTMLElement) {
         simulId: el.getAttribute('data-simulid') ?? '',
         simulname: el.getAttribute('data-simulname') ?? '',
         tournamentcreator: el.getAttribute('data-tournamentcreator') ?? '',
+        tournamentmanager: el.getAttribute('data-tournamentmanager') === 'True',
+        tournamentteamid: el.getAttribute('data-tournamentteamid') ?? '',
+        tournamentteamname: el.getAttribute('data-tournamentteamname') ?? '',
         inviter: el.getAttribute('data-inviter') ?? '',
         botChallengeStatus: el.getAttribute('data-bot-challenge-status') ?? '',
         botChallengeDeclineReason: el.getAttribute('data-bot-challenge-decline-reason') ?? '',
         botChallengeOpponent: el.getAttribute('data-bot-challenge-opponent') ?? '',
+        botSupportedVariants: JSON.parse(el.getAttribute('data-bot-supported-variants') || 'null') as
+            | string[]
+            | null,
         challengeId: el.getAttribute('data-challengeid') ?? '',
         ply: parseInt('' + el.getAttribute('data-ply')),
         initialFen: el.getAttribute('data-initialfen') ?? '',
@@ -120,22 +129,26 @@ function initModel(el: HTMLElement) {
 
         wplayer: el.getAttribute('data-wplayer') ?? '',
         wtitle: el.getAttribute('data-wtitle') ?? '',
+        wpatron: el.getAttribute('data-wpatron') === 'True',
         wrating: el.getAttribute('data-wrating') ?? '',
         wrdiff: parseInt('' + el.getAttribute('data-wrdiff')),
         wberserk: el.getAttribute('data-wberserk') ?? '',
 
         bplayer: el.getAttribute('data-bplayer') ?? '',
         btitle: el.getAttribute('data-btitle') ?? '',
+        bpatron: el.getAttribute('data-bpatron') === 'True',
         brating: el.getAttribute('data-brating') ?? '',
         brdiff: parseInt('' + el.getAttribute('data-brdiff')),
         bberserk: el.getAttribute('data-bberserk') ?? '',
 
         wplayerB: el.getAttribute('data-wplayer-b') ?? '',
         wtitleB: el.getAttribute('data-wtitle-b') ?? '',
+        wpatronB: el.getAttribute('data-wpatron-b') === 'True',
         wratingB: el.getAttribute('data-wrating-b') ?? '',
 
         bplayerB: el.getAttribute('data-bplayer-b') ?? '',
         btitleB: el.getAttribute('data-btitle-b') ?? '',
+        bpatronB: el.getAttribute('data-bpatron-b') === 'True',
         bratingB: el.getAttribute('data-brating-b') ?? '',
 
         fen: el.getAttribute('data-fen') ?? '',
@@ -155,6 +168,7 @@ function initModel(el: HTMLElement) {
         assetURL: el.getAttribute('data-asset-url') ?? '',
         puzzle: el.getAttribute('data-puzzle') ?? '',
         blogs: el.getAttribute('data-blogs') ?? '',
+        timeline: el.getAttribute('data-timeline') ?? '[]',
         corrGames: el.getAttribute('data-corrgames') ?? '',
         simulGames: el.getAttribute('data-simulgames') ?? '',
         simulHost: el.getAttribute('data-simulhost') === 'True',
@@ -166,6 +180,9 @@ function initModel(el: HTMLElement) {
               }
             : null,
         pushVapidKey: el.getAttribute('data-vapid') ?? '',
+        pushEnabled:
+            el.getAttribute('data-corr-push-enabled') !== 'False' ||
+            el.getAttribute('data-rr-push-enabled') === 'True',
     };
 }
 
@@ -225,6 +242,8 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
             return h('div#main-wrap', [inboxView(model)]);
         case 'forum':
             return h('div#main-wrap', [forumView(model)]);
+        case 'timeline':
+            return h('div#main-wrap', [timelinePageView(model)]);
         case 'thanks':
             return h('div#main-wrap', h('h2', _('Thank you for your support!')));
         default:
@@ -278,7 +297,7 @@ function start() {
     if (model['embed']) return;
 
     initUserMiniWidget(model.assetURL, model.username, model.anon);
-    void initPushSubscription(model.anon, model.pushVapidKey);
+    if (model.pushEnabled) void initPushSubscription(model.anon, model.pushVapidKey);
     initUblogLike();
     initUblogMarkdown();
     initUblogEditor();
@@ -290,6 +309,8 @@ function start() {
 
     renderTimeago();
     initTournamentForm();
+    initSimulForm();
+    initAdminSystemMessages();
 
     // searchbar
     const searchIcon = document.querySelector('.search-icon') as HTMLElement;

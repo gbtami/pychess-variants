@@ -49,21 +49,27 @@ export type PyChessModel = {
     tournamentname: string;
     simulname: string;
     tournamentcreator: string;
+    tournamentmanager: boolean;
+    tournamentteamid: string;
+    tournamentteamname: string;
     inviter: string;
     botChallengeStatus: string;
     botChallengeDeclineReason: string;
     botChallengeOpponent: string;
+    botSupportedVariants: string[] | null;
     challengeId: string;
     ply: number;
     ct: CrossTable | string;
     board: MsgBoard | string;
     wplayer: string;
     wtitle: string;
+    wpatron: boolean;
     wrating: string; // string, because can contain "?" suffix for provisional rating
     wrdiff: number;
     wberserk: string;
     bplayer: string;
     btitle: string;
+    bpatron: boolean;
     brating: string; // string, because can contain "?" suffix for provisional rating
     brdiff: number;
     bberserk: string;
@@ -87,12 +93,15 @@ export type PyChessModel = {
 
     wplayerB: string;
     wtitleB: string;
+    wpatronB: boolean;
     wratingB: string; // string, because can contain "?" suffix for provisional rating
     bplayerB: string;
     btitleB: string;
+    bpatronB: boolean;
     bratingB: string; // string, because can contain "?" suffix for provisional rating
 
     blogs: string;
+    timeline: string;
     corrGames: string;
     simulGames: string;
     simulHost: boolean;
@@ -102,6 +111,7 @@ export type PyChessModel = {
         oauth_username: string;
     } | null;
     pushVapidKey: string;
+    pushEnabled: boolean;
 
     // Simul-specific properties
     simulId?: string;

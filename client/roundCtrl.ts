@@ -12,6 +12,7 @@ import { patch } from './document';
 import { boardSettings } from './boardSettings';
 import { Clock } from './clock';
 import { sound } from './sound';
+import { redirectFirst } from './tournamentAlerts';
 import { fogFen } from './variants';
 import { WHITE, BLACK, uci2LastMove, getCounting, isHandicap } from './chess';
 import { crosstableView } from './crosstable';
@@ -120,7 +121,7 @@ export class RoundController extends GameController {
     lastMaybeSentMsgMove: MsgMove | undefined;
     simulRoundHost?: SimulRoundHostController;
 
-    constructor(el: HTMLElement, model: PyChessModel) {
+    constructor(el: HTMLElement, model: PyChessModel, aliceBoardEl?: HTMLElement) {
         super(
             el,
             model,
@@ -128,6 +129,7 @@ export class RoundController extends GameController {
             document.getElementById('pocket0') as HTMLElement,
             document.getElementById('pocket1') as HTMLElement,
             '',
+            aliceBoardEl,
         );
         this.focus = !document.hidden;
         document.addEventListener('visibilitychange', () => {
@@ -176,10 +178,7 @@ export class RoundController extends GameController {
             console.log('Reconnecting in round...');
 
             const container = document.getElementById('player1') as HTMLElement;
-            patch(
-                container,
-                h('i-side.online#player1', { class: { icon: true, 'icon-online': false, 'icon-offline': true } }),
-            );
+            this.renderPresenceIcon(container, 'player1', false);
         };
 
         this.sock = createWebsocket(
@@ -203,6 +202,7 @@ export class RoundController extends GameController {
 
         this.settings = true;
         this.autoPromote = localStorage.autoPromote === undefined ? false : localStorage.autoPromote === 'true';
+        this.autoClaimDraw = localStorage.autoClaimDraw === undefined ? false : localStorage.autoClaimDraw === 'true';
         this.materialDifference =
             localStorage.materialDifference === undefined ? false : localStorage.materialDifference === 'true';
         // Track per-move Jieqi capture identities so replay can render captures at any ply.
@@ -281,8 +281,32 @@ export class RoundController extends GameController {
         // initialize users
         const player0 = document.getElementById('rplayer0') as HTMLElement;
         const player1 = document.getElementById('rplayer1') as HTMLElement;
-        this.vplayer0 = patch(player0, player('player0', this.titles[0], this.players[0], this.ratings[0], this.level));
-        this.vplayer1 = patch(player1, player('player1', this.titles[1], this.players[1], this.ratings[1], this.level));
+        this.vplayer0 = patch(
+            player0,
+            player(
+                'player0',
+                this.titles[0],
+                this.players[0],
+                this.ratings[0],
+                this.level,
+                false,
+                undefined,
+                this.patrons[0],
+            ),
+        );
+        this.vplayer1 = patch(
+            player1,
+            player(
+                'player1',
+                this.titles[1],
+                this.players[1],
+                this.ratings[1],
+                this.level,
+                false,
+                undefined,
+                this.patrons[1],
+            ),
+        );
 
         if (this.variant.material.showDiff) {
             const materialTop = document.querySelector('.material-top') as HTMLElement;
@@ -628,6 +652,9 @@ export class RoundController extends GameController {
                 this.players[this.flipped() ? 1 : 0],
                 this.ratings[this.flipped() ? 1 : 0],
                 this.level,
+                false,
+                undefined,
+                this.patrons[this.flipped() ? 1 : 0],
             ),
         );
         this.vplayer1 = patch(
@@ -638,6 +665,9 @@ export class RoundController extends GameController {
                 this.players[this.flipped() ? 0 : 1],
                 this.ratings[this.flipped() ? 0 : 1],
                 this.level,
+                false,
+                undefined,
+                this.patrons[this.flipped() ? 0 : 1],
             ),
         );
 
@@ -753,6 +783,27 @@ export class RoundController extends GameController {
         if (!confirmed) return;
         this.doSend({ type: 'draw', gameId: this.gameId });
         this.setDialog(_('Draw offer sent'));
+    };
+
+    private autoClaimDrawRequested = false;
+
+    private maybeAutoClaimDraw = () => {
+        if (this.spectator || this.status >= 0 || !this.autoClaimDraw || !this.ffishBoard) {
+            this.autoClaimDrawRequested = false;
+            return;
+        }
+        // Claimable draws (repetition / N-move) are optional ends: over only when claimDraw is true.
+        const claimable =
+            this.ffishBoard.isGameOver(true) &&
+            !this.ffishBoard.isGameOver(false) &&
+            this.ffishBoard.result(true) === '1/2-1/2';
+        if (!claimable) {
+            this.autoClaimDrawRequested = false;
+            return;
+        }
+        if (this.autoClaimDrawRequested) return;
+        this.autoClaimDrawRequested = true;
+        this.doSend({ type: 'draw', gameId: this.gameId });
     };
 
     private rejectDrawOffer = () => {
@@ -933,7 +984,10 @@ export class RoundController extends GameController {
     };
 
     private onMsgNewGame = (msg: MsgNewGame) => {
-        window.location.assign(this.home + '/' + msg['gameId']);
+        redirectFirst(msg.gameId, () => {
+            sound.genericNotify();
+            window.setTimeout(() => window.location.assign(this.home + '/' + msg.gameId), 700);
+        });
     };
 
     private onMsgViewRematch = (msg: MsgViewRematch) => {
@@ -1306,11 +1360,16 @@ export class RoundController extends GameController {
         if (this.spectator) {
             if (latestPly) {
                 this.chessground.set({
-                    fen: this.fog ? fogFen(this.fullfen) : this.fullfen,
+                    fen: this.fog ? fogFen(this.fullfen) : this.displayFen(this.fullfen),
                     turnColor: this.turnColor,
                     check: msg.check,
                     lastMove: this.fog ? undefined : lastMove,
                     movable: { color: undefined },
+                });
+                this.syncAliceSplitBoard(this.fullfen, {
+                    turnColor: this.turnColor,
+                    check: msg.check,
+                    lastMove,
                 });
                 animatePassMove(this.chessground, this.variant.rules.pass && !this.fog, lastMove);
             }
@@ -1329,7 +1388,7 @@ export class RoundController extends GameController {
             if (this.turnColor === this.mycolor) {
                 if (latestPly) {
                     this.chessground.set({
-                        fen: this.fog ? fogFen(this.fullfen) : this.fullfen,
+                        fen: this.fog ? fogFen(this.fullfen) : this.displayFen(this.fullfen),
                         turnColor: this.turnColor,
                         movable: {
                             free: false,
@@ -1337,6 +1396,11 @@ export class RoundController extends GameController {
                         },
                         check: msg.check,
                         lastMove: this.fog ? undefined : lastMove,
+                    });
+                    this.syncAliceSplitBoard(this.fullfen, {
+                        turnColor: this.turnColor,
+                        check: msg.check,
+                        lastMove,
                     });
                     animatePassMove(this.chessground, this.variant.rules.pass && !this.fog, lastMove);
 
@@ -1365,10 +1429,15 @@ export class RoundController extends GameController {
             } else {
                 this.chessground.set({
                     // giving fen here will place castling rooks to their destination in chess960 variants
-                    fen: this.fog ? fogFen(this.fullfen) : this.fullfen,
+                    fen: this.fog ? fogFen(this.fullfen) : this.displayFen(this.fullfen),
                     turnColor: this.turnColor,
                     check: msg.check,
                     lastMove: lastMove,
+                });
+                this.syncAliceSplitBoard(this.fullfen, {
+                    turnColor: this.turnColor,
+                    check: msg.check,
+                    lastMove,
                 });
                 animatePassMove(this.chessground, this.variant.rules.pass, lastMove);
 
@@ -1391,6 +1460,7 @@ export class RoundController extends GameController {
             this.updateMaterial();
         }
 
+        this.maybeAutoClaimDraw();
         this.simulRoundHost?.onBoard(msg);
     }
 
@@ -1732,6 +1802,24 @@ export class RoundController extends GameController {
         setTimeout(this.showExpiration, 250);
     };
 
+    private renderPresenceIcon(container: HTMLElement, id: 'player0' | 'player1', online: boolean): VNode {
+        const patron = container.classList.contains('icon-patron-wing');
+        return patch(
+            container,
+            h(`i-side#${id}`, {
+                class: {
+                    icon: true,
+                    online,
+                    offline: !online,
+                    'icon-online': online && !patron,
+                    'icon-offline': !online && !patron,
+                    'icon-patron-wing': patron,
+                },
+                attrs: patron ? { title: _('PyChess Patron') } : {},
+            }),
+        );
+    }
+
     private onMsgUserConnected = (msg: MsgUserConnected) => {
         this.username = msg['username'];
         if (this.spectator) {
@@ -1744,10 +1832,7 @@ export class RoundController extends GameController {
             this.doSend({ type: 'is_user_present', username: opp_name, gameId: this.gameId });
 
             const container = document.getElementById('player1') as HTMLElement;
-            patch(
-                container,
-                h('i-side.online#player1', { class: { icon: true, 'icon-online': true, 'icon-offline': false } }),
-            );
+            this.renderPresenceIcon(container, 'player1', true);
 
             // prevent sending gameStart message when user just reconnecting
             if (msg.ply === 0) {
@@ -1766,16 +1851,10 @@ export class RoundController extends GameController {
         // console.log(msg);
         if (msg.username === this.players[0]) {
             const container = document.getElementById('player0') as HTMLElement;
-            patch(
-                container,
-                h('i-side.online#player0', { class: { icon: true, 'icon-online': true, 'icon-offline': false } }),
-            );
+            this.renderPresenceIcon(container, 'player0', true);
         } else {
             const container = document.getElementById('player1') as HTMLElement;
-            patch(
-                container,
-                h('i-side.online#player1', { class: { icon: true, 'icon-online': true, 'icon-offline': false } }),
-            );
+            this.renderPresenceIcon(container, 'player1', true);
         }
     };
 
@@ -1783,16 +1862,10 @@ export class RoundController extends GameController {
         // console.log(msg);
         if (msg.username === this.players[0]) {
             const container = document.getElementById('player0') as HTMLElement;
-            patch(
-                container,
-                h('i-side.online#player0', { class: { icon: true, 'icon-online': false, 'icon-offline': true } }),
-            );
+            this.renderPresenceIcon(container, 'player0', false);
         } else {
             const container = document.getElementById('player1') as HTMLElement;
-            patch(
-                container,
-                h('i-side.online#player1', { class: { icon: true, 'icon-online': false, 'icon-offline': true } }),
-            );
+            this.renderPresenceIcon(container, 'player1', false);
         }
     };
 

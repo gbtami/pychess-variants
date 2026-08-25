@@ -6,7 +6,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 import aiohttp_session
-from admin import ban, set_shadowban, silence
+from admin import ban, set_shadowban, timeout_user
 from aiohttp import web
 from json_utils import json_response
 from newid import new_id
@@ -124,8 +124,12 @@ async def _resolve_username(app_state, raw_username: str) -> str | None:
         {
             "$or": [
                 {"_id": candidate},
-                {"username_lower": candidate.lower()},
-                {"_id": {"$regex": f"^{re.escape(candidate)}$", "$options": "i"}},
+                {
+                    "username_lower": {
+                        "$eq": candidate.lower(),
+                        "$type": "string",
+                    }
+                },
             ]
         },
         projection={"_id": 1},
@@ -331,16 +335,12 @@ async def report_silence(request: web.Request) -> web.Response:
         posted_reason = str(data.get("reason") or "").strip().lower()
         if posted_reason in TIMEOUT_REASONS:
             reason_key = posted_reason
-    reason_text = TIMEOUT_REASONS[reason_key]
-
-    fullchat = silence(app_state, f"/silence {suspect}", reason_text=reason_text)
-    if fullchat is None:
+    if timeout_user(app_state, suspect) is None:
         return json_response(
             {"type": "error", "message": "User must be online to silence"},
             status=409,
         )
 
-    await app_state.lobby.lobby_broadcast(fullchat)
     await _mark_report_processed(
         app_state, report_id, username, moderation_action=f"silence:{reason_key}"
     )
@@ -361,7 +361,7 @@ async def report_close_account(request: web.Request) -> web.Response:
     if suspect is None:
         return json_response({"type": "error", "message": "Report not found"}, status=404)
 
-    await ban(app_state, f"/ban {suspect}")
+    await ban(app_state, suspect)
     user_doc = await app_state.db.user.find_one({"_id": suspect}, projection={"enabled": 1})
     if user_doc is None:
         return json_response({"type": "error", "message": "User not found"}, status=404)

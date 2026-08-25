@@ -1,9 +1,8 @@
 #!/bin/sh
 
-export PATH="../node_modules/gettext.js/bin/:$PATH"
-#export PATH="../node_modules/po2json/bin/:$PATH"
+PO2JSON="../node_modules/gettext.js/bin/po2json"
 
 for lang in */; do
 mkdir -p ../static/lang/"$lang"/LC_MESSAGES
-po2json "$lang"/LC_MESSAGES/client.po ../static/lang/"$lang"LC_MESSAGES/client.json -p
+node --no-deprecation "$PO2JSON" "$lang"/LC_MESSAGES/client.po ../static/lang/"$lang"LC_MESSAGES/client.json -p
 done

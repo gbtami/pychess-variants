@@ -279,6 +279,29 @@ class FishnetAbortPolicyTestCase(unittest.TestCase):
         self.assertNotIn("[gothhouse:capablanca]", payload["variantsIni"])
         self.assertEqual(payload["variantsScope"], "grandhouse")
 
+    def test_attach_variants_hash_for_site_variant_with_catalogued_builtin_base(
+        self,
+    ) -> None:
+        app_state = SimpleNamespace(
+            catalogued_variants={
+                "pocketknight": {
+                    "name": "pocketknight",
+                    "source": "fairy-stockfish-builtin",
+                    "enabled": True,
+                }
+            }
+        )
+        work = make_work("move")
+        work["variant"] = "synochess"
+
+        fishnet._attach_variants_hash(app_state, work)
+
+        self.assertRegex(work["variantsSha256"], r"^[0-9a-f]{64}$")
+        self.assertEqual(work["variantsScope"], "synochess")
+        payload = app_state.fishnet_variant_payloads[work["variantsSha256"]]
+        self.assertIn("[synochess:pocketknight]", payload["variantsIni"])
+        self.assertEqual(payload["variantsScope"], "synochess")
+
 
 class CataloguedAiFailurePolicyTestCase(unittest.IsolatedAsyncioTestCase):
     async def test_record_catalogued_ai_failure_disables_after_limit(self) -> None:

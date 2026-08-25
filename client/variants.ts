@@ -316,6 +316,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     shatranj: { pieceCSS: ['shatranj0', 'shatranj1', 'disguised'] },
     courier: { pieceCSS: ['courier', 'disguised'] },
     shako: { pieceCSS: ['shako0', 'shako1', 'shako2', 'disguised'] },
+    pemba: { pieceCSS: ['alfaerie', 'disguised'] },
     shogun: { pieceCSS: ['shogun0', 'shogun1', 'shogun2', 'shogun3', 'shogun4', 'shogun5', 'disguised'] },
     orda: { pieceCSS: ['orda0', 'orda1', 'disguised'] },
     khans: { pieceCSS: ['khans0', 'khans1', 'disguised'] },
@@ -1353,7 +1354,7 @@ export const VARIANTS: Record<string, Variant> = {
 
     jieqi: variant({
         name: 'jieqi',
-        tooltip: 'Players can see the identity of the pieces after theirs first move.',
+        tooltip: 'Players can see the identity of the pieces after their first move.',
         startFen: 'r~n~b~a~ka~b~n~r~/9/1c~5c~1/p~1p~1p~1p~1p~/9/9/P~1P~1P~1P~1P~/1C~5C~1/9/R~N~B~A~KA~B~N~R~ w - - 0 1',
         hiddenInfo: true,
         hiddenInfoMode: 'covered_pieces',
@@ -2035,6 +2036,7 @@ export const twoBoarsVariants = variants.filter(v => VARIANTS[v].twoBoards);
 export const unsupportedAiVariants = ['alice', 'fogofwar', 'jieqi'];
 
 export const devVariants = ['borderlands', 'cwda', 'makbug', 'supply', 'yokai'];
+export const CATALOGUED_VARIANT_ICON = '☐';
 
 export interface CataloguedVariantClientDocument {
     readonly name: string;
@@ -2068,7 +2070,6 @@ export interface CataloguedVariantClientDocument {
     readonly rulesGate?: boolean;
     readonly rulesPass?: boolean;
     readonly showCheckCounters?: boolean;
-    readonly icon?: string;
     readonly category?: string;
     readonly author?: string;
     readonly source?: 'user' | 'fairy-stockfish-builtin';
@@ -2745,7 +2746,7 @@ export function registerCataloguedVariant(meta: CataloguedVariantClientDocument)
         aiDisabled: !!meta.aiDisabled,
         ratingEnabled: false,
         startFen: meta.startFen,
-        icon: meta.icon || '◇',
+        icon: CATALOGUED_VARIANT_ICON,
         boardFamily,
         hasBoard: !!meta.hasBoard,
         boardRevision: meta.boardRevision,
@@ -2804,12 +2805,24 @@ export function disabledVariantsForCreateMode(
     createMode: 'createGame' | 'playFriend' | 'playAI' | 'playBOT' | 'createHost',
     profileid: string,
     anon: boolean,
+    botSupportedVariants: ReadonlySet<string> | null = null,
 ): string[] {
     // Two-board variants are only supported by the dedicated multi-seat lobby flow.
     // Hide them whenever the dialog is being used for invites, profile challenges,
     // bot/AI games, or hosting, where the generic single-board flow is used.
     if (createMode === 'playAI') return [...new Set([...twoBoarsVariants, ...unsupportedAiVariants])];
-    if (['playBOT', 'createHost'].includes(createMode)) return twoBoarsVariants;
+    if (createMode === 'playBOT') {
+        const disabled = new Set(twoBoarsVariants);
+        if (botSupportedVariants !== null) {
+            Object.values(VARIANTS).forEach(variant => {
+                const supportsNormal = botSupportedVariants.has(variant.name);
+                const supports960 = variant.chess960 && botSupportedVariants.has(`${variant.name}960`);
+                if (!supportsNormal && !supports960) disabled.add(variant.name);
+            });
+        }
+        return [...disabled];
+    }
+    if (createMode === 'createHost') return twoBoarsVariants;
     if (createMode !== 'createGame') return twoBoarsVariants;
     return anon || profileid !== '' ? twoBoarsVariants : [];
 }

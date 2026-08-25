@@ -4,7 +4,6 @@ import asyncio
 import random
 import string
 from collections.abc import Mapping
-from time import monotonic
 from typing import TYPE_CHECKING
 
 import aiohttp_session
@@ -12,7 +11,14 @@ import game
 from aiohttp import web
 from aiohttp.web_ws import WebSocketResponse
 from broadcast import round_broadcast
-from bug.wsr_bug import handle_reconnect_bughouse, handle_rematch_bughouse, handle_resign_bughouse
+from bug.wsr_bug import (
+    handle_draw_bughouse,
+    handle_reconnect_bughouse,
+    handle_reject_draw_bughouse,
+    handle_reject_rematch_bughouse,
+    handle_rematch_bughouse,
+    handle_resign_bughouse,
+)
 from catalogued_variants import catalogued_variant_allows_fishnet
 from chat import chat_response
 from cheat_report import (
@@ -146,10 +152,11 @@ def _flag_claim_allowed(game: game.Game, user: User) -> bool:
 
     # In normal increment games we compute authoritative remaining time from:
     #   remaining = saved_clock_after_last_move - elapsed_since_last_move
-    # where elapsed uses server monotonic time. This avoids trusting client
-    # clock values and avoids tolerance-based false positives in this path.
+    # where elapsed uses durable wall-clock restart time plus the current
+    # process's monotonic time when exact clock history is available. This
+    # avoids trusting client clock values and tolerance-based false positives.
     saved = game.clocks_w[-1] if user_color == WHITE else game.clocks_b[-1]
-    elapsed = round((monotonic() - game.last_server_clock) * 1000)
+    elapsed = game.authoritative_clock_elapsed_ms()
     return (saved - elapsed) <= 0
 
 
@@ -233,14 +240,39 @@ async def process_message(
             return
         await handle_rematch(app_state, ws, user, data, game)
     elif data["type"] == "reject_rematch":
-        await handle_reject_rematch(user, game)
+        # In bughouse this means "take my own offer back", not "decline yours" — the
+        # answering side has a single ACCEPT control and declining is just not pressing it.
+        if game.server_variant.two_boards:
+            if TYPE_CHECKING:
+                assert isinstance(game, GameBug)
+            await handle_reject_rematch_bughouse(game, user)
+        else:
+            await handle_reject_rematch(user, game)
     elif data["type"] == "draw":
-        await handle_draw(ws, app_state.users, user, data, game)
+        # Bughouse branch, the same shape abort/resign use below. A draw there is offered
+        # to the opposing TEAM and answerable by either of its members, which the shared
+        # handler cannot express: it derives one opponent from wplayer/bplayer — board A's
+        # two seats — and broadcasts without full=True, so two of the four players never
+        # heard the offer at all.
+        if game.server_variant.two_boards:
+            if TYPE_CHECKING:
+                assert isinstance(game, GameBug)
+            await handle_draw_bughouse(game, user)
+        else:
+            await handle_draw(ws, app_state.users, user, data, game)
     elif data["type"] == "reject_draw":
-        await handle_reject_draw(user, game)
+        if game.server_variant.two_boards:
+            if TYPE_CHECKING:
+                assert isinstance(game, GameBug)
+            await handle_reject_draw_bughouse(game, user)
+        else:
+            await handle_reject_draw(user, game)
     elif data["type"] == "byoyomi":
         await handle_byoyomi(user, data, game)
     elif data["type"] == "takeback":
+        if not game.server_variant.two_boards and game.simulId is not None:
+            await ws_send_json(ws, {"type": "error", "message": "Takebacks are disabled in simuls"})
+            return
         await handle_takeback(ws, user, game)
     elif data["type"] == "reject_takeback":
         await handle_reject_takeback(user, game)
@@ -369,10 +401,20 @@ async def handle_move(
 
 
 async def handle_berserk(data: BerserkMessage, game: game.Game) -> None:
-    game.berserk(data["color"])
-    response: BerserkMessage = {"type": "berserk", "color": data["color"]}
-    await round_broadcast(game, response, full=True)
-    await game.save_berserk()
+    # Berserk can race with the first move. Serialize both operations and make
+    # the durable write happen before clients are told that berserk succeeded.
+    # A process death after the broadcast can therefore never make an
+    # acknowledged berserk disappear after restart.
+    async with game.move_lock:
+        # If the first move won the lock, the berserk request is too late. This
+        # mirrors the client rule (berserk is offered only before game start)
+        # and makes the move/berserk race deterministic in either order.
+        if game.status >= STARTED:
+            return
+        game.berserk(data["color"])
+        await game.save_berserk()
+        response: BerserkMessage = {"type": "berserk", "color": data["color"]}
+        await round_broadcast(game, response, full=True)
 
 
 async def handle_analysis_move(user: User, data: AnalysisMoveMessage, game: game.Game) -> None:
@@ -1135,6 +1177,15 @@ async def handle_game_user_connected(
     user.add_ws_for_game(game.id, ws)
     user.update_online()
 
+    if game.simulId is not None:
+        from simul.simuls import load_simul, set_simul_host_game
+
+        simul = app_state.simuls.get(game.simulId)
+        if simul is None:
+            simul = await load_simul(app_state, game.simulId)
+        if simul is not None and user.username == simul.created_by:
+            await set_simul_host_game(simul, game.id)
+
     # remove user seeks
     if len(user.lobby_sockets) == 0 or (
         game.status <= STARTED and user.username in (game.wplayer.username, game.bplayer.username)
@@ -1387,6 +1438,7 @@ async def handle_count(
     if user.username == cur_player.username:
         if data["mode"] == "start":
             game.start_manual_count()
+            await game.save_manual_count_state()
             response = {
                 "type": "count",
                 "message": "Board's honor counting started",
@@ -1395,6 +1447,7 @@ async def handle_count(
             }
         elif data["mode"] == "stop":
             game.stop_manual_count()
+            await game.save_manual_count_state()
             response = {
                 "type": "count",
                 "message": "Board's honor counting stopped",

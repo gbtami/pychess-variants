@@ -18,7 +18,15 @@ async def players50(request: web.Request) -> ViewContext:
         raise web.HTTPNotFound()
 
     context["variant"] = variant
-    context["highscore"] = app_state.highscore[variant]
+    highscore = app_state.highscore[variant]
+    context["highscore"] = highscore
+    highscore_usernames = {entry.split("|", 1)[0] for entry in highscore}
+    context["highscore_patrons"] = await app_state.public_users.get_patrons(highscore_usernames)
+    context["highscore_online"] = {
+        username
+        for username in highscore_usernames
+        if (live_user := app_state.users.data.get(username)) is not None and live_user.online
+    }
     context["view"] = "players50"
 
     return context

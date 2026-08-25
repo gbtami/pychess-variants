@@ -21,6 +21,9 @@ from forum.storage import recompute_categ_summary, recompute_topic_summary
 from login import logout
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
+from simul.simuls import erase_user_from_simuls
+from team import remove_user_from_teams_on_account_disable
+from tournament.gdpr import erase_user_from_tournaments
 from typedefs import REQUEST_NEW_SESSION_KEY
 from typing_defs import UserDocument, ViewContext
 from user_stats import DEFAULT_USER_COUNT
@@ -30,6 +33,7 @@ from views import get_user_context
 log = logging.getLogger(__name__)
 
 MAX_EXPORT_ROWS = 20_000
+EXPORT_WRITE_CHUNK_BYTES = 64 * 1024
 ERASED_MESSAGE_TEXT = "[deleted by account deletion request]"
 BOT_NOTICE_SESSION_KEY = "account_bot_notice"
 BOT_ERROR_SESSION_KEY = "account_bot_error"
@@ -45,9 +49,41 @@ def _json_default(value: Any) -> Any:
 _EXPORT_JSON_ENCODER = msgspec.json.Encoder(enc_hook=_json_default, order="sorted")
 
 
-def _export_section(title: str, payload: Any) -> str:
-    body = msgspec.json.format(_EXPORT_JSON_ENCODER.encode(payload), indent=2).decode("utf-8")
-    return f"\n{'=' * len(title)}\n{title}\n{'=' * len(title)}\n{body}\n"
+def _export_section_header(title: str) -> bytes:
+    return f"\n{'=' * len(title)}\n{title}\n{'=' * len(title)}\n".encode()
+
+
+def _export_json(payload: Any) -> bytes:
+    return msgspec.json.format(_EXPORT_JSON_ENCODER.encode(payload), indent=2)
+
+
+async def _write_export_value(response: web.StreamResponse, title: str, payload: Any) -> None:
+    await response.write(_export_section_header(title))
+    await response.write(_export_json(payload))
+    await response.write(b"\n")
+
+
+async def _write_export_cursor(response: web.StreamResponse, title: str, cursor: Any) -> None:
+    await response.write(_export_section_header(title))
+    await response.write(b"[\n")
+
+    chunk = bytearray()
+    first = True
+    async for row in cursor.limit(MAX_EXPORT_ROWS):
+        if not first:
+            chunk.extend(b",\n")
+        encoded = _export_json(row)
+        chunk.extend(b"  ")
+        chunk.extend(encoded.replace(b"\n", b"\n  "))
+        first = False
+
+        if len(chunk) >= EXPORT_WRITE_CHUNK_BYTES:
+            await response.write(bytes(chunk))
+            chunk.clear()
+
+    if chunk:
+        await response.write(bytes(chunk))
+    await response.write(b"\n]\n")
 
 
 async def _require_logged_in_user(request: web.Request) -> tuple[Any, Any, str | None]:
@@ -177,34 +213,43 @@ def _scrub_chat_line(line: Any, username: str) -> None:
 
 
 async def _scrub_persisted_bug_game_chats(db: Any, username: str) -> None:
-    cursor = db.game.find({"c.u": username}, {"_id": 1, "c": 1})
+    # Bughouse persists only player-room chat and stores it under dynamic ply keys
+    # such as c.m0/c.m12. Limit the scan to this user's games via the existing
+    # multikey `us` index instead of scanning the whole game collection.
+    cursor = db.game.find({"us": username, "c": {"$exists": True}}, {"_id": 1, "c": 1})
     async for doc in cursor:
-        chat_lines = doc.get("c")
-        if not isinstance(chat_lines, list):
+        chat_by_ply = doc.get("c")
+        if not isinstance(chat_by_ply, dict):
             continue
+
         changed = False
-        new_lines: list[dict[str, Any]] = []
-        for line in chat_lines:
-            if not isinstance(line, dict):
-                new_lines.append(line)
+        new_chat: dict[str, Any] = {}
+        for ply_key, chat_lines in chat_by_ply.items():
+            if not isinstance(chat_lines, list):
+                new_chat[ply_key] = chat_lines
                 continue
-            new_line = dict(line)
-            if new_line.get("u") == username:
-                new_line["u"] = ERASED_POST_USER
-                new_line["m"] = ERASED_MESSAGE_TEXT
-                changed = True
-            new_lines.append(new_line)
+
+            new_lines: list[Any] = []
+            for line in chat_lines:
+                if not isinstance(line, dict):
+                    new_lines.append(line)
+                    continue
+                new_line = dict(line)
+                if new_line.get("u") == username:
+                    new_line["u"] = ERASED_POST_USER
+                    new_line["m"] = ERASED_MESSAGE_TEXT
+                    changed = True
+                new_lines.append(new_line)
+            new_chat[ply_key] = new_lines
+
         if changed:
-            await db.game.update_one({"_id": doc["_id"]}, {"$set": {"c": new_lines}})
+            await db.game.update_one({"_id": doc["_id"]}, {"$set": {"c": new_chat}})
 
 
 async def _scrub_authored_chat_history(app_state: Any, username: str) -> None:
     db = getattr(app_state, "db", None)
     if db is None:
         return
-
-    for cached_line in getattr(getattr(app_state, "lobby", None), "lobbychat", ()):
-        _scrub_chat_line(cached_line, username)
 
     for tournament in getattr(app_state, "tournaments", {}).values():
         for cached_line in getattr(tournament, "tourneychat", ()):
@@ -218,10 +263,13 @@ async def _scrub_authored_chat_history(app_state: Any, username: str) -> None:
         for cached_line in getattr(game, "messages", ()):
             _scrub_chat_line(cached_line, username)
 
-    await db.lobbychat.update_many(
-        {"user": username},
-        {"$set": {"user": ERASED_POST_USER, "message": ERASED_MESSAGE_TEXT}},
-    )
+    # Keep GDPR erasure compatible with the retired lobby-chat collection until
+    # operators choose to drop that historical collection from MongoDB.
+    if "lobbychat" in await db.list_collection_names():
+        await db.lobbychat.update_many(
+            {"user": username},
+            {"$set": {"user": ERASED_POST_USER, "message": ERASED_MESSAGE_TEXT}},
+        )
     await db.tournament_chat.update_many(
         {"user": username},
         {"$set": {"user": ERASED_POST_USER, "message": ERASED_MESSAGE_TEXT}},
@@ -238,14 +286,20 @@ async def _scrub_delete_owned_data(app_state: Any, user: Any, now: datetime) -> 
     if db is None:
         return
 
+    await remove_user_from_teams_on_account_disable(
+        app_state, user.username, erase=True, remove_from_tournaments=True
+    )
     await _erase_forum_posts_by_user(app_state, user.username, now)
     await db.ublog_post.delete_many({"author": user.username})
     await db.bot_token.delete_many({"user": user.username})
     await db.push_subscription.delete_many({"user": user.username})
     await db.account_reopen_token.delete_many({"username": user.username})
     await db.notify.delete_many({"notifies": user.username})
+    await app_state.timeline.erase_user(user.username)
     await _remove_active_seeks_for_user(app_state, user)
     await _scrub_authored_chat_history(app_state, user.username)
+    await erase_user_from_tournaments(app_state, user.username)
+    await erase_user_from_simuls(app_state, user.username)
 
     await db.inbox_msg.update_many(
         {"from": user.username},
@@ -254,12 +308,13 @@ async def _scrub_delete_owned_data(app_state: Any, user: Any, now: datetime) -> 
     await db.relation.delete_many({"$or": [{"u1": user.username}, {"u2": user.username}]})
 
     await db.ublog_post.update_many(
-        {},
+        {"$or": [{"likes": user.username}, {"viewers": user.username}]},
         {"$pull": {"likes": user.username, "viewers": user.username}},
     )
+    reaction_fields = [f"reactions.{reaction_key}" for reaction_key in KEY_TO_REACTION]
     await db.forum_post.update_many(
-        {},
-        {"$pull": {f"reactions.{reaction_key}": user.username for reaction_key in KEY_TO_REACTION}},
+        {"$or": [{reaction_field: user.username} for reaction_field in reaction_fields]},
+        {"$pull": {reaction_field: user.username for reaction_field in reaction_fields}},
     )
 
 
@@ -317,25 +372,6 @@ async def account_personal_data_export(request: web.Request) -> web.StreamRespon
     if user_doc is None:
         raise web.HTTPNotFound()
 
-    relations = await app_state.db.relation.find(
-        {"$or": [{"u1": user.username}, {"u2": user.username}]}
-    ).to_list(MAX_EXPORT_ROWS)
-    inbox_messages = await app_state.db.inbox_msg.find({"from": user.username}).to_list(
-        MAX_EXPORT_ROWS
-    )
-    forum_posts = await app_state.db.forum_post.find({"user": user.username}).to_list(
-        MAX_EXPORT_ROWS
-    )
-    ublog_posts = await app_state.db.ublog_post.find({"author": user.username}).to_list(
-        MAX_EXPORT_ROWS
-    )
-    push_subscriptions = await app_state.db.push_subscription.find({"user": user.username}).to_list(
-        MAX_EXPORT_ROWS
-    )
-    created_reports = await app_state.db.user_report.find({"reporter": user.username}).to_list(
-        MAX_EXPORT_ROWS
-    )
-
     metadata = {
         "exportedAt": datetime.now(UTC),
         "username": user.username,
@@ -344,24 +380,54 @@ async def account_personal_data_export(request: web.Request) -> web.StreamRespon
             "Public game archives are handled separately via the profile PGN export."
         ),
     }
+    cursor_sections = (
+        (
+            "Relations (blocks and related links)",
+            app_state.db.relation.find({"$or": [{"u1": user.username}, {"u2": user.username}]}),
+        ),
+        (
+            "Direct messages sent by this account",
+            app_state.db.inbox_msg.find({"from": user.username}),
+        ),
+        ("Forum posts by this account", app_state.db.forum_post.find({"user": user.username})),
+        ("Blog posts by this account", app_state.db.ublog_post.find({"author": user.username})),
+        (
+            "Push subscriptions",
+            app_state.db.push_subscription.find({"user": user.username}),
+        ),
+        (
+            "Reports created by this account",
+            app_state.db.user_report.find({"reporter": user.username}),
+        ),
+        (
+            "Timeline activities authored or received by this account",
+            app_state.db.timeline_entry.find(
+                {"$or": [{"data.actor": user.username}, {"users": user.username}]}
+            ),
+        ),
+        ("Team memberships", app_state.db.team_member.find({"user": user.username})),
+        ("Team join requests", app_state.db.team_request.find({"user": user.username})),
+        (
+            "Team updates authored by this account",
+            app_state.db.team_update.find({"sender": user.username}),
+        ),
+        ("Teams created by this account", app_state.db.team.find({"createdBy": user.username})),
+    )
 
-    chunks = [
-        _export_section(f"Personal data export for {user.username}", metadata),
-        _export_section("Account document", user_doc),
-        _export_section("Relations (blocks and related links)", relations),
-        _export_section("Direct messages sent by this account", inbox_messages),
-        _export_section("Forum posts by this account", forum_posts),
-        _export_section("Blog posts by this account", ublog_posts),
-        _export_section("Push subscriptions", push_subscriptions),
-        _export_section("Reports created by this account", created_reports),
-        _export_section("End of export", {"ok": True}),
-    ]
-    payload = "\n".join(chunks)
-
-    response = web.Response(text=payload, content_type="text/plain")
+    response = web.StreamResponse()
+    response.content_type = "text/plain"
+    response.charset = "utf-8"
     response.headers["Content-Disposition"] = (
         f'attachment; filename="pychess_personal_data_{user.username}.txt"'
     )
+    await response.prepare(request)
+
+    await _write_export_value(response, f"Personal data export for {user.username}", metadata)
+    await _write_export_value(response, "Account document", user_doc)
+    for title, cursor in cursor_sections:
+        await _write_export_cursor(response, title, cursor)
+    await _write_export_value(response, "End of export", {"ok": True})
+    await response.write_eof()
     return response
 
 
@@ -454,6 +520,7 @@ async def account_close_post(request: web.Request) -> web.StreamResponse:
             }
         },
     )
+    await remove_user_from_teams_on_account_disable(app_state, user.username)
     user.enabled = False
     _clear_public_user_cache(app_state, user.username)
     return await logout(request)

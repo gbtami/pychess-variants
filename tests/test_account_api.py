@@ -10,6 +10,7 @@ from bot_accounts import BOT_TOKEN_SCOPE, create_bot_token
 from forum.constants import ERASED_POST_TEXT, ERASED_POST_USER
 from mongomock_motor import AsyncMongoMockClient
 from pychess_global_app_state_utils import get_app_state
+from team import TEAM_ERASED_UPDATE_TEXT, TEAM_ERASED_USER
 from user import User
 
 from server import make_app
@@ -260,11 +261,45 @@ class AccountApiTestCase(AioHTTPTestCase):
                 "status": "open",
             }
         )
+        await app_state.db.team.insert_one(
+            {
+                "_id": "alice-team",
+                "name": "Alice Team",
+                "createdBy": "alice",
+                "enabled": True,
+            }
+        )
+        await app_state.db.team_member.insert_one(
+            {
+                "_id": "alice@alice-team",
+                "team": "alice-team",
+                "user": "alice",
+                "permissions": ["admin"],
+            }
+        )
+        await app_state.db.team_request.insert_one(
+            {
+                "_id": "alice@other-team",
+                "team": "other-team",
+                "user": "alice",
+                "message": "Please let me join this team.",
+            }
+        )
+        await app_state.db.team_update.insert_one(
+            {
+                "_id": "team-update-1",
+                "team": "alice-team",
+                "sender": "alice",
+                "text": "Alice private team announcement",
+                "createdAt": datetime.now(UTC),
+            }
+        )
 
         self.set_session_user("alice")
         response = await self.client.get("/account/personal-data/export")
         self.assertEqual(response.status, 200)
         self.assertEqual(response.content_type, "text/plain")
+        self.assertIsNone(response.content_length)
         body = await response.text()
         self.assertIn("Personal data export for", body)
         self.assertIn('"oauth_id": "alice-oauth"', body)
@@ -281,6 +316,14 @@ class AccountApiTestCase(AioHTTPTestCase):
         self.assertIn("Reports created by this account", body)
         self.assertIn("alice report text", body)
         self.assertNotIn("report about alice", body)
+        self.assertIn("Team memberships", body)
+        self.assertIn('"team": "alice-team"', body)
+        self.assertIn("Team join requests", body)
+        self.assertIn("Please let me join this team.", body)
+        self.assertIn("Team updates authored by this account", body)
+        self.assertIn("Alice private team announcement", body)
+        self.assertIn("Teams created by this account", body)
+        self.assertIn("Alice Team", body)
         self.assertNotIn("Inbox threads", body)
         self.assertIn("Public game archives are handled separately", body)
 
@@ -290,6 +333,61 @@ class AccountApiTestCase(AioHTTPTestCase):
         app_state.users[user.username] = user
         await app_state.db.user.insert_one(
             {"_id": "alice", "username_lower": "alice", "enabled": True}
+        )
+        await app_state.db.team.insert_many(
+            [
+                {
+                    "_id": "owned-team",
+                    "name": "Owned Team",
+                    "createdBy": "alice",
+                    "enabled": True,
+                    "memberCount": 2,
+                },
+                {
+                    "_id": "other-team",
+                    "name": "Other Team",
+                    "createdBy": "bob",
+                    "enabled": True,
+                    "memberCount": 2,
+                },
+            ]
+        )
+        await app_state.db.team_member.insert_many(
+            [
+                {
+                    "_id": "alice@owned-team",
+                    "team": "owned-team",
+                    "user": "alice",
+                    "permissions": ["admin"],
+                },
+                {
+                    "_id": "bob@owned-team",
+                    "team": "owned-team",
+                    "user": "bob",
+                    "permissions": [],
+                },
+                {
+                    "_id": "alice@other-team",
+                    "team": "other-team",
+                    "user": "alice",
+                    "permissions": [],
+                },
+                {
+                    "_id": "bob@other-team",
+                    "team": "other-team",
+                    "user": "bob",
+                    "permissions": ["admin"],
+                },
+            ]
+        )
+        await app_state.db.team_request.insert_one(
+            {
+                "_id": "alice@third-team",
+                "team": "third-team",
+                "user": "alice",
+                "message": "Pending request from Alice",
+                "declined": False,
+            }
         )
 
         self.set_session_user("alice")
@@ -304,6 +402,105 @@ class AccountApiTestCase(AioHTTPTestCase):
         self.assertIsNotNone(doc)
         self.assertFalse(doc.get("enabled", True))
         self.assertEqual("self", doc.get("closeType"))
+        self.assertEqual(0, await app_state.db.team_member.count_documents({"user": "alice"}))
+        self.assertEqual(0, await app_state.db.team_request.count_documents({"user": "alice"}))
+
+        owned_team = await app_state.db.team.find_one({"_id": "owned-team"})
+        other_team = await app_state.db.team.find_one({"_id": "other-team"})
+        self.assertFalse(owned_team.get("enabled", True))
+        self.assertEqual("alice", owned_team.get("createdBy"))
+        self.assertEqual(1, owned_team.get("memberCount"))
+        self.assertTrue(other_team.get("enabled", False))
+        self.assertEqual(1, other_team.get("memberCount"))
+
+    async def test_delete_account_scrubs_team_data(self):
+        app_state = get_app_state(self.app)
+        user = User(app_state, username="alice")
+        app_state.users[user.username] = user
+        await app_state.db.user.insert_one(
+            {"_id": "alice", "username_lower": "alice", "enabled": True}
+        )
+        await app_state.db.team.insert_one(
+            {
+                "_id": "owned-team",
+                "name": "Owned Team",
+                "createdBy": "alice",
+                "enabled": True,
+                "memberCount": 2,
+            }
+        )
+        await app_state.db.team_member.insert_many(
+            [
+                {
+                    "_id": "alice@owned-team",
+                    "team": "owned-team",
+                    "user": "alice",
+                    "permissions": ["admin"],
+                },
+                {
+                    "_id": "bob@owned-team",
+                    "team": "owned-team",
+                    "user": "bob",
+                    "permissions": [],
+                },
+            ]
+        )
+        await app_state.db.team_request.insert_one(
+            {
+                "_id": "alice@other-team",
+                "team": "other-team",
+                "user": "alice",
+                "message": "Pending request from Alice",
+                "declined": False,
+            }
+        )
+        await app_state.db.team_update.insert_one(
+            {
+                "_id": "update-1",
+                "team": "owned-team",
+                "sender": "alice",
+                "text": "Personal team announcement",
+                "createdAt": datetime.now(UTC),
+            }
+        )
+        await app_state.db.notify.insert_one(
+            {
+                "_id": "notify-1",
+                "notifies": "bob",
+                "type": "teamUpdate",
+                "read": False,
+                "createdAt": datetime.now(UTC),
+                "expireAt": "2099-01-01T00:00:00+00:00",
+                "content": {
+                    "team": "owned-team",
+                    "name": "Owned Team",
+                    "text": "Personal team announcement",
+                    "sender": "alice",
+                },
+            }
+        )
+
+        self.set_session_user("alice")
+        response = await self.client.post(
+            "/account/delete",
+            data={"confirm_username": "alice", "understand": "on"},
+            allow_redirects=False,
+        )
+        self.assertEqual(response.status, 302)
+
+        team = await app_state.db.team.find_one({"_id": "owned-team"})
+        self.assertFalse(team.get("enabled", True))
+        self.assertEqual(TEAM_ERASED_USER, team.get("createdBy"))
+        self.assertIn("creatorErasedAt", team)
+        self.assertEqual(1, team.get("memberCount"))
+        self.assertEqual(0, await app_state.db.team_member.count_documents({"user": "alice"}))
+        self.assertEqual(0, await app_state.db.team_request.count_documents({"user": "alice"}))
+
+        update = await app_state.db.team_update.find_one({"_id": "update-1"})
+        self.assertEqual(TEAM_ERASED_USER, update.get("sender"))
+        self.assertEqual(TEAM_ERASED_UPDATE_TEXT, update.get("text"))
+        self.assertIn("erasedAt", update)
+        self.assertIsNone(await app_state.db.notify.find_one({"_id": "notify-1"}))
 
     async def test_close_account_after_reopen_becomes_final(self):
         app_state = get_app_state(self.app)
@@ -572,20 +769,41 @@ class AccountApiTestCase(AioHTTPTestCase):
         await app_state.db.game.insert_one(
             {
                 "_id": "bug1",
-                "c": [
-                    {"u": "alice", "m": "alice bug chat", "t": 1},
-                    {"u": "bob", "m": "bob bug chat", "t": 2},
-                ],
+                "us": ["alice", "bob", "carol", "dave"],
+                "c": {
+                    "m0": [
+                        {"u": "alice", "m": "alice bug chat", "t": 1},
+                        {"u": "bob", "m": "bob bug chat", "t": 2},
+                    ]
+                },
             }
         )
         await app_state.db.tournament.insert_one(
             {"_id": "tour-hist", "createdBy": "alice", "status": 0}
         )
-        await app_state.db.simul.insert_one({"_id": "sim-hist", "createdBy": "alice", "status": 0})
-        app_state.lobby.lobbychat = [
-            {"type": "lobbychat", "user": "alice", "message": "cached alice lobby"},
-            {"type": "lobbychat", "user": "bob", "message": "cached bob lobby"},
-        ]
+        await app_state.db.simul.insert_many(
+            [
+                {
+                    "_id": "sim-hist",
+                    "createdBy": "alice",
+                    "status": 3,
+                    "variants": ["chess"],
+                    "players": [
+                        {"user": "alice", "variant": "chess", "host": True},
+                        {"user": "bob", "variant": "chess", "host": False},
+                    ],
+                    "pendingPlayers": [],
+                },
+                {
+                    "_id": "sim-created-owned",
+                    "createdBy": "alice",
+                    "status": 0,
+                    "variants": ["chess"],
+                    "players": [{"user": "alice", "variant": "chess", "host": True}],
+                    "pendingPlayers": [{"user": "bob", "variant": "chess", "host": False}],
+                },
+            ]
+        )
         app_state.tournaments["tour1"] = SimpleNamespace(
             tourneychat=[
                 {"type": "lobbychat", "user": "alice", "message": "cached alice tournament"},
@@ -681,16 +899,24 @@ class AccountApiTestCase(AioHTTPTestCase):
         self.assertEqual("bob simul message", simul_rows[1]["message"])
 
         bug_game = await app_state.db.game.find_one({"_id": "bug1"})
-        self.assertEqual(ERASED_POST_USER, bug_game["c"][0]["u"])
-        self.assertEqual("[deleted by account deletion request]", bug_game["c"][0]["m"])
-        self.assertEqual("bob", bug_game["c"][1]["u"])
-        self.assertEqual("bob bug chat", bug_game["c"][1]["m"])
+        self.assertEqual(ERASED_POST_USER, bug_game["c"]["m0"][0]["u"])
+        self.assertEqual("[deleted by account deletion request]", bug_game["c"]["m0"][0]["m"])
+        self.assertEqual("bob", bug_game["c"]["m0"][1]["u"])
+        self.assertEqual("bob bug chat", bug_game["c"]["m0"][1]["m"])
         self.assertEqual(1, await app_state.db.game.count_documents({"_id": "bug1"}))
         self.assertEqual(1, await app_state.db.tournament.count_documents({"_id": "tour-hist"}))
-        self.assertEqual(1, await app_state.db.simul.count_documents({"_id": "sim-hist"}))
+        sim_hist = await app_state.db.simul.find_one({"_id": "sim-hist"})
+        self.assertIsNotNone(sim_hist)
+        self.assertEqual(ERASED_POST_USER, sim_hist.get("createdBy"))
+        self.assertEqual(
+            [
+                {"user": ERASED_POST_USER, "variant": "chess", "host": True},
+                {"user": "bob", "variant": "chess", "host": False},
+            ],
+            sim_hist.get("players"),
+        )
+        self.assertIsNone(await app_state.db.simul.find_one({"_id": "sim-created-owned"}))
 
-        self.assertEqual(ERASED_POST_USER, app_state.lobby.lobbychat[0]["user"])
-        self.assertEqual("cached bob lobby", app_state.lobby.lobbychat[1]["message"])
         self.assertEqual(ERASED_POST_USER, app_state.tournaments["tour1"].tourneychat[0]["user"])
         self.assertEqual(
             "cached bob tournament", app_state.tournaments["tour1"].tourneychat[1]["message"]

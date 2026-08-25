@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import logging
 from collections.abc import Mapping
@@ -17,6 +19,7 @@ from const import (
     CATEGORY_VARIANT_LISTS,
     CATEGORY_VARIANT_SETS,
     CATEGORY_VARIANTS,
+    CREATED,
     DARK_FEN,
     GAME_CATEGORY_ALL,
     HTTP_ANON_USER,
@@ -43,7 +46,7 @@ from settings import ADMINS, SIMULING
 from typedefs import REQUEST_NEW_SESSION_KEY
 from typing_defs import UserDocument, ViewContext
 from user import User
-from utils import corr_games
+from utils import corr_games, load_game_from_doc
 from variants import ALL_VARIANTS
 
 from lang import LOCALE
@@ -237,6 +240,7 @@ async def get_user_context(request: web.Request) -> tuple[User, ViewContext]:
         ),
         "pm_friends_only": user.pm_friends_only,
         "corr_push_enabled": user.corr_push_enabled,
+        "rr_push_enabled": user.rr_push_enabled,
         "menu_variant": menu_variant,
         "title": "%s • PyChess" % view.capitalize(),
         "view": view,
@@ -254,6 +258,42 @@ async def get_user_context(request: web.Request) -> tuple[User, ViewContext]:
     return (user, context)
 
 
+async def _ensure_user_correspondence_games_loaded(app_state: Any, user: User) -> None:
+    """Complete one user's correspondence list while startup restore is still running.
+
+    Correspondence games are restored globally in the background so aiohttp can start
+    serving promptly after a restart.  A user who arrives before that restore reaches
+    all of their games must not receive a partial ``corr_games`` snapshot, though.
+    Load just that user's active correspondence documents here; ``load_game_from_doc``
+    shares the global ``game_load_tasks`` machinery, so racing the background restore
+    is safe and does not construct duplicate live ``Game`` objects.
+    """
+
+    loaded_event = getattr(app_state, "correspondence_games_loaded", None)
+    if loaded_event is None or loaded_event.is_set() or getattr(user, "anon", False):
+        return
+
+    cursor = app_state.db.game.find(
+        {
+            "r": "d",
+            "c": True,
+            "us": user.username,
+            "$or": [{"s": CREATED}, {"s": STARTED}],
+        }
+    )
+    cursor.sort("d", -1)
+
+    async for doc in cursor:
+        try:
+            await load_game_from_doc(app_state, doc)
+        except Exception:
+            log.exception(
+                "Failed to lazy-load correspondence game %s for %s",
+                doc.get("_id", ""),
+                user.username,
+            )
+
+
 async def add_corr_games_context(
     app_state: Any,
     user: User,
@@ -261,7 +301,8 @@ async def add_corr_games_context(
 ) -> None:
     """Add ongoing correspondence games and their required variant metadata."""
 
-    games = user.correspondence_games
+    await _ensure_user_correspondence_games_loaded(app_state, user)
+    games = list(user.correspondence_games)
     context["corr_games"] = json_dumps(corr_games(games))
     if not games:
         return
@@ -300,6 +341,7 @@ def add_game_context(
     context["variant"] = game.variant
     context["wplayer"] = game.wplayer.username
     context["wtitle"] = game.wplayer.title
+    context["wpatron"] = game.wplayer.patron
     context["wrating"] = game.wrating
     context["wrdiff"] = game.wrdiff
     context["chess960"] = game.chess960
@@ -308,6 +350,7 @@ def add_game_context(
     context["level"] = game.level
     context["bplayer"] = game.bplayer.username
     context["btitle"] = game.bplayer.title
+    context["bpatron"] = game.bplayer.patron
     context["brating"] = game.brating
     context["brdiff"] = game.brdiff
     context["fen"] = DARK_FEN if game.variant == "fogofwar" else game.fen
@@ -334,7 +377,9 @@ def add_game_context(
         game_two_boards = game
         context["wplayerB"] = game_two_boards.wplayerB.username
         context["wtitleB"] = game_two_boards.wplayerB.title
+        context["wpatronB"] = game_two_boards.wplayerB.patron
         context["wratingB"] = game_two_boards.wrating_b
         context["bplayerB"] = game_two_boards.bplayerB.username
         context["btitleB"] = game_two_boards.bplayerB.title
+        context["bpatronB"] = game_two_boards.bplayerB.patron
         context["bratingB"] = game_two_boards.brating_b

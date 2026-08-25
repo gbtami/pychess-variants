@@ -71,7 +71,7 @@ docker compose build ci
 Run one-off checks:
 
 ```bash
-docker compose run --rm ci ruff format .
+docker compose run --rm ci ruff format --target-version py313 .
 docker compose run --rm ci ruff check .
 docker compose run --rm ci pyright
 docker compose run --rm ci yarn test
@@ -95,7 +95,7 @@ docker compose exec ci bash
 Then run commands inside the container, for example:
 
 ```bash
-ruff format .
+ruff format --target-version py313 .
 ruff check .
 pyright
 yarn test

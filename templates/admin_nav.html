@@ -1,0 +1,15 @@
+<nav class="admin-nav" aria-label="Administration">
+    <a class="admin-nav__title{% if admin_section == 'overview' %} active{% endif %}" href="/admin">
+        <span class="icon icon-warning" aria-hidden="true"></span>
+        <span>Administration</span>
+    </a>
+    <a class="admin-nav__item{% if admin_section == 'reports' %} active{% endif %}" href="/reports?status=open">
+        Reports
+        {% if mod_report_score %}<span class="admin-nav__count">{{ mod_report_score }}</span>{% endif %}
+    </a>
+    <a class="admin-nav__item{% if admin_section == 'public-chat' %} active{% endif %}" href="/mod/public-chat">Public chats</a>
+    <a class="admin-nav__item{% if admin_section == 'users' %} active{% endif %}" href="/admin/users">User search</a>
+    <a class="admin-nav__item{% if admin_section == 'teams' %} active{% endif %}" href="/admin/teams">Teams</a>
+    <a class="admin-nav__item{% if admin_section == 'system-messages' %} active{% endif %}" href="/admin/system-messages">System messages</a>
+    <a class="admin-nav__item{% if admin_section == 'operations' %} active{% endif %}" href="/admin/operations">Site operations</a>
+</nav>

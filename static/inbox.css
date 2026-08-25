@@ -92,7 +92,6 @@
 }
 
 .inbox-user::before {
-  content: '';
   width: 0.9em;
   height: 0.9em;
   border: 2px solid var(--time-text);
@@ -102,9 +101,38 @@
   flex: 0 0 0.9em;
 }
 
+.inbox-user:not(.patron)::before {
+  content: '';
+}
+
 .inbox-user.online::before {
   border-color: var(--good);
   background: var(--good);
+  opacity: 0.95;
+}
+
+.inbox-user.patron::before {
+  width: auto;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--time-text);
+  opacity: 0.75;
+  flex: 0 0 auto;
+  margin-right: 0;
+}
+
+.inbox-user.patron.online::before {
+  background: transparent;
+  color: var(--good);
+  opacity: 0.95;
+}
+
+.inbox-user.system::before {
+  border-color: var(--rusty);
+  border-radius: 2px;
+  background: var(--rusty);
   opacity: 0.95;
 }
 
@@ -294,6 +322,14 @@
   width: 100%;
   height: 100%;
   border: 0;
+}
+
+.inbox-convo-readonly {
+  border-top: 1px solid var(--border-color);
+  padding: 1rem;
+  color: var(--time-text);
+  text-align: center;
+  background: var(--bg-color0);
 }
 
 .inbox-convo-post {

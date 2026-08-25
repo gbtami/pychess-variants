@@ -10,6 +10,42 @@ from json_utils import json_response as msgspec_json_response
 
 from forum.constants import MENTION_RE
 
+FORUM_ERROR_CODES = {
+    "Forum unavailable": "forum_unavailable",
+    "Invalid category": "invalid_category",
+    "Category not found": "category_not_found",
+    "Not allowed": "not_allowed",
+    "Invalid topic": "invalid_topic",
+    "Invalid topic id": "invalid_topic_id",
+    "Topic not found": "topic_not_found",
+    "Search text too long": "search_text_too_long",
+    "Login required": "login_required",
+    "You cannot post in this forum": "cannot_post",
+    "Invalid request": "invalid_request",
+    "Topic title is too short": "topic_title_too_short",
+    "Topic title is too long": "topic_title_too_long",
+    "Message is too short": "message_too_short",
+    "Please solve the captcha.": "captcha_required",
+    "Too many similar messages. Please wait and retry.": "too_many_similar_messages",
+    "This topic is closed": "topic_closed",
+    "Post not found": "post_not_found",
+    "Post can no longer be edited": "post_edit_expired",
+    "Invalid reaction": "invalid_reaction",
+    "Cannot react to deleted posts": "cannot_react_deleted_post",
+    "Cannot react to your own post": "cannot_react_own_post",
+    "Team forum topics cannot be relocated": "team_topic_relocation_forbidden",
+    "Only the first post can relocate a thread": "first_post_required",
+    "Invalid target category": "invalid_target_category",
+    "Already in that category": "already_in_category",
+    "Target category not found": "target_category_not_found",
+}
+
+
+def forum_error_code(message: str) -> str | None:
+    if message.startswith("Message too long (max "):
+        return "message_too_long"
+    return FORUM_ERROR_CODES.get(message)
+
 
 async def session_username(request: web.Request) -> str | None:
     """Extract the logged-in username from the current aiohttp session."""
@@ -126,6 +162,12 @@ def captcha_moves_map(legal_moves: list[str]) -> dict[str, str]:
     return {orig: "".join(dests) for orig, dests in grouped.items()}
 
 
-def json_response(payload: dict[str, object]) -> web.Response:
-    """Serialize API payloads with datetime ISO formatting."""
-    return msgspec_json_response(payload)
+def json_response(payload: dict[str, object], *, status: int = 200) -> web.Response:
+    """Serialize API payloads with datetime ISO formatting and stable error codes."""
+    if payload.get("type") == "error" and "code" not in payload:
+        message = payload.get("message")
+        if isinstance(message, str):
+            code = forum_error_code(message)
+            if code is not None:
+                payload = {**payload, "code": code}
+    return msgspec_json_response(payload, status=status)

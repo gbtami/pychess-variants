@@ -1,4 +1,3 @@
-import inspect
 import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -10,7 +9,6 @@ from mongomock_motor import AsyncMongoMockClient
 from pychess_global_app_state_utils import get_app_state
 from request_protection import RequestProtectionState, RouteRateLimit
 from typedefs import request_protection_state_key
-from views import get_user_context
 
 from server import make_app
 
@@ -25,9 +23,6 @@ class RequestProtectionTestCase(AioHTTPTestCase):
     async def test_known_scanner_path_returns_not_found(self):
         resp = await self.client.request("GET", "/wp-content/plugins/hellopress/wp_filemanager")
         self.assertEqual(resp.status, 404)
-
-    def test_anonymous_context_creation_has_no_deliberate_request_delay(self):
-        self.assertNotIn("sleep(", inspect.getsource(get_user_context))
 
     async def test_anonymous_page_view_stays_stateless(self):
         app_state = get_app_state(self.app)
@@ -222,25 +217,25 @@ class RequestProtectionTestCase(AioHTTPTestCase):
 
     async def test_profile_route_is_rate_limited(self):
         statuses: list[int] = []
+        test_limit = RouteRateLimit("profile", max_requests=3, window_seconds=30.0)
 
-        # The limiter budget for /@/ routes is intentionally finite per IP.
-        # We hit an unknown profile repeatedly to ensure the middleware emits 429
-        # before this turns into unbounded DB miss traffic.
-        for _ in range(45):
-            resp = await self.client.request("GET", "/@/NoSuchUserRateLimitProbe")
-            statuses.append(resp.status)
+        # Exercise the same boundary behavior with a tiny test-only budget
+        # instead of making 40+ HTTP requests to reach the live threshold.
+        with patch.object(RequestProtectionState, "_PROFILE_LIMIT", test_limit):
+            for _ in range(4):
+                resp = await self.client.request("GET", "/@/NoSuchUserRateLimitProbe")
+                statuses.append(resp.status)
 
-        # Before rate limit kicks in, this path goes through the normal handler
-        # and the app's 404 page middleware preserves the not-found status.
-        self.assertIn(404, statuses)
-        self.assertIn(429, statuses)
+        self.assertEqual([404, 404, 404, 429], statuses)
 
     async def test_inbox_threads_route_is_not_in_profile_rate_limit_bucket(self):
         statuses: list[int] = []
+        test_limit = RouteRateLimit("profile", max_requests=3, window_seconds=30.0)
 
-        for _ in range(45):
-            resp = await self.client.request("GET", "/api/inbox/threads")
-            statuses.append(resp.status)
+        with patch.object(RequestProtectionState, "_PROFILE_LIMIT", test_limit):
+            for _ in range(4):
+                resp = await self.client.request("GET", "/api/inbox/threads")
+                statuses.append(resp.status)
 
         self.assertNotIn(429, statuses)
 

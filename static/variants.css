@@ -267,6 +267,18 @@ div.guide .catalogued-variant-rules h1 {
     text-align: left;
 }
 
+.community-variant-fsf-title {
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: flex-end;
+}
+
+.community-variant-fsf-icon {
+    flex: 0 0 auto;
+    width: 64px;
+    height: 64px;
+}
+
 .community-variants-page .community-variant-card p {
     margin: 0.5rem 0 0;
     padding: 0;

@@ -2,8 +2,6 @@ import { h } from 'snabbdom';
 
 import { _ } from './i18n';
 import { patch } from './document';
-import { RoundControllerBughouse } from './two-board/round/roundCtrl';
-import { onchatclick, renderBugChatPresets } from '@/two-board/round/chat';
 import { selfReport, shouldSkipMessage } from './chatSpam';
 import { displayUsername, isAnonUsername } from './user';
 import { linkifyNodes } from './linkify';
@@ -14,6 +12,7 @@ export interface ChatController {
     spectator?: boolean;
     gameId?: string;
     tournamentId?: string;
+    simulId?: string;
 }
 
 // ------ Deterministic color assignment for usernames, theme-aware ------
@@ -54,17 +53,38 @@ function assignUsernameColors(usernames: string[]): Record<string, string> {
 const activeUsernames = new Set<string>();
 const userColorMap: { [username: string]: string } = {};
 
-export function chatView(ctrl: ChatController, chatType: string) {
+// The one definition of what sending a chat message is: self-report it, then hand
+// the envelope to the controller. Exported because the bughouse preset buttons send
+// too, and they live outside this view — see two-board/round/chatPresets.ts. They
+// must use THIS, not their own copy: a second envelope would drift, and selfReport
+// is easy to leave out.
+export function chatSender(ctrl: ChatController, chatType: string): (message: string) => void {
     const spectator = 'spectator' in ctrl && ctrl.spectator;
-    const bughouse = ctrl instanceof RoundControllerBughouse;
-    function blur(e: Event) {
-        if (bughouse) {
-            console.log(e);
-            // always keep focus on chat text input for faster chatting when in bughouse round page
-            //todo:niki: temporarily disable this to make playing on mobile a bit easier, until solution is found:
-            //(e.target as HTMLInputElement).focus();
-        }
-    }
+    return (message: string) => {
+        selfReport(message);
+        const m: any = { type: chatType, message: message, room: spectator ? 'spectator' : 'player' };
+        if ('gameId' in ctrl) m['gameId'] = ctrl.gameId;
+        if ('tournamentId' in ctrl) m['tournamentId'] = ctrl.tournamentId;
+        // Carried over from upstream when this function was extracted out of chatView():
+        // simul chat routes on this id, and dropping it would have silently broken simul
+        // chat for the sake of a refactor that was only meant to move code.
+        if ('simulId' in ctrl) m['simulId'] = ctrl.simulId;
+        ctrl.doSend(m);
+    };
+}
+
+export interface ChatViewOptions {
+    /** Render the chat header: the room label and the chat on/off toggle.
+        Defaults to true. A chat with no room concept and no toggle passes false
+        and gets NO header element — not an empty one. The bughouse round page
+        used to receive an empty `div.chatroom`, which drew nothing and cost the
+        message list 14px of padding in landscape and 12.15px in portrait. */
+    chatHeader?: boolean;
+}
+
+export function chatView(ctrl: ChatController, chatType: string, opts: ChatViewOptions = {}) {
+    const spectator = 'spectator' in ctrl && ctrl.spectator;
+    const chatHeader = opts.chatHeader ?? true;
     function onKeyPress(e: KeyboardEvent) {
         const cb = <HTMLInputElement>document.getElementById('checkbox');
         if (cb && !cb.checked) return;
@@ -74,13 +94,7 @@ export function chatView(ctrl: ChatController, chatType: string) {
             (e.target as HTMLInputElement).value = '';
         }
     }
-    function sendMessage(message: string) {
-        selfReport(message);
-        const m: any = { type: chatType, message: message, room: spectator ? 'spectator' : 'player' };
-        if ('gameId' in ctrl) m['gameId'] = ctrl.gameId;
-        if ('tournamentId' in ctrl) m['tournamentId'] = ctrl.tournamentId;
-        ctrl.doSend(m);
-    }
+    const sendMessage = chatSender(ctrl, chatType);
     function onClick() {
         const activated = (<HTMLInputElement>document.getElementById('checkbox')).checked;
         const chatEntry = <HTMLInputElement>document.getElementById('chat-entry');
@@ -93,17 +107,16 @@ export function chatView(ctrl: ChatController, chatType: string) {
             : _('Chat is disabled');
     }
     return h(`div#${chatType}.${chatType}.chat`, [
-        bughouse
-            ? h('div.chatroom')
-            : h('div.chatroom', [
+        chatHeader
+            ? h('div.chatroom', [
                   spectator ? _('Spectator room') : _('Chat room'),
                   h('input#checkbox', {
                       props: { title: _('Toggle the chat'), name: 'checkbox', type: 'checkbox', checked: 'true' },
                       on: { click: onClick },
                   }),
-              ]),
+              ])
+            : null,
         h(`ol#${chatType}-messages`, [h('div#messages')]),
-        bughouse && !ctrl.spectator ? renderBugChatPresets(ctrl.variant, sendMessage) : null,
         h('input#chat-entry', {
             props: {
                 type: 'text',
@@ -117,19 +130,25 @@ export function chatView(ctrl: ChatController, chatType: string) {
                 // autofocus: "true",
                 'aria-label': 'Chat input',
             },
-            on: { keypress: onKeyPress, blur: blur },
+            on: { keypress: onKeyPress },
         }),
     ]);
 }
 
-export function chatMessage(
-    user: string,
-    message: string,
-    chatType: string,
-    time?: number,
-    ply?: number,
-    ctrl?: RoundControllerBughouse,
-) {
+// `ply` and `ctrl: RoundControllerBughouse` used to trail this signature, so that a
+// message could be titled with the SAN of the move it was said at and click through
+// to that ply. Both were DEAD. The only callers that passed them passed `user: ''`,
+// which takes the first branch below and reads neither — and the decoration lived in
+// the last branch, reachable only for a real username, which no caller ever combined
+// with a controller. The live implementation of that feature is chatMessageBug() in
+// two-board/round/chat.ts, which builds its own SAN element and click handlers.
+//
+// Removing them takes the last bughouse dependency out of this shared module, and
+// takes the `undefined` padding out of its callers: the bughouse call sites read
+//     chatMessage('', '…', 'bugroundchat', undefined, idx, this)
+// where the `undefined` only existed to step over a `time` they had no value for on
+// the way to arguments that were never read.
+export function chatMessage(user: string, message: string, chatType: string, time?: number) {
     if (shouldSkipMessage(message)) return;
 
     // when the first duck placement starts, DuckInput.start() calls:
@@ -148,17 +167,8 @@ export function chatMessage(
     const messageNodes = linkifyNodes(message, 'chat-message-link');
 
     // Update active usernames set
-    if (user.length && user !== '_server' && user !== 'Discord-Relay') {
+    if (user.length && user !== '_server') {
         activeUsernames.add(displayUser);
-    }
-    // Special handling for Discord-Relay messages
-    let discordUser = '';
-    if (user === 'Discord-Relay') {
-        const colonIndex = message.indexOf(':');
-        if (colonIndex > 0) {
-            discordUser = message.substring(0, colonIndex);
-            activeUsernames.add(discordUser);
-        }
     }
     // Get color mapping
     const usernameColorMap = assignUsernameColors(Array.from(activeUsernames));
@@ -172,42 +182,6 @@ export function chatMessage(
                 h('li.message.server', [h('div.time', localTime), h('user', _('Server')), h('t', messageNodes)]),
             ]),
         );
-    } else if (user === 'Discord-Relay') {
-        const colonIndex = message.indexOf(':');
-        if (colonIndex > 0) {
-            discordUser = message.substring(0, colonIndex);
-            const discordMessage = message.substring(colonIndex + 2);
-            const discordMessageNodes = linkifyNodes(discordMessage, 'chat-message-link');
-            patch(
-                container,
-                h('div#messages', [
-                    h('li.message', [
-                        h('div.time', localTime),
-                        h(
-                            'div.discord-icon-container',
-                            h('img.icon-discord-icon', { attrs: { src: '/static/icons/discord.svg', alt: '' } }),
-                        ),
-                        h('user', { style: { color: usernameColorMap[discordUser] || '#aaa' } }, discordUser),
-                        h('t', discordMessageNodes),
-                    ]),
-                ]),
-            );
-        } else {
-            patch(
-                container,
-                h('div#messages', [
-                    h('li.message', [
-                        h('div.time', localTime),
-                        h(
-                            'div.discord-icon-container',
-                            h('img.icon-discord-icon', { attrs: { src: '/static/icons/discord.svg', alt: '' } }),
-                        ),
-                        h('user', { style: { color: '#aaa' } }, user),
-                        h('t', messageNodes),
-                    ]),
-                ]),
-            );
-        }
     } else {
         const userNode = isAnon
             ? h('span', { style: { color: usernameColorMap[displayUser] || '#aaa' } }, displayUser)
@@ -226,18 +200,7 @@ export function chatMessage(
                 h('li.message', [
                     h('div.time', localTime),
                     h('user', [userNode]),
-                    h(
-                        't',
-                        {
-                            attrs: { title: ctrl?.steps[ply!].san! },
-                            on: {
-                                click: () => {
-                                    onchatclick(ply, ctrl);
-                                },
-                            },
-                        },
-                        messageNodes,
-                    ),
+                    h('t', messageNodes),
                 ]),
             ]),
         );

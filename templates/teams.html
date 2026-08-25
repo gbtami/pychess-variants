@@ -1,0 +1,40 @@
+{% extends "team-base.html" %}
+{% block content %}
+<div id="main-wrap">
+    <main class="team-list-page teams-page page-menu">
+        {% set team_menu_active = 'mine' if mine_only else 'all' %}
+        {% include "team-menu.html" %}
+        <div class="page-menu__content box">
+            <div class="box__top team-list-top">
+                <h1>{% if mine_only %}{% trans %}My teams{% endtrans %}{% else %}{% trans %}Teams{% endtrans %}{% endif %}</h1>
+            </div>
+
+            <table class="team-slist slist slist-pad slist-invert">
+                {% if teams %}
+                <tbody>
+                    {% for team in teams %}
+                    <tr class="team-list-row">
+                        <td class="subject">
+                            <a class="team-name{% if team['_id'] in my_team_ids %} mine{% endif %}" href="/team/{{ team['_id'] }}">
+                                <span class="team-icon" aria-hidden="true"></span>
+                                <span class="team-name__label">{{ team['name'] }}</span>
+                                {% if team['_id'] in my_team_ids %}<em>{% trans %}joined{% endtrans %}</em>{% endif %}
+                            </a>
+                            {% if team.get('intro') %}<span class="team-list-intro">{{ team['intro'] }}</span>{% endif %}
+                        </td>
+                        <td class="info">
+                            <p>{% trans count=team.get('memberCount', 0) %}{{ count }} member{% pluralize %}{{ count }} members{% endtrans %}</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                {% else %}
+                <tbody>
+                    <tr><td class="team-empty" colspan="2">{% trans %}No teams yet{% endtrans %}{% if not anon %}. {% trans %}Create the first one and invite other PyChess players.{% endtrans %}{% endif %}</td></tr>
+                </tbody>
+                {% endif %}
+            </table>
+        </div>
+    </main>
+</div>
+{% endblock %}

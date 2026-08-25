@@ -1,6 +1,7 @@
 import asyncio
 import gc
 from datetime import UTC, datetime, timedelta
+from time import monotonic
 from unittest.mock import AsyncMock, patch
 
 from aiohttp import web
@@ -8,17 +9,28 @@ from const import BYEGAME, FLAG, RATED, SHIELD, T_FINISHED, T_STARTED, TEST_PREF
 from fairy.cwda import CWDA_START_FENS
 from glicko2.glicko2 import new_default_perf_map
 from newid import id8
-from pychess_global_app_state import LOCALHOST_CACHE_KEEP_TIME, TOURNAMENT_KEEP_TIME
+from pychess_global_app_state import (
+    TOURNAMENT_KEEP_TIME,
+    recover_pending_tournament_game_side_effects,
+)
 from pychess_global_app_state_utils import get_app_state
 from rated_start import CHESS_NO_CASTLE_FEN
-from settings import LOCALHOST, URI
+from team import PERMISSION_TOURNAMENTS
 from tournament.arena import ArenaTournament
 from tournament.auto_play_tournament import (
     ArenaTestTournament,
     RRTestTournament,
     SwissTestTournament,
 )
+from tournament.rr import (
+    ARR_STATUS_CHALLENGED,
+    ARR_STATUS_FINISHED,
+    ARR_STATUS_PENDING,
+    ARR_STATUS_STARTED,
+    RRTournament,
+)
 from tournament.tournament import (
+    SCORE_SHIFT,
     SWISS_FINISH_REASON_NO_LEGAL_PAIRING,
     ByeGame,
     GameData,
@@ -27,7 +39,11 @@ from tournament.tournament import (
     Tournament,
     upsert_tournament_to_db,
 )
-from tournament.tournaments import create_or_update_tournament, load_tournament
+from tournament.tournaments import (
+    create_or_update_tournament,
+    creator_can_manage_tournament,
+    load_tournament,
+)
 from tournament_test_base import TournamentTestCase
 from user import User
 from variants import VARIANTS
@@ -39,6 +55,356 @@ def make_test_perfs():
 
 class TournamentPersistenceTestCase(TournamentTestCase):
     SHORT_SWISS_MINUTES = 0.08
+
+    @staticmethod
+    def _community_arena_form(**overrides: str) -> dict[str, str]:
+        form = {
+            "variant": "chess",
+            "rated": "1",
+            "clockTime": "3.0",
+            "clockIncrement": "2",
+            "byoyomiPeriod": "0",
+            "system": str(ArenaTournament.system),
+            "rounds": "0",
+            "roundInterval": "auto",
+            "entryMinRating": "0",
+            "entryMaxRating": "0",
+            "entryMinRatedGames": "0",
+            "entryMinAccountAgeDays": "0",
+            "forbiddenPairings": "",
+            "manualPairings": "",
+            "startDate": "",
+            "endDate": "",
+            "description": "",
+            "password": "",
+            "position": "",
+            "waitMinutes": "5",
+            "minutes": "45",
+            "name": "Community Arena",
+        }
+        form.update(overrides)
+        return form
+
+    @staticmethod
+    def _fixed_round_form(system: str = "2", **overrides: str) -> dict[str, str]:
+        form = {
+            "variant": "chess",
+            "rated": "1",
+            "position": "",
+            "clockTime": "5",
+            "clockIncrement": "0",
+            "byoyomiPeriod": "0",
+            "system": system,
+            "rounds": "5",
+            "rrMaxPlayers": "10",
+            "rrRequiresApproval": "",
+            "roundInterval": "auto",
+            "entryMinRating": "0",
+            "entryMaxRating": "0",
+            "entryMinRatedGames": "0",
+            "entryMinAccountAgeDays": "0",
+            "entryTitledOnly": "",
+            "forbiddenPairings": "",
+            "manualPairings": "",
+            "startDate": "",
+            "endDate": "",
+            "name": "Team Tournament",
+            "description": "",
+            "password": "",
+            "waitMinutes": "5",
+            "minutes": "45",
+        }
+        form.update(overrides)
+        return form
+
+    async def test_regular_user_can_create_only_one_arena_per_24_hours(self):
+        app_state = get_app_state(self.app)
+        username = f"CommunityArena{id8()}"
+        await app_state.db.user.insert_one({"_id": username})
+
+        before_ids = set(app_state.tournaments)
+        discord_send = AsyncMock()
+        with patch.object(app_state.discord, "send_to_discord", new=discord_send):
+            await create_or_update_tournament(
+                app_state,
+                username,
+                self._community_arena_form(),
+                creator_is_director=False,
+            )
+        discord_send.assert_not_awaited()
+        new_ids = set(app_state.tournaments) - before_ids
+        self.assertEqual(len(new_ids), 1)
+        tournament = app_state.tournaments[new_ids.pop()]
+        self.assertEqual(tournament.system, ArenaTournament.system)
+
+        await create_or_update_tournament(
+            app_state,
+            username,
+            self._community_arena_form(name="Edited Community Arena"),
+            tournament,
+            creator_is_director=False,
+        )
+        self.assertEqual(tournament.name, "Edited Community Arena")
+
+        await tournament.abort()
+        with self.assertRaises(web.HTTPTooManyRequests):
+            await create_or_update_tournament(
+                app_state,
+                username,
+                self._community_arena_form(name="Second Arena"),
+                creator_is_director=False,
+            )
+
+        user_doc = await app_state.db.user.find_one({"_id": username})
+        history = list((user_doc or {}).get("arenaCreationHistory", []))
+        self.assertEqual(len(history), 1)
+        history[0]["at"] = datetime.now(UTC) - timedelta(hours=25)
+        await app_state.db.user.update_one(
+            {"_id": username},
+            {"$set": {"arenaCreationHistory": history}},
+        )
+        await create_or_update_tournament(
+            app_state,
+            username,
+            self._community_arena_form(name="Next Day Arena"),
+            creator_is_director=False,
+        )
+
+    async def test_community_arena_quota_constant_controls_rolling_24h_limit(self):
+        app_state = get_app_state(self.app)
+        username = f"CommunityQuota{id8()}"
+        await app_state.db.user.insert_one({"_id": username})
+
+        with patch("tournament.tournaments.COMMUNITY_ARENA_MAX_CREATIONS_PER_24H", 2):
+            for number in (1, 2):
+                before_ids = set(app_state.tournaments)
+                await create_or_update_tournament(
+                    app_state,
+                    username,
+                    self._community_arena_form(name=f"Quota Arena {number}"),
+                    creator_is_director=False,
+                )
+                tournament_id = (set(app_state.tournaments) - before_ids).pop()
+                await app_state.tournaments[tournament_id].abort()
+
+            with self.assertRaises(web.HTTPTooManyRequests):
+                await create_or_update_tournament(
+                    app_state,
+                    username,
+                    self._community_arena_form(name="Quota Arena 3"),
+                    creator_is_director=False,
+                )
+
+            user_doc = await app_state.db.user.find_one({"_id": username})
+            history = list((user_doc or {}).get("arenaCreationHistory", []))
+            self.assertEqual(len(history), 2)
+
+            history[0]["at"] = datetime.now(UTC) - timedelta(hours=25)
+            await app_state.db.user.update_one(
+                {"_id": username},
+                {"$set": {"arenaCreationHistory": history}},
+            )
+            await create_or_update_tournament(
+                app_state,
+                username,
+                self._community_arena_form(name="Quota Arena 3"),
+                creator_is_director=False,
+            )
+
+            user_doc = await app_state.db.user.find_one({"_id": username})
+            history = list((user_doc or {}).get("arenaCreationHistory", []))
+            self.assertEqual(len(history), 2)
+            self.assertGreater(history[0]["at"], datetime.now(UTC) - timedelta(hours=24))
+
+    async def test_community_arena_quota_migrates_legacy_timestamp(self):
+        app_state = get_app_state(self.app)
+        username = f"CommunityLegacyQuota{id8()}"
+        await app_state.db.user.insert_one(
+            {"_id": username, "lastArenaCreatedAt": datetime.now(UTC) - timedelta(hours=1)}
+        )
+
+        with self.assertRaises(web.HTTPTooManyRequests):
+            await create_or_update_tournament(
+                app_state,
+                username,
+                self._community_arena_form(name="Blocked Legacy Arena"),
+                creator_is_director=False,
+            )
+
+        await app_state.db.user.update_one(
+            {"_id": username},
+            {"$set": {"lastArenaCreatedAt": datetime.now(UTC) - timedelta(hours=25)}},
+        )
+        await create_or_update_tournament(
+            app_state,
+            username,
+            self._community_arena_form(name="Migrated Legacy Arena"),
+            creator_is_director=False,
+        )
+
+        user_doc = await app_state.db.user.find_one({"_id": username})
+        self.assertNotIn("lastArenaCreatedAt", user_doc or {})
+        history = list((user_doc or {}).get("arenaCreationHistory", []))
+        self.assertEqual(len(history), 1)
+
+        raised_username = f"CommunityLegacyRaisedQuota{id8()}"
+        legacy_created_at = datetime.now(UTC) - timedelta(hours=1)
+        await app_state.db.user.insert_one(
+            {"_id": raised_username, "lastArenaCreatedAt": legacy_created_at}
+        )
+        with patch("tournament.tournaments.COMMUNITY_ARENA_MAX_CREATIONS_PER_24H", 2):
+            before_ids = set(app_state.tournaments)
+            await create_or_update_tournament(
+                app_state,
+                raised_username,
+                self._community_arena_form(name="Legacy Second Slot Arena"),
+                creator_is_director=False,
+            )
+            tournament_id = (set(app_state.tournaments) - before_ids).pop()
+            await app_state.tournaments[tournament_id].abort()
+
+            with self.assertRaises(web.HTTPTooManyRequests):
+                await create_or_update_tournament(
+                    app_state,
+                    raised_username,
+                    self._community_arena_form(name="Legacy Third Slot Arena"),
+                    creator_is_director=False,
+                )
+
+            raised_doc = await app_state.db.user.find_one({"_id": raised_username})
+            raised_history = list((raised_doc or {}).get("arenaCreationHistory", []))
+            self.assertEqual(len(raised_history), 2)
+            self.assertLess(
+                abs((raised_history[0]["at"] - legacy_created_at).total_seconds()),
+                0.001,
+            )
+            self.assertNotIn("lastArenaCreatedAt", raised_doc or {})
+
+    async def test_community_arena_failed_creation_releases_quota_claim(self):
+        app_state = get_app_state(self.app)
+        username = f"CommunityQuotaRollback{id8()}"
+        await app_state.db.user.insert_one({"_id": username})
+
+        with (
+            patch(
+                "tournament.tournaments.new_tournament",
+                new=AsyncMock(side_effect=RuntimeError("simulated creation failure")),
+            ),
+            self.assertRaisesRegex(RuntimeError, "simulated creation failure"),
+        ):
+            await create_or_update_tournament(
+                app_state,
+                username,
+                self._community_arena_form(name="Failed Quota Arena"),
+                creator_is_director=False,
+            )
+
+        user_doc = await app_state.db.user.find_one({"_id": username})
+        self.assertEqual((user_doc or {}).get("arenaCreationHistory"), [])
+
+        await create_or_update_tournament(
+            app_state,
+            username,
+            self._community_arena_form(name="Successful Quota Arena"),
+            creator_is_director=False,
+        )
+
+    async def test_regular_user_arena_limits_and_system_conflict(self):
+        app_state = get_app_state(self.app)
+        username = f"CommunityLimits{id8()}"
+        await app_state.db.user.insert_one({"_id": username})
+
+        with self.assertRaises(web.HTTPBadRequest):
+            await create_or_update_tournament(
+                app_state,
+                username,
+                self._community_arena_form(system="1"),
+                creator_is_director=False,
+            )
+
+        with self.assertRaises(web.HTTPBadRequest):
+            await create_or_update_tournament(
+                app_state,
+                username,
+                self._community_arena_form(minutes="150"),
+                creator_is_director=False,
+            )
+
+        with self.assertRaises(web.HTTPBadRequest):
+            await create_or_update_tournament(
+                app_state,
+                username,
+                self._community_arena_form(variant="bughouse"),
+                creator_is_director=False,
+            )
+
+        too_late = datetime.now(UTC) + timedelta(hours=25)
+        with self.assertRaises(web.HTTPBadRequest):
+            await create_or_update_tournament(
+                app_state,
+                username,
+                self._community_arena_form(startDate=too_late.isoformat()),
+                creator_is_director=False,
+            )
+
+        protected_start = datetime.now(UTC) + timedelta(minutes=30)
+        protected = ArenaTournament(
+            app_state,
+            id8(),
+            name="Weekly Chess Arena",
+            created_by="PyChess",
+            frequency=SHIELD,
+            starts_at=protected_start,
+            minutes=90,
+            with_clock=False,
+        )
+        app_state.tournaments[protected.id] = protected
+
+        conflict_start = protected_start - timedelta(minutes=20)
+        with self.assertRaises(web.HTTPBadRequest):
+            await create_or_update_tournament(
+                app_state,
+                username,
+                self._community_arena_form(startDate=conflict_start.isoformat()),
+                creator_is_director=False,
+            )
+
+        user_doc = await app_state.db.user.find_one({"_id": username})
+        self.assertIsNotNone(user_doc)
+        self.assertNotIn("lastArenaCreatedAt", user_doc or {})
+        self.assertNotIn("arenaCreationHistory", user_doc or {})
+
+    async def test_regular_user_cannot_stack_active_arenas(self):
+        app_state = get_app_state(self.app)
+        username = f"CommunityActive{id8()}"
+        await app_state.db.user.insert_one({"_id": username})
+
+        before_ids = set(app_state.tournaments)
+        await create_or_update_tournament(
+            app_state,
+            username,
+            self._community_arena_form(),
+            creator_is_director=False,
+        )
+        tournament_id = (set(app_state.tournaments) - before_ids).pop()
+
+        user_doc = await app_state.db.user.find_one({"_id": username})
+        history = list((user_doc or {}).get("arenaCreationHistory", []))
+        self.assertEqual(len(history), 1)
+        history[0]["at"] = datetime.now(UTC) - timedelta(hours=25)
+        await app_state.db.user.update_one(
+            {"_id": username},
+            {"$set": {"arenaCreationHistory": history}},
+        )
+        with self.assertRaises(web.HTTPTooManyRequests):
+            await create_or_update_tournament(
+                app_state,
+                username,
+                self._community_arena_form(name="Overlapping Arena"),
+                creator_is_director=False,
+            )
+
+        await app_state.tournaments[tournament_id].abort()
 
     async def test_only_curated_custom_start_tournaments_can_be_rated(self):
         app_state = get_app_state(self.app)
@@ -163,38 +529,428 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         self.assertEqual(doc.get("forbiddenPairings"), "")
         self.assertEqual(doc.get("manualPairings"), "")
 
-    async def test_production_rejects_fixed_round_creation(self):
+    async def test_production_requires_team_for_fixed_round_creation(self):
         app_state = get_app_state(self.app)
-        form = {
-            "variant": "chess",
-            "rated": "1",
-            "position": "",
-            "clockTime": "5",
-            "clockIncrement": "0",
-            "byoyomiPeriod": "0",
-            "rounds": "5",
-            "roundInterval": "auto",
-            "entryMinRating": "0",
-            "entryMaxRating": "0",
-            "entryMinRatedGames": "0",
-            "entryMinAccountAgeDays": "0",
-            "entryTitledOnly": "",
-            "forbiddenPairings": "",
-            "manualPairings": "",
-            "startDate": "",
-            "name": "Fixed Round Disabled",
-            "description": "",
-            "password": "",
-            "waitMinutes": "5",
-            "minutes": "45",
-        }
 
         with patch("tournament.tournaments.DEV", False):
             for system in ("1", "2"):
                 with self.assertRaises(web.HTTPBadRequest):
                     await create_or_update_tournament(
-                        app_state, "tester", {**form, "system": system}
+                        app_state, "tester", self._fixed_round_form(system)
                     )
+
+    async def test_team_tournament_permission_unlocks_all_pairing_systems(self):
+        app_state = get_app_state(self.app)
+        username = f"TeamTournament{id8()}"
+        team_id = f"team-{id8()}"
+        now = datetime.now(UTC)
+        await app_state.db.user.insert_one({"_id": username})
+        await app_state.db.team.insert_one(
+            {
+                "_id": team_id,
+                "name": "Tournament Team",
+                "enabled": True,
+                "memberCount": 1,
+                "createdBy": username,
+                "createdAt": now,
+                "updatedAt": now,
+            }
+        )
+        await app_state.db.team_member.insert_one(
+            {
+                "_id": f"{username}@{team_id}",
+                "team": team_id,
+                "user": username,
+                "joinedAt": now,
+                "permissions": [PERMISSION_TOURNAMENTS],
+            }
+        )
+
+        with patch("tournament.tournaments.DEV", False):
+            for system in ("0", "1", "2"):
+                before_ids = set(app_state.tournaments)
+                form = (
+                    self._community_arena_form(
+                        teamId=team_id,
+                        name=f"Team Tournament {system}",
+                    )
+                    if system == "0"
+                    else self._fixed_round_form(
+                        system,
+                        teamId=team_id,
+                        name=f"Team Tournament {system}",
+                    )
+                )
+                await create_or_update_tournament(
+                    app_state,
+                    username,
+                    form,
+                    creator_is_director=False,
+                )
+                tournament_id = (set(app_state.tournaments) - before_ids).pop()
+                tournament = app_state.tournaments[tournament_id]
+                self.assertEqual(team_id, tournament.team_id)
+                doc = await app_state.db.tournament.find_one({"_id": tournament_id})
+                self.assertIsNotNone(doc)
+                assert doc is not None
+                self.assertEqual(team_id, doc.get("teamId"))
+                await tournament.abort()
+
+    async def test_team_tournament_creation_rejects_missing_tournament_permission(self):
+        app_state = get_app_state(self.app)
+        team_id = f"team-{id8()}"
+        now = datetime.now(UTC)
+        await app_state.db.team.insert_one(
+            {
+                "_id": team_id,
+                "name": "Member Only Team",
+                "enabled": True,
+                "memberCount": 1,
+                "createdBy": "someone-else",
+                "createdAt": now,
+                "updatedAt": now,
+            }
+        )
+        await app_state.db.team_member.insert_one(
+            {
+                "_id": f"tester@{team_id}",
+                "team": team_id,
+                "user": "tester",
+                "joinedAt": now,
+                "permissions": [],
+            }
+        )
+
+        with patch("tournament.tournaments.DEV", False):
+            for system in ("0", "1", "2"):
+                form = (
+                    self._community_arena_form(teamId=team_id)
+                    if system == "0"
+                    else self._fixed_round_form(system, teamId=team_id)
+                )
+                with self.assertRaises(web.HTTPForbidden):
+                    await create_or_update_tournament(
+                        app_state,
+                        "tester",
+                        form,
+                        creator_is_director=False,
+                    )
+
+    async def test_team_tournament_creator_loses_management_when_permission_is_removed(self):
+        app_state = get_app_state(self.app)
+        username = f"TeamOrganizer{id8()}"
+        team_id = f"team-{id8()}"
+        now = datetime.now(UTC)
+        await app_state.db.user.insert_one({"_id": username})
+        await app_state.db.team.insert_one(
+            {
+                "_id": team_id,
+                "name": "Organizer Lifecycle Team",
+                "enabled": True,
+                "memberCount": 1,
+                "createdBy": "team-owner",
+                "createdAt": now,
+                "updatedAt": now,
+            }
+        )
+        member_id = f"{username}@{team_id}"
+        await app_state.db.team_member.insert_one(
+            {
+                "_id": member_id,
+                "team": team_id,
+                "user": username,
+                "joinedAt": now,
+                "permissions": [PERMISSION_TOURNAMENTS],
+            }
+        )
+
+        before_ids = set(app_state.tournaments)
+        form = self._fixed_round_form("2", teamId=team_id, name="Organizer Swiss")
+        await create_or_update_tournament(
+            app_state,
+            username,
+            form,
+            creator_is_director=False,
+        )
+        tournament_id = (set(app_state.tournaments) - before_ids).pop()
+        tournament = app_state.tournaments[tournament_id]
+        self.assertTrue(await creator_can_manage_tournament(app_state, tournament, username))
+
+        await app_state.db.team_member.update_one(
+            {"_id": member_id},
+            {"$set": {"permissions": []}},
+        )
+        self.assertFalse(await creator_can_manage_tournament(app_state, tournament, username))
+
+        for creator_is_director in (False, True):
+            with self.assertRaises(web.HTTPForbidden):
+                await create_or_update_tournament(
+                    app_state,
+                    username,
+                    {**form, "name": "Unauthorized edit"},
+                    tournament,
+                    creator_is_director=creator_is_director,
+                )
+
+        await tournament.abort()
+
+    async def test_team_arena_uses_regular_user_arena_quota(self):
+        app_state = get_app_state(self.app)
+        username = f"TeamArenaQuota{id8()}"
+        team_id = f"team-{id8()}"
+        now = datetime.now(UTC)
+        await app_state.db.user.insert_one({"_id": username})
+        await app_state.db.team.insert_one(
+            {
+                "_id": team_id,
+                "name": "Arena Team",
+                "enabled": True,
+                "memberCount": 1,
+                "createdBy": username,
+                "createdAt": now,
+                "updatedAt": now,
+            }
+        )
+        await app_state.db.team_member.insert_one(
+            {
+                "_id": f"{username}@{team_id}",
+                "team": team_id,
+                "user": username,
+                "joinedAt": now,
+                "permissions": [PERMISSION_TOURNAMENTS],
+            }
+        )
+
+        before_ids = set(app_state.tournaments)
+        await create_or_update_tournament(
+            app_state,
+            username,
+            self._community_arena_form(teamId=team_id, name="Team Arena"),
+            creator_is_director=False,
+        )
+        tournament_id = (set(app_state.tournaments) - before_ids).pop()
+        await app_state.tournaments[tournament_id].abort()
+
+        with self.assertRaises(web.HTTPTooManyRequests):
+            await create_or_update_tournament(
+                app_state,
+                username,
+                self._community_arena_form(name="Public Arena"),
+                creator_is_director=False,
+            )
+
+    async def test_team_arena_can_be_scheduled_far_ahead_despite_public_arena_conflicts(self):
+        app_state = get_app_state(self.app)
+        username = f"TeamArenaSchedule{id8()}"
+        team_id = f"team-{id8()}"
+        now = datetime.now(UTC)
+        future_start = now + timedelta(days=2)
+        await app_state.db.user.insert_one({"_id": username})
+        await app_state.db.team.insert_one(
+            {
+                "_id": team_id,
+                "name": "Scheduled Arena Team",
+                "enabled": True,
+                "memberCount": 1,
+                "createdBy": username,
+                "createdAt": now,
+                "updatedAt": now,
+            }
+        )
+        await app_state.db.team_member.insert_one(
+            {
+                "_id": f"{username}@{team_id}",
+                "team": team_id,
+                "user": username,
+                "joinedAt": now,
+                "permissions": [PERMISSION_TOURNAMENTS],
+            }
+        )
+
+        existing = ArenaTournament(
+            app_state,
+            id8(),
+            name="Existing Community Arena",
+            created_by=username,
+            starts_at=now + timedelta(minutes=5),
+            minutes=45,
+            with_clock=False,
+        )
+        protected = ArenaTournament(
+            app_state,
+            id8(),
+            name="Future PyChess Arena",
+            created_by="PyChess",
+            frequency=SHIELD,
+            starts_at=future_start,
+            minutes=90,
+            with_clock=False,
+        )
+        app_state.tournaments[existing.id] = existing
+        app_state.tournaments[protected.id] = protected
+
+        with self.assertRaises(web.HTTPBadRequest):
+            await create_or_update_tournament(
+                app_state,
+                username,
+                self._community_arena_form(
+                    teamId=team_id,
+                    startDate=future_start.isoformat(),
+                    minutes="150",
+                ),
+                creator_is_director=False,
+            )
+
+        before_ids = set(app_state.tournaments)
+        await create_or_update_tournament(
+            app_state,
+            username,
+            self._community_arena_form(
+                teamId=team_id,
+                name="Future Team Arena",
+                startDate=future_start.isoformat(),
+            ),
+            creator_is_director=False,
+        )
+        tournament_id = (set(app_state.tournaments) - before_ids).pop()
+        tournament = app_state.tournaments[tournament_id]
+        self.assertEqual(team_id, tournament.team_id)
+        self.assertEqual(future_start, tournament.starts_at)
+        await tournament.abort()
+        app_state.tournaments.pop(existing.id, None)
+        app_state.tournaments.pop(protected.id, None)
+
+    async def test_team_fixed_round_quota_is_shared_and_rolling(self):
+        app_state = get_app_state(self.app)
+        username = f"TeamFixedQuota{id8()}"
+        team_id = f"team-{id8()}"
+        now = datetime.now(UTC)
+        await app_state.db.user.insert_one({"_id": username})
+        await app_state.db.team.insert_one(
+            {
+                "_id": team_id,
+                "name": "Fixed Round Quota Team",
+                "enabled": True,
+                "memberCount": 1,
+                "createdBy": username,
+                "createdAt": now,
+                "updatedAt": now,
+            }
+        )
+        await app_state.db.team_member.insert_one(
+            {
+                "_id": f"{username}@{team_id}",
+                "team": team_id,
+                "user": username,
+                "joinedAt": now,
+                "permissions": [PERMISSION_TOURNAMENTS],
+            }
+        )
+
+        with patch("tournament.tournaments.FIXED_ROUND_MAX_CREATIONS_PER_24H", 2):
+            for number, system in enumerate(("1", "2"), start=1):
+                before_ids = set(app_state.tournaments)
+                await create_or_update_tournament(
+                    app_state,
+                    username,
+                    self._fixed_round_form(
+                        system,
+                        teamId=team_id,
+                        name=f"Fixed Round {number}",
+                    ),
+                    creator_is_director=False,
+                )
+                tournament_id = (set(app_state.tournaments) - before_ids).pop()
+                await app_state.tournaments[tournament_id].abort()
+
+            with self.assertRaises(web.HTTPTooManyRequests):
+                await create_or_update_tournament(
+                    app_state,
+                    username,
+                    self._fixed_round_form("1", teamId=team_id, name="Blocked Fixed Round"),
+                    creator_is_director=False,
+                )
+
+            user_doc = await app_state.db.user.find_one({"_id": username})
+            history = list((user_doc or {}).get("fixedRoundCreationHistory", []))
+            self.assertEqual(len(history), 2)
+
+            history[0]["at"] = datetime.now(UTC) - timedelta(hours=25)
+            await app_state.db.user.update_one(
+                {"_id": username},
+                {"$set": {"fixedRoundCreationHistory": history}},
+            )
+
+            before_ids = set(app_state.tournaments)
+            await create_or_update_tournament(
+                app_state,
+                username,
+                self._fixed_round_form("2", teamId=team_id, name="Next Day Fixed Round"),
+                creator_is_director=False,
+            )
+            tournament_id = (set(app_state.tournaments) - before_ids).pop()
+            await app_state.tournaments[tournament_id].abort()
+
+            user_doc = await app_state.db.user.find_one({"_id": username})
+            history = list((user_doc or {}).get("fixedRoundCreationHistory", []))
+            self.assertEqual(len(history), 2)
+            self.assertGreater(history[0]["at"], datetime.now(UTC) - timedelta(hours=24))
+
+    async def test_team_fixed_round_failed_creation_releases_quota_claim(self):
+        app_state = get_app_state(self.app)
+        username = f"TeamFixedRollback{id8()}"
+        team_id = f"team-{id8()}"
+        now = datetime.now(UTC)
+        await app_state.db.user.insert_one({"_id": username})
+        await app_state.db.team.insert_one(
+            {
+                "_id": team_id,
+                "name": "Fixed Round Rollback Team",
+                "enabled": True,
+                "memberCount": 1,
+                "createdBy": username,
+                "createdAt": now,
+                "updatedAt": now,
+            }
+        )
+        await app_state.db.team_member.insert_one(
+            {
+                "_id": f"{username}@{team_id}",
+                "team": team_id,
+                "user": username,
+                "joinedAt": now,
+                "permissions": [PERMISSION_TOURNAMENTS],
+            }
+        )
+
+        with (
+            patch("tournament.tournaments.FIXED_ROUND_MAX_CREATIONS_PER_24H", 1),
+            patch(
+                "tournament.tournaments.new_tournament",
+                new=AsyncMock(side_effect=RuntimeError("simulated fixed-round creation failure")),
+            ),
+            self.assertRaisesRegex(RuntimeError, "simulated fixed-round creation failure"),
+        ):
+            await create_or_update_tournament(
+                app_state,
+                username,
+                self._fixed_round_form("2", teamId=team_id),
+                creator_is_director=False,
+            )
+
+        user_doc = await app_state.db.user.find_one({"_id": username})
+        self.assertEqual((user_doc or {}).get("fixedRoundCreationHistory"), [])
+
+        with patch("tournament.tournaments.FIXED_ROUND_MAX_CREATIONS_PER_24H", 1):
+            before_ids = set(app_state.tournaments)
+            await create_or_update_tournament(
+                app_state,
+                username,
+                self._fixed_round_form("2", teamId=team_id),
+                creator_is_director=False,
+            )
+            tournament_id = (set(app_state.tournaments) - before_ids).pop()
+            await app_state.tournaments[tournament_id].abort()
 
     async def test_rejects_past_custom_start_date(self):
         app_state = get_app_state(self.app)
@@ -229,6 +985,42 @@ class TournamentPersistenceTestCase(TournamentTestCase):
 
         with self.assertRaises(web.HTTPBadRequest):
             await create_or_update_tournament(app_state, "tester", form)
+
+    async def test_rescheduled_created_swiss_resets_start_reminder_flags(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        tournament = SwissTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            rounds=5,
+            starts_at=datetime.now(UTC) + timedelta(hours=1),
+            with_clock=False,
+        )
+        tournament.notify1 = True
+        tournament.notify2 = True
+        app_state.tournaments[tid] = tournament
+        await upsert_tournament_to_db(tournament, app_state)
+
+        new_start = datetime.now(UTC) + timedelta(hours=2)
+        form = self._fixed_round_form(
+            "2",
+            rounds="5",
+            startDate=new_start.isoformat(),
+            name=tournament.name,
+            minutes=str(tournament.minutes),
+        )
+        await create_or_update_tournament(
+            app_state,
+            "tester",
+            form,
+            tournament,
+            creator_is_director=True,
+        )
+
+        self.assertEqual(tournament.starts_at, new_start)
+        self.assertFalse(tournament.notify1)
+        self.assertFalse(tournament.notify2)
 
     async def test_rejects_started_tournament_start_date_edit_with_meaningful_message(self):
         app_state = get_app_state(self.app)
@@ -280,6 +1072,110 @@ class TournamentPersistenceTestCase(TournamentTestCase):
             str(ctx.exception.text),
             "Start date cannot be changed after the tournament has started.",
         )
+
+    async def test_swiss_form_enforces_supported_round_range(self):
+        app_state = get_app_state(self.app)
+
+        for rounds in ("2", "16", "not-a-number"):
+            with self.subTest(rounds=rounds), self.assertRaises(web.HTTPBadRequest):
+                await create_or_update_tournament(
+                    app_state,
+                    "tester",
+                    self._fixed_round_form("2", rounds=rounds),
+                )
+
+        before_ids = set(app_state.tournaments)
+        await create_or_update_tournament(
+            app_state,
+            "tester",
+            self._fixed_round_form("2", rounds="15", name="Maximum Swiss"),
+        )
+        tournament_id = (set(app_state.tournaments) - before_ids).pop()
+        tournament = app_state.tournaments[tournament_id]
+        self.assertEqual(tournament.rounds, 15)
+        await tournament.abort()
+
+    async def test_started_swiss_cannot_reduce_rounds_below_current_round(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        tournament = SwissTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=0,
+            rounds=7,
+            with_clock=False,
+        )
+        tournament.status = T_STARTED
+        tournament.current_round = 4
+        app_state.tournaments[tid] = tournament
+        await upsert_tournament_to_db(tournament, app_state)
+
+        form = self._fixed_round_form(
+            "2",
+            rounds="3",
+            clockTime=str(tournament.base),
+            clockIncrement=str(tournament.inc),
+            byoyomiPeriod=str(tournament.byoyomi_period),
+            name=tournament.name,
+            minutes=str(tournament.minutes),
+        )
+        with self.assertRaises(web.HTTPBadRequest) as ctx:
+            await create_or_update_tournament(app_state, "tester", form, tournament)
+        self.assertEqual(
+            str(ctx.exception.text),
+            "Swiss round count cannot be lower than the current round (4).",
+        )
+        self.assertEqual(tournament.rounds, 7)
+
+    async def test_swiss_form_caps_pairing_input_lines(self):
+        app_state = get_app_state(self.app)
+
+        forbidden_pairings = "\n".join(f"player{i} opponent{i}" for i in range(2049))
+        with self.assertRaises(web.HTTPBadRequest) as forbidden_ctx:
+            await create_or_update_tournament(
+                app_state,
+                "tester",
+                self._fixed_round_form("2", forbiddenPairings=forbidden_pairings),
+            )
+        self.assertEqual(
+            str(forbidden_ctx.exception.text),
+            "Swiss forbidden pairings are limited to 2048 lines.",
+        )
+
+        manual_pairings = "\n".join(f"player{i} 1" for i in range(65))
+        with self.assertRaises(web.HTTPBadRequest) as manual_ctx:
+            await create_or_update_tournament(
+                app_state,
+                "tester",
+                self._fixed_round_form("2", manualPairings=manual_pairings),
+            )
+        self.assertEqual(
+            str(manual_ctx.exception.text),
+            "Swiss manual pairings are limited to 64 lines.",
+        )
+
+    async def test_swiss_form_rejects_malformed_or_duplicate_manual_pairings(self):
+        app_state = get_app_state(self.app)
+        invalid_manual_pairings = (
+            "alice",
+            "alice alice",
+            "alice bob extra",
+            "Alice bob\ncarol ALICE",
+            "alice 1\nalice bob",
+            "alice bob\nbob alice",
+        )
+
+        for manual_pairings in invalid_manual_pairings:
+            with (
+                self.subTest(manual_pairings=manual_pairings),
+                self.assertRaises(web.HTTPBadRequest),
+            ):
+                await create_or_update_tournament(
+                    app_state,
+                    "tester",
+                    self._fixed_round_form("2", manualPairings=manual_pairings),
+                )
 
     async def test_started_swiss_allows_safe_edit_fields(self):
         app_state = get_app_state(self.app)
@@ -451,6 +1347,93 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         assert doc is not None
         self.assertEqual(doc.get("status"), tournament.status)
         self.assertEqual(doc.get("nbPlayers"), 2)
+
+    async def test_rr_management_state_persists_across_restart(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        tournament = RRTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=10,
+            rounds=0,
+            rr_max_players=6,
+            rr_requires_approval=True,
+            with_clock=False,
+        )
+        tournament.created_by = "rr_host"
+        app_state.tournaments[tid] = tournament
+        await upsert_tournament_to_db(tournament, app_state)
+
+        denied = User(app_state, username=f"{tid}_denied", perfs=make_test_perfs())
+        pending = User(app_state, username=f"{tid}_pending", perfs=make_test_perfs())
+        app_state.users[denied.username] = denied
+        app_state.users[pending.username] = pending
+
+        # An approval request can be the first state-changing action on an RR,
+        # while the tournament still has zero joined players.  It must not delete
+        # the tournament document, and all organizer state must be durable.
+        self.assertEqual(await tournament.join(denied), "JOIN_REQUESTED")
+        self.assertIsNotNone(await app_state.db.tournament.find_one({"_id": tid}))
+        self.assertIsNone(await tournament.rr_deny_player(denied.username))
+        self.assertEqual(await tournament.join(pending), "JOIN_REQUESTED")
+        self.assertIsNone(await tournament.rr_set_joining_closed(True))
+
+        doc = await app_state.db.tournament.find_one({"_id": tid})
+        self.assertIsNotNone(doc)
+        assert doc is not None
+        self.assertEqual(doc.get("rrPendingPlayers"), [pending.username])
+        self.assertEqual(doc.get("rrDeniedPlayers"), [denied.username])
+        self.assertEqual(doc.get("rrJoiningClosed"), True)
+
+        _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
+        self.assertIsNotNone(reloaded_tournament)
+        assert reloaded_tournament is not None
+        self.assertEqual(reloaded_tournament.rr_pending_players, {pending.username})
+        self.assertEqual(reloaded_tournament.rr_denied_players, {denied.username})
+        self.assertTrue(reloaded_tournament.rr_joining_closed)
+
+        if reloaded_tournament.clock_task is not None:
+            reloaded_tournament.clock_task.cancel()
+            try:
+                await reloaded_tournament.clock_task
+            except asyncio.CancelledError:
+                pass
+
+    async def test_rr_reopening_joining_persists_false_state(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        tournament = RRTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=10,
+            rounds=0,
+            rr_max_players=6,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = tournament
+        await upsert_tournament_to_db(tournament, app_state)
+
+        self.assertIsNone(await tournament.rr_set_joining_closed(True))
+        self.assertIsNone(await tournament.rr_set_joining_closed(False))
+
+        doc = await app_state.db.tournament.find_one({"_id": tid})
+        self.assertIsNotNone(doc)
+        assert doc is not None
+        self.assertEqual(doc.get("rrJoiningClosed"), False)
+
+        _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
+        self.assertIsNotNone(reloaded_tournament)
+        assert reloaded_tournament is not None
+        self.assertFalse(reloaded_tournament.rr_joining_closed)
+
+        if reloaded_tournament.clock_task is not None:
+            reloaded_tournament.clock_task.cancel()
+            try:
+                await reloaded_tournament.clock_task
+            except asyncio.CancelledError:
+                pass
 
     async def test_form_end_date_updates_start_and_minutes(self):
         app_state = get_app_state(self.app)
@@ -673,6 +1656,57 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
         self.assertEqual(reloaded_tournament.current_round, 1)
 
+    async def test_swiss_next_round_start_time_persisted_across_restart(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state,
+            tid,
+            before_start=10,
+            rounds=2,
+            round_interval=3600,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        await self.tournament.join_players(4)
+        await self.tournament.start(datetime.now(UTC))
+        self.tournament.current_round = 1
+        await self.tournament.save_current_round()
+
+        round_finished_at = datetime.now(UTC)
+        self.assertTrue(await self.tournament.maybe_schedule_next_fixed_round(round_finished_at))
+        expected_start = round_finished_at + timedelta(hours=1)
+        self.assertEqual(self.tournament.next_round_starts_at, expected_start)
+
+        # BSON datetimes have millisecond precision. The in-memory timestamp
+        # may retain additional microseconds until the process is restarted.
+        expected_persisted_start = expected_start.replace(
+            microsecond=(expected_start.microsecond // 1000) * 1000
+        )
+        doc = await app_state.db.tournament.find_one({"_id": tid})
+        self.assertEqual(doc.get("nextRoundStartsAt"), expected_persisted_start)
+
+        _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
+        self.assertEqual(reloaded_tournament.next_round_starts_at, expected_persisted_start)
+
+        halfway = round_finished_at + timedelta(minutes=30)
+        _, seconds_to_next_round = reloaded_tournament.round_status(halfway)
+        self.assertAlmostEqual(seconds_to_next_round, 1800, delta=0.001)
+
+        if reloaded_tournament.clock_task is not None:
+            reloaded_tournament.clock_task.cancel()
+            try:
+                await reloaded_tournament.clock_task
+            except asyncio.CancelledError:
+                pass
+
+        reloaded_tournament.current_round = 2
+        await reloaded_tournament.save_current_round()
+        doc = await reloaded_tournament.app_state.db.tournament.find_one({"_id": tid})
+        self.assertNotIn("nextRoundStartsAt", doc)
+
     async def test_finished_swiss_persists_early_finish_reason_and_normalized_rounds(self):
         app_state = get_app_state(self.app)
         tid = id8()
@@ -807,6 +1841,135 @@ class TournamentPersistenceTestCase(TournamentTestCase):
             0,
         )
 
+    async def test_rr_reload_clears_stale_challenge_and_persists_repair(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state, tid, before_start=10, rounds=0, rr_max_players=8, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        await self.tournament.join_players(2)
+        await self.tournament.start(datetime.now(UTC))
+        arrangement = self.tournament.arrangement_list()[0]
+        challenger = app_state.users[arrangement.white]
+        self.assertIsNone(
+            await self.tournament.create_arrangement_challenge(challenger, arrangement.id)
+        )
+        self.assertEqual(arrangement.status, ARR_STATUS_CHALLENGED)
+        self.assertIsNotNone(arrangement.invite_id)
+        stale_invite_id = arrangement.invite_id
+        assert stale_invite_id is not None
+        self.assertIn(stale_invite_id, app_state.invites)
+
+        stored_before = await app_state.db.tournament_arrangement.find_one({"_id": arrangement.id})
+        self.assertIsNotNone(stored_before)
+        assert stored_before is not None
+        self.assertEqual(stored_before.get("s"), ARR_STATUS_CHALLENGED)
+        self.assertEqual(stored_before.get("iid"), stale_invite_id)
+        self.assertEqual(stored_before.get("ch"), challenger.username)
+
+        with patch(
+            "tournament.rr.tournament.RRTournament.broadcast_arrangements",
+            new_callable=AsyncMock,
+        ) as broadcast_arrangements:
+            reloaded_state, reloaded_tournament = await self.reload_tournament(
+                app_state.db_client, tid
+            )
+        broadcast_arrangements.assert_awaited_once_with()
+        self.assertIsNotNone(reloaded_tournament)
+        assert reloaded_tournament is not None
+        self.assertNotIn(stale_invite_id, reloaded_state.invites)
+        reloaded_arrangement = reloaded_tournament.arrangement_by_id(arrangement.id)
+        self.assertIsNotNone(reloaded_arrangement)
+        assert reloaded_arrangement is not None
+        self.assertEqual(reloaded_arrangement.status, ARR_STATUS_PENDING)
+        self.assertIsNone(reloaded_arrangement.invite_id)
+        self.assertIsNone(reloaded_arrangement.challenger)
+
+        stored_after = await reloaded_state.db.tournament_arrangement.find_one(
+            {"_id": arrangement.id}
+        )
+        self.assertIsNotNone(stored_after)
+        assert stored_after is not None
+        self.assertEqual(stored_after.get("s"), ARR_STATUS_PENDING)
+        self.assertIsNone(stored_after.get("iid"))
+        self.assertIsNone(stored_after.get("ch"))
+
+        if reloaded_tournament.clock_task is not None:
+            reloaded_tournament.clock_task.cancel()
+            try:
+                await reloaded_tournament.clock_task
+            except asyncio.CancelledError:
+                pass
+
+    async def test_rr_reload_prefers_game_reconciliation_over_stale_challenge(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state, tid, before_start=10, rounds=0, rr_max_players=8, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        await self.tournament.join_players(2)
+        await self.tournament.start(datetime.now(UTC))
+        arrangement = self.tournament.arrangement_list()[0]
+        challenger = app_state.users[arrangement.white]
+        opponent = app_state.users[arrangement.black]
+        self.assertIsNone(
+            await self.tournament.create_arrangement_challenge(challenger, arrangement.id)
+        )
+        stale_invite_id = arrangement.invite_id
+        assert stale_invite_id is not None
+
+        accept_result = await self.tournament.accept_arrangement_challenge(opponent, arrangement.id)
+        self.assertEqual(accept_result["type"], "new_game")
+        game_id = accept_result["gameId"]
+
+        # Simulate a crash window where game creation/pairing persistence won but
+        # the arrangement document still contains the old challenge state.
+        await app_state.db.tournament_arrangement.update_one(
+            {"_id": arrangement.id},
+            {
+                "$set": {
+                    "s": ARR_STATUS_CHALLENGED,
+                    "gid": None,
+                    "iid": stale_invite_id,
+                    "ch": challenger.username,
+                }
+            },
+        )
+
+        _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
+        self.assertIsNotNone(reloaded_tournament)
+        assert reloaded_tournament is not None
+        reloaded_arrangement = reloaded_tournament.arrangement_by_id(arrangement.id)
+        self.assertIsNotNone(reloaded_arrangement)
+        assert reloaded_arrangement is not None
+        self.assertEqual(reloaded_arrangement.status, ARR_STATUS_STARTED)
+        self.assertEqual(reloaded_arrangement.game_id, game_id)
+        self.assertIsNone(reloaded_arrangement.invite_id)
+        self.assertIsNone(reloaded_arrangement.challenger)
+
+        stored_after = await reloaded_tournament.app_state.db.tournament_arrangement.find_one(
+            {"_id": arrangement.id}
+        )
+        self.assertIsNotNone(stored_after)
+        assert stored_after is not None
+        self.assertEqual(stored_after.get("s"), ARR_STATUS_STARTED)
+        self.assertEqual(stored_after.get("gid"), game_id)
+        self.assertIsNone(stored_after.get("iid"))
+        self.assertIsNone(stored_after.get("ch"))
+
+        if reloaded_tournament.clock_task is not None:
+            reloaded_tournament.clock_task.cancel()
+            try:
+                await reloaded_tournament.clock_task
+            except asyncio.CancelledError:
+                pass
+
     async def test_rr_reload_restores_started_arrangement_game(self):
         app_state = get_app_state(self.app)
         tid = id8()
@@ -832,6 +1995,247 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         self.assertEqual(reloaded_arrangement.status, "started")
         self.assertEqual(reloaded_arrangement.game_id, game.id)
         self.assertEqual(len(reloaded_tournament.ongoing_games), 1)
+
+        if reloaded_tournament.clock_task is not None:
+            reloaded_tournament.clock_task.cancel()
+            try:
+                await reloaded_tournament.clock_task
+            except asyncio.CancelledError:
+                pass
+
+    async def test_rr_reload_restores_deadline_draining_game_and_scores_it(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state, tid, before_start=10, rounds=0, rr_max_players=2, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        await self.tournament.join_players(2)
+        await self.tournament.start(datetime.now(UTC))
+        arrangement = self.tournament.arrangement_list()[0]
+        game = await self.tournament.start_arrangement_game(arrangement.id)
+
+        past_start = datetime.now(UTC) - timedelta(minutes=2)
+        self.tournament.starts_at = past_start
+        self.tournament.minutes = 1
+        self.tournament.ends_at = past_start + timedelta(minutes=1)
+        await app_state.db.tournament.update_one(
+            {"_id": tid},
+            {"$set": {"startsAt": past_start, "minutes": 1}},
+        )
+
+        self.assertEqual(self.tournament.status, T_STARTED)
+        self.assertEqual(arrangement.status, ARR_STATUS_STARTED)
+        self.assertTrue(self.tournament.deadline_reached())
+
+        # load_tournament() deliberately restores the production RR class. Keep
+        # this lifecycle test on the TestTournament cadence so it verifies the
+        # clock transition without waiting a real production second.
+        with patch.object(RRTournament, "clock_interval", RRTestTournament.clock_interval):
+            reloaded_app_state, reloaded_tournament = await self.reload_tournament(
+                app_state.db_client, tid
+            )
+            self.assertIsNotNone(reloaded_tournament)
+            assert reloaded_tournament is not None
+            self.assertEqual(reloaded_tournament.status, T_STARTED)
+            self.assertTrue(reloaded_tournament.deadline_reached())
+            self.assertEqual(len(reloaded_tournament.ongoing_games), 1)
+            reloaded_arrangement = reloaded_tournament.arrangement_by_id(arrangement.id)
+            self.assertIsNotNone(reloaded_arrangement)
+            assert reloaded_arrangement is not None
+            self.assertEqual(reloaded_arrangement.status, ARR_STATUS_STARTED)
+
+            # Let the restored RR clock observe the expired deadline. It must keep
+            # draining the live game instead of finishing the tournament.
+            await asyncio.sleep(reloaded_tournament.clock_interval + 0.01)
+            self.assertEqual(reloaded_tournament.status, T_STARTED)
+            self.assertEqual(len(reloaded_tournament.ongoing_games), 1)
+
+            # reload_tournament() reconstructs only the tournament fixture, not the
+            # full startup sequence that normally releases finished game callbacks.
+            reloaded_app_state.tournaments_loaded.set()
+            reloaded_game = reloaded_app_state.games[game.id]
+            reloaded_game.board.ply = 20
+            await reloaded_game.game_ended(reloaded_game.bplayer, "resign")
+            if reloaded_tournament.clock_task is not None:
+                await asyncio.wait_for(reloaded_tournament.clock_task, timeout=2)
+
+        self.assertEqual(reloaded_tournament.status, T_FINISHED)
+        self.assertEqual(reloaded_tournament.nb_games_finished, 1)
+        self.assertEqual(reloaded_arrangement.status, ARR_STATUS_FINISHED)
+        self.assertGreater(
+            reloaded_tournament.leaderboard_score_by_username(reloaded_game.wplayer.username)
+            // SCORE_SHIFT,
+            0,
+        )
+        tournament_doc = await reloaded_app_state.db.tournament.find_one({"_id": tid})
+        self.assertIsNotNone(tournament_doc)
+        assert tournament_doc is not None
+        self.assertEqual(tournament_doc["status"], T_FINISHED)
+
+    async def test_rr_reload_reconciles_finished_game_with_stale_started_arrangement(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state, tid, before_start=10, rounds=0, rr_max_players=8, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        await self.tournament.join_players(2)
+        await self.tournament.start(datetime.now(UTC))
+        arrangement = self.tournament.arrangement_list()[0]
+        game = await self.tournament.start_arrangement_game(arrangement.id)
+
+        game.board.ply = 20
+        game.result = "1-0"
+        game.status = FLAG
+        await app_state.db.game.update_one(
+            {"_id": game.id},
+            {"$set": {"s": FLAG, "r": "a", "p": game.board.ply}},
+        )
+
+        with (
+            patch.object(
+                self.tournament,
+                "db_update_arrangement",
+                AsyncMock(side_effect=RuntimeError("simulated restart")),
+            ),
+            self.assertRaises(RuntimeError),
+        ):
+            await self.tournament.game_update(game)
+
+        stale_arrangement_doc = await app_state.db.tournament_arrangement.find_one(
+            {"_id": arrangement.id}
+        )
+        self.assertIsNotNone(stale_arrangement_doc)
+        assert stale_arrangement_doc is not None
+        self.assertEqual(stale_arrangement_doc.get("s"), "started")
+        self.assertEqual(stale_arrangement_doc.get("gid"), game.id)
+
+        pairing_doc = await app_state.db.tournament_pairing.find_one({"_id": game.id})
+        self.assertIsNotNone(pairing_doc)
+        assert pairing_doc is not None
+        self.assertEqual(pairing_doc.get("r"), "a")
+
+        _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
+        self.assertIsNotNone(reloaded_tournament)
+        assert reloaded_tournament is not None
+        reloaded_arrangement = reloaded_tournament.arrangement_by_id(arrangement.id)
+        self.assertIsNotNone(reloaded_arrangement)
+        assert reloaded_arrangement is not None
+        self.assertEqual(reloaded_arrangement.status, "finished")
+        self.assertEqual(reloaded_arrangement.game_id, game.id)
+        self.assertTrue(reloaded_tournament.all_arrangements_finished())
+
+        repaired_arrangement_doc = (
+            await reloaded_tournament.app_state.db.tournament_arrangement.find_one(
+                {"_id": arrangement.id}
+            )
+        )
+        self.assertIsNotNone(repaired_arrangement_doc)
+        assert repaired_arrangement_doc is not None
+        self.assertEqual(repaired_arrangement_doc.get("s"), "finished")
+        self.assertEqual(repaired_arrangement_doc.get("gid"), game.id)
+
+        if reloaded_tournament.clock_task is not None:
+            reloaded_tournament.clock_task.cancel()
+            try:
+                await reloaded_tournament.clock_task
+            except asyncio.CancelledError:
+                pass
+
+    async def test_rr_annulled_result_stays_reopened_after_restart(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state, tid, before_start=10, rounds=0, rr_max_players=4, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        await self.tournament.join_players(4)
+        await self.tournament.start(datetime.now(UTC))
+        arrangement = self.tournament.arrangement_list()[0]
+        game = await self.tournament.start_arrangement_game(arrangement.id)
+        game.board.ply = 20
+        await game.game_ended(game.bplayer, "resign")
+        self.assertEqual(self.tournament.nb_games_finished, 1)
+
+        self.assertIsNone(await self.tournament.annul_arrangement_game(arrangement.id, game.id))
+
+        _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
+        self.assertIsNotNone(reloaded_tournament)
+        assert reloaded_tournament is not None
+        reloaded_arrangement = reloaded_tournament.arrangement_by_id(arrangement.id)
+        self.assertIsNotNone(reloaded_arrangement)
+        assert reloaded_arrangement is not None
+        self.assertEqual(reloaded_arrangement.status, ARR_STATUS_PENDING)
+        self.assertIsNone(reloaded_arrangement.game_id)
+        self.assertEqual(reloaded_arrangement.previous_game_ids, [game.id])
+        self.assertEqual(reloaded_tournament.nb_games_finished, 0)
+        for username in arrangement.players():
+            player_data = reloaded_tournament.player_data_by_name(username)
+            assert player_data is not None
+            self.assertFalse(any(getattr(g, "id", None) == game.id for g in player_data.games))
+            self.assertEqual(player_data.points, [])
+            self.assertEqual(reloaded_tournament.leaderboard_score_by_username(username), 0)
+
+        if reloaded_tournament.clock_task is not None:
+            reloaded_tournament.clock_task.cancel()
+            try:
+                await reloaded_tournament.clock_task
+            except asyncio.CancelledError:
+                pass
+
+    async def test_rr_annul_marker_repairs_player_scores_after_mid_annul_restart(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state, tid, before_start=10, rounds=0, rr_max_players=4, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        await self.tournament.join_players(4)
+        await self.tournament.start(datetime.now(UTC))
+        arrangement = self.tournament.arrangement_list()[0]
+        game = await self.tournament.start_arrangement_game(arrangement.id)
+        game.board.ply = 20
+        await game.game_ended(game.bplayer, "resign")
+
+        # Simulate a crash immediately after annulment writes its durable pairing
+        # marker, before either tournament_player row or the arrangement is reset.
+        await app_state.db.tournament_pairing.update_one(
+            {"_id": game.id, "tid": tid},
+            {"$set": {"an": True}},
+        )
+
+        _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
+        self.assertIsNotNone(reloaded_tournament)
+        assert reloaded_tournament is not None
+        reloaded_arrangement = reloaded_tournament.arrangement_by_id(arrangement.id)
+        self.assertIsNotNone(reloaded_arrangement)
+        assert reloaded_arrangement is not None
+        self.assertEqual(reloaded_arrangement.status, ARR_STATUS_PENDING)
+        self.assertIsNone(reloaded_arrangement.game_id)
+        self.assertEqual(reloaded_arrangement.previous_game_ids, [game.id])
+        self.assertEqual(reloaded_tournament.nb_games_finished, 0)
+
+        for username in arrangement.players():
+            player_data = reloaded_tournament.player_data_by_name(username)
+            assert player_data is not None
+            self.assertEqual(player_data.points, [])
+            self.assertEqual(reloaded_tournament.leaderboard_score_by_username(username), 0)
+            player_doc = await app_state.db.tournament_player.find_one(
+                {"tid": tid, "uid": username}
+            )
+            self.assertIsNotNone(player_doc)
+            assert player_doc is not None
+            self.assertEqual(player_doc["p"], [])
+            self.assertEqual(player_doc["s"], 0)
 
         if reloaded_tournament.clock_task is not None:
             reloaded_tournament.clock_task.cancel()
@@ -906,6 +2310,283 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         await game.save_game()
 
         self.assertEqual(seen_doc, {"status": FLAG, "result": "a", "ply": 20})
+
+    async def test_save_game_persists_final_state_before_rating_side_effects(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = ArenaTestTournament(
+            app_state, tid, variant="chess", before_start=0, minutes=10, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        await self.tournament.join_players(2)
+        await self.tournament.start(datetime.now(UTC))
+        waiting_players = list(self.tournament.waiting_players())
+        _, games = await self.tournament.create_new_pairings(waiting_players)
+        game = games[0]
+        game.result = "1-0"
+        game.status = FLAG
+        game.board.ply = 20
+
+        async def fail_after_authoritative_write(_game_doc, *, users_only=False):
+            self.assertFalse(users_only)
+            doc = await app_state.db.game.find_one({"_id": game.id})
+            self.assertIsNotNone(doc)
+            assert doc is not None
+            self.assertEqual(doc["s"], FLAG)
+            self.assertEqual(doc["r"], "a")
+            self.assertEqual(doc["p"], 20)
+            self.assertEqual(doc.get("fx"), 1)
+            self.assertIn("p0", doc)
+            self.assertIn("p1", doc)
+            raise RuntimeError("simulated crash before tournament side effects")
+
+        with (
+            patch.object(
+                game,
+                "complete_tournament_final_side_effects",
+                side_effect=fail_after_authoritative_write,
+            ),
+            self.assertRaisesRegex(RuntimeError, "simulated crash"),
+        ):
+            await game.save_game()
+
+        # The tournament update was never reached, so startup recovery must be
+        # able to reconstruct the score from the already-finished game document.
+        _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
+        winner = reloaded_tournament.player_data_by_name(game.wplayer.username)
+        loser = reloaded_tournament.player_data_by_name(game.bplayer.username)
+        self.assertIsNotNone(winner)
+        self.assertIsNotNone(loser)
+        assert winner is not None
+        assert loser is not None
+        self.assertEqual(winner.points, [(2, 1)])
+        self.assertEqual(loser.points, [(0, 1)])
+
+        if reloaded_tournament.clock_task is not None:
+            reloaded_tournament.clock_task.cancel()
+            try:
+                await reloaded_tournament.clock_task
+            except asyncio.CancelledError:
+                pass
+
+    async def test_finished_tournament_game_side_effects_recover_exactly_once(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = ArenaTestTournament(
+            app_state, tid, variant="chess", before_start=0, minutes=10, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        app_state.tourneysockets[tid] = {}
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        for username in ("restart_effect_white", "restart_effect_black"):
+            perfs = make_test_perfs()
+            player = User(app_state, username=username, perfs=perfs)
+            app_state.users[username] = player
+            await app_state.db.user.insert_one(
+                {
+                    "_id": username,
+                    "title": "",
+                    "perfs": perfs,
+                    "count": dict(player.count),
+                }
+            )
+            player.tournament_sockets[tid] = {None}
+            await self.tournament.join(player)
+
+        await self.tournament.start(datetime.now(UTC))
+        waiting_players = list(self.tournament.waiting_players())
+        _, games = await self.tournament.create_new_pairings(waiting_players)
+        game = games[0]
+        game.result = "1-0"
+        game.status = FLAG
+        game.board.ply = 20
+
+        async def crash_before_black_effect(*_args, **_kwargs):
+            raise RuntimeError("simulated crash between player side effects")
+
+        with (
+            patch.object(
+                game.bplayer,
+                "apply_tournament_game_effect_once",
+                side_effect=crash_before_black_effect,
+            ),
+            self.assertRaisesRegex(RuntimeError, "simulated crash"),
+        ):
+            await game.save_game()
+
+        game_doc = await app_state.db.game.find_one({"_id": game.id})
+        self.assertIsNotNone(game_doc)
+        assert game_doc is not None
+        self.assertEqual(game_doc.get("fx"), 1)
+        self.assertIn("n", game_doc["p0"])
+        self.assertIn("n", game_doc["p1"])
+
+        white_doc = await app_state.db.user.find_one({"_id": game.wplayer.username})
+        black_doc = await app_state.db.user.find_one({"_id": game.bplayer.username})
+        self.assertIsNotNone(white_doc)
+        self.assertIsNotNone(black_doc)
+        assert white_doc is not None
+        assert black_doc is not None
+        self.assertEqual(white_doc["count"]["game"], 1)
+        self.assertEqual(black_doc["count"]["game"], 0)
+        self.assertIn(game.id, white_doc.get("tournamentGameEffectIds", []))
+        self.assertNotIn(game.id, black_doc.get("tournamentGameEffectIds", []))
+
+        # Drop the in-memory game/users to reproduce the startup path loading
+        # authoritative state back from MongoDB before tournaments can resume.
+        app_state.games.pop(game.id, None)
+        for player in (game.wplayer, game.bplayer):
+            if player.username in app_state.users:
+                del app_state.users[player.username]
+
+        await recover_pending_tournament_game_side_effects(app_state, users_only=True)
+
+        white_doc = await app_state.db.user.find_one({"_id": game.wplayer.username})
+        black_doc = await app_state.db.user.find_one({"_id": game.bplayer.username})
+        assert white_doc is not None
+        assert black_doc is not None
+        self.assertEqual(white_doc["count"]["game"], 1)
+        self.assertEqual(black_doc["count"]["game"], 1)
+        self.assertEqual(white_doc["count"]["rated"], 1)
+        self.assertEqual(black_doc["count"]["rated"], 1)
+        self.assertEqual(
+            white_doc["perfs"]["chess"],
+            game_doc["p0"]["n"],
+        )
+        self.assertEqual(
+            black_doc["perfs"]["chess"],
+            game_doc["p1"]["n"],
+        )
+
+        # Re-running the user-only startup pass is harmless.
+        await recover_pending_tournament_game_side_effects(app_state, users_only=True)
+        white_doc_again = await app_state.db.user.find_one({"_id": game.wplayer.username})
+        black_doc_again = await app_state.db.user.find_one({"_id": game.bplayer.username})
+        assert white_doc_again is not None
+        assert black_doc_again is not None
+        self.assertEqual(white_doc_again["count"]["game"], 1)
+        self.assertEqual(black_doc_again["count"]["game"], 1)
+
+        await recover_pending_tournament_game_side_effects(app_state, users_only=False)
+        completed_doc = await app_state.db.game.find_one({"_id": game.id})
+        self.assertIsNotNone(completed_doc)
+        assert completed_doc is not None
+        self.assertEqual(completed_doc.get("fx"), 2)
+
+        crosstable = await app_state.db.crosstable.find_one({"_id": game.ct_id})
+        self.assertIsNotNone(crosstable)
+        assert crosstable is not None
+        self.assertEqual(sum(entry.startswith(game.id) for entry in crosstable["r"]), 1)
+
+        # Once fx=2 the startup scan no longer sees the game.
+        self.assertEqual(
+            await recover_pending_tournament_game_side_effects(app_state, users_only=False),
+            0,
+        )
+
+    async def test_swiss_no_show_ban_recovery_is_idempotent(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=0,
+            rounds=2,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = self.tournament
+        app_state.tourneysockets[tid] = {}
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        # Use DB-backed usernames here: TEST_PREFIX tournament players are
+        # intentionally reconstructed as synthetic in-memory users on reload,
+        # which would bypass the persisted Swiss ban idempotency marker.
+        username_prefix = f"SwissNoShow{id8()}"
+        for suffix in ("A", "B"):
+            player = User(
+                app_state,
+                username=f"{username_prefix}{suffix}",
+                title="TEST",
+                perfs=make_test_perfs(),
+            )
+            app_state.users[player.username] = player
+            player.tournament_sockets[tid] = {None}
+            await app_state.db.user.insert_one({"_id": player.username})
+            await self.tournament.join(player)
+
+        await self.tournament.start(datetime.now(UTC))
+        self.tournament.current_round = 1
+        waiting_players = list(self.tournament.waiting_players())
+        _, games = await self.tournament.create_new_pairings(waiting_players)
+        game = games[0]
+
+        absent = game.wplayer
+        present = game.bplayer
+
+        async def crash_after_culprit_ban(_player, _game_id):
+            raise RuntimeError("simulated crash during Swiss no-show persistence")
+
+        with patch.object(self.tournament, "_clear_swiss_ban", new=crash_after_culprit_ban):
+            # With zero moves White is the no-show culprit, so their ban is
+            # persisted first. save_game() logs the injected failure while
+            # clearing Black's ban state, leaving the same durable state as a
+            # process death between the two user writes and before scoring.
+            await game.game_ended(absent, "flag")
+
+        absent_doc = await app_state.db.user.find_one({"_id": absent.username})
+        self.assertIsNotNone(absent_doc)
+        assert absent_doc is not None
+        self.assertEqual(absent_doc.get("swissBanHours"), 24)
+        self.assertEqual(absent_doc.get("swissBanGameId"), game.id)
+        first_ban_until = absent_doc.get("swissBanUntil")
+        self.assertIsNotNone(first_ban_until)
+
+        present_doc = await app_state.db.user.find_one({"_id": present.username})
+        self.assertIsNotNone(present_doc)
+        assert present_doc is not None
+        self.assertNotIn("swissBanGameId", present_doc)
+
+        # Base tournament scoring never ran before the simulated process death.
+        absent_tournament_doc = await app_state.db.tournament_player.find_one(
+            {"tid": tid, "uid": absent.username}
+        )
+        self.assertIsNotNone(absent_tournament_doc)
+        assert absent_tournament_doc is not None
+        self.assertEqual(absent_tournament_doc.get("p"), [])
+
+        reloaded_state, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
+        reloaded_absent = await reloaded_state.users.get(absent.username)
+        reloaded_present = await reloaded_state.users.get(present.username)
+
+        # Recovery replays Swiss no-show handling before applying the missing
+        # tournament result. The culprit's per-game marker prevents 24h -> 36h,
+        # while the interrupted opponent update is completed.
+        self.assertEqual(reloaded_absent.swiss_ban_hours, 24)
+        self.assertEqual(reloaded_absent.swiss_ban_until, first_ban_until)
+        self.assertEqual(reloaded_absent.swiss_ban_game_id, game.id)
+        self.assertIsNone(reloaded_present.swiss_ban_until)
+        self.assertEqual(reloaded_present.swiss_ban_hours, 0)
+        self.assertEqual(reloaded_present.swiss_ban_game_id, game.id)
+
+        winner = reloaded_tournament.player_data_by_name(game.bplayer.username)
+        loser = reloaded_tournament.player_data_by_name(game.wplayer.username)
+        self.assertIsNotNone(winner)
+        self.assertIsNotNone(loser)
+        assert winner is not None
+        assert loser is not None
+        self.assertEqual(winner.points, [(2, 1)])
+        self.assertEqual(loser.points, [(0, 1)])
+
+        if reloaded_tournament.clock_task is not None:
+            reloaded_tournament.clock_task.cancel()
+            try:
+                await reloaded_tournament.clock_task
+            except asyncio.CancelledError:
+                pass
 
     async def test_load_tournament_recovers_scores_from_finished_game_doc(self):
         app_state = get_app_state(self.app)
@@ -1000,21 +2681,129 @@ class TournamentPersistenceTestCase(TournamentTestCase):
             assert white_data is not None
             self.tournament._apply_game_result_to_player(saved_game, white_data, is_white=True)
             await self.tournament.db_update_player(saved_game.wplayer, "GAME_END")
+            # Simulate the pairing result becoming durable even though the black
+            # player update was lost (for example because db_update_player logged
+            # and swallowed a transient MongoDB failure). Recovery must retain the
+            # persisted rating deltas as well as the score.
+            await self.tournament.db_update_pairing(saved_game)
             raise RuntimeError("simulated mid-game_update crash")
 
         self.tournament.game_update = persist_white_only
         await game.save_game()
+
+        expected_winner_rating = int(game.wrating.rstrip("?")) + int(game.wrdiff or 0)
+        expected_loser_rating = int(game.brating.rstrip("?")) + int(game.brdiff or 0)
 
         _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
         winner = reloaded_tournament.player_data_by_name(game.wplayer.username)
         loser = reloaded_tournament.player_data_by_name(game.bplayer.username)
         self.assertEqual(winner.points, [(2, 1)])
         self.assertEqual(loser.points, [(0, 1)])
+        self.assertEqual(winner.rating, expected_winner_rating)
+        self.assertEqual(loser.rating, expected_loser_rating)
 
         updated_pairing = await reloaded_tournament.app_state.db.tournament_pairing.find_one(
             {"_id": game.id}
         )
         self.assertEqual(updated_pairing["r"], "a")
+        self.assertEqual(int(updated_pairing["wrd"]), int(game.wrdiff or 0))
+        self.assertEqual(int(updated_pairing["brd"]), int(game.brdiff or 0))
+
+        if reloaded_tournament.clock_task is not None:
+            reloaded_tournament.clock_task.cancel()
+            try:
+                await reloaded_tournament.clock_task
+            except asyncio.CancelledError:
+                pass
+
+    async def test_load_tournament_repairs_partially_persisted_swiss_late_join(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=10, rounds=5, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        await self.tournament.join_players(2)
+        await self.tournament.start(datetime.now(UTC))
+        self.tournament.current_round = 2
+        await self.tournament.save_current_round()
+
+        late = User(app_state, username=f"{TEST_PREFIX}late_restart", perfs=make_test_perfs())
+        app_state.users[late.username] = late
+        late.tournament_sockets[tid] = {None}
+
+        original_insert_bye = self.tournament.db_insert_bye_pairing
+        inserted = 0
+
+        async def crash_during_late_join_byes(*args, **kwargs):
+            nonlocal inserted
+            inserted += 1
+            if inserted == 1:
+                return await original_insert_bye(*args, **kwargs)
+            raise RuntimeError("simulated restart during late-join bye persistence")
+
+        with (
+            patch.object(
+                self.tournament,
+                "db_insert_bye_pairing",
+                side_effect=crash_during_late_join_byes,
+            ),
+            self.assertRaises(RuntimeError),
+        ):
+            await self.tournament.join(late)
+
+        player_doc = await app_state.db.tournament_player.find_one(
+            {"tid": tid, "uid": late.username}
+        )
+        self.assertIsNotNone(player_doc)
+        assert player_doc is not None
+        self.assertEqual(player_doc["jr"], 3)
+        self.assertEqual(player_doc["p"], [[1, 0], [0, 0]])
+        self.assertEqual(player_doc["s"], 1)
+
+        partial_byes = await app_state.db.tournament_pairing.find(
+            {"tid": tid, "s": BYEGAME, "u": [late.username, late.username]}
+        ).to_list(length=None)
+        self.assertEqual(len(partial_byes), 1)
+        self.assertEqual(partial_byes[0]["rn"], 1)
+        self.assertEqual(partial_byes[0]["bt"], "H")
+
+        _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
+        self.assertIsNotNone(reloaded_tournament)
+        assert reloaded_tournament is not None
+
+        reloaded_player = reloaded_tournament.player_data_by_name(late.username)
+        self.assertIsNotNone(reloaded_player)
+        assert reloaded_player is not None
+        self.assertEqual(reloaded_player.joined_round, 3)
+        self.assertEqual(reloaded_player.points[:2], [(1, 0), (0, 0)])
+        self.assertEqual(
+            [game.token for game in reloaded_player.games[:2] if isinstance(game, ByeGame)],
+            ["H", "Z"],
+        )
+        self.assertEqual(
+            [game.round for game in reloaded_player.games[:2] if isinstance(game, ByeGame)],
+            [1, 2],
+        )
+        self.assertEqual(
+            reloaded_tournament.leaderboard_score_by_username(late.username) // SCORE_SHIFT,
+            1,
+        )
+
+        repaired_byes = await reloaded_tournament.app_state.db.tournament_pairing.find(
+            {
+                "tid": tid,
+                "s": BYEGAME,
+                "u": [late.username, late.username],
+            }
+        ).to_list(length=None)
+        self.assertEqual(len(repaired_byes), 2)
+        self.assertEqual(
+            sorted((doc["rn"], doc["bt"]) for doc in repaired_byes),
+            [(1, "H"), (2, "Z")],
+        )
 
         if reloaded_tournament.clock_task is not None:
             reloaded_tournament.clock_task.cancel()
@@ -1069,6 +2858,158 @@ class TournamentPersistenceTestCase(TournamentTestCase):
                 await reloaded_tournament.clock_task
             except asyncio.CancelledError:
                 pass
+
+    async def test_load_tournament_consumes_manual_pairings_with_committed_swiss_round(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        manual_pairings = "manual_white manual_black"
+        self.tournament = SwissTestTournament(
+            app_state,
+            tid,
+            before_start=10,
+            rounds=2,
+            with_clock=False,
+            manual_pairings=manual_pairings,
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        for name in ("manual_white", "manual_black"):
+            user = User(app_state, username=name, perfs=make_test_perfs())
+            app_state.users[user.username] = user
+            user.tournament_sockets[tid] = {None}
+            await self.tournament.join(user)
+
+        await self.tournament.start(datetime.now(UTC))
+        self.tournament.current_round = 1
+        await self.tournament.set_pairing_in_progress_round(1, manual_pairings=manual_pairings)
+
+        waiting_players = list(self.tournament.waiting_players())
+        pairing, games = await self.tournament.create_new_pairings(
+            waiting_players,
+            publish_pairings=False,
+        )
+        self.assertEqual(len(pairing), 1)
+        self.assertEqual(len(games), 1)
+        self.assertEqual(pairing[0][0].username, "manual_white")
+        self.assertEqual(pairing[0][1].username, "manual_black")
+
+        doc = await app_state.db.tournament.find_one({"_id": tid})
+        self.assertIsNotNone(doc)
+        assert doc is not None
+        self.assertEqual(doc.get("cr"), 0)
+        self.assertEqual(doc.get("pairingInProgressRound"), 1)
+        self.assertEqual(doc.get("manualPairingsInProgress"), manual_pairings)
+        self.assertEqual(doc.get("manualPairings"), manual_pairings)
+
+        _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
+        self.assertIsNotNone(reloaded_tournament)
+        assert reloaded_tournament is not None
+        self.assertEqual(reloaded_tournament.current_round, 1)
+        self.assertEqual(reloaded_tournament.manual_pairings, "")
+        self.assertIsNone(reloaded_tournament.manual_pairings_in_progress)
+
+        reloaded_doc = await reloaded_tournament.app_state.db.tournament.find_one({"_id": tid})
+        self.assertIsNotNone(reloaded_doc)
+        assert reloaded_doc is not None
+        self.assertEqual(reloaded_doc.get("cr"), 1)
+        self.assertEqual(reloaded_doc.get("manualPairings"), "")
+        self.assertNotIn("pairingInProgressRound", reloaded_doc)
+        self.assertNotIn("manualPairingsInProgress", reloaded_doc)
+
+        if reloaded_tournament.clock_task is not None:
+            reloaded_tournament.clock_task.cancel()
+            try:
+                await reloaded_tournament.clock_task
+            except asyncio.CancelledError:
+                pass
+
+    async def test_load_tournament_preserves_manual_pairings_when_swiss_round_rolls_back(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        manual_pairings = "manual_white manual_black"
+        self.tournament = SwissTestTournament(
+            app_state,
+            tid,
+            before_start=10,
+            rounds=2,
+            with_clock=False,
+            manual_pairings=manual_pairings,
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        for name in ("manual_white", "manual_black"):
+            user = User(app_state, username=name, perfs=make_test_perfs())
+            app_state.users[user.username] = user
+            user.tournament_sockets[tid] = {None}
+            await self.tournament.join(user)
+
+        await self.tournament.start(datetime.now(UTC))
+        self.tournament.current_round = 1
+        await self.tournament.set_pairing_in_progress_round(1, manual_pairings=manual_pairings)
+
+        doc = await app_state.db.tournament.find_one({"_id": tid})
+        self.assertIsNotNone(doc)
+        assert doc is not None
+        self.assertEqual(doc.get("manualPairingsInProgress"), manual_pairings)
+        self.assertEqual(doc.get("manualPairings"), manual_pairings)
+
+        _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
+        self.assertIsNotNone(reloaded_tournament)
+        assert reloaded_tournament is not None
+        self.assertEqual(reloaded_tournament.current_round, 0)
+        self.assertEqual(reloaded_tournament.manual_pairings, manual_pairings)
+        self.assertIsNone(reloaded_tournament.manual_pairings_in_progress)
+
+        reloaded_doc = await reloaded_tournament.app_state.db.tournament.find_one({"_id": tid})
+        self.assertIsNotNone(reloaded_doc)
+        assert reloaded_doc is not None
+        self.assertEqual(reloaded_doc.get("manualPairings"), manual_pairings)
+        self.assertNotIn("pairingInProgressRound", reloaded_doc)
+        self.assertNotIn("manualPairingsInProgress", reloaded_doc)
+
+        if reloaded_tournament.clock_task is not None:
+            reloaded_tournament.clock_task.cancel()
+            try:
+                await reloaded_tournament.clock_task
+            except asyncio.CancelledError:
+                pass
+
+    async def test_swiss_round_commit_does_not_clear_newer_manual_pairings(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        consumed_pairings = "manual_white manual_black"
+        next_pairings = "next_white next_black"
+        self.tournament = SwissTestTournament(
+            app_state,
+            tid,
+            before_start=10,
+            rounds=3,
+            with_clock=False,
+            manual_pairings=consumed_pairings,
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        self.tournament.current_round = 1
+        await self.tournament.set_pairing_in_progress_round(1, manual_pairings=consumed_pairings)
+
+        self.tournament.manual_pairings = next_pairings
+        await app_state.db.tournament.update_one(
+            {"_id": tid},
+            {"$set": {"manualPairings": next_pairings}},
+        )
+        await self.tournament.save_current_round()
+
+        doc = await app_state.db.tournament.find_one({"_id": tid})
+        self.assertIsNotNone(doc)
+        assert doc is not None
+        self.assertEqual(doc.get("cr"), 1)
+        self.assertEqual(doc.get("manualPairings"), next_pairings)
+        self.assertNotIn("pairingInProgressRound", doc)
+        self.assertNotIn("manualPairingsInProgress", doc)
+        self.assertEqual(self.tournament.manual_pairings, next_pairings)
 
     async def test_load_tournament_rolls_back_incomplete_swiss_round_with_orphan_games(self):
         app_state = get_app_state(self.app)
@@ -1744,14 +3685,16 @@ class TournamentPersistenceTestCase(TournamentTestCase):
                 break
         self.assertIsNotNone(game_data)
 
-        app_state.schedule_tournament_cache_removal(loaded)
+        # Simulate an already-expired cache entry instead of waiting for the
+        # real keep interval. Scheduling behavior has focused coverage in
+        # test_cache_cleanup; this test verifies persisted tournaments evict.
+        app_state.tournament_cache_access[tid] = monotonic() - TOURNAMENT_KEEP_TIME - 1
 
         loaded = None
         player_data = None
         game_data = None
 
-        delay = LOCALHOST_CACHE_KEEP_TIME if URI == LOCALHOST else TOURNAMENT_KEEP_TIME
-        await asyncio.sleep(delay + 0.2)
+        await app_state.remove_tournament_from_cache(tid)
         gc.collect()
 
         self.assertNotIn(tid, app_state.tournaments)

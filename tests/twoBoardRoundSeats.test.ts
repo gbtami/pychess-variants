@@ -290,7 +290,7 @@ describe('round clock behavior on the controller', () => {
         expect(el('player1a')!.classList.contains('icon-online')).toBe(false);
     });
 
-    test('presence toggles back off, keeping the icon element and its online class', () => {
+    test('presence toggles back off, keeping the icon element and updating its state classes', () => {
         const ctrl = ctrlStub('Anna', mountViews());
 
         ctrl.setPresence('Anna', true);
@@ -302,7 +302,8 @@ describe('round clock behavior on the controller', () => {
         expect(el('player1a')).toBe(icon);
         expect(icon.classList.contains('icon-online')).toBe(false);
         expect(icon.classList.contains('icon-offline')).toBe(true);
-        expect(icon.classList.contains('online')).toBe(true);
+        expect(icon.classList.contains('online')).toBe(false);
+        expect(icon.classList.contains('offline')).toBe(true);
     });
 
     test('setPresence in simul mode marks both of the shared seats', () => {

@@ -2,10 +2,9 @@ import asyncio
 import json
 import time
 from datetime import UTC, datetime
-from unittest.mock import AsyncMock, patch
 
 import test_logger
-from admin import ban, baninfo, shadowban, unban, unshadowban
+from admin import ban, set_shadowban, unban
 from aiohttp.test_utils import AioHTTPTestCase, make_mocked_request
 from mongomock_motor import AsyncMongoMockClient
 from newid import id8
@@ -15,7 +14,6 @@ from tournament.auto_play_tournament import ArenaTestTournament
 from tournament.tournament import upsert_tournament_to_db
 from tournament.tournaments import load_tournament
 from user import User
-from wsl import handle_lobbychat
 
 from server import make_app
 
@@ -256,7 +254,62 @@ class AdminBanUnbanSignalsTestCase(AioHTTPTestCase):
             }
         )
 
-        await ban(app_state, "/ban cheater")
+        await app_state.db.team.insert_many(
+            [
+                {
+                    "_id": "cheater-team",
+                    "name": "Cheater Team",
+                    "createdBy": "cheater",
+                    "enabled": True,
+                    "memberCount": 2,
+                },
+                {
+                    "_id": "other-team",
+                    "name": "Other Team",
+                    "createdBy": "bob",
+                    "enabled": True,
+                    "memberCount": 2,
+                },
+            ]
+        )
+        await app_state.db.team_member.insert_many(
+            [
+                {
+                    "_id": "cheater@cheater-team",
+                    "team": "cheater-team",
+                    "user": "cheater",
+                    "permissions": ["admin"],
+                },
+                {
+                    "_id": "bob@cheater-team",
+                    "team": "cheater-team",
+                    "user": "bob",
+                    "permissions": [],
+                },
+                {
+                    "_id": "cheater@other-team",
+                    "team": "other-team",
+                    "user": "cheater",
+                    "permissions": [],
+                },
+                {
+                    "_id": "bob@other-team",
+                    "team": "other-team",
+                    "user": "bob",
+                    "permissions": ["admin"],
+                },
+            ]
+        )
+        await app_state.db.team_request.insert_one(
+            {
+                "_id": "cheater@third-team",
+                "team": "third-team",
+                "user": "cheater",
+                "message": "pending",
+            }
+        )
+
+        await ban(app_state, "cheater")
         banned_doc = await app_state.db.user.find_one({"_id": "cheater"})
         self.assertFalse(banned_doc.get("enabled", True))
         self.assertFalse(user.enabled)
@@ -267,62 +320,21 @@ class AdminBanUnbanSignalsTestCase(AioHTTPTestCase):
         self.assertIn("fp", kinds)
         self.assertIn("ipfp", kinds)
 
-        await unban(app_state, "/unban cheater")
+        self.assertEqual(0, await app_state.db.team_member.count_documents({"user": "cheater"}))
+        self.assertEqual(0, await app_state.db.team_request.count_documents({"user": "cheater"}))
+        owned_team = await app_state.db.team.find_one({"_id": "cheater-team"})
+        other_team = await app_state.db.team.find_one({"_id": "other-team"})
+        self.assertFalse(owned_team.get("enabled", True))
+        self.assertEqual(1, owned_team.get("memberCount"))
+        self.assertTrue(other_team.get("enabled", False))
+        self.assertEqual(1, other_team.get("memberCount"))
+
+        await unban(app_state, "cheater")
         unbanned_doc = await app_state.db.user.find_one({"_id": "cheater"})
         self.assertTrue(unbanned_doc.get("enabled", False))
         self.assertTrue(user.enabled)
 
-    async def test_baninfo_reports_autoclose_reason_and_active_counts(self):
-        app_state = get_app_state(self.app)
-        auto_close_at = datetime.now(UTC)
-        await app_state.db.user.insert_one(
-            {
-                "_id": "closed_user",
-                "enabled": False,
-                "security": {
-                    "ipHashes": ["iph1"],
-                    "fpHashes": ["fph1"],
-                    "ipfpHashes": ["ipfph1"],
-                    "lastAutoCloseReason": "ipfp",
-                    "lastAutoCloseAt": auto_close_at,
-                },
-            }
-        )
-        await app_state.db.security_ban_signal.insert_many(
-            [
-                {"_id": "ip:iph1", "kind": "ip"},
-                {"_id": "fp:fph1", "kind": "fp"},
-                {"_id": "ipfp:ipfph1", "kind": "ipfp"},
-            ]
-        )
-
-        response = await baninfo(app_state, "/baninfo closed_user")
-        self.assertEqual(response["type"], "lobbychat")
-        message = response["message"]
-        self.assertIn("enabled=False", message)
-        self.assertIn("autoClose=ipfp", message)
-        self.assertIn("stored(ip=1,fp=1,ipfp=1)", message)
-        self.assertIn("active(ip=1,fp=1,ipfp=1)", message)
-
-    async def test_baninfo_command_does_not_ban_user(self):
-        app_state = get_app_state(self.app)
-        await app_state.db.user.insert_one({"_id": "target_user", "enabled": True, "security": {}})
-
-        admin_user = User(app_state, username="test_admin")
-        ws = object()
-        payload = {"type": "lobbychat", "message": "/baninfo target_user"}
-
-        with (
-            patch("wsl.ADMINS", ["test_admin"]),
-            patch("wsl.ws_send_json", new=AsyncMock()) as send,
-        ):
-            await handle_lobbychat(app_state, ws, admin_user, payload)
-
-        target_doc = await app_state.db.user.find_one({"_id": "target_user"})
-        self.assertTrue(target_doc.get("enabled", False))
-        send.assert_awaited_once()
-
-    async def test_admin_commands_resolve_username_case_insensitively(self):
+    async def test_moderation_helpers_resolve_username_case_insensitively(self):
         app_state = get_app_state(self.app)
         username = "FrogTheBadass"
         user = User(app_state, username=username)
@@ -331,28 +343,23 @@ class AdminBanUnbanSignalsTestCase(AioHTTPTestCase):
             {"_id": username, "username_lower": username.lower(), "enabled": True, "security": {}}
         )
 
-        await ban(app_state, "/ban @frogthebadass")
+        await ban(app_state, "@frogthebadass")
         banned_doc = await app_state.db.user.find_one({"_id": username})
         self.assertIsNotNone(banned_doc)
         self.assertFalse(banned_doc.get("enabled", True))
 
-        response = await baninfo(app_state, "/baninfo FROGTHEBADASS")
-        self.assertEqual(response["type"], "lobbychat")
-        self.assertIn(f"baninfo {username}:", response["message"])
-        self.assertIn("enabled=False", response["message"])
-
-        await unban(app_state, "/unban fROgTheBadass")
+        await unban(app_state, "fROgTheBadass")
         unbanned_doc = await app_state.db.user.find_one({"_id": username})
         self.assertIsNotNone(unbanned_doc)
         self.assertTrue(unbanned_doc.get("enabled", False))
 
-        await shadowban(app_state, "/shadowban @froGThebadass")
+        await set_shadowban(app_state, "@froGThebadass", True)
         shadow_doc = await app_state.db.user.find_one({"_id": username})
         self.assertIsNotNone(shadow_doc)
         self.assertTrue(shadow_doc.get("shadowban", False))
         self.assertTrue(user.shadowban)
 
-        await unshadowban(app_state, "/unshadowban FROGTHEBADASS")
+        await set_shadowban(app_state, "FROGTHEBADASS", False)
         unshadow_doc = await app_state.db.user.find_one({"_id": username})
         self.assertIsNotNone(unshadow_doc)
         self.assertFalse(unshadow_doc.get("shadowban", True))
@@ -379,14 +386,14 @@ class AdminBanUnbanSignalsTestCase(AioHTTPTestCase):
             ]
         )
 
-        await ban(app_state, "/ban cheater_a")
-        await ban(app_state, "/ban cheater_b")
+        await ban(app_state, "cheater_a")
+        await ban(app_state, "cheater_b")
 
         shared_before = await app_state.db.security_ban_signal.find_one({"_id": "ip:shared"})
         self.assertIsNotNone(shared_before)
         self.assertEqual(set(shared_before.get("sources", [])), {"cheater_a", "cheater_b"})
 
-        await unban(app_state, "/unban cheater_a")
+        await unban(app_state, "cheater_a")
 
         only_a = await app_state.db.security_ban_signal.find_one({"_id": "ip:only_a"})
         self.assertIsNone(only_a)
@@ -413,7 +420,7 @@ class AdminBanUnbanSignalsTestCase(AioHTTPTestCase):
         self.assertEqual(tournament.user_status(user), "joined")
         self.assertIn(user, tournament.leaderboard)
 
-        await ban(app_state, f"/ban {username}")
+        await ban(app_state, username)
 
         player = tournament.get_player_by_name(username)
         self.assertIsNotNone(player)
@@ -438,7 +445,7 @@ class AdminBanUnbanSignalsTestCase(AioHTTPTestCase):
         await tournament.join(user)
         await tournament.start(datetime.now(UTC))
 
-        await ban(app_state, f"/ban {username}")
+        await ban(app_state, username)
 
         player = tournament.get_player_by_name(username)
         self.assertIsNotNone(player)
@@ -464,7 +471,7 @@ class AdminBanUnbanSignalsTestCase(AioHTTPTestCase):
         await upsert_tournament_to_db(tournament, app_state)
         await tournament.join(user)
 
-        await ban(app_state, f"/ban {username}")
+        await ban(app_state, username)
 
         app_state.tournaments.pop(tid, None)
         app_state.tourneysockets.pop(tid, None)
@@ -513,7 +520,7 @@ class AdminBanUnbanSignalsTestCase(AioHTTPTestCase):
         await tournament.join(opponent_user)
         await tournament.start(datetime.now(UTC))
 
-        await ban(app_state, f"/ban {banned_username}")
+        await ban(app_state, banned_username)
 
         app_state.tournaments.pop(tid, None)
         app_state.tourneysockets.pop(tid, None)

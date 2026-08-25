@@ -3,13 +3,15 @@ import { h, VNode } from 'snabbdom';
 import { _ } from './i18n';
 import { patch } from './document';
 import { alertDialog } from './alertDialog';
+import { confirmDialog } from './confirmDialog';
 import { chatView, chatMessage, ChatController } from './chat';
 import { timeago } from './datetime';
 import { JSONObject, PyChessModel } from './types';
 import { newWebsocket } from '@/socket/webSocketUtils';
 import { displayUsername, userLink } from './user';
 import { timeControlStr } from './view';
-import { initializeClock, localeOptions } from './tournamentClock';
+import { initializeClock, localeOptions, syncTournamentStartAlerts } from './tournamentClock';
+import { tournamentLifecycleView } from './tournamentLifecycle';
 import { roundRobinFaq } from './tournamentFaq';
 import {
     MsgError,
@@ -28,6 +30,8 @@ import {
     TournamentPlayer,
 } from './tournamentType';
 import { VARIANTS } from './variants';
+import { sound } from './sound';
+import { redirectFirst } from './tournamentAlerts';
 
 type RRFlatpickrOptions = {
     enableTime: boolean;
@@ -112,6 +116,7 @@ export class TournamentRRController implements ChatController {
     startDate = '';
     secondsToStart = 0;
     secondsToFinish = 0;
+    tournamentMinutes = 0;
     roundOngoingGames = 0;
     secondsToNextRound = 0;
     manualNextRoundPending = false;
@@ -138,10 +143,12 @@ export class TournamentRRController implements ChatController {
     kickUsername = '';
     scheduleDrafts: Record<string, string> = {};
     onlineByUsername: Record<string, boolean | undefined> = {};
+    patronByUsername: Record<string, boolean | undefined> = {};
     flatpickrReady: Promise<void>;
     arrangementPresenceInterval: number | null = null;
     presenceArrangementId = '';
     openCalendarArrangementId = '';
+    annulDeadlineTimer: number | null = null;
     clockdiv: VNode;
     action: VNode;
     descriptionNode: VNode;
@@ -150,6 +157,7 @@ export class TournamentRRController implements ChatController {
     creatorNode: VNode;
     minutesNode: VNode;
     manageNode: VNode;
+    lifecycleActions: VNode;
     bodyNode: VNode;
     modalNode: VNode;
     podiumNode: VNode;
@@ -158,10 +166,16 @@ export class TournamentRRController implements ChatController {
     gamesNode: VNode | null = null;
     boundHashChange: () => void;
     boundVisibilityChange: () => void;
+    creatorCanManage: boolean;
+    isTournamentDirector: boolean;
+    isTeamTournament: boolean;
 
     constructor(_el: HTMLElement, model: PyChessModel) {
         this.tournamentId = model.tournamentId;
         this.username = model.username;
+        this.creatorCanManage = model.tournamentmanager;
+        this.isTournamentDirector = model.tournamentDirector;
+        this.isTeamTournament = !!model.tournamentteamid;
         this.anon = model.anon === 'True';
         this.variant = VARIANTS[model.variant];
         this.chess960 = model.chess960 === 'True';
@@ -188,6 +202,10 @@ export class TournamentRRController implements ChatController {
         this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
 
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, 'lobbychat'));
+        this.lifecycleActions = patch(
+            document.getElementById('tournament-lifecycle') as HTMLElement,
+            this.renderLifecycleActions(),
+        );
         this.descriptionNode = patch(
             document.getElementById('description') as HTMLElement,
             h('div#description.description'),
@@ -212,8 +230,91 @@ export class TournamentRRController implements ChatController {
         this.sock.send(JSON.stringify(message));
     }
 
+    renderLifecycleActions() {
+        return tournamentLifecycleView(
+            {
+                status: this.tournamentStatus,
+                system: this.system,
+                manualNextRoundPending: this.manualNextRoundPending,
+                creatorCanManage: this.creatorCanManage,
+                isDirector: this.isTournamentDirector,
+                isTeamTournament: this.isTeamTournament,
+            },
+            () => this.doSend({ type: 'start_next_round', tournamentId: this.tournamentId }),
+            () => void this.abortTournament(),
+        );
+    }
+
+    updateLifecycleActions() {
+        this.lifecycleActions = patch(this.lifecycleActions, this.renderLifecycleActions());
+    }
+
+    async abortTournament() {
+        const confirmed = await confirmDialog({
+            title: _('Abort tournament'),
+            text: _('This will end the tournament immediately. This action cannot be undone.'),
+            confirmText: _('Abort tournament'),
+            danger: true,
+        });
+        if (confirmed) this.doSend({ type: 'abort_tournament', tournamentId: this.tournamentId });
+    }
+
     isHost() {
         return this.username === this.createdBy;
+    }
+
+    canManage() {
+        return this.creatorCanManage;
+    }
+
+    canAnnulResults() {
+        return this.creatorCanManage || this.isTournamentDirector;
+    }
+
+    annulReplayAvailable() {
+        if (!['created', 'started'].includes(this.tournamentStatus)) return false;
+        const deadline = this.scheduleMaxDate().getTime();
+        return Number.isFinite(deadline) && Date.now() < deadline;
+    }
+
+    syncAnnulDeadlineTimer() {
+        if (this.annulDeadlineTimer !== null) {
+            window.clearTimeout(this.annulDeadlineTimer);
+            this.annulDeadlineTimer = null;
+        }
+        if (!this.canAnnulResults() || !this.annulReplayAvailable()) return;
+
+        const deadline = this.scheduleMaxDate().getTime();
+        const remaining = deadline - Date.now();
+        const maxTimeout = 2_147_000_000;
+        this.annulDeadlineTimer = window.setTimeout(
+            () => {
+                this.annulDeadlineTimer = null;
+                if (Date.now() < deadline) {
+                    this.syncAnnulDeadlineTimer();
+                    return;
+                }
+                this.renderModal();
+            },
+            Math.min(remaining + 50, maxTimeout),
+        );
+    }
+
+    async annulArrangementGame(cell: RRArrangementCell) {
+        if (!cell.gameId || !this.canAnnulResults() || !this.annulReplayAvailable()) return;
+        const confirmed = await confirmDialog({
+            title: _('Annul result'),
+            text: _('This removes the tournament result and reopens the pairing for a replay. The original game remains in the pairing history.'),
+            confirmText: _('Annul result'),
+            danger: true,
+        });
+        if (!confirmed) return;
+        this.doSend({
+            type: 'rr_annul_game',
+            tournamentId: this.tournamentId,
+            arrangementId: cell.id,
+            gameId: cell.gameId,
+        });
     }
 
     playerByName(name: string) {
@@ -374,10 +475,12 @@ export class TournamentRRController implements ChatController {
     }
 
     scheduleMaxDate(): Date {
-        if (this.secondsToFinish > 0) return new Date(Date.now() + this.secondsToFinish * 1000);
         const startsAt = new Date(this.startDate);
-        if (!Number.isNaN(startsAt.getTime())) return new Date(startsAt.getTime() + 90 * 24 * 3600 * 1000);
-        return new Date(Date.now() + 90 * 24 * 3600 * 1000);
+        if (!Number.isNaN(startsAt.getTime()) && this.tournamentMinutes > 0) {
+            return new Date(startsAt.getTime() + this.tournamentMinutes * 60 * 1000);
+        }
+        if (this.secondsToFinish > 0) return new Date(Date.now() + this.secondsToFinish * 1000);
+        return new Date();
     }
 
     submitSchedule(cell: RRArrangementCell, value: string) {
@@ -398,6 +501,10 @@ export class TournamentRRController implements ChatController {
         return this.onlineByUsername[username];
     }
 
+    playerPatron(username: string): boolean | undefined {
+        return this.patronByUsername[username];
+    }
+
     async loadArrangementOnlineStatus() {
         const cell = this.selectedArrangement();
         if (!cell) return;
@@ -406,9 +513,10 @@ export class TournamentRRController implements ChatController {
                 `/api/users/status?ids=${encodeURIComponent(cell.white)},${encodeURIComponent(cell.black)}`,
             );
             if (!response.ok) return;
-            const payload = (await response.json()) as Array<{ id: string; status?: boolean }>;
+            const payload = (await response.json()) as Array<{ id: string; online?: boolean; patron?: boolean }>;
             payload.forEach(entry => {
-                this.onlineByUsername[entry.id] = entry.status;
+                this.onlineByUsername[entry.id] = entry.online;
+                this.patronByUsername[entry.id] = entry.patron;
             });
             this.renderModal();
         } catch {
@@ -491,6 +599,7 @@ export class TournamentRRController implements ChatController {
 
     renderInfo(msg: MsgUserConnectedTournament) {
         this.startDate = msg.startsAt;
+        this.tournamentMinutes = msg.tminutes;
         this.createdBy = msg.createdBy;
         this.approvalRequired = !!msg.rrRequiresApproval;
         this.joiningClosed = !!msg.rrJoiningClosed;
@@ -520,6 +629,7 @@ export class TournamentRRController implements ChatController {
         this.renderManageButton();
         this.renderBody();
         this.renderModal();
+        this.syncAnnulDeadlineTimer();
     }
 
     gameListRows(): RRGameListRow[] {
@@ -558,6 +668,7 @@ export class TournamentRRController implements ChatController {
         if (row.gameId || row.status === 'started') return _('Current game');
         if (row.scheduled) return _('Scheduled');
         if (row.status === 'challenged') return _('Challenge');
+        if (row.status === 'expired') return _('Not played');
         return row.status;
     }
 
@@ -627,6 +738,7 @@ export class TournamentRRController implements ChatController {
         }
         if (cell.status === 'started') return '...';
         if (cell.status === 'challenged') return cell.challenger === this.username ? '!' : '?';
+        if (cell.status === 'expired') return '-';
         return '';
     }
 
@@ -870,7 +982,7 @@ export class TournamentRRController implements ChatController {
     }
 
     renderManageButton() {
-        if (!this.isHost()) {
+        if (!this.canManage()) {
             this.manageNode = patch(this.manageNode, h('div#rr-manage'));
             return;
         }
@@ -979,13 +1091,19 @@ export class TournamentRRController implements ChatController {
 
     modalPlayerLink(username: string): VNode {
         const player = this.playerByName(username);
+        const online = !!this.playerOnline(username);
+        const patron = !!this.playerPatron(username);
         return h('div.rr-arr-player-link', [
-            h('i-side.online', {
+            h('i-side', {
                 class: {
                     icon: true,
-                    'icon-online': !!this.playerOnline(username),
-                    'icon-offline': !this.playerOnline(username),
+                    online,
+                    offline: !online,
+                    'icon-online': online && !patron,
+                    'icon-offline': !online && !patron,
+                    'icon-patron-wing': patron,
                 },
+                attrs: patron ? { title: _('PyChess Patron') } : {},
             }),
             userLink(
                 username,
@@ -1041,9 +1159,22 @@ export class TournamentRRController implements ChatController {
         );
     }
 
+    modalAnnulButton(cell: RRArrangementCell): VNode | null {
+        if (!this.canAnnulResults() || !this.annulReplayAvailable()) return null;
+        if (cell.status !== 'finished' || !cell.gameId) return null;
+        return h(
+            'button.button.button-red',
+            {
+                attrs: { title: _('Annul result and replay') },
+                on: { click: () => void this.annulArrangementGame(cell) },
+            },
+            _('Annul result'),
+        );
+    }
+
     modalPlayerAction(cell: RRArrangementCell, username: string): VNode | null {
         const canAct = [cell.white, cell.black].includes(this.username);
-        if (!canAct || cell.gameId || ['started', 'finished'].includes(cell.status)) return null;
+        if (!canAct || cell.gameId || ['started', 'finished', 'expired'].includes(cell.status)) return null;
         const perspective = this.schedulePerspective(cell);
         const mine = username === this.username;
         const suggestedAt = mine ? perspective.mine : perspective.opponent;
@@ -1138,7 +1269,7 @@ export class TournamentRRController implements ChatController {
                                                 altInput: true,
                                                 altFormat: 'Y-m-d H:i',
                                                 inline: true,
-                                                minDate: 'today',
+                                                minDate: new Date(),
                                                 maxDate: this.scheduleMaxDate(),
                                                 monthSelectorType: 'static',
                                                 disableMobile: true,
@@ -1212,6 +1343,18 @@ export class TournamentRRController implements ChatController {
                       h('span.value', this.formatArrangementDate(cell.date)),
                   ])
                 : null,
+            cell.previousGameIds.length > 0
+                ? h('div.title-value-wrap', [
+                      h('span.title', `${_('Previous games')}:`),
+                      h(
+                          'span.value',
+                          cell.previousGameIds.flatMap((gameId, index) => [
+                              index > 0 ? ', ' : '',
+                              h('a', { attrs: { href: `/${gameId}` } }, gameId),
+                          ]),
+                      ),
+                  ])
+                : null,
         ];
     }
 
@@ -1260,7 +1403,7 @@ export class TournamentRRController implements ChatController {
                                 this.modalValueRows(cell).filter((row): row is VNode => row !== null),
                             ),
                             cell.gameId
-                                ? actionButton
+                                ? h('div.arr-start-wrap', [actionButton, this.modalAnnulButton(cell)])
                                 : actionButton && canAct
                                   ? h('div.arr-start-wrap', [
                                         actionButton,
@@ -1352,7 +1495,7 @@ export class TournamentRRController implements ChatController {
     }
 
     renderManagement() {
-        if (!this.isHost()) {
+        if (!this.canManage()) {
             this.bodyNode = patch(
                 this.bodyNode,
                 h('div#rr-body', [
@@ -1632,10 +1775,14 @@ export class TournamentRRController implements ChatController {
 
     private onMsgUserConnected(msg: MsgUserConnectedTournament) {
         this.userStatus = msg.ustatus;
+        this.creatorCanManage = msg.creatorCanManage;
         this.rounds = msg.rounds || this.rounds;
         this.tournamentStatus = T_STATUS[msg.tstatus as keyof typeof T_STATUS];
         this.roundOngoingGames = msg.roundOngoingGames || 0;
+        this.secondsToNextRound = msg.secondsToNextRound || 0;
+        this.manualNextRoundPending = msg.manualNextRound ?? false;
         this.renderInfo(msg);
+        this.updateLifecycleActions();
     }
 
     private onMsgTournamentStatus(msg: MsgTournamentStatus) {
@@ -1643,6 +1790,8 @@ export class TournamentRRController implements ChatController {
         this.rounds = msg.rounds || this.rounds;
         this.secondsToFinish = msg.secondsToFinish;
         this.roundOngoingGames = msg.roundOngoingGames || 0;
+        this.secondsToNextRound = msg.secondsToNextRound || 0;
+        this.manualNextRoundPending = msg.manualNextRound ?? false;
         this.summaryStats = {
             nbPlayers: msg.nbPlayers,
             sumRating: msg.sumRating,
@@ -1653,7 +1802,10 @@ export class TournamentRRController implements ChatController {
         };
         initializeClock(this as any);
         this.updateActionButton();
+        this.updateLifecycleActions();
         this.renderSummary();
+        this.renderModal();
+        this.syncAnnulDeadlineTimer();
     }
 
     private onMsgGetPlayers(msg: MsgGetPlayers) {
@@ -1705,17 +1857,21 @@ export class TournamentRRController implements ChatController {
         this.joiningClosed = msg.joiningClosed;
         this.renderManageButton();
         this.updateActionButton();
-        if (this.viewMode === 'manage' && !this.isHost()) this.viewMode = 'overview';
+        if (this.viewMode === 'manage' && !this.canManage()) this.viewMode = 'overview';
         this.renderBody();
     }
 
     private onMsgUserStatus(msg: MsgUserStatus) {
         this.userStatus = msg.ustatus;
+        syncTournamentStartAlerts(this as any);
         this.updateActionButton();
     }
 
     private onMsgNewGame(msg: any) {
-        window.location.assign('/' + msg.gameId);
+        redirectFirst(msg.gameId, () => {
+            sound.genericNotify();
+            window.setTimeout(() => window.location.assign('/' + msg.gameId), 700);
+        });
     }
 
     private onMsgError(msg: MsgError) {
@@ -1789,7 +1945,7 @@ export function tournamentRRView(model: PyChessModel): VNode[] {
     const variant = VARIANTS[model.variant] ?? VARIANTS['chess'];
     const chess960 = model.chess960 === 'True';
     const dataIcon = variant.icon(chess960);
-    const canEdit = model.username === model.tournamentcreator && model.status === 0;
+    const canEdit = model.tournamentmanager && model.status === 0;
 
     return [
         h('aside.sidebar-first', [
@@ -1812,6 +1968,17 @@ export function tournamentRRView(model: PyChessModel): VNode[] {
                                   })
                                 : null,
                         ]),
+                        model.tournamentteamid
+                            ? h('div.tournament-team', [
+                                  h('strong', _('Team')),
+                                  ' ',
+                                  h(
+                                      'a',
+                                      { attrs: { href: `/team/${model.tournamentteamid}` } },
+                                      model.tournamentteamname || model.tournamentteamid,
+                                  ),
+                              ])
+                            : null,
                         h('div#createdBy'),
                     ]),
                 ]),
@@ -1819,6 +1986,7 @@ export function tournamentRRView(model: PyChessModel): VNode[] {
                 h('div#startsAt'),
                 h('div#rr-manage'),
             ]),
+            h('div#tournament-lifecycle'),
             h('div#lobbychat'),
         ]),
         h(`div.players.${model.variant}`, [

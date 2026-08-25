@@ -21,14 +21,13 @@ def tournament_spotlights(app_state: PychessGlobalAppState) -> list[TournamentSp
     ):
         if tournament.status == T_STARTED or tournament.status == T_CREATED:
             if tournament.frequency:
+                name_key = (
+                    tournament.variant + ("960" if tournament.chess960 else ""),
+                    tournament.frequency,
+                    tournament.system,
+                )
                 names = {
-                    lang: app_state.tourneynames[lang][
-                        (
-                            tournament.variant + ("960" if tournament.chess960 else ""),
-                            tournament.frequency,
-                            tournament.system,
-                        )
-                    ]
+                    lang: app_state.tourneynames[lang].get(name_key, tournament.name)
                     for lang in LANGUAGES
                 }
             else:

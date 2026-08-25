@@ -140,34 +140,27 @@ class GameResultTestCase(AioHTTPTestCase):
         self.assertEqual(game.result, "1-0")
         self.assertEqual(game.status, MATE)
 
-    async def test_janggi_flag_0(self):
-        game = Game(get_app_state(self.app), "12345678", "janggi", "", self.wplayer, self.bplayer)
-        await game.game_ended(self.bplayer, "flag")
-
-        self.assertEqual(game.result, "1-0")
-
-    async def test_janggi_flag_1(self):
-        game = Game(get_app_state(self.app), "12345678", "janggi", "", self.wplayer, self.bplayer)
-        game.bsetup = False
-        await game.game_ended(self.wplayer, "flag")
-
-        self.assertEqual(game.result, "0-1")
-
-    async def test_janggi_flag_2(self):
-        game = Game(get_app_state(self.app), "12345678", "janggi", "", self.wplayer, self.bplayer)
-        game.bsetup = False
-        game.wsetup = False
-        await game.game_ended(self.wplayer, "flag")
-
-        self.assertEqual(game.result, "0-1")
-
-    async def test_janggi_flag_3(self):
-        game = Game(get_app_state(self.app), "12345678", "janggi", "", self.wplayer, self.bplayer)
-        game.bsetup = False
-        game.wsetup = False
-        await game.game_ended(self.bplayer, "flag")
-
-        self.assertEqual(game.result, "1-0")
+    async def test_janggi_flag_results_during_and_after_setup(self):
+        scenarios = (
+            (True, True, self.bplayer, "1-0"),
+            (True, False, self.wplayer, "0-1"),
+            (False, False, self.wplayer, "0-1"),
+            (False, False, self.bplayer, "1-0"),
+        )
+        for index, (wsetup, bsetup, loser, expected_result) in enumerate(scenarios):
+            with self.subTest(wsetup=wsetup, bsetup=bsetup, loser=loser.username):
+                game = Game(
+                    get_app_state(self.app),
+                    f"jgflag{index}",
+                    "janggi",
+                    "",
+                    self.wplayer,
+                    self.bplayer,
+                )
+                game.wsetup = wsetup
+                game.bsetup = bsetup
+                await game.game_ended(loser, "flag")
+                self.assertEqual(expected_result, game.result)
 
     async def test_xiangqi_perpetual_check(self):
         FEN = "3k5/9/9/9/9/5p3/9/5p3/5K3/5C3 w - - 0 1"
@@ -243,9 +236,6 @@ class SanitizeFenTestCase(unittest.TestCase):
             variant_name = variant[:-3] if chess960 else variant
             board = FairyBoard(variant_name, chess960=chess960)
             fen = board.initial_fen
-            print()
-            print(variant_name, chess960, fen)
-
             valid, _sanitized = sanitize_fen(variant_name, fen, chess960)
             self.assertTrue(valid)
 
@@ -379,7 +369,7 @@ class RequestLobbyTestCase(AioHTTPTestCase):
             "enabled": True,
             "archived": False,
         }
-        register_catalogued_server_variant(name, "Editor catalogued test", "◇")
+        register_catalogued_server_variant(name, "Editor catalogued test")
         self.addCleanup(unregister_catalogued_server_variant, name)
 
         fen = "10/10/10/10/10/10/10/10/10/10_w_-_-_0_1"
@@ -423,20 +413,37 @@ class HighscoreTestCase(AioHTTPTestCase):
     async def tearDownAsync(self):
         await self.client.close()
 
-    @staticmethod
-    def print_game_highscore(game):
-        # return
-        print("----")
-        print(game.wplayer.perfs["crazyhouse960"])
-        print(game.bplayer.perfs["crazyhouse960"])
-        for row in game.app_state.highscore["crazyhouse960"].items():
-            print(row)
-
     async def play_and_resign(self, game, player):
         clocks = (game.clocks_w[0], game.clocks_b[0])
         for i, move in enumerate(("e2e4", "e7e5", "f2f4"), start=1):
             await game.play_move(move, clocks=clocks, ply=i)
         await game.game_ended(player, "resign")
+
+    async def test_highscore_updates_both_players_when_first_changes_top(self):
+        game = Game(
+            get_app_state(self.app),
+            id8(),
+            "crazyhouse",
+            "",
+            self.wplayer,
+            self.bplayer,
+            rated=True,
+            chess960=True,
+            create=True,
+        )
+        white_rating = self.wplayer.get_rating("crazyhouse", True)
+        black_rating = self.bplayer.get_rating("crazyhouse", True)
+
+        set_highscore = AsyncMock(side_effect=[True, False])
+        refresh = AsyncMock()
+        with (
+            patch.object(game, "set_highscore", new=set_highscore),
+            patch("game.refresh_lobby_leaderboard_cache", new=refresh),
+        ):
+            await game.apply_rating_update(white_rating, black_rating)
+
+        self.assertEqual(set_highscore.await_count, 2)
+        refresh.assert_awaited_once_with(game.app_state)
 
     async def test_lost_but_still_there(self):
         game_id = id8()
@@ -456,13 +463,11 @@ class HighscoreTestCase(AioHTTPTestCase):
         self.assertEqual(game.status, CREATED)
         self.assertEqual(len(game.crosstable["r"]), 0)
 
-        self.print_game_highscore(game)
         highscore0 = game.app_state.highscore["crazyhouse960"].peekitem(7)
 
         # wplayer resign 0-1
         await self.play_and_resign(game, self.wplayer)
 
-        self.print_game_highscore(game)
         highscore1 = game.app_state.highscore["crazyhouse960"].peekitem(7)
 
         self.assertEqual(len(game.crosstable["r"]), 1)
@@ -487,13 +492,11 @@ class HighscoreTestCase(AioHTTPTestCase):
         self.assertEqual(game.status, CREATED, msg="status not equal to CREATED")
         self.assertEqual(len(game.crosstable["r"]), 0, msg="game.crosstable not empty")
 
-        self.print_game_highscore(game)
         highscore0 = game.app_state.highscore["crazyhouse960"].peekitem(7)
 
         # wplayer resign 0-1
         await self.play_and_resign(game, self.wplayer)
 
-        self.print_game_highscore(game)
         highscore1 = game.app_state.highscore["crazyhouse960"].peekitem(7)
 
         self.assertEqual(len(game.crosstable["r"]), 1, msg="game.crosstable still empty")
@@ -522,15 +525,10 @@ class HighscoreTestCase(AioHTTPTestCase):
         self.assertEqual(game.status, CREATED)
         self.assertEqual(len(game.crosstable["r"]), 0)
 
-        self.print_game_highscore(game)
-
         # weak_player resign 1-0
         await self.play_and_resign(game, self.weak_player)
 
-        self.print_game_highscore(game)
-
         self.assertEqual(len(game.crosstable["r"]), 1)
-        print(game.crosstable)
         self.assertTrue(
             self.weak_player.username + "|"
             not in game.app_state.highscore["crazyhouse960"].keys()[:10]
@@ -558,14 +556,10 @@ class HighscoreTestCase(AioHTTPTestCase):
         doc = await game.app_state.db.crosstable.find_one({"_id": game.ct_id})
         if doc is not None:
             game.crosstable = doc
-        print(game.crosstable)
 
         # strong_player resign 0-1
         await self.play_and_resign(game, self.strong_player)
 
-        self.print_game_highscore(game)
-
-        print(game.crosstable)
         self.assertEqual(len(game.crosstable["r"]), 2)
         self.assertTrue(
             self.weak_player.username + "|"

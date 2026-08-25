@@ -35,10 +35,13 @@ jobs:
         ruff check server tests
     - name: Format check with ruff
       run: |
-        ruff format --check server tests
+        ruff format --check --target-version py313 server tests
     - name: Typecheck with pyright
       run: |
         pyright
     - name: Run unit tests
       run: |
         PYTHONPATH=server python -m unittest discover -s tests
+    - name: Run pytest integration tests
+      run: |
+        PYTHONPATH=server python -m pytest tests/test_simul.py

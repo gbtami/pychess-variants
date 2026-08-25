@@ -1,25 +1,10 @@
 from __future__ import annotations
 
 import asyncio
-from collections.abc import Mapping
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 import aiohttp_session
-from admin import (
-    ban,
-    baninfo,
-    crosstable,
-    delete_puzzle,
-    disable_new_anons,
-    fishnet,
-    highscore,
-    shadowban,
-    silence,
-    stream,
-    unban,
-    unshadowban,
-)
 from aiohttp import web
 from aiohttp.web_ws import WebSocketResponse
 from auto_pair import (
@@ -27,9 +12,7 @@ from auto_pair import (
     auto_pair,
     find_matching_user_for_seek,
 )
-from chat import chat_response
-from chat_permissions import lobby_chat_eligible
-from const import ANON_PREFIX, STARTED
+from const import STARTED, SYSTEM_USER
 from header_challenges import (
     broadcast_challenge_state,
     challenge_participants,
@@ -37,7 +20,6 @@ from header_challenges import (
     schedule_direct_challenge_offline,
     set_direct_challenge_status,
 )
-from link_filter import sanitize_user_message
 from newid import new_id
 
 if TYPE_CHECKING:
@@ -59,12 +41,10 @@ if TYPE_CHECKING:
         CreateSeekMessage,
         DeleteSeekMessage,
         DirectChallengeCreatedMessage,
-        FullChatMessage,
         GameInProgressMessage,
         HostCreatedMessage,
         InviteCreatedMessage,
         LeaveSeekMessage,
-        LobbyChatMessage,
         LobbyCountMessage,
         LobbyInboundMessage,
         LobbyLeaderboardMessage,
@@ -97,7 +77,6 @@ from seek import (
     is_targeted_two_board_seek,
     user_reached_seek_limit,
 )
-from settings import ADMINS
 from tournament.tournament_spotlights import tournament_spotlights
 from tournament_director import is_tournament_director
 from utils import join_seek, load_game, remove_seek, send_bot_game_start_unless_streaming
@@ -109,6 +88,7 @@ log = logging.getLogger(__name__)
 
 UNSUPPORTED_FSF_AI_VARIANTS = ("alice", "fogofwar", "jieqi")
 BOT_LOBBY_ACTION_MESSAGE = "BOT accounts cannot create or join lobby games."
+BOT_UNSUPPORTED_VARIANT_MESSAGE = "This BOT does not support the selected variant."
 CATALOGUED_CASUAL_ONLY_MESSAGE = (
     "Catalogued variants are casual-only and not available for auto-pairing."
 )
@@ -161,6 +141,8 @@ async def direct_challenge_block_message(
     if not is_direct_challenge_target(target):
         return None
     challenge_target = target or ""
+    if challenge_target == SYSTEM_USER:
+        return DIRECT_CHALLENGE_BLOCKED_MESSAGE
     target_profile = await app_state.public_users.get_profile(challenge_target)
     if target_profile is None:
         return None
@@ -269,8 +251,6 @@ async def process_message(
         await handle_leave_seek(app_state, ws, user, data)
     elif data["type"] == "accept_seek":
         await handle_accept_seek(app_state, ws, user, data)
-    elif data["type"] == "lobbychat":
-        await handle_lobbychat(app_state, ws, user, data)
     elif data["type"] == "create_auto_pairing":
         await handle_create_auto_pairing(app_state, ws, user, data)
     elif data["type"] == "cancel_auto_pairing":
@@ -473,6 +453,13 @@ async def handle_create_bot_challenge(
     engine = await app_state.users.get(profileid)
 
     if (engine is None) or (not engine.online):
+        return
+
+    bot_variant = data["variant"] + ("960" if data["chess960"] else "")
+    if engine.username not in ("Fairy-Stockfish", "Random-Mover") and (
+        engine.bot_supported_variants is None or bot_variant not in engine.bot_supported_variants
+    ):
+        await ws_send_json(ws, {"type": "error", "message": BOT_UNSUPPORTED_VARIANT_MESSAGE})
         return
 
     log.debug("Creating BOT challenge from request: %s", data)
@@ -680,12 +667,6 @@ async def send_lobby_user_connected(
     }
     await ws_send_json(ws, lobby_response)
 
-    fullchat_response: FullChatMessage = {
-        "type": "fullchat",
-        "lines": list(app_state.lobby.lobbychat),
-    }
-    await ws_send_json(ws, fullchat_response)
-
     # send game count
     game_count_response: LobbyCountMessage = {"type": "g_cnt", "cnt": app_state.g_cnt[0]}
     await ws_send_json(ws, game_count_response)
@@ -744,95 +725,6 @@ async def send_lobby_user_connected(
     )
     auto_pairing_response: AutoPairingStatusMessage = {"type": auto_pairing}
     await ws_send_json(ws, auto_pairing_response)
-
-
-async def handle_lobbychat(
-    app_state: PychessGlobalAppState, ws: WebSocketResponse, user: User, data: LobbyChatMessage
-) -> None:
-    if user.username.startswith(ANON_PREFIX):
-        return
-
-    is_admin = user.username in ADMINS
-    if not is_admin and user.username != "Discord-Relay" and not lobby_chat_eligible(user):
-        return
-
-    message = sanitize_user_message(data["message"])
-    response: Mapping[str, object] | None = None
-    admin_command = False
-
-    is_shadowbanned = bool(getattr(user, "shadowban", False))
-
-    if is_admin:
-        admin_command = True
-        if message.startswith("/silence"):
-            response = silence(app_state, message)
-            # silence message was already added to lobbychat in silence()
-
-        elif message.startswith("/shadowban"):
-            await shadowban(app_state, message)
-
-        elif message.startswith("/unshadowban"):
-            await unshadowban(app_state, message)
-
-        elif message.startswith("/disable_new_anons"):
-            disable_new_anons(app_state, message)
-
-        elif message.startswith("/stream"):
-            await stream(app_state, message)
-
-        elif message.startswith("/delete"):
-            await delete_puzzle(app_state, message)
-
-        elif message.startswith("/baninfo"):
-            answare = await baninfo(app_state, message)
-            await ws_send_json(ws, answare)
-
-        elif message.startswith("/unban"):
-            await unban(app_state, message)
-
-        elif message.startswith("/ban"):
-            await ban(app_state, message)
-
-        elif message.startswith("/highscore"):
-            await highscore(app_state, message)
-
-        elif message.startswith("/crosstable"):
-            await crosstable(app_state, message)
-
-        elif message.startswith("/fishnet"):
-            # Don't give it to the response variable to prevent broadcasting it
-            answare = await fishnet(app_state, message)
-            await ws_send_json(ws, answare)
-
-        else:
-            admin_command = False
-            if app_state.chat_flood.allow_message(f"public:{user.username}", message):
-                lobby_response = chat_response("lobbychat", user.username, message)
-                if is_shadowbanned:
-                    await ws_send_json_many(user.lobby_sockets, lobby_response)
-                else:
-                    response = lobby_response
-                    await app_state.lobby.lobby_chat_save(lobby_response)
-
-    elif user.anon and user.username != "Discord-Relay":
-        pass
-
-    else:
-        if user.silence == 0 and app_state.chat_flood.allow_message(
-            f"public:{user.username}", message
-        ):
-            lobby_response = chat_response("lobbychat", user.username, message)
-            if is_shadowbanned:
-                await ws_send_json_many(user.lobby_sockets, lobby_response)
-            else:
-                response = lobby_response
-                await app_state.lobby.lobby_chat_save(lobby_response)
-
-    if response is not None:
-        await app_state.lobby.lobby_broadcast(response)
-
-    if response is not None and user.silence == 0 and not admin_command:
-        await app_state.discord.send_to_discord("lobbychat", message, user.username)
 
 
 async def handle_cancel_auto_pairing(

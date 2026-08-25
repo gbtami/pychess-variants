@@ -19,7 +19,7 @@
     <div class="player-sum box">
         <div class="player-head">
             <h1 class="player">
-                <player-title>{{ profile_title }}</player-title> {{ profile }}
+                {% if profile_patron %}<a href="{{ home }}/patron" title="{{ _('PyChess Patron') }}"><i-side class="profile-user-status {% if profile_online %}online{% else %}offline{% endif %} icon icon-patron-wing"></i-side></a>{% endif %}<player-title>{{ profile_title }}</player-title>{% if profile_title %} {% endif %}{{ profile }}
             </h1>
             <div class="trophies">
             {% for key, kind in trophies %}
@@ -39,6 +39,16 @@
             <div class="profile-actions">
                 <div class="btn-rack profile-actions__rack">
 
+            {% if profile_system %}
+            {% if (profile != username) and (not anon) %}
+            {% if (can_follow) and (is_following) %}
+                <a id="unfollow"></a>
+            {% elif can_follow %}
+                <a id="follow"></a>
+            {% endif %}
+            {% endif %}
+            <a class="icon icon-bubble-convo" href="/blogs/@/{{ profile }}" title="User blogs">Blogs</a>
+            {% else %}
             <a class="icon icon-tv" href="/@/{{ profile }}/tv" title="{% trans %}Watch games{% endtrans %}">{% trans %}Watch{% endtrans %}</a>
 
             {% if (profile != username) and (not anon) and (profile_title != "BOT") %}
@@ -57,8 +67,15 @@
             {% if (can_challenge) and (not anon) and (profile != username) %}
             <a class="icon icon-crossedswords" href="/@/{{ profile }}/challenge" title="{% trans %}Challenge to a game{% endtrans %}">{% trans %}Challenge{% endtrans %}</a>
             {% endif %}
+
+            {% if (not anon) and (profile_title != "BOT") %}
             <a class="icon icon-bubble-convo" href="/blogs/@/{{ profile }}" title="User blogs">Blogs</a>
             <a class="icon icon-list" href="{{ home }}/variants/community?author={{ profile | urlencode }}" title="{% trans %}Variants{% endtrans %}">{% trans %}Variants{% endtrans %}</a>
+            {% if profile_simul_count %}
+            <a class="icon icon-trophy" href="{{ home }}/@/{{ profile }}/simuls" title="{% trans %}Hosted simuls{% endtrans %}">{% trans %}Simuls{% endtrans %} ({{ profile_simul_count }})</a>
+            {% endif %}
+            {% endif %}
+
             {% if (not anon) and (profile != username) and (profile_title != "BOT") and (can_message) %}
             <a class="icon icon-comment-o" href="/inbox/{{ profile }}" title="{% trans %}Send a private message{% endtrans %}">{% trans %}Message{% endtrans %}</a>
             {% endif %}
@@ -78,6 +95,7 @@
             <a class="icon icon-at" href="https://lishogi.org/@/{{ lishogi_id }}" rel="noopener" target="_blank" title="{% trans %}Lishogi profile{% endtrans %}">{% trans %}Lishogi{% endtrans %}</a>
             {% endif %}
             {% endif %}
+            {% endif %}
                     <div class="profile-actions__dropdown" hidden>
                         <button
                             class="profile-actions__more"
@@ -93,6 +111,17 @@
                 </div>
             </div>
         </div>
+        {% if profile_teams %}
+        <div class="player-teams teams col2">
+            <strong>Teams</strong>
+            {% for profile_team in profile_teams %}
+            <a href="/team/{{ profile_team['team']['_id'] }}">
+                <span class="profile-team__name">{{ profile_team['team']['name'] }}</span>
+                {% if profile_team['leader'] %}<span class="profile-team__leader">leader</span>{% endif %}
+            </a>
+            {% endfor %}
+        </div>
+        {% endif %}
         {% if ublog_posts %}
         <section class="player-ublog box">
             <div class="ublog-cards">

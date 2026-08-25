@@ -74,6 +74,7 @@ static/images/bughouse.jpg | [Alexandre Duret-Lutz](https://www.flickr.com/photo
 static/images/bugroundchat/* | pychess-variants contributors | [AGPLv3+](https://www.gnu.org/licenses/agpl-3.0.txt) |
 static/images/emoji/* | Lichess contributors | [AGPLv3+](https://www.gnu.org/licenses/agpl-3.0.txt) | From lichess
 static/images/Santa_hat.svg | [openclipart](https://openclipart.org/detail/190172/santa-hat) | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) |
+static/fonts/pychess.* and icomoon.io/pychess-variants.json | Lichess contributors and pychess-variants contributors | [AGPLv3+](https://www.gnu.org/licenses/agpl-3.0.txt) | PyChess icon font contains the Lichess Wings glyph (licon U+E06C)
 static/images/puzzles.jpg | [puzzles.one](https://puzzles.one/) | | From puzzles.one website
 static/images/one-flew-over-the-cuckoos-nest.jpg | | | Movie poster
 static/images/Darth-Vader-Comic.jpg | | | Comic book cover

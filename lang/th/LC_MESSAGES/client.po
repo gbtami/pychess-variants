@@ -13,18 +13,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-03-02 08:49+0100\n"
+"POT-Creation-Date: 2026-08-22 23:56+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: Ada Joule <ada.fulmina@gmail.com>, 2023\n"
 "Language-Team: Thai (https://app.transifex.com/gbtami/teams/14790/th/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.18.0\n"
+"Generated-By: Babel 2.17.0\n"
 "Language: th\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: ../client/about.ts:9
+#: ../client/about.ts:8
 msgid ""
 "\"To me, how we've got here today is owing to Stockfish in a BIG way. They "
 "rallied global volunteers to come together in the open-source spirit and "
@@ -36,7 +36,7 @@ msgstr ""
 " "
 "สิ่งที่เขาสามารถรวบรวมมาได้นั้นเป็นทั้งมันสมองอันยิ่งใหญ่และพลังการคำนวณมากมาย"
 
-#: ../client/about.ts:10
+#: ../client/about.ts:11
 msgid ""
 "Then we've got Lichess to thank. Lichess was also born out of the same open-"
 "source spirit, and it too drew in great people as well. Once Lichess "
@@ -47,7 +47,7 @@ msgstr ""
 "และดึงดูดบุคคลที่ยิ่งใหญ่เข้ามาร่วมเช่นกัน "
 "เมื่อลิเชสรวมสต็อกฟิชมาเป็นมันสมอง เรื่องราวที่เหลือก็เป็นอย่างที่เรารู้กัน "
 
-#: ../client/about.ts:11
+#: ../client/about.ts:14
 msgid ""
 "Lichess enables the online, real-time, and competitive aspects of game-play."
 " They also bring the enormous power of Stockfish to the masses, who can now "
@@ -58,7 +58,7 @@ msgstr ""
 "พวกเขานำพลังอันมหาศาลของสต็อกฟิชมาสู่มหาชนซึ่งตอนนี้ได้ใช้ประโยชน์โดยไม่ต้องเสียเวลากับการตั้งค่าโปรแกรมหน้าจอคอมพิวเตอร์"
 " ผมเชื่อว่าพัฒนาการเช่นนี้นำไปสู่ผลลัพธ์ที่ยอดเยี่ยมและสำคัญยิ่ง "
 
-#: ../client/about.ts:12
+#: ../client/about.ts:17
 msgid ""
 "Later on, developers close to the Lichess project eventually extended "
 "Stockfish into Multivariant-Stockfish, in order to support Crazyhouse et al."
@@ -74,7 +74,7 @@ msgstr ""
 "ให้หลากหลายยิ่งขึ้นไปอีก และได้ให้กำเนิด Fairy-Stockfish อันทรงพลัง "
 "ต่อยอดมาจากโครงการ Stockfish"
 
-#: ../client/about.ts:13
+#: ../client/about.ts:20
 msgid ""
 "Then comes our beloved pychess-variants, which again very smartly harnesses "
 "the underlying superpowers of the big projects. Same online, real-time, and "
@@ -87,11 +87,11 @@ msgstr ""
 "ทั้งรูปลักษณ์ที่สะอาดตาและให้อารมณ์ที่คุ้นชินอย่าง Lichess "
 "ทั้งพลังคำนวณอันสุดยอดของ Stockfish!\""
 
-#: ../client/about.ts:18
+#: ../client/about.ts:27
 msgid "About pychess"
 msgstr "เกี่ยวกับ pychess"
 
-#: ../client/about.ts:19
+#: ../client/about.ts:28
 msgid ""
 "Pychess is a free, open-source chess server designed to play several chess "
 "variants."
@@ -99,11 +99,11 @@ msgstr ""
 "Pychess "
 "เป็นเซอร์เวอร์หมากรุกฟรีและโอเพนซอร์สที่ถูกออกแบบให้สามารถเล่นเกมหมากรุกได้หลากหลายชนิด"
 
-#: ../client/about.ts:22
+#: ../client/about.ts:31
 msgid "Currently supported games are "
 msgstr "เกมที่รองรับในปัจจุบัน ได้แก่ "
 
-#: ../client/about.ts:128
+#: ../client/about.ts:137
 msgid ""
 "Additionally, you can check the Chess960 option for Chess, Bughouse, "
 "Crazyhouse, Atomic, Three check, King of the Hill, Racing Kings, Antichess, "
@@ -111,170 +111,32 @@ msgid ""
 "positions with "
 msgstr ""
 
-#: ../client/about.ts:129
+#: ../client/about.ts:143
 msgid "Chess960 castling rules."
 msgstr "กฎการเข้าป้อมแบบ Chess960"
 
-#: ../client/about.ts:132
+#: ../client/about.ts:147
 msgid "For move generation, validation, analysis, and engine play, we use "
 msgstr ""
 "สำหรับการสร้างตาเดิน การทวนสอบ การวิเคราะห์ และการเดินหมากของคอมพิวเตอร์นั้น"
 " เราใช้ "
 
-#: ../client/about.ts:142
+#: ../client/about.ts:157
 msgid "On client side, the user interface of the game board is based on "
 msgstr "ในฝั่งผู้ใช้งาน ส่วนติดต่อผู้ใช้ของกระดานมีพื้นฐานมาจาก "
 
-#: ../client/about.ts:146
+#: ../client/about.ts:161
 msgid "The source code of the server is available on "
 msgstr "ซอร์สโค้ดของเว็บไซต์นี้สามารถดูได้ที่ "
 
-#: ../client/about.ts:151
+#: ../client/about.ts:166
 msgid ""
-"To play on PyChess, you need to have an open and unmarked account on "
-"Lichess. "
-msgstr ""
-"ในการที่จะเล่นบน PyChess ได้ คุณจะต้องมีบัญชี Lichess "
-"ที่เปิดอยู่และไม่ถูกห้ามเล่นที่นั่น"
-
-#: ../client/about.ts:152
-msgid ""
-"Regarding Privacy and Terms of Service, the rules of lichess.org are also "
-"applied here. "
-msgstr ""
-"สำหรับความเป็นส่วนตัว และข้อกำหนดในการให้บริการนั้น ที่นี่ใช้กฎเดียวกับ "
-"lichess.org"
-
-#: ../client/analysis.ts:39 ../client/bug/analysis.bug.ts:35
-#: ../client/editor/editor.ts:30 ../client/lobby.ts:481
-#: ../client/lobby.ts:1388 ../client/puzzle.ts:32 ../client/puzzleCtrl.ts:211
-#: ../client/settingsView.ts:143
-msgid "Variant"
-msgstr "ชนิดเกม"
-
-#: ../client/analysis.ts:111
-msgid "Computer analysis"
-msgstr "การวิเคราะห์โดยคอมพิวเตอร์"
-
-#: ../client/analysis.ts:113 ../client/bug/analysis.bug.ts:168
-msgid "Move times"
-msgstr "เวลาที่ใช้เดิน"
-
-#: ../client/analysis.ts:116
-msgid "Crosstable"
-msgstr "ประวัติผลการเล่น"
-
-#: ../client/analysis.ts:120 ../client/bug/analysis.bug.ts:169
-msgid "FEN & PGN"
-msgstr "FEN & PGN"
-
-#: ../client/analysis.ts:183
-msgid "Multi-threaded WebAssembly (classical evaluation)"
-msgstr "WebAssembly แบบหลายเธรด (คิดคะแนนแบบธรรมดา)"
-
-#: ../client/analysis.ts:185 ../client/analysisCtrl.ts:714
-#: ../client/bug/analysis.bug.ts:108 ../client/bug/analysisCtrl.bug.ts:690
-msgid "in local browser"
-msgstr "ในเบราเซอร์ภายในเครื่อง"
-
-#: ../client/analysisChart.ts:22
-msgid "Initial position"
-msgstr "ตำแหน่งเริ่มต้น"
-
-#: ../client/analysisChart.ts:85
-msgid "Advantage"
-msgstr "ความได้เปรียบ"
-
-#: ../client/analysisCtrl.ts:316 ../client/lobby.ts:933
-msgid "You need an account to do that."
-msgstr "จำเป็นต้องเข้าสู่ระบบ"
-
-#: ../client/analysisCtrl.ts:326
-msgid "This variant is not supported by Fairy-Stockfish."
+"To play on PyChess, sign in with one of our OAuth providers: Lichess, "
+"Lishogi, Google, or Discord. "
 msgstr ""
 
-#: ../client/analysisCtrl.ts:362 ../client/bug/analysisCtrl.bug.ts:341
-msgid "Download game to PGN file"
-msgstr "ดาวน์โหลดเกมนี้เป็นไฟล์ PGN"
-
-#: ../client/analysisCtrl.ts:362 ../client/bug/analysisCtrl.bug.ts:341
-msgid "Download PGN"
-msgstr "ดาวน์โหลด PGN"
-
-#: ../client/analysisCtrl.ts:364 ../client/bug/analysisCtrl.bug.ts:343
-msgid "Copy USI/UCI to clipboard"
-msgstr "คัดลอก USI/UCI ไปยังคลิปบอร์ด"
-
-#: ../client/analysisCtrl.ts:364 ../client/bug/analysisCtrl.bug.ts:343
-msgid "Copy UCI/USI"
-msgstr "คัดลอก UCI/USI"
-
-#: ../client/analysisCtrl.ts:366 ../client/bug/analysisCtrl.bug.ts:345
-msgid "Download position to PNG image file"
-msgstr "ดาวน์โหลดตำแหน่งหมากเป็นไฟล์ภาพ PNG"
-
-#: ../client/analysisCtrl.ts:366 ../client/bug/analysisCtrl.bug.ts:345
-msgid "PNG image"
-msgstr "ภาพ PNG"
-
-#: ../client/analysisCtrl.ts:380
-msgid "Are you sure you want to delete this game?"
-msgstr "ต้องการลบเกมนี้จริงหรือไม่?"
-
-#: ../client/analysisCtrl.ts:395
-msgid "Delete game"
-msgstr "ลบเกม"
-
-#: ../client/analysisCtrl.ts:427
-msgid "Request Computer Analysis"
-msgstr "ขอการวิเคราะห์จากคอมพิวเตอร์"
-
-#: ../client/analysisCtrl.ts:427
-msgid "Request Analysis"
-msgstr "ขอการวิเคราะห์"
-
-#: ../client/analysisCtrl.ts:487 ../client/bug/analysisCtrl.bug.ts:473
-msgid "Try browser page reload."
-msgstr "กรุณาลองรีเฟรชหน้าเว็บ"
-
-#: ../client/analysisCtrl.ts:533
-msgid "Multi-threaded WebAssembly (with NNUE evaluation)"
-msgstr "WebAssembly แบบหลายเธรด (คิดคะแนนด้วย NNUE)"
-
-#: ../client/analysisCtrl.ts:697 ../client/bug/analysisCtrl.bug.ts:670
-msgid "Depth"
-msgstr "ความลึก"
-
-#: ../client/analysisCtrl.ts:702 ../client/bug/analysisCtrl.bug.ts:675
-msgid "Go deeper"
-msgstr "ลึกกว่านี้"
-
-#: ../client/analysisSettings.ts:80
-msgid "Best move arrow"
-msgstr "ลูกศรแนะนำตาเดิน"
-
-#: ../client/analysisSettings.ts:109
-msgid "Infinite analysis"
-msgstr "ถอดหมากแบบไม่รู้จบ"
-
-#: ../client/analysisSettings.ts:137
-msgid "Multiple lines"
-msgstr "จำนวนเส้นทาง"
-
-#: ../client/analysisSettings.ts:164
-msgid "CPUs"
-msgstr "หน่วยประมวลผล"
-
-#: ../client/analysisSettings.ts:211
-msgid "Memory"
-msgstr "หน่วยความจำ"
-
-#: ../client/analysisSettings.ts:239
-msgid "Use NNUE"
-msgstr "ใช้ NNUE"
-
-#: ../client/analysisSettings.ts:291
-msgid "Enable engine debug"
+#: ../client/about.ts:169
+msgid "Please read our Privacy Policy and Terms of Service. "
 msgstr ""
 
 #: ../client/background.ts:9
@@ -285,160 +147,824 @@ msgstr "สว่าง"
 msgid "Dark"
 msgstr "มืด"
 
-#: ../client/boardSettings.ts:200
+#: ../client/boardSettings.ts:427
 msgid "Piece animation"
 msgstr "การเคลื่อนไหวตัวหมาก"
 
-#: ../client/boardSettings.ts:217
+#: ../client/boardSettings.ts:442
 msgid "Confirm resigning"
 msgstr "ยืนยันก่อนยอมแพ้"
 
-#: ../client/boardSettings.ts:234
+#: ../client/boardSettings.ts:457
 msgid "Confirm correspondence move"
 msgstr "ยืนยันก่อนการเดินในเกมจดหมาย"
 
-#: ../client/boardSettings.ts:350
+#: ../client/boardSettings.ts:669
 msgid "Zoom"
 msgstr "ขนาดกระดาน"
 
-#: ../client/boardSettings.ts:376
+#: ../client/boardSettings.ts:696
 msgid "Show piece destinations"
 msgstr "แสดงตาที่สามารถเดินได้"
 
-#: ../client/boardSettings.ts:399
+#: ../client/boardSettings.ts:718
 msgid "Promote to the top choice automatically"
 msgstr "เลื่อนยศเป็นตัวเลือกบนสุดอัตโนมัติ"
 
-#: ../client/boardSettings.ts:426
+#: ../client/boardSettings.ts:740
+msgid "Claim draw automatically when available"
+msgstr ""
+
+#: ../client/boardSettings.ts:767
 msgid "Show material difference"
 msgstr "แสดงความต่างศักดิ์หมาก"
 
-#: ../client/chat.ts:89 ../client/chat.ts:103
+#: ../client/botChallenge.ts:77
+msgid "BOT"
+msgstr ""
+
+#: ../client/botChallenge.ts:87 ../client/directChallenge.ts:266
+msgid "This challenge is no longer available"
+msgstr ""
+
+#: ../client/botChallenge.ts:88 ../client/directChallenge.ts:268
+msgid "It may have been accepted, declined, canceled, or expired."
+msgstr ""
+
+#: ../client/botChallenge.ts:90 ../client/directChallenge.ts:271
+#: ../client/invite.ts:19
+msgid "BACK TO LOBBY"
+msgstr ""
+
+#: ../client/botChallenge.ts:97 ../client/directChallenge.ts:157
+msgid "Challenge declined"
+msgstr ""
+
+#: ../client/botChallenge.ts:99
+msgid "The challenge was declined."
+msgstr ""
+
+#: ../client/botChallenge.ts:101 ../client/roundCtrl.ts:1072
+#: ../client/two-board/round/roundControls.ts:222
+msgid "NEW OPPONENT"
+msgstr "หาคู่ต่อสู้ใหม่"
+
+#: ../client/botChallenge.ts:108 ../client/directChallenge.ts:159
+msgid "Challenge accepted"
+msgstr ""
+
+#: ../client/botChallenge.ts:110 ../client/directChallenge.ts:243
+msgid "Starting game..."
+msgstr ""
+
+#: ../client/botChallenge.ts:112 ../client/invite.ts:73
+msgid "JOIN THE GAME"
+msgstr "เข้าร่วมเกม"
+
+#: ../client/botChallenge.ts:118 ../client/directChallenge.ts:161
+#: ../client/invite.ts:52
+msgid "Waiting for the other player"
+msgstr "กำลังรอผู้เล่นอีกคน"
+
+#: ../client/botChallenge.ts:120
+msgid "Challenge sent"
+msgstr ""
+
+#: ../client/botChallenge.ts:124 ../client/directChallenge.ts:229
+#: ../client/invite.ts:49 ../client/invite.ts:55 ../client/invite.ts:61
+#: ../client/invite.ts:67 ../client/lobby.ts:1629
+msgid "CANCEL"
+msgstr "ยกเลิก"
+
+#: ../client/challengeView.ts:87 ../client/lobby.ts:851
+#: ../client/lobby.ts:1455 ../client/puzzleSettings.ts:22
+#: ../client/result.ts:11
+msgid "Rated"
+msgstr "คิดคะแนน"
+
+#: ../client/challengeView.ts:87 ../client/lobby.ts:841
+#: ../client/lobby.ts:1457 ../client/result.ts:16
+msgid "Casual"
+msgstr "ไม่คิดคะแนน"
+
+#: ../client/challengeView.ts:89
+msgid "Offline"
+msgstr ""
+
+#: ../client/challengeView.ts:90
+msgid "Declined"
+msgstr ""
+
+#: ../client/challengeView.ts:91
+msgid "Accepted"
+msgstr ""
+
+#: ../client/challengeView.ts:215 ../client/simul/simul.ts:675
+#: ../client/simul/simul.ts:676 ../client/tournamentRR.ts:1213
+#: ../client/tournamentRR.ts:1581 ../client/tournamentRR.ts:1630
+msgid "Accept"
+msgstr ""
+
+#: ../client/challengeView.ts:220
+msgid "Decline"
+msgstr ""
+
+#: ../client/challengeView.ts:227
+msgid "Decline with reason"
+msgstr ""
+
+#: ../client/challengeView.ts:248 ../client/tournamentRR.ts:773
+msgid "Waiting"
+msgstr ""
+
+#: ../client/analysis/analysisCtrl.ts:890 ../client/challengeView.ts:251
+#: ../client/forum.ts:1488 ../client/forum.ts:1568 ../client/forum.ts:1610
+#: ../client/forum.ts:1718 ../client/forum.ts:1807 ../client/inbox.ts:382
+#: ../client/lobby.ts:685 ../client/lobby.ts:1866 ../client/myVariants.ts:551
+#: ../client/myVariants.ts:663 ../client/myVariants.ts:728
+#: ../client/myVariants.ts:1232 ../client/roundCtrl.ts:754
+#: ../client/roundCtrl.ts:857 ../client/settingsView.ts:94
+#: ../client/tournamentRR.ts:1379
+msgid "Cancel"
+msgstr "ยกเลิก"
+
+#: ../client/challengeView.ts:260
+msgid "No challenges."
+msgstr ""
+
+#: ../client/chat.ts:105 ../client/chat.ts:125
 msgid "Sign in to chat"
 msgstr "เข้าสู่ระบบเพื่อเริ่มแชต"
 
-#: ../client/chat.ts:89 ../client/chat.ts:103
+#: ../client/chat.ts:106 ../client/chat.ts:125
 msgid "Please be nice in the chat!"
 msgstr "กรุณาสนทนาอย่างสุภาพ"
 
-#: ../client/chat.ts:89
+#: ../client/chat.ts:107
 msgid "Chat is disabled"
 msgstr "ห้องแชตถูกปิดอยู่"
 
-#: ../client/chat.ts:93
+#: ../client/chat.ts:112
 msgid "Spectator room"
 msgstr "ห้องผู้ชม"
 
-#: ../client/chat.ts:93
+#: ../client/chat.ts:112
 msgid "Chat room"
 msgstr "ห้องแชต"
 
-#: ../client/chat.ts:94
+#: ../client/chat.ts:114
 msgid "Toggle the chat"
 msgstr "เปิด/ปิดแชต"
 
-#: ../client/chat.ts:153
+#: ../client/chat.ts:182
 msgid "Server"
 msgstr "เซิร์ฟเวอร์"
 
-#: ../client/clock.ts:29 ../client/view.ts:136
+#: ../client/clock.ts:28 ../client/view.ts:160
 msgid "%1 day"
 msgid_plural "%1 days"
 msgstr[0] "%1 วัน"
 
-#: ../client/clock.ts:30
+#: ../client/clock.ts:29
 msgid "%1 hour"
 msgid_plural "%1 hours"
 msgstr[0] "%1 ชั่วโมง"
 
-#: ../client/datetime.ts:20
+#: ../client/communityVariants.ts:43
+msgid "Remove from favorites"
+msgstr ""
+
+#: ../client/communityVariants.ts:43
+msgid "Add to favorites"
+msgstr ""
+
+#: ../client/communityVariants.ts:68 ../client/communityVariants.ts:79
+msgid "Failed to update favorite"
+msgstr ""
+
+#: ../client/datetime.ts:29
 msgid "in %1 year"
 msgid_plural "in %1 years"
 msgstr[0] "ในอีก %1 ปี"
 
-#: ../client/datetime.ts:20
+#: ../client/datetime.ts:30
 msgid "%1 year ago"
 msgid_plural "%1 years ago"
 msgstr[0] "%1 ปีที่แล้ว"
 
-#: ../client/datetime.ts:22
+#: ../client/datetime.ts:33
 msgid "in %1 month"
 msgid_plural "in %1 months"
 msgstr[0] "ในอีก %1 เดือน"
 
-#: ../client/datetime.ts:22
+#: ../client/datetime.ts:34
 msgid "%1 month ago"
 msgid_plural "%1 months ago"
 msgstr[0] "%1 เดือนที่แล้ว"
 
-#: ../client/datetime.ts:24
+#: ../client/datetime.ts:37
 msgid "in %1 week"
 msgid_plural "in %1 weeks"
 msgstr[0] "ในอีก %1 สัปดาห์"
 
-#: ../client/datetime.ts:24
+#: ../client/datetime.ts:38
 msgid "%1 week ago"
 msgid_plural "%1 weeks ago"
 msgstr[0] "%1 สัปดาห์ที่แล้ว"
 
-#: ../client/datetime.ts:26
+#: ../client/datetime.ts:41
 msgid "in %1 day"
 msgid_plural "in %1 days"
 msgstr[0] "ในอีก %1 วัน"
 
-#: ../client/datetime.ts:26
+#: ../client/datetime.ts:42
 msgid "%1 day ago"
 msgid_plural "%1 days ago"
 msgstr[0] "%1 วันที่แล้ว"
 
-#: ../client/datetime.ts:28
+#: ../client/datetime.ts:45
 msgid "in %1 hour"
 msgid_plural "in %1 hours"
 msgstr[0] "ในอีก %1 ชั่วโมง"
 
-#: ../client/datetime.ts:28
+#: ../client/datetime.ts:46
 msgid "%1 hour ago"
 msgid_plural "%1 hours ago"
 msgstr[0] "%1 ชั่วโมงที่แล้ว"
 
-#: ../client/datetime.ts:30
+#: ../client/datetime.ts:49
 msgid "in %1 minute"
 msgid_plural "in %1 minutes"
 msgstr[0] "ในอีก %1 นาที"
 
-#: ../client/datetime.ts:30
+#: ../client/datetime.ts:50
 msgid "%1 minute ago"
 msgid_plural "%1 minutes ago"
 msgstr[0] "%1 นาทีที่แล้ว"
 
-#: ../client/datetime.ts:32
+#: ../client/datetime.ts:53
 msgid "in %1 second"
 msgid_plural "in %1 seconds"
 msgstr[0] "ในอีก %1 วินาที"
 
-#: ../client/datetime.ts:32
+#: ../client/datetime.ts:54
 msgid "%1 second ago"
 msgid_plural "%1 seconds ago"
 msgstr[0] "%1 วินาทีที่แล้ว"
 
-#: ../client/gameCategoryIntro.ts:55
-msgid "Game category filter"
+#: ../client/directChallenge.ts:37 ../client/editor/editorCtrl.ts:122
+#: ../client/i18n.ts:83 ../client/lobby.ts:937 ../client/simul/simul.ts:517
+#: ../client/tournamentRR.ts:1109
+msgid "White"
+msgstr "ขาว"
+
+#: ../client/directChallenge.ts:38 ../client/editor/editorCtrl.ts:138
+#: ../client/i18n.ts:83 ../client/lobby.ts:929 ../client/simul/simul.ts:518
+#: ../client/tournamentRR.ts:1109
+msgid "Black"
+msgstr "ดำ"
+
+#: ../client/directChallenge.ts:39
+msgid "Random side"
+msgstr ""
+
+#: ../client/directChallenge.ts:158
+msgid "Challenge canceled"
+msgstr ""
+
+#: ../client/directChallenge.ts:160 ../client/invite.ts:46
+msgid "Challenge to a game"
+msgstr "ท้าเล่นเกม"
+
+#: ../client/directChallenge.ts:187
+msgid "Decline reason"
+msgstr ""
+
+#: ../client/directChallenge.ts:208
+msgid "ACCEPT"
+msgstr ""
+
+#: ../client/directChallenge.ts:216
+msgid "DECLINE"
+msgstr ""
+
+#: ../client/directChallenge.ts:246
+msgid "The challenger is currently offline."
+msgstr ""
+
+#: ../client/directChallenge.ts:256 ../client/directChallenge.ts:300
+msgid "Loading challenge..."
+msgstr ""
+
+#: ../client/fairyStockfish.ts:62 ../client/fairyStockfish.ts:81
+msgid "Failed to load Fairy-Stockfish WASM support."
+msgstr ""
+
+#: ../client/fairyStockfish.ts:70
+msgid "Timed out while loading Fairy-Stockfish WASM support."
+msgstr ""
+
+#: ../client/fairyStockfish.ts:95
+msgid "Fairy-Stockfish WASM is not supported by this browser."
+msgstr ""
+
+#: ../client/fairyStockfish.ts:102
+msgid "Fairy-Stockfish WASM did not initialize correctly."
+msgstr ""
+
+#: ../client/fairyStockfish.ts:177
+msgid "Fairy-Stockfish rule check timed out."
+msgstr ""
+
+#: ../client/followButton.ts:4 ../client/profile.ts:440
+msgid "Unfollow"
+msgstr ""
+
+#: ../client/followButton.ts:4 ../client/profile.ts:423
+#: ../client/profile.ts:426
+msgid "Follow"
+msgstr ""
+
+#: ../client/followButton.ts:5 ../client/profile.ts:443
+msgid "Following"
+msgstr ""
+
+#: ../client/forum.ts:134
+msgid "General Variant Discussion"
+msgstr ""
+
+#: ../client/forum.ts:135
+msgid "Discuss variants, and strategy."
+msgstr ""
+
+#: ../client/forum.ts:138
+msgid "Pychess Feedback"
+msgstr ""
+
+#: ../client/forum.ts:139
+msgid "Feedback and feature requests about the site."
+msgstr ""
+
+#: ../client/forum.ts:142
+msgid "Game Analysis"
+msgstr ""
+
+#: ../client/forum.ts:143
+msgid "Share and discuss your games."
+msgstr ""
+
+#: ../client/forum.ts:146
+msgid "Off-Topic Discussion"
+msgstr ""
+
+#: ../client/forum.ts:147
+msgid "Everything that isn't related to Pychess."
+msgstr ""
+
+#: ../client/forum.ts:150
+msgid "Community Blog Discussions"
+msgstr ""
+
+#: ../client/forum.ts:151
+msgid "Discuss community blog posts."
+msgstr ""
+
+#: ../client/forum.ts:167
+msgid "Comments on %1"
+msgstr ""
+
+#: ../client/forum.ts:180
+msgid "Forum unavailable"
+msgstr ""
+
+#: ../client/forum.ts:181
+msgid "Invalid category"
+msgstr ""
+
+#: ../client/forum.ts:182
+msgid "Category not found"
+msgstr ""
+
+#: ../client/forum.ts:183
+msgid "Not allowed"
+msgstr ""
+
+#: ../client/forum.ts:184
+msgid "Invalid topic"
+msgstr ""
+
+#: ../client/forum.ts:185
+msgid "Invalid topic id"
+msgstr ""
+
+#: ../client/forum.ts:186
+msgid "Topic not found"
+msgstr ""
+
+#: ../client/forum.ts:187
+msgid "Search text too long"
+msgstr ""
+
+#: ../client/forum.ts:188 ../client/inbox.ts:44
+msgid "Login required"
+msgstr ""
+
+#: ../client/forum.ts:189
+msgid "You cannot post in this forum"
+msgstr ""
+
+#: ../client/forum.ts:190 ../client/inbox.ts:49
+msgid "Invalid request"
+msgstr ""
+
+#: ../client/forum.ts:191
+msgid "Topic title is too short"
+msgstr ""
+
+#: ../client/forum.ts:192
+msgid "Topic title is too long"
+msgstr ""
+
+#: ../client/forum.ts:193
+msgid "Message is too short"
+msgstr ""
+
+#: ../client/forum.ts:194 ../client/inbox.ts:51
+msgid "Message too long (max %1)"
+msgstr ""
+
+#: ../client/forum.ts:195 ../client/forum.ts:787 ../client/forum.ts:824
+msgid "Please solve the captcha."
+msgstr ""
+
+#: ../client/forum.ts:196 ../client/inbox.ts:52
+msgid "Too many similar messages. Please wait and retry."
+msgstr ""
+
+#: ../client/forum.ts:197
+msgid "This topic is closed"
+msgstr ""
+
+#: ../client/forum.ts:198
+msgid "Post not found"
+msgstr ""
+
+#: ../client/forum.ts:199
+msgid "Post can no longer be edited"
+msgstr ""
+
+#: ../client/forum.ts:200
+msgid "Invalid reaction"
+msgstr ""
+
+#: ../client/forum.ts:201
+msgid "Cannot react to deleted posts"
+msgstr ""
+
+#: ../client/forum.ts:202
+msgid "Cannot react to your own post"
+msgstr ""
+
+#: ../client/forum.ts:203
+msgid "Team forum topics cannot be relocated"
+msgstr ""
+
+#: ../client/forum.ts:204
+msgid "Only the first post can relocate a thread"
+msgstr ""
+
+#: ../client/forum.ts:205
+msgid "Invalid target category"
+msgstr ""
+
+#: ../client/forum.ts:206
+msgid "Already in that category"
+msgstr ""
+
+#: ../client/forum.ts:207
+msgid "Target category not found"
+msgstr ""
+
+#: ../client/forum.ts:422
+msgid "Chess"
+msgstr ""
+
+#: ../client/forum.ts:456
+msgid "Could not load captcha."
+msgstr ""
+
+#: ../client/forum.ts:502
+msgid "Loading captcha..."
+msgstr ""
+
+#: ../client/forum.ts:514
+msgid "Retry"
+msgstr ""
+
+#: ../client/forum.ts:519
+msgid "Captcha unavailable. Please retry."
+msgstr ""
+
+#: ../client/forum.ts:526
+msgid "white"
+msgstr ""
+
+#: ../client/forum.ts:584
+msgid "%1 to checkmate in one move"
+msgstr ""
+
+#: ../client/forum.ts:585
+msgid "This is a %1 CAPTCHA."
+msgstr ""
+
+#: ../client/forum.ts:586
+msgid "Click on the board to make your move, and prove you are human."
+msgstr ""
+
+#: ../client/forum.ts:608
+msgid "Checkmate."
+msgstr ""
+
+#: ../client/forum.ts:615
+msgid "Not a checkmate. Try again."
+msgstr ""
+
+#: ../client/forum.ts:634 ../client/myVariants.ts:1564
+msgid "Previous"
+msgstr ""
+
+#: ../client/forum.ts:642 ../client/myVariants.ts:1575
+#: ../client/tournament.ts:274
+msgid "Next"
+msgstr "หน้าต่อไป"
+
+#: ../client/forum.ts:659
+msgid "Could not load forum categories."
+msgstr ""
+
+#: ../client/forum.ts:684
+msgid "Could not load forum category."
+msgstr ""
+
+#: ../client/forum.ts:720
+msgid "Could not load forum topic."
+msgstr ""
+
+#: ../client/forum.ts:752
+msgid "Could not search forum posts."
+msgstr ""
+
+#: ../client/forum.ts:774
+msgid "Could not load moderation feed."
+msgstr ""
+
+#: ../client/forum.ts:812
+msgid "Could not create topic."
+msgstr ""
+
+#: ../client/forum.ts:848
+msgid "Could not post reply."
+msgstr ""
+
+#: ../client/forum.ts:881
+msgid "Could not delete post."
+msgstr ""
+
+#: ../client/forum.ts:927
+msgid "Could not edit post."
+msgstr ""
+
+#: ../client/forum.ts:941 ../client/forum.ts:955
+msgid "Could not update topic."
+msgstr ""
+
+#: ../client/forum.ts:982
+msgid "Could not update timeline subscription."
+msgstr ""
+
+#: ../client/forum.ts:1021
+msgid "Could not react to this post."
+msgstr ""
+
+#: ../client/forum.ts:1041
+msgid "Could not relocate this thread."
+msgstr ""
+
+#: ../client/forum.ts:1108 ../client/forum.ts:1829
+#: ../client/myVariants.ts:1502 ../client/myVariants.ts:1536
+msgid "Search"
+msgstr ""
+
+#: ../client/forum.ts:1192
+msgid "Pychess Forum"
+msgstr ""
+
+#: ../client/forum.ts:1199
+msgid "Category"
+msgstr ""
+
+#: ../client/forum.ts:1200
+msgid "Topics"
+msgstr ""
+
+#: ../client/forum.ts:1201
+msgid "Posts"
+msgstr ""
+
+#: ../client/forum.ts:1202 ../client/forum.ts:1274
+msgid "Last post"
+msgstr ""
+
+#: ../client/forum.ts:1226
+msgid "No posts yet."
+msgstr ""
+
+#: ../client/forum.ts:1245
+msgid "Mod feed"
+msgstr ""
+
+#: ../client/forum.ts:1256
+msgid "Create a new topic"
+msgstr ""
+
+#: ../client/forum.ts:1269 ../client/timeline.ts:70
+msgid "Forum"
+msgstr ""
+
+#: ../client/forum.ts:1274 ../client/forum.ts:1870
+msgid "Topic"
+msgstr ""
+
+#: ../client/forum.ts:1274
+msgid "Replies"
+msgstr ""
+
+#: ../client/forum.ts:1359 ../client/forum.ts:1360 ../client/forum.ts:1364
+#: ../client/myVariants.ts:1681
+msgid "Edit"
+msgstr ""
+
+#: ../client/forum.ts:1373 ../client/forum.ts:1374
+msgid "Relocate"
+msgstr ""
+
+#: ../client/forum.ts:1395 ../client/forum.ts:1396 ../client/inbox.ts:381
+#: ../client/inbox.ts:575 ../client/myVariants.ts:550
+#: ../client/myVariants.ts:662 ../client/myVariants.ts:727
+#: ../client/myVariants.ts:1690
+msgid "Delete"
+msgstr ""
+
+#: ../client/forum.ts:1409 ../client/forum.ts:1410 ../client/forum.ts:1414
+msgid "Quote"
+msgstr ""
+
+#: ../client/forum.ts:1423 ../client/forum.ts:1424
+msgid "Report"
+msgstr ""
+
+#: ../client/forum.ts:1498
+msgid "Apply"
+msgstr ""
+
+#: ../client/forum.ts:1521
+msgid "Move the entire thread to another forum"
+msgstr ""
+
+#: ../client/forum.ts:1570
+msgid "Relocate the thread"
+msgstr ""
+
+#: ../client/forum.ts:1587 ../client/forum.ts:1612
+msgid "Delete the post"
+msgstr ""
+
+#: ../client/forum.ts:1640
+msgid "This topic is now closed."
+msgstr ""
+
+#: ../client/forum.ts:1642
+msgid "Reply to this topic"
+msgstr ""
+
+#: ../client/forum.ts:1643
+msgid "You cannot post yet. Play some games first."
+msgstr ""
+
+#: ../client/forum.ts:1654
+msgid "Subscribe"
+msgstr ""
+
+#: ../client/forum.ts:1654
+msgid "Unsubscribe"
+msgstr ""
+
+#: ../client/forum.ts:1664
+msgid "Reopen"
+msgstr ""
+
+#: ../client/analysis/keyboardHelp.ts:106 ../client/forum.ts:1664
+#: ../client/myVariants.ts:1276 ../client/myVariants.ts:1411
+msgid "Close"
+msgstr ""
+
+#: ../client/forum.ts:1674
+msgid "Unsticky"
+msgstr ""
+
+#: ../client/forum.ts:1674
+msgid "Sticky"
+msgstr ""
+
+#: ../client/forum.ts:1687 ../client/forum.ts:1773
+msgid "Message"
+msgstr ""
+
+#: ../client/forum.ts:1691 ../client/forum.ts:1778
+msgid "Please be nice in the forum!"
+msgstr ""
+
+#: ../client/forum.ts:1704 ../client/forum.ts:1790
+msgid "Links and mentions available"
+msgstr ""
+
+#: ../client/forum.ts:1712 ../client/forum.ts:1752 ../client/forum.ts:1798
+msgid "Forum etiquette"
+msgstr ""
+
+#: ../client/forum.ts:1724 ../client/inbox.ts:649
+msgid "Sending..."
+msgstr ""
+
+#: ../client/forum.ts:1724
+msgid "Reply"
+msgstr ""
+
+#: ../client/forum.ts:1746
+msgid "Important"
+msgstr ""
+
+#: ../client/forum.ts:1747
+msgid "Your question may already be answered in FAQ or community pages."
+msgstr ""
+
+#: ../client/forum.ts:1748
+msgid ""
+"Use reports for moderation issues; keep forum posts constructive and "
+"respectful."
+msgstr ""
+
+#: ../client/forum.ts:1750
+msgid "Make sure to read"
+msgstr ""
+
+#: ../client/forum.ts:1762
+msgid "Subject"
+msgstr ""
+
+#: ../client/forum.ts:1814
+msgid "Creating..."
+msgstr ""
+
+#: ../client/forum.ts:1814
+msgid "Create the topic"
+msgstr ""
+
+#: ../client/forum.ts:1870
+msgid "User"
+msgstr ""
+
+#: ../client/forum.ts:1870
+msgid "Post"
+msgstr ""
+
+#: ../client/forum.ts:1870
+msgid "Date"
+msgstr ""
+
+#: ../client/forum.ts:1911 ../client/inbox.ts:511 ../client/inbox.ts:597
+#: ../client/myVariants.ts:1581
+msgid "Loading..."
 msgstr ""
 
 #: ../client/gameCategoryIntro.ts:56
+msgid "Game category filter"
+msgstr ""
+
+#: ../client/gameCategoryIntro.ts:59
 msgid ""
 "Pychess supports more than 60 variants across many chess families, so the "
 "lobby, puzzles, tournaments, and menus can feel very broad."
 msgstr ""
 
-#: ../client/gameCategoryIntro.ts:57
+#: ../client/gameCategoryIntro.ts:65
 msgid ""
 "If you mostly play a regional chess, you can focus the whole site to that "
 "family: Shogi (Japanese), Xiangqi/Janggi (Chinese/Korean), or Makruk/Ouk "
 "Chaktrang (Thai/Cambodian)."
 msgstr ""
 
-#: ../client/gameCategoryIntro.ts:58
+#: ../client/gameCategoryIntro.ts:71
 msgid ""
 "This trims the variant lists, keeps recommendations and events in your area "
 "of interest, and makes the site feel like a dedicated hub rather than a huge"
@@ -446,593 +972,608 @@ msgid ""
 "Pychess."
 msgstr ""
 
-#: ../client/gameCategoryIntro.ts:59
+#: ../client/gameCategoryIntro.ts:77
 msgid ""
 "You can switch anytime in Preferences (gear icon). If you want everything, "
 "choose \"All\" and nothing is filtered."
 msgstr ""
 
-#: ../client/gameCategoryIntro.ts:64
+#: ../client/gameCategoryIntro.ts:95
 msgid "Keep all variants"
 msgstr ""
 
-#: ../client/gameCategoryIntro.ts:68
+#: ../client/gameCategoryIntro.ts:111
 msgid "Open preferences"
 msgstr ""
 
-#: ../client/gameCtrl.ts:478 ../client/tournament.ts:640
+#: ../client/gameCtrl.ts:282 ../client/movelist.ts:245
+msgid "Show merged board (S)"
+msgstr ""
+
+#: ../client/gameCtrl.ts:282 ../client/movelist.ts:245
+msgid "Show separate boards (S)"
+msgstr ""
+
+#: ../client/gameCtrl.ts:296
+msgid "Alice board %1 (active)"
+msgstr ""
+
+#: ../client/gameCtrl.ts:297
+msgid "Alice board %1; click to activate"
+msgstr ""
+
+#: ../client/gameCtrl.ts:683 ../client/gameCtrl.ts:690
+#: ../client/tournament.ts:962 ../client/tournament.ts:969
 msgid "Spectators: "
 msgstr "ผู้ชม: "
 
-#: ../client/gameCtrl.ts:504
+#: ../client/gameCtrl.ts:732
 msgid "Requested game %1 not found!"
 msgstr "หาเกม %1 ไม่พบ!"
 
-#: ../client/bug/gameInfo.bug.ts:33 ../client/gameInfo.ts:36
-#: ../client/result.ts:54
+#: ../client/gameInfo.ts:42 ../client/result.ts:70
+#: ../client/two-board/common/gameInfo.ts:61
 msgid "Playing right now"
 msgstr "กำลังเล่นอยู่"
 
-#: ../client/gameInfo.ts:53
+#: ../client/gameInfo.ts:60
 msgid "Start position: "
 msgstr ""
 
-#: ../client/gameInfo.ts:77
+#: ../client/gameInfo.ts:95 ../client/simul/simul.ts:207
 msgid "Simul"
 msgstr ""
 
-#: ../client/i18n.ts:57
+#: ../client/gameSearch.ts:36
+msgid "Any variant"
+msgstr ""
+
+#: ../client/gameSearch.ts:83
+msgid "Any player"
+msgstr ""
+
+#: ../client/i18n.ts:63
 msgid "Game Category"
 msgstr ""
 
-#: ../client/i18n.ts:60
+#: ../client/i18n.ts:66
 msgid "All"
 msgstr ""
 
-#: ../client/i18n.ts:61 ../client/lobby/layer1.ts:41
+#: ../client/i18n.ts:67 ../client/lobby/layer1.ts:41
 #: ../client/lobby/layer2chess.ts:24
 msgid "Chess Variants"
 msgstr "เกมหมากรุกสากล"
 
-#: ../client/i18n.ts:62 ../client/lobby/layer1.ts:65
-#: ../client/lobby/layer2makruk.ts:14
+#: ../client/i18n.ts:68 ../client/lobby/layer1.ts:89
+#: ../client/lobby/layer2makruk.ts:13
 msgid "Makruk Variants"
 msgstr "เกมหมากรุกเอเชียอาคเนย์"
 
-#: ../client/i18n.ts:63 ../client/lobby/layer1.ts:73
-#: ../client/lobby/layer2shogi.ts:15
+#: ../client/i18n.ts:69 ../client/lobby/layer1.ts:105
+#: ../client/lobby/layer2shogi.ts:14
 msgid "Shogi Variants"
 msgstr "เกมหมากรุกญี่ปุ่น"
 
-#: ../client/i18n.ts:64 ../client/lobby/layer1.ts:81
+#: ../client/i18n.ts:70 ../client/lobby/layer1.ts:121
 #: ../client/lobby/layer2xiangqi.ts:14
 msgid "Xiangqi Variants"
 msgstr "เกมหมากรุกจีน"
 
-#: ../client/i18n.ts:65 ../client/lobby/layer1.ts:49
-#: ../client/lobby/layer2fairy.ts:14
+#: ../client/i18n.ts:71 ../client/lobby/layer1.ts:57
+#: ../client/lobby/layer2fairy.ts:13
 msgid "Fairy Piece Variants"
 msgstr "เกมที่ใช้ตัวหมากพิเศษ"
 
-#: ../client/i18n.ts:66 ../client/lobby/layer1.ts:57
+#: ../client/i18n.ts:72 ../client/lobby/layer1.ts:73
 #: ../client/lobby/layer2army.ts:14
 msgid "New Army Variants"
 msgstr "เกมที่มีกองทัพใหม่"
 
-#: ../client/i18n.ts:67
+#: ../client/i18n.ts:73
 msgid "Other"
 msgstr ""
 
-#: ../client/editor/editorCtrl.ts:109 ../client/i18n.ts:78
-#: ../client/lobby.ts:616
-msgid "White"
-msgstr "ขาว"
-
-#: ../client/editor/editorCtrl.ts:124 ../client/i18n.ts:78
-#: ../client/lobby.ts:614
-msgid "Black"
-msgstr "ดำ"
-
-#: ../client/i18n.ts:78
+#: ../client/i18n.ts:83
 msgid "Red"
 msgstr "แดง"
 
-#: ../client/i18n.ts:79
+#: ../client/i18n.ts:83
 msgid "Blue"
 msgstr "น้ำเงิน"
 
-#: ../client/i18n.ts:79
+#: ../client/i18n.ts:83
 msgid "Gold"
 msgstr "ทอง"
 
-#: ../client/i18n.ts:79
+#: ../client/i18n.ts:83
 msgid "Pink"
 msgstr "ชมพู"
 
-#: ../client/i18n.ts:80
+#: ../client/i18n.ts:83
 msgid "Green"
 msgstr "เขียว"
 
-#: ../client/i18n.ts:84 ../client/variants.ts:418 ../client/variants.ts:595
-#: ../client/variants.ts:849
+#: ../client/i18n.ts:86 ../client/variants.ts:853 ../client/variants.ts:1089
+#: ../client/variants.ts:1403
 msgid "pawn"
 msgstr ""
 
-#: ../client/i18n.ts:84 ../client/variants.ts:419 ../client/variants.ts:598
+#: ../client/i18n.ts:87 ../client/variants.ts:854 ../client/variants.ts:1092
 msgid "knight"
 msgstr ""
 
-#: ../client/i18n.ts:84 ../client/variants.ts:420 ../client/variants.ts:597
+#: ../client/i18n.ts:88 ../client/variants.ts:855 ../client/variants.ts:1091
 msgid "bishop"
 msgstr ""
 
-#: ../client/i18n.ts:85 ../client/variants.ts:421 ../client/variants.ts:599
+#: ../client/i18n.ts:89 ../client/variants.ts:856 ../client/variants.ts:1093
 msgid "rook"
 msgstr ""
 
-#: ../client/i18n.ts:85 ../client/variants.ts:422 ../client/variants.ts:596
+#: ../client/i18n.ts:90 ../client/variants.ts:857 ../client/variants.ts:1090
 msgid "queen"
 msgstr ""
 
-#: ../client/i18n.ts:85
+#: ../client/i18n.ts:91
 msgid "king"
 msgstr ""
 
-#: ../client/i18n.ts:86 ../client/variants.ts:850
+#: ../client/i18n.ts:92 ../client/variants.ts:1404
 msgid "horse"
 msgstr ""
 
-#: ../client/i18n.ts:86 ../client/variants.ts:851
+#: ../client/i18n.ts:93 ../client/variants.ts:1405
 msgid "elephant"
 msgstr ""
 
-#: ../client/i18n.ts:86 ../client/variants.ts:852
+#: ../client/i18n.ts:94 ../client/variants.ts:1406
 msgid "chariot"
 msgstr ""
 
-#: ../client/i18n.ts:86 ../client/variants.ts:853
+#: ../client/i18n.ts:95 ../client/variants.ts:1407
 msgid "cannon"
 msgstr ""
 
-#: ../client/i18n.ts:86 ../client/variants.ts:854
+#: ../client/i18n.ts:96 ../client/variants.ts:1408
 msgid "advisor"
 msgstr ""
 
-#: ../client/i18n.ts:90
+#: ../client/i18n.ts:100
 msgid "chess"
 msgstr "หมากรุกสากล"
 
-#: ../client/i18n.ts:90
+#: ../client/i18n.ts:101
 msgid "bughouse"
 msgstr ""
 
-#: ../client/i18n.ts:90
+#: ../client/i18n.ts:102
 msgid "crazyhouse"
 msgstr "crazyhouse"
 
-#: ../client/i18n.ts:90
+#: ../client/i18n.ts:103
 msgid "placement"
 msgstr "placement"
 
-#: ../client/i18n.ts:90
+#: ../client/i18n.ts:104
 msgid "atomic"
 msgstr "atomic"
 
-#: ../client/i18n.ts:91
+#: ../client/i18n.ts:105
 msgid "king of the hill"
 msgstr ""
 
-#: ../client/i18n.ts:91
+#: ../client/i18n.ts:106
 msgid "three-check"
 msgstr ""
 
-#: ../client/i18n.ts:91
+#: ../client/i18n.ts:107
 msgid "antichess"
 msgstr ""
 
-#: ../client/i18n.ts:91
+#: ../client/i18n.ts:108
 msgid "racing kings"
 msgstr ""
 
-#: ../client/i18n.ts:92
+#: ../client/i18n.ts:109
 msgid "horde"
 msgstr ""
 
-#: ../client/i18n.ts:92
+#: ../client/i18n.ts:110
 msgid "duck"
 msgstr ""
 
-#: ../client/i18n.ts:92
+#: ../client/i18n.ts:111
 msgid "alice"
 msgstr ""
 
-#: ../client/i18n.ts:92
+#: ../client/i18n.ts:112
 msgid "fog of war"
 msgstr ""
 
-#: ../client/i18n.ts:94
+#: ../client/i18n.ts:114
 msgid "makruk"
 msgstr "หมากรุกไทย"
 
-#: ../client/i18n.ts:94
+#: ../client/i18n.ts:115
 msgid "makbug"
 msgstr ""
 
-#: ../client/i18n.ts:94
+#: ../client/i18n.ts:116
 msgid "makpong"
 msgstr "หมากป้อง"
 
-#: ../client/i18n.ts:94
+#: ../client/i18n.ts:117
 msgid "ouk chaktrang"
 msgstr "หมากรุกกัมพูชา"
 
-#: ../client/i18n.ts:94
+#: ../client/i18n.ts:118
 msgid "sittuyin"
 msgstr "หมากรุกพม่า"
 
-#: ../client/i18n.ts:94
+#: ../client/i18n.ts:119
 msgid "asean"
 msgstr "หมากรุกอาเซียน"
 
-#: ../client/i18n.ts:96
+#: ../client/i18n.ts:121
 msgid "shogi"
 msgstr "หมากรุกญี่ปุ่น"
 
-#: ../client/i18n.ts:96
+#: ../client/i18n.ts:122
 msgid "sho shogi"
 msgstr ""
 
-#: ../client/i18n.ts:96
+#: ../client/i18n.ts:123
 msgid "minishogi"
 msgstr "minishogi"
 
-#: ../client/i18n.ts:96
+#: ../client/i18n.ts:124
 msgid "kyoto shogi"
 msgstr "kyoto shogi"
 
-#: ../client/i18n.ts:96
+#: ../client/i18n.ts:125
 msgid "dobutsu"
 msgstr "dobutsu"
 
-#: ../client/i18n.ts:96
+#: ../client/i18n.ts:126
 msgid "gorogoro"
 msgstr "gorogoro"
 
-#: ../client/i18n.ts:97
+#: ../client/i18n.ts:127
 msgid "gorogoro+"
 msgstr "gorogoro+"
 
-#: ../client/i18n.ts:97
+#: ../client/i18n.ts:128
 msgid "tori shogi"
 msgstr "tori shogi"
 
-#: ../client/i18n.ts:99
+#: ../client/i18n.ts:130
 msgid "xiangqi"
 msgstr "หมากรุกจีน"
 
-#: ../client/i18n.ts:99
+#: ../client/i18n.ts:131
 msgid "supply chess"
 msgstr ""
 
-#: ../client/i18n.ts:99
+#: ../client/i18n.ts:132
 msgid "manchu"
 msgstr "manchu"
 
-#: ../client/i18n.ts:99
+#: ../client/i18n.ts:133
 msgid "janggi"
 msgstr "หมากรุกเกาหลี"
 
-#: ../client/i18n.ts:99
+#: ../client/i18n.ts:134
 msgid "minixiangqi"
 msgstr "minixiangqi"
 
-#: ../client/i18n.ts:101
+#: ../client/i18n.ts:136
 msgid "shatranj"
 msgstr ""
 
-#: ../client/i18n.ts:101
+#: ../client/i18n.ts:137
 msgid "capablanca"
 msgstr "capablanca"
 
-#: ../client/i18n.ts:101
+#: ../client/i18n.ts:138
 msgid "capahouse"
 msgstr "capahouse"
 
-#: ../client/i18n.ts:101
+#: ../client/i18n.ts:139
 msgid "dragon chess"
 msgstr ""
 
-#: ../client/i18n.ts:102
+#: ../client/i18n.ts:140
 msgid "s-chess"
 msgstr "s-chess"
 
-#: ../client/i18n.ts:102
+#: ../client/i18n.ts:141
 msgid "s-house"
 msgstr "s-house"
 
-#: ../client/i18n.ts:102
+#: ../client/i18n.ts:142
 msgid "grand"
 msgstr "grand"
 
-#: ../client/i18n.ts:102
+#: ../client/i18n.ts:143
 msgid "grandhouse"
 msgstr "grandhouse"
 
-#: ../client/i18n.ts:102
+#: ../client/i18n.ts:144
 msgid "shako"
 msgstr "shako"
 
-#: ../client/i18n.ts:103
+#: ../client/i18n.ts:145
 msgid "shogun"
 msgstr "shogun"
 
-#: ../client/i18n.ts:103
+#: ../client/i18n.ts:146
 msgid "hoppel-poppel"
 msgstr "hoppel-poppel"
 
-#: ../client/i18n.ts:103
+#: ../client/i18n.ts:147
 msgid "mansindam"
 msgstr ""
 
-#: ../client/i18n.ts:105
+#: ../client/i18n.ts:149
 msgid "orda"
 msgstr "orda"
 
-#: ../client/i18n.ts:105
+#: ../client/i18n.ts:150
 msgid "khans"
 msgstr ""
 
-#: ../client/i18n.ts:105
+#: ../client/i18n.ts:151
 msgid "synochess"
 msgstr "synochess"
 
-#: ../client/i18n.ts:105
+#: ../client/i18n.ts:152
 msgid "shinobi"
 msgstr "shinobi"
 
-#: ../client/i18n.ts:105
+#: ../client/i18n.ts:153
 msgid "shinobi+"
 msgstr ""
 
-#: ../client/i18n.ts:106
+#: ../client/i18n.ts:154
 msgid "empire"
 msgstr "empire"
 
-#: ../client/i18n.ts:106
+#: ../client/i18n.ts:155
 msgid "orda mirror"
 msgstr "orda mirror"
 
-#: ../client/i18n.ts:106
+#: ../client/i18n.ts:156
 msgid "chak"
 msgstr "chak"
 
-#: ../client/i18n.ts:106
+#: ../client/i18n.ts:157
 msgid "chennis"
 msgstr "chennis"
 
-#: ../client/i18n.ts:110
+#: ../client/i18n.ts:161
 msgid "PawnsPushed"
 msgstr "เบี้ยประชัน"
 
-#: ../client/i18n.ts:110
+#: ../client/i18n.ts:162
 msgid "PawnsPassed"
 msgstr "เบี้ยเลย"
 
-#: ../client/i18n.ts:110
+#: ../client/i18n.ts:163
 msgid "UpsideDown"
 msgstr "กลับหัว"
 
-#: ../client/i18n.ts:110
+#: ../client/i18n.ts:164
 msgid "Theban"
 msgstr "ศึกแห่งธีบส์"
 
-#: ../client/i18n.ts:110
+#: ../client/i18n.ts:165
 msgid "No castle"
 msgstr "ไม่มีเข้าป้อม"
 
-#: ../client/i18n.ts:112
+#: ../client/i18n.ts:167
 msgid "Lance HC"
 msgstr "ลดหอก"
 
-#: ../client/i18n.ts:112
+#: ../client/i18n.ts:168
 msgid "Bishop HC"
 msgstr "ลดบิชอป"
 
-#: ../client/i18n.ts:112
+#: ../client/i18n.ts:169
 msgid "Rook HC"
 msgstr "ลดเรือ"
 
-#: ../client/i18n.ts:112
+#: ../client/i18n.ts:170
 msgid "Rook+Lance HC"
 msgstr "ลดเรือและหอก"
 
-#: ../client/i18n.ts:112
+#: ../client/i18n.ts:171
 msgid "2-Piece HC"
 msgstr "ลด 2 ตัว"
 
-#: ../client/i18n.ts:112
+#: ../client/i18n.ts:172
 msgid "4-Piece HC"
 msgstr "ลด 4 ตัว"
 
-#: ../client/i18n.ts:112
+#: ../client/i18n.ts:173
 msgid "6-Piece HC"
 msgstr "ลด 6 ตัว"
 
-#: ../client/i18n.ts:112
+#: ../client/i18n.ts:174
 msgid "8-Piece HC"
 msgstr "ลด 8 ตัว"
 
-#: ../client/i18n.ts:112
+#: ../client/i18n.ts:175
 msgid "9-Piece HC"
 msgstr "ลด 9 ตัว"
 
-#: ../client/i18n.ts:112
+#: ../client/i18n.ts:176
 msgid "10-Piece HC"
 msgstr "ลด 10 ตัว"
 
-#: ../client/i18n.ts:114
+#: ../client/i18n.ts:178
 msgid "Gorogoro Plus N+L"
 msgstr "เพิ่มม้าและหอก"
 
-#: ../client/i18n.ts:114
+#: ../client/i18n.ts:179
 msgid "Original (No N+L)"
 msgstr "ดั้งเดิม (ไม่มีม้าและหอก)"
 
-#: ../client/i18n.ts:116
+#: ../client/i18n.ts:181
 msgid "Left Quail HC"
 msgstr "ลดนกกระทาซ้าย"
 
-#: ../client/i18n.ts:116
+#: ../client/i18n.ts:182
 msgid "Falcon HC"
 msgstr "ลดเหยี่ยว"
 
-#: ../client/i18n.ts:116
+#: ../client/i18n.ts:183
 msgid "Falcon + Left Quail HC"
 msgstr "ลดเหยี่ยวและนกกระทาซ้าย"
 
-#: ../client/i18n.ts:116
+#: ../client/i18n.ts:184
 msgid "Falcon + Both Quails HC"
 msgstr "ลดเหยี่ยวและนกกระทาทั้งคู่"
 
-#: ../client/i18n.ts:118
+#: ../client/i18n.ts:186
 msgid "Bird"
 msgstr "Bird"
 
-#: ../client/i18n.ts:118
+#: ../client/i18n.ts:187
 msgid "Carrera"
 msgstr "Carrera"
 
-#: ../client/i18n.ts:118
+#: ../client/i18n.ts:188
 msgid "Gothic"
 msgstr "Gothic"
 
-#: ../client/i18n.ts:118
+#: ../client/i18n.ts:189
 msgid "Embassy"
 msgstr "Embassy"
 
-#: ../client/i18n.ts:118
+#: ../client/i18n.ts:190
 msgid "Conservative"
 msgstr "Conservative"
 
-#: ../client/i18n.ts:122
+#: ../client/i18n.ts:194
 msgid "Martial arts Xiangqi."
 msgstr ""
 
-#: ../client/i18n.ts:123
+#: ../client/i18n.ts:195
 msgid "Infection game."
 msgstr ""
 
-#: ../client/i18n.ts:124
+#: ../client/i18n.ts:196
 msgid "Chess, unmodified, as it's played by FIDE standards."
 msgstr "หมากรุกสากล ตามมาตรฐานของ FIDE"
 
-#: ../client/i18n.ts:125
+#: ../client/i18n.ts:197
 msgid "Take captured pieces and drop them back on to the board as your own."
 msgstr "นำหมากที่กินได้กลับมาวางบนกระดานเป็นฝ่ายตัวเอง"
 
-#: ../client/i18n.ts:126
+#: ../client/i18n.ts:198
 msgid "Choose where your pieces start."
 msgstr "เลือกตำแหน่งเริ่มต้นของตัวหมากได้เอง"
 
-#: ../client/i18n.ts:127
+#: ../client/i18n.ts:199
 msgid "Pieces explode upon capture."
 msgstr "ตัวหมากกินกันแล้วระเบิดได้"
 
-#: ../client/i18n.ts:128
+#: ../client/i18n.ts:200
 msgid "Bring your King to the center to win the game."
 msgstr ""
 
-#: ../client/i18n.ts:129
+#: ../client/i18n.ts:201
 msgid "Check your opponent 3 times to win the game."
 msgstr ""
 
-#: ../client/i18n.ts:130
+#: ../client/i18n.ts:202
 msgid "Lose all your pieces to win."
 msgstr ""
 
-#: ../client/i18n.ts:131
+#: ../client/i18n.ts:203
 msgid "Race your King to the eighth rank to win."
 msgstr ""
 
-#: ../client/i18n.ts:132
+#: ../client/i18n.ts:204
 msgid "Destroy the horde to win!"
 msgstr ""
 
-#: ../client/i18n.ts:133
+#: ../client/i18n.ts:205
 msgid "The duck must be moved to a new square after every turn."
 msgstr "มีเป็ดให้ย้ายไปวางที่อื่นทุกตา"
 
-#: ../client/i18n.ts:134
+#: ../client/i18n.ts:206
 msgid "Through the Looking-Glass"
 msgstr ""
 
-#: ../client/i18n.ts:135
+#: ../client/i18n.ts:207
 msgid ""
 "Players can only see the squares to which their pieces can legally move to."
 msgstr ""
 
-#: ../client/i18n.ts:136
+#: ../client/i18n.ts:208
 msgid ""
 "Thai Chess. A game closely resembling the original Chaturanga. Similar to "
 "Chess but with a different queen and bishop."
 msgstr "หมากรุกไทย เกมที่มีความคล้ายคลึงกับจตุรงค์ดั้งเดิม"
 
-#: ../client/i18n.ts:137
+#: ../client/i18n.ts:211
 msgid "Makruk variant where kings cannot move to escape out of check."
 msgstr "หมากป้อง รูปแบบหนึ่งของหมากรุกไทยที่ห้ามขยับขุนหนีเมื่อโดนรุก"
 
-#: ../client/i18n.ts:138
+#: ../client/i18n.ts:212
 msgid "Cambodian Chess. Makruk with a few additional opening abilities."
 msgstr "หมากรุกกัมพูชา คล้ายหมากรุกไทย มีสูตรขุนและสูตรเม็ดตอนต้นกระดาน"
 
-#: ../client/i18n.ts:139
+#: ../client/i18n.ts:213
 msgid ""
 "Burmese Chess. Similar to Makruk, but pieces are placed at the start of the "
 "match."
 msgstr "หมากรุกพม่า คล้ายหมากรุกไทย สามารถเลือกตำแหน่งหมากตอนเริ่มเกมได้"
 
-#: ../client/i18n.ts:140
+#: ../client/i18n.ts:214
 msgid ""
 "Makruk using the board/pieces from International Chess as well as pawn "
 "promotion rules."
 msgstr "คล้ายหมากรุกไทย แต่ใช้กระดาน ตัวหมาก และการเลื่อนยศแบบหมากรุกสากล"
 
-#: ../client/i18n.ts:141
+#: ../client/i18n.ts:215
 msgid ""
 "Japanese Chess, the standard 9x9 version played today with drops and "
 "promotions."
 msgstr ""
 
-#: ../client/i18n.ts:142
+#: ../client/i18n.ts:216
 msgid "Historical 9x9 Shogi with a drunken elephant piece and no drops."
 msgstr ""
 
-#: ../client/i18n.ts:143
+#: ../client/i18n.ts:217
 msgid "Shogi with Chinese and Korean cannons"
 msgstr ""
 
-#: ../client/i18n.ts:144
+#: ../client/i18n.ts:218
 msgid ""
 "5x5 Shogi for more compact and faster games. There are no knights or lances."
 msgstr "หมากรุกญี่ปุ่นขนาดเล็ก เล่นบนกระดาน 5x5 เพื่อให้เกมรวดเร็วยิ่งขึ้น"
 
-#: ../client/i18n.ts:145
+#: ../client/i18n.ts:219
 msgid ""
 "A wild Shogi variant on a 5x5 board where pieces flip into a different piece"
 " after each move."
 msgstr ""
 "หมากรุกญี่ปุ่นรูปแบบใหม่ กระดาน 5x5 แต่ตัวหมากพลิกไปพลิกมาทุกครั้งที่เดิน"
 
-#: ../client/i18n.ts:146
+#: ../client/i18n.ts:220
 msgid ""
 "3x4 game with cute animals, designed to teach children how to play Shogi."
 msgstr "เกมหมากรุกสัตว์โลกน่ารักบนกระดาน 3x4 สำหรับสอนเด็กเล็ก"
 
-#: ../client/i18n.ts:147
+#: ../client/i18n.ts:221
 msgid "5x6 Shogi designed to introduce tactics with the generals."
 msgstr "หมากรุกญี่ปุ่นบนกระดาน 5x6 สำหรับฝึกสอนการใช้ขุนพลเงินและขุนพลทอง"
 
-#: ../client/i18n.ts:148
+#: ../client/i18n.ts:222
 msgid ""
 "A confrontational 7x7 variant with unique pieces each named after different "
 "birds."
@@ -1040,12 +1581,12 @@ msgstr ""
 "หมากรุกญี่ปุ่นขนาด 7x7 ที่หมากบนกระดานหนาแน่น พร้อมฟาดฟันตลอดเวลา "
 "วิธีเดินพิสดารและตัวหมากมีชื่อเป็นนกชนิดต่างๆ"
 
-#: ../client/i18n.ts:149
+#: ../client/i18n.ts:223
 msgid ""
 "Chinese Chess, one of the oldest and most played board games in the world."
 msgstr "หมากรุกจีน หนึ่งในเกมกระดานที่เก่าแก่และยอดนิยมที่สุดในโลก"
 
-#: ../client/i18n.ts:150
+#: ../client/i18n.ts:224
 msgid ""
 "Xiangqi variant where one side has a chariot that can also move as a cannon "
 "or horse."
@@ -1053,35 +1594,35 @@ msgstr ""
 "หมากรุกจีนรูปแบบหนึ่งที่ฝ่ายสีแดงมีเรือตัวเดียว "
 "แต่เดินเป็นม้ากับปืนใหญ่ได้ด้วย"
 
-#: ../client/i18n.ts:151
+#: ../client/i18n.ts:225
 msgid ""
 "Korean Chess, similar to Xiangqi but plays much differently. Tournament "
 "rules are used."
 msgstr "หมากรุกเกาหลี พัฒนาจากหมากรุกจีนแต่เล่นต่างกันมาก"
 
-#: ../client/i18n.ts:152
+#: ../client/i18n.ts:226
 msgid "Compact version of Xiangqi played on a 7x7 board without a river."
 msgstr "หมากรุกจีนขนาดเล็ก เล่นบนกระดาน 7x7 และไม่มีแม่น้ำ"
 
-#: ../client/i18n.ts:153
+#: ../client/i18n.ts:227
 msgid "Ancient Arabian and Persian form of Chess."
 msgstr ""
 
-#: ../client/i18n.ts:154
+#: ../client/i18n.ts:228
 msgid "The dragon can be dropped to the base rank."
 msgstr ""
 
-#: ../client/i18n.ts:155
+#: ../client/i18n.ts:229
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "10x8 board."
 msgstr "เล่นตัวหมากผสม อาร์คบิชอบ (B+N) และชานซเลอร์ (R+N) บนกระดาน 10x8"
 
-#: ../client/i18n.ts:156
+#: ../client/i18n.ts:230
 msgid "Capablanca with Crazyhouse drop rules."
 msgstr "Capablanca ที่ใช้กฎการวางหมากแบบ Crazyhouse "
 
-#: ../client/i18n.ts:157
+#: ../client/i18n.ts:231
 msgid ""
 "Hybrid pieces, the hawk (B+N) and elephant (R+N), can enter the board after "
 "moving a back rank piece."
@@ -1089,36 +1630,36 @@ msgstr ""
 "หมากผสม เหยี่ยว (B+N) และ ช้าง (R+N) "
 "สามารถเข้าสู่กระดานได้หลังจากหมากแถวหลังเดินออกไป"
 
-#: ../client/i18n.ts:158
+#: ../client/i18n.ts:232
 msgid "S-Chess with Crazyhouse drop rules."
 msgstr "S-Chess ที่ใช้กฎการวางหมากแบบ Crazyhouse"
 
-#: ../client/i18n.ts:159
+#: ../client/i18n.ts:233
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "grand 10x10 board."
 msgstr "เล่นตัวหมากผสม อาร์คบิชอบ (B+N) และชานซเลอร์ (R+N) บนกระดาน 10x10"
 
-#: ../client/i18n.ts:160
+#: ../client/i18n.ts:234
 msgid "Grand Chess with Crazyhouse drop rules."
 msgstr "Grand Chess ที่ใช้กฎการวางหมากแบบ Crazyhouse"
 
-#: ../client/i18n.ts:161
+#: ../client/i18n.ts:235
 msgid ""
 "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board."
 msgstr "นำปืนใหญ่และช้างจากหมากรุกจีน มาเล่นในกระดานขนาด 10x10"
 
-#: ../client/i18n.ts:162
+#: ../client/i18n.ts:236
 msgid "Pieces promote and can be dropped, similar to Shogi."
 msgstr ""
 "มีการเลื่อนยศหมากใหญ่ และสามารถนำหมากที่กินกลับมาวางได้ "
 "คล้ายกับหมากรุกญี่ปุ่น"
 
-#: ../client/i18n.ts:163
+#: ../client/i18n.ts:237
 msgid "Knights capture as bishops; bishops  capture as knights."
 msgstr "ม้ากินเหมือนบิชอป บิชอปกินเหมือนม้า"
 
-#: ../client/i18n.ts:164
+#: ../client/i18n.ts:238
 msgid ""
 "Asymmetric variant where one army has pieces that move like knights but "
 "capture differently."
@@ -1126,13 +1667,13 @@ msgstr ""
 "เกมอสมมาตร กองทัพหมากรุกสากล ปะทะ กองทัพมองโกล มีแต่หมากที่เดินเหมือนม้า "
 "แต่กินต่างกันออกไป"
 
-#: ../client/i18n.ts:165
+#: ../client/i18n.ts:239
 msgid ""
 "Asymmetric East vs. West variant which pits the western Chess army against a"
 " Xiangqi and Janggi-styled army."
 msgstr "เกมอสมมาตร กองทัพหมากรุกสากล ปะทะ กองทัพหมากรุกจีนและเกาหลี"
 
-#: ../client/i18n.ts:166
+#: ../client/i18n.ts:240
 msgid ""
 "Asymmetric variant which pits the western Chess army against a drop-based, "
 "Shogi-styled army."
@@ -1140,7 +1681,7 @@ msgstr ""
 "เกมอสมมาตร กองทัพหมากรุกสากล ปะทะ "
 "กองทัพนินจาที่หมากกระโดดลงมาจากนอกกระดานได้"
 
-#: ../client/i18n.ts:167
+#: ../client/i18n.ts:241
 msgid ""
 "Asymmetric variant where one army has pieces that move like queens but "
 "capture as usual."
@@ -1148,232 +1689,356 @@ msgstr ""
 "เกมอสมมาตร กองทัพหมากรุกสากล ปะทะ กองทัพจักรวรรดิ หมากทุกตัวเดินเหมือนควีน "
 "แต่กินเหมือนหมากปกติ"
 
-#: ../client/i18n.ts:168
+#: ../client/i18n.ts:242
 msgid "Orda Chess variant. The scout and khatun replaces the pawn and yurt."
 msgstr ""
 
-#: ../client/i18n.ts:169
+#: ../client/i18n.ts:243
 msgid ""
 "Orda Chess variant with two Horde armies. The Falcon replaces the Yurt."
 msgstr "รูปแบบของ Orda ที่เป็นกองทัพมองโกลทั้งสองฝ่าย"
 
-#: ../client/i18n.ts:170
+#: ../client/i18n.ts:244
 msgid "Mayan chess. Inspired by cultural elements of Mesoamerica."
 msgstr "หมากรุกมายัน ได้รับแรงบันดาลใจจากวัฒนธรรมเมโสอเมริกา"
 
-#: ../client/i18n.ts:171
+#: ../client/i18n.ts:245
 msgid "Pieces alternate between two forms with each move."
 msgstr "ตัวหมากเปลี่ยนร่างระหว่างหมากสองแบบทุกครั้งที่เดิน"
 
-#: ../client/i18n.ts:172
+#: ../client/i18n.ts:246
 msgid "Asymmetric Spartans vs. Persians variant."
 msgstr "กองทัพสปาร์ตันปะทะกองทัพเปอร์เซีย"
 
-#: ../client/i18n.ts:173
+#: ../client/i18n.ts:247
 msgid "A variant that combines the Shogi's drop rule with strong pieces."
 msgstr ""
 
-#: ../client/i18n.ts:174
+#: ../client/i18n.ts:248
 msgid "Like Capablanca Chess but with Grand starting setup."
 msgstr "คล้าย Capablanca แต่ใช้ตำแหน่งเริ่มต้นแบบ Grand"
 
-#: ../client/i18n.ts:175
+#: ../client/i18n.ts:249
 msgid "Embassy with Crazyhouse drop rules."
 msgstr "Embassy ที่ใช้กฎการวางหมากแบบ Crazyhouse"
 
-#: ../client/i18n.ts:176
+#: ../client/i18n.ts:250
 msgid "Like Capablanca Chess but with a different starting setup."
 msgstr "คล้าย Capablanca แต่ตำแหน่งเริ่มต้นต่างกัน"
 
-#: ../client/i18n.ts:177
+#: ../client/i18n.ts:251
 msgid "Gothic with Crazyhouse drop rules."
 msgstr "Gothic ที่ใช้กฎการวางหมากแบบ Crazyhouse"
 
-#: ../client/invite.ts:17
+#: ../client/inbox.ts:45
+msgid "Invalid contact"
+msgstr ""
+
+#: ../client/inbox.ts:46
+msgid "User not found"
+msgstr ""
+
+#: ../client/inbox.ts:47
+msgid "Invalid message cursor"
+msgstr ""
+
+#: ../client/inbox.ts:48 ../client/inbox.ts:600
+msgid "PyChess doesn't accept new messages."
+msgstr ""
+
+#: ../client/inbox.ts:50
+msgid "Message is empty"
+msgstr ""
+
+#: ../client/inbox.ts:53
+msgid "Cannot send messages from this account"
+msgstr ""
+
+#: ../client/inbox.ts:54
+msgid "User is blocked"
+msgstr ""
+
+#: ../client/inbox.ts:55
+msgid "Cannot message this user"
+msgstr ""
+
+#: ../client/inbox.ts:56
+msgid "Only friends can message this user"
+msgstr ""
+
+#: ../client/inbox.ts:57
+msgid "PyChess system messages cannot be deleted."
+msgstr ""
+
+#: ../client/inbox.ts:112
+msgid "Today"
+msgstr ""
+
+#: ../client/inbox.ts:113
+msgid "Yesterday"
+msgstr ""
+
+#: ../client/inbox.ts:257
+msgid "Could not open conversation."
+msgstr ""
+
+#: ../client/inbox.ts:328 ../client/inbox.ts:339
+msgid "Could not send message."
+msgstr ""
+
+#: ../client/inbox.ts:360 ../client/inbox.ts:372 ../client/profile.ts:481
+#: ../client/profile.ts:490 ../client/profile.ts:513
+msgid "Could not update block state."
+msgstr ""
+
+#: ../client/inbox.ts:380
+msgid "Delete conversation?"
+msgstr ""
+
+#: ../client/inbox.ts:393 ../client/inbox.ts:412
+msgid "Could not delete conversation."
+msgstr ""
+
+#: ../client/inbox.ts:511
+msgid "Load more"
+msgstr ""
+
+#: ../client/inbox.ts:518
+msgid "No messages yet."
+msgstr ""
+
+#: ../client/inbox.ts:522 ../client/settingsView.ts:72
+msgid "Inbox"
+msgstr ""
+
+#: ../client/inbox.ts:525
+msgid "Type username and press Enter"
+msgstr ""
+
+#: ../client/inbox.ts:539
+msgid "No conversations yet."
+msgstr ""
+
+#: ../client/inbox.ts:556
+msgid "Select a conversation"
+msgstr ""
+
+#: ../client/inbox.ts:565 ../client/tournamentRR.ts:664
+#: ../client/userMiniWidget.ts:485
+msgid "Challenge"
+msgstr ""
+
+#: ../client/inbox.ts:570 ../client/profile.ts:406 ../client/profile.ts:409
+msgid "Unblock"
+msgstr ""
+
+#: ../client/inbox.ts:570 ../client/profile.ts:389 ../client/profile.ts:392
+msgid "Block"
+msgstr ""
+
+#: ../client/inbox.ts:579
+msgid "Report to moderators"
+msgstr ""
+
+#: ../client/inbox.ts:617
+msgid "Select a conversation first"
+msgstr ""
+
+#: ../client/inbox.ts:619
+msgid "This conversation is blocked"
+msgstr ""
+
+#: ../client/inbox.ts:621
+msgid "Write a message..."
+msgstr ""
+
+#: ../client/inbox.ts:622
+msgid "This user only accepts messages from friends"
+msgstr ""
+
+#: ../client/inbox.ts:649
+msgid "Send"
+msgstr ""
+
+#: ../client/invite.ts:16
 msgid "This invitation is no longer available"
 msgstr ""
 
-#: ../client/invite.ts:19
+#: ../client/invite.ts:17
 msgid "It may have been accepted, canceled, or expired."
 msgstr ""
 
-#: ../client/invite.ts:22
-msgid "BACK TO LOBBY"
-msgstr ""
-
-#: ../client/invite.ts:49 ../client/lobby.ts:57
+#: ../client/invite.ts:46 ../client/lobby.ts:101
 msgid "Host a game for others"
 msgstr "เปิดห้องให้ผู้อื่นเล่น"
 
-#: ../client/invite.ts:49
-msgid "Challenge to a game"
-msgstr "ท้าเล่นเกม"
-
-#: ../client/invite.ts:52 ../client/invite.ts:58 ../client/invite.ts:64
-#: ../client/invite.ts:70 ../client/lobby.ts:1082
-msgid "CANCEL"
-msgstr "ยกเลิก"
-
-#: ../client/invite.ts:55
-msgid "Waiting for the other player"
-msgstr "กำลังรอผู้เล่นอีกคน"
-
-#: ../client/invite.ts:61
+#: ../client/invite.ts:58
 msgid "Sorry, this seat is already occupied"
 msgstr "ขออภัย ที่นั่งนี้มีคนนั่งอยู่แล้ว"
 
-#: ../client/invite.ts:67
+#: ../client/invite.ts:64
 msgid "Sorry, you cannot play with yourself"
 msgstr "ขออภัย คุณไม่สามารถเล่นกับตัวเองได้"
 
-#: ../client/invite.ts:76
-msgid "JOIN THE GAME"
-msgstr "เข้าร่วมเกม"
-
-#: ../client/invite.ts:100 ../client/invite.ts:124
+#: ../client/invite.ts:102 ../client/invite.ts:166
 msgid "To invite someone to play, give them this URL:"
 msgstr "เชิญคนเข้ามาเล่นด้วยการส่ง URL นี้ให้:"
 
-#: ../client/invite.ts:107 ../client/invite.ts:109 ../client/invite.ts:117
-#: ../client/invite.ts:119 ../client/invite.ts:129 ../client/invite.ts:131
+#: ../client/invite.ts:118 ../client/invite.ts:127 ../client/invite.ts:148
+#: ../client/invite.ts:157 ../client/invite.ts:180 ../client/invite.ts:189
 msgid "Copy URL"
 msgstr "คัดลอก URL"
 
-#: ../client/invite.ts:121
+#: ../client/invite.ts:163
 msgid "The first two people to come to this URL will play with each other."
 msgstr "ผู้เล่นสองคนแรกที่เข้ามาที่ URL นี้จะได้เล่นกัน"
 
-#: ../client/invite.ts:132
+#: ../client/invite.ts:194
 msgid "The first person to come to this URL will play with you."
 msgstr "คนแรกที่เข้ามาที่ URL นี้จะได้เล่นกับคุณ"
 
-#: ../client/lobby.ts:54
+#: ../client/lobby.ts:95
 msgid "Play with AI"
 msgstr "เล่นกับ AI"
 
-#: ../client/lobby.ts:55
+#: ../client/lobby.ts:97
 msgid "Play with a BOT"
 msgstr ""
 
-#: ../client/lobby.ts:56
+#: ../client/lobby.ts:99
 msgid "Play with a friend"
 msgstr "เล่นกับเพื่อน"
 
-#: ../client/lobby.ts:58
+#: ../client/lobby.ts:103
 msgid "Create a game"
 msgstr "สร้างห้อง"
 
-#: ../client/lobby.ts:163
+#: ../client/lobby.ts:249
 msgid "Challenge %1 to a game"
 msgstr "ท้า %1 เล่นเกม"
 
-#: ../client/lobby.ts:474
-msgid "Cancel"
-msgstr "ยกเลิก"
+#: ../client/analysis/index.ts:35 ../client/editor/editor.ts:29
+#: ../client/lobby.ts:692 ../client/lobby.ts:1982 ../client/puzzle.ts:27
+#: ../client/puzzleCtrl.ts:226 ../client/settingsView.ts:247
+#: ../client/two-board/analysis/analysis.ts:35
+msgid "Variant"
+msgstr "ชนิดเกม"
 
-#: ../client/lobby.ts:485
+#: ../client/lobby.ts:706
 msgid "Paste the FEN text here"
 msgstr "ใส่ FEN ตำแหน่งเริ่มต้นที่นี่"
 
-#: ../client/lobby.ts:485
+#: ../client/lobby.ts:706
 msgid " (must be signed in)"
 msgstr "(ต้องเข้าสู่ระบบก่อน)"
 
-#: ../client/lobby.ts:503
+#: ../client/lobby.ts:726
 msgid "Time control"
 msgstr "ประเภทเวลา"
 
-#: ../client/lobby.ts:508
+#: ../client/lobby.ts:737
 msgid "Real time"
 msgstr "เวลาจริง"
 
-#: ../client/lobby.ts:509 ../client/lobby.ts:1458
+#: ../client/lobby.ts:741 ../client/lobby.ts:2069
 msgid "Correspondence"
 msgstr "เวลาจดหมาย"
 
-#: ../client/lobby.ts:515
+#: ../client/lobby.ts:748
 msgid "Minutes per side:"
 msgstr "เวลาทั้งหมด (นาที):"
 
-#: ../client/lobby.ts:530
+#: ../client/lobby.ts:795
 msgid "Periods"
 msgstr "จำนวนรอบ"
 
-#: ../client/lobby.ts:539
+#: ../client/lobby.ts:812
 msgid "Days per turn:"
 msgstr "เวลาต่อตาเดิน (วัน):"
 
-#: ../client/lobby.ts:557 ../client/lobby.ts:996 ../client/result.ts:16
-msgid "Casual"
-msgstr "ไม่คิดคะแนน"
-
-#: ../client/lobby.ts:564 ../client/lobby.ts:994
-#: ../client/puzzleSettings.ts:28 ../client/result.ts:11
-msgid "Rated"
-msgstr "คิดคะแนน"
-
-#: ../client/lobby.ts:568 ../client/lobby.ts:1136
+#: ../client/lobby.ts:855 ../client/lobby.ts:1715
 msgid "Rating range"
 msgstr ""
 
-#: ../client/lobby.ts:593
+#: ../client/lobby.ts:903
 msgid "Practice with Random-Mover"
 msgstr "หัดเล่นกับ Random-Mover"
 
-#: ../client/lobby.ts:604
+#: ../client/lobby.ts:913
 msgid "A.I. Level"
 msgstr "ระดับ AI"
 
-#: ../client/lobby.ts:615
+#: ../client/lobby.ts:933 ../client/simul/simul.ts:519
 msgid "Random"
 msgstr "สุ่ม"
 
-#: ../client/lobby.ts:619
+#: ../client/lobby.ts:945
 msgid "Create"
 msgstr "สร้าง"
 
-#: ../client/lobby.ts:790
+#: ../client/lobby.ts:1166
 msgid "Byoyomi in seconds:"
 msgstr "เบียวโยมิ (วินาที):"
 
-#: ../client/lobby.ts:790
+#: ../client/lobby.ts:1166
 msgid "Increment in seconds:"
 msgstr "ทดเวลาต่อตาเดิน (วินาที):"
 
-#: ../client/lobby.ts:795
+#: ../client/lobby.ts:1175
 msgid "Alternate Start"
 msgstr "ตำแหน่งเริ่มต้นอื่น"
 
-#: ../client/editor/editorCtrl.ts:245 ../client/lobby.ts:860
+#: ../client/editor/editorCtrl.ts:262 ../client/lobby.ts:1264
 msgid "Invalid FEN"
 msgstr "FEN ไม่ถูกต้อง"
 
-#: ../client/lobby.ts:992
+#: ../client/lobby.ts:1360
+msgid "This user-defined variant is not available to you."
+msgstr ""
+
+#: ../client/analysis/analysisCtrl.ts:803 ../client/lobby.ts:1382
+msgid "You need an account to do that."
+msgstr "จำเป็นต้องเข้าสู่ระบบ"
+
+#: ../client/lobby.ts:1456 ../client/myVariants.ts:1331
+#: ../client/myVariants.ts:1423
 msgid "Custom"
 msgstr "กำหนดเอง"
 
-#: ../client/lobby.ts:1020 ../client/lobby.ts:1331
+#: ../client/lobby.ts:1482 ../client/lobby.ts:1906
 msgid "%1 player"
 msgid_plural "%1 players"
 msgstr[0] "%1 คน"
 
-#: ../client/lobby.ts:1081
+#: ../client/lobby.ts:1515
+msgid "Leaderboard"
+msgstr ""
+
+#: ../client/lobby.ts:1516 ../client/lobby.ts:1548
+msgid "More"
+msgstr ""
+
+#: ../client/lobby.ts:1547
+msgid "Tournament winners"
+msgstr ""
+
+#: ../client/lobby.ts:1627
 msgid "Standing by for auto pairing..."
 msgstr ""
 
-#: ../client/lobby.ts:1093
+#: ../client/lobby.ts:1643
 msgid "SELECT ALL"
 msgstr ""
 
-#: ../client/lobby.ts:1094
+#: ../client/lobby.ts:1646
 msgid "CLEAR ALL"
 msgstr ""
 
-#: ../client/lobby.ts:1095
+#: ../client/lobby.ts:1649
 msgid "SUBMIT"
 msgstr ""
 
-#: ../client/lobby.ts:1284
+#: ../client/lobby.ts:1864
 msgid ""
 "You have an unfinished game!\n"
 "Press OK to continue."
@@ -1381,165 +2046,789 @@ msgstr ""
 "คุณมีเกมที่ยังเล่นไม่จบอยู่!\n"
 "กด OK เพื่อไปต่อ"
 
-#: ../client/lobby.ts:1324 ../client/lobby.ts:1461
+#: ../client/lobby.ts:1865 ../client/two-board/round/chatPresets.ts:69
+msgid "OK"
+msgstr ""
+
+#: ../client/lobby.ts:1900 ../client/lobby.ts:2086
 msgid "%1 game in play"
 msgid_plural "%1 games in play"
 msgstr[0] "%1 เกมที่กำลังเล่น"
 
-#: ../client/lobby.ts:1338
+#: ../client/lobby.ts:1912
 msgid "%1 auto pairing"
 msgid_plural "%1 auto pairings"
 msgstr[0] ""
 
-#: ../client/lobby.ts:1352
+#: ../client/lobby.ts:1945
 msgid "Tournament calendar"
 msgstr "ปฏิทินการแข่งขัน"
 
-#: ../client/lobby.ts:1385
+#: ../client/lobby.ts:1979 ../client/tournamentRR.ts:945
 msgid "Player"
 msgstr "ผู้เล่น"
 
-#: ../client/lobby.ts:1386
+#: ../client/lobby.ts:1980
 msgid "Rating"
 msgstr "คะแนน"
 
-#: ../client/lobby.ts:1387
+#: ../client/lobby.ts:1981
 msgid "Time"
 msgstr "เวลา"
 
-#: ../client/lobby.ts:1389
+#: ../client/lobby.ts:1983
 msgid "Mode"
 msgstr "รูปแบบการเล่น"
 
-#: ../client/lobby.ts:1428
+#: ../client/lobby.ts:2023
 msgid "Puzzle of the day"
 msgstr "หมากกลวันนี้"
 
-#: ../client/editor/editorCtrl.ts:102 ../client/editor/editorCtrl.ts:103
-#: ../client/lobby.ts:1429
+#: ../client/editor/editorCtrl.ts:114 ../client/editor/editorCtrl.ts:115
+#: ../client/lobby.ts:2024
 msgid "%1 to play"
 msgstr "ตา%1เดิน"
 
-#: ../client/lobby.ts:1457
+#: ../client/lobby.ts:2062
 msgid "Lobby"
 msgstr "ล็อบบี้"
 
-#: ../client/lobby.ts:1466
+#: ../client/lobby.ts:2105
 msgid "Auto pairing"
 msgstr ""
 
-#: ../client/lobby.ts:1535
+#: ../client/lobby.ts:2246
 msgid "Donate"
 msgstr "บริจาค"
 
-#: ../client/lobby.ts:1536
+#: ../client/lobby.ts:2247
 msgid "FAQ"
 msgstr "คำถามที่พบบ่อย"
 
-#: ../client/lobby.ts:1537
+#: ../client/lobby.ts:2248
 msgid "Stats"
 msgstr "สถิติ"
 
-#: ../client/lobby.ts:1538
+#: ../client/lobby.ts:2249
 msgid "About"
 msgstr "เกี่ยวกับ"
 
-#: ../client/main.ts:174
+#: ../client/lobby.ts:2250
+msgid "Contact"
+msgstr ""
+
+#: ../client/lobby.ts:2251
+msgid "Terms"
+msgstr ""
+
+#: ../client/lobby.ts:2252 ../client/settingsView.ts:73
+#: ../client/settingsView.ts:146
+msgid "Privacy"
+msgstr ""
+
+#: ../client/main.ts:244
 msgid "Thank you for your support!"
 msgstr "ขอบคุณสำหรับการสนับสนุน!"
 
-#: ../client/movelist.ts:72
+#: ../client/analysis/keyboardHelp.ts:65 ../client/movelist.ts:195
 msgid "Flip board"
 msgstr ""
 
-#: ../client/bug/movelist.bug.ts:76 ../client/movelist.ts:79
+#: ../client/movelist.ts:233 ../client/two-board/common/movelist.ts:157
 msgid "Switch boards"
 msgstr ""
 
-#: ../client/movelist.ts:83
+#: ../client/movelist.ts:256
 msgid "Menu"
 msgstr ""
 
-#: ../client/movelist.ts:87 ../client/tournament.ts:607
+#: ../client/movelist.ts:266 ../client/tournament.ts:909
 msgid "Analysis board"
 msgstr "ถอดหมาก"
 
-#: ../client/notifyView.ts:83
+#: ../client/movelist.ts:722 ../client/two-board/common/movelist.ts:398
+msgid "Promote variation"
+msgstr ""
+
+#: ../client/movelist.ts:727 ../client/two-board/common/movelist.ts:403
+msgid "Make main line"
+msgstr ""
+
+#: ../client/movelist.ts:732 ../client/two-board/common/movelist.ts:408
+msgid "Convert to variation"
+msgstr ""
+
+#: ../client/movelist.ts:739 ../client/two-board/common/movelist.ts:415
+msgid "Collapse all"
+msgstr ""
+
+#: ../client/movelist.ts:743 ../client/two-board/common/movelist.ts:419
+msgid "Expand all"
+msgstr ""
+
+#: ../client/movelist.ts:747 ../client/two-board/common/movelist.ts:423
+msgid "Copy main line PGN"
+msgstr ""
+
+#: ../client/movelist.ts:747 ../client/two-board/common/movelist.ts:423
+msgid "Copy variation PGN"
+msgstr ""
+
+#: ../client/movelist.ts:753 ../client/two-board/common/movelist.ts:429
+msgid "Delete from here"
+msgstr ""
+
+#: ../client/movelist.ts:767
+msgid "Start position"
+msgstr ""
+
+#: ../client/myVariants.ts:225
+msgid "Failed to load variants"
+msgstr ""
+
+#: ../client/myVariants.ts:310
+msgid ""
+"Display names must be at most 50 characters, contain a letter or number, and"
+" use only letters, numbers, spaces, hyphens, underscores, periods, plus "
+"signs, slashes, and parentheses."
+msgstr ""
+
+#: ../client/myVariants.ts:363
+msgid "The INI must contain exactly one variant section."
+msgstr ""
+
+#: ../client/myVariants.ts:367
+msgid ""
+"Variant names must be 3-32 chars, start with a lowercase letter, and contain"
+" only lowercase letters, digits, hyphens, and underscores."
+msgstr ""
+
+#: ../client/myVariants.ts:377
+msgid "This variant name conflicts with an existing site variant."
+msgstr ""
+
+#: ../client/myVariants.ts:381
+msgid "A variant with this name already exists."
+msgstr ""
+
+#: ../client/myVariants.ts:393
+msgid ""
+"Changing rules requires a new variant section name, because Fairy-Stockfish "
+"cannot replace an already loaded runtime variant."
+msgstr ""
+
+#: ../client/myVariants.ts:421
+msgid ""
+"Fairy-Stockfish built-in catalogue entries do not have editable INI rules."
+msgstr ""
+
+#: ../client/myVariants.ts:429 ../client/myVariants.ts:471
+msgid "Paste one Fairy-Stockfish variant definition first."
+msgstr ""
+
+#: ../client/myVariants.ts:438
+msgid "These rules are unchanged and already passed validation."
+msgstr ""
+
+#: ../client/myVariants.ts:450 ../client/myVariants.ts:480
+msgid "Variant check failed"
+msgstr ""
+
+#: ../client/myVariants.ts:464
+msgid "Invalid display name"
+msgstr ""
+
+#: ../client/myVariants.ts:490 ../client/myVariants.ts:493
+msgid "Saving metadata and visibility..."
+msgstr ""
+
+#: ../client/myVariants.ts:524
+msgid "Variant updated."
+msgstr ""
+
+#: ../client/myVariants.ts:524
+msgid "Variant uploaded."
+msgstr ""
+
+#: ../client/myVariants.ts:528
+msgid "Failed to save variant"
+msgstr ""
+
+#: ../client/myVariants.ts:542
+msgid "delete"
+msgstr ""
+
+#: ../client/myVariants.ts:543
+msgid "archive"
+msgstr ""
+
+#: ../client/myVariants.ts:544
+msgid "restore"
+msgstr ""
+
+#: ../client/myVariants.ts:545
+msgid "clone"
+msgstr ""
+
+#: ../client/myVariants.ts:550 ../client/myVariants.ts:1707
+msgid "Archive"
+msgstr ""
+
+#: ../client/myVariants.ts:571
+msgid "Done."
+msgstr ""
+
+#: ../client/myVariants.ts:574
+msgid "Action failed"
+msgstr ""
+
+#: ../client/myVariants.ts:646
+msgid "Custom piece set uploaded."
+msgstr ""
+
+#: ../client/myVariants.ts:649
+msgid "Failed to upload piece set"
+msgstr ""
+
+#: ../client/myVariants.ts:677
+msgid "Custom piece set deleted."
+msgstr ""
+
+#: ../client/myVariants.ts:680
+msgid "Failed to delete piece set"
+msgstr ""
+
+#: ../client/myVariants.ts:690
+msgid "Upload exactly one board SVG file."
+msgstr ""
+
+#: ../client/myVariants.ts:711
+msgid "Custom board uploaded."
+msgstr ""
+
+#: ../client/myVariants.ts:714
+msgid "Failed to upload board"
+msgstr ""
+
+#: ../client/myVariants.ts:743
+msgid "Custom board deleted."
+msgstr ""
+
+#: ../client/myVariants.ts:746
+msgid "Failed to delete board"
+msgstr ""
+
+#: ../client/myVariants.ts:797 ../client/myVariants.ts:1046
+msgid "Public"
+msgstr ""
+
+#: ../client/myVariants.ts:799 ../client/myVariants.ts:1041
+msgid "Unlisted"
+msgstr ""
+
+#: ../client/myVariants.ts:801 ../client/myVariants.ts:1036
+msgid "Private"
+msgstr ""
+
+#: ../client/myVariants.ts:808
+msgid ""
+"Public variants appear on the Community variants page and their games are "
+"saved."
+msgstr ""
+
+#: ../client/myVariants.ts:810
+msgid "Unlisted variants stay out of search; their games are not saved."
+msgstr ""
+
+#: ../client/myVariants.ts:812
+msgid ""
+"Private variants are visible only to you and site admins; their games are "
+"not saved."
+msgstr ""
+
+#: ../client/myVariants.ts:821 ../client/myVariants.ts:1334
+msgid "Letters"
+msgstr ""
+
+#: ../client/myVariants.ts:848
+msgid "Edit Fairy-Stockfish variant"
+msgstr ""
+
+#: ../client/myVariants.ts:850
+msgid "Edit variant"
+msgstr ""
+
+#: ../client/myVariants.ts:851
+msgid "Upload new variant"
+msgstr ""
+
+#: ../client/myVariants.ts:856
+msgid ""
+"This entry is backed by a built-in Fairy-Stockfish variant. Its rules are "
+"not editable here, so NNUE files can keep matching the original engine "
+"variant name."
+msgstr ""
+
+#: ../client/myVariants.ts:862
+msgid ""
+"Paste exactly one Fairy-Stockfish variant definition. Rules are locked after"
+" the first saved public game."
+msgstr ""
+
+#: ../client/myVariants.ts:870
+msgid ""
+"Private and unlisted variants are sandbox variants: games are playable but "
+"are not saved."
+msgstr ""
+
+#: ../client/myVariants.ts:876
+msgid ""
+"If you change the rules of an unused variant, also change the INI section "
+"name, because Fairy-Stockfish cannot replace an already loaded runtime "
+"variant."
+msgstr ""
+
+#: ../client/myVariants.ts:883
+msgid ""
+"Admins can edit metadata, visibility, compatible piece and board styles, "
+"piece SVGs, and board SVGs for this system-owned catalogue entry."
+msgstr ""
+
+#: ../client/myVariants.ts:891
+msgid ""
+"This variant already has saved public games. Only metadata and visibility "
+"can be changed; clone it to change the rules."
+msgstr ""
+
+#: ../client/myVariants.ts:909 ../client/myVariants.ts:913
+msgid "Display name"
+msgstr ""
+
+#: ../client/myVariants.ts:918
+msgid ""
+"Use letters, numbers, spaces, hyphens, underscores, periods, plus signs, "
+"slashes, and parentheses."
+msgstr ""
+
+#: ../client/myVariants.ts:932
+msgid ""
+"Up to 50 characters. Repeated spaces, hyphens, and underscores are "
+"collapsed."
+msgstr ""
+
+#: ../client/myVariants.ts:936 ../client/myVariants.ts:940
+msgid "Short description"
+msgstr ""
+
+#: ../client/myVariants.ts:958
+msgid "Piece names (optional)"
+msgstr ""
+
+#: ../client/myVariants.ts:980
+msgid ""
+"Comma-separated letter:name pairs used by generated rules, for example "
+"p:Soldier, z:Zebra. Built-in names can be overridden; missing names use "
+"automatic fallbacks."
+msgstr ""
+
+#: ../client/myVariants.ts:987
+msgid "Directional custom pieces"
+msgstr ""
+
+#: ../client/myVariants.ts:1008
+msgid ""
+"Enable for standalone variants whose piece direction shows ownership. One "
+"complete white or black SVG set can then serve both players. Shogi-derived "
+"variants are detected automatically."
+msgstr ""
+
+#: ../client/myVariants.ts:1014 ../client/myVariants.ts:1595
+#: ../client/myVariants.ts:1636
+msgid "Visibility"
+msgstr ""
+
+#: ../client/myVariants.ts:1053
+msgid "Advanced appearance"
+msgstr ""
+
+#: ../client/myVariants.ts:1055
+msgid "Compatible piece set"
+msgstr ""
+
+#: ../client/myVariants.ts:1081 ../client/myVariants.ts:1131
+msgid "Auto-detect"
+msgstr ""
+
+#: ../client/myVariants.ts:1099
+msgid ""
+"Overrides automatic built-in piece-set detection; custom SVG piece sets "
+"still take precedence."
+msgstr ""
+
+#: ../client/myVariants.ts:1105
+msgid "Compatible board style"
+msgstr ""
+
+#: ../client/myVariants.ts:1149
+msgid ""
+"Overrides automatic compatible board detection; an uploaded custom board SVG"
+" still takes precedence."
+msgstr ""
+
+#: ../client/myVariants.ts:1156
+msgid "Variant definition"
+msgstr ""
+
+#: ../client/myVariants.ts:1161
+msgid "Built-in Fairy-Stockfish variant; no INI is stored."
+msgstr ""
+
+#: ../client/myVariants.ts:1186
+msgid "Fairy-Stockfish variants.ini reference"
+msgstr ""
+
+#: ../client/myVariants.ts:1192
+msgid ""
+"The catalogue key remains the Fairy-Stockfish UCI_Variant name. Use display "
+"name and description for nicer wording."
+msgstr ""
+
+#: ../client/myVariants.ts:1198
+msgid ""
+"If inherited rules use pieces or promoted pieces that pychess cannot detect "
+"automatically, add a comment like # pychessPieces = k,q,r,+r,p,+p. This "
+"affects only piece-set upload and board rendering; Fairy-Stockfish ignores "
+"it. For locked variants with games, only this pychessPieces metadata can be "
+"changed."
+msgstr ""
+
+#: ../client/myVariants.ts:1209
+msgid "Save changes"
+msgstr ""
+
+#: ../client/myVariants.ts:1209
+msgid "Upload variant"
+msgstr ""
+
+#: ../client/myVariants.ts:1223
+msgid "Check rules"
+msgstr ""
+
+#: ../client/myVariants.ts:1264
+msgid "Piece set preview"
+msgstr ""
+
+#: ../client/myVariants.ts:1304
+msgid "built-in piece styles"
+msgstr ""
+
+#: ../client/myVariants.ts:1333 ../client/myVariants.ts:1423
+msgid "Built-in"
+msgstr ""
+
+#: ../client/myVariants.ts:1344
+msgid "Upload set"
+msgstr ""
+
+#: ../client/myVariants.ts:1377 ../client/myVariants.ts:1468
+msgid "Hide preview"
+msgstr ""
+
+#: ../client/myVariants.ts:1377 ../client/myVariants.ts:1468
+msgid "Preview"
+msgstr ""
+
+#: ../client/myVariants.ts:1387
+msgid "Delete set"
+msgstr ""
+
+#: ../client/myVariants.ts:1399
+msgid "Board preview"
+msgstr ""
+
+#: ../client/myVariants.ts:1423
+msgid "Default"
+msgstr ""
+
+#: ../client/myVariants.ts:1427
+msgid "This variant uses its uploaded board SVG."
+msgstr ""
+
+#: ../client/myVariants.ts:1430
+msgid ""
+"Default generated checkerboard. Upload an SVG board if the variant needs "
+"special regions."
+msgstr ""
+
+#: ../client/myVariants.ts:1435
+msgid "Upload board"
+msgstr ""
+
+#: ../client/myVariants.ts:1478
+msgid "Delete board"
+msgstr ""
+
+#: ../client/myVariants.ts:1504
+msgid "Name, description, or uploader"
+msgstr ""
+
+#: ../client/myVariants.ts:1509
+msgid "Uploaded by"
+msgstr ""
+
+#: ../client/myVariants.ts:1511
+msgid "Exact username"
+msgstr ""
+
+#: ../client/myVariants.ts:1516
+msgid "Sort"
+msgstr ""
+
+#: ../client/myVariants.ts:1526
+msgid "Recently updated"
+msgstr ""
+
+#: ../client/myVariants.ts:1527
+msgid "Most played"
+msgstr ""
+
+#: ../client/myVariants.ts:1528
+msgid "Newest"
+msgstr ""
+
+#: ../client/myVariants.ts:1529 ../client/myVariants.ts:1593
+#: ../client/myVariants.ts:1620
+msgid "Name"
+msgstr ""
+
+#: ../client/myVariants.ts:1585
+msgid "No variants found."
+msgstr ""
+
+#: ../client/myVariants.ts:1585
+msgid "You have not uploaded any variants yet."
+msgstr ""
+
+#: ../client/myVariants.ts:1594 ../client/myVariants.ts:1627
+#: ../client/tournamentRR.ts:707 ../client/tournamentRR.ts:1423
+msgid "Status"
+msgstr ""
+
+#: ../client/myVariants.ts:1596 ../client/myVariants.ts:1637
+#: ../client/profile.ts:335 ../client/tournamentRR.ts:707
+#: ../client/tournamentRR.ts:1001
+msgid "Games"
+msgstr "เกมทั้งหมด"
+
+#: ../client/myVariants.ts:1597 ../client/myVariants.ts:1638
+msgid "Pieces"
+msgstr ""
+
+#: ../client/analysis/keyboardHelp.ts:63 ../client/myVariants.ts:1598
+#: ../client/myVariants.ts:1639
+msgid "Board"
+msgstr ""
+
+#: ../client/myVariants.ts:1599 ../client/myVariants.ts:1640
+msgid "Actions"
+msgstr ""
+
+#: ../client/myVariants.ts:1609
+msgid ""
+"This variant already has saved public games. Clone it to change the rules."
+msgstr ""
+
+#: ../client/myVariants.ts:1612
+msgid ""
+"Fairy-Stockfish built-in catalogue entries keep their engine rules and key "
+"fixed."
+msgstr ""
+
+#: ../client/myVariants.ts:1615
+msgid ""
+"Fairy-Stockfish AI is temporarily disabled for this variant; Random-Mover "
+"can still be used."
+msgstr ""
+
+#: ../client/myVariants.ts:1629
+msgid "Archived"
+msgstr ""
+
+#: ../client/myVariants.ts:1631
+msgid "System"
+msgstr ""
+
+#: ../client/myVariants.ts:1633
+msgid "Locked"
+msgstr ""
+
+#: ../client/myVariants.ts:1634
+msgid "Editable"
+msgstr ""
+
+#: ../client/myVariants.ts:1647
+msgid "Play"
+msgstr ""
+
+#: ../client/myVariants.ts:1656
+msgid "Play AI"
+msgstr ""
+
+#: ../client/myVariants.ts:1664
+msgid "Analysis"
+msgstr ""
+
+#: ../client/lobby/layer3.ts:104 ../client/myVariants.ts:1672
+msgid "Rules"
+msgstr "กติกา"
+
+#: ../client/myVariants.ts:1699
+msgid "Restore"
+msgstr ""
+
+#: ../client/myVariants.ts:1716
+msgid "Clone"
+msgstr ""
+
+#: ../client/myVariants.ts:1728
+msgid "Variants"
+msgstr ""
+
+#: ../client/myVariants.ts:1728
+msgid "My variants"
+msgstr ""
+
+#: ../client/myVariants.ts:1743
+msgid "Manage my variants"
+msgstr ""
+
+#: ../client/myVariants.ts:1746
+msgid ""
+"Uploaded variants stay out of the regular variant catalog. They are always "
+"casual/unrated, but can be played from this page against humans or Fairy-"
+"Stockfish."
+msgstr ""
+
+#: ../client/myVariants.ts:1751
+msgid "Browse community variants"
+msgstr ""
+
+#: ../client/myVariants.ts:1756
+msgid "Sign in required"
+msgstr ""
+
+#: ../client/myVariants.ts:1757
+msgid "Please sign in to upload and manage your variants."
+msgstr ""
+
+#: ../client/notifyView.ts:86
+msgid "It is your turn"
+msgstr ""
+
+#: ../client/notifyView.ts:100
+msgid "Swiss tournament starting soon"
+msgstr ""
+
+#: ../client/notifyView.ts:122
+msgid "Round-robin challenge"
+msgstr ""
+
+#: ../client/notifyView.ts:141
+msgid "Round-robin scheduling"
+msgstr ""
+
+#: ../client/notifyView.ts:163
+msgid "Round-robin reminder"
+msgstr ""
+
+#: ../client/notifyView.ts:181
+msgid "Team update"
+msgstr ""
+
+#: ../client/notifyView.ts:184
+msgid "New team update"
+msgstr ""
+
+#: ../client/notifyView.ts:193
+msgid "Inbox message"
+msgstr ""
+
+#: ../client/notifyView.ts:200
+msgid "a forum topic"
+msgstr ""
+
+#: ../client/notifyView.ts:231
 msgid "No notifications."
 msgstr "ไม่มีการแจ้งเตือนใหม่"
 
-#: ../client/paste.ts:148
+#: ../client/paste.ts:165
 msgid "Importing Alice PGN is not supported"
 msgstr ""
 
-#: ../client/paste.ts:224 ../client/paste.ts:231
+#: ../client/paste.ts:247 ../client/paste.ts:254
 msgid "Import failed"
 msgstr ""
 
-#: ../client/paste.ts:240
+#: ../client/paste.ts:264
 msgid "Paste the PGN text here"
 msgstr "วาง PGN ที่นี่"
 
-#: ../client/paste.ts:244
+#: ../client/paste.ts:268
 msgid "IMPORT GAME"
 msgstr "นำเข้าเกม"
 
-#: ../client/paste.ts:337
+#: ../client/paste.ts:363
 msgid "Invalid PGN"
 msgstr "PGN ไม่ถูกต้อง"
 
-#: ../client/profile.ts:187
+#: ../client/profile.ts:200
 msgid "%1 move"
 msgid_plural "%1 moves"
 msgstr[0] "%1 ตา"
 
-#: ../client/profile.ts:188
+#: ../client/profile.ts:208
 msgid "Computer analysis available"
 msgstr "มีการวิเคราะห์โดยคอมพิวเตอร์"
 
-#: ../client/profile.ts:275
-msgid "Games"
-msgstr "เกมทั้งหมด"
+#: ../client/profile.ts:293
+msgid "Load games"
+msgstr ""
 
-#: ../client/profile.ts:277
+#: ../client/profile.ts:344
 msgid "Games with you"
 msgstr "เกมที่เล่นกับคุณ"
 
-#: ../client/profile.ts:279
+#: ../client/profile.ts:354
 msgctxt "UsePluralFormIfNeeded"
 msgid "Rated"
 msgstr "คิดคะแนน"
 
-#: ../client/profile.ts:280
+#: ../client/profile.ts:363
 msgctxt "UsePluralFormIfNeeded"
 msgid "Playing"
 msgstr "กำลังเล่นอยู่"
 
-#: ../client/profile.ts:281
+#: ../client/profile.ts:369
 msgid "Imported"
 msgstr "นำเข้ามา"
 
-#: ../client/profile.ts:294 ../client/profile.ts:296
-msgid "Block"
+#: ../client/profile.ts:485
+msgid "Block limit reached."
 msgstr ""
 
-#: ../client/profile.ts:305 ../client/profile.ts:307
-msgid "Unblock"
-msgstr ""
-
-#: ../client/puzzleCtrl.ts:89
+#: ../client/puzzleCtrl.ts:91
 msgid "LOGIN"
 msgstr "เข้าสู่ระบบ"
 
-#: ../client/puzzleCtrl.ts:117
+#: ../client/puzzleCtrl.ts:116
 msgid "Hint"
 msgstr "บอกใบ้"
 
-#: ../client/puzzleCtrl.ts:125
+#: ../client/puzzleCtrl.ts:121
 msgid "View the solution"
 msgstr "ดูเฉลย"
 
-#: ../client/puzzleCtrl.ts:166
+#: ../client/puzzleCtrl.ts:172
 msgid ""
 "Your puzzle rating will not change. Note that puzzles are not a competition."
 " Ratings help select the best puzzles for your current skill."
@@ -1547,79 +2836,79 @@ msgstr ""
 "คะแนนหมากกลของคุณจะไม่เปลี่ยน ทั้งนี้ หมากกลไม่ต้องแข่งกับใคร "
 "แต่มีคะแนนไว้เพื่อช่วยเลือกโจทย์ให้เหมาะสมกับทักษะของคุณเท่านั้น"
 
-#: ../client/puzzleCtrl.ts:202
+#: ../client/puzzleCtrl.ts:213
 msgid "Puzzle"
 msgstr "หมากกล"
 
-#: ../client/puzzleCtrl.ts:203
+#: ../client/puzzleCtrl.ts:218
 msgid "Rating:"
 msgstr "คะแนน:"
 
-#: ../client/puzzleCtrl.ts:203
+#: ../client/puzzleCtrl.ts:218
 msgid "hidden"
 msgstr "ยังไม่เปิดเผย"
 
-#: ../client/puzzleCtrl.ts:204
+#: ../client/puzzleCtrl.ts:219
 msgid "Played:"
 msgstr "ถูกเล่นไปแล้ว:"
 
-#: ../client/puzzleCtrl.ts:221
+#: ../client/puzzleCtrl.ts:238
 msgid "Source:"
 msgstr "ที่มา:"
 
-#: ../client/puzzleCtrl.ts:225
+#: ../client/puzzleCtrl.ts:239
 msgid "Type:"
 msgstr "ประเภท:"
 
-#: ../client/puzzleCtrl.ts:331
+#: ../client/puzzleCtrl.ts:350
 msgid "Your turn"
 msgstr "ตาคุณเดิน"
 
-#: ../client/puzzleCtrl.ts:332
+#: ../client/puzzleCtrl.ts:351
 msgid "Find the best move for %1."
 msgstr "เล่นฝ่าย%1 หาตาที่ดีที่สุด"
 
-#: ../client/puzzleCtrl.ts:349
+#: ../client/puzzleCtrl.ts:369
 msgid "That's not the move!"
 msgstr "ไม่ใช่แบบนั้น"
 
-#: ../client/puzzleCtrl.ts:350
+#: ../client/puzzleCtrl.ts:370
 msgid "Try something else."
 msgstr "ลองอย่างอื่นดู"
 
-#: ../client/puzzleCtrl.ts:364
+#: ../client/puzzleCtrl.ts:384
 msgid "Best move!"
 msgstr "ยอดเยี่ยม"
 
-#: ../client/puzzleCtrl.ts:365
+#: ../client/puzzleCtrl.ts:384
 msgid "Keep going..."
 msgstr "เดินต่อไป..."
 
-#: ../client/puzzleCtrl.ts:378
+#: ../client/puzzleCtrl.ts:396
 msgid "Success!"
 msgstr "สำเร็จ!"
 
-#: ../client/puzzleCtrl.ts:383
+#: ../client/puzzleCtrl.ts:401
 msgid "Puzzle complete!"
 msgstr "เสร็จสิ้น"
 
-#: ../client/puzzleCtrl.ts:386
+#: ../client/puzzleCtrl.ts:404
 msgid "We have no more puzzles for this variant."
 msgstr ""
 
-#: ../client/puzzleCtrl.ts:396
+#: ../client/puzzleCtrl.ts:426
 msgid "Did you like this puzzle?"
 msgstr "คุณชอบหมากกลนี้หรือไม่?"
 
-#: ../client/puzzleCtrl.ts:397
+#: ../client/puzzleCtrl.ts:427
 msgid "Vote to load the next one!"
 msgstr "ให้คะแนนแล้วไปข้อต่อไป"
 
-#: ../client/puzzleCtrl.ts:411
+#: ../client/puzzleCtrl.ts:435
 msgid "Continue training"
 msgstr "ดูข้อนี้ต่อ"
 
-#: ../client/puzzleSettings.ts:53
+#: ../client/puzzleSettings.ts:39
 msgid "Jump to next puzzle immediately"
 msgstr "ไปข้อต่อไปอัตโนมัติ"
 
@@ -1631,372 +2920,464 @@ msgstr "นำเข้า"
 msgid "level %1"
 msgstr "ระดับ %1"
 
-#: ../client/result.ts:57
+#: ../client/result.ts:73
 msgid "Game aborted"
 msgstr "เกมถูกยกเลิก"
 
-#: ../client/result.ts:60
+#: ../client/result.ts:76
 msgid "Checkmate"
 msgstr "รุกจน"
 
-#: ../client/result.ts:63
+#: ../client/result.ts:79
 msgid "%1 resigned"
 msgstr "%1ยอมแพ้"
 
-#: ../client/result.ts:66
+#: ../client/result.ts:82
 msgid "Stalemate"
 msgstr "อับ"
 
-#: ../client/result.ts:69 ../client/result.ts:75
+#: ../client/result.ts:85 ../client/result.ts:91
 msgid "Time out"
 msgstr "หมดเวลา"
 
-#: ../client/bug/roundCtrl.bug.ts:354 ../client/result.ts:72
-#: ../client/result.ts:153 ../client/roundCtrl.ts:369
+#: ../client/result.ts:88 ../client/result.ts:168 ../client/roundCtrl.ts:470
 msgid "Draw"
 msgstr "เสมอ"
 
-#: ../client/result.ts:78
+#: ../client/result.ts:94
 msgid "%1 abandoned the game"
 msgstr "%1ละทิ้งเกม"
 
-#: ../client/result.ts:81
+#: ../client/result.ts:97
 msgid "Cheat detected"
 msgstr "ตรวจพบการโกง"
 
-#: ../client/result.ts:84
+#: ../client/result.ts:100
 msgid "Not started"
 msgstr "เกมไม่เริ่ม"
 
-#: ../client/result.ts:87
+#: ../client/result.ts:103
 msgid "Invalid move"
 msgstr "เดินผิดกติกา"
 
-#: ../client/result.ts:90
+#: ../client/result.ts:106
 msgid "Unknown reason"
 msgstr "ไม่ทราบสาเหตุ"
 
-#: ../client/result.ts:102
+#: ../client/result.ts:118
 msgid "Campmate"
 msgstr "ยึดฐาน"
 
-#: ../client/result.ts:105
+#: ../client/result.ts:121
 msgid "Altar mate"
 msgstr "ยึดแท่นบูชา"
 
-#: ../client/result.ts:108
+#: ../client/result.ts:124
 msgid "Race finished"
 msgstr ""
 
-#: ../client/result.ts:111
+#: ../client/result.ts:127
 msgid "Explosion of king"
 msgstr "คิงระเบิด"
 
-#: ../client/result.ts:114
+#: ../client/result.ts:130
 msgid "King in the center"
 msgstr "คิงเข้าถึงกลางกระดาน"
 
-#: ../client/result.ts:117
+#: ../client/result.ts:133
 msgid "Three checks"
 msgstr "รุกครบสามครั้ง"
 
-#: ../client/result.ts:121
+#: ../client/result.ts:137
 msgid "King captured"
 msgstr "คิงถูกกิน"
 
-#: ../client/result.ts:124 ../client/result.ts:134
+#: ../client/result.ts:140 ../client/result.ts:150
 msgid "Point counting"
 msgstr "นับคะแนน"
 
-#: ../client/result.ts:127
+#: ../client/result.ts:143
 msgid "Variant ending"
 msgstr ""
 
-#: ../client/result.ts:137
+#: ../client/result.ts:153
+msgid "Claimed variant ending"
+msgstr ""
+
+#: ../client/result.ts:153
 msgid "Repetition"
 msgstr "ตำแหน่งหมากซ้ำ"
 
-#: ../client/result.ts:156
+#: ../client/result.ts:171
 msgid "%1 won"
 msgstr ""
 
-#: ../client/roundCtrl.ts:275 ../client/roundCtrl.ts:1529
+#: ../client/roundCtrl.ts:356 ../client/roundCtrl.ts:1843
 msgid " +15 seconds"
 msgstr "+15 วินาที"
 
-#: ../client/roundCtrl.ts:282
+#: ../client/roundCtrl.ts:372
 msgid "Give 15 seconds"
 msgstr "เพิ่มให้ 15 วินาที"
 
-#: ../client/roundCtrl.ts:300
+#: ../client/roundCtrl.ts:393
 msgid "Berserk"
 msgstr "เบอร์เซิร์ก"
 
-#: ../client/bug/roundCtrl.bug.ts:353 ../client/roundCtrl.ts:365
-#: ../client/roundCtrl.ts:1264 ../client/roundCtrl.ts:1266
+#: ../client/roundCtrl.ts:463 ../client/roundCtrl.ts:1575
+#: ../client/roundCtrl.ts:1581
 msgid "Count"
 msgstr "นับ"
 
-#: ../client/roundCtrl.ts:367
+#: ../client/roundCtrl.ts:466
 msgid "Pass"
 msgstr "ผ่าน"
 
-#: ../client/bug/roundCtrl.bug.ts:355 ../client/roundCtrl.ts:371
+#: ../client/roundCtrl.ts:474 ../client/roundCtrl.ts:856
+#: ../client/two-board/round/roundControls.ts:155
 msgid "Resign"
 msgstr "ยอมแพ้"
 
-#: ../client/roundCtrl.ts:481
+#: ../client/roundCtrl.ts:593
 msgid "Abort"
 msgstr "ยกเลิก"
 
-#: ../client/bug/roundCtrl.bug.ts:618 ../client/roundCtrl.ts:568
+#: ../client/roundCtrl.ts:721
+msgid "Your opponent proposes a takeback"
+msgstr ""
+
+#: ../client/roundCtrl.ts:743
+msgid "Takeback offer sent"
+msgstr ""
+
+#: ../client/roundCtrl.ts:752
 msgid "Are you sure you want to draw?"
 msgstr "ต้องการเสมอจริงหรือไม่?"
 
-#: ../client/bug/roundCtrl.bug.ts:620 ../client/roundCtrl.ts:570
+#: ../client/roundCtrl.ts:753 ../client/two-board/round/roundControls.ts:145
+msgid "Offer draw"
+msgstr ""
+
+#: ../client/roundCtrl.ts:758
 msgid "Draw offer sent"
 msgstr "ส่งคำขอเสมอแล้ว"
 
-#: ../client/bug/roundCtrl.bug.ts:635 ../client/roundCtrl.ts:584
+#: ../client/roundCtrl.ts:798
 msgid "Your opponent offers a draw"
 msgstr "ฝ่ายตรงข้ามขอเสมอกับคุณ"
 
-#: ../client/roundCtrl.ts:600
+#: ../client/roundCtrl.ts:821
 msgid "Confirm move"
 msgstr "ยืนยันการเดิน"
 
-#: ../client/bug/roundCtrl.bug.ts:662 ../client/roundCtrl.ts:627
+#: ../client/roundCtrl.ts:855
 msgid "Are you sure you want to resign?"
 msgstr "ต้องการยอมแพ้จริงหรือไม่?"
 
-#: ../client/roundCtrl.ts:642
+#: ../client/roundCtrl.ts:873
 msgid "Blue (Cho)"
 msgstr "น้ำเงิน (โช) "
 
-#: ../client/roundCtrl.ts:642
+#: ../client/roundCtrl.ts:873
 msgid "Red (Han)"
 msgstr "แดง (ฮัน) "
 
-#: ../client/roundCtrl.ts:643
+#: ../client/roundCtrl.ts:874
 msgid ""
 "Waiting for %1 to choose starting positions of the horses and elephants..."
 msgstr "กำลังรอให้ฝ่าย%1เลือกตำแหน่งเริ่มต้นของม้าและช้าง..."
 
-#: ../client/roundCtrl.ts:658
+#: ../client/roundCtrl.ts:889
 msgid ""
 "You can use the arrow buttons (below the board -- scroll down to display) to"
 " switch them, then click on the check mark to finalize your decision."
 msgstr ""
 
-#: ../client/roundCtrl.ts:661
+#: ../client/roundCtrl.ts:894
 msgid "To start the game you have to click on the check mark!"
 msgstr ""
 
-#: ../client/roundCtrl.ts:689 ../client/roundCtrl.ts:691
+#: ../client/roundCtrl.ts:925 ../client/roundCtrl.ts:931
 msgid "Switch pieces"
 msgstr "สลับตัวหมาก"
 
-#: ../client/roundCtrl.ts:690
+#: ../client/roundCtrl.ts:928
 msgid "Ready"
 msgstr "พร้อม"
 
-#: ../client/bug/roundCtrl.bug.ts:692 ../client/roundCtrl.ts:725
+#: ../client/roundCtrl.ts:972 ../client/two-board/round/roundControls.ts:202
 msgid "VIEW REMATCH"
 msgstr "ดูเกมที่เล่นอีก"
 
-#: ../client/bug/roundCtrl.bug.ts:700 ../client/roundCtrl.ts:732
+#: ../client/roundCtrl.ts:980
 msgid "Rematch offer sent"
 msgstr "ส่งคำขอเล่นอีกแล้ว"
 
-#: ../client/bug/roundCtrl.bug.ts:714 ../client/roundCtrl.ts:745
+#: ../client/roundCtrl.ts:999
 msgid "Your opponent offers a rematch"
 msgstr "ฝ่ายตรงข้ามขอเล่นกับคุณอีกครั้ง"
 
-#: ../client/roundCtrl.ts:787
+#: ../client/roundCtrl.ts:1042
 msgid "BACK TO SIMUL"
 msgstr ""
 
-#: ../client/roundCtrl.ts:793
+#: ../client/roundCtrl.ts:1051
 msgid "VIEW TOURNAMENT"
 msgstr "ดูหน้าการแข่งขัน"
 
-#: ../client/roundCtrl.ts:796
+#: ../client/roundCtrl.ts:1057
 msgid "BACK TO TOURNAMENT"
 msgstr "กลับสู่หน้าการแข่งขัน"
 
-#: ../client/roundCtrl.ts:798 ../client/tournament.ts:217
+#: ../client/roundCtrl.ts:1061 ../client/tournament.ts:295
+#: ../client/tournament.ts:313 ../client/tournamentRR.ts:565
+#: ../client/tournamentRR.ts:587
+msgid "WITHDRAW"
+msgstr "ถอนตัว"
+
+#: ../client/roundCtrl.ts:1061 ../client/tournament.ts:313
 msgid "PAUSE"
 msgstr "หยุดชั่วคราว"
 
-#: ../client/bug/roundCtrl.bug.ts:735 ../client/roundCtrl.ts:801
+#: ../client/roundCtrl.ts:1070 ../client/two-board/round/roundControls.ts:219
 msgid "REMATCH"
 msgstr "ขอเล่นอีก"
 
-#: ../client/bug/roundCtrl.bug.ts:736 ../client/roundCtrl.ts:802
-msgid "NEW OPPONENT"
-msgstr "หาคู่ต่อสู้ใหม่"
-
-#: ../client/bug/roundCtrl.bug.ts:738 ../client/editor/editorCtrl.ts:152
-#: ../client/roundCtrl.ts:805
+#: ../client/editor/editorCtrl.ts:168 ../client/roundCtrl.ts:1076
+#: ../client/two-board/round/roundControls.ts:224
 msgid "ANALYSIS BOARD"
 msgstr "วิเคราะห์เกม"
 
-#: ../client/roundCtrl.ts:987
+#: ../client/roundCtrl.ts:1260
 msgid "Propose takeback"
 msgstr "ขอย้อนตาเดิน"
 
-#: ../client/roundCtrl.ts:1262
+#: ../client/roundCtrl.ts:1559
 msgid "Stop counting"
 msgstr "หยุดนับ"
 
-#: ../client/roundCtrl.ts:1262
+#: ../client/roundCtrl.ts:1562
 msgid "Stop"
 msgstr "หยุด"
 
-#: ../client/roundCtrl.ts:1264 ../client/roundCtrl.ts:1266
+#: ../client/roundCtrl.ts:1572 ../client/roundCtrl.ts:1581
 msgid "Start counting"
 msgstr "เริ่มนับ"
 
-#: ../client/roundCtrl.ts:1458
+#: ../client/roundCtrl.ts:1765
 msgid "%1 second to play the first move"
 msgid_plural "%1 seconds to play the first move"
 msgstr[0] "มีเวลาอีก %1 วินาทีสำหรับเดินตาแรก"
 
-#: ../client/settingsView.ts:59
-msgid "Log out"
-msgstr "ออกจากระบบ"
-
-#: ../client/settingsView.ts:64
-msgid "Are you sure you want to log out?"
-msgstr "ต้องการออกจากระบบจริงหรือไม่?"
-
-#: ../client/settingsView.ts:71 ../client/settingsView.ts:108
+#: ../client/settingsView.ts:62 ../client/settingsView.ts:124
 msgid "Sound"
 msgstr "เสียง"
 
-#: ../client/settingsView.ts:72 ../client/settingsView.ts:118
+#: ../client/settingsView.ts:63 ../client/settingsView.ts:130
 msgid "Background"
 msgstr "พื้นหลัง"
 
-#: ../client/settingsView.ts:74 ../client/settingsView.ts:140
+#: ../client/settingsView.ts:65 ../client/settingsView.ts:244
 msgid "Board Settings"
 msgstr "ตั้งค่ากระดาน"
 
-#: ../client/settingsView.ts:75 ../client/settingsView.ts:132
+#: ../client/settingsView.ts:66 ../client/settingsView.ts:138
 msgid "Zen Mode"
 msgstr "โหมดสมาธิ"
 
-#: ../client/sound.ts:199
+#: ../client/settingsView.ts:74
+msgid "Account"
+msgstr ""
+
+#: ../client/settingsView.ts:75 ../client/settingsView.ts:93
+msgid "Log out"
+msgstr "ออกจากระบบ"
+
+#: ../client/settingsView.ts:92
+msgid "Are you sure you want to log out?"
+msgstr "ต้องการออกจากระบบจริงหรือไม่?"
+
+#: ../client/settingsView.ts:158
+msgid "Only friends can message me"
+msgstr ""
+
+#: ../client/settingsView.ts:170
+msgid "Correspondence move push notifications"
+msgstr ""
+
+#: ../client/settingsView.ts:182
+msgid "Round-robin appointment push notifications"
+msgstr ""
+
+#: ../client/sound.ts:261
 msgid "Volume"
 msgstr "ระดับเสียง"
 
-#: ../client/tournament.ts:190
+#: ../client/timeline.ts:52 ../client/tournament.ts:1215
+#: ../client/tournamentRR.ts:1961
+msgid "Team"
+msgstr ""
+
+#: ../client/timeline.ts:86 ../client/timeline.ts:102
+msgid "Blog post"
+msgstr ""
+
+#: ../client/timeline.ts:112 ../client/timeline.ts:122
+msgid "Simultaneous exhibition"
+msgstr ""
+
+#: ../client/timeline.ts:136
+msgid "Tournament"
+msgstr ""
+
+#: ../client/timeline.ts:162
+msgid "Sign in"
+msgstr ""
+
+#: ../client/timeline.ts:167 ../client/timeline.ts:205
+msgid "No activity yet. Follow players to see what they do."
+msgstr ""
+
+#: ../client/timeline.ts:169 ../client/timeline.ts:202
+msgid "Timeline"
+msgstr ""
+
+#: ../client/tournament.ts:251 ../client/tournament.ts:253
+#: ../client/tournamentRR.ts:253 ../client/tournamentRR.ts:255
+msgid "Abort tournament"
+msgstr ""
+
+#: ../client/tournament.ts:252 ../client/tournamentRR.ts:254
+msgid ""
+"This will end the tournament immediately. This action cannot be undone."
+msgstr ""
+
+#: ../client/tournament.ts:263
 msgid "First"
 msgstr "หน้าแรก"
 
-#: ../client/tournament.ts:191
+#: ../client/tournament.ts:266
 msgid "Prev"
 msgstr "หน้าที่แล้ว"
 
-#: ../client/tournament.ts:195
-msgid "Next"
-msgstr "หน้าต่อไป"
-
-#: ../client/tournament.ts:196
+#: ../client/tournament.ts:277
 msgid "Last"
 msgstr "หน้าสุดท้าย"
 
-#: ../client/tournament.ts:197
+#: ../client/tournament.ts:280
 msgid "Scroll to your player"
 msgstr "เลื่อนไปหาตัวเอง"
 
-#: ../client/tournament.ts:208
-msgid "WITHDRAW"
-msgstr "ถอนตัว"
-
-#: ../client/tournament.ts:210 ../client/tournament.ts:215
+#: ../client/tournament.ts:301 ../client/tournament.ts:310
+#: ../client/tournamentRR.ts:573 ../client/tournamentRR.ts:581
 msgid "JOIN"
 msgstr "เข้าร่วม"
 
-#: ../client/tournament.ts:222
+#: ../client/tournament.ts:326 ../client/tournamentRR.ts:554
 msgid "LOG IN"
 msgstr "เข้าสู่ระบบ"
 
-#: ../client/tournament.ts:235
-msgid "Tournament complete"
-msgstr "การแข่งขันเสร็จสิ้น"
-
-#: ../client/tournament.ts:237
+#: ../client/tournament.ts:344 ../client/tournamentRR.ts:1714
 msgid "Players"
 msgstr "จำนวนผู้เล่น"
 
-#: ../client/tournament.ts:238
+#: ../client/tournament.ts:345 ../client/tournamentRR.ts:1716
 msgid "Average rating"
 msgstr "คะแนนเฉลี่ย"
 
-#: ../client/tournament.ts:239 ../client/tournament.ts:413
-#: ../client/tournament.ts:475 ../client/tournament.ts:485
-#: ../client/tournament.ts:495
+#: ../client/tournament.ts:346 ../client/tournament.ts:649
+#: ../client/tournament.ts:744 ../client/tournament.ts:764
+#: ../client/tournament.ts:784 ../client/tournamentRR.ts:1719
+#: ../client/tournamentRR.ts:1751
 msgid "Games played"
 msgstr "จำนวนเกม"
 
-#: ../client/tournament.ts:240 ../client/tournament.ts:241
+#: ../client/tournament.ts:348 ../client/tournament.ts:352
+#: ../client/tournamentRR.ts:1720 ../client/tournamentRR.ts:1721
 msgid "%1 wins"
 msgstr "%1ชนะ"
 
-#: ../client/tournament.ts:242
+#: ../client/simul/simul.ts:485 ../client/tournament.ts:355
+#: ../client/tournamentRR.ts:1722
 msgid "Draws"
 msgstr "เสมอ"
 
-#: ../client/tournament.ts:243 ../client/tournament.ts:416
-#: ../client/tournament.ts:477 ../client/tournament.ts:487
-#: ../client/tournament.ts:497
+#: ../client/tournament.ts:359 ../client/tournament.ts:653
+#: ../client/tournament.ts:749 ../client/tournament.ts:769
+#: ../client/tournament.ts:789
 msgid "Berserk rate"
 msgstr "อัตราเบอร์เซิร์ก"
 
-#: ../client/tournament.ts:251
+#: ../client/tournament.ts:372
 msgid "Download all games"
 msgstr "ดาวน์โหลดเกมทั้งหมด"
 
-#: ../client/tournament.ts:259
+#: ../client/tournament.ts:384
 msgid "Download all games in JSON"
 msgstr "ดาวน์โหลดทุกเกมเป็น JSON"
 
-#: ../client/tournament.ts:387
+#: ../client/tournament.ts:400
+msgid "Download TRF pairing state"
+msgstr ""
+
+#: ../client/tournament.ts:407 ../client/tournamentRR.ts:1712
+msgid "Tournament complete"
+msgstr "การแข่งขันเสร็จสิ้น"
+
+#: ../client/tournament.ts:575
+msgid "Late"
+msgstr ""
+
+#: ../client/tournament.ts:575
+msgid "Absent"
+msgstr ""
+
+#: ../client/tournament.ts:575
+msgid "Bye"
+msgstr ""
+
+#: ../client/tournament.ts:619
 msgid "Arena"
 msgstr "อารีนา"
 
-#: ../client/tournament.ts:389
+#: ../client/tournament.ts:621
 msgid "Round-Robin"
 msgstr "พบกันหมด"
 
-#: ../client/tournament.ts:391
+#: ../client/tournament.ts:623
 msgid "Swiss"
 msgstr "สวิส"
 
-#: ../client/tournament.ts:412 ../client/tournament.ts:474
-#: ../client/tournament.ts:484 ../client/tournament.ts:494
+#: ../client/tournament.ts:646 ../client/tournament.ts:741
+#: ../client/tournament.ts:761 ../client/tournament.ts:781
+msgid "Tie Break"
+msgstr ""
+
+#: ../client/tournament.ts:648 ../client/tournament.ts:743
+#: ../client/tournament.ts:763 ../client/tournament.ts:783
+#: ../client/tournamentRR.ts:1750
 msgid "Performance"
 msgstr "สมรรถนะ"
 
-#: ../client/tournament.ts:414 ../client/tournament.ts:476
-#: ../client/tournament.ts:486 ../client/tournament.ts:496
+#: ../client/tournament.ts:650 ../client/tournament.ts:745
+#: ../client/tournament.ts:765 ../client/tournament.ts:785
+#: ../client/tournamentRR.ts:1753
 msgid "Win rate"
 msgstr "อัตราชนะ"
 
-#: ../client/tournament.ts:415
+#: ../client/tournament.ts:651
 msgid "Average opponent"
 msgstr "ค่าเฉลี่ยคู่แข่ง"
 
-#: ../client/tournament.ts:574
+#: ../client/tournament.ts:877
 msgid "Defender:"
 msgstr "ผู้ป้องกันโล่:"
 
-#: ../client/tournament.ts:606
+#: ../client/tournament.ts:908
 msgid "Custom position"
 msgstr "ตำแหน่งเริ่มต้นต่างจากปกติ"
 
-#: ../client/tournament.ts:614
+#: ../client/tournament.ts:918
 msgid ""
 "This Shield trophy is unique. The winner keeps it for one month, then must "
 "defend it during the next %1 Shield tournament!"
@@ -2005,205 +3386,864 @@ msgstr ""
 "ผู้ชนะจะได้ถือครองโล่เป็นเวลาหนึ่งเดือน "
 "จากนั้นจะต้องมาป้องกันโล่ในการแข่งชิงโล่%1ครั้งต่อไป!"
 
-#: ../client/tournament.ts:690
+#: ../client/tournament.ts:1072
 msgid "Top games"
 msgstr ""
 
-#: ../client/tournament.ts:832
+#: ../client/tournament.ts:1228 ../client/tournamentRR.ts:1954
 msgid "Edit tournament"
 msgstr ""
 
-#: ../client/tournamentClock.ts:42
+#: ../client/tournamentClock.ts:34
+msgid "The tournament is starting!"
+msgstr ""
+
+#: ../client/tournamentClock.ts:101 ../client/tournamentClock.ts:132
+#: ../client/tournamentClock.ts:142
+msgid "%1 ongoing game"
+msgid_plural "%1 ongoing games"
+msgstr[0] ""
+
+#: ../client/tournamentClock.ts:109
+msgid "NEXT ROUND READY"
+msgstr ""
+
+#: ../client/tournamentClock.ts:109
+msgid "waiting for organizer"
+msgstr ""
+
+#: ../client/tournamentClock.ts:118
+msgid "NEXT ROUND IN"
+msgstr ""
+
+#: ../client/tournamentClock.ts:162
 msgid "STARTING IN"
 msgstr "กำลังจะเริ่มในอีก"
 
-#: ../client/tournamentFaq.ts:9
+#: ../client/tournamentFaq.ts:7
 msgid "This tournament is *not* rated and will *not* affect your rating."
 msgstr ""
 
-#: ../client/tournamentFaq.ts:11
+#: ../client/tournamentFaq.ts:9
 msgid "This tournament is rated and will affect your rating."
 msgstr ""
 
-#: ../client/tournamentFaq.ts:14
+#: ../client/tournamentFaq.ts:16
 msgid ""
 "You will be notified when the tournament starts, so it is safe to play in "
 "another tab while waiting."
 msgstr ""
 
-#: ../client/tournamentFaq.ts:15
+#: ../client/tournamentFaq.ts:18 ../client/tournamentFaq.ts:99
+#: ../client/tournamentFaq.ts:143
 msgid "Is it rated?"
 msgstr ""
 
-#: ../client/tournamentFaq.ts:17
+#: ../client/tournamentFaq.ts:20 ../client/tournamentFaq.ts:154
 msgid "How are scores calculated?"
 msgstr ""
 
-#: ../client/tournamentFaq.ts:19
+#: ../client/tournamentFaq.ts:22
 msgid ""
 "A win has a base score of 2 points, a draw 1 point, and a loss is worth no "
 "points."
 msgstr ""
 
-#: ../client/tournamentFaq.ts:21
+#: ../client/tournamentFaq.ts:24
 msgid ""
 "If you win two games consecutively you will start a double point streak, "
 "represented by a flame icon."
 msgstr ""
 
-#: ../client/tournamentFaq.ts:23
+#: ../client/tournamentFaq.ts:26
 msgid ""
 "The following games will continue to be worth double points until you fail "
 "to win a game."
 msgstr ""
 
-#: ../client/tournamentFaq.ts:25
+#: ../client/tournamentFaq.ts:28
 msgid ""
 "That is, a win will be worth 4 points, a draw 2 points, and a loss will "
 "still not award any points."
 msgstr ""
 
-#: ../client/tournamentFaq.ts:27
+#: ../client/tournamentFaq.ts:30
 msgid ""
 "For example, two wins followed by a draw will be worth 6 points: 2 + 2 + (2 "
 "× 1)"
 msgstr ""
 
-#: ../client/tournamentFaq.ts:30
+#: ../client/tournamentFaq.ts:33
 msgid ""
 "(Janggi scores are different. A win has a base score of 7 points, and a loss"
 " is worth no points. Point counting win and loss worth 4 and 2 points "
 "respectively.)"
 msgstr ""
 
-#: ../client/tournamentFaq.ts:32
+#: ../client/tournamentFaq.ts:37
 msgid "Arena Berserk"
 msgstr ""
 
-#: ../client/tournamentFaq.ts:33
+#: ../client/tournamentFaq.ts:40
 msgid ""
 "When a player clicks the Berserk button at the beginning of the game, they "
 "lose half of their clock time, but the win is worth one extra tournament "
 "point."
 msgstr ""
 
-#: ../client/tournamentFaq.ts:35
+#: ../client/tournamentFaq.ts:47
 msgid ""
 "Going Berserk in time controls with an increment also cancels the increment."
 " (1+2 is an exception, it gives 1+0)"
 msgstr ""
 
-#: ../client/tournamentFaq.ts:37
+#: ../client/tournamentFaq.ts:52
 msgid "Berserk is not available for games with zero initial time (0+1, 0+2)."
 msgstr ""
 
-#: ../client/tournamentFaq.ts:39
+#: ../client/tournamentFaq.ts:54
 msgid ""
 "Berserk only grants an extra point if you play at least 7 moves in the game."
 msgstr ""
 
-#: ../client/tournamentFaq.ts:40
+#: ../client/tournamentFaq.ts:55 ../client/tournamentFaq.ts:117
 msgid "How is the winner decided?"
 msgstr ""
 
-#: ../client/tournamentFaq.ts:41
+#: ../client/tournamentFaq.ts:58
 msgid ""
 "The player(s) with the most points after the tournament's set time limit "
 "will be announced the winner(s)."
 msgstr ""
 
-#: ../client/tournamentFaq.ts:43
+#: ../client/tournamentFaq.ts:65
 msgid ""
 "When two or more players have the same number of points, the tournament "
 "performance is the tie break."
 msgstr ""
 
-#: ../client/tournamentFaq.ts:44
+#: ../client/tournamentFaq.ts:67
 msgid "How does the pairing work?"
 msgstr ""
 
-#: ../client/tournamentFaq.ts:45
+#: ../client/tournamentFaq.ts:68
 msgid ""
 "At the beginning of the tournament, players are paired based on their "
 "rating."
 msgstr ""
 
-#: ../client/tournamentFaq.ts:47
+#: ../client/tournamentFaq.ts:72
 msgid ""
 "As soon as you finish a game, return to the tournament lobby: you will then "
 "be paired with a player close to your ranking. This ensures minimum wait "
 "time, however you may not face all other players in the tournament."
 msgstr ""
 
-#: ../client/tournamentFaq.ts:49
+#: ../client/tournamentFaq.ts:77
 msgid ""
 "Play fast and return to the lobby to play more games and win more points."
 msgstr ""
 
-#: ../client/tournamentFaq.ts:50
+#: ../client/tournamentFaq.ts:78 ../client/tournamentFaq.ts:124
+#: ../client/tournamentFaq.ts:211
 msgid "How does it end?"
 msgstr ""
 
-#: ../client/tournamentFaq.ts:51
+#: ../client/tournamentFaq.ts:81
 msgid ""
 "The tournament has a countdown clock. When it reaches zero, the tournament "
 "rankings are frozen, and the winner is announced. Games in progress must be "
 "finished, however they don't count for the tournament."
 msgstr ""
 
-#: ../client/tournamentFaq.ts:52
+#: ../client/tournamentFaq.ts:85
 msgid "Other important rules"
 msgstr ""
 
-#: ../client/tournamentFaq.ts:53
+#: ../client/tournamentFaq.ts:88
 msgid ""
 "There is a countdown for your first move. Failing to make a move within this"
 " time will forfeit the game to your opponent."
 msgstr ""
 
-#: ../client/tournamentFaq.ts:55
+#: ../client/tournamentFaq.ts:93
 msgid ""
 "Drawing the game before each player has moved 5 times will earn neither "
 "player any points."
 msgstr ""
 
-#: ../client/user.ts:31
-msgid "Anonymous"
+#: ../client/tournamentFaq.ts:101
+msgid "How does round-robin work?"
 msgstr ""
 
-#: ../client/usernameDialog.ts:133
-msgid "Choose your username"
+#: ../client/tournamentFaq.ts:102
+msgid ""
+"In a round-robin tournament, each player can play one game against every "
+"other player."
 msgstr ""
 
-#: ../client/usernameDialog.ts:134
-msgid "Please choose a username for your account."
+#: ../client/tournamentFaq.ts:103
+msgid "How do I play a game?"
 msgstr ""
 
-#: ../client/usernameDialog.ts:139
-msgid "Username"
+#: ../client/tournamentFaq.ts:106
+msgid ""
+"To play, click the cell in the table where you and the opponent you want to "
+"play against meet. You can schedule a date and time of the game or start the"
+" game right away by sending a challenge to your opponent."
 msgstr ""
 
-#: ../client/usernameDialog.ts:158
-msgid "3-20 characters"
+#: ../client/tournamentFaq.ts:110
+msgid "How are points given?"
 msgstr ""
 
-#: ../client/usernameDialog.ts:159
-msgid "Letters, numbers, underscore and dash only"
+#: ../client/tournamentFaq.ts:113
+msgid ""
+"You get 2 points for a win, 1 for a draw, and 0 for a loss. Every match "
+"counts toward your total score."
 msgstr ""
 
-#: ../client/usernameDialog.ts:160
-msgid "Must be unique"
+#: ../client/tournamentFaq.ts:120
+msgid ""
+"The player with the most points at the end wins. If players have the same "
+"number of points, the one with the higher tournament performance is ranked "
+"higher."
 msgstr ""
 
-#: ../client/usernameDialog.ts:171
-msgid "Creating account..."
+#: ../client/tournamentFaq.ts:127
+msgid ""
+"The tournament ends when all scheduled games are completed, or when the "
+"configured end time is reached. Aborted games do not count and can be "
+"scheduled and played again later."
 msgstr ""
 
-#: ../client/usernameDialog.ts:171
+#: ../client/tournamentFaq.ts:136
+msgid "Swiss Rules"
+msgstr ""
+
+#: ../client/tournamentFaq.ts:139
+msgid ""
+"Swiss tournaments are played in fixed rounds. After each round finishes, the"
+" next round starts and players are paired with others on similar score."
+msgstr ""
+
+#: ../client/tournamentFaq.ts:145
+msgid "How does pairing work?"
+msgstr ""
+
+#: ../client/tournamentFaq.ts:146
+msgid ""
+"Players are paired by Swiss rules with score-group logic and color "
+"constraints."
+msgstr ""
+
+#: ../client/tournamentFaq.ts:150
+msgid ""
+"You cannot play the same opponent twice, and the system may assign a bye if "
+"no legal opponent exists in a round."
+msgstr ""
+
+#: ../client/tournamentFaq.ts:155
+msgid "Most variants use 2/1/0 scoring for win/draw/loss."
+msgstr ""
+
+#: ../client/tournamentFaq.ts:157
+msgid ""
+"Janggi uses 7/0 for full win/loss, and 4/2 for point-counting win/loss."
+msgstr ""
+
+#: ../client/tournamentFaq.ts:161
+msgid ""
+"A pairing-allocated bye gives full win points. A late join gives a single "
+"half-bye compensation even if several rounds were missed."
+msgstr ""
+
+#: ../client/tournamentFaq.ts:168
+msgid ""
+"Janggi exception: the late-join half-bye is worth 2 points, pairing-"
+"allocated byes give 7 points, and absent rounds give 0 points."
+msgstr ""
+
+#: ../client/tournamentFaq.ts:172
+msgid "Late join and absences"
+msgstr ""
+
+#: ../client/tournamentFaq.ts:173
+msgid ""
+"You can join a Swiss after it starts, but only until half of the rounds have"
+" been played."
+msgstr ""
+
+#: ../client/tournamentFaq.ts:177
+msgid ""
+"Most variants: late joiners get one half-point compensation, and no points "
+"for other missed rounds."
+msgstr ""
+
+#: ../client/tournamentFaq.ts:180
+msgid ""
+"If you miss a round, you are not paired for that round and score 0 points "
+"for it."
+msgstr ""
+
+#: ../client/tournamentFaq.ts:184
+msgid ""
+"If you miss an actual Swiss game without moving, you are temporarily blocked"
+" from entering a new Swiss until the no-show timeout expires."
+msgstr ""
+
+#: ../client/tournamentFaq.ts:191
+msgid ""
+"Absent and late-join placeholder rounds are shown in the standings, and you "
+"can still return for later rounds."
+msgstr ""
+
+#: ../client/tournamentFaq.ts:195
+msgid "Tie-break"
+msgstr ""
+
+#: ../client/tournamentFaq.ts:196
+msgid ""
+"If players have the same score, Sonneborn-Berger values decide final "
+"ranking."
+msgstr ""
+
+#: ../client/tournamentFaq.ts:200
+msgid ""
+"Wins count the full score of the opponent, draws count half, and pairing-"
+"allocated byes use a virtual-opponent style value. Late-join and absent "
+"placeholder rounds do not add tie-break credit."
+msgstr ""
+
+#: ../client/tournamentFaq.ts:204
+msgid "What if the event has too many rounds?"
+msgstr ""
+
+#: ../client/tournamentFaq.ts:207
+msgid ""
+"If no legal new pairing can be produced, the Swiss finishes early and the "
+"current standings become final."
+msgstr ""
+
+#: ../client/tournamentFaq.ts:214
+msgid ""
+"The tournament ends after all scheduled rounds are completed, or earlier if "
+"no further legal pairings exist."
+msgstr ""
+
+#: ../client/tournamentForm.ts:8
+msgid "Only public user-defined variants can be used in tournaments."
+msgstr ""
+
+#: ../client/tournamentForm.ts:9
+msgid "Unknown tournament variant."
+msgstr ""
+
+#: ../client/tournamentForm.ts:11
+msgid "Two-board variants are not supported in tournaments."
+msgstr ""
+
+#: ../client/tournamentForm.ts:12
+msgid "Invalid tournament time control."
+msgstr ""
+
+#: ../client/tournamentForm.ts:13
+msgid "Tournament team not found."
+msgstr ""
+
+#: ../client/tournamentForm.ts:15
+msgid ""
+"You need the tournament permission in this team to create this tournament."
+msgstr ""
+
+#: ../client/tournamentForm.ts:17
+msgid "Round-Robin and Swiss tournaments must belong to a team."
+msgstr ""
+
+#: ../client/tournamentForm.ts:19
+msgid ""
+"You need the tournament permission in this team to manage this tournament."
+msgstr ""
+
+#: ../client/tournamentForm.ts:20
+msgid "Invalid Swiss round count."
+msgstr ""
+
+#: ../client/tournamentForm.ts:21
+msgid "Invalid tournament start date."
+msgstr ""
+
+#: ../client/tournamentForm.ts:22
+msgid "Invalid tournament end date."
+msgstr ""
+
+#: ../client/tournamentForm.ts:23
+msgid "Tournament start date must be in the future."
+msgstr ""
+
+#: ../client/tournamentForm.ts:24
+msgid "Invalid tournament duration or start delay."
+msgstr ""
+
+#: ../client/tournamentForm.ts:26
+msgid "Tournament end date must be after the start date."
+msgstr ""
+
+#: ../client/tournamentForm.ts:28
+msgid "Tournament name must be between 2 and 30 characters."
+msgstr ""
+
+#: ../client/tournamentForm.ts:30
+msgid "Tournament description is limited to 1000 characters."
+msgstr ""
+
+#: ../client/tournamentForm.ts:32
+msgid "Tournament password is limited to 30 characters."
+msgstr ""
+
+#: ../client/tournamentForm.ts:33
+msgid "Tournament starting position is too long."
+msgstr ""
+
+#: ../client/tournamentForm.ts:35
+msgid "This tournament cannot be edited by its creator."
+msgstr ""
+
+#: ../client/tournamentForm.ts:37
+msgid "Tournament creation requires a registered account."
+msgstr ""
+
+#: ../client/tournamentForm.ts:38
+msgid "Invalid Arena start delay."
+msgstr ""
+
+#: ../client/tournamentForm.ts:40
+msgid "Community Arenas can be scheduled at most 24 hours in advance."
+msgstr ""
+
+#: ../client/tournamentForm.ts:42
+msgid "Variant cannot be changed after the tournament has started."
+msgstr ""
+
+#: ../client/tournamentForm.ts:44
+msgid "Time control cannot be changed after the tournament has started."
+msgstr ""
+
+#: ../client/tournamentForm.ts:46
+msgid "Start date cannot be changed after the tournament has started."
+msgstr ""
+
+#: ../client/tournamentForm.ts:48
+msgid "Starting position cannot be changed after the tournament has started."
+msgstr ""
+
+#: ../client/tournamentForm.ts:52
+msgid "Swiss tournaments must have %1 to %2 rounds."
+msgstr ""
+
+#: ../client/tournamentForm.ts:54
+msgid "Swiss round count cannot be lower than the current round (%1)."
+msgstr ""
+
+#: ../client/tournamentForm.ts:56
+msgid "Swiss forbidden pairings are limited to %1 lines."
+msgstr ""
+
+#: ../client/tournamentForm.ts:58
+msgid "Swiss manual pairings are limited to %1 lines."
+msgstr ""
+
+#: ../client/tournamentForm.ts:60
+msgid "Invalid Swiss manual pairing on line %1."
+msgstr ""
+
+#: ../client/tournamentForm.ts:62
+msgid ""
+"Invalid Swiss manual pairing on line %1: a player cannot play themself."
+msgstr ""
+
+#: ../client/tournamentForm.ts:64
+msgid "Invalid Swiss manual pairing on line %1: %2 is used more than once."
+msgstr ""
+
+#: ../client/tournamentForm.ts:66
+msgid "User-created Arenas must last between %1 and %2 minutes."
+msgstr ""
+
+#: ../client/tournamentForm.ts:69
+msgid "Community Arena schedule conflicts with a protected system tournament."
+msgstr ""
+
+#: ../client/tournamentForm.ts:254
+msgid "Selected"
+msgstr ""
+
+#: ../client/simul/simulForm.ts:206 ../client/simul/simulForm.ts:215
+#: ../client/tournamentForm.ts:255 ../client/tournamentForm.ts:264
+msgid "Favorites"
+msgstr ""
+
+#: ../client/simul/simulForm.ts:207 ../client/simul/simulForm.ts:216
+#: ../client/tournamentForm.ts:256 ../client/tournamentForm.ts:265
+msgid "Site variants"
+msgstr ""
+
+#: ../client/simul/simulForm.ts:209 ../client/tournamentForm.ts:258
+msgid "Type to search all public community variants."
+msgstr ""
+
+#: ../client/simul/simulForm.ts:217 ../client/tournamentForm.ts:266
+msgid "Community variants"
+msgstr ""
+
+#: ../client/simul/simulForm.ts:218 ../client/tournamentForm.ts:268
+msgid "No matching variants."
+msgstr ""
+
+#: ../client/simul/simulForm.ts:220 ../client/tournamentForm.ts:270
+msgid "Showing the first %1 matches. Refine your search."
+msgstr ""
+
+#: ../client/tournamentForm.ts:522
+msgid ""
+"Optional. Select a team to restrict this Arena to current team members."
+msgstr ""
+
+#: ../client/tournamentForm.ts:523
+msgid ""
+"Required for production Round-Robin and Swiss. Only current team members can"
+" join team tournaments."
+msgstr ""
+
+#: ../client/tournamentForm.ts:539
+msgid ""
+"Arena runs continuously until the clock expires. Players rejoin from the "
+"lobby after each game."
+msgstr ""
+
+#: ../client/tournamentForm.ts:542
+msgid ""
+"Round-Robin is team-owned and uses a maximum player cap. The joined field is"
+" frozen at start, then the full single-cycle round count is derived "
+"automatically."
+msgstr ""
+
+#: ../client/tournamentForm.ts:545
+msgid ""
+"Swiss is team-owned and fixed-round. Players are paired by score with color "
+"balancing and bye handling when needed."
+msgstr ""
+
+#: ../client/tournamentForm.ts:550
+msgid "Rounds (Swiss)"
+msgstr ""
+
+#: ../client/tournamentForm.ts:554
+msgid "Choose how many rounds the Swiss tournament will play."
+msgstr ""
+
+#: ../client/tournamentForm.ts:559
+msgid ""
+"Choose the maximum Round-Robin field size. When the tournament starts, "
+"rounds are derived from the players who joined."
+msgstr ""
+
+#: ../client/tournamentForm.ts:564
+msgid "Automatic is based on time control and clamped to 10s-1m."
+msgstr ""
+
+#: ../client/tournamentForm.ts:565
+msgid ""
+"Automatic is based on time control and clamped to 10s-1m. With manual "
+"rounds, the organizer starts the next round from the tournament controls."
+msgstr ""
+
+#: ../client/tournamentForm.ts:569
+msgid "Duration"
+msgstr ""
+
+#: ../client/tournamentForm.ts:569
+msgid "Estimated duration"
+msgstr ""
+
+#: ../client/tournamentForm.ts:574
+msgid "Arena uses this as a hard limit."
+msgstr ""
+
+#: ../client/tournamentForm.ts:575
+msgid ""
+"Swiss and Round-Robin only use this as an estimate for scheduling and "
+"display. The event still finishes by rounds."
+msgstr ""
+
+#: ../client/tournamentForm.ts:645 ../client/tournamentForm.ts:651
+msgid "Tournament form submission failed."
+msgstr ""
+
+#: ../client/tournamentLifecycle.ts:48
+msgid "START NEXT ROUND"
+msgstr ""
+
+#: ../client/tournamentLifecycle.ts:53
+msgid "ABORT TOURNAMENT"
+msgstr ""
+
+#: ../client/tournamentRR.ts:305 ../client/tournamentRR.ts:307
+#: ../client/tournamentRR.ts:1159
+msgid "Annul result"
+msgstr ""
+
+#: ../client/tournamentRR.ts:306
+msgid ""
+"This removes the tournament result and reopens the pairing for a replay. The"
+" original game remains in the pairing history."
+msgstr ""
+
+#: ../client/tournamentRR.ts:548
+msgid "Back"
+msgstr ""
+
+#: ../client/tournamentRR.ts:558
+msgid "JOIN REQUEST PENDING"
+msgstr ""
+
+#: ../client/tournamentRR.ts:560
+msgid "JOIN REQUEST DENIED"
+msgstr ""
+
+#: ../client/tournamentRR.ts:568
+msgid "JOINING CLOSED"
+msgstr ""
+
+#: ../client/tournamentRR.ts:616
+msgid "By"
+msgstr ""
+
+#: ../client/simul/simul.ts:999 ../client/tournamentRR.ts:661
+msgid "Finished"
+msgstr ""
+
+#: ../client/tournamentRR.ts:662
+msgid "Current game"
+msgstr ""
+
+#: ../client/tournamentRR.ts:663 ../client/tournamentRR.ts:1444
+msgid "Scheduled"
+msgstr ""
+
+#: ../client/tournamentRR.ts:665
+msgid "Not played"
+msgstr ""
+
+#: ../client/tournamentRR.ts:707 ../client/tournamentRR.ts:1424
+msgid "When"
+msgstr ""
+
+#: ../client/tournamentRR.ts:774 ../client/tournamentRR.ts:1116
+msgid "Open game"
+msgstr ""
+
+#: ../client/tournamentRR.ts:775 ../client/tournamentRR.ts:776
+#: ../client/tournamentRR.ts:1120 ../client/tournamentRR.ts:1121
+msgid "Create challenge"
+msgstr ""
+
+#: ../client/tournamentRR.ts:777 ../client/tournamentRR.ts:1129
+#: ../client/tournamentRR.ts:1130
+msgid "Accept challenge"
+msgstr ""
+
+#: ../client/tournamentRR.ts:778
+msgid "Awaiting response"
+msgstr ""
+
+#: ../client/tournamentRR.ts:779
+msgid "Game in progress"
+msgstr ""
+
+#: ../client/tournamentRR.ts:993
+msgid "Manage players"
+msgstr ""
+
+#: ../client/tournamentRR.ts:1002
+msgid "Challenges"
+msgstr ""
+
+#: ../client/tournamentRR.ts:1009
+msgid "Round-robin views"
+msgstr ""
+
+#: ../client/tournamentRR.ts:1126 ../client/tournamentRR.ts:1127
+msgid "View challenge"
+msgstr ""
+
+#: ../client/tournamentRR.ts:1156
+msgid "Annul result and replay"
+msgstr ""
+
+#: ../client/tournamentRR.ts:1175 ../client/tournamentRR.ts:1177
+#: ../client/tournamentRR.ts:1237
+msgid "Suggested time"
+msgstr ""
+
+#: ../client/tournamentRR.ts:1196
+msgid "Accept suggested time"
+msgstr ""
+
+#: ../client/tournamentRR.ts:1237
+msgid "Suggest different time"
+msgstr ""
+
+#: ../client/tournamentRR.ts:1238
+msgid "Suggest time"
+msgstr ""
+
+#: ../client/tournamentRR.ts:1306 ../client/usernameDialog.ts:176
 msgid "Confirm"
 msgstr ""
 
-#: ../client/view.ts:81
+#: ../client/tournamentRR.ts:1400
+msgid "The game will not start automatically at the scheduled time."
+msgstr ""
+
+#: ../client/tournamentRR.ts:1415
+msgid "No current challenges or active pairing actions."
+msgstr ""
+
+#: ../client/tournamentRR.ts:1420
+msgid "Opponent"
+msgstr ""
+
+#: ../client/tournamentRR.ts:1421
+msgid "Round"
+msgstr ""
+
+#: ../client/tournamentRR.ts:1422
+msgid "Color"
+msgstr ""
+
+#: ../client/tournamentRR.ts:1425
+msgid "Action"
+msgstr ""
+
+#: ../client/tournamentRR.ts:1490
+msgid "Player management is only available to the organizer."
+msgstr ""
+
+#: ../client/tournamentRR.ts:1519
+msgid "Player management"
+msgstr ""
+
+#: ../client/tournamentRR.ts:1532
+msgid "Open joining"
+msgstr ""
+
+#: ../client/tournamentRR.ts:1532
+msgid "Close joining"
+msgstr ""
+
+#: ../client/tournamentRR.ts:1536
+msgid "Kick player"
+msgstr ""
+
+#: ../client/tournamentRR.ts:1539
+msgid "Enter username"
+msgstr ""
+
+#: ../client/tournamentRR.ts:1569 ../client/tournamentRR.ts:1609
+msgid "Kick"
+msgstr ""
+
+#: ../client/tournamentRR.ts:1573
+msgid "Pending requests"
+msgstr ""
+
+#: ../client/tournamentRR.ts:1587
+msgid "Deny"
+msgstr ""
+
+#: ../client/tournamentRR.ts:1597
+msgid "No pending requests"
+msgstr ""
+
+#: ../client/tournamentRR.ts:1601
+msgid "Approved players"
+msgstr ""
+
+#: ../client/tournamentRR.ts:1619
+msgid "No approved players"
+msgstr ""
+
+#: ../client/tournamentRR.ts:1622
+msgid "Denied players"
+msgstr ""
+
+#: ../client/tournamentRR.ts:1637
+msgid "No denied players"
+msgstr ""
+
+#: ../client/ublogLike.ts:11 ../client/ublogLike.ts:17
+msgid "Unlike"
+msgstr ""
+
+#: ../client/ublogLike.ts:11 ../client/ublogLike.ts:17
+msgid "Like"
+msgstr ""
+
+#: ../client/user.ts:34
+msgid "Anonymous"
+msgstr ""
+
+#: ../client/userMiniWidget.ts:390
+msgid "%1 game"
+msgid_plural "%1 games"
+msgstr[0] ""
+
+#: ../client/userMiniWidget.ts:466
+msgid "Watch"
+msgstr ""
+
+#: ../client/two-board/round/round.ts:121 ../client/userMiniWidget.ts:476
+msgid "Chat"
+msgstr ""
+
+#: ../client/usernameDialog.ts:135
+msgid "Choose your username"
+msgstr ""
+
+#: ../client/usernameDialog.ts:136
+msgid "Please choose a username for your account."
+msgstr ""
+
+#: ../client/usernameDialog.ts:141
+msgid "Username"
+msgstr ""
+
+#: ../client/usernameDialog.ts:160
+msgid "3-20 characters"
+msgstr ""
+
+#: ../client/usernameDialog.ts:161
+msgid "Letters, numbers, underscore and dash only"
+msgstr ""
+
+#: ../client/usernameDialog.ts:162
+msgid "Must be unique"
+msgstr ""
+
+#: ../client/usernameDialog.ts:176
+msgid "Creating account..."
+msgstr ""
+
+#: ../client/variants.ts:2965
+msgid "Favorite custom variants"
+msgstr ""
+
+#: ../client/variants.ts:2976
+msgid "Selected custom variant"
+msgstr ""
+
+#: ../client/view.ts:103
 msgid "Page reload required after change"
 msgstr "จำเป็นต้องรีเฟรชหน้าเว็บหลังจากเปลี่ยนไฟล์"
 
@@ -2219,116 +4259,290 @@ msgstr "เปิด"
 msgid "ZEN MODE"
 msgstr "โหมดสมาธิ"
 
-#: ../client/bug/chat.bug.ts:20
-msgid "Need %1"
+#: ../client/analysis/analysisChart.ts:24
+msgid "Initial position"
+msgstr "ตำแหน่งเริ่มต้น"
+
+#: ../client/analysis/analysisCtrl.ts:810
+msgid "This variant is not supported by Fairy-Stockfish."
 msgstr ""
 
-#: ../client/bug/chat.bug.ts:27
-msgid "Don't give %1"
+#: ../client/analysis/analysisCtrl.ts:848
+#: ../client/two-board/analysis/pgn.ts:98
+msgid "Download game to PGN file"
+msgstr "ดาวน์โหลดเกมนี้เป็นไฟล์ PGN"
+
+#: ../client/analysis/analysisCtrl.ts:851
+#: ../client/two-board/analysis/pgn.ts:101
+msgid "Download PGN"
+msgstr "ดาวน์โหลด PGN"
+
+#: ../client/analysis/analysisCtrl.ts:858
+#: ../client/two-board/analysis/pgn.ts:109
+msgid "Copy USI/UCI to clipboard"
+msgstr "คัดลอก USI/UCI ไปยังคลิปบอร์ด"
+
+#: ../client/analysis/analysisCtrl.ts:861
+#: ../client/two-board/analysis/pgn.ts:112
+msgid "Copy UCI/USI"
+msgstr "คัดลอก UCI/USI"
+
+#: ../client/analysis/analysisCtrl.ts:868
+#: ../client/two-board/analysis/pgn.ts:119
+msgid "Download position to PNG image file"
+msgstr "ดาวน์โหลดตำแหน่งหมากเป็นไฟล์ภาพ PNG"
+
+#: ../client/analysis/analysisCtrl.ts:871
+#: ../client/two-board/analysis/pgn.ts:122
+msgid "PNG image"
+msgstr "ภาพ PNG"
+
+#: ../client/analysis/analysisCtrl.ts:888
+msgid "Are you sure you want to delete this game?"
+msgstr "ต้องการลบเกมนี้จริงหรือไม่?"
+
+#: ../client/analysis/analysisCtrl.ts:889
+#: ../client/analysis/analysisCtrl.ts:909
+#: ../client/analysis/analysisCtrl.ts:910
+msgid "Delete game"
+msgstr "ลบเกม"
+
+#: ../client/analysis/analysisCtrl.ts:953
+msgid "Request Computer Analysis"
+msgstr "ขอการวิเคราะห์จากคอมพิวเตอร์"
+
+#: ../client/analysis/analysisCtrl.ts:956
+msgid "Request Analysis"
+msgstr "ขอการวิเคราะห์"
+
+#: ../client/analysis/analysisCtrl.ts:1026
+#: ../client/two-board/analysis/engine.ts:277
+msgid "Try browser page reload."
+msgstr "กรุณาลองรีเฟรชหน้าเว็บ"
+
+#: ../client/analysis/analysisCtrl.ts:1081
+msgid "Multi-threaded WebAssembly (with NNUE evaluation)"
+msgstr "WebAssembly แบบหลายเธรด (คิดคะแนนด้วย NNUE)"
+
+#: ../client/analysis/analysisCtrl.ts:1274
+#: ../client/two-board/analysis/engine.ts:478
+msgid "Depth"
+msgstr "ความลึก"
+
+#: ../client/analysis/analysisCtrl.ts:1279
+#: ../client/two-board/analysis/engine.ts:483
+msgid "Go deeper"
+msgstr "ลึกกว่านี้"
+
+#: ../client/analysis/analysisCtrl.ts:1291 ../client/analysis/index.ts:256
+#: ../client/two-board/analysis/engine.ts:126
+#: ../client/two-board/analysis/engine.ts:498
+msgid "in local browser"
+msgstr "ในเบราเซอร์ภายในเครื่อง"
+
+#: ../client/analysis/analysisSettings.ts:84
+msgid "Inline notation"
 msgstr ""
 
-#: ../client/bug/chat.bug.ts:32
-msgid "Sit/stall"
+#: ../client/analysis/analysisSettings.ts:106
+msgid "Disclosure buttons"
 msgstr ""
 
-#: ../client/bug/chat.bug.ts:33
-msgid "Go/hurry"
+#: ../client/analysis/analysisSettings.ts:125
+msgid "Best move arrow"
+msgstr "ลูกศรแนะนำตาเดิน"
+
+#: ../client/analysis/analysisSettings.ts:148
+msgid "Infinite analysis"
+msgstr "ถอดหมากแบบไม่รู้จบ"
+
+#: ../client/analysis/analysisSettings.ts:174
+msgid "Multiple lines"
+msgstr "จำนวนเส้นทาง"
+
+#: ../client/analysis/analysisSettings.ts:201
+msgid "CPUs"
+msgstr "หน่วยประมวลผล"
+
+#: ../client/analysis/analysisSettings.ts:250
+msgid "Memory"
+msgstr "หน่วยความจำ"
+
+#: ../client/analysis/analysisSettings.ts:273
+msgid "Use NNUE"
+msgstr "ใช้ NNUE"
+
+#: ../client/analysis/analysisSettings.ts:317
+msgid "Enable engine debug"
 msgstr ""
 
-#: ../client/bug/chat.bug.ts:34
-msgid "Trades are good"
+#: ../client/analysis/index.ts:126
+msgid "Computer analysis"
+msgstr "การวิเคราะห์โดยคอมพิวเตอร์"
+
+#: ../client/analysis/index.ts:142
+#: ../client/two-board/analysis/analysis.ts:113
+msgid "Move times"
+msgstr "เวลาที่ใช้เดิน"
+
+#: ../client/analysis/index.ts:159
+msgid "Crosstable"
+msgstr "ประวัติผลการเล่น"
+
+#: ../client/analysis/index.ts:177
+#: ../client/two-board/analysis/analysis.ts:117
+msgid "FEN & PGN"
+msgstr "FEN & PGN"
+
+#: ../client/analysis/index.ts:252
+msgid "Multi-threaded WebAssembly (classical evaluation)"
+msgstr "WebAssembly แบบหลายเธรด (คิดคะแนนแบบธรรมดา)"
+
+#: ../client/analysis/keyboardHelp.ts:25
+msgid "Left arrow"
 msgstr ""
 
-#: ../client/bug/chat.bug.ts:35
-msgid "Don't trade"
+#: ../client/analysis/keyboardHelp.ts:26
+msgid "Right arrow"
 msgstr ""
 
-#: ../client/bug/chat.bug.ts:36
-msgid "I have checkmate"
+#: ../client/analysis/keyboardHelp.ts:27
+msgid "Up arrow"
 msgstr ""
 
-#: ../client/bug/chat.bug.ts:38
-msgid "OK"
+#: ../client/analysis/keyboardHelp.ts:28
+msgid "Down arrow"
 msgstr ""
 
-#: ../client/bug/chat.bug.ts:39
-msgid "No"
+#: ../client/analysis/keyboardHelp.ts:29
+msgid "Home"
 msgstr ""
 
-#: ../client/bug/chat.bug.ts:40
-msgid "My bad"
+#: ../client/analysis/keyboardHelp.ts:30
+msgid "End"
 msgstr ""
 
-#: ../client/bug/chat.bug.ts:41
-msgid "Nevermind"
+#: ../client/analysis/keyboardHelp.ts:31
+msgid "Shift"
 msgstr ""
 
-#: ../client/bug/chat.bug.ts:42
-msgid "Nice"
+#: ../client/analysis/keyboardHelp.ts:32
+msgid "Enter"
 msgstr ""
 
-#: ../client/bug/lobby.bug.ts:30
-msgid "Anon users cannot join two board games"
+#: ../client/analysis/keyboardHelp.ts:33
+msgid "Space"
 msgstr ""
 
-#: ../client/bug/lobby.bug.ts:63 ../client/bug/lobby.bug.ts:67
-#: ../client/bug/lobby.bug.ts:70
-msgid "Join"
+#: ../client/analysis/keyboardHelp.ts:43
+msgid "or"
 msgstr ""
 
-#: ../client/bug/movelist.bug.ts:75
-msgid "Flip boards"
+#: ../client/analysis/keyboardHelp.ts:50
+msgid "Navigation"
 msgstr ""
 
-#: ../client/editor/editorCtrl.ts:106
+#: ../client/analysis/keyboardHelp.ts:52
+msgid "Previous move"
+msgstr ""
+
+#: ../client/analysis/keyboardHelp.ts:53
+msgid "Next move"
+msgstr ""
+
+#: ../client/analysis/keyboardHelp.ts:54
+msgid "First move"
+msgstr ""
+
+#: ../client/analysis/keyboardHelp.ts:55
+msgid "Last move"
+msgstr ""
+
+#: ../client/analysis/keyboardHelp.ts:56
+msgid "Previous variation"
+msgstr ""
+
+#: ../client/analysis/keyboardHelp.ts:57
+msgid "Next variation"
+msgstr ""
+
+#: ../client/analysis/keyboardHelp.ts:58
+msgid "Start of variation"
+msgstr ""
+
+#: ../client/analysis/keyboardHelp.ts:59
+msgid "End of variation"
+msgstr ""
+
+#: ../client/analysis/keyboardHelp.ts:66
+msgid "Copy position reference"
+msgstr ""
+
+#: ../client/analysis/keyboardHelp.ts:67
+msgid "Show keyboard shortcuts"
+msgstr ""
+
+#: ../client/analysis/keyboardHelp.ts:74
+msgid "Input"
+msgstr ""
+
+#: ../client/analysis/keyboardHelp.ts:75
+msgid "Confirm current move input"
+msgstr ""
+
+#: ../client/analysis/keyboardHelp.ts:102
+msgid "Keyboard shortcuts"
+msgstr ""
+
+#: ../client/editor/editorCtrl.ts:118
 msgid "Castling"
 msgstr "การเข้าป้อม"
 
-#: ../client/editor/editorCtrl.ts:140
+#: ../client/editor/editorCtrl.ts:154
 msgid "FLIP BOARD"
 msgstr "กลับกระดาน"
 
-#: ../client/editor/editorCtrl.ts:143
+#: ../client/editor/editorCtrl.ts:157
 msgid "CLEAR BOARD"
 msgstr "ล้างกระดาน"
 
-#: ../client/editor/editorCtrl.ts:146
+#: ../client/editor/editorCtrl.ts:161
 msgid "FILL %1'S HAND"
 msgstr "เติมหมากในมือฝ่าย%1ให้ครบ"
 
-#: ../client/editor/editorCtrl.ts:149
+#: ../client/editor/editorCtrl.ts:165
 msgid "STARTING POSITION"
 msgstr "ตำแหน่งเริ่มต้น"
 
-#: ../client/editor/editorCtrl.ts:155
+#: ../client/editor/editorCtrl.ts:171
 msgid "PLAY WITH MACHINE"
 msgstr "เล่นกับคอมพิวเตอร์"
 
-#: ../client/editor/editorCtrl.ts:158
+#: ../client/editor/editorCtrl.ts:174
 msgid "CONTINUE FROM HERE"
 msgstr ""
 
-#: ../client/editor/editorCtrl.ts:161
+#: ../client/editor/editorCtrl.ts:177
 msgid "EXPORT TO PNG"
 msgstr "บันทึกเป็น PNG"
 
-#: ../client/editor/editorCtrl.ts:164
+#: ../client/editor/editorCtrl.ts:180
 msgid "COPY FEN TO CLIPBOARD"
 msgstr ""
 
-#: ../client/editor/editorSettings.ts:27
+#: ../client/editor/editorSettings.ts:23
 msgid "Move pieces through the looking glass"
 msgstr ""
 
-#: ../client/input/duck.ts:52
-msgid "Undo"
-msgstr "ย้อนกลับ"
+#: ../client/input/duck.ts:38
+msgid "Cancel piece move"
+msgstr ""
 
-#: ../client/input/duck.ts:61
+#: ../client/input/duck.ts:88
 msgid "Place the duck on an empty square."
 msgstr "วางเป็ดลงบนตาที่ว่างอยู่"
 
-#: ../client/lobby/layer2army.ts:16
+#: ../client/lobby/layer2army.ts:20
 msgid ""
 "These variants have new armies with completely new pieces! Most of these "
 "variants pit these armies against the standard Chess army."
@@ -2336,128 +4550,96 @@ msgstr ""
 "เกมเหล่านี้มีกองทัพที่ใช้ตัวหมากชนิดใหม่แทบทั้งหมด! "
 "ส่วนใหญ่จะนำกองทัพใหม่มาปะทะกับกองทัพหมากรุกสากลธรรมดา"
 
-#: ../client/lobby/layer2army.ts:21 ../client/lobby/layer2chess.ts:31
-#: ../client/lobby/layer2fairy.ts:21 ../client/lobby/layer2makruk.ts:21
-#: ../client/lobby/layer2other.ts:22 ../client/lobby/layer2shogi.ts:22
-#: ../client/lobby/layer2xiangqi.ts:21 ../client/lobby/layer3.ts:50
+#: ../client/lobby/layer2army.ts:34 ../client/lobby/layer2chess.ts:37
+#: ../client/lobby/layer2fairy.ts:31 ../client/lobby/layer2makruk.ts:29
+#: ../client/lobby/layer2other.ts:29 ../client/lobby/layer2shogi.ts:30
+#: ../client/lobby/layer2xiangqi.ts:27 ../client/lobby/layer3.ts:89
 msgid "Go Back"
 msgstr "กลับ"
-
-#: ../client/lobby/layer2army.ts:35 ../client/lobby/layer2army.ts:42
-msgid "Horde: Horse-based army"
-msgstr "Horde: กองทัพม้า"
-
-#: ../client/lobby/layer2army.ts:49
-msgid "Empire: Queen-based army"
-msgstr "Empire: กองทัพควีน"
-
-#: ../client/lobby/layer2army.ts:56
-msgid "Horde vs Horde"
-msgstr "Horde ปะทะ Horde"
-
-#: ../client/lobby/layer2army.ts:63
-msgid "Clan: Drop-based army"
-msgstr "Clan: กองทัพนินจา"
-
-#: ../client/lobby/layer2army.ts:70
-msgid "Dynasty: Xiangqi-based army"
-msgstr "Dynasty: กองทัพหมากรุกจีน"
-
-#: ../client/lobby/layer2army.ts:77
-msgid "Mayan chess"
-msgstr "หมากรุกมายัน"
-
-#: ../client/lobby/layer2army.ts:84
-msgid "Alternating pieces"
-msgstr "หมากสลับตัวไปมา"
-
-#: ../client/lobby/layer2army.ts:91
-msgid "Spartans: Army with two kings"
-msgstr "Spartan: มีคิงสองคน"
-
-#: ../client/lobby/layer2army.ts:98
-msgid "Martial arts Xiangqi"
-msgstr ""
 
 #: ../client/lobby/layer2chess.ts:26
 msgid "Variants using a basic chess set but with different rules."
 msgstr "เกมที่ใช้ตัวหมากรุกสากลธรรมดา แล้วมีกฎเพิ่มเติม"
 
-#: ../client/lobby/layer2fairy.ts:16
+#: ../client/lobby/layer2fairy.ts:19
 msgid ""
 "These variants have new pieces to try! Many of them have larger boards, and "
 "some also have new rules."
 msgstr ""
 "เกมเหล่านี้มีตัวหมากชนิดใหม่! บางเกมก็มีกระดานใหญ่ขึ้น บางเกมมีกฎเพิ่มด้วย"
 
-#: ../client/lobby/layer2makruk.ts:16
+#: ../client/lobby/layer2makruk.ts:17
 msgid "Southeast Asian variants, closely related to Western Chess."
 msgstr ""
 "เกมจากภูมิภาคเอเชียอาคเนย์ มีความใกล้เคียงกับเกมจตุรงค์ดั้งเดิมเป็นอย่างยิ่ง"
 
-#: ../client/lobby/layer2makruk.ts:35
+#: ../client/lobby/layer2makruk.ts:45
 msgid "Thai Chess. Similar to Chess but with a different queen and bishop."
 msgstr "หมากรุกไทย"
 
-#: ../client/lobby/layer2makruk.ts:42
+#: ../client/lobby/layer2makruk.ts:56
 msgid "Makruk variant. Kings cannot move when checked."
 msgstr "หมากป้อง เมื่อโดนรุกห้ามขยับขุนหนี"
 
-#: ../client/lobby/layer2makruk.ts:49
+#: ../client/lobby/layer2makruk.ts:67
 msgid "Cambodian Chess. Makruk with extra starting moves."
 msgstr "หมากรุกกัมพูชา มีสูตรขุนและสูตรเม็ด"
 
-#: ../client/lobby/layer2makruk.ts:56
+#: ../client/lobby/layer2makruk.ts:78
 msgid "Burmese Chess. You may place your starting pieces."
 msgstr "หมากรุกพม่า เลือกวางหมากตอนเริ่มเกม"
 
-#: ../client/lobby/layer2makruk.ts:63
+#: ../client/lobby/layer2makruk.ts:89
 msgid "Makruk with International Chess influence."
 msgstr "หมากรุกเอเชียอาคเนย์ที่ได้รับอิทธิพลจากหมากรุกสากล"
 
-#: ../client/lobby/layer2other.ts:15
+#: ../client/lobby/layer2other.ts:16
 msgid "Other Variants"
 msgstr ""
 
-#: ../client/lobby/layer2other.ts:17
+#: ../client/lobby/layer2other.ts:18
 msgid "Variants that do not fit into other groups."
 msgstr ""
 
-#: ../client/lobby/layer2shogi.ts:17
+#: ../client/lobby/layer2shogi.ts:18
 msgid "The Japanese version of chess, which involves drops and promotions."
 msgstr ""
 "เกมหมากรุกจากประเทศญี่ปุ่น สามารถวางหมากที่กินกลับมาบนกระดาน "
 "และหมากส่วนใหญ่เลื่อนยศได้"
 
-#: ../client/lobby/layer2shogi.ts:36
+#: ../client/lobby/layer2shogi.ts:46
 msgid "Original Shogi"
 msgstr "หมากรุกญี่ปุ่นธรรมดา 9x9"
 
-#: ../client/lobby/layer2shogi.ts:43
+#: ../client/lobby/layer2shogi.ts:59
 msgid "9x9 without drops"
 msgstr ""
 
-#: ../client/lobby/layer2shogi.ts:50
+#: ../client/lobby/layer2shogi.ts:74
+msgid "Modern 9x9 Shogi variant"
+msgstr ""
+
+#: ../client/lobby/layer2shogi.ts:87
 msgid "5x5 Shogi"
 msgstr "หมากรุกญี่ปุ่นเล็ก 5x5"
 
-#: ../client/lobby/layer2shogi.ts:57
+#: ../client/lobby/layer2shogi.ts:98
 msgid "5x5, pieces flip each turn"
 msgstr "หมากพลิกไปพลิกมาทุกตา 5x5"
 
-#: ../client/lobby/layer2shogi.ts:64
+#: ../client/lobby/layer2shogi.ts:109
 msgid "3x4 game to teach Shogi"
 msgstr "หมากรุกสัตว์สำหรับสอนเด็กเล็ก 3x4"
 
-#: ../client/lobby/layer2shogi.ts:71
+#: ../client/lobby/layer2shogi.ts:120
 msgid "5x6 with Generals"
 msgstr "หมากรุกเล็กสำหรับฝึกใช้เงินและทอง 5x6"
 
-#: ../client/lobby/layer2shogi.ts:78
+#: ../client/lobby/layer2shogi.ts:131
 msgid "7x7, Bird Shogi"
 msgstr "หมากรุกนก 7x7"
 
-#: ../client/lobby/layer2shogi.ts:85
+#: ../client/lobby/layer2shogi.ts:142
 msgid "Shogi with Cannons"
 msgstr ""
 
@@ -2465,197 +4647,493 @@ msgstr ""
 msgid "The ancient game of Chinese Chess and its variants."
 msgstr "เกมหมากรุกจากประเทศจีน มีประวัติศาสตร์ยาวนานหลายพันปี"
 
-#: ../client/lobby/layer2xiangqi.ts:35
+#: ../client/lobby/layer2xiangqi.ts:43
 msgid "Chinese Chess, one of the most played games in the world"
 msgstr "หมากรุกจีน หนึ่งในเกมที่มีผู้เล่นมากที่สุดในโลก"
 
-#: ../client/lobby/layer2xiangqi.ts:42
+#: ../client/lobby/layer2xiangqi.ts:54
 msgid "Korean Chess, based on Xiangqi but very different"
 msgstr "หมากรุกเกาหลี พัฒนาจากหมากรุกจีนแต่เล่นต่างกันมาก"
 
-#: ../client/lobby/layer2xiangqi.ts:49
+#: ../client/lobby/layer2xiangqi.ts:65
 msgid "Compact Xiangqi on a 7x7 board"
 msgstr "หมากรุกจีนขนาดเล็ก บนกระดาน 7x7"
 
-#: ../client/lobby/layer2xiangqi.ts:56
+#: ../client/lobby/layer2xiangqi.ts:76
 msgid "Asymmetric variant with one side having a super piece"
 msgstr "เกมอสมมาตรที่ฝั่งหนึ่งมีแค่หมากระดับเทพตัวเดียวเท่านั้น"
 
-#: ../client/lobby/layer2xiangqi.ts:63
+#: ../client/lobby/layer2xiangqi.ts:89
 msgid "Xiangqi with hidden pieces and a random setup"
 msgstr ""
 
-#: ../client/lobby/layer3.ts:57
-msgid "Rules"
-msgstr "กติกา"
-
-#: ../client/lobby/layer3.ts:58
+#: ../client/lobby/layer3.ts:106
 msgid "Tip: "
 msgstr "เคล็ดลับ: "
 
-#: ../client/lobby/layer3.ts:69
+#: ../client/lobby/layer3.ts:117
 msgid "Fischer's random chess where the back row are randomized."
 msgstr "หมากรุกสุ่มของฟิชเชอร์ ตำแหน่งเริ่มต้นแถวหลังมีได้ 960 แบบ"
 
-#: ../client/lobby/layer3.ts:71
+#: ../client/lobby/layer3.ts:119
 msgid "Crazyhouse with random back row."
 msgstr "Crazyhouse ที่แถวหลังสุ่มด้วย"
 
-#: ../client/lobby/layer3.ts:73
+#: ../client/lobby/layer3.ts:121
 msgid "Atomic Chess with random back row."
 msgstr "Atomic ที่แถวหลังสุ่มด้วย"
 
-#: ../client/lobby/layer3.ts:75
+#: ../client/lobby/layer3.ts:123
 msgid "King of The Hill with random back row."
 msgstr ""
 
-#: ../client/lobby/layer3.ts:77
+#: ../client/lobby/layer3.ts:125
 msgid "Three-Check with random back row."
 msgstr ""
 
-#: ../client/lobby/layer3.ts:79
+#: ../client/lobby/layer3.ts:127
 msgid "S-chess with random back row."
 msgstr ""
 
-#: ../client/lobby/layer3.ts:81
+#: ../client/lobby/layer3.ts:129
 msgid "Capablanca with random back row."
 msgstr ""
 
-#: ../client/lobby/layer3.ts:83
+#: ../client/lobby/layer3.ts:131
 msgid "Capahouse with random back row."
 msgstr ""
 
-#: ../client/lobby/layer3.ts:92 ../client/lobby/layer3.ts:111
+#: ../client/lobby/layer3.ts:140 ../client/lobby/layer3.ts:161
 msgid "Quack."
 msgstr "ก้าบ"
 
-#: ../client/lobby/layer3.ts:95
+#: ../client/lobby/layer3.ts:143
 msgid "Immediately moving your king to the centre of the board is a bad idea."
 msgstr ""
 
-#: ../client/lobby/layer3.ts:104
+#: ../client/lobby/layer3.ts:152
 msgid "Move the king on top of the rook to castle."
 msgstr "เข้าป้อมด้วยการเดินคิงใส่รุค"
 
-#: ../client/lobby/layer3.ts:106
+#: ../client/lobby/layer3.ts:154
 msgid "You can play more at lichess.org."
 msgstr "สามารถเล่นได้ที่ lichess.org"
 
-#: ../client/lobby/layer3.ts:109
+#: ../client/lobby/layer3.ts:157
 msgid ""
 "Castling is only possible if the king and rook are dropped to their usual "
 "places like in standard Chess."
 msgstr "เข้าป้อมได้ถ้าวางคิงกับรุคไว้ที่ตำแหน่งปกติเท่านั้น"
 
-#: ../client/lobby/layer3.ts:113
+#: ../client/lobby/layer3.ts:163
 msgid "Kings are much more at risk than in Chess."
 msgstr ""
 
-#: ../client/lobby/layer3.ts:115
+#: ../client/lobby/layer3.ts:165
 msgid "Castling is essential."
 msgstr ""
 
-#: ../client/lobby/layer3.ts:118
+#: ../client/lobby/layer3.ts:168
 msgid "Stalemating the opposing king is win."
 msgstr ""
 
-#: ../client/lobby/layer3.ts:120
+#: ../client/lobby/layer3.ts:170
 msgid ""
 "You can choose different starting setups including Embassy Chess and Gothic "
 "Chess."
 msgstr "เลือกตำแหน่งเริ่มต้นได้หลายแบบ เช่น Embassy หรือ Gothic"
 
-#: ../client/lobby/layer3.ts:122
+#: ../client/lobby/layer3.ts:172
 msgid "For a drop version, choose GRANDHOUSE from the dropdown menu."
 msgstr ""
 "ถ้าต้องการเล่นแบบนำหมากที่ถูกกินกลับมาวางได้ มี GRANDHOUSE ให้เลือกจากเมนู"
 
-#: ../client/lobby/layer3.ts:124
+#: ../client/lobby/layer3.ts:174
 msgid "For a drop version, choose S-HOUSE from the dropdown menu."
 msgstr ""
 "ถ้าต้องการเล่นแบบนำหมากที่ถูกกินกลับมาวางได้ มี S-HOUSE ให้เลือกจากเมนู"
 
-#: ../client/lobby/layer3.ts:126
+#: ../client/lobby/layer3.ts:176
 msgid "Dropping your Dragon too early may not be the best idea."
 msgstr ""
 
-#: ../client/lobby/layer3.ts:130
+#: ../client/lobby/layer3.ts:180
 msgid "Initiative is everything!"
 msgstr ""
 
-#: ../client/lobby/layer3.ts:132
+#: ../client/lobby/layer3.ts:182
 msgid "The queen actually demotes upon capture, so it is not worth as much."
 msgstr "ควีนถูกกินแล้วจะอ่อนแอลง จึงไม่ได้มีค่ามากเท่าไร"
 
-#: ../client/lobby/layer3.ts:134
+#: ../client/lobby/layer3.ts:184
 msgid "The cannon is a tricky piece that needs to be closely followed."
 msgstr "ปืนใหญ่เป็นหมากที่ป่วนพอสมควร ต้องจับตาดูมันให้ดี"
 
-#: ../client/lobby/layer3.ts:136
+#: ../client/lobby/layer3.ts:186
 msgid "Other piece sets are available, which may help avoid confusion."
 msgstr ""
 "มีตัวหมากแบบอื่นให้เลือกใช้ อาจจะช่วยให้แยกจากม้ากับบิชอปธรรมดาง่ายขึ้น"
 
-#: ../client/lobby/layer3.ts:144
+#: ../client/lobby/layer3.ts:189
+msgid ""
+"Choose both armies with the Alternate Start menu before creating the game."
+msgstr ""
+
+#: ../client/lobby/layer3.ts:196
 msgid "Be aware of campmate - victory by moving your king into the 8th rank."
 msgstr "ระวังโดนยึดฐาน เกมนี้สามารถชนะได้ด้วยการเดินคิงไปถึงแถวสุดท้าย"
 
-#: ../client/lobby/layer3.ts:146
+#: ../client/lobby/layer3.ts:198
 msgid "Promoting the king prematurely can be dangerous."
 msgstr "การเลื่อนยศคิงเร็วเกินไปอาจเป็นอันตรายได้"
 
-#: ../client/lobby/layer3.ts:148
+#: ../client/lobby/layer3.ts:200
 msgid "Make sure to consider both forms of each piece."
 msgstr "อย่าลืมพิจารณาตัวหมากแต่ละตัวให้ครบทั้งสองด้าน"
 
-#: ../client/lobby/layer3.ts:150
+#: ../client/lobby/layer3.ts:202
 msgid "Spartan kings can be a powerful addition to an offensive."
 msgstr "สปาร์ตันสามารถใช้คิงเป็นหมากบุกที่ทรงพลังตัวหนึ่ง"
 
-#: ../client/lobby/layer3.ts:152
+#: ../client/lobby/layer3.ts:204
 msgid "Capturing one of your opponent’s champions will give you a pupil."
 msgstr ""
 
-#: ../client/lobby/layer3.ts:155
+#: ../client/lobby/layer3.ts:207
 msgid "Maximizing khon and met's effectiveness is the key."
 msgstr "ใช้โคนและเม็ดให้เกิดประสิทธิภาพสูงสุด"
 
-#: ../client/lobby/layer3.ts:157
+#: ../client/lobby/layer3.ts:209
 msgid "Watch out for knight checks, since they cannot be blocked."
 msgstr "ม้าปิดรุกไม่ได้ ต้องระวังให้ดี"
 
-#: ../client/lobby/layer3.ts:159
+#: ../client/lobby/layer3.ts:211
 msgid "You can use placement to utilize your stronger pieces from the start."
 msgstr "การวางหมากในตำแหน่งใดก็ได้ทำให้หมากใหญ่ขึ้นได้เร็วมาก"
 
-#: ../client/lobby/layer3.ts:161
+#: ../client/lobby/layer3.ts:213
 msgid "King safety is important. Use the king leap move to save time."
 msgstr "ความปลอดภัยของขุนนั้นสำคัญ ใช้สูตรขุนเพื่อประหยัดเวลาได้"
 
-#: ../client/lobby/layer3.ts:163
+#: ../client/lobby/layer3.ts:215
 msgid "The ability to promote to rook makes for a dynamic endgame."
 msgstr "การเลื่อนยศเป็นเรือได้ทำให้หมากปลายกระดานเด็ดขาดมากขึ้น"
 
-#: ../client/lobby/layer3.ts:171 ../client/lobby/layer3.ts:184
+#: ../client/lobby/layer3.ts:224 ../client/lobby/layer3.ts:237
 msgid "Internationalized sets are available by going to settings."
 msgstr "มีตัวหมากแบบรูปภาพให้เลือกในการตั้งค่า"
 
-#: ../client/lobby/layer3.ts:173
+#: ../client/lobby/layer3.ts:226
 msgid ""
 "Despite the simple appearance, there is still quite a bit of depth "
 "underlying this game."
 msgstr "ถึงแม้จะดูเรียบง่าย แต่เกมนี้มีแต้มเดินที่ลึกพอสมควร"
 
-#: ../client/lobby/layer3.ts:175
+#: ../client/lobby/layer3.ts:228
 msgid "Sets that show both sides are available by going to settings."
 msgstr "มีตัวหมากแบบเห็นด้านหลังให้เลือกในการตั้งค่า"
 
-#: ../client/lobby/layer3.ts:177
+#: ../client/lobby/layer3.ts:230
 msgid ""
 "Reading the rules are a necessity to understand the movements before "
 "playing."
 msgstr "ควรอ่านกติกาเพื่อทำความเข้าใจวิธีเดินหมากแต่ละตัวก่อนเริ่มเล่น"
 
-#: ../client/simul/simulRoundHost.ts:86
+#: ../client/simul/simul.ts:117
+msgid "Anonymous users cannot join simuls."
+msgstr ""
+
+#: ../client/simul/simul.ts:118
+msgid "BOT accounts cannot join simuls."
+msgstr ""
+
+#: ../client/simul/simul.ts:119
+msgid "Choose one of the variants offered by this simul."
+msgstr ""
+
+#: ../client/simul/simul.ts:120
+msgid "This variant is not offered by this simul."
+msgstr ""
+
+#: ../client/simul/simul.ts:121
+msgid "This simul already has the maximum of %1 accepted players."
+msgstr ""
+
+#: ../client/simul/simul.ts:122
+msgid "This simul requires at least %1 rated %2 games."
+msgstr ""
+
+#: ../client/simul/simul.ts:123
+msgid "This simul requires accounts to be at least %1 days old."
+msgstr ""
+
+#: ../client/simul/simul.ts:124
+msgid "Your rating is below the minimum allowed for this simul."
+msgstr ""
+
+#: ../client/simul/simul.ts:125
+msgid "Your rating is above the maximum allowed for this simul."
+msgstr ""
+
+#: ../client/simul/simul.ts:126
+msgid "You must be a member of %1 to join this simul."
+msgstr ""
+
+#: ../client/simul/simul.ts:127
+msgid "This simul has already started"
+msgstr ""
+
+#: ../client/simul/simul.ts:128
+msgid "Cannot start simul with fewer than 2 opponents"
+msgstr ""
+
+#: ../client/simul/simul.ts:129
+msgid "Cannot start simul with more than %1 opponents"
+msgstr ""
+
+#: ../client/simul/simul.ts:130
+msgid "Invalid host extra time for this clock setup"
+msgstr ""
+
+#: ../client/simul/simul.ts:131
+msgid "Cannot start simul"
+msgstr ""
+
+#: ../client/simul/simul.ts:483
+msgid "Playing"
+msgstr ""
+
+#: ../client/simul/simul.ts:484
+msgid "Wins"
+msgstr ""
+
+#: ../client/simul/simul.ts:486
+msgid "Losses"
+msgstr ""
+
+#: ../client/simul/simul.ts:512
+msgid "Untimed"
+msgstr ""
+
+#: ../client/simul/simul.ts:558
+msgid "Entry: %1+ rated games in this variant"
+msgstr ""
+
+#: ../client/simul/simul.ts:561
+msgid "Entry: minimum rating %1"
+msgstr ""
+
+#: ../client/simul/simul.ts:564
+msgid "Entry: maximum rating %1"
+msgstr ""
+
+#: ../client/simul/simul.ts:567
+msgid "Entry: account age %1+ days"
+msgstr ""
+
+#: ../client/simul/simul.ts:594
+msgid "Start (%1)"
+msgstr ""
+
+#: ../client/simul/simul.ts:611
+msgid "Accept random candidate"
+msgstr ""
+
+#: ../client/simul/simul.ts:617
+msgid "Withdraw"
+msgstr ""
+
+#: ../client/simul/simul.ts:638 ../client/two-board/lobby.ts:89
+#: ../client/two-board/lobby.ts:103 ../client/two-board/lobby.ts:116
+msgid "Join"
+msgstr ""
+
+#: ../client/simul/simul.ts:680 ../client/simul/simul.ts:681
+msgid "Reject"
+msgstr ""
+
+#: ../client/simul/simul.ts:686 ../client/simul/simul.ts:687
+msgid "Remove"
+msgstr ""
+
+#: ../client/simul/simul.ts:713
+msgid "You have been selected! Hold still, the simul is about to begin."
+msgstr ""
+
+#: ../client/simul/simul.ts:715
+msgid "Share this page URL to let people enter the simul!"
+msgstr ""
+
+#: ../client/simul/simul.ts:717
+msgid "Your registration is recorded. Wait for the host to accept you."
+msgstr ""
+
+#: ../client/simul/simul.ts:742
+msgid "No pending players"
+msgstr ""
+
+#: ../client/simul/simul.ts:760
+msgid "Now you get to accept some players, then start the simul"
+msgstr ""
+
+#: ../client/simul/simul.ts:769
+msgid "No approved players yet"
+msgstr ""
+
+#: ../client/simul/simul.ts:796
+msgid "Games in progress"
+msgstr ""
+
+#: ../client/simul/simul.ts:827
+msgid "Edit simul"
+msgstr ""
+
+#: ../client/simul/simul.ts:835
+msgid "Host color: %1"
+msgstr ""
+
+#: ../client/simul/simul.ts:837
+msgid "Host extra time: %1"
+msgstr ""
+
+#: ../client/simul/simul.ts:843
+msgid "Host extra time per player: +%1"
+msgstr ""
+
+#: ../client/simul/simul.ts:847
+msgid "%1 accepted player"
+msgid_plural "%1 accepted players"
+msgstr[0] ""
+
+#: ../client/simul/simul.ts:848
+msgid "%1 pending player"
+msgid_plural "%1 pending players"
+msgstr[0] ""
+
+#: ../client/simul/simul.ts:861
+msgid "Custom starting position"
+msgstr ""
+
+#: ../client/simul/simul.ts:887
+msgid "Estimated start time: %1"
+msgstr ""
+
+#: ../client/simul/simul.ts:891
+msgid "Started: %1"
+msgstr ""
+
+#: ../client/simul/simul.ts:894
+msgid "Finished: %1"
+msgstr ""
+
+#: ../client/simul/simul.ts:907
+msgid "No games created yet"
+msgstr ""
+
+#: ../client/simul/simul.ts:943
+msgid "Host is playing this game"
+msgstr ""
+
+#: ../client/simul/simul.ts:999
+msgid "Playing now"
+msgstr ""
+
+#: ../client/simul/simul.ts:999
+msgid "Waiting for players"
+msgstr ""
+
+#: ../client/simul/simulForm.ts:108
+msgid "A simul must offer at least one variant"
+msgstr ""
+
+#: ../client/simul/simulForm.ts:108
+msgid "Remove %1"
+msgstr ""
+
+#: ../client/simul/simulForm.ts:150
+msgid "A simul can offer at most %1 variants."
+msgstr ""
+
+#: ../client/simul/simulRoundHost.ts:83
 msgid "Auto skip to next game"
+msgstr ""
+
+#: ../client/two-board/lobby.ts:31
+msgid "Anon users cannot join two board games"
+msgstr ""
+
+#: ../client/two-board/common/movelist.ts:154
+msgid "Flip boards"
+msgstr ""
+
+#: ../client/two-board/round/chatPresets.ts:59
+msgid "Need %1"
+msgstr ""
+
+#: ../client/two-board/round/chatPresets.ts:61
+msgid "Don't give %1"
+msgstr ""
+
+#: ../client/two-board/round/chatPresets.ts:64
+msgid "Sit/stall"
+msgstr ""
+
+#: ../client/two-board/round/chatPresets.ts:65
+msgid "Go/hurry"
+msgstr ""
+
+#: ../client/two-board/round/chatPresets.ts:66
+msgid "Trades are good"
+msgstr ""
+
+#: ../client/two-board/round/chatPresets.ts:67
+msgid "Don't trade"
+msgstr ""
+
+#: ../client/two-board/round/chatPresets.ts:68
+msgid "I have checkmate"
+msgstr ""
+
+#: ../client/two-board/round/chatPresets.ts:70
+msgid "No"
+msgstr ""
+
+#: ../client/two-board/round/chatPresets.ts:71
+msgid "My bad"
+msgstr ""
+
+#: ../client/two-board/round/chatPresets.ts:72
+msgid "Nevermind"
+msgstr ""
+
+#: ../client/two-board/round/chatPresets.ts:73
+msgid "Nice"
+msgstr ""
+
+#: ../client/two-board/round/round.ts:135
+msgid "Moves"
+msgstr ""
+
+#: ../client/two-board/round/round.ts:138
+msgid "Info"
+msgstr ""
+
+#: ../client/two-board/round/round.ts:140
+msgid "Round tabs"
+msgstr ""
+
+#: ../client/two-board/round/roundControls.ts:145
+msgid "Accept draw"
+msgstr ""
+
+#: ../client/two-board/round/roundControls.ts:155
+msgid "Confirm resignation"
+msgstr ""
+
+#: ../client/two-board/round/roundControls.ts:219
+msgid "ACCEPT REMATCH"
+msgstr ""
+
+#: ../client/two-board/round/roundControls.ts:219
+msgid "CANCEL REMATCH"
 msgstr ""

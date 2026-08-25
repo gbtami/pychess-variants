@@ -18,7 +18,7 @@
             {% for user in online_users %}
             <tr>
                 <td class="player-data">
-                <i-side class="online icon icon-online"></i-side>
+                <i-side class="online icon {% if user.patron %}icon-patron-wing{% else %}icon-online{% endif %}"{% if user.patron %} title="{{ _('PyChess Patron') }}"{% endif %}></i-side>
                 <player>
                     <a class="user-link" href="{{ home }}/@/{{ user.username }}"><player-title>{{ user.title }}</player-title> {{ user.username }}</a>
                 </player>
@@ -46,9 +46,11 @@
                 <a href="{{ home }}/players/{{ key }}"><div class="variant">{{ variant_display_name(key) }}</div></a>
             </div>
             {% for user, score in highscore[key].items() %}
+                {% set highscore_user = user.split("|")[0] %}
                 <div class="player-data">
+                    <i-side class="{% if highscore_user in highscore_online %}online{% else %}offline{% endif %} icon {% if highscore_user in highscore_patrons %}icon-patron-wing{% elif highscore_user in highscore_online %}icon-online{% else %}icon-offline{% endif %}"{% if highscore_user in highscore_patrons %} title="{{ _('PyChess Patron') }}"{% endif %}></i-side>
                     <player>
-                        <a class="user-link" href="{{ home }}/@/{{ user.split("|")[0] }}"><player-title>{{ user.split("|")[1] }}</player-title> {{ user.split("|")[0] }}</a>
+                        <a class="user-link" href="{{ home }}/@/{{ highscore_user }}"><player-title>{{ user.split("|")[1] }}</player-title> {{ highscore_user }}</a>
                         <rating>{{ score }}</rating>
                     </player>
                 </div>

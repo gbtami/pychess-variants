@@ -19,6 +19,7 @@ from tournament.tournament import (
     ByeGame,
     GameData,
     PairingUnavailable,
+    PlayerData,
     upsert_tournament_to_db,
 )
 from tournament_test_base import TournamentTestCase
@@ -433,6 +434,42 @@ class SwissPairingTestCase(TournamentTestCase):
 
         result = await self.tournament.join(late)
         self.assertEqual(result, "LATE_JOIN_CLOSED")
+
+    async def test_swiss_join_caps_total_registered_participants(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=1, rounds=9, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+
+        # The Dutch TRF includes withdrawn players as zeroed entries, so the cap
+        # must bound every registered participant rather than only nb_players.
+        for index in range(swiss_mod.SWISS_MAX_PLAYERS):
+            username = f"swiss_cap_registered_{index}"
+            player = User(app_state, username=username, perfs=make_test_perfs())
+            app_state.users[username] = player
+            player_data = PlayerData(player.title, username, 1500, "")
+            player_data.withdrawn = True
+            self.tournament.register_player(player, player_data)
+
+        self.assertEqual(self.tournament.nb_players, 0)
+        self.assertEqual(self.tournament.participant_count(), swiss_mod.SWISS_MAX_PLAYERS)
+
+        extra = User(app_state, username="swiss_cap_extra", perfs=make_test_perfs())
+        app_state.users[extra.username] = extra
+        extra.tournament_sockets[tid] = {None}
+        self.assertEqual(
+            await self.tournament.join(extra),
+            f"This Swiss tournament is full (maximum {swiss_mod.SWISS_MAX_PLAYERS} players).",
+        )
+        self.assertIsNone(self.tournament.player_data_by_name(extra.username))
+
+        existing = app_state.users["swiss_cap_registered_0"]
+        existing_data = self.tournament.player_data_by_name(existing.username)
+        self.assertIsNotNone(existing_data)
+        assert existing_data is not None
+        self.assertIsNone(await self.tournament.join_precheck(existing, existing_data))
 
     async def test_swiss_join_enforces_rating_bounds(self):
         app_state = get_app_state(self.app)

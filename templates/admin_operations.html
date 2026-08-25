@@ -1,0 +1,310 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap" class="admin-shell">
+    <div class="admin-layout">
+        {% include "admin_nav.html" %}
+        <main class="admin-page admin-operations box box-pad">
+            <h1>Site operations</h1>
+            <p class="admin-page__intro">Structured moderation and site operations.</p>
+
+            {% if admin_action_notice %}
+            <p class="admin-action-notice" role="status">{{ admin_action_notice }} completed.</p>
+            {% endif %}
+            <p class="admin-ops-feedback" role="status" aria-live="polite"></p>
+
+            <div class="admin-ops-grid">
+                <section class="admin-ops-card">
+                    <header>
+                        <h2>Anonymous access</h2>
+                        <p>Temporarily control creation of new anonymous sessions.</p>
+                    </header>
+                    <div class="admin-ops-state">
+                        <span>New anonymous sessions</span>
+                        <span class="admin-status{% if admin_operations_anons_disabled %} is-danger{% else %} is-ok{% endif %}">
+                            {{ "Disabled" if admin_operations_anons_disabled else "Enabled" }}
+                        </span>
+                    </div>
+                    {% if admin_operations_anons_disabled %}
+                    <form data-admin-operation action="/api/admin/operations/enable-anons" method="post">
+                        <button class="admin-action-button is-positive" type="submit">Enable new anonymous sessions</button>
+                    </form>
+                    {% else %}
+                    <form
+                        data-admin-operation
+                        data-confirm-title="Disable new anonymous sessions?"
+                        data-confirm-text="New anonymous visitors will be sent to the login page until this is enabled again or the server restarts."
+                        action="/api/admin/operations/disable-anons"
+                        method="post"
+                    >
+                        <button class="admin-action-button is-danger" type="submit">Disable new anonymous sessions</button>
+                    </form>
+                    {% endif %}
+                </section>
+
+                <section class="admin-ops-card admin-ops-card--wide">
+                    <header>
+                        <h2>YouTube streams</h2>
+                        <p>Manually add or remove streams shown on the lobby.</p>
+                    </header>
+                    {% if admin_operations_streams %}
+                    <ul class="admin-ops-list">
+                        {% for stream in admin_operations_streams %}
+                        <li>
+                            <div>
+                                <strong>{{ stream.username }}</strong>
+                                <span>{{ stream.title }}</span>
+                                <small>{{ stream.streamer }}</small>
+                            </div>
+                            <form data-admin-operation action="/api/admin/operations/stream-remove" method="post">
+                                <input type="hidden" name="channel" value="{{ stream.streamer }}">
+                                <button class="admin-action-button" type="submit">Remove</button>
+                            </form>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="admin-ops-empty">No manually listed YouTube streams.</p>
+                    {% endif %}
+                    <form class="admin-ops-form admin-ops-form--stream" data-admin-operation action="/api/admin/operations/stream-add" method="post">
+                        <label>
+                            Channel ID
+                            <input name="channel" placeholder="UC…" required pattern="[A-Za-z0-9_-]{3,64}" maxlength="64">
+                        </label>
+                        <label>
+                            Streamer name
+                            <input name="username" placeholder="Username" value="unknown" required maxlength="50">
+                        </label>
+                        <label class="admin-ops-form__wide">
+                            Title
+                            <input name="title" value="PyChess stream" required maxlength="120">
+                        </label>
+                        <button class="admin-action-button" type="submit">Add stream</button>
+                    </form>
+                </section>
+
+                <section class="admin-ops-card admin-ops-card--wide">
+                    <header>
+                        <h2>Maintenance</h2>
+                        <p>Run the narrowly scoped maintenance jobs previously available through lobby commands.</p>
+                    </header>
+                    <div class="admin-maintenance-grid">
+                        <form
+                            class="admin-ops-form"
+                            data-admin-operation
+                            data-confirm-title="Regenerate highscore?"
+                            data-confirm-text="Rebuild the {value} highscore from stored ratings."
+                            data-confirm-field="variant"
+                            action="/api/admin/operations/highscore"
+                            method="post"
+                        >
+                            <h3>Variant highscore</h3>
+                            <label>
+                                Variant
+                                <select name="variant" required>
+                                    {% for variant in admin_operations_variants %}
+                                    <option value="{{ variant.key }}">{{ variant.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </label>
+                            <button class="admin-action-button" type="submit">Regenerate</button>
+                        </form>
+
+                        <form
+                            class="admin-ops-form"
+                            data-admin-operation
+                            data-confirm-title="Regenerate crosstables?"
+                            data-confirm-text="Rebuild crosstables involving {value} from stored games."
+                            data-confirm-field="username"
+                            action="/api/admin/operations/crosstable"
+                            method="post"
+                        >
+                            <h3>User crosstables</h3>
+                            <label>
+                                Username
+                                <input name="username" placeholder="Username" required autocomplete="off" spellcheck="false">
+                            </label>
+                            <button class="admin-action-button" type="submit">Regenerate</button>
+                        </form>
+
+                        <form
+                            class="admin-ops-form"
+                            data-admin-operation
+                            data-confirm-title="Delete puzzle?"
+                            data-confirm-text="Permanently delete puzzle {value}. This cannot be undone."
+                            data-confirm-field="puzzle_id"
+                            action="/api/admin/operations/puzzle-delete"
+                            method="post"
+                        >
+                            <h3>Delete puzzle</h3>
+                            <label>
+                                Puzzle ID
+                                <input name="puzzle_id" placeholder="abc12" required pattern="[A-Za-z0-9]{5}" maxlength="5">
+                            </label>
+                            <button class="admin-action-button is-danger" type="submit">Delete permanently</button>
+                        </form>
+                    </div>
+                </section>
+
+                <section class="admin-ops-card admin-ops-card--wide">
+                    <header>
+                        <h2>Fishnet keys</h2>
+                        <p>Create revocable worker credentials. Existing secret keys are never displayed.</p>
+                    </header>
+                    {% if admin_operations_fishnet %}
+                    <ul class="admin-ops-list">
+                        {% for worker in admin_operations_fishnet %}
+                        <li>
+                            <div>
+                                <strong>{{ worker.name }}</strong>
+                                <span class="admin-status{% if worker.active %} is-online{% endif %}">{{ "Active" if worker.active else "Offline" }}</span>
+                                {% if worker.version %}<small>{{ worker.version }}</small>{% endif %}
+                                <small>ID {{ worker.id }}</small>
+                            </div>
+                            {% if worker.managed %}
+                            <form
+                                data-admin-operation
+                                data-confirm-title="Remove fishnet key?"
+                                data-confirm-text="The {{ worker.name }} worker will immediately lose access."
+                                action="/api/admin/operations/fishnet-remove"
+                                method="post"
+                            >
+                                <input type="hidden" name="key_id" value="{{ worker.id }}">
+                                <button class="admin-action-button is-danger" type="submit">Revoke</button>
+                            </form>
+                            {% else %}
+                            <small class="admin-ops-config-note">Environment-backed · change server configuration to revoke</small>
+                            {% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="admin-ops-empty">No database-backed fishnet keys.</p>
+                    {% endif %}
+                    <form class="admin-ops-form admin-ops-form--inline" data-admin-operation action="/api/admin/operations/fishnet-create" method="post">
+                        <label>
+                            Worker name
+                            <input name="name" placeholder="Worker name" required pattern="[A-Za-z0-9_-]{3,40}" maxlength="40">
+                        </label>
+                        <button class="admin-action-button" type="submit">Create key</button>
+                    </form>
+                    <div class="admin-fishnet-secret" hidden>
+                        <strong>New fishnet key — copy it now:</strong>
+                        <code></code>
+                        <a href="/admin/operations?done=fishnet_key_created">I have copied it — refresh the page</a>
+                    </div>
+                </section>
+
+                <section class="admin-ops-card admin-ops-card--wide admin-ops-history">
+                    <header>
+                        <h2>Recent site operations</h2>
+                    </header>
+                    {% if admin_operations_history %}
+                    <ol>
+                        {% for entry in admin_operations_history %}
+                        <li>
+                            <strong>{{ entry.action_label }}</strong>
+                            {% if entry.details %}<span>· {{ entry.details }}</span>{% endif %}
+                            <span>by {{ entry.moderator }}{% if entry.created_at %} · <info-date timestamp="{{ entry.created_at.isoformat() }}"></info-date>{% endif %}</span>
+                        </li>
+                        {% endfor %}
+                    </ol>
+                    {% else %}
+                    <p class="admin-ops-empty">No recorded site operations.</p>
+                    {% endif %}
+                </section>
+            </div>
+        </main>
+    </div>
+</div>
+
+<dialog id="admin-operation-dialog" class="admin-action-dialog">
+    <form method="dialog">
+        <h2 class="admin-action-dialog__title">Confirm site operation</h2>
+        <p class="admin-action-dialog__text"></p>
+        <div class="admin-action-dialog__buttons">
+            <button class="admin-operation-confirm button is-danger" type="button">Confirm</button>
+            <button class="button" value="cancel">Cancel</button>
+        </div>
+    </form>
+</dialog>
+{% endblock %}
+{% block js %}
+<script src="{{ js }}"></script>
+<script>
+(() => {
+  const feedback = document.querySelector('.admin-ops-feedback');
+  const dialog = document.getElementById('admin-operation-dialog');
+  const dialogTitle = dialog?.querySelector('.admin-action-dialog__title');
+  const dialogText = dialog?.querySelector('.admin-action-dialog__text');
+  const confirmButton = dialog?.querySelector('.admin-operation-confirm');
+  const secretBox = document.querySelector('.admin-fishnet-secret');
+  let pendingForm = null;
+
+  const showFeedback = (message, status) => {
+    if (!feedback) return;
+    feedback.textContent = message;
+    feedback.dataset.status = status;
+  };
+
+  const submitOperation = async (form) => {
+    const button = form.querySelector('button[type="submit"]');
+    if (button) button.disabled = true;
+    showFeedback('', '');
+
+    try {
+      const response = await fetch(form.action, {
+        method: 'POST',
+        body: new URLSearchParams(new FormData(form)),
+      });
+      const payload = await response.json();
+      if (!response.ok) {
+        showFeedback(payload.message || `Operation failed (HTTP ${response.status}).`, 'error');
+        return;
+      }
+
+      if (payload.secret && secretBox) {
+        secretBox.querySelector('code').textContent = payload.secret;
+        secretBox.hidden = false;
+        showFeedback(payload.message, 'success');
+        form.reset();
+        return;
+      }
+
+      const next = new URL('/admin/operations', window.location.origin);
+      next.searchParams.set('done', payload.action);
+      window.location.assign(next);
+    } catch (_) {
+      showFeedback('Operation failed. Please try again.', 'error');
+    } finally {
+      if (button) button.disabled = false;
+    }
+  };
+
+  document.querySelectorAll('[data-admin-operation]').forEach((form) => {
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (!form.dataset.confirmTitle || !dialog) {
+        submitOperation(form);
+        return;
+      }
+
+      pendingForm = form;
+      const fieldName = form.dataset.confirmField;
+      const field = fieldName ? form.elements.namedItem(fieldName) : null;
+      const value = field?.value || '';
+      dialogTitle.textContent = form.dataset.confirmTitle;
+      dialogText.textContent = (form.dataset.confirmText || '').replace('{value}', value);
+      dialog.showModal();
+    });
+  });
+
+  confirmButton?.addEventListener('click', () => {
+    if (!pendingForm) return;
+    const form = pendingForm;
+    pendingForm = null;
+    dialog.close();
+    submitOperation(form);
+  });
+})();
+</script>
+{% endblock %}

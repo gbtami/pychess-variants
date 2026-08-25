@@ -1,6 +1,7 @@
 import json
 import time
 from datetime import UTC, datetime
+from unittest.mock import patch
 
 from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
@@ -23,8 +24,8 @@ class InboxApiTestCase(AioHTTPTestCase):
 
     async def test_send_and_read_inbox_message_flow(self):
         app_state = get_app_state(self.app)
-        alice = User(app_state, username="alice")
-        bob = User(app_state, username="bob")
+        alice = User(app_state, username="alice", patron=True)
+        bob = User(app_state, username="bob", patron=True)
         app_state.users[alice.username] = alice
         app_state.users[bob.username] = bob
 
@@ -39,6 +40,7 @@ class InboxApiTestCase(AioHTTPTestCase):
         threads_payload = await threads_resp.json()
         self.assertEqual(1, len(threads_payload["threads"]))
         self.assertEqual("bob", threads_payload["threads"][0]["user"])
+        self.assertTrue(threads_payload["threads"][0]["patron"])
         self.assertFalse(threads_payload["threads"][0]["unread"])
 
         self.set_session_user("bob")
@@ -49,6 +51,7 @@ class InboxApiTestCase(AioHTTPTestCase):
         self.assertEqual(thread_resp.status, 200)
         thread_payload = await thread_resp.json()
         self.assertEqual("alice", thread_payload["contact"]["name"])
+        self.assertTrue(thread_payload["contact"]["patron"])
         self.assertEqual(1, len(thread_payload["messages"]))
         self.assertEqual("hello bob", thread_payload["messages"][0]["text"])
         self.assertEqual("alice", thread_payload["messages"][0]["from"])
@@ -146,29 +149,30 @@ class InboxApiTestCase(AioHTTPTestCase):
         app_state.users[bob.username] = bob
         app_state.chat_flood.allow_message = lambda source, text: True
 
-        self.set_session_user("alice")
-        for idx in range(105):
-            resp = await self.client.post("/api/inbox/thread/bob", data={"text": f"m{idx}"})
-            self.assertEqual(resp.status, 200)
+        with patch("inbox_api.THREAD_MSG_PAGE_SIZE", 5):
+            self.set_session_user("alice")
+            for idx in range(7):
+                resp = await self.client.post("/api/inbox/thread/bob", data={"text": f"m{idx}"})
+                self.assertEqual(resp.status, 200)
 
-        self.set_session_user("bob")
-        page1_resp = await self.client.get("/api/inbox/thread/alice")
-        self.assertEqual(page1_resp.status, 200)
-        page1 = await page1_resp.json()
-        self.assertEqual(100, len(page1["messages"]))
-        self.assertTrue(page1["hasMore"])
+            self.set_session_user("bob")
+            page1_resp = await self.client.get("/api/inbox/thread/alice")
+            self.assertEqual(page1_resp.status, 200)
+            page1 = await page1_resp.json()
+            self.assertEqual(5, len(page1["messages"]))
+            self.assertTrue(page1["hasMore"])
 
-        oldest_page1 = page1["messages"][0]["createdAt"]
-        oldest_dt = datetime.fromisoformat(oldest_page1)
-        if oldest_dt.tzinfo is None:
-            oldest_dt = oldest_dt.replace(tzinfo=UTC)
-        before_ms = int(oldest_dt.timestamp() * 1000)
+            oldest_page1 = page1["messages"][0]["createdAt"]
+            oldest_dt = datetime.fromisoformat(oldest_page1)
+            if oldest_dt.tzinfo is None:
+                oldest_dt = oldest_dt.replace(tzinfo=UTC)
+            before_ms = int(oldest_dt.timestamp() * 1000)
 
-        page2_resp = await self.client.get(f"/api/inbox/thread/alice?before={before_ms}")
-        self.assertEqual(page2_resp.status, 200)
-        page2 = await page2_resp.json()
-        self.assertEqual(5, len(page2["messages"]))
-        self.assertFalse(page2["hasMore"])
+            page2_resp = await self.client.get(f"/api/inbox/thread/alice?before={before_ms}")
+            self.assertEqual(page2_resp.status, 200)
+            page2 = await page2_resp.json()
+            self.assertEqual(2, len(page2["messages"]))
+            self.assertFalse(page2["hasMore"])
 
     async def test_inbox_post_sanitizes_blacklisted_links(self):
         app_state = get_app_state(self.app)

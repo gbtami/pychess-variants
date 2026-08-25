@@ -11,7 +11,7 @@ import aiohttp_session
 from aiohttp import web
 from aiohttp_sse import sse_response
 from broadcast import round_broadcast
-from clock import CorrClock
+from clock import Clock, CorrClock, first_move_timeout_reason
 from compress import C2R, R2C
 from const import (
     CASUAL,
@@ -40,7 +40,6 @@ from fairy import (
     modded_variant,
     validate_fen,
 )
-from fairy.jieqi import make_initial_mapping
 from game import Game, StaleMovePersistenceError
 from newid import new_id
 from seek import (
@@ -294,9 +293,14 @@ async def _load_game_from_doc(
         tournamentArrangementId=doc.get("aid"),
         simulId=doc.get("sid"),
     )
+    simul_host_color = doc.get("sh")
+    if game.simulId is not None:
+        if simul_host_color not in ("w", "b"):
+            raise ValueError(f"Simul game {game.id} is missing host side")
+        game.simulHostColor = simul_host_color
 
     if variant == "jieqi":
-        game.board.jieqi_covered_pieces = make_initial_mapping(doc["bj"], doc["wj"])
+        game.board.set_jieqi_initial_pieces(doc["bj"], doc["wj"])
 
     game.usi_format = usi_format
 
@@ -439,7 +443,41 @@ async def _load_game_from_doc(
         game.board.ply = len(mlist)
         game.board.color = WHITE if game.board.fen.split()[1] == "w" else BLACK
         game.lastmove = mlist[-1]
-        game.mct = doc.get("mct")
+
+    if game.manual_count:
+        raw_manual_count_toggled = doc.get("mct", [])
+        manual_count_toggled: list[tuple[int, int]] = []
+        if isinstance(raw_manual_count_toggled, list):
+            for interval in raw_manual_count_toggled:
+                if (
+                    isinstance(interval, (list, tuple))
+                    and len(interval) == 2
+                    and isinstance(interval[0], int)
+                    and isinstance(interval[1], int)
+                ):
+                    manual_count_toggled.append((interval[0], interval[1]))
+        game.manual_count_toggled = manual_count_toggled
+
+        active_count_started = doc.get("mc")
+        if isinstance(active_count_started, int) and game.status <= STARTED:
+            game.board.count_started = active_count_started
+            if active_count_started > 0:
+                count_start_ply = active_count_started - 1
+                moves_since_count_start = game.board.ply - count_start_ply
+                counting_color = game.board.color
+                if moves_since_count_start % 2 != 0:
+                    counting_color = BLACK if game.board.color == WHITE else WHITE
+                counting_player = game.wplayer if counting_color == WHITE else game.bplayer
+                game.draw_offers.add(counting_player.username)
+
+        # Replay wants closed intervals plus a synthetic end for an active
+        # interval at the current position. Keep manual_count_toggled itself
+        # free of that synthetic end so a later stop/game end can persist the
+        # real interval exactly once.
+        replay_manual_count_toggled = list(manual_count_toggled)
+        if game.board.count_started > 0 and game.status <= STARTED:
+            replay_manual_count_toggled.append((game.board.count_started, game.board.ply + 1))
+        game.mct = replay_manual_count_toggled
 
     game.counted_as_active = game.status == STARTED and game.board.ply > 0
 
@@ -452,7 +490,11 @@ async def _load_game_from_doc(
             crosstable: Crosstable = crosstable_doc
             game.crosstable = crosstable
 
-    game.loaded_at = datetime.now(UTC)
+    loaded_at = datetime.now(UTC)
+    game.loaded_at = loaded_at
+
+    if (not game.corr) and game.status <= STARTED:
+        game.restore_realtime_clock_after_load(loaded_at)
 
     if game.status <= STARTED:
         app_state.games[game_id] = game
@@ -647,7 +689,9 @@ async def join_seek(
     if is_targeted_two_board_seek(seek.variant, seek.chess960, seek.target):
         return {"type": "error", "message": TWO_BOARD_TARGETED_SEEK_MESSAGE}
 
-    if seek.creator.username in user.blocked or user.username in seek.creator.blocked:
+    if not getattr(seek, "is_rr_challenge", False) and (
+        seek.creator.username in user.blocked or user.username in seek.creator.blocked
+    ):
         return {"type": "error", "message": "You cannot accept this seek."}
 
     if is_catalogued_variant(seek.variant):
@@ -861,6 +905,9 @@ async def insert_game_to_db(game, app_state: PychessGlobalAppState):
         document["aid"] = game.tournamentArrangementId
     if game.simulId is not None:
         document["sid"] = game.simulId
+        if game.simulHostColor not in ("w", "b"):
+            raise ValueError(f"Simul game {game.id} is missing host side")
+        document["sh"] = game.simulHostColor
 
     if game.variant.endswith("shogi") or game.variant in (
         "dobutsu",
@@ -888,11 +935,10 @@ async def insert_game_to_db(game, app_state: PychessGlobalAppState):
         document["cw0"] = int(game.clocks_w[0])
         document["cb0"] = int(game.clocks_b[0])
 
-    if game.rated == RATED:
+    if game.persist_clock_history:
         # Initialize clock arrays so load_game_from_doc() can always find
-        # both keys together. Without this, a server restart after exactly
-        # one rated move (White's first push) would leave "cb" absent from
-        # the document, causing a KeyError when loading the game back.
+        # both keys together. This is required for rated games and for casual
+        # tournament games, whose clocks must also survive a restart.
         document["cw"] = []
         document["cb"] = []
 
@@ -1055,7 +1101,36 @@ async def play_move(
             log.info("BOT move %s arrived probably while human player takeback happened" % move)
             return
 
-        if not user.bot:
+        realtime_restart_clock_expired = (
+            not user.bot
+            and isinstance(game.stopwatch, Clock)
+            and not game.server_variant.two_boards
+            and game.persist_clock_history
+            and game.restart_elapsed_ms > 0
+            and game.stopwatch.running
+            and game.stopwatch.secs <= 0
+        )
+        correspondence_clock_expired = (
+            not user.bot
+            and isinstance(game.stopwatch, CorrClock)
+            and game.stopwatch.running
+            and game.stopwatch.mins <= 0
+        )
+        if realtime_restart_clock_expired or correspondence_clock_expired:
+            # A player cannot have made a move while this process was offline.
+            # Reject an already-expired restored clock before the background
+            # countdown task gets its next scheduling turn. The explicit
+            # isinstance checks also keep real-time and correspondence clock
+            # state type-safe and independent of how a game was created.
+            log.info(
+                "Rejecting move because restored clock expired in %s by %s",
+                gameId,
+                user.username,
+            )
+            await game.game_ended(user, first_move_timeout_reason(game, game.ply))
+            invalid_move = True
+
+        if not user.bot and not invalid_move:
             legal_moves = game.board.legal_moves()
             if move not in legal_moves:
                 log.warning(
@@ -1070,41 +1145,44 @@ async def play_move(
                 await send_human_resync("illegal-human-move")
                 return
 
-        try:
-            await game.play_move(move, clocks, ply)
-        except StaleMovePersistenceError:
-            log.warning(
-                "Rejecting stale move after persistence conflict in %s by %s (move=%s)",
-                gameId,
-                user.username,
-                move,
-            )
-            cached_game = app_state.games.get(gameId)
-            if cached_game is game:
-                app_state.games.pop(gameId, None)
-                await game.cancel_clocks_for_eviction()
-                cached_game = None
+        if not invalid_move:
+            try:
+                await game.play_move(move, clocks, ply)
+            except StaleMovePersistenceError:
+                log.warning(
+                    "Rejecting stale move after persistence conflict in %s by %s (move=%s)",
+                    gameId,
+                    user.username,
+                    move,
+                )
+                cached_game = app_state.games.get(gameId)
+                if cached_game is game:
+                    app_state.games.pop(gameId, None)
+                    await game.cancel_clocks_for_eviction()
+                    cached_game = None
 
-            authoritative_game = (
-                cached_game if isinstance(cached_game, Game) else await load_game(app_state, gameId)
-            )
-            if not isinstance(authoritative_game, Game):
-                log.error("Unable to reload %s after a persistence conflict", gameId)
+                authoritative_game = (
+                    cached_game
+                    if isinstance(cached_game, Game)
+                    else await load_game(app_state, gameId)
+                )
+                if not isinstance(authoritative_game, Game):
+                    log.error("Unable to reload %s after a persistence conflict", gameId)
+                    return
+
+                game = authoritative_game
+                await send_human_resync("stale-persistence")
                 return
-
-            game = authoritative_game
-            await send_human_resync("stale-persistence")
-            return
-        except SystemError:
-            invalid_move = True
-            log.exception(
-                "Game %s aborted because invalid move %s by %s !!!",
-                gameId,
-                move,
-                user.username,
-            )
-            game.status = INVALIDMOVE
-            game.result = "0-1" if user.username == game.wplayer.username else "1-0"
+            except SystemError:
+                invalid_move = True
+                log.exception(
+                    "Game %s aborted because invalid move %s by %s !!!",
+                    gameId,
+                    move,
+                    user.username,
+                )
+                game.status = INVALIDMOVE
+                game.result = "0-1" if user.username == game.wplayer.username else "1-0"
     else:
         # never play moves in finished games!
         log.info(

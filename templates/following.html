@@ -1,0 +1,48 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+<main class="following-page box">
+    <div class="following-page__top">
+        <h1>
+            <a class="following-page__back icon icon-left" href="{{ home }}/@/{{ following_profile }}" aria-label="{% trans %}Back to profile{% endtrans %}"></a>
+            <span>{% trans %}Following{% endtrans %}</span>
+        </h1>
+        <span class="following-page__count">{{ following_total }}</span>
+    </div>
+    {% if following_users %}
+    <table class="following-page__list">
+        <tbody>
+        {% for followed in following_users %}
+            <tr>
+                <td class="following-page__user">
+                    <i-side class="following-page__status icon {% if followed.online %}online{% else %}offline{% endif %} {% if followed.patron %}icon-patron-wing{% elif followed.online %}icon-online{% else %}icon-offline{% endif %}"{% if followed.patron %} title="{{ _('PyChess Patron') }}"{% endif %}></i-side>
+                    <a class="user-link ulpt" href="{{ home }}/@/{{ followed.username }}"><player-title>{{ followed.title }}</player-title>{% if followed.title %} {% endif %}{{ followed.username }}</a>
+                </td>
+                <td class="following-page__rating">
+                    {% if followed.rating %}
+                    <strong>{{ followed.rating }}</strong>
+                    <span>{{ variant_display_name(followed.variant) }}</span>
+                    {% endif %}
+                </td>
+                <td class="following-page__games">
+                    {% trans count=followed.games %}{{ count }} game{% pluralize %}{{ count }} games{% endtrans %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="following-page__empty">{% trans %}No players followed yet.{% endtrans %}</p>
+    {% endif %}
+    {% if following_prev_href or following_next_href %}
+    <nav class="following-page__pagination" aria-label="{% trans %}Pagination{% endtrans %}">
+        {% if following_prev_href %}<a href="{{ following_prev_href }}">‹ {% trans %}Previous{% endtrans %}</a>{% endif %}
+        {% if following_next_href %}<a href="{{ following_next_href }}">{% trans %}Next{% endtrans %} ›</a>{% endif %}
+    </nav>
+    {% endif %}
+</main>
+</div>
+{% endblock %}
+{% block js %}
+    <script src="{{ js }}"></script>
+{% endblock %}

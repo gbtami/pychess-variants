@@ -1,4 +1,5 @@
 import asyncio
+import json
 from types import SimpleNamespace
 from typing import Any, cast
 from unittest.mock import patch
@@ -45,6 +46,14 @@ class BotApiSecurityTestCase(AioHTTPTestCase):
     @staticmethod
     def auth_headers(raw_token: str) -> dict[str, str]:
         return {"Authorization": f"Bearer {raw_token}"}
+
+    @classmethod
+    def event_stream_headers(cls, raw_token: str, variants: list[str]) -> dict[str, str]:
+        return cls.auth_headers(raw_token) | {
+            bot_api.BOT_CAPABILITIES_HEADER: json.dumps(
+                {"version": bot_api.BOT_CAPABILITIES_VERSION, "variants": variants}
+            )
+        }
 
     async def test_challenge_accept_and_decline_require_invited_bot(self):
         app_state = get_app_state(self.app)
@@ -173,6 +182,21 @@ class BotApiSecurityTestCase(AioHTTPTestCase):
         self.assertEqual(response.status, 200)
         self.assertEqual(BOT_CHALLENGE_DECLINED, seek.bot_challenge_status)
 
+    async def test_user_status_is_lichess_bot_compatible(self):
+        bot, _ = await self.create_bot("status-bot")
+        bot.online = True
+
+        response = await self.client.get("/api/users/status?ids=status-bot")
+
+        self.assertEqual(response.status, 200)
+        self.assertEqual(await response.json(), [{"id": "status-bot", "online": True}])
+
+        bot.patron = True
+        response = await self.client.get("/api/users/status?ids=status-bot")
+        self.assertEqual(
+            await response.json(), [{"id": "status-bot", "online": True, "patron": True}]
+        )
+
     async def test_event_stream_disconnect_marks_bot_offline(self):
         bot, token = await self.create_bot("owner-bot")
 
@@ -185,7 +209,9 @@ class BotApiSecurityTestCase(AioHTTPTestCase):
         ):
             response = await self.client.get(
                 "/api/stream/event",
-                headers=self.auth_headers(token),
+                headers=self.event_stream_headers(
+                    token, ["standard", "chess960", "crazyhouse960", "not-on-pychess"]
+                ),
             )
 
             self.assertEqual(response.status, 200)
@@ -197,7 +223,19 @@ class BotApiSecurityTestCase(AioHTTPTestCase):
                 await asyncio.sleep(0.01)
 
         self.assertFalse(bot.online)
+        self.assertEqual({"chess", "chess960", "crazyhouse960"}, bot.bot_supported_variants)
         response.close()
+
+    async def test_event_stream_requires_capabilities(self):
+        _, token = await self.create_bot("missing-capabilities-bot")
+
+        response = await self.client.get(
+            "/api/stream/event",
+            headers=self.auth_headers(token),
+        )
+
+        self.assertEqual(response.status, 400)
+        self.assertIn(bot_api.BOT_CAPABILITIES_HEADER, await response.text())
 
     async def test_bot_stream_write_times_out(self):
         async def blocked_write(_payload):

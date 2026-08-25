@@ -4,21 +4,21 @@
 <main class="page-menu ublog-page">
 <aside>
     <ul class="guide">
-        <li><a href="/blogs"><span>By PyChess</span></a></li>
-        <li><a href="/blogs/community"><span>Community</span></a></li>
+        <li><a href="/blogs"><span>{% trans %}By PyChess{% endtrans %}</span></a></li>
+        <li><a href="/blogs/community"><span>{% trans %}Community{% endtrans %}</span></a></li>
         {% for topic in community_topics %}
         <li>
-            <a href="/blogs/community?topic={{ topic }}"><span>#{{ topic }}</span></a>
+            <a href="/blogs/community?topic={{ topic }}"><span>#{{ _(topic) }}</span></a>
         </li>
         {% endfor %}
     </ul>
 </aside>
 <div class="ublog-box box box-pad ublog-index">
     <div class="box-top">
-        <h1>Community blogs</h1>
+        <h1>{% trans %}Community blogs{% endtrans %}</h1>
     </div>
     {% if community_topic %}
-    <div class="ublog-topic-filter">Filtered by <strong>#{{ community_topic }}</strong></div>
+    <div class="ublog-topic-filter">{% trans %}Filtered by{% endtrans %} <strong>#{{ community_topic }}</strong></div>
     {% endif %}
     <div class="ublog-cards ublog-post-cards">
     {% for post in community_posts %}

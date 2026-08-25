@@ -153,7 +153,7 @@ def _proc_status_memory_kib() -> dict[str, int]:
                 if not separator or name not in wanted:
                     continue
                 values[name] = int(raw_value.split()[0])
-    except OSError, ValueError, IndexError:
+    except (OSError, ValueError, IndexError):
         pass
     return values
 
@@ -848,7 +848,7 @@ async def metrics_handler(request: web.Request) -> web.StreamResponse:
         {
             "id": simul_id,
             "status": simul.status,
-            "variant": simul.variant,
+            "variants": list(simul.variants),
             "host": simul.created_by,
             "players": len(simul.players),
             "pending_players": len(simul.pending_players),

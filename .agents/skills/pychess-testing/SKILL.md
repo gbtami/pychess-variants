@@ -13,7 +13,7 @@ Work from the repository root. Match verification effort to the files and behavi
 2. Run targeted tests by default. Find the closest existing test module, class, or case before considering broad discovery.
 3. Use the following gates:
    - TypeScript, CSS, or static UI only: run `yarn typecheck` and `yarn test`. Skip Python gates.
-   - Python or server code: run `uv run ruff format .`, `uv run ruff check .`, and `uv run pyright`, plus targeted Python tests.
+   - Python or server code: run `uv run ruff format --target-version py313 .`, `uv run ruff check .`, and `uv run pyright`, plus targeted Python tests.
    - Mixed frontend and server changes: run both sets.
    - Browser workflows or rendered behavior: add the relevant Playwright or manual browser verification.
 4. Run the full Python suite only for broad or cross-cutting changes, when targeted coverage cannot provide enough confidence, or when the user explicitly requests it.
@@ -21,10 +21,11 @@ Work from the repository root. Match verification effort to the files and behavi
 
 ## Commands
 
-Run Python tooling through the project environment:
+Run Python tooling through the project environment. The project runtime and Ruff lint target stay at Python 3.14, but the formatter must use `--target-version py313`. Ruff 0.15+ removes parentheses from multi-exception `except` clauses when formatting as `py314`; using `py313` formatting preserves the parenthesized form, which is valid on Python 3.14 and remains parseable by Python 3.13-based tooling.
+Keep existing `from __future__ import annotations` imports in modules that need forward-reference compatibility with Python 3.13-based tooling. They do not change the project runtime target; they prevent 3.13 from eagerly evaluating those annotations during import.
 
 ```bash
-uv run ruff format .
+uv run ruff format --target-version py313 .
 uv run ruff check .
 uv run pyright
 ```
@@ -40,16 +41,40 @@ Use `server` only for discovery:
 
 ```bash
 env PYTHONPATH=server uv run python -m unittest discover -s tests
+env PYTHONPATH=server uv run python -m pytest tests/test_simul.py
 ```
 
-When a justified full run is noisy, redirect its complete output and inspect the summary:
+`test_simul.py` uses pytest fixtures and is not collected by `unittest discover`; both commands make up the Python CI coverage.
+
+The ChatGPT Python 3.13 sandbox has a 45-second per-command execution ceiling. Full unittest
+discovery is close enough to that ceiling that the tests can finish but interpreter
+shutdown can still time out. For sandbox full-suite verification, run the same unittest
+modules in two deterministic round-robin shards instead:
+
+```bash
+env PYTHONPATH=server uv run python tests/run_unittest_shard.py 1 2
+env PYTHONPATH=server uv run python tests/run_unittest_shard.py 2 2
+env PYTHONPATH=server uv run python -m pytest tests/test_simul.py
+```
+
+The shard runner discovers the same `test*.py` modules as unittest and assigns sorted
+module names by index modulo the shard count. This keeps the split stable without a
+manually maintained file list and distributes slow modules better than contiguous
+halves. GitHub CI can continue using monolithic `unittest discover`; sharding here is a
+sandbox execution strategy, not reduced coverage.
+
+Python tests configure application logging at `WARNING` by default to avoid DEBUG-log I/O dominating CI. When diagnosing a failure, opt back into verbose application logs for that run:
+
+```bash
+env PYCHESS_TEST_LOG_LEVEL=DEBUG PYTHONPATH=server:tests uv run python -m unittest tests.some_test_module
+```
+
+For a justified full run, redirect output when you want to preserve the complete warning/error log and inspect the summary separately:
 
 ```bash
 env PYTHONPATH=server uv run python -m unittest discover -s tests > /tmp/unittest_full.log 2>&1
-rg -n "^Ran [0-9]+ tests|^OK$|^FAILED \\(|^ERROR:|^FAIL:" /tmp/unittest_full.log
+rg -n "^Ran [0-9]+ tests|^OK$|^FAILED \(|^ERROR:|^FAIL:" /tmp/unittest_full.log
 ```
-
-Do not rely on `unittest -q` or `-b` for quiet output; application logger initialization remains noisy.
 
 For browser tests:
 
@@ -57,6 +82,7 @@ For browser tests:
 uv run python -m playwright install
 env PYTHONPATH=server uv run python -m pytest tests/test_e2e.py
 env PYTHONPATH=server uv run python -m pytest tests/test_gui.py
+env PYTHONPATH=server uv run python -m pytest tests/test_bughouse_lobby_flow.py
 ```
 
 Avoid Playwright `--with-deps` unless provisioning a fresh host with sudo access. The tests need permission to bind local sockets. Use `uv run server/server.py -a` when an authenticated-flow check can use anonymous test users.

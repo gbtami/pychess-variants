@@ -28,7 +28,7 @@ from const import (
     TRANSLATED_PAIRING_SYSTEM_NAMES,
     VARIANTEND,
 )
-from newid import new_id
+from newid import id8, new_id
 
 from tournament.arena import ArenaTournament
 
@@ -39,6 +39,7 @@ from catalogued_variants import is_public_catalogued_variant
 from pychess_global_app_state_utils import get_app_state
 from rated_start import can_rate_start, can_rate_variant
 from settings import DEV
+from team import PERMISSION_TOURNAMENTS, get_team, has_team_permission
 from typing_defs import (
     TournamentArrangementDoc,
     TournamentCreateData,
@@ -60,12 +61,14 @@ from tournament.auto_play_tournament import (
 )
 from tournament.rr import RRTournament
 from tournament.swiss import SwissTournament
+from tournament.swiss.tournament_ops import _persist_late_entry_round_history
 from tournament.tournament import (
     AUTO_ROUND_INTERVAL,
     MANUAL_ROUND_INTERVAL,
     RR_DEFAULT_MAX_PLAYERS,
     RR_MAX_SUPPORTED_PLAYERS,
     SCORE_SHIFT,
+    SWISS_MAX_PLAYERS,
     ByeGame,
     GameData,
     PlayerData,
@@ -78,6 +81,47 @@ log = logging.getLogger(__name__)
 WinnerEntry = tuple[str, str, str, str]
 ScheduledTournamentEntry = tuple[str, str, bool, datetime, int, str]
 TournamentTables = tuple[list[Tournament], list[Tournament], list[Tournament]]
+COMMUNITY_ARENA_MAX_CREATIONS_PER_24H = 1
+COMMUNITY_ARENA_CREATION_WINDOW = timedelta(days=1)
+FIXED_ROUND_MAX_CREATIONS_PER_24H = 5
+FIXED_ROUND_CREATION_WINDOW = timedelta(days=1)
+COMMUNITY_ARENA_MAX_SCHEDULE_AHEAD = timedelta(days=1)
+COMMUNITY_ARENA_SYSTEM_BUFFER = timedelta(minutes=15)
+COMMUNITY_ARENA_MIN_MINUTES = 20
+COMMUNITY_ARENA_MAX_MINUTES = 120
+COMMUNITY_ARENA_CLOCK_TIMES: frozenset[float] = frozenset(
+    (
+        0.0,
+        0.25,
+        0.5,
+        0.75,
+        1.0,
+        1.5,
+        2.0,
+        3.0,
+        4.0,
+        5.0,
+        6.0,
+        7.0,
+        10.0,
+        15.0,
+        20.0,
+        25.0,
+        30.0,
+        40.0,
+        50.0,
+        60.0,
+    )
+)
+COMMUNITY_ARENA_CLOCK_INCREMENTS: frozenset[int] = frozenset(
+    (0, 1, 2, 3, 4, 5, 6, 7, 10, 15, 20, 25, 30, 40, 50, 60)
+)
+COMMUNITY_ARENA_WAIT_MINUTES: frozenset[int] = frozenset((1, 2, 3, 5, 10, 15, 20, 30, 45, 60))
+SWISS_MIN_ROUNDS = 3
+SWISS_MAX_ROUNDS = 15
+SWISS_MAX_FORBIDDEN_PAIRING_LINES = 2048
+SWISS_MAX_MANUAL_PAIRING_LINES = SWISS_MAX_PLAYERS
+
 ROUND_INTERVAL_SECONDS: frozenset[int] = frozenset(
     (
         5,
@@ -167,6 +211,50 @@ def _swiss_unplayed_point_from_token(token: str, variant: str):
     return (0, 0)
 
 
+def _nonempty_pairing_lines(raw: str) -> list[str]:
+    return [line.strip() for line in raw.splitlines() if line.strip()]
+
+
+def _validate_swiss_pairing_inputs(forbidden_pairings: str, manual_pairings: str) -> None:
+    forbidden_lines = _nonempty_pairing_lines(forbidden_pairings)
+    if len(forbidden_lines) > SWISS_MAX_FORBIDDEN_PAIRING_LINES:
+        raise web.HTTPBadRequest(
+            text=(
+                "Swiss forbidden pairings are limited to "
+                f"{SWISS_MAX_FORBIDDEN_PAIRING_LINES} lines."
+            )
+        )
+
+    manual_lines = _nonempty_pairing_lines(manual_pairings)
+    if len(manual_lines) > SWISS_MAX_MANUAL_PAIRING_LINES:
+        raise web.HTTPBadRequest(
+            text=f"Swiss manual pairings are limited to {SWISS_MAX_MANUAL_PAIRING_LINES} lines."
+        )
+
+    used_names: set[str] = set()
+    for line_no, line in enumerate(manual_lines, start=1):
+        parts = line.lower().split()
+        if len(parts) != 2:
+            raise web.HTTPBadRequest(text=f"Invalid Swiss manual pairing on line {line_no}.")
+
+        left_name, right_name = parts
+        if left_name == right_name:
+            raise web.HTTPBadRequest(
+                text=f"Invalid Swiss manual pairing on line {line_no}: a player cannot play themself."
+            )
+
+        names = (left_name,) if right_name == "1" else (left_name, right_name)
+        duplicate_name = next((name for name in names if name in used_names), None)
+        if duplicate_name is not None:
+            raise web.HTTPBadRequest(
+                text=(
+                    f"Invalid Swiss manual pairing on line {line_no}: "
+                    f"{duplicate_name} is paired more than once."
+                )
+            )
+        used_names.update(names)
+
+
 def _parse_round_interval(
     value: Any,
     *,
@@ -183,7 +271,7 @@ def _parse_round_interval(
 
     try:
         interval = int(value)
-    except TypeError, ValueError:
+    except (TypeError, ValueError):
         return default_value
 
     if interval in ROUND_INTERVAL_SECONDS:
@@ -194,7 +282,7 @@ def _parse_round_interval(
 def _parse_rr_max_players(value: Any, *, default_value: int) -> int:
     try:
         rr_max_players = int(value)
-    except TypeError, ValueError:
+    except (TypeError, ValueError):
         rr_max_players = default_value
 
     return max(3, min(RR_MAX_SUPPORTED_PLAYERS, rr_max_players))
@@ -281,6 +369,8 @@ async def _repair_missing_pairing_docs_from_games(tournament: Tournament) -> Non
             status=game_doc["s"],
             ply=game_doc.get("p", len(game_doc.get("m", []))),
             round_no=_pairing_round_from_game_doc(tournament, game_doc),
+            wrdiff=white_rating_doc.get("d", 0),
+            brdiff=black_rating_doc.get("d", 0),
         )
         await tournament.db_update_pairing(pairing_game)
         repaired_ids.append(game_id)
@@ -459,11 +549,15 @@ async def _recover_incomplete_fixed_round_pairing_round(
         tournament.recalculate_berger_tiebreak()
     tournament.current_round = max(0, round_no - 1)
     tournament.pairing_in_progress_round = None
+    tournament.manual_pairings_in_progress = None
     await tournament.app_state.db.tournament.update_one(
         {"_id": tournament.id},
         {
             "$set": {"cr": tournament.current_round},
-            "$unset": {"pairingInProgressRound": ""},
+            "$unset": {
+                "pairingInProgressRound": "",
+                "manualPairingsInProgress": "",
+            },
         },
     )
     for username in rolled_back_users:
@@ -478,15 +572,289 @@ async def _recover_incomplete_fixed_round_pairing_round(
     return tournament.current_round
 
 
+def _community_arena_start_time(
+    *,
+    tournament: Tournament | None,
+    start_date: datetime | None,
+    wait_minutes: int,
+    now: datetime,
+) -> datetime:
+    if start_date is not None:
+        return start_date
+    if tournament is not None:
+        return tournament.created_at + timedelta(minutes=wait_minutes)
+    return now + timedelta(minutes=wait_minutes)
+
+
+def _validate_user_arena_schedule(
+    app_state: PychessGlobalAppState,
+    username: str,
+    *,
+    team_id: str,
+    tournament: Tournament | None,
+    start_date: datetime | None,
+    wait_minutes: int,
+    minutes: int,
+    now: datetime,
+) -> None:
+    if minutes < COMMUNITY_ARENA_MIN_MINUTES or minutes > COMMUNITY_ARENA_MAX_MINUTES:
+        raise web.HTTPBadRequest(
+            text=(
+                f"User-created Arenas must last between {COMMUNITY_ARENA_MIN_MINUTES} and "
+                f"{COMMUNITY_ARENA_MAX_MINUTES} minutes."
+            )
+        )
+
+    if wait_minutes not in COMMUNITY_ARENA_WAIT_MINUTES:
+        raise web.HTTPBadRequest(text="Invalid Arena start delay.")
+
+    # Team Arenas keep the normal Arena validity and daily creation limits, but they are
+    # intentionally exempt from public Community Arena scheduling protections. Team leaders
+    # need to be able to announce events days or weeks in advance without blocking themselves
+    # from creating another Arena or having to avoid the site-wide system tournament schedule.
+    if team_id:
+        return
+
+    proposed_start = _community_arena_start_time(
+        tournament=tournament,
+        start_date=start_date,
+        wait_minutes=wait_minutes,
+        now=now,
+    )
+    if proposed_start > now + COMMUNITY_ARENA_MAX_SCHEDULE_AHEAD:
+        raise web.HTTPBadRequest(
+            text="Community Arenas can be scheduled at most 24 hours in advance."
+        )
+
+    proposed_end = proposed_start + timedelta(minutes=minutes)
+
+    if tournament is None:
+        for existing in app_state.tournaments.values():
+            if (
+                existing.created_by == username
+                and existing.system == ARENA
+                and not existing.frequency
+                and existing.status in (T_CREATED, T_STARTED)
+            ):
+                raise web.HTTPTooManyRequests(
+                    text="You already have an active or scheduled Arena tournament."
+                )
+
+    for protected in app_state.tournaments.values():
+        if protected is tournament:
+            continue
+        if protected.created_by != "PyChess" or protected.status not in (T_CREATED, T_STARTED):
+            continue
+        if (
+            proposed_start < protected.ends_at + COMMUNITY_ARENA_SYSTEM_BUFFER
+            and proposed_end > protected.starts_at - COMMUNITY_ARENA_SYSTEM_BUFFER
+        ):
+            raise web.HTTPBadRequest(
+                text=(
+                    "Community Arena schedule conflicts with the protected system tournament "
+                    f'"{protected.name}". Please leave at least 15 minutes before and after '
+                    "system tournaments."
+                )
+            )
+
+
+async def _claim_community_arena_creation_slot(
+    app_state: PychessGlobalAppState, username: str, now: datetime
+) -> str | None:
+    if app_state.db is None:
+        return None
+    if COMMUNITY_ARENA_MAX_CREATIONS_PER_24H < 1:
+        raise RuntimeError("COMMUNITY_ARENA_MAX_CREATIONS_PER_24H must be at least 1")
+
+    cutoff = now - COMMUNITY_ARENA_CREATION_WINDOW
+    claim_id = id8()
+    while True:
+        account = await app_state.db.user.find_one(
+            {"_id": username},
+            {"arenaCreationHistory": 1, "lastArenaCreatedAt": 1},
+        )
+        if account is None:
+            raise web.HTTPForbidden(text="Tournament creation requires a registered account.")
+
+        raw_history = account.get("arenaCreationHistory")
+        history_exists = "arenaCreationHistory" in account
+        if isinstance(raw_history, list):
+            current_history = list(raw_history)
+        elif history_exists:
+            current_history = []
+        else:
+            legacy_created_at = account.get("lastArenaCreatedAt")
+            current_history = (
+                [{"at": legacy_created_at, "id": "legacy"}]
+                if isinstance(legacy_created_at, datetime)
+                else []
+            )
+
+        recent_history = [
+            entry
+            for entry in current_history
+            if isinstance(entry, dict)
+            and isinstance(entry.get("at"), datetime)
+            and entry["at"] > cutoff
+        ]
+        if len(recent_history) >= COMMUNITY_ARENA_MAX_CREATIONS_PER_24H:
+            raise web.HTTPTooManyRequests(
+                text=(
+                    "Community Arena creation is limited to "
+                    f"{COMMUNITY_ARENA_MAX_CREATIONS_PER_24H} tournament"
+                    f"{'s' if COMMUNITY_ARENA_MAX_CREATIONS_PER_24H != 1 else ''} "
+                    "every 24 hours."
+                )
+            )
+
+        new_history = [
+            *recent_history,
+            {"at": now, "id": claim_id},
+        ][-COMMUNITY_ARENA_MAX_CREATIONS_PER_24H:]
+
+        if history_exists:
+            quota_filter: dict[str, object] = {
+                "_id": username,
+                "arenaCreationHistory": raw_history,
+            }
+        else:
+            quota_filter = {"_id": username, "arenaCreationHistory": {"$exists": False}}
+            legacy_created_at = account.get("lastArenaCreatedAt")
+            quota_filter["lastArenaCreatedAt"] = (
+                legacy_created_at if isinstance(legacy_created_at, datetime) else {"$exists": False}
+            )
+
+        result = await app_state.db.user.update_one(
+            quota_filter,
+            {
+                "$set": {"arenaCreationHistory": new_history},
+                "$unset": {"lastArenaCreatedAt": ""},
+            },
+        )
+        if result.modified_count == 1:
+            return claim_id
+        # Another request changed the quota history between our read and write. Re-read it
+        # and either claim the next available slot or reject the now-full rolling window.
+
+
+async def _release_community_arena_creation_slot(
+    app_state: PychessGlobalAppState, username: str, claim_id: str | None
+) -> None:
+    if app_state.db is None or claim_id is None:
+        return
+    await app_state.db.user.update_one(
+        {"_id": username},
+        {"$pull": {"arenaCreationHistory": {"id": claim_id}}},
+    )
+
+
+async def _claim_fixed_round_creation_slot(
+    app_state: PychessGlobalAppState, username: str, now: datetime
+) -> str | None:
+    if app_state.db is None:
+        return None
+    if FIXED_ROUND_MAX_CREATIONS_PER_24H < 1:
+        raise RuntimeError("FIXED_ROUND_MAX_CREATIONS_PER_24H must be at least 1")
+
+    cutoff = now - FIXED_ROUND_CREATION_WINDOW
+    claim_id = id8()
+    while True:
+        account = await app_state.db.user.find_one(
+            {"_id": username},
+            {"fixedRoundCreationHistory": 1},
+        )
+        if account is None:
+            raise web.HTTPForbidden(text="Tournament creation requires a registered account.")
+
+        raw_history = account.get("fixedRoundCreationHistory")
+        history_exists = "fixedRoundCreationHistory" in account
+        current_history = list(raw_history) if isinstance(raw_history, list) else []
+        recent_history = [
+            entry
+            for entry in current_history
+            if isinstance(entry, dict)
+            and isinstance(entry.get("at"), datetime)
+            and entry["at"] > cutoff
+        ]
+        if len(recent_history) >= FIXED_ROUND_MAX_CREATIONS_PER_24H:
+            raise web.HTTPTooManyRequests(
+                text=(
+                    "Team Round-Robin/Swiss tournament creation is limited to "
+                    f"{FIXED_ROUND_MAX_CREATIONS_PER_24H} tournament"
+                    f"{'s' if FIXED_ROUND_MAX_CREATIONS_PER_24H != 1 else ''} "
+                    "every 24 hours per user."
+                )
+            )
+
+        new_history = [
+            *recent_history,
+            {"at": now, "id": claim_id},
+        ][-FIXED_ROUND_MAX_CREATIONS_PER_24H:]
+
+        quota_filter: dict[str, object] = {"_id": username}
+        quota_filter["fixedRoundCreationHistory"] = (
+            raw_history if history_exists else {"$exists": False}
+        )
+        result = await app_state.db.user.update_one(
+            quota_filter,
+            {"$set": {"fixedRoundCreationHistory": new_history}},
+        )
+        if result.modified_count == 1:
+            return claim_id
+        # Another request changed the quota history between our read and write. Re-read it
+        # and either claim the next available slot or reject the now-full rolling window.
+
+
+async def _release_fixed_round_creation_slot(
+    app_state: PychessGlobalAppState, username: str, claim_id: str | None
+) -> None:
+    if app_state.db is None or claim_id is None:
+        return
+    await app_state.db.user.update_one(
+        {"_id": username},
+        {"$pull": {"fixedRoundCreationHistory": {"id": claim_id}}},
+    )
+
+
+async def creator_can_manage_tournament(
+    app_state: PychessGlobalAppState,
+    tournament: Tournament,
+    username: str,
+) -> bool:
+    """Whether the original creator still has organizer rights for this tournament.
+
+    Non-Team tournaments keep the historical creator-based policy. Team tournaments
+    additionally require that the Team is still enabled and the creator still holds
+    the Team tournament permission. Site-wide tournament-director overrides are kept
+    outside this helper so HTTP and websocket callers can apply them explicitly.
+    """
+
+    if username != tournament.creator:
+        return False
+    if not tournament.team_id:
+        return True
+    if await get_team(app_state, tournament.team_id) is None:
+        return False
+    return await has_team_permission(
+        app_state,
+        tournament.team_id,
+        username,
+        PERMISSION_TOURNAMENTS,
+    )
+
+
 async def create_or_update_tournament(
     app_state: PychessGlobalAppState,
     username: str,
     form: Mapping[str, Any],
     tournament: Tournament | None = None,
+    *,
+    creator_is_director: bool = True,
 ) -> None:
     """Manual tournament creation from /tournaments/new form input values"""
 
-    variant = form["variant"]
+    variant = str(form.get("variant", ""))
+    position = str(form.get("position", ""))
     variant960 = False if is_catalogued_variant(variant) else variant.endswith("960")
     variant_name = variant[:-3] if variant960 else variant
     if is_catalogued_variant(variant_name) and not is_public_catalogued_variant(
@@ -495,36 +863,62 @@ async def create_or_update_tournament(
         raise web.HTTPBadRequest(
             text="Only public user-defined variants can be used in tournaments."
         )
-    server_variant = get_server_variant(variant_name, variant960)
+    try:
+        server_variant = get_server_variant(variant_name, variant960)
+    except KeyError:
+        raise web.HTTPBadRequest(text="Unknown tournament variant.") from None
+    if server_variant.two_boards:
+        raise web.HTTPBadRequest(text="Two-board variants are not supported in tournaments.")
 
     rated = (
         form.get("rated", "") == "1"
         and not is_catalogued_variant(variant_name)
-        and can_rate_start(variant_name, form["position"], variant960)
+        and can_rate_start(variant_name, position, variant960)
     )
-    base = float(form["clockTime"])
-    inc = int(form["clockIncrement"])
-    bp = int(form["byoyomiPeriod"])
+    try:
+        base = float(form["clockTime"])
+        inc = int(form["clockIncrement"])
+        bp = int(form["byoyomiPeriod"])
+    except (KeyError, TypeError, ValueError):
+        raise web.HTTPBadRequest(text="Invalid tournament time control.") from None
     frequency = tournament.frequency if tournament is not None else ""
+    team_id = tournament.team_id if tournament is not None else str(form.get("teamId", "")).strip()
 
     if tournament is None:
         try:
             system = int(form.get("system", ARENA))
-        except TypeError, ValueError:
+        except (TypeError, ValueError):
             system = ARENA
         if system not in (ARENA, RR, SWISS):
             system = ARENA
-        if (not DEV) and system in (RR, SWISS):
+        if team_id:
+            team = await get_team(app_state, team_id)
+            if team is None:
+                raise web.HTTPBadRequest(text="Tournament team not found.")
+            if not await has_team_permission(app_state, team_id, username, PERMISSION_TOURNAMENTS):
+                raise web.HTTPForbidden(
+                    text=(
+                        "You need the tournament permission in this team to create this tournament."
+                    )
+                )
+        elif system in (RR, SWISS) and not (creator_is_director and DEV):
             raise web.HTTPBadRequest(
-                text="Round-Robin and Swiss tournament creation is disabled in production."
+                text="Round-Robin and Swiss tournaments must belong to a team."
             )
     else:
         # Editing keeps existing pairing type to avoid mutating tournament class behavior.
         system = tournament.system
+        if team_id and not await creator_can_manage_tournament(app_state, tournament, username):
+            raise web.HTTPForbidden(
+                text=("You need the tournament permission in this team to manage this tournament.")
+            )
 
+    raw_rounds = form.get("rounds", 0)
     try:
-        rounds = int(form.get("rounds", 0))
-    except TypeError, ValueError:
+        rounds = int(raw_rounds)
+    except (TypeError, ValueError):
+        if system == SWISS:
+            raise web.HTTPBadRequest(text="Invalid Swiss round count.") from None
         rounds = 0
     if system == ARENA:
         rounds = 0
@@ -533,8 +927,22 @@ async def create_or_update_tournament(
             rounds = tournament.rounds
         else:
             rounds = 0
-    elif rounds <= 0:
-        rounds = 5
+    else:
+        if not SWISS_MIN_ROUNDS <= rounds <= SWISS_MAX_ROUNDS:
+            raise web.HTTPBadRequest(
+                text=f"Swiss tournaments must have {SWISS_MIN_ROUNDS} to {SWISS_MAX_ROUNDS} rounds."
+            )
+        if (
+            tournament is not None
+            and tournament.status != T_CREATED
+            and rounds < tournament.current_round
+        ):
+            raise web.HTTPBadRequest(
+                text=(
+                    "Swiss round count cannot be lower than the current round "
+                    f"({tournament.current_round})."
+                )
+            )
 
     default_rr_max_players = (
         tournament.rr_join_limit() if tournament is not None else RR_DEFAULT_MAX_PLAYERS
@@ -563,15 +971,15 @@ async def create_or_update_tournament(
 
     try:
         entry_min_rating = int(form.get("entryMinRating", 0) or 0)
-    except TypeError, ValueError:
+    except (TypeError, ValueError):
         entry_min_rating = 0
     try:
         entry_max_rating = int(form.get("entryMaxRating", 0) or 0)
-    except TypeError, ValueError:
+    except (TypeError, ValueError):
         entry_max_rating = 0
     try:
         entry_min_rated_games = int(form.get("entryMinRatedGames", 0) or 0)
-    except TypeError, ValueError:
+    except (TypeError, ValueError):
         entry_min_rated_games = 0
     if not can_rate_variant(variant_name, variant960):
         entry_min_rating = 0
@@ -579,7 +987,7 @@ async def create_or_update_tournament(
         entry_min_rated_games = 0
     try:
         entry_min_account_age_days = int(form.get("entryMinAccountAgeDays", 0) or 0)
-    except TypeError, ValueError:
+    except (TypeError, ValueError):
         entry_min_account_age_days = 0
     forbidden_pairings = (form.get("forbiddenPairings", "") or "").replace("\r\n", "\n").strip()
     manual_pairings = (form.get("manualPairings", "") or "").replace("\r\n", "\n").strip()
@@ -587,6 +995,8 @@ async def create_or_update_tournament(
     if system != SWISS:
         forbidden_pairings = ""
         manual_pairings = ""
+    else:
+        _validate_swiss_pairing_inputs(forbidden_pairings, manual_pairings)
 
     if entry_max_rating > 0 and entry_min_rating > entry_max_rating:
         entry_min_rating, entry_max_rating = entry_max_rating, entry_min_rating
@@ -596,26 +1006,36 @@ async def create_or_update_tournament(
 
     start_date: datetime | None
     raw_start_date = form.get("startDate", "")
-    if raw_start_date:
-        start_date = datetime.fromisoformat(raw_start_date.rstrip("Z")).replace(tzinfo=UTC)
-    else:
-        start_date = None
+    try:
+        if raw_start_date:
+            start_date = datetime.fromisoformat(str(raw_start_date).rstrip("Z")).replace(tzinfo=UTC)
+        else:
+            start_date = None
+    except ValueError:
+        raise web.HTTPBadRequest(text="Invalid tournament start date.") from None
 
     end_date: datetime | None
-    if system == RR and form.get("endDate"):
-        end_date = datetime.fromisoformat(form["endDate"].rstrip("Z")).replace(tzinfo=UTC)
-    else:
-        end_date = None
+    try:
+        if system == RR and form.get("endDate"):
+            end_date = datetime.fromisoformat(str(form["endDate"]).rstrip("Z")).replace(tzinfo=UTC)
+        else:
+            end_date = None
+    except ValueError:
+        raise web.HTTPBadRequest(text="Invalid tournament end date.") from None
 
     now = datetime.now(UTC)
     if start_date is not None and start_date <= now:
         raise web.HTTPBadRequest(text="Tournament start date must be in the future.")
 
-    minutes = int(form["minutes"])
+    try:
+        minutes = int(form["minutes"])
+        wait_minutes = int(form["waitMinutes"])
+    except (KeyError, TypeError, ValueError):
+        raise web.HTTPBadRequest(text="Invalid tournament duration or start delay.") from None
     effective_start_date = start_date
     if end_date is not None:
         if effective_start_date is None:
-            effective_start_date = now + timedelta(minutes=int(form["waitMinutes"]))
+            effective_start_date = now + timedelta(minutes=wait_minutes)
             start_date = effective_start_date
         if end_date <= effective_start_date:
             raise web.HTTPBadRequest(text="Tournament end date must be after the start date.")
@@ -627,18 +1047,52 @@ async def create_or_update_tournament(
             delta_minutes += 1
         minutes = max(1, delta_minutes)
 
-    name = form["name"].strip()
+    submitted_name = str(form.get("name", "")).strip()
+    name = submitted_name
     # Create meaningful tournament name in case we forget to change it :)
     if name == "":
         name = server_variant.display_name.title()
 
-    description = form["description"]
+    description = str(form.get("description", ""))
+    password = str(form.get("password", ""))
+
+    if not creator_is_director:
+        if base not in COMMUNITY_ARENA_CLOCK_TIMES or inc not in COMMUNITY_ARENA_CLOCK_INCREMENTS:
+            raise web.HTTPBadRequest(text="Invalid tournament time control.")
+        if bp not in (0, 1, 2, 3) or (base <= 0 and inc <= 0):
+            raise web.HTTPBadRequest(text="Invalid tournament time control.")
+        if len(submitted_name) > 30 or (submitted_name and len(submitted_name) < 2):
+            raise web.HTTPBadRequest(text="Tournament name must be between 2 and 30 characters.")
+        if len(description) > 1000:
+            raise web.HTTPBadRequest(text="Tournament description is limited to 1000 characters.")
+        if len(password) > 30:
+            raise web.HTTPBadRequest(text="Tournament password is limited to 30 characters.")
+        if len(position) > 2048:
+            raise web.HTTPBadRequest(text="Tournament starting position is too long.")
+        if tournament is not None and (
+            tournament.frequency
+            or tournament.status != T_CREATED
+            or (tournament.system in (RR, SWISS) and not tournament.team_id)
+        ):
+            raise web.HTTPForbidden(text="This tournament cannot be edited by its creator.")
+        if system == ARENA:
+            _validate_user_arena_schedule(
+                app_state,
+                username,
+                team_id=team_id,
+                tournament=tournament,
+                start_date=start_date,
+                wait_minutes=wait_minutes,
+                minutes=minutes,
+                now=now,
+            )
+
     if frequency == SHIELD:
         name = "%s Shield Arena" % server_variant.display_name.title()
 
     data: TournamentCreateData = {
         "name": name,
-        "password": form["password"],
+        "password": password,
         "createdBy": username,
         "rated": rated,
         "variant": variant_name,
@@ -647,11 +1101,11 @@ async def create_or_update_tournament(
         "inc": inc,
         "bp": bp,
         "system": system,
-        "beforeStart": int(form["waitMinutes"]),
+        "beforeStart": wait_minutes,
         "startDate": start_date,
         "frequency": frequency,
         "minutes": minutes,
-        "fen": form["position"],
+        "fen": position,
         "rounds": rounds,
         "rrMaxPlayers": rr_max_players,
         "rrRequiresApproval": rr_requires_approval,
@@ -663,10 +1117,26 @@ async def create_or_update_tournament(
         "entryMinAccountAgeDays": entry_min_account_age_days,
         "forbiddenPairings": forbidden_pairings,
         "manualPairings": manual_pairings,
+        "teamId": team_id,
         "description": description,
     }
     if tournament is None:
-        tournament = await new_tournament(app_state, data)
+        if creator_is_director:
+            tournament = await new_tournament(app_state, data)
+        elif system == ARENA:
+            claim_id = await _claim_community_arena_creation_slot(app_state, username, now)
+            try:
+                tournament = await new_tournament(app_state, data)
+            except Exception:
+                await _release_community_arena_creation_slot(app_state, username, claim_id)
+                raise
+        else:
+            claim_id = await _claim_fixed_round_creation_slot(app_state, username, now)
+            try:
+                tournament = await new_tournament(app_state, data)
+            except Exception:
+                await _release_fixed_round_creation_slot(app_state, username, claim_id)
+                raise
     else:
         allow_started_position_edit = (
             tournament.status != T_CREATED
@@ -721,25 +1191,38 @@ async def create_or_update_tournament(
         tournament.manual_pairings = data["manualPairings"]
         tournament.beforeStart = data["beforeStart"]
         if tournament.status == T_CREATED:
+            previous_starts_at = tournament.starts_at
             tournament.starts_at = data["startDate"]  # type: ignore[assignment]
+            if tournament.system == SWISS and tournament.starts_at != previous_starts_at:
+                # Start reminders are tied to one scheduled start. A pre-start reschedule
+                # should get fresh Discord/participant reminders at the new time.
+                tournament.notify1 = False
+                tournament.notify2 = False
         tournament.frequency = data["frequency"]
         tournament.minutes = data["minutes"]
         if tournament.status == T_CREATED or allow_started_position_edit:
             tournament.fen = data["fen"]
         tournament.description = data["description"]
+        tournament.team_id = data.get("teamId", "")
 
         # re-calculate created_at, starts_at, ends_at etc.
         tournament.initialize()
         await upsert_tournament_to_db(tournament, app_state)
 
-    await broadcast_tournament_creation(app_state, tournament)
+    await broadcast_tournament_creation(
+        app_state, tournament, announce_to_discord=creator_is_director
+    )
 
 
 async def broadcast_tournament_creation(
-    app_state: PychessGlobalAppState, tournament: Tournament
+    app_state: PychessGlobalAppState,
+    tournament: Tournament,
+    *,
+    announce_to_discord: bool = True,
 ) -> None:
     await tournament.broadcast_spotlight()
-    await app_state.discord.send_to_discord("create_tournament", tournament.create_discord_msg)
+    if announce_to_discord:
+        await app_state.discord.send_to_discord("create_tournament", tournament.create_discord_msg)
 
 
 async def new_tournament(
@@ -782,6 +1265,7 @@ async def new_tournament(
         entry_titled_only=False,
         forbidden_pairings=data.get("forbiddenPairings", ""),
         manual_pairings=data.get("manualPairings", ""),
+        team_id=data.get("teamId", ""),
         created_by=data["createdBy"],
         before_start=data.get("beforeStart", 5),
         minutes=data.get("minutes", 45),
@@ -954,6 +1438,7 @@ async def get_latest_tournaments(app_state: PychessGlobalAppState, lang: str) ->
                 entry_titled_only=False,
                 forbidden_pairings=tournament_doc.get("forbiddenPairings", ""),
                 manual_pairings=tournament_doc.get("manualPairings", ""),
+                team_id=tournament_doc.get("teamId", ""),
                 created_by=tournament_doc["createdBy"],
                 created_at=tournament_doc["createdAt"],
                 minutes=tournament_doc["minutes"],
@@ -1083,6 +1568,7 @@ async def load_tournament(
     tournament_doc: TournamentDoc = doc
     stored_round = tournament_doc.get("cr")
     pairing_in_progress_round = tournament_doc.get("pairingInProgressRound")
+    manual_pairings_in_progress = tournament_doc.get("manualPairingsInProgress")
 
     auto_play = tournament_id == AUTO_PLAY_TOURNAMENT_ID
     tournament_class: type[Tournament]
@@ -1125,6 +1611,7 @@ async def load_tournament(
         entry_titled_only=False,
         forbidden_pairings=tournament_doc.get("forbiddenPairings", ""),
         manual_pairings=tournament_doc.get("manualPairings", ""),
+        team_id=tournament_doc.get("teamId", ""),
         created_by=tournament_doc.get("createdBy", "PyChess"),
         created_at=tournament_doc["createdAt"],
         before_start=tournament_doc.get("beforeStart", 0),
@@ -1143,6 +1630,8 @@ async def load_tournament(
     if stored_round is not None:
         tournament.current_round = stored_round
     tournament.pairing_in_progress_round = pairing_in_progress_round
+    tournament.manual_pairings_in_progress = manual_pairings_in_progress
+    tournament.next_round_starts_at = tournament_doc.get("nextRoundStartsAt")
 
     app_state.tournaments[tournament_id] = tournament
     app_state.tourneysockets[tournament_id] = {}
@@ -1253,6 +1742,14 @@ async def load_tournament(
 
     tournament.nb_players = nb_players
 
+    # Late Swiss joins persist their complete synthetic H/Z history in the player
+    # document before the corresponding pairing rows.  Repair any rows lost to a
+    # restart before replaying pairing history below.
+    if tournament.system == SWISS:
+        for player, player_data in tournament.players.items():
+            if player_data.joined_round > 1:
+                await _persist_late_entry_round_history(tournament, player)
+
     # tournament.print_leaderboard()
 
     if tournament.status != T_CREATED:
@@ -1274,6 +1771,10 @@ async def load_tournament(
     finished_pairings: list[Game | GameData] = []
     async for doc in cursor:
         pairing_doc: TournamentPairingDoc = doc
+        if tournament.system == RR and pairing_doc.get("an", False):
+            # RR annul/replay keeps the historical pairing document for auditability,
+            # but an annulled result must not re-enter player score history on restart.
+            continue
         pair_status = pairing_doc.get("s")
         pair_round = pairing_doc.get("rn")
         if tournament.system == SWISS and pair_round is None:
@@ -1355,6 +1856,8 @@ async def load_tournament(
                     status=game.status,
                     ply=game.board.ply,
                     round_no=pair_round,
+                    wrdiff=game.wrdiff,
+                    brdiff=game.brdiff,
                 )
                 tournament.nb_games_finished += 1
                 await tournament.db_update_pairing(game)
@@ -1380,6 +1883,8 @@ async def load_tournament(
                 status=pair_status,
                 ply=pair_ply,
                 round_no=pair_round,
+                wrdiff=pairing_doc.get("wrd", 0),
+                brdiff=pairing_doc.get("brd", 0),
             )
             tournament.nb_games_finished += 1
             finished_pairings.append(game)

@@ -140,15 +140,16 @@ class FairyBoard:
 
         self.movelist_supported = self.variant != "jieqi"
         self.jieqi_covered_pieces = None
+        self.jieqi_initial_covered_pieces = None
 
         if initial_fen:
             self.initial_fen = initial_fen
         else:
             if self.variant == "jieqi":
                 self.initial_fen = JIEQI_FEN
-                self.black_pieces = random.sample(BLACK_PIECES, 15)
-                self.red_pieces = random.sample(RED_PIECES, 15)
-                self.jieqi_covered_pieces = make_initial_mapping(self.black_pieces, self.red_pieces)
+                self.set_jieqi_initial_pieces(
+                    random.sample(BLACK_PIECES, 15), random.sample(RED_PIECES, 15)
+                )
                 # print("---", self.initial_fen)
                 # print(self.jieqi_covered_pieces)
             else:
@@ -222,6 +223,13 @@ class FairyBoard:
     def initial_sfen(self):
         return self.sf.get_fen(self.variant, self.initial_fen, [], False, True)
 
+    def set_jieqi_initial_pieces(self, black_pieces, red_pieces):
+        self.black_pieces = list(black_pieces)
+        self.red_pieces = list(red_pieces)
+        initial_mapping = make_initial_mapping(self.black_pieces, self.red_pieces)
+        self.jieqi_initial_covered_pieces = initial_mapping
+        self.jieqi_covered_pieces = dict(initial_mapping)
+
     def push(self, move, append=True, *, raise_on_error=True):
         previous_fen = self.fen
         previous_color = self.color
@@ -237,6 +245,8 @@ class FairyBoard:
                 self.ply += 1
             self.color = WHITE if self.color == BLACK else BLACK
             if self.jieqi_covered_pieces is not None:
+                if self.jieqi_initial_covered_pieces is None:
+                    self.jieqi_initial_covered_pieces = dict(self.jieqi_covered_pieces)
                 self.fen = apply_move_and_transform(self.fen, move, self.jieqi_covered_pieces)
                 # print(move, self.fen)
             else:
@@ -272,19 +282,34 @@ class FairyBoard:
         return True
 
     def pop(self, remove=True):
+        if remove and not self.move_stack:
+            raise IndexError("pop from empty list")
+
+        moves = self.move_stack[:-1] if remove else self.move_stack
+        jieqi_mapping = None
+        if self.jieqi_initial_covered_pieces is not None:
+            jieqi_mapping = dict(self.jieqi_initial_covered_pieces)
+            fen = self.initial_fen
+            for move in moves:
+                fen = apply_move_and_transform(fen, move, jieqi_mapping)
+        else:
+            fen = self.sf.get_fen(
+                self.variant,
+                self.initial_fen,
+                moves,
+                self.chess960,
+                self.sfen,
+                self.show_promoted,
+                self.count_started,
+            )
+
         if remove:
             self.move_stack.pop()
         self.ply -= 1
         self.color = not self.color
-        self.fen = self.sf.get_fen(
-            self.variant,
-            self.initial_fen,
-            self.move_stack,
-            self.chess960,
-            self.sfen,
-            self.show_promoted,
-            self.count_started,
-        )
+        self.fen = fen
+        if jieqi_mapping is not None:
+            self.jieqi_covered_pieces = jieqi_mapping
 
     def get_san(self, move):
         return self.sf.get_san(self.variant, self.fen, move, self.chess960, self.notation)

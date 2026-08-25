@@ -46,15 +46,12 @@ class TestApplyMoveAndTransform(unittest.TestCase):
         piece_at_dst = self.get_piece_at(result_fen, "b3")
         self.assertNotIn("~", piece_at_dst)
 
-    def test_move_on_two_digit_rank_top(self):
-        move = "a10a9"
-        result = apply_move_and_transform(self.fen, move, self.mapping)
-        self.assertIn("/", result, "FEN formatting should remain valid for rank 10 move")
-
-    def test_move_on_two_digit_rank_bottom(self):
-        move = "a1a10"
-        result = apply_move_and_transform(self.fen, move, self.mapping)
-        self.assertIn("/", result, "FEN should remain valid after bottom-to-top move")
+    def test_moves_to_and_from_two_digit_rank_update_correct_squares(self):
+        for move, source, destination in (("a10a9", "a10", "a9"), ("a1a10", "a1", "a10")):
+            with self.subTest(move=move):
+                result = apply_move_and_transform(self.fen, move, self.mapping)
+                self.assertEqual(".", self.get_piece_at(result, source))
+                self.assertNotEqual(".", self.get_piece_at(result, destination))
 
     def test_king_never_gets_tilde(self):
         move = "e1e2"

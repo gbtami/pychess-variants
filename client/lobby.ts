@@ -9,9 +9,9 @@ import { JSONObject } from './types';
 import { _, ngettext, languageSettings } from './i18n';
 import { patch } from './document';
 import { boardSettings } from './boardSettings';
-import { chatMessage, chatView, ChatController } from './chat';
 import {
     canRateStart,
+    CATALOGUED_VARIANT_ICON,
     devVariants,
     disabledVariantsForCreateMode,
     enabledVariants,
@@ -26,7 +26,7 @@ import { timeControlStr, changeTabs, setAriaTabClick } from './view';
 import { notify } from './notification';
 import { PyChessModel } from './types';
 import { model } from './main';
-import { MsgBoard, MsgChat, MsgFullChat } from './messages';
+import { MsgBoard } from './messages';
 import { variantPanels } from './lobby/layer1';
 import { shouldShowRatingRange } from './lobby/ratingRange';
 import {
@@ -63,6 +63,7 @@ import { createWebsocket } from '@/socket/webSocketUtils';
 import { displayUsername, isAnonUsername } from './user';
 import { confirmDialog } from './confirmDialog';
 import { alertDialog } from './alertDialog';
+import { fetchTimeline, LiveTimelinePanel, timelineEntriesFromModel, timelinePanel } from './timeline';
 
 const autoPairingTCs: [number, number, number][] = [
     [1, 0, 0],
@@ -113,7 +114,7 @@ export function disableCorr(disable: boolean) {
     });
 }
 
-export class LobbyController implements ChatController {
+export class LobbyController {
     sock: WebsocketHeartbeatJs;
     home: string;
     assetURL: string;
@@ -126,6 +127,7 @@ export class LobbyController implements ChatController {
     tournamentDirector: boolean;
     gameCategory: string;
     allowedVariants: Set<string> | null;
+    botSupportedVariants: Set<string> | null;
     fen: string;
     createMode: CreateMode;
     tcMode: TcMode;
@@ -134,6 +136,7 @@ export class LobbyController implements ChatController {
     seeks: Seek[];
     streams: VNode | HTMLElement;
     spotlights: VNode | HTMLElement;
+    timeline: LiveTimelinePanel | null;
     leaders: VNode | HTMLElement;
     winners: VNode | HTMLElement;
     dialogHeaderEl: VNode | HTMLElement;
@@ -193,6 +196,7 @@ export class LobbyController implements ChatController {
         this.tournamentDirector = model['tournamentDirector'];
         this.gameCategory = model['gameCategory'] ?? 'all';
         this.allowedVariants = allowedVariantsForCategory(this.gameCategory);
+        this.botSupportedVariants = model.botSupportedVariants === null ? null : new Set(model.botSupportedVariants);
         this.fen = model['fen'];
         this.profileid = model['profileid'];
         this.createMode = 'createGame';
@@ -221,13 +225,13 @@ export class LobbyController implements ChatController {
         });
         id01modal.addEventListener('cancel', this.closeSeekDialog);
 
-        patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, 'lobbychat'));
-
         patch(document.getElementById('variants-catalog') as HTMLElement, variantPanels(this));
 
         this.streams = document.getElementById('streams') as HTMLElement;
 
         this.spotlights = document.getElementById('spotlights') as HTMLElement;
+        const timelineElement = document.getElementById('timeline');
+        this.timeline = timelineElement === null ? null : new LiveTimelinePanel(timelineElement);
         this.leaders = document.getElementById('leaders') as HTMLElement;
         this.winners = document.getElementById('winners') as HTMLElement;
 
@@ -237,10 +241,7 @@ export class LobbyController implements ChatController {
         if (this.profileid !== '') {
             if (this.title === 'BOT') {
                 this.createMode = this.profileid === 'Fairy-Stockfish' ? 'playAI' : 'playBOT';
-                this.renderVariantsDropDown(
-                    model.variant,
-                    disabledVariantsForCreateMode(this.createMode, this.profileid, this.anon),
-                );
+                this.renderVariantsDropDown(model.variant, this.disabledVariants());
             } else if (this.profileid === 'Invite-friend') this.createMode = 'playFriend';
             document.getElementById('game-mode')!.style.display =
                 this.anon || this.title === 'BOT' ? 'none' : 'inline-flex';
@@ -637,6 +638,10 @@ export class LobbyController implements ChatController {
         this.dialogHeaderEl = patch(this.dialogHeaderEl, h('div#header-block', [h('h2', header)]));
     }
 
+    private disabledVariants(): string[] {
+        return disabledVariantsForCreateMode(this.createMode, this.profileid, this.anon, this.botSupportedVariants);
+    }
+
     renderSeekButtons() {
         return [
             h('button.lobby-button', { on: { click: () => this.createGame() } }, createModeStr('createGame')),
@@ -656,7 +661,7 @@ export class LobbyController implements ChatController {
     renderSeekDialog() {
         let vVariant = localStorage.seek_variant || 'chess';
         if (!VARIANTS[vVariant]) vVariant = 'chess';
-        const disabledVariants = disabledVariantsForCreateMode(this.createMode, this.profileid, this.anon);
+        const disabledVariants = this.disabledVariants();
         const twoBoards = VARIANTS[vVariant].twoBoards;
         const catalogued = isCataloguedVariant(vVariant);
         // 5+3 default TC needs vMin 9 because of the partial numbers at the beginning of minutesValues
@@ -999,30 +1004,33 @@ export class LobbyController implements ChatController {
     preSelectVariant(variantName: string, chess960: boolean = false) {
         const select = document.getElementById('variant') as HTMLSelectElement;
         if (!select) return;
-        const options = Array.from(select.options).map(o => o.value);
-        if (!options.length) return;
+        const options = Array.from(select.options);
+        const enabledOptions = options.filter(option => !option.disabled);
+        if (!enabledOptions.length) {
+            select.selectedIndex = -1;
+            return;
+        }
 
         if (variantName !== '') {
-            const index = options.indexOf(variantName);
-            if (index < 0) {
+            const option = options.find(candidate => candidate.value === variantName && !candidate.disabled);
+            if (option === undefined) {
                 delete localStorage.seek_variant;
                 delete localStorage.seek_chess960;
             }
-            select.selectedIndex = index >= 0 ? index : 0;
-        } else if (select.selectedIndex < 0) {
-            select.selectedIndex = 0;
+            select.selectedIndex = option === undefined ? options.indexOf(enabledOptions[0]) : options.indexOf(option);
+        } else if (select.selectedIndex < 0 || select.options[select.selectedIndex].disabled) {
+            select.selectedIndex = options.indexOf(enabledOptions[0]);
         }
-
-        this.setVariant();
 
         const check = document.getElementById('chess960') as HTMLInputElement;
         if (check) check.checked = chess960;
+        this.setVariant();
     }
 
     renderVariantsDropDown(variantName: string = '', disabled: string[]) {
         // variantName and chess960 are set when this was called from the variant catalog (layer3.ts)
         let vVariant = variantName || localStorage.seek_variant || 'chess';
-        if (!VARIANTS[vVariant] || disabled.includes(vVariant)) vVariant = 'chess';
+        if (!VARIANTS[vVariant] || disabled.includes(vVariant)) vVariant = '';
         const vChess960 = localStorage.seek_chess960 === 'true' || false;
         const e = document.getElementById('variant');
         e!.replaceChildren();
@@ -1030,7 +1038,7 @@ export class LobbyController implements ChatController {
             e!,
             selectVariant(
                 'variant',
-                disabled.includes(vVariant) ? null : vVariant,
+                vVariant || null,
                 () => this.setVariant(),
                 () => this.setVariant(),
                 disabled,
@@ -1043,10 +1051,7 @@ export class LobbyController implements ChatController {
     createGame(variantName: string = '') {
         const selectedVariant = variantName || localStorage.seek_variant || 'chess';
         this.createMode = 'createGame';
-        this.renderVariantsDropDown(
-            variantName,
-            disabledVariantsForCreateMode(this.createMode, this.profileid, this.anon),
-        );
+        this.renderVariantsDropDown(variantName, this.disabledVariants());
         this.renderDialogHeader(createModeStr(this.createMode));
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
         const selectedElement = document.getElementById('variant') as HTMLSelectElement;
@@ -1063,10 +1068,7 @@ export class LobbyController implements ChatController {
 
     playFriend(variantName: string = '') {
         this.createMode = 'playFriend';
-        this.renderVariantsDropDown(
-            variantName,
-            disabledVariantsForCreateMode(this.createMode, this.profileid, this.anon),
-        );
+        this.renderVariantsDropDown(variantName, this.disabledVariants());
         this.renderDialogHeader(createModeStr(this.createMode));
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
         this.updateRatingRangeVisibility();
@@ -1080,10 +1082,7 @@ export class LobbyController implements ChatController {
 
     playAI(variantName: string = '') {
         this.createMode = 'playAI';
-        this.renderVariantsDropDown(
-            variantName,
-            disabledVariantsForCreateMode(this.createMode, this.profileid, this.anon),
-        );
+        this.renderVariantsDropDown(variantName, this.disabledVariants());
         this.renderDialogHeader(createModeStr(this.createMode));
         document.getElementById('game-mode')!.style.display = 'none';
         this.updateRatingRangeVisibility();
@@ -1098,10 +1097,7 @@ export class LobbyController implements ChatController {
 
     createHost(variantName: string = '') {
         this.createMode = 'createHost';
-        this.renderVariantsDropDown(
-            variantName,
-            disabledVariantsForCreateMode(this.createMode, this.profileid, this.anon),
-        );
+        this.renderVariantsDropDown(variantName, this.disabledVariants());
         this.renderDialogHeader(createModeStr(this.createMode));
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
         this.updateRatingRangeVisibility();
@@ -1114,8 +1110,7 @@ export class LobbyController implements ChatController {
     }
 
     private updateRatingRangeVisibility(variantName?: string) {
-        const selectedVariant =
-            variantName ?? (document.getElementById('variant') as HTMLSelectElement | null)?.value;
+        const selectedVariant = variantName ?? (document.getElementById('variant') as HTMLSelectElement | null)?.value;
         const visible = shouldShowRatingRange(
             this.createMode,
             this.profileid !== '',
@@ -1190,6 +1185,7 @@ export class LobbyController implements ChatController {
                 ]),
             );
         }
+        this.applyBotVariantCapabilities(variant);
         // Select Random-Mover but disable FSF play for "unsupported by FSF" variants
         if (this.createMode === 'playAI') {
             e = document.getElementById('rmplay') as HTMLInputElement;
@@ -1207,6 +1203,26 @@ export class LobbyController implements ChatController {
         switchEnablingLobbyControls(this.createMode, variant, this.anon);
         this.setStartButtons();
     }
+
+    private applyBotVariantCapabilities(variant: Variant) {
+        if (this.createMode !== 'playBOT' || this.botSupportedVariants === null) return;
+
+        const supportsNormal = this.botSupportedVariants.has(variant.name);
+        const supports960 = variant.chess960 && this.botSupportedVariants.has(`${variant.name}960`);
+        const chess960 = document.getElementById('chess960') as HTMLInputElement;
+        if (!supports960) chess960.checked = false;
+        else if (!supportsNormal) chess960.checked = true;
+
+        const alternateStart = document.getElementById('alternate-start') as HTMLSelectElement | null;
+        const alternateStartSelected = alternateStart !== null && alternateStart.value !== '';
+        chess960.disabled = !supportsNormal || !supports960 || alternateStartSelected;
+
+        const fen = document.getElementById('fen') as HTMLInputElement;
+        fen.disabled = !supportsNormal;
+        if (!supportsNormal) fen.value = '';
+        if (alternateStart !== null) alternateStart.disabled = !supportsNormal;
+    }
+
     private setAlternateStart(variant: Variant) {
         let e: HTMLSelectElement;
         e = document.getElementById('alternate-start') as HTMLSelectElement;
@@ -1214,6 +1230,7 @@ export class LobbyController implements ChatController {
         e = document.getElementById('fen') as HTMLSelectElement;
         e.value = variant.alternateStart![alt].fen;
         (document.getElementById('chess960') as HTMLInputElement).disabled = alt !== '';
+        this.applyBotVariantCapabilities(variant);
         this.setFen();
     }
     private setMinutes(val: number) {
@@ -1345,7 +1362,7 @@ export class LobbyController implements ChatController {
             h('td', [this.challengeIcon(seek), this.seekTitle(seek), this.user(seek)]),
             h('td', seek.rating),
             h('td', timeControlStr(seek.base, seek.inc, seek.byoyomi, seek.day)),
-            h('td.icon', { attrs: { 'data-icon': '◇' } }, [h('variant-name', ` ${seek.variant}`)]),
+            h('td.icon', { attrs: { 'data-icon': CATALOGUED_VARIANT_ICON } }, [h('variant-name', ` ${seek.variant}`)]),
             h('td', this.mode(seek)),
         ]);
     }
@@ -1737,11 +1754,8 @@ export class LobbyController implements ChatController {
             case 'lobby_user_connected':
                 this.onMsgUserConnected(msg);
                 break;
-            case 'lobbychat':
-                this.onMsgChat(msg);
-                break;
-            case 'fullchat':
-                this.onMsgFullChat(msg);
+            case 'reload_timeline':
+                void this.reloadTimeline();
                 break;
             case 'leaderboard':
                 this.onMsgLeaderboard(msg);
@@ -1858,17 +1872,14 @@ export class LobbyController implements ChatController {
         this.username = msg.username;
     }
 
-    private onMsgChat(msg: MsgChat) {
-        chatMessage(msg.user, msg.message, 'lobbychat', msg.time);
-    }
-
-    private onMsgFullChat(msg: MsgFullChat) {
-        // To prevent multiplication of messages we have to remove old messages div first
-        patch(document.getElementById('messages') as HTMLElement, h('div#messages-clear'));
-        // then create a new one
-        patch(document.getElementById('messages-clear') as HTMLElement, h('div#messages'));
-        // console.log("NEW FULL MESSAGES");
-        msg.lines.forEach(line => chatMessage(line.user, line.message, 'lobbychat', line.time));
+    private async reloadTimeline() {
+        if (this.timeline === null || this.anon) return;
+        try {
+            const entries = await fetchTimeline();
+            this.timeline.update(entries);
+        } catch {
+            // Keep the current timeline visible when a transient refresh fails.
+        }
     }
 
     private onMsgPing(msg: MsgPing) {
@@ -1988,6 +1999,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
     const blogs = blogsRaw.filter((post: Post) => matchesGameCategory(post.category, gameCategory));
     const username = model.username;
     const anonUser = model['anon'] === 'True';
+    const timelineEntries = timelineEntriesFromModel(model);
     const allowedVariants = allowedVariantsForCategory(gameCategory);
     const allCorrGames = JSON.parse(model.corrGames);
     const corrGames = (
@@ -2159,7 +2171,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
     }
 
     return [
-        h('aside.sidebar-first', [h('div#streams'), h('div#spotlights'), h('div#lobbychat')]),
+        h('aside.sidebar-first', [h('div#streams'), h('div#spotlights'), timelinePanel(timelineEntries, anonUser)]),
         h('div.seeks', containers),
         h('div#variants-catalog'),
         h('aside.sidebar-second', [
@@ -2231,7 +2243,6 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     'YouTube',
                 ),
                 h('div.internalLinks', [
-                    h('a.reflist', { attrs: { href: '/patron' } }, _('Donate')),
                     h('a.reflist', { attrs: { href: '/faq' } }, _('FAQ')),
                     h('a.reflist', { attrs: { href: '/stats' } }, _('Stats')),
                     h('a.reflist', { attrs: { href: '/about' } }, _('About')),

@@ -148,7 +148,7 @@ Security issues should be reported responsibly to:
 
 pychess.org may rely on third-party services for hosting, login, infrastructure, or other features.
 
-This may include our Discord server integration, where public lobby chat can be relayed between pychess.org and Discord.
+This may include our Discord server and other external community services.
 
 These third-party services are governed by their own terms and privacy policies. We are not responsible for third-party services that we do not control.
 

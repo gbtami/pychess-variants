@@ -63,17 +63,25 @@ export class GameInfoView {
                 ]),
                 h('div.player-data', [
                     h('i-side.icon', { class: { [colorIcon(model.variant, variant.colors.first)]: true } }),
-                    h('player', playerInfo(seat('a', 'white'), model.level)),
+                    h('player', [
+                        playerInfo(seat('a', 'white'), model.level),
+                    ]),
                     h('div', { style: { display: 'inline', paddingRight: '8px' } }, '+'),
                     h('i-side.icon', { class: { [colorIcon(model.variant, variant.colors.second)]: true } }),
-                    h('player', playerInfo(seat('b', 'black'), model.level)),
+                    h('player', [
+                        playerInfo(seat('b', 'black'), model.level),
+                    ]),
                 ]),
                 h('div.player-data', [
                     h('i-side.icon', { class: { [colorIcon(model.variant, variant.colors.second)]: true } }),
-                    h('player', playerInfo(seat('b', 'white'), model.level)),
+                    h('player', [
+                        playerInfo(seat('b', 'white'), model.level),
+                    ]),
                     h('div', { style: { display: 'inline', paddingRight: '8px' } }, '+'),
                     h('i-side.icon', { class: { [colorIcon(model.variant, variant.colors.first)]: true } }),
-                    h('player', playerInfo(seat('a', 'black'), model.level)),
+                    h('player', [
+                        playerInfo(seat('a', 'black'), model.level),
+                    ]),
                 ]),
             ]),
             h('section', [
@@ -102,7 +110,7 @@ function playerInfo(seat: Seat, level: number) {
 
     return userLink(username, [
         h('player-title', ' ' + title + ' '),
-        displayName + aiLevel(title, level) + (title !== 'BOT' ? ' (' + rating + ') ' : ''),
+        displayName + aiLevel(username, level) + (title !== 'BOT' ? ' (' + rating + ') ' : ''),
         h('rdiff#' + color + 'rdiff'),
         h('berserk#' + color + 'berserk'),
     ]);

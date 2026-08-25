@@ -4,6 +4,16 @@
     <main class="page-small">
         <div class="tour__form box box-pad">
             <h1>{% if edit %}Edit tournament{% else %}Create a new tournament{% endif %}</h1>
+            {% if not tournament_director %}
+            <p class="form-help">
+                User-created Arenas, including team Arenas, are limited to {{ community_arena_max_creations_per_24h }} creation{% if community_arena_max_creations_per_24h != 1 %}s{% endif %}
+                every 24 hours and 20–120 minutes duration. Public Community Arenas may start only within the next
+                24 hours and must leave at least 15 minutes before and after scheduled PyChess system tournaments.
+                Team Arenas may be scheduled farther ahead and are not restricted by the public Arena schedule.
+                Team Round-Robin and Swiss tournaments are limited to {{ fixed_round_max_creations_per_24h }} creation{% if fixed_round_max_creations_per_24h != 1 %}s{% endif %}
+                per user every 24 hours.
+            </p>
+            {% endif %}
             {% if edit %}
             {% set t_name = tournament.name %}
             {% set t_rated = tournament.rated %}
@@ -29,6 +39,7 @@
             {% set t_entry_min_account_age_days = tournament.entry_min_account_age_days %}
             {% set t_forbidden_pairings = tournament.forbidden_pairings %}
             {% set t_manual_pairings = tournament.manual_pairings %}
+            {% set t_team_id = tournament.team_id %}
             <form id="tournament-form" method="post" class="form3" action="/tournaments/{{ tournament.id }}/edit">
             {% else %}
             {% set t_name = '' %}
@@ -55,6 +66,7 @@
             {% set t_entry_min_account_age_days = 0 %}
             {% set t_forbidden_pairings = '' %}
             {% set t_manual_pairings = '' %}
+            {% set t_team_id = selected_tournament_team_id %}
             <form id="tournament-form" method="post" class="form3" action="/tournaments/new">
             {% endif %}
             {% set minute_values = [20, 25, 30, 35, 40, 45, 50, 55, 60, 70, 80, 90, 100, 110, 120, 150, 180, 210, 240, 270, 300, 330, 360, 420, 480, 540, 600, 720] %}
@@ -140,20 +152,40 @@
                 </div>
                 <div class="form-group form-half">
                     <label class="form-label" for="form3-system">Tournament type</label>
+                    {% set can_create_fixed_round = tournament_teams or (dev and tournament_director) %}
                     <select id="form3-system" name="system" class="form-control"{% if edit %} disabled="disabled"{% endif %}>
                         <option value="0"{% if t_system == 0 %} selected="selected"{% endif %}>Arena</option>
-                        <option value="1"{% if t_system == 1 %} selected="selected"{% endif %}{% if not dev and not edit %} disabled="disabled"{% endif %}>Round-Robin{% if not dev and not edit %} (DEV only){% endif %}</option>
-                        <option value="2"{% if t_system == 2 %} selected="selected"{% endif %}{% if not dev and not edit %} disabled="disabled"{% endif %}>Swiss{% if not dev and not edit %} (DEV only){% endif %}</option>
+                        <option value="1"{% if t_system == 1 %} selected="selected"{% endif %}{% if not can_create_fixed_round and not edit %} disabled="disabled"{% endif %}>Round-Robin{% if not can_create_fixed_round and not edit %} (team leader only){% endif %}</option>
+                        <option value="2"{% if t_system == 2 %} selected="selected"{% endif %}{% if not can_create_fixed_round and not edit %} disabled="disabled"{% endif %}>Swiss{% if not can_create_fixed_round and not edit %} (team leader only){% endif %}</option>
                     </select>
                     <small id="form3-system-help" class="form-help">Arena runs continuously until the clock expires. Swiss and Round-Robin are fixed-round events.</small>
-                    {% if not dev and not edit %}
-                    <small class="form-help">Round-Robin and Swiss creation stay disabled on production until they finish DEV validation.</small>
+                    {% if not edit and tournament_teams %}
+                    <small class="form-help">Team Arenas, Round-Robin, and Swiss tournaments can be created by members with the team's tournament permission.</small>
+                    {% elif not edit and not (dev and tournament_director) %}
+                    <small class="form-help">Join or create a team and get its tournament permission to create team Arenas, Round-Robin, or Swiss tournaments.</small>
+                    {% elif not edit %}
+                    <small class="form-help">DEV tournament directors may also create teamless fixed-round tournaments for testing.</small>
                     {% endif %}
                     {% if edit %}
                     <input type="hidden" name="system" value="{{ t_system }}" />
                     <small class="form-help">Tournament type cannot be changed after creation.</small>
                     {% endif %}
                 </div>
+                {% if tournament_teams or t_team_id %}
+                <div id="form3-team-wrap" class="form-group form-half">
+                    <label class="form-label" for="form3-team">Team</label>
+                    <div>
+                        <select id="form3-team" name="teamId" class="form-control" data-team-optional="{{ 'true' if dev and tournament_director else 'false' }}"{% if edit %} disabled="disabled"{% endif %}>
+                            <option value="">No team restriction</option>
+                            {% for team in tournament_teams %}
+                            <option value="{{ team['_id'] }}"{% if t_team_id == team['_id'] %} selected="selected"{% endif %}>{{ team['name'] }}</option>
+                            {% endfor %}
+                        </select>
+                        <small id="form3-team-help" class="form-help">{% if t_system == 0 %}Optional. Select a team to restrict this Arena to current team members.{% else %}Required for production Round-Robin and Swiss. Only current team members can join team tournaments.{% endif %}</small>
+                        {% if edit %}<input type="hidden" name="teamId" value="{{ t_team_id }}" />{% endif %}
+                    </div>
+                </div>
+                {% endif %}
                 <div class="form-split">
                     <div class="form-check form-group">
                         <div>
@@ -167,12 +199,44 @@
                         </small>
                     </div>
                     <div class="form-group form-half">
-                        <label class="form-label" for="form3-variant">Variant</label>
-                        <select id="form3-variant" name="variant" class="form-control">
-                            {% for key in variants %}
-                            <option value="{{ key }}"{% if key == t_variant %} selected="selected"{% endif %}>{{ variant_display_name(key).title() }}</option>
-                            {% endfor %}
-                        </select>
+                        <label class="form-label" for="form3-variant-search">Variant</label>
+                        <div id="form3-variant-picker" class="variant-picker">
+                            <input
+                                id="form3-variant-search"
+                                type="search"
+                                class="form-control variant-picker-search"
+                                autocomplete="off"
+                                spellcheck="false"
+                                role="combobox"
+                                aria-autocomplete="list"
+                                aria-controls="form3-variant-results"
+                                aria-expanded="false"
+                                placeholder="Search variants"
+                            />
+                            <select id="form3-variant" name="variant" class="variant-picker-source" tabindex="-1" aria-hidden="true">
+                                {% if favorite_variants %}
+                                <optgroup label="Favorites" data-kind="favorite">
+                                    {% for key in favorite_variants %}
+                                    <option value="{{ key }}" data-kind="favorite"{% if key == t_variant %} selected="selected"{% endif %}>{{ variant_display_name(key).title() }}</option>
+                                    {% endfor %}
+                                </optgroup>
+                                {% endif %}
+                                <optgroup label="Site variants" data-kind="site">
+                                    {% for key in site_variants %}
+                                    <option value="{{ key }}" data-kind="site"{% if key == t_variant %} selected="selected"{% endif %}>{{ variant_display_name(key).title() }}</option>
+                                    {% endfor %}
+                                </optgroup>
+                                {% if community_variants_for_tournaments %}
+                                <optgroup label="Community variants" data-kind="community">
+                                    {% for key in community_variants_for_tournaments %}
+                                    <option value="{{ key }}" data-kind="community"{% if key == t_variant %} selected="selected"{% endif %}>{{ variant_display_name(key).title() }}</option>
+                                    {% endfor %}
+                                </optgroup>
+                                {% endif %}
+                            </select>
+                            <div id="form3-variant-results" class="variant-picker-results" role="listbox" hidden></div>
+                        </div>
+                        <small class="form-help">Favorites and site variants are shown first. Type to search all public community variants.</small>
                     </div>
                 </div>
                 <div class="form-split">
@@ -328,6 +392,7 @@
                             <option value="100"{% if t_minutes == 100 %} selected="selected"{% endif %}>100 minutes</option>
                             <option value="110"{% if t_minutes == 110 %} selected="selected"{% endif %}>110 minutes</option>
                             <option value="120"{% if t_minutes == 120 %} selected="selected"{% endif %}>120 minutes</option>
+                            {% if tournament_director %}
                             <option value="150"{% if t_minutes == 150 %} selected="selected"{% endif %}>150 minutes</option>
                             <option value="180"{% if t_minutes == 180 %} selected="selected"{% endif %}>180 minutes</option>
                             <option value="210"{% if t_minutes == 210 %} selected="selected"{% endif %}>210 minutes</option>
@@ -341,6 +406,7 @@
                             <option value="540"{% if t_minutes == 540 %} selected="selected"{% endif %}>540 minutes</option>
                             <option value="600"{% if t_minutes == 600 %} selected="selected"{% endif %}>600 minutes</option>
                             <option value="720"{% if t_minutes == 720 %} selected="selected"{% endif %}>720 minutes</option>
+                            {% endif %}
                         </select>
                         <small id="form3-minutes-help" class="form-help">Arena uses this as a hard limit. Swiss and Round-Robin use it as an estimate only.</small>
                     </div>
@@ -470,7 +536,9 @@
                     <div class="form-group form-half">
                         <label class="form-label" for="startDate">Custom start date</label>
                         <input id="startDate" name="startDate" value="{{ t_starts_at }}" class="form-control flatpickr"/>
-                        <small class="form-help">In your own local timezone. This overrides the &quot;Time before tournament starts&quot; setting</small>
+                        <small class="form-help">In your own local timezone. This overrides the &quot;Time before tournament starts&quot; setting.
+                            {% if not tournament_director %}<br />Public Community Arenas can start at most 24 hours from now. Team tournaments may be scheduled farther ahead.{% endif %}
+                        </small>
                     </div>
                     <div id="form3-endDate-wrap" class="form-group form-half"{% if t_system != 1 %} style="display:none"{% endif %}>
                         <label class="form-label" for="endDate">Custom end date</label>

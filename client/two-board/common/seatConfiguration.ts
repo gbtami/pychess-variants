@@ -8,13 +8,19 @@ import { Seat, Team, TwoBoardPlayer } from './seat';
 const otherBoard = (board: BugBoardName): BugBoardName => (board === 'a' ? 'b' : 'a');
 const otherColor = (color: cg.Color): cg.Color => (color === 'white' ? 'black' : 'white');
 
-export function playerInfoData(model: PyChessModel, color: 'w' | 'b', board: 'a' | 'b'): [string, string, string] {
+export function playerInfoData(
+    model: PyChessModel,
+    color: 'w' | 'b',
+    board: 'a' | 'b',
+): [string, string, string, boolean] {
     const username =
         model[board == 'a' ? (color === 'w' ? 'wplayer' : 'bplayer') : color === 'w' ? 'wplayerB' : 'bplayerB'];
     const title = model[board == 'a' ? (color === 'w' ? 'wtitle' : 'btitle') : color === 'w' ? 'wtitleB' : 'btitleB'];
     const rating =
         model[board == 'a' ? (color === 'w' ? 'wrating' : 'brating') : color === 'w' ? 'wratingB' : 'bratingB'];
-    return [username, title, rating];
+    const patron =
+        model[board == 'a' ? (color === 'w' ? 'wpatron' : 'bpatron') : color === 'w' ? 'wpatronB' : 'bpatronB'];
+    return [username, title, rating, patron];
 }
 
 // Recorded clock time (ms) for a seat at the given step, read from the step's
@@ -113,8 +119,12 @@ export class SeatConfiguration<S extends Seat> {
 // a type alias for it, since the type needs no name of its own.
 export function twoBoardSeats(model: PyChessModel, viewer: string): SeatConfiguration<Seat> {
     const seat = (color: 'w' | 'b', board: BugBoardName) => {
-        const [username, title, rating] = playerInfoData(model, color, board);
-        return new Seat(new TwoBoardPlayer(username, title, rating), color === 'w' ? 'white' : 'black', board);
+        const [username, title, rating, patron] = playerInfoData(model, color, board);
+        return new Seat(
+            new TwoBoardPlayer(username, title, rating, patron),
+            color === 'w' ? 'white' : 'black',
+            board,
+        );
     };
     const wA = seat('w', 'a');
     const bA = seat('b', 'a');

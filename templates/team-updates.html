@@ -1,0 +1,81 @@
+{% extends "team-base.html" %}
+{% block content %}
+<div id="main-wrap">
+    <main class="team-update team-updates-page box {% if updates_team %}team-update--team{% else %}team-update--all{% endif %}">
+        <aside class="team-update__side">
+            <div class="team-update__side__top">
+                <a class="team-update__side__back icon-left" href="/team/me">{% trans %}My teams{% endtrans %}</a>
+            </div>
+            <div class="team-update__side__content">
+                {% for summary in team_update_teams %}
+                <a class="team-update__side__team{% if updates_team and updates_team['_id'] == summary['team'] %} team-update__side__team--active{% endif %}{% if summary['unread'] %} team-update__side__team--unread{% endif %}" href="/team/{{ summary['team'] }}/updates">
+                    <span class="team-update__side__team__icon" aria-hidden="true">{{ summary['teamName'][0]|upper }}</span>
+                    <span class="team-update__side__team__content">
+                        <span class="team-update__side__team__name">{{ summary['teamName'] }}</span>
+                        <span class="team-update__side__team__meta">
+                            <info-date timestamp="{{ summary['last'].isoformat() }}"></info-date>
+                            {% if summary['unread'] and not (updates_team and updates_team['_id'] == summary['team']) %}
+                            <span class="team-update__side__unread-count">{{ summary['unread'] }}</span>
+                            {% endif %}
+                        </span>
+                    </span>
+                </a>
+                {% else %}
+                <div class="team-update__side__empty">{% trans %}No recent team updates{% endtrans %}</div>
+                {% endfor %}
+            </div>
+        </aside>
+
+        <section class="team-update__convo">
+            <header class="team-update__convo__head">
+                {% if updates_team %}
+                <div class="team-update__convo__head__title">
+                    <a class="team-update__convo__head__back icon-left" href="/team/updates" aria-label="{% trans %}All team updates{% endtrans %}"></a>
+                    <a class="team-update__convo__team-link" href="/team/{{ updates_team['_id'] }}">{{ updates_team['name'] }}</a>
+                </div>
+                <div class="team-update__convo__head__actions">
+                    {% if team_can_send_update %}<a class="button team-update__new-action icon-ink-pen" href="/team/{{ updates_team['_id'] }}/updates/new">{% trans %}New update{% endtrans %}</a>{% endif %}
+                    <form method="post" action="/team/{{ updates_team['_id'] }}/subscribe">
+                        {% if team_updates_subscribed %}
+                        <input type="hidden" name="subscribe" value="0">
+                        <button class="button team-update__subscribe-action icon-bell-o" type="submit">{% trans %}Unsubscribe{% endtrans %}</button>
+                        {% else %}
+                        <input type="hidden" name="subscribe" value="1">
+                        <button class="button team-update__subscribe-action icon-bell-o" type="submit">{% trans %}Subscribe{% endtrans %}</button>
+                        {% endif %}
+                    </form>
+                </div>
+                {% else %}
+                <h1 class="icon-ink-pen">{% trans %}Team updates{% endtrans %}</h1>
+                {% endif %}
+            </header>
+
+            <div class="team-update__convo__updates">
+                {% if updates_team and not team_updates_subscribed %}
+                <p class="team-update__notice">{% trans %}You are unsubscribed from notifications and the combined Team updates feed for this team.{% endtrans %}</p>
+                {% endif %}
+
+                {% for update in team_updates %}
+                <article class="team-update__convo__update{% if update.get('unread') %} team-update__convo__update--unread{% endif %}">
+                    <div class="team-update__convo__update__info">
+                        <a class="team-update__convo__update__team" href="/team/{{ update['team'] }}">
+                            {{ updates_team['name'] if updates_team else update['teamName'] }}
+                        </a>
+                        <div class="team-update__convo__update__meta">
+                            <info-date timestamp="{{ update['createdAt'].isoformat() if update.get('createdAt') else '' }}"></info-date>
+                            <span>{% trans %}by{% endtrans %} <a class="user-link" href="/@/{{ update['sender'] }}">{{ update['sender'] }}</a></span>
+                        </div>
+                    </div>
+                    <div class="team-update__convo__update__body">{{ update['text'] }}</div>
+                </article>
+                {% else %}
+                <div class="team-update__empty">
+                    <h2>{% trans %}No team updates yet{% endtrans %}</h2>
+                    {% if updates_team and team_can_send_update %}<p>{% trans %}You can send the first update to this team.{% endtrans %}</p>{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+    </main>
+</div>
+{% endblock %}

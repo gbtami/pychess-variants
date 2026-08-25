@@ -32,13 +32,13 @@ def enqueue_sse_payload(
     try:
         queue.get_nowait()
         queue.task_done()
-    except asyncio.QueueEmpty, asyncio.QueueShutDown:
+    except (asyncio.QueueEmpty, asyncio.QueueShutDown):
         pass
 
     try:
         queue.put_nowait(payload)
         return True
-    except asyncio.QueueFull, asyncio.QueueShutDown:
+    except (asyncio.QueueFull, asyncio.QueueShutDown):
         queue.shutdown(immediate=True)
         return False
 

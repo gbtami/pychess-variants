@@ -39,10 +39,55 @@ div.versus vs-swords {
     margin: 0;
     padding: 0;
 }
+.player-head .profile-user-status {
+    display: inline-block;
+    width: 1.5em;
+    margin-right: 0;
+    text-align: center;
+    vertical-align: top;
+}
+.player-head .profile-user-status::before {
+    margin-right: 0;
+}
 .player-social {
     display: flex;
     background: var(--bg-color2);
     justify-content: flex-end;
+}
+
+.player-teams {
+    display: flex;
+    flex-flow: row wrap;
+    padding: 0.8em 1.5em 1.1em;
+    background: var(--bg-color2);
+    border-top: 1px solid var(--border-color);
+}
+.player-teams > strong {
+    flex: 0 0 100%;
+    margin-bottom: 0.3em;
+}
+.player-teams > a {
+    display: flex;
+    flex: 0 0 50%;
+    align-items: baseline;
+    gap: 0.4em;
+    min-width: 0;
+    padding: 0.15em 0.8em 0.15em 0;
+}
+.profile-team__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.profile-team__leader {
+    flex: 0 0 auto;
+    padding: 0.05em 0.35em;
+    border-radius: 3px;
+    color: var(--font-color);
+    opacity: 0.7;
+    background: var(--bg-color1);
+    font-size: 0.78em;
+    text-transform: uppercase;
 }
 .profile-actions {
     display: flex;

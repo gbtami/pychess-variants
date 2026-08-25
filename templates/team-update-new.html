@@ -1,0 +1,34 @@
+{% extends "team-base.html" %}
+{% block content %}
+<div id="main-wrap">
+    <main class="team-update-form-page page-menu page-small">
+        {% set team_menu_active = 'updates' %}
+        {% include "team-menu.html" %}
+        <div class="page-menu__content box box-pad">
+            <h1 class="box__top"><a href="/team/{{ team['_id'] }}">{{ team['name'] }}</a> • {% trans %}New team update{% endtrans %}</h1>
+
+            <form class="team-form form3" method="post" action="/team/{{ team['_id'] }}/updates">
+                <div class="form-group">
+                    <label class="form-label" for="team-update-message">{% trans %}Message{% endtrans %}</label>
+                    <textarea class="form-control" id="team-update-message" name="message" required minlength="3" maxlength="{{ team_update_max_length }}" rows="10" autofocus></textarea>
+                    <small class="form-help">{% trans %}This update is sent to subscribed team members.{% endtrans %}</small>
+                </div>
+
+                <p class="form-help{% if team_update_quota_remaining <= 0 %} error{% endif %}">
+                    {% trans max_updates=team_update_max_per_7_days %}You can send up to {{ max_updates }} team updates in seven days.{% endtrans %}
+                    <strong>{{ team_update_quota_remaining }}</strong> {% trans %}remaining in the current rolling window.{% endtrans %}
+                </p>
+
+                <div class="form-actions">
+                    <a href="/team/{{ team['_id'] }}/updates">{% trans %}Cancel{% endtrans %}</a>
+                    {% if team_update_quota_remaining > 0 %}
+                    <button class="button" type="submit">{% trans %}Send update{% endtrans %}</button>
+                    {% else %}
+                    <button class="button" type="submit" disabled>{% trans %}Limit reached{% endtrans %}</button>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
+{% endblock %}

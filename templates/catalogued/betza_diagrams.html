@@ -1,10 +1,8 @@
 {% if catalogued_variant.customPieceDiagrams %}
 <section class="catalogued-variant-rules-block catalogued-betza-diagrams">
-    <h2>Piece movement</h2>
+    <h2>{% trans %}Piece movement{% endtrans %}</h2>
     <p class="catalogued-betza-note">
-        These diagrams show custom pieces and known Fairy-Stockfish built-in fairy pieces from
-        White's perspective on a compact preview board. Some special moves, especially hoppers
-        and game-state-dependent moves, can still depend on blockers or game state.
+        {% trans %}These diagrams show custom pieces and known Fairy-Stockfish built-in fairy pieces from White's perspective on a compact preview board. Some special moves, especially hoppers and game-state-dependent moves, can still depend on blockers or game state.{% endtrans %}
     </p>
     <div class="catalogued-betza-grid">
         {% for diagram in catalogued_variant.customPieceDiagrams %}
@@ -19,12 +17,12 @@
         </figure>
         {% endfor %}
     </div>
-    <div class="catalogued-betza-legend" aria-label="Betza diagram legend">
-        <span><i class="catalogued-betza-legend-move"></i>move</span>
-        <span><i class="catalogued-betza-legend-capture"></i>capture</span>
-        <span><i class="catalogued-betza-legend-both"></i>move or capture</span>
-        <span><i class="catalogued-betza-legend-initial"></i>initial only</span>
-        <span><i class="catalogued-betza-legend-hop"></i>hopper target</span>
+    <div class="catalogued-betza-legend" aria-label="{% trans %}Betza diagram legend{% endtrans %}">
+        <span><i class="catalogued-betza-legend-move"></i>{% trans %}move{% endtrans %}</span>
+        <span><i class="catalogued-betza-legend-capture"></i>{% trans %}capture{% endtrans %}</span>
+        <span><i class="catalogued-betza-legend-both"></i>{% trans %}move or capture{% endtrans %}</span>
+        <span><i class="catalogued-betza-legend-initial"></i>{% trans %}initial only{% endtrans %}</span>
+        <span><i class="catalogued-betza-legend-hop"></i>{% trans %}hopper target{% endtrans %}</span>
     </div>
 </section>
 {% endif %}

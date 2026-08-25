@@ -18,6 +18,8 @@ from account_api import (
     account_reopen,
     account_reopen_post,
 )
+from admin_api import admin_user_action
+from admin_ops_api import admin_operation
 from aiohttp import web
 from bot_api import (
     account,
@@ -141,6 +143,8 @@ from report_api import (
 from robots import robots
 from server_metrics import metrics_handler
 from simul.wss import simul_socket_handler
+from system_messages_api import system_message_send
+from timeline import timeline_api, timeline_unsubscribe
 from tournament.tournament_calendar import tournament_calendar
 from tournament.wst import tournament_socket_handler
 from twitch import twitch_request_handler
@@ -152,6 +156,7 @@ from user import (
     set_corr_push,
     set_game_category,
     set_pm_friends_only,
+    set_rr_push,
     set_theme,
 )
 from utils import get_names, get_notifications, import_game, notified, subscribe_notify
@@ -171,6 +176,7 @@ from views import (
     embed,
     faq,
     features,
+    following,
     forum,
     forum_etiquette,
     game,
@@ -193,6 +199,7 @@ from views import (
     shields,
     stats,
     terms,
+    timeline,
     tournament,
     tournaments,
     tv,
@@ -202,6 +209,12 @@ from views import (
     video,
     videos,
     winners,
+)
+from views import (
+    admin as admin_view,
+)
+from views import (
+    admin_system_messages as admin_system_messages_view,
 )
 from views import (
     bot_challenge as bot_challenge_view,
@@ -218,6 +231,7 @@ from views import (
 from views import (
     simul as simul_view,
 )
+from views import team as team_view
 from wsl import lobby_socket_handler
 from wsr import round_socket_handler
 
@@ -243,6 +257,7 @@ get_routes: tuple[RouteDef, ...] = (
     ("/account/reopen", account_reopen),
     ("/select-username", select_username),
     ("/", lobby.lobby),
+    ("/timeline", timeline.timeline),
     ("/about", about.about),
     ("/authors", authors.authors),
     ("/api", api_docs.api_docs),
@@ -286,6 +301,11 @@ get_routes: tuple[RouteDef, ...] = (
     ("/report", report_view.report_form),
     ("/report/faq", report_faq.report_faq),
     ("/report/thanks", report_view.report_thanks),
+    ("/admin", admin_view.admin),
+    ("/admin/users", admin_view.admin_users),
+    ("/admin/teams", admin_view.admin_teams),
+    ("/admin/system-messages", admin_system_messages_view.admin_system_messages),
+    ("/admin/operations", admin_view.admin_operations),
     ("/reports", reports_view.reports),
     ("/mod/public-chat", mod_public_chat_view.mod_public_chat),
     ("/challenges", get_header_challenges),
@@ -299,6 +319,19 @@ get_routes: tuple[RouteDef, ...] = (
     (r"/invite/{gameId:\w{8}}", invite.invite),
     (r"/invite/{gameId:\w{8}}/{player:player[1-2]}", invite.invite),
     (r"/embed/{gameId:\w{8}}", embed.embed),
+    ("/team", team_view.teams),
+    ("/team/new", team_view.team_new),
+    ("/team/me", team_view.my_teams),
+    ("/team/requests", team_view.team_requests),
+    ("/team/updates", team_view.team_updates),
+    ("/team/{teamId}/updates/new", team_view.team_update_new),
+    ("/team/{teamId}/updates", team_view.team_updates_of),
+    ("/team/{teamId}/edit", team_view.team_edit),
+    ("/team/{teamId}/leaders", team_view.team_leaders),
+    ("/team/{teamId}/members", team_view.team_members),
+    ("/team/{teamId}/declined-requests", team_view.team_declined_requests),
+    ("/team/{teamId}/join", team_view.team_join_form),
+    ("/team/{teamId}", team_view.team_show),
     ("/tournaments", tournaments.tournaments),
     ("/tournaments/new", arena_new.arena_new),
     (r"/tournaments/{tournamentId:\w{8}}/edit", arena_new.arena_new),
@@ -315,7 +348,9 @@ get_routes: tuple[RouteDef, ...] = (
     (r"/simul/{simulId:\w{8}}/edit", simul_view.simul_edit),
     (r"/simul/{simulId:\w{8}}/cancel", simul_view.cancel_simul),
     (r"/simul/{simulId:\w{8}}", simul_view.simul),
+    ("/@/{profileId}/simuls", simul_view.simul_history),
     ("/@/{profileId}", profile.profile),
+    ("/@/{profileId}/following", following.following),
     ("/@/{profileId}/mini", user_mini.user_mini),
     ("/@/{profileId}/tv", tv.tv),
     ("/@/{profileId}/challenge", lobby.lobby),
@@ -374,6 +409,7 @@ get_routes: tuple[RouteDef, ...] = (
     (r"/api/bot-challenges/{gameId:\w{8}}", subscribe_invites),
     ("/api/ongoing", subscribe_games),
     ("/api/inbox/unread", inbox_unread),
+    ("/api/timeline", timeline_api),
     ("/api/inbox/threads", inbox_threads),
     ("/api/inbox/thread/{contact}", inbox_thread),
     ("/api/forum/categs", forum_categs),
@@ -428,11 +464,13 @@ post_routes: tuple[RouteDef, ...] = (
     ("/pref/game-category", set_game_category),
     ("/pref/pm-friends-only", set_pm_friends_only),
     ("/pref/corr-push", set_corr_push),
+    ("/pref/rr-push", set_rr_push),
     ("/api/{profileId}/block", block_user),
     ("/api/{profileId}/follow", follow_user),
     ("/api/inbox/thread/{contact}", inbox_post),
     ("/api/inbox/thread/{contact}/read", inbox_read),
     ("/api/inbox/thread/{contact}/delete", inbox_delete),
+    ("/api/timeline/unsubscribe", timeline_unsubscribe),
     ("/push/subscribe", push_subscribe),
     ("/push/unsubscribe", push_unsubscribe),
     ("/api/forum/{categ}/topic", forum_topic_create),
@@ -452,6 +490,9 @@ post_routes: tuple[RouteDef, ...] = (
     (r"/api/reports/{reportId:\w{8}}/close-account", report_close_account),
     (r"/api/reports/{reportId:\w{8}}/reopen", report_reopen),
     ("/api/mod/public-chat/timeout", public_chat_timeout),
+    ("/api/admin/users/{username}/{action}", admin_user_action),
+    ("/api/admin/system-messages/send", system_message_send),
+    ("/api/admin/operations/{action}", admin_operation),
     ("/api/catalogued-variants", upload_catalogued_variant),
     ("/api/catalogued-variants/check", check_catalogued_variant_rules),
     ("/api/catalogued-variants/{name}/piece-set", upload_catalogued_piece_set),
@@ -474,6 +515,22 @@ post_routes: tuple[RouteDef, ...] = (
     ("/simul", simul_view.simuls),
     ("/simuls/simul", simul_view.simuls),
     (r"/simul/{simulId:\w{8}}/edit", simul_view.update_simul),
+    ("/team/new", team_view.team_create),
+    ("/team/{teamId}/edit", team_view.team_update),
+    ("/team/{teamId}/leaders/add", team_view.team_leader_add),
+    ("/team/{teamId}/permissions", team_view.team_permissions_update),
+    ("/team/{teamId}/updates", team_view.team_update_send),
+    ("/team/{teamId}/subscribe", team_view.team_update_subscribe),
+    ("/team/{teamId}/join", team_view.team_join),
+    ("/team/{teamId}/cancel-request", team_view.team_cancel_request),
+    ("/team/{teamId}/quit", team_view.team_quit),
+    ("/team/{teamId}/close", team_view.team_close),
+    ("/team/{teamId}/reopen", team_view.team_reopen),
+    (
+        "/team/{teamId}/request/{username}/{decision}",
+        team_view.team_request_process,
+    ),
+    ("/team/{teamId}/kick/{username}", team_view.team_kick),
     ("/tournaments/new", tournaments.tournaments),
     (r"/tournaments/{tournamentId:\w{8}}/edit", tournaments.tournaments),
     ("/blogs/@/{profileId}/create", ublog.create),

@@ -21,6 +21,17 @@ export interface MsgDrawRejected {
     message: string;
 }
 
+// Bughouse only, and delivered to the two players on the resigning team alone — never
+// broadcast. `username` is the player who asked; their partner is the one who confirms.
+export interface MsgResignOffer {
+    message: string;
+    username: string;
+}
+
+export interface MsgResignCancelled {
+    message: string;
+}
+
 export interface MsgTakebackOffer {
     message: string;
     username: string;
@@ -33,10 +44,15 @@ export interface MsgTakebackRejected {
 export interface MsgRematchOffer {
     message: string;
     username: string;
+    // Bughouse: every player currently signed up for the rematch. The control's state is
+    // read from this rather than from `username`, which only says who moved last.
+    offers?: string[];
 }
 
 export interface MsgRematchRejected {
     message: string;
+    // Bughouse: who is still signed up after this withdrawal.
+    offers?: string[];
 }
 
 export interface MsgCount {

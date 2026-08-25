@@ -45,11 +45,11 @@ export function gameInfo(model: PyChessModel): VNode {
             ]),
             h('div.player-data', [
                 h('i-side.icon', { class: { [colorIcon(model.variant, variant.colors.first)]: true } }),
-                h('player', playerInfo(model, 'w')),
+                h('player', [playerInfo(model, 'w')]),
             ]),
             h('div.player-data', [
                 h('i-side.icon', { class: { [colorIcon(model.variant, variant.colors.second)]: true } }),
-                h('player', playerInfo(model, 'b')),
+                h('player', [playerInfo(model, 'b')]),
             ]),
         ]),
     ];
@@ -112,7 +112,7 @@ function playerInfo(model: PyChessModel, color: string) {
 
     return userLink(username, [
         title !== '' ? h('player-title', title + ' ') : '',
-        displayName + aiLevel(title, level) + (title !== 'BOT' ? ' (' + rating + ') ' : ''),
+        displayName + aiLevel(username, level) + (title !== 'BOT' ? ' (' + rating + ') ' : ''),
         model['status'] < 1 || model['rated'] !== '1' ? h('rdiff#' + color + 'rdiff') : renderRdiff(rdiff),
         berserk === 'True' ? h('icon.icon-berserk') : h('berserk#' + color + 'berserk'),
     ]);

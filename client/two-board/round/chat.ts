@@ -1,70 +1,11 @@
-import { h, VNode } from 'snabbdom';
-import * as cg from 'chessgroundx/types';
+import { h } from 'snabbdom';
 
-import { _ } from '@/i18n';
 import { patch } from '@/document';
 import { RoundControllerBughouse } from '@/two-board/round/roundCtrl';
 import { formatChatMessageTime, getLocalMoveNum, selectMove } from '@/two-board/common/movelist';
 import { StepChat } from '@/messages';
-import { Variant } from '../../variants';
 import { displayUsername, isAnonUsername } from '@/user';
 import { linkifyNodes } from '@/linkify';
-
-export function renderBugChatPresets(variant: Variant, sendMessage: (s: string) => void): VNode {
-    const roles: cg.Role[] = [...variant.pocket!.roles.white];
-    let buttons = [];
-
-    const needButtons = roles.map(role => {
-        const letter = role.charAt(0);
-        const piece = variant.pocket!.pieceNames![role];
-        return h(
-            `button.bugchat.${letter}`,
-            { on: { click: () => sendMessage(`!bug!${letter}`) }, props: { title: _('Need %1', piece) } },
-            [],
-        );
-    });
-    const dontGiveButtons = roles.map(role => {
-        const letter = role.charAt(0);
-        const piece = variant.pocket!.pieceNames![role];
-        return h(
-            `button.bugchat.no${letter}`,
-            { on: { click: () => sendMessage(`!bug!no${letter}`) }, props: { title: _("Don't give %1", piece) } },
-            [],
-        );
-    });
-
-    const tells = [
-        h('button.bugchat.sit', { on: { click: () => sendMessage('!bug!sit') }, props: { title: _('Sit/stall') } }, []),
-        h('button.bugchat.go', { on: { click: () => sendMessage('!bug!go') }, props: { title: _('Go/hurry') } }, []),
-        h(
-            'button.bugchat.trade',
-            { on: { click: () => sendMessage('!bug!trade') }, props: { title: _('Trades are good') } },
-            [],
-        ),
-        h(
-            'button.bugchat.notrade',
-            { on: { click: () => sendMessage('!bug!notrade') }, props: { title: _("Don't trade") } },
-            [],
-        ),
-        h(
-            'button.bugchat.mate',
-            { on: { click: () => sendMessage('!bug!mate') }, props: { title: _('I have checkmate') } },
-            [],
-        ),
-
-        h('button.bugchat.ok', { on: { click: () => sendMessage('!bug!ok') }, props: { title: _('OK') } }, []),
-        h('button.bugchat.no', { on: { click: () => sendMessage('!bug!no') }, props: { title: _('No') } }, []),
-        h('button.bugchat.mb', { on: { click: () => sendMessage('!bug!mb') }, props: { title: _('My bad') } }, []),
-        h('button.bugchat.nvm', { on: { click: () => sendMessage('!bug!nvm') }, props: { title: _('Nevermind') } }, []),
-        h('button.bugchat.nice', { on: { click: () => sendMessage('!bug!nice') }, props: { title: _('Nice') } }, []),
-    ];
-
-    buttons.push(...needButtons);
-    buttons.push(...dontGiveButtons);
-    buttons.push(...tells);
-
-    return h('div#chatpresets', { style: { '--rolesCount': String(roles.length) } }, buttons);
-}
 
 export function resetChat() {
     const container = document.getElementById('messages') as HTMLElement;

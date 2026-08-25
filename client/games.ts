@@ -57,7 +57,7 @@ function gameView(games: Games, game: Game) {
                 ]),
                 h('div.name.row-name', [
                     h('player-title', ' ' + game.bTitle + ' '),
-                    displayUsername(game.b) + aiLevel(game.bTitle, game.level),
+                    displayUsername(game.b) + aiLevel(game.b, game.level),
                 ]),
             ]),
             h(`div.cg-wrap.${variant.board.cg}.mini`, {
@@ -81,7 +81,7 @@ function gameView(games: Games, game: Game) {
             }),
             h('div.name', [
                 h('player-title', ' ' + game.wTitle + ' '),
-                displayUsername(game.w) + aiLevel(game.wTitle, game.level),
+                displayUsername(game.w) + aiLevel(game.w, game.level),
             ]),
         ]),
     );

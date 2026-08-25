@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import asyncio
 import unittest
+from unittest.mock import patch
 
 from pychess_global_app_state import PychessGlobalAppState
+from tenacity import wait_none
 
 
 class DiscordStartupTestCase(unittest.IsolatedAsyncioTestCase):
@@ -22,7 +24,11 @@ class DiscordStartupTestCase(unittest.IsolatedAsyncioTestCase):
         bot = FlakyBot()
 
         run_discord_bot = PychessGlobalAppState._PychessGlobalAppState__run_discord_bot
-        with self.assertRaises(asyncio.CancelledError):
+        # Exercise retry behavior without waiting for production backoff.
+        with (
+            patch("pychess_global_app_state.wait_exponential_jitter", return_value=wait_none()),
+            self.assertRaises(asyncio.CancelledError),
+        ):
             await run_discord_bot(holder, bot, "token-123")
 
         self.assertEqual(bot.calls, 2)

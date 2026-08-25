@@ -1,0 +1,39 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap" class="admin-shell">
+    <div class="admin-layout">
+        {% include "admin_nav.html" %}
+        <main class="admin-page box box-pad">
+            <h1>Administration</h1>
+            <p class="admin-page__intro">Moderation and site operations tools.</p>
+
+            <div class="admin-dashboard">
+                <a class="admin-dashboard__card" href="/reports?status=open">
+                    <strong>Reports</strong>
+                    <span>Review reports and apply account moderation.</span>
+                </a>
+                <a class="admin-dashboard__card" href="/mod/public-chat">
+                    <strong>Public chats</strong>
+                    <span>Inspect active lobby, round, and tournament chats.</span>
+                </a>
+                <a class="admin-dashboard__card" href="/admin/users">
+                    <strong>User search</strong>
+                    <span>Look up account, chat, and ban-signal status.</span>
+                </a>
+                <a class="admin-dashboard__card" href="/admin/teams">
+                    <strong>Teams</strong>
+                    <span>Review, close, and reopen community teams.</span>
+                </a>
+                <a class="admin-dashboard__card" href="/admin/system-messages">
+                    <strong>System messages</strong>
+                    <span>Send inbox messages from the PyChess system account to selected or recently active users.</span>
+                </a>
+                <a class="admin-dashboard__card" href="/admin/operations">
+                    <strong>Site operations</strong>
+                    <span>Manage anonymous access, streams, maintenance jobs, puzzles, and fishnet keys.</span>
+                </a>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}

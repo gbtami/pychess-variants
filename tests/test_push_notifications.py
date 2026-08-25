@@ -1,3 +1,4 @@
+import asyncio
 import json
 import time
 import unittest
@@ -171,6 +172,40 @@ class PushSubscribeTestCase(AioHTTPTestCase):
         )
         self.assertEqual(response.status, 403)
 
+    async def test_rr_push_pref_updates_user_and_db(self):
+        app_state = get_app_state(self.app)
+        user = User(app_state, username="rr_pref_user")
+        app_state.users[user.username] = user
+        await app_state.db.user.insert_one({"_id": user.username})
+        self.set_session_user(user.username)
+
+        response = await self.client.post(
+            "/pref/rr-push",
+            data={"rr_push": "true"},
+        )
+        self.assertEqual(response.status, 204)
+        self.assertTrue(user.rr_push_enabled)
+
+        stored = await app_state.db.user.find_one({"_id": user.username})
+        self.assertIsNotNone(stored)
+        self.assertTrue(stored["rps"])
+
+        app_state.users.data.pop(user.username, None)
+        reloaded = await app_state.users.get(user.username)
+        self.assertTrue(reloaded.rr_push_enabled)
+
+    async def test_rr_push_pref_rejects_anon_user(self):
+        app_state = get_app_state(self.app)
+        anon_user = User(app_state, username="Anon-rr-pref", anon=True)
+        app_state.users[anon_user.username] = anon_user
+        self.set_session_user(anon_user.username)
+
+        response = await self.client.post(
+            "/pref/rr-push",
+            data={"rr_push": "true"},
+        )
+        self.assertEqual(response.status, 403)
+
     async def test_enqueue_skips_when_corr_push_pref_is_disabled(self):
         app_state = get_app_state(self.app)
         app_state.push_notifier.enabled = True
@@ -182,6 +217,54 @@ class PushSubscribeTestCase(AioHTTPTestCase):
             game_id="abcd1234",
             opponent="opponent",
             san="e4",
+        )
+        self.assertEqual(app_state.push_notifier.queue.qsize(), 0)
+
+    async def test_rr_push_queues_for_offline_opted_in_user_without_materializing(self):
+        app_state = get_app_state(self.app)
+        app_state.push_notifier.enabled = True
+        username = "rr_offline_push"
+        await app_state.db.user.insert_one({"_id": username, "rps": True})
+
+        await app_state.push_notifier.enqueue_rr_arrangement(
+            username,
+            tournament_id="rrtour01",
+            arrangement_id="arr-1",
+            opponent="opponent",
+            kind="reminder",
+        )
+
+        self.assertNotIn(username, app_state.users.data)
+        job = app_state.push_notifier.queue.get_nowait()
+        self.assertIsInstance(job, push_notifications.RRArrangementPushJob)
+        assert isinstance(job, push_notifications.RRArrangementPushJob)
+        self.assertEqual(job.kind, "reminder")
+        self.assertEqual(job.arrangement_id, "arr-1")
+        app_state.push_notifier.queue.task_done()
+
+    async def test_rr_push_skips_disabled_or_live_user(self):
+        app_state = get_app_state(self.app)
+        app_state.push_notifier.enabled = True
+        user = User(app_state, username="rr_push_user")
+        app_state.users[user.username] = user
+
+        await app_state.push_notifier.enqueue_rr_arrangement(
+            user.username,
+            tournament_id="rrtour01",
+            arrangement_id="arr-1",
+            opponent="opponent",
+            kind="confirmed",
+        )
+        self.assertEqual(app_state.push_notifier.queue.qsize(), 0)
+
+        user.rr_push_enabled = True
+        user.notify_channels.add(asyncio.Queue())
+        await app_state.push_notifier.enqueue_rr_arrangement(
+            user.username,
+            tournament_id="rrtour01",
+            arrangement_id="arr-1",
+            opponent="opponent",
+            kind="confirmed",
         )
         self.assertEqual(app_state.push_notifier.queue.qsize(), 0)
 
@@ -259,6 +342,44 @@ class PushSubscribeTestCase(AioHTTPTestCase):
             push_notifications.PushNotifier._corr_move_body("opponent", "e4"),
             "opponent played e4",
         )
+
+    async def test_rr_push_payload_opens_arrangement(self):
+        app_state = get_app_state(self.app)
+        notifier = app_state.push_notifier
+        notifier.enabled = True
+        await app_state.db.push_subscription.insert_one(
+            {
+                "user": "rr_payload_user",
+                "endpoint": "https://example.com/sub/rr",
+                "auth": "auth-key",
+                "p256dh": "p256dh-key",
+                "seenAt": 1,
+            }
+        )
+
+        original_webpush = push_notifications.webpush
+        payloads: list[dict] = []
+        try:
+
+            def capture_webpush(*args, **kwargs):
+                payloads.append(json.loads(kwargs["data"]))
+
+            push_notifications.webpush = capture_webpush
+            await notifier._deliver_rr_arrangement(
+                push_notifications.RRArrangementPushJob(
+                    username="rr_payload_user",
+                    tournament_id="rrtour01",
+                    arrangement_id="arr-1",
+                    opponent="opponent",
+                    kind="reminder",
+                )
+            )
+        finally:
+            push_notifications.webpush = original_webpush
+
+        self.assertEqual(len(payloads), 1)
+        self.assertIn("24 hours", payloads[0]["body"])
+        self.assertEqual(payloads[0]["payload"]["url"], "/tournament/rrtour01#arr-1")
 
     async def test_deliver_retries_on_transient_failures_when_nothing_was_sent(self):
         app_state = get_app_state(self.app)

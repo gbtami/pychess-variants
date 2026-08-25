@@ -5,13 +5,13 @@
 <aside>
     <ul class="guide">
     <li>
-        <a class="icon" data-icon="" href="{{ home }}/variants/terminology">Terminology</a>
+        <a class="icon" data-icon="" href="{{ home }}/variants/terminology">{% trans %}Terminology{% endtrans %}</a>
     </li>
     <li>
-        <a class="icon" data-icon="◇" href="{{ home }}/variants/community">Community variants</a>
+        <a class="icon" data-icon="☐" href="{{ home }}/variants/community">{% trans %}Community variants{% endtrans %}</a>
     </li>
     <li>
-        <a class="icon" data-icon="♙" href="{{ home }}/authors">Variant authors</a>
+        <a class="icon" data-icon="♙" href="{{ home }}/authors">{% trans %}Variant authors{% endtrans %}</a>
     </li>
     {% for key in variants %}
     <li>
@@ -23,50 +23,50 @@
 <div class="guide">
 {% if community_variants %}
 <article class="community-variants-page" data-favorites-only="{{ 1 if community_variants.favoritesOnly else 0 }}">
-    <h1>Community variants</h1>
+    <h1>{% trans %}Community variants{% endtrans %}</h1>
     <p>
-        Browse public user-defined variants. They stay outside the regular variant catalog and are always casual/unrated.
+        {% trans %}Browse public user-defined variants. They stay outside the regular variant catalog and are always casual/unrated.{% endtrans %}
     </p>
     <form class="community-variants-search" method="get" action="{{ home }}/variants/community">
         <label>
-            Search
-            <input type="search" name="q" value="{{ community_variants.q }}" placeholder="Name, description, or uploader">
+            {% trans %}Search{% endtrans %}
+            <input type="search" name="q" value="{{ community_variants.q }}" placeholder="{% trans %}Name, description, or uploader{% endtrans %}">
         </label>
         <label>
-            Uploaded by
-            <input type="search" name="author" value="{{ community_variants.author }}" placeholder="Exact username">
+            {% trans %}Uploaded by{% endtrans %}
+            <input type="search" name="author" value="{{ community_variants.author }}" placeholder="{% trans %}Exact username{% endtrans %}">
         </label>
         <label>
-            Sort
+            {% trans %}Sort{% endtrans %}
             <select name="sort">
-                <option value="updated" {% if community_variants.sort == "updated" %}selected{% endif %}>Recently updated</option>
-                {% if community_variants.canFavorite %}<option value="favorites" {% if community_variants.sort == "favorites" %}selected{% endif %}>Favorites first</option>{% endif %}
-                <option value="played" {% if community_variants.sort == "played" %}selected{% endif %}>Most played</option>
-                <option value="newest" {% if community_variants.sort == "newest" %}selected{% endif %}>Newest</option>
-                <option value="name" {% if community_variants.sort == "name" %}selected{% endif %}>Name</option>
+                <option value="updated" {% if community_variants.sort == "updated" %}selected{% endif %}>{% trans %}Recently updated{% endtrans %}</option>
+                {% if community_variants.canFavorite %}<option value="favorites" {% if community_variants.sort == "favorites" %}selected{% endif %}>{% trans %}Favorites first{% endtrans %}</option>{% endif %}
+                <option value="played" {% if community_variants.sort == "played" %}selected{% endif %}>{% trans %}Most played{% endtrans %}</option>
+                <option value="newest" {% if community_variants.sort == "newest" %}selected{% endif %}>{% trans %}Newest{% endtrans %}</option>
+                <option value="name" {% if community_variants.sort == "name" %}selected{% endif %}>{% trans %}Name{% endtrans %}</option>
             </select>
         </label>
-        <label class="community-variants-favorites-filter" title="{% if not community_variants.canFavorite %}Sign in to use favorites{% endif %}">
-            <span>Favorites</span>
+        <label class="community-variants-favorites-filter" title="{% if not community_variants.canFavorite %}{% trans %}Sign in to use favorites{% endtrans %}{% endif %}">
+            <span>{% trans %}Favorites{% endtrans %}</span>
             <span class="community-variants-checkbox">
                 <input type="checkbox" name="favorites" value="1" {% if community_variants.favoritesOnly %}checked{% endif %} {% if not community_variants.canFavorite %}disabled{% endif %}>
-                Favorites only
+                {% trans %}Favorites only{% endtrans %}
             </span>
         </label>
-        <button type="submit" class="button">Search</button>
+        <button type="submit" class="button">{% trans %}Search{% endtrans %}</button>
     </form>
 
     {% if community_variants.variants %}
     <p class="community-variants-count">
-        {{ community_variants.total }} public variant{% if community_variants.total != 1 %}s{% endif %}
+        {% trans count=community_variants.total %}{{ count }} public variant{% pluralize %}{{ count }} public variants{% endtrans %}
     </p>
     <div class="community-variants-list">
         {% for item in community_variants.variants %}
         <section class="community-variant-card{% if item.startBoardPreview %} community-variant-card--with-preview{% endif %}{% if item.favorite %} community-variant-card--favorite{% endif %}" data-variant="{{ item.name }}">
             <div class="community-variant-card-head">
                 <div class="community-variant-card-title">
-                    <h2><a href="{{ home }}/variants/{{ item.name }}">{{ item.displayName }}</a></h2>
-                    <code>{{ item.name }}</code>
+                    <h2><a{% if item.system %} class="community-variant-fsf-title"{% endif %} href="{{ home }}/variants/{{ item.name }}">{% if item.system %}<img class="community-variant-fsf-icon" src="/static/images/Fairy-Stockfish.webp" width="64" height="64" alt="" aria-hidden="true">{% endif %}{{ item.displayName }}</a></h2>
+                    {% if not item.system %}<code>{{ item.name }}</code>{% endif %}
                 </div>
                 {% if community_variants.canFavorite %}
                 <button
@@ -74,18 +74,18 @@
                     class="community-variant-favorite{% if item.favorite %} is-favorite{% endif %}"
                     data-variant="{{ item.name }}"
                     aria-pressed="{{ 'true' if item.favorite else 'false' }}"
-                    aria-label="{{ 'Remove from favorites' if item.favorite else 'Add to favorites' }}"
-                    title="{{ 'Remove from favorites' if item.favorite else 'Add to favorites' }}"
+                    aria-label="{% if item.favorite %}{% trans %}Remove from favorites{% endtrans %}{% else %}{% trans %}Add to favorites{% endtrans %}{% endif %}"
+                    title="{% if item.favorite %}{% trans %}Remove from favorites{% endtrans %}{% else %}{% trans %}Add to favorites{% endtrans %}{% endif %}"
                 >{{ "♥" if item.favorite else "♡" }}</button>
                 {% else %}
-                <span class="community-variant-favorite community-variant-favorite-disabled" title="Sign in to favorite variants" aria-hidden="true">♡</span>
+                <span class="community-variant-favorite community-variant-favorite-disabled" title="{% trans %}Sign in to favorite variants{% endtrans %}" aria-hidden="true">♡</span>
                 {% endif %}
             </div>
             <div class="community-variant-card-main">
                 {% if item.description %}<p>{{ item.description }}</p>{% endif %}
                 {% if item.references %}
                 <p class="catalogued-variant-references">
-                    References:
+                    {% trans %}References:{% endtrans %}
                     {% for reference in item.references %}
                     <a href="{{ reference.url }}" target="_blank" rel="noopener noreferrer nofollow">{{ reference.label }}</a>{% if not loop.last %}, {% endif %}
                     {% endfor %}
@@ -94,7 +94,7 @@
                 <dl>
                     {% if item.author %}
                     <div>
-                        <dt>Uploaded by</dt>
+                        <dt>{% trans %}Uploaded by{% endtrans %}</dt>
                         <dd>
                             {% if item.system %}
                             {{ item.author }}
@@ -104,18 +104,18 @@
                         </dd>
                     </div>
                     {% endif %}
-                    <div><dt>Board</dt><dd>{{ item.width }} × {{ item.height }}</dd></div>
-                    <div><dt>Games</dt><dd>{{ item.gameCount }}</dd></div>
+                    <div><dt>{% trans %}Board{% endtrans %}</dt><dd>{{ item.width }} × {{ item.height }}</dd></div>
+                    <div><dt>{% trans %}Games{% endtrans %}</dt><dd>{{ item.gameCount }}</dd></div>
                 </dl>
                 <p class="community-variant-actions">
-                    <a class="button catalogued-action-primary" href="{{ home }}/?any&variant={{ item.name }}">Play</a>
-                    <a class="button catalogued-action-ai" href="{{ home }}/?ai&variant={{ item.name }}">Play AI</a>
-                    <a class="button catalogued-action-analysis" href="{{ home }}/analysis/{{ item.name }}">Analysis</a>
-                    <a class="button catalogued-action-secondary" href="{{ home }}/variants/{{ item.name }}">Rules</a>
+                    <a class="button catalogued-action-primary" href="{{ home }}/?any&variant={{ item.name }}">{% trans %}Play{% endtrans %}</a>
+                    <a class="button catalogued-action-ai" href="{{ home }}/?ai&variant={{ item.name }}">{% trans %}Play AI{% endtrans %}</a>
+                    <a class="button catalogued-action-analysis" href="{{ home }}/analysis/{{ item.name }}">{% trans %}Analysis{% endtrans %}</a>
+                    <a class="button catalogued-action-secondary" href="{{ home }}/variants/{{ item.name }}">{% trans %}Rules{% endtrans %}</a>
                 </p>
             </div>
             {% if item.startBoardPreview %}
-            <a class="community-variant-card-preview" href="{{ home }}/variants/{{ item.name }}" aria-label="View {{ item.displayName }} rules">
+            <a class="community-variant-card-preview" href="{{ home }}/variants/{{ item.name }}" aria-label="{% trans name=item.displayName %}View {{ name }} rules{% endtrans %}">
                 {{ item.startBoardPreview.svg | safe }}
             </a>
             {% endif %}
@@ -123,33 +123,33 @@
         {% endfor %}
     </div>
     {% else %}
-    <p>No public variants found.</p>
+    <p>{% trans %}No public variants found.{% endtrans %}</p>
     {% endif %}
 
     {% if community_variants.pages > 1 %}
     <nav class="community-variants-pages">
-        {% if community_prev_href %}<a class="button" href="{{ community_prev_href }}">Previous</a>{% endif %}
-        <span>Page {{ community_variants.page }} / {{ community_variants.pages }}</span>
-        {% if community_next_href %}<a class="button" href="{{ community_next_href }}">Next</a>{% endif %}
+        {% if community_prev_href %}<a class="button" href="{{ community_prev_href }}">{% trans %}Previous{% endtrans %}</a>{% endif %}
+        <span>{% trans page=community_variants.page, pages=community_variants.pages %}Page {{ page }} / {{ pages }}{% endtrans %}</span>
+        {% if community_next_href %}<a class="button" href="{{ community_next_href }}">{% trans %}Next{% endtrans %}</a>{% endif %}
     </nav>
     {% endif %}
 
     <p>
-        <a class="button" href="{{ home }}/my-variants">Upload or manage my variants</a>
+        <a class="button" href="{{ home }}/my-variants">{% trans %}Upload or manage my variants{% endtrans %}</a>
     </p>
 </article>
 {% elif catalogued_variant %}
 <article class="catalogued-variant-rules">
     <header class="catalogued-variant-hero">
         <div class="catalogued-variant-hero-copy">
-            <div class="catalogued-variant-kicker">Community variant</div>
+            <div class="catalogued-variant-kicker">{% trans %}Community variant{% endtrans %}</div>
             <h1>{{ catalogued_variant.displayName }}</h1>
             {% if catalogued_variant.description %}
             <div class="catalogued-variant-description">{{ catalogued_variant.description }}</div>
             {% endif %}
             {% if catalogued_variant.references %}
             <div class="catalogued-variant-references">
-                References:
+                {% trans %}References:{% endtrans %}
                 {% for reference in catalogued_variant.references %}
                 <a href="{{ reference.url }}" target="_blank" rel="noopener noreferrer nofollow">{{ reference.label }}</a>{% if not loop.last %}, {% endif %}
                 {% endfor %}
@@ -157,26 +157,21 @@
             {% endif %}
             <div class="catalogued-variant-intro">
                 {% if catalogued_variant.system %}
-                This is a curated Fairy-Stockfish built-in variant. Gameplay uses
-                Fairy-Stockfish's canonical built-in definition.
+                {% trans %}This is a curated Fairy-Stockfish built-in variant. Gameplay uses Fairy-Stockfish's canonical built-in definition.{% endtrans %}
                 {% if catalogued_variant.ini %}
-                The documentation block below mirrors the relevant built-in settings for the
-                generated overview and movement diagrams.
+                {% trans %}The documentation block below mirrors the relevant built-in settings for the generated overview and movement diagrams.{% endtrans %}
                 {% else %}
-                The generated overview is based on the available catalogue metadata and may omit
-                details that are only present in Fairy-Stockfish's built-in implementation.
+                {% trans %}The generated overview is based on the available catalogue metadata and may omit details that are only present in Fairy-Stockfish's built-in implementation.{% endtrans %}
                 {% endif %}
                 {% else %}
-                This is a user-catalogued casual variant. Technical details such as board size,
-                FEN, pieces, and hand rules are defined in the Fairy-Stockfish
-                <code>variants.ini</code> block below.
+                {% trans %}This is a user-catalogued casual variant. Technical details such as board size, FEN, pieces, and hand rules are defined in the Fairy-Stockfish variants.ini block below.{% endtrans %}
                 {% endif %}
             </div>
         </div>
         <dl class="catalogued-variant-meta">
             {% if catalogued_variant.author %}
             <div>
-                <dt>Uploaded by</dt>
+                <dt>{% trans %}Uploaded by{% endtrans %}</dt>
                 <dd>
                     {% if catalogued_variant.system %}
                     {{ catalogued_variant.author }}
@@ -187,26 +182,26 @@
             </div>
             {% endif %}
             <div>
-                <dt>Visibility</dt>
-                <dd>{{ catalogued_variant.visibility }}</dd>
+                <dt>{% trans %}Visibility{% endtrans %}</dt>
+                <dd>{% if catalogued_variant.visibility == "public" %}{% trans %}public{% endtrans %}{% elif catalogued_variant.visibility == "unlisted" %}{% trans %}unlisted{% endtrans %}{% else %}{% trans %}private{% endtrans %}{% endif %}</dd>
             </div>
             <div>
-                <dt>Status</dt>
-                <dd>{{ "archived" if catalogued_variant.archived else "active" }}</dd>
+                <dt>{% trans %}Status{% endtrans %}</dt>
+                <dd>{% if catalogued_variant.archived %}{% trans %}archived{% endtrans %}{% else %}{% trans %}active{% endtrans %}{% endif %}</dd>
             </div>
         </dl>
     </header>
-    <nav class="catalogued-variant-actions" aria-label="Catalogued variant actions">
-        <a class="button catalogued-action-primary" href="{{ home }}/?any&variant={{ catalogued_variant.name }}">Play</a>
-        <a class="button catalogued-action-ai" href="{{ home }}/?ai&variant={{ catalogued_variant.name }}">Play AI</a>
-        <a class="button catalogued-action-analysis" href="{{ home }}/analysis/{{ catalogued_variant.name }}">Analysis board</a>
-        <a class="button catalogued-action-secondary" href="{{ home }}/variants/community">Community variants</a>
+    <nav class="catalogued-variant-actions" aria-label="{% trans %}Catalogued variant actions{% endtrans %}">
+        <a class="button catalogued-action-primary" href="{{ home }}/?any&variant={{ catalogued_variant.name }}">{% trans %}Play{% endtrans %}</a>
+        <a class="button catalogued-action-ai" href="{{ home }}/?ai&variant={{ catalogued_variant.name }}">{% trans %}Play AI{% endtrans %}</a>
+        <a class="button catalogued-action-analysis" href="{{ home }}/analysis/{{ catalogued_variant.name }}">{% trans %}Analysis board{% endtrans %}</a>
+        <a class="button catalogued-action-secondary" href="{{ home }}/variants/community">{% trans %}Community variants{% endtrans %}</a>
     </nav>
     {% include "catalogued/rule_summary.html" %}
     {% include "catalogued/betza_diagrams.html" %}
     {% if catalogued_variant.ini %}
     <section class="catalogued-variant-rules-block">
-        <h2>{{ "Fairy-Stockfish rule documentation" if catalogued_variant.system else "Fairy-Stockfish rules" }}</h2>
+        <h2>{% if catalogued_variant.system %}{% trans %}Fairy-Stockfish rule documentation{% endtrans %}{% else %}{% trans %}Fairy-Stockfish rules{% endtrans %}{% endif %}</h2>
         <pre class="catalogued-variant-ini"><code>{{ catalogued_variant.ini }}</code></pre>
     </section>
     {% endif %}

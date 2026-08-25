@@ -131,3 +131,14 @@ test('unsupported AI variants are disabled for play with AI', async () => {
     expect(disabled).toContain('fogofwar');
     expect(disabled).toContain('jieqi');
 });
+
+test('external bot capabilities distinguish normal and 960 variants', async () => {
+    const supported = new Set(['alice', 'crazyhouse960']);
+    const disabled = disabledVariantsForCreateMode('playBOT', 'Alice-Stockfish', false, supported);
+
+    expect(disabled).not.toContain('alice');
+    expect(disabled).not.toContain('crazyhouse');
+    expect(disabled).toContain('chess');
+    expect(disabled).toContain('atomic');
+    expect(disabled).toContain('bughouse');
+});

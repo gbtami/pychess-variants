@@ -9,7 +9,7 @@ from catalogued_variants import (
     can_create_catalogued_seek,
     catalogued_variant_games_are_persisted,
 )
-from const import CORR_SEEK_EXPIRE_WEEKS, INVITE_SEEK_EXPIRE
+from const import CORR_SEEK_EXPIRE_WEEKS, INVITE_SEEK_EXPIRE, SYSTEM_USER
 from json_utils import json_dumps
 from misc import time_control_str
 from newid import new_id
@@ -183,8 +183,6 @@ class Seek:
         if is_catalogued_variant(variant):
             rated = False
             chess960 = False
-            tournament_id = None
-            rr_arrangement_id = None
         elif rated and not can_rate_start(
             variant,
             self.fen,
@@ -409,6 +407,10 @@ class Seek:
         )
 
     @property
+    def is_rr_challenge(self) -> bool:
+        return self.rr_arrangement_id is not None
+
+    @property
     def is_bot_challenge(self) -> bool:
         return self.target == "BOT_challenge"
 
@@ -492,6 +494,7 @@ def find_duplicate_direct_challenge(
     for seek in seeks.values():
         if (
             seek.is_direct_challenge
+            and not seek.is_rr_challenge
             and seek.is_active_direct_challenge
             and not seek.is_expired()
             and seek.creator.username == creator.username
@@ -504,7 +507,8 @@ def find_duplicate_direct_challenge(
 
 def seek_counts_toward_limit(seek: Seek) -> bool:
     return (
-        (not seek.is_expired())
+        (not seek.is_rr_challenge)
+        and (not seek.is_expired())
         and (not seek.is_direct_challenge or seek.is_active_direct_challenge)
         and (not seek.is_bot_challenge or seek.is_active_bot_challenge)
     )
@@ -550,6 +554,9 @@ async def create_seek(
     data: SeekCreateData,
     empty: bool = False,
     engine: User | None = None,
+    *,
+    tournament_id: str | None = None,
+    rr_arrangement_id: str | None = None,
 ) -> Seek | None:
     """Seek can be
     - invite (has reserved new game id stored in app[invites], and target is 'Invite-friend')
@@ -592,7 +599,11 @@ async def create_seek(
             )
             return None
 
-    duplicate = find_duplicate_direct_challenge(seeks, user, data)
+    duplicate = (
+        None
+        if rr_arrangement_id is not None
+        else find_duplicate_direct_challenge(seeks, user, data)
+    )
     if duplicate is not None:
         log.info(
             "Replacing direct challenge by %s against %s",
@@ -601,11 +612,14 @@ async def create_seek(
         )
         duplicate.set_challenge_status(DIRECT_CHALLENGE_CANCELED)
 
-    if user_reached_seek_limit(user, day) and not empty:
+    if rr_arrangement_id is None and user_reached_seek_limit(user, day) and not empty:
         return None
 
     target = data.get("target", "")
     if is_direct_challenge_target(target):
+        if target == SYSTEM_USER:
+            log.info("Rejecting direct challenge to system account %s by %s", target, user.username)
+            return None
         target_profile = await user.app_state.public_users.get_profile(target)
         if target_profile is None:
             return None
@@ -616,7 +630,9 @@ async def create_seek(
                 user.username,
             )
             return None
-        if target in user.blocked or user.username in target_profile.blocked:
+        if rr_arrangement_id is None and (
+            target in user.blocked or user.username in target_profile.blocked
+        ):
             log.info(
                 "Rejecting direct challenge by %s against %s because users are blocked",
                 user.username,
@@ -661,8 +677,8 @@ async def create_seek(
         player1=None if empty else user,
         player2=engine if target == "BOT_challenge" else None,
         game_id=game_id,
-        tournament_id=data.get("tournamentId"),
-        rr_arrangement_id=data.get("rrArrangementId"),
+        tournament_id=tournament_id,
+        rr_arrangement_id=rr_arrangement_id,
     )
 
     log.debug("adding seek: %s" % seek)

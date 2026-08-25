@@ -4,9 +4,11 @@ from unittest import TestCase
 from unittest.mock import patch
 
 from catalogued_variants import (
+    FSF_CATALOGUED_BUILTIN_DESCRIPTION,
     FSF_CATALOGUED_BUILTIN_VARIANTS,
     _build_fsf_builtin_doc,
     _client_doc,
+    _fsf_builtin_description_for_doc,
     catalogued_variant_rule_context,
 )
 
@@ -27,6 +29,7 @@ class FsfBuiltinRulesIniTestCase(TestCase):
         self.assertEqual(set(doc["pieces"]), {"p", "n", "b", "r", "k"})
         self.assertEqual(doc["promotionRoles"], ["p", "n", "b", "r"])
         self.assertTrue(doc["captureToHand"])
+        self.assertNotIn("description", doc)
 
         client_doc = _client_doc(doc)
         self.assertEqual(client_doc["ini"], "")
@@ -34,6 +37,7 @@ class FsfBuiltinRulesIniTestCase(TestCase):
         self.assertEqual(client_doc["clientVariant"], "shogi")
         self.assertNotIn("rulesIni", client_doc)
         self.assertEqual(client_doc["fsfBuiltinVariant"], "yarishogi")
+        self.assertEqual(client_doc["tooltip"], FSF_CATALOGUED_BUILTIN_DESCRIPTION)
         self.assertEqual(
             client_doc["betzaPieces"],
             {
@@ -48,12 +52,33 @@ class FsfBuiltinRulesIniTestCase(TestCase):
 
         rule_context = catalogued_variant_rule_context(doc)
         self.assertTrue(rule_context["system"])
+        self.assertEqual(rule_context["description"], FSF_CATALOGUED_BUILTIN_DESCRIPTION)
         self.assertEqual(rule_context["ini"], doc["rulesIni"])
         self.assertEqual(
             [diagram["piece"] for diagram in rule_context["customPieceDiagrams"]],
             ["n", "b", "r", "g", "s"],
         )
         self.assertGreater(len(rule_context["ruleSummary"]["sections"]), 3)
+
+    def test_only_custom_builtin_descriptions_are_persisted(self) -> None:
+        metadata = FSF_CATALOGUED_BUILTIN_VARIANTS["yarishogi"]
+
+        self.assertEqual(
+            _fsf_builtin_description_for_doc(
+                metadata,
+                {"description": FSF_CATALOGUED_BUILTIN_DESCRIPTION},
+                [],
+            ),
+            "",
+        )
+        self.assertEqual(
+            _fsf_builtin_description_for_doc(
+                metadata,
+                {"description": "Custom administrator description"},
+                [],
+            ),
+            "Custom administrator description",
+        )
 
 
 if __name__ == "__main__":

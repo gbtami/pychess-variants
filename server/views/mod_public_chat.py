@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import aiohttp_jinja2
 from aiohttp import web
-from const import TStatus
+from const import T_CREATED, T_STARTED, TStatus
 from settings import ADMINS
 from typing_defs import ViewContext
 
@@ -35,10 +35,6 @@ async def mod_public_chat(request: web.Request) -> ViewContext:
 
     app_state = user.app_state
 
-    lobby_lines = [
-        line for line in app_state.lobby.lobbychat if str(line.get("user") or "").strip()
-    ]
-
     tournaments: list[dict[str, object]] = []
     for tournament in app_state.tournaments.values():
         lines = [line for line in tournament.tourneychat if str(line.get("user") or "").strip()]
@@ -56,6 +52,24 @@ async def mod_public_chat(request: web.Request) -> ViewContext:
         )
 
     tournaments.sort(key=lambda item: str(item["name"]).lower())
+
+    simuls: list[dict[str, object]] = []
+    for simul in app_state.simuls.values():
+        if simul.status not in (T_CREATED, T_STARTED):
+            continue
+        lines = [line for line in simul.tourneychat if str(line.get("user") or "").strip()]
+        if not lines:
+            continue
+        simuls.append(
+            {
+                "id": simul.id,
+                "name": simul.name,
+                "status": _tournament_status_label(simul.status),
+                "lines": lines,
+            }
+        )
+
+    simuls.sort(key=lambda item: str(item["name"]).lower())
 
     round_games: list[dict[str, object]] = []
     for game in app_state.games.values():
@@ -78,7 +92,8 @@ async def mod_public_chat(request: web.Request) -> ViewContext:
     context["view"] = "mod_public_chat"
     context["view_css"] = "mod_public_chat.css"
     context["admin"] = True
-    context["lobby_lines"] = lobby_lines
+    context["admin_section"] = "public-chat"
     context["round_games"] = round_games
     context["tournaments"] = tournaments
+    context["simuls"] = simuls
     return context

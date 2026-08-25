@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING, cast
 from aiohttp import web
 from broadcast import round_broadcast
 from catalogued_variants import (
+    CATALOGUED_SOURCE_FSF_BUILTIN,
     catalogued_variant_ai_disabled,
     catalogued_variant_allows_fishnet,
     clear_catalogued_variant_ai_failures,
@@ -173,15 +174,17 @@ def _fishnet_custom_definition(
 ) -> tuple[str, str] | object | None:
     catalogued_docs = getattr(app_state, "catalogued_variants", {})
     doc = catalogued_docs.get(variant_name)
-    if doc is not None:
-        if (
-            not doc.get("enabled", True)
-            or not doc.get("ini")
-            or catalogued_variant_ai_disabled(doc)
-        ):
+    if doc is not None and doc.get("ini"):
+        if not doc.get("enabled", True) or catalogued_variant_ai_disabled(doc):
             return _CUSTOM_VARIANT_UNAVAILABLE
         return _catalogued_doc_base_name(doc), str(doc["ini"]).strip() + "\n"
 
+    # Catalogued Fairy-Stockfish built-ins are metadata-only and therefore have
+    # no INI. They may still be the engine-provided base of a checked-in site
+    # variant, as pocketknight is for synochess, so they must not hide that site
+    # definition or invalidate the custom chain collected so far.
+    if doc is not None and doc.get("source") != CATALOGUED_SOURCE_FSF_BUILTIN:
+        return _CUSTOM_VARIANT_UNAVAILABLE
     return _site_fishnet_ini_sections().get(variant_name)
 
 

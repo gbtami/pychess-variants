@@ -1,4 +1,4 @@
-"""Web push notifications for correspondence moves.
+"""Best-effort Web Push for offline correspondence and RR appointment events.
 
 Design notes for contributors:
 - Move handling only enqueues lightweight jobs; network I/O runs in a background worker.
@@ -14,7 +14,7 @@ import logging
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 import aiohttp_session
 from aiohttp import web
@@ -63,6 +63,20 @@ class CorrMovePushJob:
     san: str | None
 
 
+@dataclass(frozen=True)
+class RRArrangementPushJob:
+    """Minimal payload for an offline RR appointment notification."""
+
+    username: str
+    tournament_id: str
+    arrangement_id: str
+    opponent: str
+    kind: Literal["confirmed", "reminder"]
+
+
+PushJob = CorrMovePushJob | RRArrangementPushJob
+
+
 class PushSendRetryableError(Exception):
     """Raised for retryable delivery failures handled by tenacity."""
 
@@ -104,7 +118,7 @@ class PushNotifier:
 
     def __init__(self, app_state):
         self.app_state = app_state
-        self.queue: asyncio.Queue[CorrMovePushJob] = asyncio.Queue(maxsize=PUSH_QUEUE_MAXSIZE)
+        self.queue: asyncio.Queue[PushJob] = asyncio.Queue(maxsize=PUSH_QUEUE_MAXSIZE)
 
         private_key = self._normalize_vapid_private_key(PUSH_VAPID_PRIVATE_KEY)
         vapid_public_key = self._strip_wrapping_quotes(PUSH_VAPID_PUBLIC_KEY.strip())
@@ -188,13 +202,66 @@ class PushNotifier:
         except asyncio.QueueFull:
             log.warning("Push queue full; dropping corr move push for %s", user.username)
 
+    async def enqueue_rr_arrangement(
+        self,
+        username: str,
+        *,
+        tournament_id: str,
+        arrangement_id: str,
+        opponent: str,
+        kind: Literal["confirmed", "reminder"],
+    ) -> None:
+        """Queue an RR appointment push for an opted-in user who is not live on-site."""
+
+        if not self.enabled or self.app_state.db is None:
+            return
+
+        cached_user = self.app_state.users.data.get(username)
+        if cached_user is not None:
+            if cached_user.anon or cached_user.bot or not cached_user.rr_push_enabled:
+                return
+            # The normal notification SSE already delivers this while the site is open.
+            if cached_user.notify_channels:
+                return
+        else:
+            try:
+                user_doc = await self.app_state.db.user.find_one(
+                    {"_id": username},
+                    projection={"rps": 1, "title": 1, "enabled": 1},
+                )
+            except Exception:
+                log.exception("Failed to read RR push preference for %s", username)
+                return
+            if (
+                user_doc is None
+                or user_doc.get("enabled", True) is False
+                or user_doc.get("title") == "BOT"
+                or not user_doc.get("rps", False)
+            ):
+                return
+
+        job = RRArrangementPushJob(
+            username=username,
+            tournament_id=tournament_id,
+            arrangement_id=arrangement_id,
+            opponent=opponent,
+            kind=kind,
+        )
+        try:
+            self.queue.put_nowait(job)
+        except asyncio.QueueFull:
+            log.warning("Push queue full; dropping RR appointment push for %s", username)
+
     async def run(self) -> None:
         """Long-running worker consuming queued push jobs."""
 
         while True:
             job = await self.queue.get()
             try:
-                await self._deliver_corr_move(job)
+                if isinstance(job, CorrMovePushJob):
+                    await self._deliver_corr_move(job)
+                else:
+                    await self._deliver_rr_arrangement(job)
             except asyncio.CancelledError:
                 raise
             except Exception:
@@ -203,27 +270,6 @@ class PushNotifier:
                 self.queue.task_done()
 
     async def _deliver_corr_move(self, job: CorrMovePushJob) -> None:
-        """Deliver one job across recent user subscriptions.
-
-        We intentionally continue per endpoint on errors so one bad subscription
-        does not block sends to other devices.
-        """
-
-        if self.app_state.db is None or webpush is None:
-            return
-
-        cursor = self.app_state.db[PUSH_SUBSCRIPTION_COLLECTION].find({"user": job.username})
-        cursor.sort("seenAt", -1)
-        cursor.limit(MAX_SUBSCRIPTIONS_PER_USER)
-        subscriptions = await cursor.to_list(length=MAX_SUBSCRIPTIONS_PER_USER)
-        if len(subscriptions) == 0:
-            log.info(
-                "No push subscriptions for %s; skipping corr push delivery game=%s",
-                job.username,
-                job.game_id,
-            )
-            return
-
         payload = json.dumps(
             {
                 "title": "It's your turn!",
@@ -235,6 +281,47 @@ class PushNotifier:
                 },
             }
         )
+        await self._deliver_payload(job.username, payload, context=f"corr game={job.game_id}")
+
+    async def _deliver_rr_arrangement(self, job: RRArrangementPushJob) -> None:
+        if job.kind == "confirmed":
+            title = "Round-robin game scheduled"
+            body = f"{job.opponent} agreed to your round-robin game time."
+        else:
+            title = "Round-robin game reminder"
+            body = f"Your round-robin game with {job.opponent} is coming up in about 24 hours."
+
+        payload = json.dumps(
+            {
+                "title": title,
+                "body": body,
+                "tag": f"rr-arrangement-{job.arrangement_id}",
+                "payload": {
+                    "url": f"/tournament/{job.tournament_id}#{job.arrangement_id}",
+                    "tournamentId": job.tournament_id,
+                    "arrangementId": job.arrangement_id,
+                },
+            }
+        )
+        await self._deliver_payload(
+            job.username,
+            payload,
+            context=f"RR arrangement={job.arrangement_id} kind={job.kind}",
+        )
+
+    async def _deliver_payload(self, username: str, payload: str, *, context: str) -> None:
+        """Deliver one payload across recent subscriptions, pruning dead endpoints."""
+
+        if self.app_state.db is None or webpush is None:
+            return
+
+        cursor = self.app_state.db[PUSH_SUBSCRIPTION_COLLECTION].find({"user": username})
+        cursor.sort("seenAt", -1)
+        cursor.limit(MAX_SUBSCRIPTIONS_PER_USER)
+        subscriptions = await cursor.to_list(length=MAX_SUBSCRIPTIONS_PER_USER)
+        if len(subscriptions) == 0:
+            log.info("No push subscriptions for %s; skipping %s", username, context)
+            return
 
         stale_endpoints: list[str] = []
         sent_count = 0
@@ -259,44 +346,39 @@ class PushNotifier:
             except WebPushException as exc:
                 status_code = getattr(getattr(exc, "response", None), "status_code", None)
                 if status_code in (401, 404, 410):
-                    # Endpoint is gone; remove it after this loop.
                     stale_endpoints.append(endpoint)
                 else:
                     log.warning(
                         "Push send failed for %s endpoint=%s status=%s",
-                        job.username,
+                        username,
                         endpoint,
                         status_code,
                     )
             except PushSendRetryableError as exc:
                 log.warning(
                     "Push send transient failure for %s endpoint=%s status=%s",
-                    job.username,
+                    username,
                     endpoint,
                     exc.status_code,
                 )
             except Exception:
-                log.exception("Unexpected push send failure for %s", job.username)
+                log.exception("Unexpected push send failure for %s", username)
 
         if len(stale_endpoints) > 0:
             await self.app_state.db[PUSH_SUBSCRIPTION_COLLECTION].delete_many(
                 {
-                    "user": job.username,
+                    "user": username,
                     "endpoint": {"$in": stale_endpoints},
                 }
             )
             log.info(
                 "Removed stale push endpoints for %s count=%s",
-                job.username,
+                username,
                 len(stale_endpoints),
             )
 
         if sent_count == 0:
-            log.info(
-                "No corr push delivered for %s game=%s",
-                job.username,
-                job.game_id,
-            )
+            log.info("No push delivered for %s %s", username, context)
 
     async def _send_with_retry(self, subscription_info: dict, payload: str) -> None:
         """Send push payload with bounded retry for transient errors only."""

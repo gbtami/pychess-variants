@@ -11,14 +11,8 @@ from variants import RATED_VARIANTS
 from server import make_app
 
 
-class PerfDefaultsTestCase(AioHTTPTestCase):
-    async def get_application(self):
-        return make_app(db_client=AsyncMongoMockClient(tz_aware=True))
-
-    async def tearDownAsync(self):
-        await self.client.close()
-
-    async def test_new_default_perf_creates_fresh_nested_dicts(self):
+class PerfFactoryTestCase(unittest.TestCase):
+    def test_new_default_perf_creates_fresh_nested_dicts(self):
         perf1 = new_default_perf()
         perf2 = new_default_perf()
 
@@ -26,12 +20,37 @@ class PerfDefaultsTestCase(AioHTTPTestCase):
         self.assertIsNot(perf1["gl"], perf2["gl"])
         self.assertEqual(perf1["gl"]["r"], perf2["gl"]["r"])
 
-    async def test_new_default_perf_map_creates_distinct_variant_entries(self):
+    def test_new_default_perf_map_creates_distinct_variant_entries(self):
         perfs = new_default_perf_map(RATED_VARIANTS)
         variants = list(RATED_VARIANTS)
 
         self.assertIsNot(perfs[variants[0]], perfs[variants[1]])
         self.assertIsNot(perfs[variants[0]]["gl"], perfs[variants[1]]["gl"])
+
+    def test_sparse_perf_map_discards_defaults_and_unknown_variants(self):
+        default_perf = new_default_perf()
+        non_default_perf = new_default_perf()
+        non_default_perf["gl"]["r"] = 1600.0
+
+        perfs = sparse_perf_map(
+            RATED_VARIANTS,
+            {
+                RATED_VARIANTS[0]: default_perf,
+                RATED_VARIANTS[1]: non_default_perf,
+                "not-a-variant": non_default_perf,
+            },
+        )
+
+        self.assertEqual([RATED_VARIANTS[1]], list(perfs))
+        self.assertEqual(1600.0, perfs[RATED_VARIANTS[1]]["gl"]["r"])
+
+
+class PerfDefaultsTestCase(AioHTTPTestCase):
+    async def get_application(self):
+        return make_app(db_client=AsyncMongoMockClient(tz_aware=True))
+
+    async def tearDownAsync(self):
+        await self.client.close()
 
     async def test_user_normalizes_shared_source_map_into_fresh_entries(self):
         app_state = get_app_state(self.app)
@@ -52,23 +71,6 @@ class PerfDefaultsTestCase(AioHTTPTestCase):
         user.perfs[variants[0]]["gl"]["r"] = 1600.0
         self.assertEqual(user.perfs[variants[1]]["gl"]["r"], 1500.0)
         self.assertEqual(source_perfs[variants[0]]["gl"]["r"], 1500.0)
-
-    async def test_sparse_perf_map_discards_defaults_and_unknown_variants(self):
-        default_perf = new_default_perf()
-        non_default_perf = new_default_perf()
-        non_default_perf["gl"]["r"] = 1600.0
-
-        perfs = sparse_perf_map(
-            RATED_VARIANTS,
-            {
-                RATED_VARIANTS[0]: default_perf,
-                RATED_VARIANTS[1]: non_default_perf,
-                "not-a-variant": non_default_perf,
-            },
-        )
-
-        self.assertEqual([RATED_VARIANTS[1]], list(perfs))
-        self.assertEqual(1600.0, perfs[RATED_VARIANTS[1]]["gl"]["r"])
 
     async def test_missing_rating_lookups_do_not_create_perf_entries(self):
         app_state = get_app_state(self.app)
