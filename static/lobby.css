@@ -3,6 +3,12 @@
 @import "fairy-l2.css";
 @import "layer-3.css";
 @import "timeline.css";
+
+@media (min-width: 800px) {
+    #main-wrap {
+        --main-max-width: 1400px;
+    }
+}
 .lobby {
     grid-area: main;
     display: grid;
