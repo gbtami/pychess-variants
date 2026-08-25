@@ -1854,6 +1854,30 @@ table.seeks {
   font-size: 14px;
   width: 100%;
 }
+@media (min-width: 800px) {
+  table.seeks {
+    table-layout: fixed;
+  }
+  .seeks th:first-child {
+    width: 2.5em;
+  }
+  .seeks th:nth-child(2) {
+    width: 24%;
+  }
+  .seeks th:nth-child(3) {
+    width: 4.5em;
+  }
+  .seeks th:nth-child(4),
+  .seeks th:nth-child(6) {
+    width: 5em;
+  }
+  .seeks td:nth-child(2),
+  .seeks td:nth-child(5) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
 .seeks-table {
   box-shadow: var(--base-shadow);
   background-position: center;
