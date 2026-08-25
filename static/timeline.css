@@ -101,6 +101,19 @@
     padding-inline: 1.5em;
 }
 
+@media (min-width: 800px) {
+    .sidebar-first > .lobby-timeline {
+        flex: 1 1 auto;
+        min-height: 0;
+        max-height: none;
+    }
+
+    .lobby-timeline > .timeline-entries {
+        flex: 1 1 auto;
+        min-height: 0;
+    }
+}
+
 @media (max-width: 799px) {
     .lobby-timeline {
         max-height: none;
