@@ -116,7 +116,7 @@ export abstract class GameController extends ChessgroundController implements Ch
     undo?: any;
 
     keyboardHelpOpen: boolean;
-    private readonly onKeyboardHelpKeyDown: (event: KeyboardEvent) => void;
+    private readonly onGameKeyboardHelpKeyDown: (event: KeyboardEvent) => void;
 
     constructor(
         el: HTMLElement,
@@ -210,7 +210,7 @@ export abstract class GameController extends ChessgroundController implements Ch
         this.setDests();
 
         this.keyboardHelpOpen = false;
-        this.onKeyboardHelpKeyDown = (event: KeyboardEvent) => {
+        this.onGameKeyboardHelpKeyDown = (event: KeyboardEvent) => {
             if (!this.keyboardHelpOpen) return;
 
             if (event.key === 'Escape' || isKeyboardHelpShortcut(event)) {
@@ -354,14 +354,14 @@ export abstract class GameController extends ChessgroundController implements Ch
 
     openKeyboardHelp() {
         this.keyboardHelpOpen = true;
-        document.addEventListener('keydown', this.onKeyboardHelpKeyDown, true);
+        document.addEventListener('keydown', this.onGameKeyboardHelpKeyDown, true);
         showGameKeyboardHelp(this, buildGameKeyboardHelpSections(this));
     }
 
     closeKeyboardHelp() {
         if (!this.keyboardHelpOpen) return;
         this.keyboardHelpOpen = false;
-        document.removeEventListener('keydown', this.onKeyboardHelpKeyDown, true);
+        document.removeEventListener('keydown', this.onGameKeyboardHelpKeyDown, true);
         hideGameKeyboardHelp();
     }
 
