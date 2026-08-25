@@ -102,8 +102,12 @@
 }
 
 @media (min-width: 800px) {
+    .lobby > .sidebar-first {
+        min-height: 0;
+    }
+
     .sidebar-first > .lobby-timeline {
-        flex: 1 1 auto;
+        flex: 1 1 0;
         min-height: 0;
         max-height: none;
     }
