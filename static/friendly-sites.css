@@ -1,0 +1,91 @@
+.friendly-sites-page {
+    box-sizing: border-box;
+    grid-area: main;
+    width: min(900px, calc(100vw - 2rem));
+    margin: 1.5rem auto 3rem;
+    color: var(--font-color);
+}
+
+/* Reset site.css `header { height: var(--site-header-height); display: flex; … }`
+   so this in-page hero is normal document flow (same pattern as .authors-hero). */
+.friendly-sites-hero {
+    display: block;
+    height: auto;
+    max-width: none;
+    margin: 0 0 1.35rem;
+    padding: 1.4rem 1.6rem;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--bg-box);
+    box-shadow: var(--base-shadow);
+    text-align: left;
+    z-index: auto;
+}
+
+.friendly-sites-hero h1 {
+    margin: 0;
+    text-align: left;
+}
+
+.friendly-sites-hero p {
+    max-width: 68ch;
+    margin: 0.6rem 0 0;
+    line-height: 1.55;
+}
+
+.friendly-sites-kicker {
+    margin: 0 0 0.3rem;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    font-size: 0.78rem;
+    font-weight: bold;
+    opacity: 0.68;
+}
+
+.friendly-sites-list {
+    display: grid;
+    gap: 0.9rem;
+}
+
+.friendly-site-card {
+    padding: 1.1rem 1.25rem;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--bg-box);
+    box-shadow: var(--base-shadow);
+}
+
+.friendly-site-card h2 {
+    margin: 0 0 0.45rem;
+    font-size: 1.2rem;
+}
+
+.friendly-site-card h2 a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.friendly-site-card h2 a:hover {
+    text-decoration: underline;
+}
+
+.friendly-site-card > p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+.friendly-site-link {
+    margin-top: 0.85rem !important;
+}
+
+@media (max-width: 640px) {
+    .friendly-sites-page {
+        width: calc(100vw - 1.25rem);
+        margin: 1rem auto 2rem;
+    }
+
+    .friendly-sites-hero,
+    .friendly-site-card {
+        padding: 1rem;
+    }
+}
