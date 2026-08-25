@@ -63,6 +63,7 @@ export function buildGameKeyboardHelpSections(
             title: _('Board'),
             items: [
                 { keys: ['f'], description: options.flipDescription || _('Flip board') },
+                ...(ctrl.variant.name === 'alice' ? [{ keys: ['s'], description: _('Split boards') }] : []),
                 { keys: ['?'], description: _('Show keyboard shortcuts') },
             ],
         },
