@@ -10,6 +10,7 @@ class FriendlySite:
     name: str
     url: str
     description: str
+    icon_url: str
 
 
 # Keep alphabetically sorted by name (case-insensitive).
@@ -20,21 +21,37 @@ FRIENDLY_SITES: tuple[FriendlySite, ...] = tuple(
                 name="Fairy-Stockfish",
                 url="https://fairy-stockfish.github.io/",
                 description="Strong open-source engine powering analysis for many chess variants.",
+                icon_url="/static/images/Fairy-Stockfish.webp",
+            ),
+            FriendlySite(
+                name="GrenChess",
+                url="https://grenchess.net/",
+                description="A friendly online chess site and community.",
+                icon_url="https://grenchess.net/favicon.ico",
             ),
             FriendlySite(
                 name="Lichess",
                 url="https://lichess.org/",
                 description="Free online chess with puzzles, studies, and a huge open-source community.",
+                icon_url="https://lichess1.org/assets/logo/lichess.svg",
             ),
             FriendlySite(
                 name="Lishogi",
                 url="https://lishogi.org/",
                 description="Free online shogi server — sister project in the open-source spirit.",
+                icon_url="https://raw.githubusercontent.com/WandererXII/lishogi/master/ui/%40build/static/assets/logo/lishogi.svg",
+            ),
+            FriendlySite(
+                name="PlayStrategy",
+                url="https://playstrategy.org/",
+                description="Free, open-source platform for chess and many other two-player strategy games.",
+                icon_url="https://raw.githubusercontent.com/Mind-Sports-Games/lila/master/public/logo/playstrategy.svg",
             ),
             FriendlySite(
                 name="PyChess Desktop",
                 url="https://pychess.github.io/",
                 description="Desktop chess client with engines, variants, and offline play.",
+                icon_url="https://pychess.github.io/favicon.ico",
             ),
         ),
         key=lambda site: site.name.casefold(),

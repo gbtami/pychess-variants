@@ -1,7 +1,7 @@
 {% extends "template.html" %}
 {% block content %}
 <div id="main-wrap">
-    <main class="friendly-sites-page">
+    <main class="friendly-sites-page box">
         <header class="friendly-sites-hero">
             <p class="friendly-sites-kicker">Community</p>
             <h1>Friendly sites</h1>
@@ -16,15 +16,18 @@
             </p>
         </header>
 
-        <section class="friendly-sites-list" aria-label="Friendly sites">
+        <section class="friendly-sites-grid" aria-label="Friendly sites">
             {% for site in friendly_sites %}
-            <article class="friendly-site-card">
-                <h2><a href="{{ site.url }}" target="_blank" rel="noopener noreferrer">{{ site.name }}</a></h2>
-                <p>{{ site.description }}</p>
-                <p class="friendly-site-link">
-                    <a class="button" href="{{ site.url }}" target="_blank" rel="noopener noreferrer">Visit {{ site.name }}</a>
-                </p>
-            </article>
+            <a class="friendly-site-card" href="{{ site.url }}" target="_blank" rel="noopener noreferrer">
+                <span class="friendly-site-logo" aria-hidden="true">
+                    <img src="{{ site.icon_url }}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">
+                </span>
+                <span class="friendly-site-copy">
+                    <span class="friendly-site-title">{{ site.name }}</span>
+                    <span class="friendly-site-description">{{ site.description }}</span>
+                    <span class="friendly-site-visit">Visit site <span aria-hidden="true">↗</span></span>
+                </span>
+            </a>
             {% endfor %}
         </section>
     </main>

@@ -14,6 +14,7 @@ class FriendlySitesTestCase(unittest.TestCase):
             self.assertTrue(site.name.strip())
             self.assertTrue(site.url.startswith("https://"))
             self.assertTrue(site.description.strip())
+            self.assertTrue(site.icon_url.startswith(("https://", "/static/")))
 
 
 if __name__ == "__main__":
