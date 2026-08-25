@@ -26,6 +26,12 @@ import type { Config } from 'chessgroundx/config';
 import { fogFen, Variant } from './variants';
 import { isAnonUsername } from './user';
 import { animatePassMove } from './passMove';
+import {
+    buildGameKeyboardHelpSections,
+    hideGameKeyboardHelp,
+    isKeyboardHelpShortcut,
+    showGameKeyboardHelp,
+} from './gameKeyboardHelp';
 import { boardSettings } from './boardSettings';
 import { aliceBoardFen } from './aliceBoard';
 import type { AliceBoardName } from './aliceBoard';
@@ -108,6 +114,9 @@ export abstract class GameController extends ChessgroundController implements Ch
     plyVari: number;
 
     undo?: any;
+
+    keyboardHelpOpen: boolean;
+    private readonly onKeyboardHelpKeyDown: (event: KeyboardEvent) => void;
 
     constructor(
         el: HTMLElement,
@@ -199,6 +208,23 @@ export abstract class GameController extends ChessgroundController implements Ch
         });
 
         this.setDests();
+
+        this.keyboardHelpOpen = false;
+        this.onKeyboardHelpKeyDown = (event: KeyboardEvent) => {
+            if (!this.keyboardHelpOpen) return;
+
+            if (event.key === 'Escape' || isKeyboardHelpShortcut(event)) {
+                event.preventDefault();
+                event.stopPropagation();
+                this.closeKeyboardHelp();
+                return;
+            }
+
+            if (event.key === 'Tab') return;
+
+            event.preventDefault();
+            event.stopPropagation();
+        };
 
         Mousetrap.bind('left', () => selectMove(this, this.ply - 1, this.plyVari));
         Mousetrap.bind('right', () => selectMove(this, this.ply + 1, this.plyVari));
@@ -319,7 +345,24 @@ export abstract class GameController extends ChessgroundController implements Ch
     }
 
     helpDialog() {
-        console.log('HELP!');
+        if (this.keyboardHelpOpen) {
+            this.closeKeyboardHelp();
+        } else {
+            this.openKeyboardHelp();
+        }
+    }
+
+    openKeyboardHelp() {
+        this.keyboardHelpOpen = true;
+        document.addEventListener('keydown', this.onKeyboardHelpKeyDown, true);
+        showGameKeyboardHelp(this, buildGameKeyboardHelpSections(this));
+    }
+
+    closeKeyboardHelp() {
+        if (!this.keyboardHelpOpen) return;
+        this.keyboardHelpOpen = false;
+        document.removeEventListener('keydown', this.onKeyboardHelpKeyDown, true);
+        hideGameKeyboardHelp();
     }
 
     toggleOrientation(): void {

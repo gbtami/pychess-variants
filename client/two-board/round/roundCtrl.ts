@@ -46,6 +46,12 @@ import {
     swapBoardsForSwitch,
     markRoles,
 } from './roundControls';
+import {
+    buildGameKeyboardHelpSections,
+    hideGameKeyboardHelp,
+    isKeyboardHelpShortcut,
+    showGameKeyboardHelp,
+} from '../../gameKeyboardHelp';
 import { trackToolsPlacement } from './toolsPlacement';
 import { trackSeatNamePlacement } from './seatNamePlacement';
 import { trackPartsWidth } from './partsWidth';
@@ -77,6 +83,9 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
     spectator: boolean;
 
     controlsView: RoundControlsView;
+
+    keyboardHelpOpen: boolean;
+    private readonly onKeyboardHelpKeyDown: (event: KeyboardEvent) => void;
 
     constructor(
         el1: HTMLElement,
@@ -218,6 +227,23 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
         // last so when it receive initial messages on connect all dom is ready to be updated
         this.socket = new RoundControllerBughouseSocket(this);
 
+        this.keyboardHelpOpen = false;
+        this.onKeyboardHelpKeyDown = (event: KeyboardEvent) => {
+            if (!this.keyboardHelpOpen) return;
+
+            if (event.key === 'Escape' || isKeyboardHelpShortcut(event)) {
+                event.preventDefault();
+                event.stopPropagation();
+                this.closeKeyboardHelp();
+                return;
+            }
+
+            if (event.key === 'Tab') return;
+
+            event.preventDefault();
+            event.stopPropagation();
+        };
+
         Mousetrap.bind('left', () => selectMove(this, this.ply - 1));
         Mousetrap.bind('right', () => selectMove(this, this.ply + 1));
         Mousetrap.bind('up', () => selectMove(this, 0));
@@ -229,7 +255,27 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
     }
 
     helpDialog() {
-        console.log('HELP!');
+        if (this.keyboardHelpOpen) {
+            this.closeKeyboardHelp();
+        } else {
+            this.openKeyboardHelp();
+        }
+    }
+
+    openKeyboardHelp() {
+        this.keyboardHelpOpen = true;
+        document.addEventListener('keydown', this.onKeyboardHelpKeyDown, true);
+        showGameKeyboardHelp(
+            this,
+            buildGameKeyboardHelpSections(this, { flipDescription: _('Flip boards') }),
+        );
+    }
+
+    closeKeyboardHelp() {
+        if (!this.keyboardHelpOpen) return;
+        this.keyboardHelpOpen = false;
+        document.removeEventListener('keydown', this.onKeyboardHelpKeyDown, true);
+        hideGameKeyboardHelp();
     }
 
     private viewAt(position: 0 | 1, board: BugBoardName): RoundSeatView {
