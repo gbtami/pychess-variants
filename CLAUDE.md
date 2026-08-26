@@ -41,7 +41,7 @@ yarn test                         # jest
 # Python — run all three for any server/Python change, even small edits
 uv run ruff format --target-version py313 .
 uv run ruff check .
-uv run pyright
+uv run pyrefly check
 
 # Python tests
 env PYTHONPATH=server uv run python -m unittest discover -s tests

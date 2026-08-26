@@ -68,7 +68,7 @@ uv run server/server.py
 ```bash
 uv run ruff format --target-version py313 .
 uv run ruff check .
-uv run pyright
+uv run pyrefly check
 env PYTHONPATH=server uv run python -m unittest discover -s tests
 env PYTHONPATH=server:tests uv run python -m unittest tests.some_test_module
 uv run python -m playwright install

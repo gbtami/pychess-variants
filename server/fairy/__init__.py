@@ -18,7 +18,7 @@ from fairy.fairy_board import (
     validate_fen,
 )
 
-__all__ = [  # pyright: ignore[reportUnsupportedDunderAll]
+__all__ = [
     WHITE,
     BLACK,
     STANDARD_FEN,

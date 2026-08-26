@@ -73,7 +73,7 @@ Run one-off checks:
 ```bash
 docker compose run --rm ci ruff format --target-version py313 .
 docker compose run --rm ci ruff check .
-docker compose run --rm ci pyright
+docker compose run --rm ci pyrefly check
 docker compose run --rm ci yarn test
 docker compose run --rm ci env PYTHONPATH=server python -m unittest discover -s tests
 ```
@@ -97,7 +97,7 @@ Then run commands inside the container, for example:
 ```bash
 ruff format --target-version py313 .
 ruff check .
-pyright
+pyrefly check
 yarn test
 env PYTHONPATH=server python -m unittest discover -s tests
 ```

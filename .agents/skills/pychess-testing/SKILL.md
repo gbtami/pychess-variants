@@ -13,7 +13,7 @@ Work from the repository root. Match verification effort to the files and behavi
 2. Run targeted tests by default. Find the closest existing test module, class, or case before considering broad discovery.
 3. Use the following gates:
    - TypeScript, CSS, or static UI only: run `yarn typecheck` and `yarn test`. Skip Python gates.
-   - Python or server code: run `uv run ruff format --target-version py313 .`, `uv run ruff check .`, and `uv run pyright`, plus targeted Python tests.
+   - Python or server code: run `uv run ruff format --target-version py313 .`, `uv run ruff check .`, and `uv run pyrefly check`, plus targeted Python tests.
    - Mixed frontend and server changes: run both sets.
    - Browser workflows or rendered behavior: add the relevant Playwright or manual browser verification.
 4. Run the full Python suite only for broad or cross-cutting changes, when targeted coverage cannot provide enough confidence, or when the user explicitly requests it.
@@ -27,7 +27,7 @@ Keep existing `from __future__ import annotations` imports in modules that need 
 ```bash
 uv run ruff format --target-version py313 .
 uv run ruff check .
-uv run pyright
+uv run pyrefly check
 ```
 
 Use `server:tests` for direct unittest selection so both server modules and test helpers resolve:
@@ -89,7 +89,7 @@ Avoid Playwright `--with-deps` unless provisioning a fresh host with sudo access
 
 ## Sandbox and Handoff
 
-- Request sandbox escalation directly when pyright needs system Python paths or tests need local sockets. Prefer reusable command-prefix approvals.
+- Request sandbox escalation directly when Pyrefly needs system Python paths or tests need local sockets. Prefer reusable command-prefix approvals.
 - If requested Git operations fail because `.git/index.lock` is not writable, retry them with escalation.
 - Review the diff after formatting and preserve unrelated user changes.
 - Report which checks ran, their results, and any intentionally skipped broad or tournament coverage.

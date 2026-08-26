@@ -634,18 +634,18 @@ class Game:
             if cur_player.bot and self.board.ply >= 2:
                 if self.byoyomi:
                     if self.overtime:
-                        clocks[cur_color] = self.inc * 1000  # pyright: ignore[reportIndexIssue]
+                        clocks[cur_color] = self.inc * 1000  # pyrefly: ignore[unsupported-operation]
                     else:
-                        clocks[cur_color] = max(0, self.clocks[cur_color] - movetime)  # pyright: ignore[reportIndexIssue]
+                        clocks[cur_color] = max(0, self.clocks[cur_color] - movetime)  # pyrefly: ignore[unsupported-operation]
                 else:
-                    clocks[cur_color] = max(  # pyright: ignore[reportIndexIssue]
+                    clocks[cur_color] = max(  # pyrefly: ignore[unsupported-operation]
                         0, self.clocks[cur_color] - movetime + (self.inc * 1000)
                     )
 
                 if clocks[cur_color] == 0:
                     if self.byoyomi and self.byoyomi_periods[cur_color] > 0:
                         self.overtime = True
-                        clocks[cur_color] = self.inc * 1000  # pyright: ignore[reportIndexIssue]
+                        clocks[cur_color] = self.inc * 1000  # pyrefly: ignore[unsupported-operation]
                         self.byoyomi_periods[cur_color] -= 1
                     else:
                         w, b = self.board.insufficient_material()
@@ -660,9 +660,9 @@ class Game:
             if (ply is not None) and ply <= 2 and self.tournamentId is not None:
                 # Just in case for move and berserk messages race
                 if self.wberserk:
-                    clocks[WHITE] = self.berserk_time  # pyright: ignore[reportIndexIssue]
+                    clocks[WHITE] = self.berserk_time  # pyrefly: ignore[unsupported-operation]
                 if self.bberserk:
-                    clocks[BLACK] = self.berserk_time  # pyright: ignore[reportIndexIssue]
+                    clocks[BLACK] = self.berserk_time  # pyrefly: ignore[unsupported-operation]
 
         self.last_server_clock = cur_time
         self.restart_elapsed_ms = 0

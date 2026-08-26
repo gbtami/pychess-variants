@@ -26,7 +26,7 @@ Use `pychess-testing` after code changes. The required baseline is:
 | Change scope | Required checks |
 | --- | --- |
 | TypeScript, CSS, or static UI only | `yarn typecheck`, `yarn test`; skip Python gates |
-| Python or server code | `uv run ruff format --target-version py313 .`, `uv run ruff check .`, `uv run pyright`, plus targeted Python tests |
+| Python or server code | `uv run ruff format --target-version py313 .`, `uv run ruff check .`, `uv run pyrefly check`, plus targeted Python tests |
 | Mixed frontend and server | Both frontend and Python checks |
 | Rendered/browser behavior | Add relevant browser or Playwright verification |
 

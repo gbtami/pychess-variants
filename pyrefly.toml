@@ -1,0 +1,12 @@
+project-includes = ["server"]
+project-excludes = ["server/bugchess"]
+search-path = ["server"]
+python-version = "3.14.0"
+preset = "basic"
+infer-with-first-use = false
+
+[errors]
+not-required-key-access = "ignore"
+missing-attribute = "ignore"
+untyped-import = "ignore"
+missing-import = "ignore"
