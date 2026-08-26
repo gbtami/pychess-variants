@@ -17,11 +17,11 @@ You can now [create or join teams](https://www.pychess.org/team), share team upd
 
 ## Simuls
 
-[Simultaneous exhibitions](https://www.pychess.org/simul) are now available to everyone. Hosts can play many opponents at once, use one or several variants, start from custom positions, and optionally restrict a simul to a team. Public simuls can be featured, and hosts now have a simul history on their profiles.
+[Simultaneous exhibitions](https://www.pychess.org/simul) are now available on PyChess. Signed-in players can host many opponents at once or join as an opponent. Hosts can use one or several variants, start from custom positions, and optionally restrict a simul to a team. Public simuls can be featured, and hosts now have a simul history on their profiles.
 
 ## A new timeline
 
-The old lobby chat has been replaced by an activity timeline. Follow players to see their public activity, find mutual follows on the new Friends pages, and keep up with games, tournaments, simuls, teams, blogs, and forum discussions.
+The old lobby chat has been replaced by an activity timeline. Follow players to see their public activity, find mutual follows on the new Friends pages, and keep up with tournaments, simuls, teams, blogs, and forum discussions. For everyday chat, please join the [PyChess Discord](https://discord.gg/aPs8RKr); the invite is also available at the bottom of the main page.
 
 ## Community tournaments
 
@@ -40,7 +40,7 @@ Several useful playing tools arrived with this update:
 
 ## More variants and new looks
 
-Several more Fairy-Stockfish built-in games are now available through Community Variants. Shogun also received a beautiful new board and piece set by @illionas.
+Several more Fairy-Stockfish built-in games are now available through Community Variants. Shogun also received a beautiful new board and piece set by [@Illion](https://www.pychess.org/@/Illion).
 
 You may also notice patron wings around the site, a new [Friendly sites](https://www.pychess.org/friendly-sites) page, and many layout, mobile, notification, performance, and reliability improvements.
 
