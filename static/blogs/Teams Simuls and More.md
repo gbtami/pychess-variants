@@ -13,11 +13,11 @@ We have just deployed a large batch of new features to PyChess. Many of them wil
 
 ## Teams
 
-You can now [create or join teams](/team), share team updates, use team forums, and organize team events. Team leaders can run team-restricted Arenas, Round-Robin tournaments, Swiss tournaments, and simuls.
+You can now [create or join teams](https://www.pychess.org/team), share team updates, use team forums, and organize team events. Team leaders can run team-restricted Arenas, Round-Robin tournaments, Swiss tournaments, and simuls.
 
 ## Simuls
 
-[Simultaneous exhibitions](/simul) are now available to everyone. Hosts can play many opponents at once, use one or several variants, start from custom positions, and optionally restrict a simul to a team. Public simuls can be featured, and hosts now have a simul history on their profiles.
+[Simultaneous exhibitions](https://www.pychess.org/simul) are now available to everyone. Hosts can play many opponents at once, use one or several variants, start from custom positions, and optionally restrict a simul to a team. Public simuls can be featured, and hosts now have a simul history on their profiles.
 
 ## A new timeline
 
@@ -32,7 +32,7 @@ Signed-in players can now create their own Arena tournaments within reasonable l
 Several useful playing tools arrived with this update:
 
 - takeback offers in casual games,
-- [advanced game search](/games/search),
+- [advanced game search](https://www.pychess.org/games/search),
 - an in-game keyboard shortcuts help dialog,
 - an optional split-board view for Alice Chess,
 - premoves for many user-defined variants,
@@ -42,7 +42,7 @@ Several useful playing tools arrived with this update:
 
 Several more Fairy-Stockfish built-in games are now available through Community Variants. Shogun also received a beautiful new board and piece set by @illionas.
 
-You may also notice patron wings around the site, a new [Friendly sites](/friendly-sites) page, and many layout, mobile, notification, performance, and reliability improvements.
+You may also notice patron wings around the site, a new [Friendly sites](https://www.pychess.org/friendly-sites) page, and many layout, mobile, notification, performance, and reliability improvements.
 
 Thank you to the Lichess project for the inspiration, and to everyone who contributed code, artwork, testing, translations, bug reports, and ideas. Have fun exploring the update!
 
