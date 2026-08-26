@@ -1862,10 +1862,10 @@ ffish-alice-es6@^0.0.1:
   resolved "https://registry.yarnpkg.com/ffish-alice-es6/-/ffish-alice-es6-0.0.1.tgz#eea3b7282546595d8e3bc9720d7f65f0041dd29a"
   integrity sha512-KGToKP0PatG60r2qR+Djb+9q8mBiO4YoOMONKWfoisDPxtGXxjAWn2DICsPu+jFMOM3Ql29tLjAFTg8tZKMHCQ==
 
-ffish-es6@^0.7.9:
-  version "0.7.9"
-  resolved "https://registry.yarnpkg.com/ffish-es6/-/ffish-es6-0.7.9.tgz#654b007ef681b9681bbbea60e43af58c64a617e7"
-  integrity sha512-UcXkfJUkbJrDI6NzQ9eorcPQ+qMw01bsaDXkW7J68ekDECGyinbZsAryzfx/iwK6oSAUSzgkbwBfEm2PNLT7Hw==
+ffish-es6@^0.7.10:
+  version "0.7.10"
+  resolved "https://registry.yarnpkg.com/ffish-es6/-/ffish-es6-0.7.10.tgz#5b9707638adce63cca0b855515aa6bdb01b4bb0c"
+  integrity sha512-SxQspEQNB6Fu5GEtf6Pb1V1ZZHi1PHgq/p0gp9Y/6zHD7MqqjTmSFFzzBhZMJSFg+1XPF+xYgDF77TAUe6Jy2g==
 
 fill-range@^7.1.1:
   version "7.1.1"

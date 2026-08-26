@@ -30,7 +30,7 @@
     "dompurify": "^3.4.12",
     "fairy-stockfish-nnue.wasm": "^1.1.11",
     "ffish-alice-es6": "^0.0.1",
-    "ffish-es6": "^0.7.9",
+    "ffish-es6": "^0.7.10",
     "gettext.js": "^2.0.3",
     "highcharts": "^13.0.0",
     "howler": "^2.2.3",

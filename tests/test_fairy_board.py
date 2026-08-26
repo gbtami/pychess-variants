@@ -3,6 +3,7 @@ from __future__ import annotations
 import unittest
 from unittest.mock import patch
 
+import pyffish as sf
 import test_logger
 from fairy.fairy_board import BLACK, FairyBoard, modded_variant
 
@@ -60,6 +61,24 @@ class FairyBoardInitialFenValidationTestCase(unittest.TestCase):
             self.assertRaisesRegex(ValueError, "explicit side to move"),
         ):
             FairyBoard("chess")
+
+
+class FairyBoardDobutsuGameEndTestCase(unittest.TestCase):
+    def test_try_win_requires_a_safe_lion(self) -> None:
+        fen = "1L1/1g1/1G1/1l1[] w - - 0 1"
+        cases = (
+            ("b2a2", (True, sf.VALUE_MATE)),
+            ("b4a4", (True, -sf.VALUE_MATE)),
+            ("b2b3", (True, sf.VALUE_DRAW)),
+            ("b4b3", (False, 0)),
+        )
+
+        for move, expected in cases:
+            with self.subTest(move=move):
+                board = FairyBoard("dobutsu", initial_fen=fen)
+
+                self.assertTrue(board.push(move))
+                self.assertEqual(expected, board.is_immediate_game_end())
 
 
 class FairyBoardEmbassyFenTestCase(unittest.TestCase):
