@@ -57,22 +57,23 @@ async def forum_categs(request: web.Request) -> web.Response:
             projection={"_id": 0, "team": 1, "permissions": 1},
         ).to_list(length=TEAM_MAX_JOINED)
         team_ids = [str(member.get("team") or "") for member in memberships]
-        teams = await app_state.db.team.find(
-            {"_id": {"$in": team_ids}, "enabled": True},
-            projection={"_id": 1, "forumAccess": 1},
-        ).to_list(length=len(team_ids))
-        members = {str(member.get("team") or ""): member for member in memberships}
-        for team in teams:
-            team_id = str(team.get("_id") or "")
-            access = str(team.get("forumAccess") or "none")
-            member = members.get(team_id)
-            if (
-                access in {TEAM_FORUM_ACCESS_EVERYONE, TEAM_FORUM_ACCESS_MEMBERS}
-                or access == TEAM_FORUM_ACCESS_LEADERS
-                and member
-                and member.get("permissions")
-            ):
-                visible_team_ids.append(team_id)
+        if team_ids:
+            teams = await app_state.db.team.find(
+                {"_id": {"$in": team_ids}, "enabled": True},
+                projection={"_id": 1, "forumAccess": 1},
+            ).to_list(length=len(team_ids))
+            members = {str(member.get("team") or ""): member for member in memberships}
+            for team in teams:
+                team_id = str(team.get("_id") or "")
+                access = str(team.get("forumAccess") or "none")
+                member = members.get(team_id)
+                if (
+                    access in {TEAM_FORUM_ACCESS_EVERYONE, TEAM_FORUM_ACCESS_MEMBERS}
+                    or access == TEAM_FORUM_ACCESS_LEADERS
+                    and member
+                    and member.get("permissions")
+                ):
+                    visible_team_ids.append(team_id)
 
     selector: dict[str, object] = {
         "$or": [

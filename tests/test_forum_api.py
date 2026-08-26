@@ -440,7 +440,12 @@ class ForumApiTestCase(AioHTTPTestCase):
         self.assertIn(categ_id, {categ["_id"] for categ in index_payload["categs"]})
 
         self.set_session_user("charlie")
-        outsider_index = await self.client.get("/api/forum/categs")
+        with patch.object(
+            app_state.db.team,
+            "find",
+            side_effect=AssertionError("team lookup must be skipped without memberships"),
+        ):
+            outsider_index = await self.client.get("/api/forum/categs")
         self.assertNotIn(
             categ_id, {categ["_id"] for categ in (await outsider_index.json())["categs"]}
         )
