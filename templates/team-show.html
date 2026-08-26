@@ -50,7 +50,7 @@
                     </form>
                     {% endif %}
                     {% else %}
-                    {% if not anon and not user.bot and (team_member or not team_is_site_admin) %}
+                    {% if not anon and not user.bot %}
                         {% if team_member %}
                             <div class="team-show__membership-state">
                                 <strong>{% trans %}You are a member{% endtrans %}</strong>

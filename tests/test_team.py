@@ -220,6 +220,31 @@ class TeamTestCase(AioHTTPTestCase):
         self.assertIsNone(await app_state.db.team_member.find_one({"_id": "bob@variant-fans"}))
         self.assertIsNotNone(await app_state.db.team_request.find_one({"_id": "bob@variant-fans"}))
 
+    async def test_site_admin_can_join_team_as_regular_member(self):
+        await self.create_team()
+        app_state = get_app_state(self.app)
+        self.add_live_user("siteadmin")
+        self.set_session_user("siteadmin")
+
+        with (
+            patch("views.ADMINS", ("siteadmin",)),
+            patch("views.team.ADMINS", ("siteadmin",)),
+        ):
+            page = await self.client.get("/team/variant-fans")
+            self.assertEqual(200, page.status)
+            html = await page.text()
+            self.assertIn('class="team-show__join-action"', html)
+            self.assertIn("Close team", html)
+
+            joined = await self.client.post(
+                "/team/variant-fans/join", data={}, allow_redirects=False
+            )
+            self.assertEqual(302, joined.status)
+
+        self.assertIsNotNone(
+            await app_state.db.team_member.find_one({"_id": "siteadmin@variant-fans"})
+        )
+
     async def test_open_team_join_and_leave(self):
         await self.create_team()
         app_state = get_app_state(self.app)
