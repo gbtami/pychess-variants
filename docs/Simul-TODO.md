@@ -1,8 +1,8 @@
 # Simul roadmap
 
-The simultaneous-exhibition feature is implemented behind `SIMULING = DEV` and has not
-yet been enabled on the production server. This roadmap tracks the production-readiness
-and Lichess-parity work identified in the post-Teams review.
+The simultaneous-exhibition feature is enabled on the production server. This roadmap
+tracks the production-readiness and Lichess-parity work identified in the post-Teams
+review.
 
 ## Already in good shape
 
@@ -121,5 +121,4 @@ and Lichess-parity work identified in the post-Teams review.
 
 ## Production switch
 
-Keep `SIMULING = DEV` until the production-readiness items above are resolved and the
-normal Python/TypeScript quality gates have passed on the final branch.
+Complete: `SIMULING` is enabled on both production and DEV deployments.
