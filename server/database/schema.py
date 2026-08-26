@@ -89,6 +89,7 @@ COLLECTIONS = (
     CollectionSpec("autopairing"),
     CollectionSpec("bot_token"),
     CollectionSpec("catalogued_variant"),
+    CollectionSpec("catalogued_variant_name"),
     CollectionSpec("cheat_report"),
     CollectionSpec("config"),
     CollectionSpec("crosstable"),

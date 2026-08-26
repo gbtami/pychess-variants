@@ -9,6 +9,7 @@ from catalogued_variants import (
     archive_catalogued_variant,
     catalogued_variant_client_doc_for_game,
     catalogued_variant_games_are_persisted,
+    delete_catalogued_variant,
     ensure_catalogued_variant_from_game_doc,
     find_catalogued_variant_doc,
     restore_catalogued_variant,
@@ -185,6 +186,37 @@ class CataloguedVariantGameClientDocumentTest(unittest.IsolatedAsyncioTestCase):
 
 
 class CataloguedVariantArchiveActiveGameTest(unittest.IsolatedAsyncioTestCase):
+    async def test_delete_permanently_reserves_internal_name(self) -> None:
+        name = "deleted_name_test"
+        doc = {"_id": name, "name": name, "author": "author"}
+        variant_collection = SimpleNamespace(delete_one=AsyncMock())
+        name_collection = SimpleNamespace(insert_one=AsyncMock())
+        app_state = SimpleNamespace(
+            db={
+                "catalogued_variant": variant_collection,
+                "catalogued_variant_name": name_collection,
+            },
+            games={},
+            catalogued_variants={name: doc},
+        )
+        request = SimpleNamespace()
+
+        with (
+            patch(
+                "catalogued_variants._load_owned_doc",
+                AsyncMock(return_value=(app_state, "author", name, doc)),
+            ),
+            patch("catalogued_variants._has_games", AsyncMock(return_value=False)),
+        ):
+            response = await delete_catalogued_variant(request)
+
+        self.assertEqual(response.status, 200)
+        name_collection.insert_one.assert_awaited_once()
+        reservation = name_collection.insert_one.await_args.args[0]
+        self.assertEqual(reservation["_id"], name)
+        self.assertEqual(reservation["author"], "author")
+        variant_collection.delete_one.assert_awaited_once_with({"_id": name})
+
     async def test_archive_keeps_active_game_but_unregisters_new_game_entry(self) -> None:
         name = "archive_active_game_test"
         active_game = SimpleNamespace(variant=name, status=STARTED)

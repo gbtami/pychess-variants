@@ -40,6 +40,7 @@ from variants import (
 log = logging.getLogger(__name__)
 
 CATALOGUED_VARIANT_COLLECTION = "catalogued_variant"
+CATALOGUED_VARIANT_NAME_COLLECTION = "catalogued_variant_name"
 CATALOGUED_CATEGORY = "other"
 CATALOGUED_VISIBILITY_PRIVATE = "private"
 CATALOGUED_VISIBILITY_UNLISTED = "unlisted"
@@ -2740,6 +2741,14 @@ async def ensure_catalogued_variant_name_available(
     if existing is not None:
         raise web.HTTPConflict(text="A catalogued variant with this name already exists.")
 
+    reserved = await app_state.db[CATALOGUED_VARIANT_NAME_COLLECTION].find_one(
+        {"_id": name}, projection={"_id": 1}
+    )
+    if reserved is not None:
+        raise web.HTTPConflict(
+            text="This variant name was used previously and cannot be reused with different rules."
+        )
+
 
 def validate_catalogued_ini(ini: str) -> CataloguedVariantValidation:
     _ensure_catalogued_ini_size(ini)
@@ -4772,6 +4781,25 @@ async def _update_catalogued_variant_document(
     return cast(Mapping[str, Any], updated)
 
 
+async def _reserve_catalogued_variant_name(
+    collection: Any, name: str, existing: Mapping[str, Any]
+) -> None:
+    """Permanently reserve an internal Fairy-Stockfish name before removing its document."""
+
+    reservation: dict[str, Any] = {
+        "_id": name,
+        "reservedAt": datetime.now(UTC),
+    }
+    author = existing.get("author")
+    if isinstance(author, str) and author:
+        reservation["author"] = author
+    try:
+        await collection.insert_one(reservation)
+    except DuplicateKeyError:
+        # Retrying deletion or rename is safe; a reservation is permanent.
+        pass
+
+
 def _catalogued_rename_source_query(old_name: str, existing: Mapping[str, Any]) -> dict[str, Any]:
     """Match the source revision so a concurrent upload cannot be discarded."""
     query: dict[str, Any] = {"_id": old_name}
@@ -4785,12 +4813,14 @@ def _catalogued_rename_source_query(old_name: str, existing: Mapping[str, Any]) 
 
 async def _rename_catalogued_variant_document(
     collection: Any,
+    name_collection: Any,
     *,
     old_name: str,
     new_name: str,
     existing: Mapping[str, Any],
     doc: CataloguedVariantDocument,
 ) -> None:
+    await _reserve_catalogued_variant_name(name_collection, old_name, existing)
     try:
         await collection.insert_one(doc)
     except DuplicateKeyError as exc:
@@ -4985,6 +5015,7 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
     if new_name != old_name:
         await _rename_catalogued_variant_document(
             app_state.db[CATALOGUED_VARIANT_COLLECTION],
+            app_state.db[CATALOGUED_VARIANT_NAME_COLLECTION],
             old_name=old_name,
             new_name=new_name,
             existing=existing,
@@ -5024,6 +5055,9 @@ async def delete_catalogued_variant(request: web.Request) -> web.Response:
             text="This variant already has saved public games. Archive it instead of deleting it."
         )
 
+    await _reserve_catalogued_variant_name(
+        app_state.db[CATALOGUED_VARIANT_NAME_COLLECTION], name, doc
+    )
     await app_state.db[CATALOGUED_VARIANT_COLLECTION].delete_one({"_id": name})
     app_state.catalogued_variants.pop(name, None)
     unregister_catalogued_server_variant(name)

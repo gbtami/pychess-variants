@@ -1,9 +1,12 @@
 import unittest
+from types import SimpleNamespace
+from unittest.mock import AsyncMock
 
 import test_logger
 from aiohttp import web
 from catalogued_variants import (
     ensure_catalogued_display_name_available,
+    ensure_catalogued_variant_name_available,
     extract_variant_name,
     normalize_catalogued_display_name,
     replace_variant_section_name,
@@ -131,3 +134,23 @@ class CataloguedVariantNameTestCase(unittest.TestCase):
                 current_display_name="Shatar",
                 current_variant_name="shatar_custom",
             )
+
+
+class CataloguedVariantNameAvailabilityTestCase(unittest.IsolatedAsyncioTestCase):
+    async def test_rejects_previously_used_internal_name(self) -> None:
+        active_collection = SimpleNamespace(find_one=AsyncMock(return_value=None))
+        name_collection = SimpleNamespace(find_one=AsyncMock(return_value={"_id": "retiredname"}))
+        app_state = SimpleNamespace(
+            catalogued_variants={},
+            db={
+                "catalogued_variant": active_collection,
+                "catalogued_variant_name": name_collection,
+            },
+        )
+
+        with self.assertRaises(web.HTTPConflict) as exc:
+            await ensure_catalogued_variant_name_available(app_state, "retiredname")
+
+        self.assertIn("used previously", exc.exception.text)
+        active_collection.find_one.assert_awaited_once()
+        name_collection.find_one.assert_awaited_once()

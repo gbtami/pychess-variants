@@ -103,15 +103,19 @@ class CataloguedVariantRenameDocumentTest(unittest.IsolatedAsyncioTestCase):
             insert_one=AsyncMock(),
             delete_one=AsyncMock(return_value=SimpleNamespace(deleted_count=1)),
         )
+        name_collection = SimpleNamespace(insert_one=AsyncMock())
 
         await _rename_catalogued_variant_document(
             collection,
+            name_collection,
             old_name="oldname",
             new_name="newname",
             existing=existing,
             doc=doc,
         )
 
+        name_collection.insert_one.assert_awaited_once()
+        self.assertEqual(name_collection.insert_one.await_args.args[0]["_id"], "oldname")
         collection.insert_one.assert_awaited_once_with(doc)
         collection.delete_one.assert_awaited_once_with(
             {"_id": "oldname", "updatedAt": updated_at, "gameCount": 0}
@@ -130,10 +134,12 @@ class CataloguedVariantRenameDocumentTest(unittest.IsolatedAsyncioTestCase):
                 ]
             ),
         )
+        name_collection = SimpleNamespace(insert_one=AsyncMock())
 
         with self.assertRaises(web.HTTPConflict) as exc:
             await _rename_catalogued_variant_document(
                 collection,
+                name_collection,
                 old_name="oldname",
                 new_name="newname",
                 existing=existing,
@@ -141,6 +147,7 @@ class CataloguedVariantRenameDocumentTest(unittest.IsolatedAsyncioTestCase):
             )
 
         self.assertIn("changed while it was being saved", exc.exception.text)
+        name_collection.insert_one.assert_awaited_once()
         self.assertEqual(
             collection.delete_one.await_args_list[0].args[0],
             {"_id": "oldname", "updatedAt": updated_at, "gameCount": 0},
