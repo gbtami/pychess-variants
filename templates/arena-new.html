@@ -550,7 +550,7 @@
 
                 <div class="form-actions">
                 {% if edit %}
-                    <a href="/tournament/{{ tournament.id }}/cancel" class="button red text">Cancel the tournament</a>
+                    {% if not admin %}<a href="/tournament/{{ tournament.id }}/cancel" class="button red text">Cancel the tournament</a>{% endif %}
                     <button type="submit" data-icon="x" class="submit button text">Save</button>
                 {% else %}
                     <a href="/tournaments">Cancel</a>
@@ -640,6 +640,19 @@
                 <p>Players can join late while the event is still in its early rounds. Missed rounds are recorded on the standings, and absent players are simply not paired for that round.</p>
             </div>
         </div>
+        {% if edit and admin and tournament.status in [0, 1] %}
+        <div class="box box-pad tour__danger-zone">
+            <h2>{% trans %}Danger zone{% endtrans %}</h2>
+            <p>{% trans %}Aborting the tournament ends it immediately for everyone. This action cannot be undone.{% endtrans %}</p>
+            <button
+                id="tournament-abort"
+                type="button"
+                class="button tournament-abort-button"
+                data-action="/tournaments/{{ tournament.id }}/abort"
+                data-return-url="/tournament/{{ tournament.id }}"
+            >{% trans %}Abort tournament{% endtrans %}</button>
+        </div>
+        {% endif %}
     </main>
 </div>
 {% endblock %}

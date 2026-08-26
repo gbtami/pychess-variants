@@ -7,7 +7,6 @@ import { JSONObject, PyChessModel } from './types';
 import { _ } from './i18n';
 import { patch } from './document';
 import { alertDialog } from './alertDialog';
-import { confirmDialog } from './confirmDialog';
 import { chatMessage, chatView, ChatController } from './chat';
 import { colorIcon } from './chess';
 import { getLastMoveFen, VARIANTS, Variant } from './variants';
@@ -108,7 +107,6 @@ export class TournamentController implements ChatController {
     private: boolean;
     creatorCanManage: boolean;
     isTournamentDirector: boolean;
-    isTeamTournament: boolean;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         console.log('TournamentController constructor', el, model);
@@ -116,7 +114,6 @@ export class TournamentController implements ChatController {
         this.username = model['username'];
         this.creatorCanManage = model.tournamentmanager;
         this.isTournamentDirector = model['tournamentDirector'];
-        this.isTeamTournament = !!model.tournamentteamid;
         this.nbPlayers = 0;
         this.page = 1;
         this.rounds = model['rounds'] || 0;
@@ -235,25 +232,13 @@ export class TournamentController implements ChatController {
                 manualNextRoundPending: this.manualNextRoundPending,
                 creatorCanManage: this.creatorCanManage,
                 isDirector: this.isTournamentDirector,
-                isTeamTournament: this.isTeamTournament,
             },
             () => this.doSend({ type: 'start_next_round', tournamentId: this.tournamentId }),
-            () => void this.abortTournament(),
         );
     }
 
     updateLifecycleActions() {
         this.lifecycleActions = patch(this.lifecycleActions, this.renderLifecycleActions());
-    }
-
-    async abortTournament() {
-        const confirmed = await confirmDialog({
-            title: _('Abort tournament'),
-            text: _('This will end the tournament immediately. This action cannot be undone.'),
-            confirmText: _('Abort tournament'),
-            danger: true,
-        });
-        if (confirmed) this.doSend({ type: 'abort_tournament', tournamentId: this.tournamentId });
     }
 
     renderButtons() {
@@ -1189,7 +1174,9 @@ export function tournamentView(model: PyChessModel): VNode[] {
         'style',
         `--ranks: ${variant.board.dimensions.height}; --files: ${variant.board.dimensions.width};`,
     );
-    const canEdit = model.tournamentmanager && model.status === 0;
+    const canEdit =
+        (model.tournamentmanager && model.status === 0) ||
+        (model.admin && (model.status === 0 || model.status === 1));
     return [
         h('aside.sidebar-first', [
             h('div.game-info', [

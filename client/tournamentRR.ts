@@ -168,14 +168,12 @@ export class TournamentRRController implements ChatController {
     boundVisibilityChange: () => void;
     creatorCanManage: boolean;
     isTournamentDirector: boolean;
-    isTeamTournament: boolean;
 
     constructor(_el: HTMLElement, model: PyChessModel) {
         this.tournamentId = model.tournamentId;
         this.username = model.username;
         this.creatorCanManage = model.tournamentmanager;
         this.isTournamentDirector = model.tournamentDirector;
-        this.isTeamTournament = !!model.tournamentteamid;
         this.anon = model.anon === 'True';
         this.variant = VARIANTS[model.variant];
         this.chess960 = model.chess960 === 'True';
@@ -238,25 +236,13 @@ export class TournamentRRController implements ChatController {
                 manualNextRoundPending: this.manualNextRoundPending,
                 creatorCanManage: this.creatorCanManage,
                 isDirector: this.isTournamentDirector,
-                isTeamTournament: this.isTeamTournament,
             },
             () => this.doSend({ type: 'start_next_round', tournamentId: this.tournamentId }),
-            () => void this.abortTournament(),
         );
     }
 
     updateLifecycleActions() {
         this.lifecycleActions = patch(this.lifecycleActions, this.renderLifecycleActions());
-    }
-
-    async abortTournament() {
-        const confirmed = await confirmDialog({
-            title: _('Abort tournament'),
-            text: _('This will end the tournament immediately. This action cannot be undone.'),
-            confirmText: _('Abort tournament'),
-            danger: true,
-        });
-        if (confirmed) this.doSend({ type: 'abort_tournament', tournamentId: this.tournamentId });
     }
 
     isHost() {
@@ -1945,7 +1931,9 @@ export function tournamentRRView(model: PyChessModel): VNode[] {
     const variant = VARIANTS[model.variant] ?? VARIANTS['chess'];
     const chess960 = model.chess960 === 'True';
     const dataIcon = variant.icon(chess960);
-    const canEdit = model.tournamentmanager && model.status === 0;
+    const canEdit =
+        (model.tournamentmanager && model.status === 0) ||
+        (model.admin && (model.status === 0 || model.status === 1));
 
     return [
         h('aside.sidebar-first', [

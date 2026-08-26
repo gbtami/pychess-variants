@@ -25,6 +25,7 @@ async def arena_new(request: web.Request) -> ViewContext:
 
     tournamentId = request.match_info.get("tournamentId")
     director = is_tournament_director(user, app_state)
+    admin = user.username in ADMINS
 
     if user.anon or user.bot:
         raise web.HTTPForbidden(text="You must be logged in with a regular account.")
@@ -46,7 +47,7 @@ async def arena_new(request: web.Request) -> ViewContext:
     context["community_variants_for_tournaments"] = community_variants
     context["view_css"] = "arena-new.css"
     context["edit"] = tournamentId is not None
-    context["admin"] = user.username in ADMINS
+    context["admin"] = admin
     context["tournament_director"] = director
     context["community_arena_max_creations_per_24h"] = COMMUNITY_ARENA_MAX_CREATIONS_PER_24H
     context["fixed_round_max_creations_per_24h"] = FIXED_ROUND_MAX_CREATIONS_PER_24H
@@ -58,18 +59,21 @@ async def arena_new(request: web.Request) -> ViewContext:
         context["rated"] = True
     else:
         tournament = app_state.tournaments.get(tournamentId)
-        if tournament is None or user.username != tournament.creator:
+        if tournament is None:
             raise web.HTTPNotFound()
-        if not await creator_can_manage_tournament(app_state, tournament, user.username):
-            raise web.HTTPForbidden(
-                text="You need the tournament permission in this team to edit this tournament."
-            )
-        if not director and (
-            tournament.frequency
-            or tournament.status != T_CREATED
-            or (tournament.system != ARENA and not tournament.team_id)
-        ):
-            raise web.HTTPForbidden(text="This tournament cannot be edited by its creator.")
+        if not admin:
+            if user.username != tournament.creator:
+                raise web.HTTPNotFound()
+            if not await creator_can_manage_tournament(app_state, tournament, user.username):
+                raise web.HTTPForbidden(
+                    text="You need the tournament permission in this team to edit this tournament."
+                )
+            if not director and (
+                tournament.frequency
+                or tournament.status != T_CREATED
+                or (tournament.system != ARENA and not tournament.team_id)
+            ):
+                raise web.HTTPForbidden(text="This tournament cannot be edited by its creator.")
         selected_team_id = tournament.team_id
         if selected_team_id and not any(
             str(team["_id"]) == selected_team_id for team in tournament_teams

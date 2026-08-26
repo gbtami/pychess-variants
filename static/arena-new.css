@@ -218,3 +218,21 @@ input[type="checkbox"] {
         margin-bottom: 2rem;
     }
 }
+
+.tour__danger-zone {
+    margin-top: 2rem;
+    border-top: 3px solid var(--bad);
+}
+.tour__danger-zone h2 {
+    color: var(--bad);
+}
+.tour__danger-zone p {
+    margin-bottom: 1.25rem;
+}
+.tournament-abort-button {
+    background: var(--bad);
+    color: #fff;
+}
+.tournament-abort-button:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--bad) 82%, #000);
+}

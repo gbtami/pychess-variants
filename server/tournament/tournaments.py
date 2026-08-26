@@ -850,6 +850,7 @@ async def create_or_update_tournament(
     tournament: Tournament | None = None,
     *,
     creator_is_director: bool = True,
+    editor_is_admin: bool = False,
 ) -> None:
     """Manual tournament creation from /tournaments/new form input values"""
 
@@ -908,7 +909,11 @@ async def create_or_update_tournament(
     else:
         # Editing keeps existing pairing type to avoid mutating tournament class behavior.
         system = tournament.system
-        if team_id and not await creator_can_manage_tournament(app_state, tournament, username):
+        if (
+            team_id
+            and not editor_is_admin
+            and not await creator_can_manage_tournament(app_state, tournament, username)
+        ):
             raise web.HTTPForbidden(
                 text=("You need the tournament permission in this team to manage this tournament.")
             )
@@ -1056,7 +1061,7 @@ async def create_or_update_tournament(
     description = str(form.get("description", ""))
     password = str(form.get("password", ""))
 
-    if not creator_is_director:
+    if not creator_is_director and not editor_is_admin:
         if base not in COMMUNITY_ARENA_CLOCK_TIMES or inc not in COMMUNITY_ARENA_CLOCK_INCREMENTS:
             raise web.HTTPBadRequest(text="Invalid tournament time control.")
         if bp not in (0, 1, 2, 3) or (base <= 0 and inc <= 0):

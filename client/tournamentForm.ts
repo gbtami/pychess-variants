@@ -1,5 +1,6 @@
 import { _ } from './i18n';
 import { alertDialog } from './alertDialog';
+import { confirmDialog } from './confirmDialog';
 import { splitVariantKey, VARIANTS } from './variants';
 
 function tournamentFormErrorMessage(message: string): string {
@@ -388,6 +389,41 @@ export function initTournamentForm(): void {
 
     const form = document.getElementById('tournament-form');
     if (!(form instanceof HTMLFormElement)) return;
+
+    const abortButton = document.getElementById('tournament-abort');
+    if (abortButton instanceof HTMLButtonElement) {
+        abortButton.addEventListener('click', async () => {
+            const confirmed = await confirmDialog({
+                title: _('Abort tournament'),
+                text: _('This will end the tournament immediately. This action cannot be undone.'),
+                confirmText: _('Abort tournament'),
+                danger: true,
+            });
+            if (!confirmed) return;
+
+            const action = abortButton.dataset.action;
+            const returnUrl = abortButton.dataset.returnUrl;
+            if (!action || !returnUrl) return;
+
+            abortButton.disabled = true;
+            try {
+                const response = await fetch(action, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                });
+                if (!response.ok) {
+                    const message = (await response.text()).trim();
+                    void alertDialog({ text: message || _('Tournament abort failed.') });
+                    return;
+                }
+                window.location.assign(returnUrl);
+            } catch {
+                void alertDialog({ text: _('Tournament abort failed.') });
+            } finally {
+                abortButton.disabled = false;
+            }
+        });
+    }
 
     const system = document.getElementById('form3-system');
     const teamWrap = document.getElementById('form3-team-wrap');

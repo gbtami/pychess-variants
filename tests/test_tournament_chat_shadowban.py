@@ -2,7 +2,6 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, Mock, patch
 
-from const import ARENA
 from tournament.wst import (
     TOURNAMENT_LIFECYCLE_COMMANDS_RETIRED_MESSAGE,
     handle_abort_tournament,
@@ -91,14 +90,36 @@ class TournamentChatShadowbanTestCase(unittest.IsolatedAsyncioTestCase):
         tournament.start_next_round_now.assert_not_awaited()
         send.assert_awaited_once_with(ws, {"type": "error", "message": "Permission denied"})
 
-    async def test_director_can_abort_an_active_tournament(self) -> None:
-        tournament = SimpleNamespace(creator="creator", status=1, abort=AsyncMock())
+    async def test_admin_can_abort_an_active_tournament(self) -> None:
+        tournament = SimpleNamespace(status=1, abort=AsyncMock())
+        app_state = SimpleNamespace()
+        admin = SimpleNamespace(username="admin")
+        ws = object()
+
+        with (
+            patch("tournament.wst.load_tournament", new=AsyncMock(return_value=tournament)),
+            patch("tournament.wst.ADMINS", ("admin",)),
+            patch("tournament.wst.ws_send_json", new=AsyncMock()) as send,
+        ):
+            await handle_abort_tournament(
+                app_state,
+                ws,
+                admin,
+                {"type": "abort_tournament", "tournamentId": "tid"},
+            )
+
+        tournament.abort.assert_awaited_once_with()
+        send.assert_not_awaited()
+
+    async def test_tournament_director_cannot_abort_without_admin_permission(self) -> None:
+        tournament = SimpleNamespace(status=1, abort=AsyncMock())
         app_state = SimpleNamespace()
         director = SimpleNamespace(username="director")
         ws = object()
 
         with (
             patch("tournament.wst.load_tournament", new=AsyncMock(return_value=tournament)),
+            patch("tournament.wst.ADMINS", ()),
             patch("tournament.wst.is_tournament_director", return_value=True),
             patch("tournament.wst.ws_send_json", new=AsyncMock()) as send,
         ):
@@ -109,24 +130,18 @@ class TournamentChatShadowbanTestCase(unittest.IsolatedAsyncioTestCase):
                 {"type": "abort_tournament", "tournamentId": "tid"},
             )
 
-        tournament.abort.assert_awaited_once_with()
-        send.assert_not_awaited()
+        tournament.abort.assert_not_awaited()
+        send.assert_awaited_once_with(ws, {"type": "error", "message": "Permission denied"})
 
-    async def test_creator_cannot_abort_without_director_permission(self) -> None:
-        tournament = SimpleNamespace(
-            creator="creator", system=ARENA, team_id=None, status=1, abort=AsyncMock()
-        )
+    async def test_creator_cannot_abort_without_admin_permission(self) -> None:
+        tournament = SimpleNamespace(status=1, abort=AsyncMock())
         app_state = SimpleNamespace()
         creator = SimpleNamespace(username="creator")
         ws = object()
 
         with (
             patch("tournament.wst.load_tournament", new=AsyncMock(return_value=tournament)),
-            patch("tournament.wst.is_tournament_director", return_value=False),
-            patch(
-                "tournament.wst.creator_can_manage_tournament",
-                new=AsyncMock(return_value=True),
-            ),
+            patch("tournament.wst.ADMINS", ()),
             patch("tournament.wst.ws_send_json", new=AsyncMock()) as send,
         ):
             await handle_abort_tournament(

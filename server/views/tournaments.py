@@ -4,10 +4,11 @@ from typing import TYPE_CHECKING
 
 import aiohttp_jinja2
 from aiohttp import web
-from const import ARENA, T_CREATED, TRANSLATED_PAIRING_SYSTEM_NAMES
+from const import ARENA, T_CREATED, T_STARTED, TRANSLATED_PAIRING_SYSTEM_NAMES
 from misc import time_control_str
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
+from settings import ADMINS
 from tournament.tournaments import (
     create_or_update_tournament,
     creator_can_manage_tournament,
@@ -28,7 +29,20 @@ async def tournaments(request: web.Request) -> ViewContext:
 
     app_state = get_app_state(request.app)
     director = is_tournament_director(user, app_state)
+    admin = user.username in ADMINS
     regular_creator = not user.anon and not user.bot
+
+    if request.path.endswith("/abort"):
+        if not admin:
+            raise web.HTTPForbidden(text="Only site admins can abort tournaments.")
+        tournamentId = request.match_info.get("tournamentId")
+        tournament = app_state.tournaments.get(tournamentId) if tournamentId else None
+        if tournament is None:
+            raise web.HTTPNotFound(text="Tournament not found.")
+        if tournament.status not in (T_CREATED, T_STARTED):
+            raise web.HTTPBadRequest(text="Tournament has already ended.")
+        await tournament.abort()
+        raise web.HTTPFound(f"/tournament/{tournament.id}")
 
     if request.path.endswith("/new"):
         if not (director or regular_creator):
@@ -53,25 +67,22 @@ async def tournaments(request: web.Request) -> ViewContext:
 
         if tournament is None and tournamentId is not None:
             raise web.HTTPNotFound(text="Tournament not found.")
-        if tournament and user.username != tournament.creator:
-            raise web.HTTPForbidden(text="Only the tournament creator can edit this tournament.")
-        if tournament and not await creator_can_manage_tournament(
-            app_state, tournament, user.username
-        ):
-            raise web.HTTPForbidden(
-                text="You need the tournament permission in this team to edit this tournament."
-            )
-        if (
-            tournament
-            and not director
-            and (
+        if tournament and not admin:
+            if user.username != tournament.creator:
+                raise web.HTTPForbidden(
+                    text="Only the tournament creator can edit this tournament."
+                )
+            if not await creator_can_manage_tournament(app_state, tournament, user.username):
+                raise web.HTTPForbidden(
+                    text="You need the tournament permission in this team to edit this tournament."
+                )
+            if not director and (
                 not regular_creator
                 or tournament.frequency
                 or tournament.status != T_CREATED
                 or (tournament.system != ARENA and not tournament.team_id)
-            )
-        ):
-            raise web.HTTPForbidden(text="This tournament cannot be edited by its creator.")
+            ):
+                raise web.HTTPForbidden(text="This tournament cannot be edited by its creator.")
 
         if TYPE_CHECKING:
             assert tournament is not None
@@ -91,6 +102,7 @@ async def tournaments(request: web.Request) -> ViewContext:
             data,
             tournament,
             creator_is_director=director,
+            editor_is_admin=admin,
         )
 
     lang = context["lang"]

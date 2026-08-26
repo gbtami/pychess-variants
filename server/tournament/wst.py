@@ -34,8 +34,9 @@ if TYPE_CHECKING:
         TournamentUserConnectedRequest,
         TournamentWithdrawMessage,
     )
-from const import RR, SWISS
+from const import RR
 from pychess_global_app_state_utils import get_app_state
+from settings import ADMINS
 from tournament_director import is_tournament_director
 from websocket_utils import get_user, process_ws, ws_send_json
 from ws_types import ChatLine, FullChatMessage, TournamentUserConnectedMessage
@@ -314,12 +315,7 @@ async def handle_abort_tournament(
         await ws_send_json(ws, {"type": "error", "message": "Tournament not found"})
         return
 
-    can_abort = is_tournament_director(user, app) or (
-        await creator_can_manage_tournament(app, tournament, user.username)
-        and tournament.system in (RR, SWISS)
-        and bool(tournament.team_id)
-    )
-    if not can_abort:
+    if user.username not in ADMINS:
         await ws_send_json(ws, {"type": "error", "message": "Permission denied"})
         return
 

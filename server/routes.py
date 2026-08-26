@@ -535,6 +535,7 @@ post_routes: tuple[RouteDef, ...] = (
     ("/team/{teamId}/kick/{username}", team_view.team_kick),
     ("/tournaments/new", tournaments.tournaments),
     (r"/tournaments/{tournamentId:\w{8}}/edit", tournaments.tournaments),
+    (r"/tournaments/{tournamentId:\w{8}}/abort", tournaments.tournaments),
     ("/blogs/@/{profileId}/create", ublog.create),
     (r"/blogs/@/{profileId}/{postId:\w{8}}/edit", ublog.update),
     (r"/blogs/@/{profileId}/{postId:\w{8}}/delete", ublog.delete),
