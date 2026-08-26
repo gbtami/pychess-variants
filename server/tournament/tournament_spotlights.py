@@ -4,9 +4,9 @@ from typing import TYPE_CHECKING
 
 from const import (
     LANGUAGES,
+    LOBBY_SPOTLIGHTS_MAX,
     T_CREATED,
     T_STARTED,
-    TOURNAMENT_SPOTLIGHTS_MAX,
 )
 from typing_defs import TournamentSpotlightItem
 
@@ -14,7 +14,12 @@ if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 
 
-def tournament_spotlights(app_state: PychessGlobalAppState) -> list[TournamentSpotlightItem]:
+def tournament_spotlights(
+    app_state: PychessGlobalAppState, *, limit: int = LOBBY_SPOTLIGHTS_MAX
+) -> list[TournamentSpotlightItem]:
+    if limit <= 0:
+        return []
+
     items: list[TournamentSpotlightItem] = []
     for tid, tournament in sorted(
         app_state.tournaments.items(), key=lambda item: item[1].starts_at
@@ -35,6 +40,7 @@ def tournament_spotlights(app_state: PychessGlobalAppState) -> list[TournamentSp
 
             items.append(
                 {
+                    "kind": "tournament",
                     "tid": tournament.id,
                     "names": names,
                     "variant": tournament.variant,
@@ -43,6 +49,6 @@ def tournament_spotlights(app_state: PychessGlobalAppState) -> list[TournamentSp
                     "startsAt": tournament.starts_at.isoformat(),
                 }
             )
-            if len(items) == TOURNAMENT_SPOTLIGHTS_MAX:
+            if len(items) == limit:
                 break
     return items

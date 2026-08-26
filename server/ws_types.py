@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Literal, NotRequired, TypeAlias, TypedDict
 
-from typing_defs import ClockValues, StreamInfo, TournamentSpotlightItem
+from typing_defs import ClockValues, SpotlightItem, StreamInfo
 
 if TYPE_CHECKING:
     from seek import SeekJson
@@ -106,7 +106,7 @@ class DirectChallengeCreatedMessage(TypedDict):
 
 class SpotlightsMessage(TypedDict):
     type: Literal["spotlights"]
-    items: list[TournamentSpotlightItem]
+    items: list[SpotlightItem]
 
 
 class StreamsMessage(TypedDict):

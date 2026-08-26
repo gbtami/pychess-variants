@@ -35,7 +35,7 @@ def reserved(username: str | None) -> bool:
 
 
 SCHEDULE_MAX_DAYS = 7
-TOURNAMENT_SPOTLIGHTS_MAX = 3
+LOBBY_SPOTLIGHTS_MAX = 3
 
 # Max notify documents TTL (time to live) weeks
 NOTIFY_EXPIRE_WEEKS = timedelta(weeks=4)

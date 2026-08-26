@@ -25,7 +25,8 @@ export interface Stream {
     streamer: string;
 }
 
-export interface Spotlight {
+export interface TournamentSpotlight {
+    kind: 'tournament';
     variant: string;
     chess960: boolean;
     nbPlayers: number;
@@ -33,6 +34,16 @@ export interface Spotlight {
     startsAt: string;
     tid: string;
 }
+
+export interface SimulSpotlight {
+    kind: 'simul';
+    sid: string;
+    name: string;
+    variants: string[];
+    nbPlayers: number;
+}
+
+export type Spotlight = TournamentSpotlight | SimulSpotlight;
 
 export interface MsgInviteCreated {
     gameId: string;

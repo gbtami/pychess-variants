@@ -374,6 +374,11 @@ class Simul:
                 sockets.extend(list(spectator.simul_sockets[self.id]))
         await ws_send_json_many(sockets, response)
 
+    async def broadcast_spotlight(self) -> None:
+        from lobby_spotlights import broadcast_lobby_spotlights
+
+        await broadcast_lobby_spotlights(self.app_state)
+
     async def simul_chat_save(self, response: ChatLine) -> None:
         self.tourneychat.append(response)
         if self.app_state.db is None:
@@ -552,6 +557,7 @@ class Simul:
             await self.create_games()
             await upsert_simul_to_db(self)
             await self.broadcast({"type": "simul_started"})
+            await self.broadcast_spotlight()
             self.clock_task = asyncio.create_task(self.clock(), name=f"simul-clock-{self.id}")
             return True
         return False
@@ -575,6 +581,7 @@ class Simul:
             from simul.simuls import upsert_simul_to_db
 
             await upsert_simul_to_db(self)
+            await self.broadcast_spotlight()
 
     async def game_update(self, game):
         response = {

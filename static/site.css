@@ -3572,6 +3572,9 @@ div#spotlights > div {
   margin: 0 5px 0 0;
   text-shadow: 1px 1px 2px #1b78d0;
 }
+.tour-spotlight.little i.icon::before {
+  font-size: 40px;
+}
 .tour-spotlight .name {
   margin-top: 1px;
   line-height: 13px;

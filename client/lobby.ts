@@ -19,6 +19,7 @@ import {
     unsupportedAiVariants,
     VARIANTS,
     selectVariant,
+    splitVariantKey,
     Variant,
     variantGroups,
 } from './variants';
@@ -1468,6 +1469,19 @@ export class LobbyController {
     }
 
     private spotlightView(spotlight: Spotlight) {
+        if (spotlight.kind === 'simul') {
+            const name = spotlight.name.toLowerCase().endsWith(' simul')
+                ? spotlight.name
+                : spotlight.name + ' simul';
+            return h('a.tour-spotlight.little.simul-spotlight', { attrs: { href: '/simul/' + spotlight.sid } }, [
+                h('i.icon.icon-fire'),
+                h('span.content', [
+                    h('span.name', name),
+                    h('span.more', ngettext('%1 player', '%1 players', spotlight.nbPlayers) + ' • ' + _('Join')),
+                ]),
+            ]);
+        }
+
         const variant = VARIANTS[spotlight.variant];
         const chess960 = spotlight.chess960;
         const dataIcon = variant.icon(chess960);
@@ -1484,6 +1498,14 @@ export class LobbyController {
                 ]),
             ]),
         ]);
+    }
+
+    private spotlightAllowed(spotlight: Spotlight): boolean {
+        if (!this.allowedVariants) return true;
+        if (spotlight.kind === 'simul') {
+            return spotlight.variants.some(variantKey => this.allowedVariants!.has(splitVariantKey(variantKey).base));
+        }
+        return this.allowedVariants.has(spotlight.variant);
     }
 
     private userWithTitle(username: string, title: string): (VNode | string)[] {
@@ -1932,9 +1954,7 @@ export class LobbyController {
     }
 
     private onMsgSpotlights(msg: MsgSpotlights) {
-        const items = this.allowedVariants
-            ? msg.items.filter(spotlight => this.allowedVariants!.has(spotlight.variant))
-            : msg.items;
+        const items = msg.items.filter(spotlight => this.spotlightAllowed(spotlight));
         this.spotlights = patch(
             this.spotlights,
             h('div#spotlights', [

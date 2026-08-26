@@ -59,6 +59,7 @@ import logging
 import logger
 from bug.utils_bug import handle_accept_seek_bughouse, handle_leave_seek_bughouse
 from catalogued_variants import can_create_catalogued_seek, catalogued_variant_games_are_persisted
+from lobby_spotlights import lobby_spotlights
 from pychess_global_app_state_utils import get_app_state
 from seek import (
     ACTIVE_DIRECT_CHALLENGE_STATUSES,
@@ -77,7 +78,6 @@ from seek import (
     is_targeted_two_board_seek,
     user_reached_seek_limit,
 )
-from tournament.tournament_spotlights import tournament_spotlights
 from tournament_director import is_tournament_director
 from utils import join_seek, load_game, remove_seek, send_bot_game_start_unless_streaming
 from variants import get_server_variant, is_catalogued_variant
@@ -688,7 +688,7 @@ async def send_lobby_user_connected(
     }
     await ws_send_json(ws, auto_pairing_count)
 
-    spotlights = tournament_spotlights(app_state)
+    spotlights = lobby_spotlights(app_state)
     if len(spotlights) > 0:
         spotlights_response: SpotlightsMessage = {"type": "spotlights", "items": spotlights}
         await ws_send_json(ws, spotlights_response)

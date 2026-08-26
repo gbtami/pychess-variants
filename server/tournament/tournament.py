@@ -62,7 +62,6 @@ from typing_defs import (
     TournamentPlayersResponse,
     TournamentPlayerUpdate,
     TournamentPoint,
-    TournamentSpotlightsResponse,
     TournamentStatusResponse,
     TournamentTopGameResponse,
     TournamentUpdateData,
@@ -75,13 +74,12 @@ if TYPE_CHECKING:
     from bug.game_bug import GameBug
     from pychess_global_app_state import PychessGlobalAppState
     from ws_types import ChatLine, SpectatorsMessage
+from lobby_spotlights import broadcast_lobby_spotlights
 from settings import URI
 from spectators import spectators
 from user import User
 from utils import insert_game_to_db
 from variants import get_server_variant, is_catalogued_variant
-
-from tournament.tournament_spotlights import tournament_spotlights
 
 log = logging.getLogger(__name__)
 
@@ -1402,9 +1400,7 @@ class Tournament(ABC):
         self.app_state.schedule_tournament_cache_removal(self)
 
     async def broadcast_spotlight(self) -> None:
-        spotlights = tournament_spotlights(self.app_state)
-        response: TournamentSpotlightsResponse = {"type": "spotlights", "items": spotlights}
-        await self.app_state.lobby.lobby_broadcast(response)
+        await broadcast_lobby_spotlights(self.app_state)
 
     async def abort(self) -> None:
         self.finish_reason = None

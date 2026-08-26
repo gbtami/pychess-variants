@@ -1144,6 +1144,7 @@ class TournamentStatusResponse(TypedDict):
 
 
 class TournamentSpotlightItem(TypedDict):
+    kind: Literal["tournament"]
     tid: str
     names: dict[str, str]
     variant: str
@@ -1152,9 +1153,15 @@ class TournamentSpotlightItem(TypedDict):
     startsAt: str
 
 
-class TournamentSpotlightsResponse(TypedDict):
-    type: Literal["spotlights"]
-    items: list[TournamentSpotlightItem]
+class SimulSpotlightItem(TypedDict):
+    kind: Literal["simul"]
+    sid: str
+    name: str
+    variants: list[str]
+    nbPlayers: int
+
+
+SpotlightItem = TournamentSpotlightItem | SimulSpotlightItem
 
 
 class TournamentCalendarEvent(TypedDict):

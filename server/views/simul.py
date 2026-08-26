@@ -683,6 +683,7 @@ async def update_simul(request: web.Request) -> web.Response:
             )
     await upsert_simul_to_db(simul)
     if simul.status == T_CREATED:
+        await simul.broadcast_spotlight()
         for username in removed_players:
             await simul.broadcast({"type": "player_denied", "username": username})
     if user.username != simul.created_by:

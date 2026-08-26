@@ -93,6 +93,12 @@ async def finally_logic(app_state: PychessGlobalAppState, ws, user: User):
                     simul = app_state.simuls.get(simul_id)
                     if simul:
                         simul.remove_spectator(user)
+                        if (
+                            user.username == simul.created_by
+                            and simul.status == T_CREATED
+                            and simul.featurable
+                        ):
+                            await simul.broadcast_spotlight()
                 break
 
 
@@ -139,6 +145,8 @@ async def handle_simul_user_connected(
         await mark_simul_host_seen(simul)
 
     simul.add_spectator(user)
+    if user.username == simul.created_by and simul.status == T_CREATED and simul.featurable:
+        await simul.broadcast_spotlight()
 
     response = {
         "type": "simul_user_connected",
@@ -225,6 +233,8 @@ async def handle_join(
         if variant is None:
             variant = simul.primary_variant_key
         await simul.broadcast({"type": "player_joined", "player": simul.player_json(user, variant)})
+        if simul.featurable:
+            await simul.broadcast_spotlight()
 
 
 async def handle_withdraw(
@@ -238,6 +248,8 @@ async def handle_withdraw(
     if simul.withdraw(user):
         await upsert_simul_to_db(simul, app_state)
         await simul.broadcast({"type": "player_withdrawn", "username": user.username})
+        if simul.featurable:
+            await simul.broadcast_spotlight()
 
 
 async def handle_approve_player(
@@ -288,6 +300,8 @@ async def handle_deny_player(
     if simul.deny(username):
         await upsert_simul_to_db(simul, app_state)
         await simul.broadcast({"type": "player_denied", "username": username})
+        if simul.featurable:
+            await simul.broadcast_spotlight()
 
 
 async def handle_lobbychat(
