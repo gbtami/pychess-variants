@@ -40,6 +40,7 @@ import { roundView as bugRoundView } from './two-board/round/round';
 import { analysisView as bugAnalysisView } from './two-board/analysis/analysis';
 import {
     allVariantsIni,
+    variantConfigIni,
     devVariants,
     loadCataloguedVariantsFromJson,
     splitVariantKey,
@@ -280,13 +281,17 @@ function start() {
 
         if (['round', 'analysis', 'puzzle', 'editor', 'tv', 'embed', 'paste'].includes(dataView)) {
             console.time('load ffish');
+            const variantIni =
+                dataView === 'paste'
+                    ? allVariantsIni(variantsIni)
+                    : variantConfigIni(variantsIni, model.variant);
             if (model['variant'] === 'alice') {
                 const loadModule = ffishAliceModule(
                     dataView === 'paste' ? ffishModuleOptions(recordImportFfishError) : ffishModuleOptions(),
                 );
                 loadModule.then((loadedModule: any) => {
                     console.timeEnd('load ffish_alice');
-                    loadedModule.loadVariantConfig(allVariantsIni(variantsIni));
+                    loadedModule.loadVariantConfig(variantIni);
                     model.ffish = loadedModule;
                     patch(placeholder, view(el, model));
                 });
@@ -296,7 +301,7 @@ function start() {
                 );
                 loadModule.then((loadedModule: any) => {
                     console.timeEnd('load ffish');
-                    loadedModule.loadVariantConfig(allVariantsIni(variantsIni));
+                    loadedModule.loadVariantConfig(variantIni);
                     model.ffish = loadedModule;
                     patch(placeholder, view(el, model));
                 });

@@ -2097,11 +2097,35 @@ export interface CataloguedVariantClientDocument {
 }
 
 const cataloguedVariantInis: Record<string, string> = {};
+const cataloguedVariantBaseNames: Record<string, string> = {};
 const cataloguedVariantNames = new Set<string>();
 const favoriteCataloguedVariantNames = new Set<string>();
 
 export function allVariantsIni(baseIni: string): string {
     return [baseIni, ...Object.values(cataloguedVariantInis)].filter(Boolean).join('\n');
+}
+
+export function variantConfigIni(baseIni: string, variantName: string): string {
+    const requiredInis: string[] = [];
+    const seen = new Set<string>();
+    let name = variantName;
+
+    while (name) {
+        if (seen.has(name)) {
+            console.error(`Cyclic catalogued variant inheritance involving ${name}`);
+            break;
+        }
+        seen.add(name);
+
+        const ini = cataloguedVariantInis[name];
+        if (!ini) break;
+
+        requiredInis.push(ini);
+        name = cataloguedVariantBaseNames[name] ?? '';
+    }
+
+    requiredInis.reverse();
+    return [baseIni, ...requiredInis].filter(Boolean).join('\n');
 }
 
 export function isCataloguedVariant(name: string | undefined | null): boolean {
@@ -2779,7 +2803,10 @@ export function registerCataloguedVariant(meta: CataloguedVariantClientDocument)
     cataloguedVariantNames.add(meta.name);
     if (meta.favorite) favoriteCataloguedVariantNames.add(meta.name);
     else favoriteCataloguedVariantNames.delete(meta.name);
-    if (meta.ini) cataloguedVariantInis[meta.name] = meta.ini;
+    if (meta.ini) {
+        cataloguedVariantInis[meta.name] = meta.ini;
+        cataloguedVariantBaseNames[meta.name] = meta.baseVariant ?? '';
+    }
     registerCataloguedPremove(meta);
 }
 
@@ -2788,6 +2815,7 @@ export function unregisterCataloguedVariant(name: string | undefined | null): vo
     delete VARIANTS[name];
     delete PIECE_FAMILIES[`catalogued-${name}`];
     delete cataloguedVariantInis[name];
+    delete cataloguedVariantBaseNames[name];
     unregisterCataloguedPremove(name);
     cataloguedVariantNames.delete(name);
     favoriteCataloguedVariantNames.delete(name);

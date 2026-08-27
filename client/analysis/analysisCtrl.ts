@@ -32,7 +32,7 @@ import { setAriaTabClick } from '../view';
 import { createWebsocket } from '@/socket/webSocketUtils';
 import { setPocketRowCssVars } from '../pocketRow';
 import { updateCount, updatePoint } from '../info';
-import { allVariantsIni, fogFen } from '../variants';
+import { fogFen, variantConfigIni } from '../variants';
 import { hideKeyboardHelp, isKeyboardHelpShortcut, showKeyboardHelp } from './keyboardHelp';
 import { PvHoverPreview } from './pvHoverPreview';
 import { alertDialog } from '../alertDialog';
@@ -1380,7 +1380,7 @@ export class AnalysisController extends GameController {
     }
 
     loadVariantsIntoFsfEngine() {
-        const config = allVariantsIni(variantsIni);
+        const config = variantConfigIni(variantsIni, this.variant.name);
         const marker = 'PYCHESS_VARIANTS_INI_EOF_' + Date.now();
         const lines = config.replace(/\r\n/g, '\n').split('\n');
 

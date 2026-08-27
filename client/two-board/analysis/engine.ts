@@ -9,7 +9,7 @@ import ffishModule from 'ffish-es6';
 import { _ } from '../../i18n';
 import { patch } from '../../document';
 import { uci2cg } from '../../chess';
-import { allVariantsIni } from '../../variants';
+import { variantConfigIni } from '../../variants';
 import { variantsIni } from '../../variantsIni';
 import { povChances } from '../../analysis/winningChances';
 import { alertDialog } from '../../alertDialog';
@@ -154,7 +154,9 @@ export class EngineController {
 
         ffishModule().then((loadedModule: any) => {
             this.ffish = loadedModule;
-            this.ffish.loadVariantConfig(allVariantsIni(variantsIni));
+            this.ffish.loadVariantConfig(
+                variantConfigIni(variantsIni, this.ctrl.boardA.variant.name),
+            );
             this.notationAsObject = this.notation2ffishjs(this.ctrl.boardA.variant.notation);
         });
 
@@ -238,7 +240,9 @@ export class EngineController {
 
     loadVariantsIntoFsfEngine() {
         const marker = 'PYCHESS_VARIANTS_INI_EOF_' + Date.now();
-        const lines = allVariantsIni(variantsIni).replace(/\r\n/g, '\n').split('\n');
+        const lines = variantConfigIni(variantsIni, this.ctrl.boardA.variant.name)
+            .replace(/\r\n/g, '\n')
+            .split('\n');
         this.installFsfPromptQueue([...lines, marker]);
         if (this.fsfDebug) console.debug('<---', '... variants.ini content queued for prompt stdin ...');
         this.fsfPostMessage('load <<' + marker);
