@@ -2808,6 +2808,13 @@ async def upsert_tournament_to_db(tournament: Tournament, app_state: PychessGlob
         "startsAt": tournament.starts_at,
         "status": tournament.status,
     }
+    if is_catalogued_variant(tournament.variant):
+        catalogued_doc = getattr(app_state, "catalogued_variants", {}).get(tournament.variant, {})
+        if catalogued_doc.get("ini"):
+            new_data["vini"] = str(catalogued_doc["ini"])
+            new_data["vd"] = str(catalogued_doc.get("displayName") or tournament.variant)
+            new_data["vby"] = str(catalogued_doc.get("author") or "")
+
     if tournament.finish_reason is not None:
         new_data["finishReason"] = tournament.finish_reason
     if tournament.pairing_in_progress_round is not None:

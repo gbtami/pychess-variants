@@ -826,6 +826,9 @@ class TournamentDoc(TypedDict):
     fr: str
     minutes: int
     v: str
+    vini: NotRequired[str]
+    vd: NotRequired[str]
+    vby: NotRequired[str]
     b: float
     i: int
     bp: int
@@ -871,6 +874,9 @@ class TournamentUpdateData(TypedDict, total=False):
     fr: str
     minutes: int
     v: str
+    vini: str
+    vd: str
+    vby: str
     b: float
     i: int
     bp: int

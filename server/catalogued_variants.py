@@ -20,7 +20,7 @@ from catalogued_betza import catalogued_betza_diagrams, catalogued_betza_pieces
 from catalogued_board import catalogued_start_board_preview
 from catalogued_rules import catalogued_rule_summary
 from compress import MAX_COMPRESSED_BOARD_HEIGHT, MAX_COMPRESSED_BOARD_WIDTH
-from const import ANON_PREFIX, STARTED
+from const import ANON_PREFIX, STARTED, T_STARTED
 from fairy.fairy_board import sf
 from json_utils import json_response
 from pychess_global_app_state_utils import get_app_state
@@ -3215,6 +3215,59 @@ def register_catalogued_variant_doc(
     app_state.catalogued_variants[name] = dict(doc)
 
 
+def register_historical_catalogued_variant_doc(doc: Mapping[str, Any]) -> None:
+    """Register server metadata for a saved/archived catalogued variant.
+
+    Historical games and tournaments must remain readable after the catalogue entry
+    is archived.  Unlike ``register_catalogued_variant_doc()``, this helper does not
+    add the document back to ``app_state.catalogued_variants`` and therefore does not
+    make it eligible for new seeks or tournament creation.
+    """
+
+    name = str(doc.get("v") or doc.get("name") or "")
+    ini = str(doc.get("ini") or doc.get("vini") or "")
+    if not name or not ini or is_catalogued_variant(name):
+        return
+
+    validated = validate_catalogued_ini(ini)
+    if validated.name != name:
+        raise ValueError(
+            f"Historical catalogued variant INI defines {validated.name!r}, but record uses {name!r}"
+        )
+
+    width = int(doc.get("width") or validated.width)
+    height = int(doc.get("height") or validated.height)
+    start_fen = str(doc.get("startFen") or validated.start_fen)
+    register_catalogued_server_variant(
+        name,
+        str(doc.get("displayName") or doc.get("vd") or name),
+        grand=_catalogued_grand_from_dimensions(width, height),
+        extended_move_codec=_catalogued_extended_move_codec_from_dimensions(width, height),
+        show_promoted=bool(doc.get("showPromoted", catalogued_show_promoted(ini, start_fen))),
+        legal_moves_need_history=bool(
+            doc.get("legalMovesNeedHistory", catalogued_legal_moves_need_history(ini))
+        ),
+        n_fold_is_draw=bool(doc.get("nFoldIsDraw", catalogued_n_fold_is_draw(ini))),
+    )
+
+
+async def catalogued_variant_client_doc_for_tournament(
+    app_state: Any, name: str
+) -> CataloguedVariantClientDocument | None:
+    """Return metadata needed to render a historical tournament variant.
+
+    Tournament variants are public at creation time.  Keep their historical pages
+    renderable even if the catalogue entry is later archived or made non-public.
+    """
+
+    doc = getattr(app_state, "catalogued_variants", {}).get(name)
+    if doc is None and getattr(app_state, "db", None) is not None:
+        doc = await app_state.db[CATALOGUED_VARIANT_COLLECTION].find_one({"_id": name})
+    if doc is None:
+        return None
+    return _client_doc(doc)
+
+
 async def _remove_catalogued_variant_seeks(app_state: Any, name: str) -> int:
     """Remove live/persisted seeks that can no longer use a catalogued variant."""
 
@@ -3241,6 +3294,109 @@ async def _remove_catalogued_variant_seeks(app_state: Any, name: str) -> int:
         if lobby is not None:
             await lobby.lobby_broadcast_seeks()
     return removed
+
+
+def _catalogued_tournament_snapshot(doc: Mapping[str, Any]) -> dict[str, str]:
+    ini = str(doc.get("ini") or "")
+    if not ini:
+        return {}
+    return {
+        "vini": ini,
+        "vd": str(doc.get("displayName") or doc.get("name") or ""),
+        "vby": str(doc.get("author") or ""),
+    }
+
+
+async def _snapshot_catalogued_variant_tournaments(
+    app_state: Any, name: str, doc: Mapping[str, Any]
+) -> None:
+    """Backfill the variant rules onto tournament records before archival."""
+
+    db = getattr(app_state, "db", None)
+    if db is None:
+        return
+    tournament_collection = getattr(db, "tournament", None)
+    if tournament_collection is None:
+        return
+    snapshot = _catalogued_tournament_snapshot(doc)
+    if snapshot:
+        await tournament_collection.update_many({"v": name}, {"$set": snapshot})
+
+
+async def _migrate_catalogued_variant_tournaments(
+    app_state: Any, old_name: str, new_name: str, doc: Mapping[str, Any]
+) -> None:
+    """Move no-game tournament references along with a renamed variant."""
+
+    db = getattr(app_state, "db", None)
+    tournament_collection = getattr(db, "tournament", None) if db is not None else None
+    if tournament_collection is not None:
+        update = {"v": new_name, **_catalogued_tournament_snapshot(doc)}
+        await tournament_collection.update_many({"v": old_name}, {"$set": update})
+
+    server_variant = get_server_variant(new_name, False)
+    for tournament in getattr(app_state, "tournaments", {}).values():
+        if getattr(tournament, "variant", None) != old_name:
+            continue
+        tournament.variant = new_name
+        tournament.server_variant = server_variant
+        tournament.browser_title = "%s Tournament • %s" % (
+            server_variant.display_name,
+            tournament.name,
+        )
+
+
+async def _remove_catalogued_variant_tournaments(app_state: Any, name: str) -> int:
+    """Cancel and remove tournaments whose variant is being deleted.
+
+    Variant deletion is already forbidden once a saved game exists, so these
+    tournaments have no game history to preserve.
+    """
+
+    db = getattr(app_state, "db", None)
+    if db is None:
+        return 0
+    tournament_collection = getattr(db, "tournament", None)
+    if tournament_collection is None:
+        return 0
+
+    tournament_docs = [
+        doc
+        async for doc in tournament_collection.find(
+            {"v": name}, projection={"_id": 1, "nbPlayers": 1, "nbGames": 1}
+        )
+    ]
+    if not tournament_docs:
+        return 0
+    if any(
+        int(doc.get("nbPlayers") or 0) > 0 or int(doc.get("nbGames") or 0) > 0
+        for doc in tournament_docs
+    ):
+        raise web.HTTPConflict(
+            text=(
+                "This variant is already used by a tournament with participants or games. "
+                "Archive it instead of deleting it."
+            )
+        )
+
+    tournament_ids = [str(doc["_id"]) for doc in tournament_docs]
+    for tournament_id in tournament_ids:
+        tournament = getattr(app_state, "tournaments", {}).get(tournament_id)
+        if tournament is not None and getattr(tournament, "status", 0) <= T_STARTED:
+            await tournament.abort()
+
+    query = {"tid": {"$in": tournament_ids}}
+    await db.tournament_player.delete_many(query)
+    await db.tournament_pairing.delete_many(query)
+    await db.tournament_arrangement.delete_many(query)
+    await db.tournament_chat.delete_many(query)
+    await tournament_collection.delete_many({"_id": {"$in": tournament_ids}})
+    log.info(
+        "Removed %s tournament(s) for deleted catalogued variant %s",
+        len(tournament_ids),
+        name,
+    )
+    return len(tournament_ids)
 
 
 def ensure_catalogued_variant_from_game_doc(app_state: Any, doc: Mapping[str, Any]) -> None:
@@ -5062,6 +5218,8 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
         )
 
     register_catalogued_variant_doc(app_state, updated, load_config=False)
+    if new_name != old_name:
+        await _migrate_catalogued_variant_tournaments(app_state, old_name, new_name, updated)
     count = await _game_count(app_state, new_name)
     return json_response(
         {"ok": True, "oldName": old_name, "variant": _client_doc(updated, game_count=count)}
@@ -5084,6 +5242,7 @@ async def delete_catalogued_variant(request: web.Request) -> web.Response:
             text="This variant already has saved public games. Archive it instead of deleting it."
         )
 
+    await _remove_catalogued_variant_tournaments(app_state, name)
     await _reserve_catalogued_variant_name(
         app_state.db[CATALOGUED_VARIANT_NAME_COLLECTION], name, doc
     )
@@ -5095,7 +5254,8 @@ async def delete_catalogued_variant(request: web.Request) -> web.Response:
 
 
 async def archive_catalogued_variant(request: web.Request) -> web.Response:
-    app_state, _username, name, _doc = await _load_owned_doc(request)
+    app_state, _username, name, doc = await _load_owned_doc(request)
+    await _snapshot_catalogued_variant_tournaments(app_state, name, doc)
     now = datetime.now(UTC)
     await app_state.db[CATALOGUED_VARIANT_COLLECTION].update_one(
         {"_id": name},

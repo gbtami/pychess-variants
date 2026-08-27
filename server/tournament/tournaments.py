@@ -35,7 +35,11 @@ from tournament.arena import ArenaTournament
 if TYPE_CHECKING:
     from game import Game
     from pychess_global_app_state import PychessGlobalAppState
-from catalogued_variants import is_public_catalogued_variant
+from catalogued_variants import (
+    CATALOGUED_VARIANT_COLLECTION,
+    is_public_catalogued_variant,
+    register_historical_catalogued_variant_doc,
+)
 from pychess_global_app_state_utils import get_app_state
 from rated_start import can_rate_start, can_rate_variant
 from settings import DEV
@@ -81,6 +85,52 @@ log = logging.getLogger(__name__)
 WinnerEntry = tuple[str, str, str, str]
 ScheduledTournamentEntry = tuple[str, str, bool, datetime, int, str]
 TournamentTables = tuple[list[Tournament], list[Tournament], list[Tournament]]
+
+
+async def _resolve_tournament_variant(
+    app_state: PychessGlobalAppState, tournament_doc: TournamentDoc
+) -> str | None:
+    """Resolve a persisted tournament variant without trusting the live catalogue forever.
+
+    New catalogued tournaments persist an inline INI snapshot.  Older archived
+    tournaments can fall back to the archived catalogue document.  A legacy orphan
+    whose variant was deleted before snapshots existed is skipped instead of making
+    tournament list/startup requests fail.
+    """
+
+    code = str(tournament_doc.get("v") or "")
+    variant = C2V.get(code)
+    if variant is not None:
+        return variant
+
+    historical_doc: Mapping[str, Any] | None = (
+        tournament_doc if tournament_doc.get("vini") else None
+    )
+    if historical_doc is None and app_state.db is not None:
+        historical_doc = await app_state.db[CATALOGUED_VARIANT_COLLECTION].find_one({"_id": code})
+
+    if historical_doc is not None:
+        try:
+            register_historical_catalogued_variant_doc(historical_doc)
+        except Exception:
+            log.exception(
+                "Failed to restore catalogued variant %s for tournament %s",
+                code,
+                tournament_doc.get("_id", ""),
+            )
+        else:
+            variant = C2V.get(code)
+            if variant is not None:
+                return variant
+
+    log.warning(
+        "Skipping tournament %s with unavailable variant %s",
+        tournament_doc.get("_id", ""),
+        code,
+    )
+    return None
+
+
 COMMUNITY_ARENA_MAX_CREATIONS_PER_24H = 1
 COMMUNITY_ARENA_CREATION_WINDOW = timedelta(days=1)
 FIXED_ROUND_MAX_CREATIONS_PER_24H = 5
@@ -1371,20 +1421,22 @@ async def get_scheduled_tournaments(
             and tournament_doc["createdBy"] == "PyChess"
             and tournament_doc.get("fr", "") != ""
         ):
+            variant = await _resolve_tournament_variant(app_state, tournament_doc)
+            if variant is None:
+                continue
             nb_tournament += 1
             if nb_tournament > nb_max:
                 break
-            else:
-                tournaments.append(
-                    (
-                        tournament_doc["fr"],
-                        C2V[tournament_doc["v"]],
-                        bool(tournament_doc["z"]),
-                        tournament_doc["startsAt"],
-                        tournament_doc["minutes"],
-                        tournament_doc["_id"],
-                    )
+            tournaments.append(
+                (
+                    tournament_doc["fr"],
+                    variant,
+                    bool(tournament_doc["z"]),
+                    tournament_doc["startsAt"],
+                    tournament_doc["minutes"],
+                    tournament_doc["_id"],
                 )
+            )
     return tournaments
 
 
@@ -1398,6 +1450,9 @@ async def get_latest_tournaments(app_state: PychessGlobalAppState, lang: str) ->
     nb_tournament = 0
     async for doc in cursor:
         tournament_doc: TournamentDoc = doc
+        variant = await _resolve_tournament_variant(app_state, tournament_doc)
+        if variant is None:
+            continue
         nb_tournament += 1
         if nb_tournament > 31:
             break
@@ -1419,7 +1474,7 @@ async def get_latest_tournaments(app_state: PychessGlobalAppState, lang: str) ->
             tournament = tournament_class(
                 app_state,
                 tid,
-                C2V[tournament_doc["v"]],
+                variant,
                 base=tournament_doc["b"],
                 inc=tournament_doc["i"],
                 byoyomi_period=int(bool(tournament_doc.get("bp"))),
@@ -1531,22 +1586,16 @@ async def get_tournament_name(request: web.Request, tournament_id: str | None) -
         if doc is not None:
             tournament_doc: TournamentDoc = doc
             frequency = tournament_doc.get("fr", "")
-            if frequency:
+            variant = await _resolve_tournament_variant(app_state, tournament_doc)
+            if frequency and variant is not None:
                 chess960 = bool(tournament_doc.get("z"))
+                variant_key = variant + ("960" if chess960 else "")
                 try:
                     name = app_state.tourneynames[lang][
-                        (
-                            C2V[tournament_doc["v"]] + ("960" if chess960 else ""),
-                            frequency,
-                            tournament_doc["system"],
-                        )
+                        (variant_key, frequency, tournament_doc["system"])
                     ]
                 except KeyError:
-                    name = "%s %s %s" % (
-                        C2V[tournament_doc["v"]] + ("960" if chess960 else ""),
-                        frequency,
-                        tournament_doc["system"],
-                    )
+                    name = "%s %s %s" % (variant_key, frequency, tournament_doc["system"])
             else:
                 name = tournament_doc["name"]
         app_state.tourneynames[lang][tournament_id] = name
@@ -1571,6 +1620,10 @@ async def load_tournament(
         return None
 
     tournament_doc: TournamentDoc = doc
+    variant = await _resolve_tournament_variant(app_state, tournament_doc)
+    if variant is None:
+        return None
+
     stored_round = tournament_doc.get("cr")
     pairing_in_progress_round = tournament_doc.get("pairingInProgressRound")
     manual_pairings_in_progress = tournament_doc.get("manualPairingsInProgress")
@@ -1592,7 +1645,7 @@ async def load_tournament(
     tournament = tournament_class(
         app_state,
         tournament_doc["_id"],
-        C2V[tournament_doc["v"]],
+        variant,
         base=tournament_doc["b"],
         inc=tournament_doc["i"],
         byoyomi_period=int(bool(tournament_doc.get("bp"))),
