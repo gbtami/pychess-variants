@@ -26,6 +26,7 @@ class WasmResourceHintsTestCase(unittest.TestCase):
             autoescape=select_autoescape(["html"]),
         )
         environment.globals["static"] = lambda path: "/static-root/%s" % path
+        environment.globals["local_static"] = lambda path: "/static/%s?v=test-version" % path
         cls.template = environment.get_template("base.html")
 
     def wasm_hints(self, view, variant="chess"):
@@ -38,7 +39,9 @@ class WasmResourceHintsTestCase(unittest.TestCase):
         )
         parser = LinkParser()
         parser.feed(rendered)
-        return [link for link in parser.links if link.get("href", "").endswith(".wasm")]
+        return [
+            link for link in parser.links if link.get("href", "").split("?", 1)[0].endswith(".wasm")
+        ]
 
     def test_lobby_prefetches_standard_engine(self):
         self.assertEqual(
@@ -46,7 +49,7 @@ class WasmResourceHintsTestCase(unittest.TestCase):
             [
                 {
                     "rel": "prefetch",
-                    "href": "/static-root/ffish.wasm",
+                    "href": "/static/ffish.wasm?v=test-version",
                     "as": "fetch",
                     "type": "application/wasm",
                     "crossorigin": "anonymous",
@@ -62,7 +65,7 @@ class WasmResourceHintsTestCase(unittest.TestCase):
                     [
                         {
                             "rel": "preload",
-                            "href": "/static-root/ffish.wasm",
+                            "href": "/static/ffish.wasm?v=test-version",
                             "as": "fetch",
                             "type": "application/wasm",
                             "crossorigin": "anonymous",
@@ -78,7 +81,7 @@ class WasmResourceHintsTestCase(unittest.TestCase):
                     [
                         {
                             "rel": "preload",
-                            "href": "/static-root/ffish-alice.wasm",
+                            "href": "/static/ffish-alice.wasm?v=test-version",
                             "as": "fetch",
                             "type": "application/wasm",
                             "crossorigin": "anonymous",

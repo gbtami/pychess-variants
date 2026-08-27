@@ -60,3 +60,8 @@ if SOURCE_VERSION != "":
 
 def static_url(static_file_path):
     return "%s/%s" % (STATIC_ROOT, static_file_path)
+
+
+# Build-generated assets such as ffish.wasm are served by the app, not STATIC_ROOT/CDN.
+def local_static_url(static_file_path):
+    return "/static/%s%s" % (static_file_path, SOURCE_VERSION)

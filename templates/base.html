@@ -27,7 +27,7 @@
         {% if view in ["round", "tv", "analysis", "puzzle", "editor", "embed", "paste"] %}
         <link
             rel="preload"
-            href={{ static("ffish-alice.wasm" if variant == "alice" else "ffish.wasm") }}
+            href={{ local_static("ffish-alice.wasm" if variant == "alice" else "ffish.wasm") }}
             as="fetch"
             type="application/wasm"
             crossorigin="anonymous"
@@ -35,7 +35,7 @@
         {% elif prefetch_ffish|default(false) %}
         <link
             rel="prefetch"
-            href={{ static("ffish-alice.wasm" if variant == "alice" else "ffish.wasm") }}
+            href={{ local_static("ffish-alice.wasm" if variant == "alice" else "ffish.wasm") }}
             as="fetch"
             type="application/wasm"
             crossorigin="anonymous"

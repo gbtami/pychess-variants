@@ -78,6 +78,7 @@ from settings import (
     SOURCE_VERSION,
     STATIC_ROOT,
     URI,
+    local_static_url,
     static_url,
 )
 from simul.simul import Simul
@@ -771,6 +772,7 @@ class PychessGlobalAppState:
         env.install_gettext_translations(_Translations, newstyle=True)
 
         env.globals["static"] = static_url
+        env.globals["local_static"] = local_static_url
         env.globals["js"] = "/static/pychess-variants.js%s" % SOURCE_VERSION
         env.globals["dev"] = DEV
         env.globals["app_name"] = "PyChess"

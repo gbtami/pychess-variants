@@ -251,6 +251,18 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
     }
 }
 
+function ffishModuleOptions(printErr?: (text: string) => void) {
+    // Keep the generated WASM binary in lockstep with the cache-busted JS bundle.
+    const script = document.querySelector<HTMLScriptElement>('script[src*="/static/pychess-variants.js"]');
+    const version = script ? new URL(script.src, window.location.href).search : '';
+
+    return {
+        ...(printErr ? { printErr } : {}),
+        locateFile: (path: string, prefix: string) =>
+            path.endsWith('.wasm') ? `/static/${path}${version}` : prefix + path,
+    };
+}
+
 function start() {
     const placeholder = document.getElementById('placeholder');
     if (placeholder && el) {
@@ -269,8 +281,9 @@ function start() {
         if (['round', 'analysis', 'puzzle', 'editor', 'tv', 'embed', 'paste'].includes(dataView)) {
             console.time('load ffish');
             if (model['variant'] === 'alice') {
-                const loadModule =
-                    dataView === 'paste' ? ffishAliceModule({ printErr: recordImportFfishError }) : ffishAliceModule();
+                const loadModule = ffishAliceModule(
+                    dataView === 'paste' ? ffishModuleOptions(recordImportFfishError) : ffishModuleOptions(),
+                );
                 loadModule.then((loadedModule: any) => {
                     console.timeEnd('load ffish_alice');
                     loadedModule.loadVariantConfig(allVariantsIni(variantsIni));
@@ -278,8 +291,9 @@ function start() {
                     patch(placeholder, view(el, model));
                 });
             } else {
-                const loadModule =
-                    dataView === 'paste' ? ffishModule({ printErr: recordImportFfishError }) : ffishModule();
+                const loadModule = ffishModule(
+                    dataView === 'paste' ? ffishModuleOptions(recordImportFfishError) : ffishModuleOptions(),
+                );
                 loadModule.then((loadedModule: any) => {
                     console.timeEnd('load ffish');
                     loadedModule.loadVariantConfig(allVariantsIni(variantsIni));
