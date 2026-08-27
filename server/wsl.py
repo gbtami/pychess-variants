@@ -120,6 +120,10 @@ async def _reject_inaccessible_catalogued_variant(
 def get_create_seek_error_message(user: User, data: SeekCreateData) -> str:
     day = data.get("day", 0)
     chess960 = False if is_catalogued_variant(data["variant"]) else data.get("chess960")
+    try:
+        get_server_variant(data["variant"], chess960)
+    except KeyError:
+        return "This variant is not available."
     if is_anon_restricted_seek(user, data["variant"], chess960, day):
         return ANON_RESTRICTED_SEEK_MESSAGE
     if (
@@ -223,7 +227,21 @@ async def finally_logic(
 
             if (not user.anon) and len(user.lobby_sockets) == 0:
                 for seek in tuple(app_state.seeks.values()):
-                    server_variant = get_server_variant(seek.variant, seek.chess960)
+                    try:
+                        server_variant = get_server_variant(seek.variant, seek.chess960)
+                    except KeyError:
+                        log.warning(
+                            "Removing stale seek %s for unavailable variant %s",
+                            seek.id,
+                            seek.variant,
+                        )
+                        app_state.seeks.pop(seek.id, None)
+                        seek.creator.seeks.pop(seek.id, None)
+                        if seek.game_id is not None:
+                            app_state.invites.pop(seek.game_id, None)
+                        if app_state.db is not None:
+                            await app_state.db.seek.delete_one({"_id": seek.id})
+                        continue
                     if server_variant.two_boards:
                         await handle_leave_seek_bughouse(app_state, user, seek)
 

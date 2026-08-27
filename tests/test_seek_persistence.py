@@ -229,6 +229,21 @@ class SeekPersistenceTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn(seek.id, app_state.seeks)
         self.assertNotIn(seek.id, app_state.users["alice"].seeks)
 
+    async def test_persisted_seek_for_deleted_variant_is_dropped(self):
+        await self.db.user.insert_one({"_id": "alice"})
+
+        challenger = self.make_user("alice")
+        seek = Seek("seek-deleted-variant", challenger, "chess", day=2, player1=challenger)
+        doc = seek.seek_db_json
+        doc["variant"] = "deleted_catalogued_variant"
+        await self.db.seek.insert_one(doc)
+
+        await init_state(self.app)
+        app_state = get_app_state(self.app)
+
+        self.assertNotIn(seek.id, app_state.seeks)
+        self.assertIsNone(await self.db.seek.find_one({"_id": seek.id}))
+
     async def test_server_shutdown_does_not_persist_terminal_corr_direct_challenge(self):
         await init_state(self.app)
         app_state = get_app_state(self.app)

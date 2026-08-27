@@ -573,6 +573,14 @@ async def create_seek(
         data["chess960"] = False
     day = data.get("day", 0)
     chess960: bool | None = data.get("chess960")
+    try:
+        get_server_variant(data["variant"], chess960)
+    except KeyError:
+        log.info(
+            "Rejecting seek creation for unavailable variant %s",
+            data["variant"],
+        )
+        return None
     if is_anon_restricted_seek(user, data["variant"], chess960, day):
         log.info(
             "Rejecting restricted seek creation by anon user %s (variant=%s day=%s)",

@@ -105,6 +105,26 @@ class LobbySocketCleanupTestCase(AioHTTPTestCase):
         self.user.lobby_sockets.discard(ws2)
         app_state.lobby.lobbysockets.pop(self.user.username, None)
 
+    async def test_finally_logic_removes_seek_for_deleted_variant(self):
+        app_state = get_app_state(self.app)
+        creator = User(app_state, username="seek-creator", perfs=PERFS)
+        app_state.users[creator.username] = creator
+        seek = Seek("stale001", creator, "chess", day=2)
+        seek.variant = "deleted_catalogued_variant"
+        app_state.seeks[seek.id] = seek
+        creator.seeks[seek.id] = seek
+        await app_state.db.seek.insert_one(seek.seek_db_json)
+
+        ws = WebSocketResponse()
+        self.user.lobby_sockets.add(ws)
+        app_state.lobby.lobbysockets[self.user.username] = self.user.lobby_sockets
+
+        await finally_logic(app_state, ws, self.user)
+
+        self.assertNotIn(seek.id, app_state.seeks)
+        self.assertNotIn(seek.id, creator.seeks)
+        self.assertIsNone(await app_state.db.seek.find_one({"_id": seek.id}))
+
     async def test_bot_user_cannot_create_or_join_lobby_games(self):
         app_state = get_app_state(self.app)
         bot_user = User(app_state, bot=True, username="bot-lobby", perfs=PERFS)

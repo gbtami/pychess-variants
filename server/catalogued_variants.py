@@ -3215,6 +3215,34 @@ def register_catalogued_variant_doc(
     app_state.catalogued_variants[name] = dict(doc)
 
 
+async def _remove_catalogued_variant_seeks(app_state: Any, name: str) -> int:
+    """Remove live/persisted seeks that can no longer use a catalogued variant."""
+
+    removed = 0
+    seeks = getattr(app_state, "seeks", {})
+    invites = getattr(app_state, "invites", {})
+    for seek_id, seek in tuple(seeks.items()):
+        if seek.variant != name:
+            continue
+        seeks.pop(seek_id, None)
+        seek.creator.seeks.pop(seek_id, None)
+        if seek.game_id is not None:
+            invites.pop(seek.game_id, None)
+        removed += 1
+
+    db = getattr(app_state, "db", None)
+    seek_collection = getattr(db, "seek", None) if db is not None else None
+    if seek_collection is not None:
+        await seek_collection.delete_many({"variant": name})
+
+    if removed:
+        log.info("Removed %s seek(s) for unavailable catalogued variant %s", removed, name)
+        lobby = getattr(app_state, "lobby", None)
+        if lobby is not None:
+            await lobby.lobby_broadcast_seeks()
+    return removed
+
+
 def ensure_catalogued_variant_from_game_doc(app_state: Any, doc: Mapping[str, Any]) -> None:
     """Load an inline variant definition saved with a historical game if needed."""
     code = str(doc.get("v") or "")
@@ -5021,6 +5049,7 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
             existing=existing,
             doc=doc,
         )
+        await _remove_catalogued_variant_seeks(app_state, old_name)
         unregister_catalogued_server_variant(old_name)
         app_state.catalogued_variants.pop(old_name, None)
         updated = doc
@@ -5059,6 +5088,7 @@ async def delete_catalogued_variant(request: web.Request) -> web.Response:
         app_state.db[CATALOGUED_VARIANT_NAME_COLLECTION], name, doc
     )
     await app_state.db[CATALOGUED_VARIANT_COLLECTION].delete_one({"_id": name})
+    await _remove_catalogued_variant_seeks(app_state, name)
     app_state.catalogued_variants.pop(name, None)
     unregister_catalogued_server_variant(name)
     return json_response({"ok": True, "deleted": name})
@@ -5071,6 +5101,7 @@ async def archive_catalogued_variant(request: web.Request) -> web.Response:
         {"_id": name},
         {"$set": {"archived": True, "enabled": False, "updatedAt": now}},
     )
+    await _remove_catalogued_variant_seeks(app_state, name)
     app_state.catalogued_variants.pop(name, None)
     unregister_catalogued_server_variant(name)
     return json_response({"ok": True, "archived": name})

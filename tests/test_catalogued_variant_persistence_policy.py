@@ -186,6 +186,61 @@ class CataloguedVariantGameClientDocumentTest(unittest.IsolatedAsyncioTestCase):
 
 
 class CataloguedVariantArchiveActiveGameTest(unittest.IsolatedAsyncioTestCase):
+    async def test_delete_removes_live_and_persisted_seeks_for_variant(self) -> None:
+        class DbStub(dict):
+            seek: object
+
+        name = "deleted_seek_variant_test"
+        doc = {"_id": name, "name": name, "author": "author"}
+        variant_collection = SimpleNamespace(delete_one=AsyncMock())
+        name_collection = SimpleNamespace(insert_one=AsyncMock())
+        seek_collection = SimpleNamespace(delete_many=AsyncMock())
+        db = DbStub(
+            {
+                "catalogued_variant": variant_collection,
+                "catalogued_variant_name": name_collection,
+            }
+        )
+        db.seek = seek_collection
+
+        creator = SimpleNamespace(seeks={})
+        seek = SimpleNamespace(
+            id="seek-id",
+            variant=name,
+            creator=creator,
+            game_id="invite-game-id",
+        )
+        creator.seeks[seek.id] = seek
+        lobby = SimpleNamespace(lobby_broadcast_seeks=AsyncMock())
+        app_state = SimpleNamespace(
+            db=db,
+            games={},
+            catalogued_variants={name: doc},
+            seeks={seek.id: seek},
+            invites={seek.game_id: seek},
+            lobby=lobby,
+        )
+        request = SimpleNamespace()
+
+        register_catalogued_server_variant(name, "Deleted seek variant test")
+        self.addCleanup(unregister_catalogued_server_variant, name)
+
+        with (
+            patch(
+                "catalogued_variants._load_owned_doc",
+                AsyncMock(return_value=(app_state, "author", name, doc)),
+            ),
+            patch("catalogued_variants._has_games", AsyncMock(return_value=False)),
+        ):
+            response = await delete_catalogued_variant(request)
+
+        self.assertEqual(response.status, 200)
+        self.assertNotIn(seek.id, app_state.seeks)
+        self.assertNotIn(seek.id, creator.seeks)
+        self.assertNotIn(seek.game_id, app_state.invites)
+        seek_collection.delete_many.assert_awaited_once_with({"variant": name})
+        lobby.lobby_broadcast_seeks.assert_awaited_once()
+
     async def test_delete_permanently_reserves_internal_name(self) -> None:
         name = "deleted_name_test"
         doc = {"_id": name, "name": name, "author": "author"}

@@ -106,7 +106,7 @@ from typedefs import anon_as_test_users_key, client_key
 from user import User
 from users import NotInDbUsers, Users
 from utils import load_game_from_doc, send_bot_game_start_unless_streaming
-from variants import RATED_VARIANTS, VARIANTS
+from variants import RATED_VARIANTS, VARIANTS, get_server_variant
 from videos import VIDEOS
 from youtube import Youtube
 
@@ -328,6 +328,17 @@ class PychessGlobalAppState:
             return
 
         async for doc in self.db.seek.find():
+            try:
+                get_server_variant(doc["variant"], doc["chess960"])
+            except KeyError:
+                log.warning(
+                    "Dropping persisted seek %s for unavailable variant %s",
+                    doc.get("_id"),
+                    doc.get("variant"),
+                )
+                await self.db.seek.delete_one({"_id": doc["_id"]})
+                continue
+
             user = await self.users.get(doc["user"])
             if user is None:
                 continue
