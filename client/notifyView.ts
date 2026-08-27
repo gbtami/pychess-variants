@@ -4,6 +4,7 @@ import { _ } from './i18n';
 import { patch } from './document';
 import { timeago } from './datetime';
 import { sound } from './sound';
+import { subscribeProfileRealtime } from './profileRealtime';
 
 interface Message {
     type: string;
@@ -237,10 +238,14 @@ function renderMessages(messages: Message[]) {
 }
 
 export function notifyView() {
+    const profilePage = ['profile', 'level8win'].includes(
+        document.getElementById('pychess-variants')?.getAttribute('data-view') ?? '',
+    );
     var page: number = 0;
     var unread: number = 0;
     var messages: Message[] = [];
     let evtSource: EventSource | null = null;
+    let profileRealtime: ReturnType<typeof subscribeProfileRealtime> = null;
     let reconnectTimer: number | null = null;
     let notifyStreamReady = false;
 
@@ -288,12 +293,19 @@ export function notifyView() {
     }
 
     function connectNotifications() {
-        if (evtSource !== null) evtSource.close();
-        evtSource = new EventSource('/notify');
-        evtSource.onmessage = function (event) {
-            applyMessages(JSON.parse(event.data), notifyStreamReady);
+        const onMessage = (data: string) => {
+            applyMessages(JSON.parse(data), notifyStreamReady);
             notifyStreamReady = true;
         };
+        if (profilePage) {
+            profileRealtime?.close();
+            profileRealtime = subscribeProfileRealtime('notifications', onMessage);
+            return;
+        }
+
+        if (evtSource !== null) evtSource.close();
+        evtSource = new EventSource('/notify');
+        evtSource.onmessage = event => onMessage(event.data);
         evtSource.onerror = function () {
             if (evtSource !== null) {
                 evtSource.close();

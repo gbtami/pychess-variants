@@ -8,6 +8,7 @@ import { sizeMiniBoardHost } from './miniBoard';
 import { getLastMoveFen, splitVariantKey, VARIANTS } from './variants';
 import { displayUsername } from './user';
 import { renderFollowButtonState } from './followButton';
+import { subscribeProfileRealtime } from './profileRealtime';
 
 interface MiniPerf {
     variant: string;
@@ -124,7 +125,8 @@ class UserMiniWidget {
     private liveOrientation: 'white' | 'black' = 'white';
 
     private readonly cache = new Map<string, CacheEntry>();
-    private readonly ongoingSource: EventSource;
+    private ongoingSource: EventSource | null = null;
+    private profileRealtime: ReturnType<typeof subscribeProfileRealtime> = null;
 
     constructor(
         private readonly assetURL: string,
@@ -149,10 +151,28 @@ class UserMiniWidget {
             this.scheduleHide();
         });
 
-        this.ongoingSource = new EventSource('/api/ongoing');
-        this.ongoingSource.onmessage = event => {
+        this.connectOngoingSource();
+    }
+
+    init() {
+        document.body.addEventListener('mouseover', this.onBodyMouseOver);
+        document.body.addEventListener('mouseout', this.onBodyMouseOut);
+        document.body.addEventListener('mousemove', this.onBodyMouseMove);
+        window.addEventListener('scroll', this.onWindowChange, true);
+        window.addEventListener('resize', this.onWindowChange);
+    }
+
+    private isProfilePage() {
+        const view = document.getElementById('pychess-variants')?.getAttribute('data-view');
+        return view === 'profile' || view === 'level8win';
+    }
+
+    private connectOngoingSource() {
+        if (this.ongoingSource !== null || this.profileRealtime !== null) return;
+
+        const onMessage = (data: string) => {
             if (!this.liveGameId || !this.cg || !this.liveVariantName) return;
-            const msg = JSON.parse(event.data) as OngoingMessage;
+            const msg = JSON.parse(data) as OngoingMessage;
             if (msg.gameId !== this.liveGameId) return;
 
             const [lastMove, fen] = getLastMoveFen(this.liveVariantName, msg.lastMove, msg.fen);
@@ -162,14 +182,14 @@ class UserMiniWidget {
                 orientation: this.liveOrientation,
             });
         };
-    }
+        if (this.isProfilePage()) {
+            this.profileRealtime = subscribeProfileRealtime('ongoing', onMessage);
+            return;
+        }
 
-    init() {
-        document.body.addEventListener('mouseover', this.onBodyMouseOver);
-        document.body.addEventListener('mouseout', this.onBodyMouseOut);
-        document.body.addEventListener('mousemove', this.onBodyMouseMove);
-        window.addEventListener('scroll', this.onWindowChange, true);
-        window.addEventListener('resize', this.onWindowChange);
+        const source = new EventSource('/api/ongoing');
+        source.onmessage = event => onMessage(event.data);
+        this.ongoingSource = source;
     }
 
     private onWindowChange = () => {

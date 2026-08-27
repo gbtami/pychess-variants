@@ -6,6 +6,7 @@ import { patch } from './document';
 import { alertDialog } from './alertDialog';
 import { sound } from './sound';
 import { VARIANTS } from './variants';
+import { subscribeProfileRealtime } from './profileRealtime';
 
 interface Challenge {
     id: string;
@@ -97,9 +98,13 @@ function challengeMetaView(challenge: Challenge) {
 }
 
 export function challengeView() {
+    const profilePage = ['profile', 'level8win'].includes(
+        document.getElementById('pychess-variants')?.getAttribute('data-view') ?? '',
+    );
     let challenges: Challenge[] = [];
     let appEl: HTMLElement | VNode;
     let evtSource: EventSource | null = null;
+    let profileRealtime: ReturnType<typeof subscribeProfileRealtime> = null;
     let reconnectTimer: number | null = null;
     let challengeStreamReady = false;
     const pending = new Set<string>();
@@ -157,12 +162,19 @@ export function challengeView() {
     }
 
     function connectChallenges() {
-        if (evtSource !== null) evtSource.close();
-        evtSource = new EventSource('/challenge/subscribe');
-        evtSource.onmessage = event => {
-            applyEnvelope(JSON.parse(event.data), challengeStreamReady);
+        const onMessage = (data: string) => {
+            applyEnvelope(JSON.parse(data), challengeStreamReady);
             challengeStreamReady = true;
         };
+        if (profilePage) {
+            profileRealtime?.close();
+            profileRealtime = subscribeProfileRealtime('challenges', onMessage);
+            return;
+        }
+
+        if (evtSource !== null) evtSource.close();
+        evtSource = new EventSource('/challenge/subscribe');
+        evtSource.onmessage = event => onMessage(event.data);
         evtSource.onerror = function () {
             if (evtSource !== null) {
                 evtSource.close();
