@@ -45,7 +45,7 @@ describe('Amazons arrow input', () => {
         // Invalid second-leg clicks keep the temporary arrow selected and the
         // valid destinations active instead of selecting the moved Amazon.
         input.onSelect('a1');
-        expect(ctrl.chessground.set).toHaveBeenLastCalledWith({ selected: 'a0' });
+        expect(ctrl.chessground.set).toHaveBeenLastCalledWith({ selectable: { selected: 'a0' } });
         input.onSelect('b1');
         expect(ctrl.chessground.set).toHaveBeenCalledTimes(2);
 

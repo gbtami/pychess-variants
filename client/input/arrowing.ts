@@ -93,7 +93,7 @@ export class ArrowingInput extends ExtraInput {
         // leave the valid arrow targets visible. This makes invalid clicks a
         // no-op instead of escaping arrow-placement mode.
         if (key !== ARROW_KEY && !this.arrowDests.includes(key)) {
-            this.ctrl.chessground.set({ selected: ARROW_KEY });
+            this.ctrl.chessground.set({ selectable: { selected: ARROW_KEY } });
         }
     }
 
