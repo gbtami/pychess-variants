@@ -119,8 +119,8 @@
                             data-confirm-title="Apply chat timeout?"
                             data-confirm-text="Apply a 15-minute public chat timeout to {{ admin_user_status.username }}."
                             data-needs-reason="true"
-                            {% if not admin_user_status.online or admin_user_status.timed_out %}disabled{% endif %}
-                            title="{% if admin_user_status.timed_out %}This user already has a chat timeout{% elif not admin_user_status.online %}The user must be online{% else %}Apply a 15-minute chat timeout{% endif %}"
+                            {% if admin_user_status.timed_out %}disabled{% endif %}
+                            title="{% if admin_user_status.timed_out %}This user already has a chat timeout{% else %}Apply a 15-minute chat timeout{% endif %}"
                         >Timeout 15m</button>
 
                         {% if admin_user_status.shadowban %}

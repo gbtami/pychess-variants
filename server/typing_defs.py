@@ -48,6 +48,7 @@ class UserDocument(TypedDict, total=False):
     swissBanUntil: datetime
     swissBanHours: int
     swissBanGameId: str
+    chatTimeoutUntil: datetime
     tournamentGameEffectIds: list[str]
     lastArenaCreatedAt: datetime
     arenaCreationHistory: list[ArenaCreationHistoryEntry]

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import collections
 import logging
 from collections.abc import Mapping
+from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 
 from const import T_CREATED, T_STARTED, reserved
@@ -13,10 +13,10 @@ from security_evasion import (
 )
 from settings import ADMINS
 from team import remove_user_from_teams_on_account_disable
+from user import SILENCE
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
-    from ws_types import ChatLine, FullChatMessage
 
 log = logging.getLogger(__name__)
 
@@ -120,43 +120,36 @@ async def set_shadowban(
     return True
 
 
-def timeout_user(
+async def timeout_user(
     app_state: PychessGlobalAppState,
     raw_username: str,
 ) -> str | None:
-    username = _resolve_online_username(app_state.users, raw_username)
-    if username is None or is_protected_username(username):
+    candidate = _normalize_target_username(raw_username)
+    if is_protected_username(candidate):
         return None
 
-    app_state.users[username].set_silence()
-    return username
-
-
-def silence(
-    app_state: PychessGlobalAppState,
-    raw_username: str,
-    chat: collections.deque[ChatLine] | list[ChatLine],
-    reason_text: str = "spamming the chat",
-) -> FullChatMessage | None:
-    username = timeout_user(app_state, raw_username)
-    if username is None:
-        return None
-
-    if isinstance(chat, collections.deque):
-        kept_lines = [line for line in chat if line["user"] != username]
-        chat.clear()
-        chat.extend(kept_lines)
+    db = getattr(app_state, "db", None)
+    if db is None:
+        username = _resolve_online_username(app_state.users, candidate)
+        if username is None:
+            return None
     else:
-        chat[:] = [line for line in chat if line["user"] != username]
+        username = await resolve_existing_username(app_state, candidate)
+        if username is None or is_protected_username(username):
+            return None
 
-    chat.append(
-        {
-            "type": "lobbychat",
-            "user": "",
-            "message": "%s was timed out 15 minutes for %s." % (username, reason_text),
-        }
-    )
-    return {"type": "fullchat", "lines": list(chat)}
+    timeout_until = datetime.now(UTC) + timedelta(seconds=SILENCE)
+    if db is not None:
+        await db.user.update_one(
+            {"_id": username},
+            {"$set": {"chatTimeoutUntil": timeout_until}},
+        )
+
+    live_user = app_state.users.data.get(username)
+    if live_user is not None:
+        live_user.set_silence(timeout_until)
+
+    return username
 
 
 async def ban(app_state: PychessGlobalAppState, raw_username: str) -> bool:

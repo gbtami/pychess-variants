@@ -2,6 +2,7 @@ import json
 import time
 import unittest
 from collections import deque
+from datetime import UTC, datetime
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
@@ -101,6 +102,9 @@ class ModPublicChatTestCase(AioHTTPTestCase):
         target = User(app_state, username="target")
         app_state.users[mod.username] = mod
         app_state.users[target.username] = target
+        await app_state.db.user.insert_one(
+            {"_id": "target", "username_lower": "target", "enabled": True}
+        )
 
         tournament = SimpleNamespace(
             id="A1B2C3D4",
@@ -135,6 +139,9 @@ class ModPublicChatTestCase(AioHTTPTestCase):
         target = User(app_state, username="target")
         app_state.users[mod.username] = mod
         app_state.users[target.username] = target
+        await app_state.db.user.insert_one(
+            {"_id": "target", "username_lower": "target", "enabled": True}
+        )
         simul = SimpleNamespace(
             id="S1M2U3L4",
             tourneychat=[{"type": "lobbychat", "user": "target", "message": "abuse"}],
@@ -170,12 +177,116 @@ class ModPublicChatTestCase(AioHTTPTestCase):
         persisted_notice = await app_state.db.simul_chat.find_one({"sid": simul.id, "user": ""})
         self.assertIsNotNone(persisted_notice)
 
+    async def test_public_chat_timeout_offline_user_sweeps_loaded_public_chats(self):
+        app_state = get_app_state(self.app)
+        app_state.users["mod"] = User(app_state, username="mod")
+        await app_state.db.user.insert_one(
+            {"_id": "target", "username_lower": "target", "enabled": True}
+        )
+
+        source = SimpleNamespace(
+            id="SRC12345",
+            tourneychat=[
+                {"type": "lobbychat", "user": "target", "message": "source spam"},
+                {"type": "lobbychat", "user": "other", "message": "keep me"},
+            ],
+            broadcast=AsyncMock(),
+        )
+        other_tournament = SimpleNamespace(
+            id="OTH12345",
+            tourneychat=[{"type": "lobbychat", "user": "target", "message": "arena spam"}],
+            broadcast=AsyncMock(),
+        )
+        simul = SimpleNamespace(
+            id="SIM12345",
+            tourneychat=[{"type": "lobbychat", "user": "target", "message": "simul spam"}],
+            broadcast=AsyncMock(),
+        )
+        game = SimpleNamespace(
+            id="GAM12345",
+            corr=True,
+            messages=deque(
+                [
+                    {
+                        "type": "roundchat",
+                        "room": "spectator",
+                        "user": "target",
+                        "message": "round spam",
+                    }
+                ]
+            ),
+        )
+        app_state.tournaments[other_tournament.id] = other_tournament
+        app_state.simuls[simul.id] = simul
+        app_state.games[game.id] = game
+
+        await app_state.db.tournament_chat.insert_many(
+            [
+                {"tid": source.id, "type": "lobbychat", "user": "target", "message": "source spam"},
+                {
+                    "tid": other_tournament.id,
+                    "type": "lobbychat",
+                    "user": "target",
+                    "message": "arena spam",
+                },
+            ]
+        )
+        await app_state.db.simul_chat.insert_one(
+            {"sid": simul.id, "type": "lobbychat", "user": "target", "message": "simul spam"}
+        )
+
+        self.set_session_user("mod")
+        with (
+            patch("mod_public_chat_api.ADMINS", ["mod"]),
+            patch("admin.ADMINS", ["mod"]),
+            patch("mod_public_chat_api.load_tournament", new=AsyncMock(return_value=source)),
+            patch(
+                "public_chat_moderation.round_broadcast", new=AsyncMock()
+            ) as round_broadcast_mock,
+        ):
+            resp = await self.client.post(
+                "/api/mod/public-chat/timeout",
+                data={
+                    "chan": "tournament",
+                    "roomId": source.id,
+                    "userId": "target",
+                    "reason": "spam",
+                    "text": "source spam",
+                },
+            )
+
+        self.assertEqual(resp.status, 200)
+        self.assertEqual(["other", ""], [line["user"] for line in source.tourneychat])
+        self.assertEqual([], other_tournament.tourneychat)
+        self.assertEqual([], simul.tourneychat)
+        self.assertEqual("target", game.messages[0]["user"])
+        source.broadcast.assert_awaited_once()
+        other_tournament.broadcast.assert_awaited_once()
+        simul.broadcast.assert_awaited_once()
+        round_broadcast_mock.assert_not_awaited()
+        self.assertEqual(
+            0,
+            await app_state.db.tournament_chat.count_documents({"user": "target"}),
+        )
+        self.assertEqual(0, await app_state.db.simul_chat.count_documents({"user": "target"}))
+        persisted_notice = await app_state.db.tournament_chat.find_one(
+            {"tid": source.id, "user": ""}
+        )
+        self.assertIsNotNone(persisted_notice)
+        target_doc = await app_state.db.user.find_one({"_id": "target"})
+        self.assertGreater(target_doc["chatTimeoutUntil"], datetime.now(UTC))
+        target = await app_state.users.get("target")
+        self.assertGreater(target.silence, 0)
+
     async def test_public_chat_timeout_round(self):
         app_state = get_app_state(self.app)
         mod = User(app_state, username="mod")
         target = User(app_state, username="target")
         app_state.users[mod.username] = mod
         app_state.users[target.username] = target
+        await app_state.db.user.insert_one(
+            {"_id": "target", "username_lower": "target", "enabled": True}
+        )
         game = SimpleNamespace(
             id="g1234567",
             corr=True,
@@ -189,7 +300,7 @@ class ModPublicChatTestCase(AioHTTPTestCase):
         with (
             patch("mod_public_chat_api.ADMINS", ["mod"]),
             patch("admin.ADMINS", ["mod"]),
-            patch("mod_public_chat_api.round_broadcast", new=AsyncMock()) as broadcast_mock,
+            patch("public_chat_moderation.round_broadcast", new=AsyncMock()) as broadcast_mock,
         ):
             resp = await self.client.post(
                 "/api/mod/public-chat/timeout",

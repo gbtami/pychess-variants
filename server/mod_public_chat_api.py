@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 import aiohttp_session
-from admin import silence
 from aiohttp import web
-from broadcast import round_broadcast
 from json_utils import json_response
+from public_chat_moderation import timeout_public_chat_user
 from pychess_global_app_state_utils import get_app_state
 from report_api import TIMEOUT_REASONS
 from settings import ADMINS
@@ -43,80 +42,41 @@ async def public_chat_timeout(request: web.Request) -> web.Response:
         return json_response({"type": "error", "message": "Missing target user"}, status=400)
 
     reason_text = TIMEOUT_REASONS[reason]
+    source_room = None
 
     if chan == "tournament":
         if not room_id:
             return json_response({"type": "error", "message": "Missing room ID"}, status=400)
-        tournament = await load_tournament(app_state, room_id)
-        if tournament is None:
+        source_room = await load_tournament(app_state, room_id)
+        if source_room is None:
             return json_response({"type": "error", "message": "Tournament not found"}, status=404)
-
-        fullchat = silence(
-            app_state,
-            target_user,
-            tournament.tourneychat,
-            reason_text=reason_text,
-        )
-        if fullchat is None:
-            return json_response(
-                {"type": "error", "message": "User must be online to timeout"},
-                status=409,
-            )
-
-        await tournament.broadcast(fullchat)
-        return json_response({"ok": True, "chan": chan, "reason": reason})
-
-    if chan == "simul":
+    elif chan == "simul":
         if not room_id:
             return json_response({"type": "error", "message": "Missing room ID"}, status=400)
-        simul = await load_simul(app_state, room_id)
-        if simul is None:
+        source_room = await load_simul(app_state, room_id)
+        if source_room is None:
             return json_response({"type": "error", "message": "Simul not found"}, status=404)
-
-        fullchat = silence(
-            app_state,
-            target_user,
-            simul.tourneychat,
-            reason_text=reason_text,
-        )
-        if fullchat is None:
-            return json_response(
-                {"type": "error", "message": "User must be online to timeout"},
-                status=409,
-            )
-
-        if app_state.db is not None:
-            await app_state.db.simul_chat.delete_many({"sid": room_id, "user": target_user})
-            system_line = fullchat["lines"][-1]
-            await app_state.db.simul_chat.insert_one({**system_line, "sid": room_id})
-
-        await simul.broadcast(fullchat)
-        return json_response({"ok": True, "chan": chan, "reason": reason})
-
-    if chan == "round":
+    elif chan == "round":
         if not room_id:
             return json_response({"type": "error", "message": "Missing room ID"}, status=400)
-        game = app_state.games.get(room_id)
-        if game is None:
+        source_room = app_state.games.get(room_id)
+        if source_room is None:
             return json_response({"type": "error", "message": "Game not found"}, status=404)
+    else:
+        return json_response({"type": "error", "message": "Unsupported channel"}, status=400)
 
-        fullchat = silence(
-            app_state,
-            target_user,
-            game.messages,
-            reason_text=reason_text,
+    timed_out = await timeout_public_chat_user(
+        app_state,
+        target_user,
+        source_chan=chan,
+        source_room_id=room_id,
+        source_room=source_room,
+        reason_text=reason_text,
+    )
+    if timed_out is None:
+        return json_response(
+            {"type": "error", "message": "User not found or protected"},
+            status=409,
         )
-        if fullchat is None:
-            return json_response(
-                {"type": "error", "message": "User must be online to timeout"},
-                status=409,
-            )
-        for line in fullchat["lines"]:
-            if line.get("user") == "":
-                line["type"] = "roundchat"
-                line["room"] = "player"
 
-        await round_broadcast(game, fullchat, full=True)
-        return json_response({"ok": True, "chan": chan, "reason": reason})
-
-    return json_response({"type": "error", "message": "Unsupported channel"}, status=400)
+    return json_response({"ok": True, "chan": chan, "reason": reason})

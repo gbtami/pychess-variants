@@ -9,12 +9,12 @@ from admin import (
     resolve_existing_username,
     set_patron,
     set_shadowban,
-    timeout_user,
     unban,
 )
 from aiohttp import web
 from json_utils import json_response
 from newid import new_id
+from public_chat_moderation import timeout_public_chat_user
 from pychess_global_app_state_utils import get_app_state
 from report_api import TIMEOUT_REASONS
 from request_utils import read_post_data
@@ -135,7 +135,8 @@ async def admin_user_action(request: web.Request) -> web.Response:
     if target is None:
         return _error("User not found", 404)
     user_doc = await app_state.db.user.find_one(
-        {"_id": target}, projection={"enabled": 1, "shadowban": 1, "patron": 1}
+        {"_id": target},
+        projection={"enabled": 1, "shadowban": 1, "patron": 1, "chatTimeoutUntil": 1},
     )
     if user_doc is None:
         return _error("User not found", 404)
@@ -158,12 +159,12 @@ async def admin_user_action(request: web.Request) -> web.Response:
 
     if action == "timeout":
         live_user = app_state.users.data.get(target)
-        if live_user is None:
-            return _error("User must be online to timeout", 409)
-        live_user.update_online()
-        if not live_user.online:
-            return _error("User must be online to timeout", 409)
-        if live_user.silence > 0:
+        timeout_until = user_doc.get("chatTimeoutUntil")
+        if isinstance(timeout_until, datetime) and timeout_until.tzinfo is None:
+            timeout_until = timeout_until.replace(tzinfo=UTC)
+        if live_user is not None and live_user.silence > 0:
+            return _error("User already has a chat timeout", 409)
+        if isinstance(timeout_until, datetime) and timeout_until > datetime.now(UTC):
             return _error("User already has a chat timeout", 409)
 
         data = await read_post_data(request)
@@ -171,8 +172,8 @@ async def admin_user_action(request: web.Request) -> web.Response:
         if reason not in TIMEOUT_REASONS:
             return _error("Invalid timeout reason", 400)
 
-        if timeout_user(app_state, target) is None:
-            return _error("User must be online to timeout", 409)
+        if await timeout_public_chat_user(app_state, target) is None:
+            return _error("User not found or protected", 409)
         await record_mod_action(
             app_state,
             moderator,

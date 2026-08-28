@@ -56,6 +56,28 @@ class RoundChatBotQueueTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(event["room"], "player")
         self.assertEqual(event["text"], 'All of the first moves are "@"s')
 
+    async def test_timed_out_roundchat_is_dropped(self) -> None:
+        sender = SimpleNamespace(username="white", silence=60)
+        app_state = SimpleNamespace(chat_flood=SimpleNamespace(allow_message=lambda *_: True))
+        game = SimpleNamespace(id="g1", messages=[])
+
+        with patch("wsr.round_broadcast", new=AsyncMock()) as rb:
+            await handle_roundchat(
+                app_state,
+                None,
+                sender,
+                {
+                    "type": "roundchat",
+                    "gameId": "g1",
+                    "message": "blocked",
+                    "room": "spectator",
+                },
+                game,
+            )
+
+        self.assertEqual([], game.messages)
+        rb.assert_not_awaited()
+
     async def test_roundchat_drops_rejected_flood_message(self) -> None:
         bot_queue: asyncio.Queue[str] = asyncio.Queue()
         bot = SimpleNamespace(bot=True, username="Fairy-Stockfish", game_queues={"g1": bot_queue})

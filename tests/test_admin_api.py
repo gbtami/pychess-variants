@@ -1,6 +1,6 @@
-import asyncio
 import json
 import time
+from datetime import UTC, datetime
 from unittest.mock import patch
 
 from aiohttp.test_utils import AioHTTPTestCase
@@ -149,11 +149,9 @@ class AdminApiTestCase(AioHTTPTestCase):
             [entry["action"] for entry in logs],
         )
 
-    async def test_timeout_requires_online_user_and_records_reason(self):
+    async def test_timeout_works_for_offline_user_and_records_reason(self):
         app_state = get_app_state(self.app)
         app_state.users["mod"] = User(app_state, username="mod")
-        target = User(app_state, username="target")
-        app_state.users[target.username] = target
         await self.insert_user("target")
         self.set_session_user("mod")
 
@@ -161,18 +159,15 @@ class AdminApiTestCase(AioHTTPTestCase):
             offline = await self.client.post(
                 "/api/admin/users/target/timeout", data={"reason": "spam"}
             )
-
-            target.challenge_channels.add(asyncio.Queue())
-            online = await self.client.post(
-                "/api/admin/users/target/timeout", data={"reason": "spam"}
-            )
             duplicate = await self.client.post(
                 "/api/admin/users/target/timeout", data={"reason": "spam"}
             )
 
-        self.assertEqual(offline.status, 409)
-        self.assertEqual(online.status, 200)
+        self.assertEqual(offline.status, 200)
         self.assertEqual(duplicate.status, 409)
+        target_doc = await app_state.db.user.find_one({"_id": "target"})
+        self.assertGreater(target_doc["chatTimeoutUntil"], datetime.now(UTC))
+        target = await app_state.users.get("target")
         self.assertGreater(target.silence, 0)
         log = await app_state.db.mod_log.find_one({"user": "target"})
         self.assertEqual("chat_timeout", log["action"])

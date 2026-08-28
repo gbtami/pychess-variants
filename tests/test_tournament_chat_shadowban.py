@@ -1,4 +1,5 @@
 import unittest
+from collections import UserDict
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, Mock, patch
 
@@ -268,7 +269,7 @@ class TournamentChatShadowbanTestCase(unittest.IsolatedAsyncioTestCase):
             ],
             broadcast=AsyncMock(),
         )
-        app_state = SimpleNamespace(users={"target": target})
+        app_state = SimpleNamespace(users=UserDict({"target": target}))
         director = SimpleNamespace(username="director", anon=False, shadowban=False)
 
         with (
@@ -281,7 +282,7 @@ class TournamentChatShadowbanTestCase(unittest.IsolatedAsyncioTestCase):
                 {"type": "lobbychat", "tournamentId": "tid", "message": "/silence target"},
             )
 
-        target.set_silence.assert_called_once_with()
+        target.set_silence.assert_called_once()
         self.assertEqual(["other", ""], [line["user"] for line in tournament.tourneychat])
         tournament.broadcast.assert_awaited_once_with(
             {"type": "fullchat", "lines": tournament.tourneychat}

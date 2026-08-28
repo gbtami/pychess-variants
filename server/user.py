@@ -5,7 +5,7 @@ import random
 import re
 from asyncio import Queue
 from collections.abc import Container, Coroutine, Mapping
-from datetime import MINYEAR, UTC, datetime
+from datetime import MINYEAR, UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 from urllib.parse import urlparse
 
@@ -168,6 +168,7 @@ class User:
         swiss_ban_hours: int = 0,
         swiss_ban_game_id: str | None = None,
         patron: bool = False,
+        chat_timeout_until: datetime | None = None,
     ) -> None:
         self.app_state: PychessGlobalAppState = app_state
         self.bot: bool = bot
@@ -192,6 +193,7 @@ class User:
         self.swiss_ban_until: datetime | None = _as_utc(swiss_ban_until)
         self.swiss_ban_hours: int = swiss_ban_hours
         self.swiss_ban_game_id: str | None = swiss_ban_game_id
+        self.chat_timeout_until: datetime | None = _as_utc(chat_timeout_until)
         self.notifications: list[NotificationDocument] | None = None
         self.update_game_category(game_category)
 
@@ -266,9 +268,6 @@ class User:
 
         # last game played
         self.tv: str | None = None
-
-        # public chat spammer time out (15 min)
-        self.silence: int = 0
 
         # purge inactive anon users after ANON_TIMEOUT sec
         if self.anon and not reserved(self.username):
@@ -460,14 +459,17 @@ class User:
         gl = perf["gl"]
         return gl2.create_rating(gl["r"], gl["d"], gl["v"], perf["la"])
 
-    def set_silence(self) -> None:
-        self.silence += SILENCE
+    @property
+    def silence(self) -> int:
+        if self.chat_timeout_until is None:
+            return 0
+        remaining = (self.chat_timeout_until - datetime.now(UTC)).total_seconds()
+        return max(0, int(remaining) + (1 if remaining > int(remaining) else 0))
 
-        async def silencio() -> None:
-            await asyncio.sleep(SILENCE)
-            self.silence -= SILENCE
-
-        self.create_background_task(silencio(), name="silence-%s" % self.username)
+    def set_silence(self, until: datetime | None = None) -> datetime:
+        timeout_until = until or (datetime.now(UTC) + timedelta(seconds=SILENCE))
+        self.chat_timeout_until = _as_required_utc(timeout_until)
+        return self.chat_timeout_until
 
     async def set_rating(self, variant: str, chess960: bool, rating: Rating) -> None:
         if self.anon:

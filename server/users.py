@@ -122,6 +122,7 @@ class Users(UserDict[str, User]):
             swiss_ban_until=doc.get("swissBanUntil"),
             swiss_ban_hours=doc.get("swissBanHours", 0),
             swiss_ban_game_id=doc.get("swissBanGameId"),
+            chat_timeout_until=doc.get("chatTimeoutUntil"),
         )
         user.game_category_set = "ct" in doc
 

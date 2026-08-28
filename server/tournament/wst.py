@@ -5,11 +5,12 @@ from typing import TYPE_CHECKING
 
 import aiohttp_session
 import logger
-from admin import set_shadowban, silence
+from admin import set_shadowban
 from aiohttp import web
 from chat import chat_response
 from const import ANON_PREFIX, SHIELD
 from link_filter import sanitize_user_message
+from public_chat_moderation import timeout_public_chat_user
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -537,8 +538,15 @@ async def handle_lobbychat(
         if message.startswith("/silence"):
             parts = message.split()
             if len(parts) >= 2:
-                response = silence(app_state, parts[1], tournament.tourneychat)
-                # silence message was already added to the tournament chat in silence()
+                await timeout_public_chat_user(
+                    app_state,
+                    parts[1],
+                    source_chan="tournament",
+                    source_room_id=tournamentId,
+                    source_room=tournament,
+                )
+                # timeout_public_chat_user broadcasts the cleaned chat itself.
+                return
 
         elif message.startswith("/shadowban"):
             parts = message.split()

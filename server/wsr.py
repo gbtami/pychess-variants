@@ -1280,6 +1280,9 @@ async def handle_moretime(users: Users, user: User, data: MoreTimeRequest, game:
 async def handle_bugroundchat(
     users: Users, user: User, data: BugRoundChatMessage, game: GameBug
 ) -> None:
+    if getattr(user, "silence", 0) != 0:
+        return
+
     gameId = data["gameId"]
     message = sanitize_user_message(data["message"])
     room = data["room"]
@@ -1341,7 +1344,7 @@ async def handle_roundchat(
     data: RoundChatMessage,
     game: game.Game,
 ) -> None:
-    if user.username.startswith(ANON_PREFIX):
+    if user.username.startswith(ANON_PREFIX) or getattr(user, "silence", 0) != 0:
         return
 
     gameId = data["gameId"]

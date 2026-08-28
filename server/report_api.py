@@ -6,10 +6,11 @@ from datetime import UTC, datetime
 from typing import Any
 
 import aiohttp_session
-from admin import ban, set_shadowban, timeout_user
+from admin import ban, set_shadowban
 from aiohttp import web
 from json_utils import json_response
 from newid import new_id
+from public_chat_moderation import timeout_public_chat_user
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
 from settings import ADMINS
@@ -335,9 +336,9 @@ async def report_silence(request: web.Request) -> web.Response:
         posted_reason = str(data.get("reason") or "").strip().lower()
         if posted_reason in TIMEOUT_REASONS:
             reason_key = posted_reason
-    if timeout_user(app_state, suspect) is None:
+    if await timeout_public_chat_user(app_state, suspect) is None:
         return json_response(
-            {"type": "error", "message": "User must be online to silence"},
+            {"type": "error", "message": "User not found or protected"},
             status=409,
         )
 
