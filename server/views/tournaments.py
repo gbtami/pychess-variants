@@ -13,6 +13,7 @@ from tournament.tournaments import (
     create_or_update_tournament,
     creator_can_manage_tournament,
     get_latest_tournaments,
+    load_tournament,
 )
 from tournament_director import is_tournament_director
 from typing_defs import ViewContext
@@ -43,6 +44,22 @@ async def tournaments(request: web.Request) -> ViewContext:
             raise web.HTTPBadRequest(text="Tournament has already ended.")
         await tournament.abort()
         raise web.HTTPFound(f"/tournament/{tournament.id}")
+
+    if request.path.endswith("/delete"):
+        if not admin:
+            raise web.HTTPForbidden(text="Only site admins can delete tournaments.")
+        tournamentId = request.match_info.get("tournamentId")
+        tournament = await load_tournament(app_state, tournamentId) if tournamentId else None
+        if tournament is None:
+            raise web.HTTPNotFound(text="Tournament not found.")
+        if tournament.system != ARENA:
+            raise web.HTTPBadRequest(text="Only Arena tournaments can be deleted here.")
+        if tournament.status in (T_CREATED, T_STARTED):
+            raise web.HTTPBadRequest(text="Abort the tournament before deleting it.")
+        if await tournament.has_pairing_history():
+            raise web.HTTPBadRequest(text="Only Arena tournaments without pairings can be deleted.")
+        await tournament.destroy()
+        raise web.HTTPFound("/tournaments")
 
     if request.path.endswith("/new"):
         if not (director or regular_creator):

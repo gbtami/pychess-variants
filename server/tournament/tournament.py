@@ -1402,6 +1402,72 @@ class Tournament(ABC):
     async def broadcast_spotlight(self) -> None:
         await broadcast_lobby_spotlights(self.app_state)
 
+    async def has_pairing_history(self) -> bool:
+        """Return whether a real pairing/game was ever created for this tournament."""
+        if self.app_state.db is None:
+            return self.nb_games_finished > 0 or bool(self.ongoing_games)
+
+        pairing = await self.app_state.db.tournament_pairing.find_one({"tid": self.id}, {"_id": 1})
+        if pairing is not None:
+            return True
+
+        # Game documents are written before pairing documents. Treat one as pairing
+        # history too, so a partial MongoDB write can never make cleanup erase a game.
+        game = await self.app_state.db.game.find_one({"tid": self.id}, {"_id": 1})
+        return game is not None
+
+    async def destroy(self) -> None:
+        """Permanently remove a tournament and its tournament-owned metadata."""
+        if self.app_state.db is not None:
+            await self.app_state.db.tournament.delete_many({"_id": self.id})
+            await self.app_state.db.tournament_pairing.delete_many({"tid": self.id})
+            await self.app_state.db.tournament_player.delete_many({"tid": self.id})
+            await self.app_state.db.tournament_arrangement.delete_many({"tid": self.id})
+            await self.app_state.db.tournament_chat.delete_many({"tid": self.id})
+
+        current_task = asyncio.current_task()
+        clock_task = self.clock_task
+        if clock_task is not None and clock_task is not current_task and not clock_task.done():
+            clock_task.cancel()
+            try:
+                await clock_task
+            except asyncio.CancelledError:
+                pass
+
+        remove_task = self.app_state.tournament_remove_tasks.pop(self.id, None)
+        if remove_task is not None and remove_task is not current_task and not remove_task.done():
+            remove_task.cancel()
+            try:
+                await remove_task
+            except asyncio.CancelledError:
+                pass
+
+        referenced_users = set(self.players)
+        referenced_users.update(self.player_keys_by_name.values())
+        referenced_users.update(self.bye_players)
+        referenced_users.update(self.spectators)
+
+        sockets = set()
+        socket_map = self.app_state.tourneysockets.pop(self.id, {})
+        for ws_set in socket_map.values():
+            sockets.update(ws for ws in ws_set if ws is not None)
+        for user in referenced_users:
+            ws_set = user.tournament_sockets.pop(self.id, ())
+            sockets.update(ws for ws in ws_set if ws is not None)
+            user.update_online()
+
+        for ws in sockets:
+            try:
+                await ws.close()
+            except Exception:
+                log.debug("Failed to close tournament socket for deleted tournament %s", self.id)
+
+        self.app_state.tournaments.pop(self.id, None)
+        self.app_state.tournament_cache_access.pop(self.id, None)
+        player_json.cache_clear()
+        log.info("Deleted tournament %s", self.id)
+        await self.broadcast_spotlight()
+
     async def abort(self) -> None:
         self.finish_reason = None
         await self.finalize(T_ABORTED)

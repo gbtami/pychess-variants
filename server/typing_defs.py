@@ -458,6 +458,7 @@ class ViewContext(TypedDict, total=False):
     simul_teams: Sequence[Mapping[str, object]]
     community_arena_max_creations_per_24h: int
     fixed_round_max_creations_per_24h: int
+    tournament_delete_allowed: bool
     tournament_teams: Sequence[Mapping[str, object]]
     selected_tournament_team_id: str
     pm_friends_only: bool

@@ -1174,9 +1174,7 @@ export function tournamentView(model: PyChessModel): VNode[] {
         'style',
         `--ranks: ${variant.board.dimensions.height}; --files: ${variant.board.dimensions.width};`,
     );
-    const canEdit =
-        (model.tournamentmanager && model.status === 0) ||
-        (model.admin && (model.status === 0 || model.status === 1));
+    const canEdit = (model.tournamentmanager && model.status === 0) || model.admin;
     return [
         h('aside.sidebar-first', [
             h('div.game-info', [

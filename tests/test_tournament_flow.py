@@ -160,6 +160,56 @@ class TournamentFlowTestCase(TournamentTestCase):
         self.assertEqual(self.tournament.status, T_FINISHED)
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
+    async def test_arena_without_pairings_is_destroyed_on_finish(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = ArenaTestTournament(
+            app_state,
+            tid,
+            before_start=0,
+            minutes=10,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = self.tournament
+        app_state.tourneysockets[tid] = {}
+        await upsert_tournament_to_db(self.tournament, app_state)
+        await self.tournament.join_players(1)
+        await app_state.db.tournament_chat.insert_one(
+            {"tid": tid, "type": "lobbychat", "user": "spam", "message": "spam"}
+        )
+
+        await self.tournament.finish()
+
+        self.assertEqual(self.tournament.status, T_FINISHED)
+        self.assertNotIn(tid, app_state.tournaments)
+        self.assertEqual(await app_state.db.tournament.count_documents({"_id": tid}), 0)
+        self.assertEqual(await app_state.db.tournament_player.count_documents({"tid": tid}), 0)
+        self.assertEqual(await app_state.db.tournament_chat.count_documents({"tid": tid}), 0)
+
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
+    async def test_arena_with_pairing_history_is_kept_on_finish(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = ArenaTestTournament(
+            app_state,
+            tid,
+            before_start=0,
+            minutes=10,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = self.tournament
+        app_state.tourneysockets[tid] = {}
+        await upsert_tournament_to_db(self.tournament, app_state)
+        await self.tournament.join_players(1)
+        await app_state.db.tournament_pairing.insert_one({"_id": id8(), "tid": tid})
+
+        await self.tournament.finish()
+
+        self.assertEqual(self.tournament.status, T_FINISHED)
+        self.assertIn(tid, app_state.tournaments)
+        self.assertEqual(await app_state.db.tournament.count_documents({"_id": tid}), 1)
+
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_swiss_start_reminder_notifies_active_team_players_once(self):
         app_state = get_app_state(self.app)
         tid = id8()

@@ -640,9 +640,10 @@
                 <p>Players can join late while the event is still in its early rounds. Missed rounds are recorded on the standings, and absent players are simply not paired for that round.</p>
             </div>
         </div>
-        {% if edit and admin and tournament.status in [0, 1] %}
+        {% if edit and admin and (tournament.status in [0, 1] or tournament_delete_allowed) %}
         <div class="box box-pad tour__danger-zone">
             <h2>{% trans %}Danger zone{% endtrans %}</h2>
+            {% if tournament.status in [0, 1] %}
             <p>{% trans %}Aborting the tournament ends it immediately for everyone. This action cannot be undone.{% endtrans %}</p>
             <button
                 id="tournament-abort"
@@ -651,6 +652,16 @@
                 data-action="/tournaments/{{ tournament.id }}/abort"
                 data-return-url="/tournament/{{ tournament.id }}"
             >{% trans %}Abort tournament{% endtrans %}</button>
+            {% elif tournament_delete_allowed %}
+            <p>This Arena has no pairings. Deleting it permanently removes the tournament, registrations, and chat.</p>
+            <button
+                id="tournament-delete"
+                type="button"
+                class="button tournament-abort-button"
+                data-action="/tournaments/{{ tournament.id }}/delete"
+                data-return-url="/tournaments"
+            >Delete tournament</button>
+            {% endif %}
         </div>
         {% endif %}
     </main>

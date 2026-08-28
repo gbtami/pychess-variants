@@ -425,6 +425,41 @@ export function initTournamentForm(): void {
         });
     }
 
+    const deleteButton = document.getElementById('tournament-delete');
+    if (deleteButton instanceof HTMLButtonElement) {
+        deleteButton.addEventListener('click', async () => {
+            const confirmed = await confirmDialog({
+                title: 'Delete tournament',
+                text: 'Permanently delete this empty tournament, its registrations, and its chat?',
+                confirmText: 'Delete tournament',
+                danger: true,
+            });
+            if (!confirmed) return;
+
+            const action = deleteButton.dataset.action;
+            const returnUrl = deleteButton.dataset.returnUrl;
+            if (!action || !returnUrl) return;
+
+            deleteButton.disabled = true;
+            try {
+                const response = await fetch(action, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                });
+                if (!response.ok) {
+                    const message = (await response.text()).trim();
+                    void alertDialog({ text: message || 'Tournament deletion failed.' });
+                    return;
+                }
+                window.location.assign(returnUrl);
+            } catch {
+                void alertDialog({ text: 'Tournament deletion failed.' });
+            } finally {
+                deleteButton.disabled = false;
+            }
+        });
+    }
+
     const system = document.getElementById('form3-system');
     const teamWrap = document.getElementById('form3-team-wrap');
     const teamSelect = document.getElementById('form3-team');

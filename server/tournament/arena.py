@@ -6,7 +6,7 @@ from itertools import product
 from typing import TYPE_CHECKING
 
 import rustworkx as rx
-from const import ARENA
+from const import ARENA, T_FINISHED
 
 from tournament.tournament import Tournament
 
@@ -19,6 +19,17 @@ log = logging.getLogger(__name__)
 class ArenaTournament(Tournament):
     system = ARENA
     color_balance_limit = 3
+
+    async def finish(self, reason: str | None = None) -> None:
+        # Match lila Arena behavior: tournaments that never produced a pairing are
+        # junk/empty events, not completed tournament history.
+        if not await self.has_pairing_history():
+            if reason is not None:
+                self.finish_reason = reason
+            self.status = T_FINISHED
+            await self.destroy()
+            return
+        await super().finish(reason)
 
     def just_played_together(self, x: User, y: User) -> bool:
         # Players can play consecutive games with each other
