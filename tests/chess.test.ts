@@ -1,6 +1,6 @@
 import { expect, test } from '@jest/globals';
 import { getJanggiPoints, getPockets, isHandicap, validFen, cg2uci, uci2cg, UCIMove } from '../client/chess';
-import { variants, VARIANTS } from '../client/variants';
+import { variant, variants, VARIANTS } from '../client/variants';
 
 test('getPockets test', () => {
     const result = getPockets(VARIANTS['chess'].startFen);
@@ -22,6 +22,23 @@ test('validFen test', () => {
         const result = validFen(VARIANTS[variant], VARIANTS[variant].startFen);
         expect(result).toBeTruthy();
     });
+});
+
+test('validFen supports kingless Amazons positions with arrow blockers', () => {
+    const amazons = variant({
+        name: 'amazons',
+        startFen: '3q2q3/10/10/q8q/10/10/Q8Q/10/10/3Q2Q3 w - - 0 1',
+        icon: '☐',
+        boardFamily: 'standard10x10',
+        pieceFamily: 'standard',
+        pieceRow: ['q'],
+        kingRoles: [],
+        promotion: { type: 'regular', roles: [] },
+        rules: { arrowing: true },
+    });
+
+    expect(validFen(amazons, amazons.startFen)).toBeTruthy();
+    expect(validFen(amazons, '3q2q3/10/10/q8q/10/10/Q8Q/10/10/Q*4Q3 b - - 1 1')).toBeTruthy();
 });
 
 test('validFen allows extra pocket material within Fairy-Stockfish limits', () => {

@@ -14,6 +14,7 @@ import { InputType } from '@/input/input';
 import { GatingInput } from './input/gating';
 import { PromotionInput } from './input/promotion';
 import { DuckInput } from './input/duck';
+import { ArrowingInput } from './input/arrowing';
 import { ChessgroundController } from './cgCtrl';
 import { BoardName, JSONObject, PyChessModel } from './types';
 import { updateCount, updatePoint } from './info';
@@ -69,6 +70,7 @@ export abstract class GameController extends ChessgroundController implements Ch
     gating: GatingInput;
     promotion: PromotionInput;
     duck: DuckInput;
+    arrowing: ArrowingInput;
 
     // Game state
     turnColor: cg.Color;
@@ -157,6 +159,7 @@ export abstract class GameController extends ChessgroundController implements Ch
         this.gating = new GatingInput(this);
         this.promotion = new PromotionInput(this);
         this.duck = new DuckInput(this);
+        this.arrowing = new ArrowingInput(this);
 
         // orientation = this.mycolor
         if (this.spectator) {
@@ -425,9 +428,11 @@ export abstract class GameController extends ChessgroundController implements Ch
 
     abstract doSendMove(move: string): void;
 
-    // RoundController uses this hook to disambiguate Duck's local cancel action
-    // from a takeback of moves already accepted by the server.
+    // RoundController uses these hooks to disambiguate a local compound-move
+    // cancel action from a takeback of moves already accepted by the server.
     onDuckInputStateChange(_active: boolean): void {}
+
+    onArrowingInputStateChange(_active: boolean): void {}
 
     processInput(
         piece: cg.Piece,
@@ -455,6 +460,10 @@ export abstract class GameController extends ChessgroundController implements Ch
                 this.duck.start(piece, orig, dest, meta);
                 break;
             case 'duck':
+                this.suffix += lastSuffix;
+                this.arrowing.start(piece, orig, dest, meta);
+                break;
+            case 'arrowing':
                 this.suffix += lastSuffix;
                 this.sendMove(orig, dest, this.suffix);
                 break;
@@ -539,6 +548,7 @@ export abstract class GameController extends ChessgroundController implements Ch
         this.fullfen = step.fen;
         this.suffix = '';
         this.duck.cancel();
+        this.arrowing.cancel();
 
         if (this.variant.ui.counting) {
             [this.vmiscInfoW, this.vmiscInfoB] = updateCount(
@@ -592,6 +602,10 @@ export abstract class GameController extends ChessgroundController implements Ch
         let lastTime = performance.now();
         let lastKey: cg.Key | undefined;
         return (key: cg.Key) => {
+            if (this.arrowing.inputState === 'move') {
+                this.arrowing.onSelect(key);
+                return;
+            }
             if (this.chessground.state.movable.dests === undefined) return;
 
             const curTime = performance.now();
@@ -663,6 +677,10 @@ export abstract class GameController extends ChessgroundController implements Ch
     protected onUserMove(orig: cg.Key, dest: cg.Key, meta: cg.MoveMetadata) {
         if (this.duck.inputState === 'move') {
             this.duck.finish(dest);
+            return;
+        }
+        if (this.arrowing.inputState === 'move') {
+            this.arrowing.finish(dest);
             return;
         }
         if (this.variant.name === 'ataxx' && adjacent(orig, dest)) {

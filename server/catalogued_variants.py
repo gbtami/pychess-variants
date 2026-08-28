@@ -291,6 +291,16 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
         "promotionRoles": ("p",),
         "promotionOrder": ("a", "r", "b", "n"),
     },
+    "amazons": {
+        "displayName": "Game of the Amazons",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://en.wikipedia.org/wiki/Game_of_the_Amazons",
+        ),
+        "baseVariant": "",
+        "clientVariant": "chess",
+        "rulesArrowing": True,
+    },
     "atomar": {
         "displayName": "Atomar",
         "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
@@ -737,16 +747,6 @@ FSF_CATALOGUED_BUILTIN_VARIANTS_CANDIDATES: Mapping[str, Mapping[str, Any]] = {
         "baseVariant": "makruk",
         "reviewNotes": "Makruk-family fairy-piece variant; review pieces and promotion UI.",
     },
-    "amazons": {
-        "displayName": "Game of the Amazons",
-        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
-        "references": _fsf_builtin_references(
-            "https://en.wikipedia.org/wiki/Game_of_the_Amazons",
-        ),
-        "baseVariant": "",
-        "clientVariant": "chess",
-        "reviewNotes": "Non-chess placement/blocking game; needs move-input and rules review.",
-    },
     "armageddon": {
         "displayName": "Armageddon Chess",
         "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
@@ -1130,6 +1130,7 @@ class CataloguedVariantDocument(TypedDict):
     showPromoted: bool
     rulesGate: bool
     rulesPass: bool
+    rulesArrowing: bool
     legalMovesNeedHistory: bool
     nFoldIsDraw: bool
     showCheckCounters: bool
@@ -1180,6 +1181,7 @@ class CataloguedVariantClientDocument(TypedDict):
     showPromoted: bool
     rulesGate: bool
     rulesPass: bool
+    rulesArrowing: bool
     showCheckCounters: bool
     category: str
     author: NotRequired[str]
@@ -2838,6 +2840,7 @@ def _client_doc(
     show_promoted = bool(doc.get("showPromoted", catalogued_show_promoted(ini, start_fen)))
     rules_gate = bool(doc.get("rulesGate", catalogued_rules_gate(ini)))
     rules_pass = bool(doc.get("rulesPass", catalogued_rules_pass(ini)))
+    rules_arrowing = bool(doc.get("rulesArrowing", False))
     show_check_counters = bool(doc.get("showCheckCounters", catalogued_show_check_counters(ini)))
 
     client_doc: CataloguedVariantClientDocument = {
@@ -2859,6 +2862,7 @@ def _client_doc(
         "showPromoted": show_promoted,
         "rulesGate": rules_gate,
         "rulesPass": rules_pass,
+        "rulesArrowing": rules_arrowing,
         "showCheckCounters": show_check_counters,
         "category": CATALOGUED_CATEGORY,
         "author": str(doc.get("author") or ""),
@@ -3206,6 +3210,7 @@ def register_catalogued_variant_doc(
         str(doc.get("displayName") or name),
         grand=_catalogued_grand_from_dimensions(width, height),
         extended_move_codec=_catalogued_extended_move_codec_from_dimensions(width, height),
+        arrowing=bool(doc.get("rulesArrowing", False)),
         show_promoted=bool(doc.get("showPromoted", catalogued_show_promoted(ini, start_fen))),
         legal_moves_need_history=bool(
             doc.get("legalMovesNeedHistory", catalogued_legal_moves_need_history(ini))
@@ -3243,6 +3248,7 @@ def register_historical_catalogued_variant_doc(doc: Mapping[str, Any]) -> None:
         str(doc.get("displayName") or doc.get("vd") or name),
         grand=_catalogued_grand_from_dimensions(width, height),
         extended_move_codec=_catalogued_extended_move_codec_from_dimensions(width, height),
+        arrowing=bool(doc.get("rulesArrowing", False)),
         show_promoted=bool(doc.get("showPromoted", catalogued_show_promoted(ini, start_fen))),
         legal_moves_need_history=bool(
             doc.get("legalMovesNeedHistory", catalogued_legal_moves_need_history(ini))
@@ -3436,6 +3442,7 @@ def ensure_catalogued_variant_from_game_doc(app_state: Any, doc: Mapping[str, An
             "showPromoted": validated.show_promoted,
             "rulesGate": validated.rules_gate,
             "rulesPass": validated.rules_pass,
+            "rulesArrowing": False,
             "legalMovesNeedHistory": validated.legal_moves_need_history,
             "nFoldIsDraw": validated.n_fold_is_draw,
             "showCheckCounters": validated.show_check_counters,
@@ -4130,6 +4137,7 @@ def _build_doc(
     n_fold_is_draw: bool,
     show_check_counters: bool,
     created_at: datetime,
+    rules_arrowing: bool = False,
     piece_set_directional: bool = False,
     visibility: str = CATALOGUED_VISIBILITY_PRIVATE,
     piece_family_override: str = "",
@@ -4164,6 +4172,7 @@ def _build_doc(
         "showPromoted": show_promoted,
         "rulesGate": rules_gate,
         "rulesPass": rules_pass,
+        "rulesArrowing": rules_arrowing,
         "legalMovesNeedHistory": legal_moves_need_history,
         "nFoldIsDraw": n_fold_is_draw,
         "showCheckCounters": show_check_counters,
@@ -4350,6 +4359,7 @@ def _build_fsf_builtin_doc(
         ),
         rules_gate=_fsf_metadata_bool(metadata, "rulesGate", False),
         rules_pass=_fsf_metadata_bool(metadata, "rulesPass", False),
+        rules_arrowing=_fsf_metadata_bool(metadata, "rulesArrowing", False),
         legal_moves_need_history=_fsf_metadata_bool(metadata, "legalMovesNeedHistory", False),
         n_fold_is_draw=_fsf_metadata_bool(metadata, "nFoldIsDraw", False),
         show_check_counters=_fsf_metadata_bool(metadata, "showCheckCounters", False),
@@ -4399,6 +4409,7 @@ def _fsf_builtin_synced_fields(doc: Mapping[str, Any]) -> dict[str, Any]:
         "showPromoted",
         "rulesGate",
         "rulesPass",
+        "rulesArrowing",
         "legalMovesNeedHistory",
         "nFoldIsDraw",
         "showCheckCounters",
@@ -4532,6 +4543,7 @@ async def upload_catalogued_variant(request: web.Request) -> web.Response:
         show_promoted=validated.show_promoted,
         rules_gate=validated.rules_gate,
         rules_pass=validated.rules_pass,
+        rules_arrowing=False,
         legal_moves_need_history=validated.legal_moves_need_history,
         n_fold_is_draw=validated.n_fold_is_draw,
         show_check_counters=validated.show_check_counters,
@@ -5182,6 +5194,7 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
         show_promoted=show_promoted,
         rules_gate=rules_gate,
         rules_pass=rules_pass,
+        rules_arrowing=False,
         legal_moves_need_history=legal_moves_need_history,
         n_fold_is_draw=n_fold_is_draw,
         show_check_counters=show_check_counters,
@@ -5335,6 +5348,7 @@ async def clone_catalogued_variant(request: web.Request) -> web.Response:
         show_promoted=validated.show_promoted,
         rules_gate=validated.rules_gate,
         rules_pass=validated.rules_pass,
+        rules_arrowing=False,
         legal_moves_need_history=validated.legal_moves_need_history,
         n_fold_is_draw=validated.n_fold_is_draw,
         show_check_counters=validated.show_check_counters,

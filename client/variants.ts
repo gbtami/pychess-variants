@@ -433,6 +433,7 @@ export interface Variant {
         readonly enPassant: boolean;
         readonly gate: boolean;
         readonly duck: boolean;
+        readonly arrowing: boolean;
         readonly pass: boolean;
         readonly setup: boolean;
         readonly noDrawOffer: boolean;
@@ -550,6 +551,7 @@ export function variant(config: VariantConfig): Variant {
             enPassant: !!config.rules?.enPassant,
             gate: !!config.rules?.gate,
             duck: !!config.rules?.duck,
+            arrowing: !!config.rules?.arrowing,
             pass: !!config.rules?.pass,
             setup: !!config.rules?.setup,
             noDrawOffer: !!config.rules?.noDrawOffer,
@@ -668,6 +670,8 @@ interface VariantConfig {
         gate?: boolean;
         // Duck Chess moving
         duck?: boolean;
+        // Amazons-style arrow placement after moving a piece
+        arrowing?: boolean;
         // Passing without moving a piece on board
         pass?: boolean;
         // Setup phase
@@ -2071,6 +2075,7 @@ export interface CataloguedVariantClientDocument {
     readonly showPromoted?: boolean;
     readonly rulesGate?: boolean;
     readonly rulesPass?: boolean;
+    readonly rulesArrowing?: boolean;
     readonly showCheckCounters?: boolean;
     readonly category?: string;
     readonly author?: string;
@@ -2787,6 +2792,7 @@ export function registerCataloguedVariant(meta: CataloguedVariantClientDocument)
             enPassant: !!clientVariant?.rules.enPassant,
             gate: !!meta.rulesGate || !!clientVariant?.rules.gate,
             duck: !!clientVariant?.rules.duck,
+            arrowing: !!meta.rulesArrowing || !!clientVariant?.rules.arrowing,
             pass: !!meta.rulesPass || !!clientVariant?.rules.pass,
             setup: !!clientVariant?.rules.setup,
             noDrawOffer: !!clientVariant?.rules.noDrawOffer,

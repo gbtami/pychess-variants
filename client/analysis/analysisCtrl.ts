@@ -1184,8 +1184,8 @@ export class AnalysisController extends GameController {
                 { orig: o, dest: d, brush: 'paleGreen', piece: undefined, modifiers: { lineWidth: 14 - pv_idx * 2.5 } },
             ];
 
-            // duck
-            if (this.variant.rules.duck && pv_move.includes(',')) {
+            // duck / Amazons arrow blocker
+            if ((this.variant.rules.duck || this.variant.rules.arrowing) && pv_move.includes(',')) {
                 this.autoShapes[pv_idx].push({
                     orig: pv_move.slice(-2) as cg.Key,
                     brush: 'paleGreen',
@@ -1495,6 +1495,7 @@ export class AnalysisController extends GameController {
             this.fullfen = step.fen;
             this.suffix = '';
             this.duck.cancel();
+            this.arrowing.cancel();
 
             if (this.variant.ui.counting) {
                 [this.vmiscInfoW, this.vmiscInfoB] = updateCount(

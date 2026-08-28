@@ -19,6 +19,7 @@ from catalogued_variants import (
 class FsfBuiltinMetadataTestCase(TestCase):
     def test_engine_and_client_variant_relationships_are_separate(self) -> None:
         expected = {
+            "amazons": ("", "chess"),
             "atomar": ("nocheckatomic", "atomic"),
             "centaur": ("", "capablanca"),
             "chancellor": ("", "capablanca"),
@@ -73,6 +74,11 @@ class FsfBuiltinMetadataTestCase(TestCase):
             FSF_CATALOGUED_BUILTIN_VARIANTS_CANDIDATES["normal"]["clientVariant"],
             "chess",
         )
+
+    def test_amazons_is_seeded_with_arrowing_input(self) -> None:
+        metadata = FSF_CATALOGUED_BUILTIN_VARIANTS["amazons"]
+        self.assertTrue(metadata["rulesArrowing"])
+        self.assertNotIn("amazons", FSF_CATALOGUED_BUILTIN_VARIANTS_CANDIDATES)
 
     def test_chigorin_is_not_seeded_until_side_specific_promotions_are_supported(self) -> None:
         self.assertNotIn("chigorin", FSF_CATALOGUED_BUILTIN_VARIANTS)

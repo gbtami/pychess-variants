@@ -2,7 +2,7 @@ import * as cg from 'chessgroundx/types';
 
 import { GameController } from '@/gameCtrl';
 
-export type InputType = 'gating' | 'promotion' | 'duck';
+export type InputType = 'gating' | 'promotion' | 'duck' | 'arrowing';
 
 export abstract class ExtraInput {
     protected readonly ctrl: GameController;

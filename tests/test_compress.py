@@ -40,6 +40,18 @@ class EncodeDecodeTestCase(unittest.TestCase):
         saved_restored = [*map(decode_move_extended, map(encode_move_extended, moves))]
         self.assertEqual(saved_restored, moves)
 
+    def test_ten_rank_compound_move_roundtrip(self):
+        move = "d1a1,a1j10"
+        variant = register_catalogued_server_variant(
+            "testamazons", "Test Amazons", grand=True, arrowing=True
+        )
+        try:
+            encoded = variant.move_encoding(grand2zero(move))
+            restored = zero2grand(variant.move_decoding(encoded))
+            self.assertEqual(restored, move)
+        finally:
+            unregister_catalogued_server_variant("testamazons")
+
     def test_catalogued_move_codec_preserves_gating_suffixes(self):
         moves = ["e1g1h", "e1g1ha1", "a11a12hp10"]
         self.assertEqual(decode_move_standard(encode_move_standard(moves[0])), moves[0])

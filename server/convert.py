@@ -91,6 +91,9 @@ def grand2zero(move):
     """Converts 1 based UCI move ranks (1-10) to be 0 based (0-9)
     This step is needed to use compress.py (store 2 byte moves on 1 byte)"""
 
+    if "," in move:
+        return ",".join(grand2zero(part) for part in move.split(","))
+
     if move[1] == "@":
         return "%s@%s%s" % (move[0], move[2], int(move[3:]) - 1)
 
@@ -126,6 +129,9 @@ def grand2zero(move):
 
 
 def zero2grand(move):
+    if "," in move:
+        return ",".join(zero2grand(part) for part in move.split(","))
+
     if move[1] == "@":
         return "%s@%s%s" % (move[0], move[2], int(move[3:]) + 1)
     return "%s%s%s%s%s" % (

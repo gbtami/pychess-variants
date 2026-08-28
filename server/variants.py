@@ -266,6 +266,7 @@ def register_catalogued_server_variant(
     *,
     grand: bool = False,
     extended_move_codec: bool = False,
+    arrowing: bool = False,
     show_promoted: bool = False,
     legal_moves_need_history: bool = False,
     n_fold_is_draw: bool = False,
@@ -287,8 +288,20 @@ def register_catalogued_server_variant(
         show_promoted=show_promoted,
         legal_moves_need_history=legal_moves_need_history,
         n_fold_is_draw=n_fold_is_draw,
-        move_encoding=encode_move_extended if extended_move_codec else encode_move_standard,
-        move_decoding=decode_move_extended if extended_move_codec else decode_move_standard,
+        move_encoding=(
+            encode_move_duck
+            if arrowing
+            else encode_move_extended
+            if extended_move_codec
+            else encode_move_standard
+        ),
+        move_decoding=(
+            decode_move_duck
+            if arrowing
+            else decode_move_extended
+            if extended_move_codec
+            else decode_move_standard
+        ),
     )
     CATALOGUED_VARIANTS[name] = variant
     ALL_VARIANTS[name] = variant

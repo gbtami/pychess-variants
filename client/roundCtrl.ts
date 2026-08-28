@@ -475,7 +475,7 @@ export class RoundController extends GameController {
         const container = document.getElementById('game-controls') as HTMLElement;
         if (!this.spectator) {
             let buttons = [];
-            if (this.variant.rules.duck) {
+            if (this.variant.rules.duck || this.variant.rules.arrowing) {
                 buttons.push(h('div#undo'));
             }
             if (!this.tournamentGame) {
@@ -602,12 +602,20 @@ export class RoundController extends GameController {
 
     toggleSettings() {}
 
-    onDuckInputStateChange(active: boolean): void {
-        // During duck placement the reply icon means "Cancel piece move" and
-        // rewinds only the unsent first leg. Hide the server takeback action so
-        // two controls with different rewind scopes cannot appear together.
+    private onCompoundInputStateChange(active: boolean): void {
+        // During the second leg of a compound move the reply icon means
+        // "Cancel piece move" and rewinds only the unsent first leg. Hide the
+        // server takeback action so two different rewind scopes cannot coexist.
         const takeback = document.getElementById('takeback') as HTMLElement | null;
         if (takeback) takeback.hidden = active;
+    }
+
+    onDuckInputStateChange(active: boolean): void {
+        this.onCompoundInputStateChange(active);
+    }
+
+    onArrowingInputStateChange(active: boolean): void {
+        this.onCompoundInputStateChange(active);
     }
 
     buttonAbort() {

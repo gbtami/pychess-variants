@@ -111,7 +111,7 @@ export function validFen(variant: Variant, fen: string): boolean {
         startPlacement +
         (variantName === 'orda' ? 'Hq' : '') +
         (variantName === 'dobutsu' ? 'Hh' : '') +
-        (variantName === 'duck' || variantName === 'ataxx' ? '*' : '') +
+        (variantName === 'duck' || variantName === 'ataxx' || variant.rules.arrowing ? '*' : '') +
         '~+0123456789[]-';
     const alien = (element: string) => !good.includes(element);
     if (placement.split('').some(alien)) return false;
@@ -184,6 +184,9 @@ export function validFen(variant: Variant, fen: string): boolean {
         }
         //}
     }
+
+    // Amazons has no royal pieces, so there is no king-count invariant to apply.
+    if (variant.rules.arrowing) return true;
 
     // Number of kings
     const king = util.letterOf(variant.kingRoles[0]);
