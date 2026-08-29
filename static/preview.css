@@ -63,6 +63,22 @@ label.piece.piece3.ataxx {
     background-image: url('images/pieces/ataxx/cat-dog/dog.svg');
 }
 
+label.piece.piece0.paradigm {
+    background-image: url('images/pieces/paradigm/cburnett/wD.svg');
+}
+label.piece.piece1.paradigm {
+    background-image: url('images/pieces/green/wD.svg');
+}
+label.piece.piece2.paradigm {
+    background-image: url('images/pieces/paradigm/wD.svg');
+}
+label.piece.piece3.paradigm {
+    background-image: url('images/pieces/merida/wD.svg');
+}
+label.piece.piece4.paradigm {
+    background-image: url('images/pieces/disguised/w.svg');
+}
+
 label.piece.piece0.standard {
     background-image: url('images/pieces/merida/wN.svg');
 }

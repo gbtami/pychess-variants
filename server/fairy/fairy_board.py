@@ -14,6 +14,7 @@ from fairy.caparandom import caparandom_rank8
 from fairy.chess960 import CHESS960_FENS
 from fairy.cwda import cwda_engine_variant
 from fairy.jieqi import BLACK_PIECES, RED_PIECES, apply_move_and_transform, make_initial_mapping
+from fairy.paradigm import PARADIGM_FENS
 from fairy.racingkings import RACINGKINGS_FENS
 
 log = logging.getLogger(__name__)
@@ -46,6 +47,8 @@ LOOKING_GLASS_ALICE_FEN = "|r|n|b|q|k|b|n|r/|p|p|p|p|p|p|p|p/8/8/8/8/PPPPPPPP/RN
 MANCHU_FEN = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/9/9/M1BAKAB2 w - - 0 1"
 MANCHU_R_FEN = "m1bakab1r/9/9/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"
 JIEQI_FEN = "r~n~b~a~ka~b~n~r~/9/1c~5c~1/p~1p~1p~1p~1p~/9/9/P~1P~1P~1P~1P~/1C~5C~1/9/R~N~B~A~KA~B~N~R~ w - - 0 1"
+
+RANDOM_START_VARIANTS = frozenset(("ataxx", "paradigm"))
 
 
 def _normalize_variant_and_chess960(variant: str | None, chess960: bool) -> tuple[str, bool]:
@@ -154,7 +157,7 @@ class FairyBoard:
                 # print(self.jieqi_covered_pieces)
             else:
                 self.initial_fen = FairyBoard.start_fen(
-                    variant, chess960 or variant == "ataxx", disabled_fen
+                    variant, chess960 or variant in RANDOM_START_VARIANTS, disabled_fen
                 )
         self.move_stack: list[str] = []
         self.ply = 0
@@ -187,7 +190,7 @@ class FairyBoard:
     def start_fen(variant: str | None, chess960=False, disabled_fen=""):
         normalized_variant, normalized_chess960 = _normalize_variant_and_chess960(variant, chess960)
 
-        if normalized_chess960 or normalized_variant == "ataxx":
+        if normalized_chess960 or normalized_variant in RANDOM_START_VARIANTS:
             new_fen = FairyBoard.shuffle_start(normalized_variant)
             while new_fen == disabled_fen:
                 new_fen = FairyBoard.shuffle_start(normalized_variant)
@@ -503,6 +506,8 @@ class FairyBoard:
 
         if variant == "ataxx":
             return random.choice(ATAXX_FENS)
+        elif variant == "paradigm":
+            return random.choice(PARADIGM_FENS)
         elif variant == "racingkings":
             return "8/8/8/8/8/8/%s w - - 0 1" % random.choice(RACINGKINGS_FENS)
 

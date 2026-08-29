@@ -1,0 +1,36 @@
+.paradigm piece.p-piece.white {
+    background-image: url('../../images/pieces/green/wP.svg');
+}
+.paradigm piece.b-piece.white {
+    background-image: url('../../images/pieces/paradigm/cburnett/wD.svg');
+}
+.paradigm piece.n-piece.white {
+    background-image: url('../../images/pieces/green/wN.svg');
+}
+.paradigm piece.r-piece.white {
+    background-image: url('../../images/pieces/green/wR.svg');
+}
+.paradigm piece.q-piece.white {
+    background-image: url('../../images/pieces/green/wQ.svg');
+}
+.paradigm piece.k-piece.white {
+    background-image: url('../../images/pieces/green/wK.svg');
+}
+.paradigm piece.p-piece.black {
+    background-image: url('../../images/pieces/green/bP.svg');
+}
+.paradigm piece.b-piece.black {
+    background-image: url('../../images/pieces/paradigm/cburnett/bD.svg');
+}
+.paradigm piece.n-piece.black {
+    background-image: url('../../images/pieces/green/bN.svg');
+}
+.paradigm piece.r-piece.black {
+    background-image: url('../../images/pieces/green/bR.svg');
+}
+.paradigm piece.q-piece.black {
+    background-image: url('../../images/pieces/green/bQ.svg');
+}
+.paradigm piece.k-piece.black {
+    background-image: url('../../images/pieces/green/bK.svg');
+}

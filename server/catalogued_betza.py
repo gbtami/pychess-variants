@@ -97,6 +97,7 @@ FSF_BUILTIN_PIECE_DIAGRAMS_BY_VARIANT: Mapping[str, tuple[_FsfBuiltinPieceDefini
     ),
     "pawnback": (_FsfBuiltinPieceDefinition("p", "Backward pawn", "fbmWfceFifmnD"),),
     "pawnsideways": (_FsfBuiltinPieceDefinition("p", "Sideways pawn", "fsmWfceFifmnD"),),
+    "paradigm": (_FsfBuiltinPieceDefinition("b", "Dragon Bishop", "BnN"),),
     "perfect": (
         _FsfBuiltinPieceDefinition("c", "Chancellor", "RN"),
         _FsfBuiltinPieceDefinition("m", "Archbishop", "BN"),

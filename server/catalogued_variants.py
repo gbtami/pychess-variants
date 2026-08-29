@@ -118,6 +118,7 @@ CATALOGUED_PIECE_FAMILY_OVERRIDES = frozenset(
         "mansindam",
         "orda",
         "ordamirror",
+        "paradigm",
         "pemba",
         "seirawan",
         "shako",
@@ -566,6 +567,18 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
         "promotionRoles": ("p",),
         "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
     },
+    "paradigm": {
+        "displayName": "Paradigm Chess30",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://www.chessvariants.com/rules/paradigm-chess30",
+        ),
+        "baseVariant": "",
+        "clientVariant": "chess",
+        "pieceNames": {"b": "Dragon Bishop"},
+        "promotionRoles": ("p",),
+        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
+    },
     "perfect": {
         "displayName": "Perfect Chess",
         "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
@@ -1009,16 +1022,6 @@ FSF_CATALOGUED_BUILTIN_VARIANTS_CANDIDATES: Mapping[str, Mapping[str, Any]] = {
         "baseVariant": "",
         "clientVariant": "shogi",
         "reviewNotes": "Shogi-family drops/promotions; review piece assets and byo UI.",
-    },
-    "paradigm": {
-        "displayName": "Paradigm Chess30",
-        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
-        "references": _fsf_builtin_references(
-            "https://www.chessvariants.com/rules/paradigm-chess30",
-        ),
-        "baseVariant": "",
-        "clientVariant": "chess",
-        "reviewNotes": "Uses non-standard bishop/horse hybrid pieces; review identities/assets.",
     },
     "snailtrail": {
         "displayName": "Snail Trail",

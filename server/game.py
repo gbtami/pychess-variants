@@ -41,7 +41,16 @@ from const import (
 )
 from convert import grand2zero, mirror5, mirror9, uci2usi
 from draw import reject_draw
-from fairy import BLACK, NOTATION_SAN, WHITE, FairyBoard, get_fog_fen, get_san_moves, modded_variant
+from fairy import (
+    BLACK,
+    NOTATION_SAN,
+    RANDOM_START_VARIANTS,
+    WHITE,
+    FairyBoard,
+    get_fog_fen,
+    get_san_moves,
+    modded_variant,
+)
 from glicko2.glicko2 import Rating, gl2
 from lobby_panels_cache import refresh_lobby_leaderboard_cache
 from rated_start import can_rate_start, can_rate_variant
@@ -342,8 +351,8 @@ class Game:
         # Old USI Shogi games saved using usi2uci() need special handling in create_steps()
         self.usi_format = False
 
-        # Ataxx is not default or 960, just random
-        self.random_only = self.variant == "ataxx"
+        # Some variants randomize their default start without using Chess960 rules.
+        self.random_only = self.variant in RANDOM_START_VARIANTS
 
         # Calculate the start of manual counting
         count_started = 0

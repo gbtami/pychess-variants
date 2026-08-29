@@ -130,6 +130,22 @@ class CataloguedBetzaDiagramTestCase(unittest.TestCase):
         )
         self.assertNotIn("b", {diagram["piece"] for diagram in catalogued_betza_diagrams(doc)})
 
+    def test_paradigm_dragon_bishop_uses_fsf_movement(self):
+        doc = {
+            "name": "paradigm",
+            "fsfBuiltinVariant": "paradigm",
+            "baseVariant": "",
+            "clientVariant": "chess",
+            "ini": "",
+            "pieces": ["p", "n", "b", "r", "q", "k"],
+        }
+
+        self.assertEqual(catalogued_betza_pieces(doc), {"b": "BnN"})
+        self.assertEqual(
+            [(diagram["piece"], diagram["betza"]) for diagram in catalogued_betza_diagrams(doc)],
+            [("b", "BnN")],
+        )
+
     def test_petrified_inherits_sideways_pawn_and_replaces_king_with_commoner(self):
         doc = {
             "name": "petrified",

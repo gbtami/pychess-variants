@@ -6,6 +6,7 @@ from unittest import TestCase
 from unittest.mock import AsyncMock, patch
 
 from catalogued_variants import (
+    CATALOGUED_CHESS_PROMOTION_ORDER,
     CATALOGUED_SOURCE_FSF_BUILTIN,
     FSF_CATALOGUED_BUILTIN_DESCRIPTION,
     FSF_CATALOGUED_BUILTIN_VARIANTS,
@@ -41,6 +42,7 @@ class FsfBuiltinMetadataTestCase(TestCase):
             "almost": ("", "chess"),
             "gustav3": ("", "chess"),
             "omicron": ("", "chess"),
+            "paradigm": ("", "chess"),
             "troitzky": ("", "chess"),
         }
 
@@ -96,6 +98,13 @@ class FsfBuiltinMetadataTestCase(TestCase):
             metadata = FSF_CATALOGUED_BUILTIN_VARIANTS[name]
             self.assertEqual(metadata["clientVariant"], "chess")
             self.assertEqual(metadata["premoveVariant"], "grand")
+
+    def test_paradigm_is_seeded_with_dragon_bishop_promotions(self) -> None:
+        metadata = FSF_CATALOGUED_BUILTIN_VARIANTS["paradigm"]
+        self.assertEqual(metadata["pieceNames"], {"b": "Dragon Bishop"})
+        self.assertEqual(metadata["promotionRoles"], ("p",))
+        self.assertEqual(metadata["promotionOrder"], CATALOGUED_CHESS_PROMOTION_ORDER)
+        self.assertNotIn("paradigm", FSF_CATALOGUED_BUILTIN_VARIANTS_CANDIDATES)
 
     def test_gustav_and_omicron_promotion_targets_include_fairy_pieces(self) -> None:
         gustav = FSF_CATALOGUED_BUILTIN_VARIANTS["gustav3"]
