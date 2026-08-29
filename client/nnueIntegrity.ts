@@ -7,7 +7,11 @@ function bytesToHex(bytes: Uint8Array): string {
 export async function nnueSha256(data: Uint8Array): Promise<string | undefined> {
     if (!globalThis.crypto?.subtle) return undefined;
 
-    const digest = await globalThis.crypto.subtle.digest('SHA-256', data);
+    const digestData =
+        data.buffer instanceof ArrayBuffer
+            ? new Uint8Array(data.buffer, data.byteOffset, data.byteLength)
+            : data.slice();
+    const digest = await globalThis.crypto.subtle.digest('SHA-256', digestData);
     return bytesToHex(new Uint8Array(digest));
 }
 

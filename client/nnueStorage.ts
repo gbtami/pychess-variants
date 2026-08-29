@@ -165,7 +165,7 @@ export async function loadOfficialNnueFile(
     // Old PyChess versions had no source/integrity metadata. If the selected
     // file exactly matches the current official hash-named network, adopt it as
     // an official cache entry after the available size/hash checks.
-    await idb.set<NnueFileMetadata>(nnueMetadataKey(variant), {
+    await idb.set(nnueMetadataKey(variant), {
         filename: network.file,
         source: metadata?.source ?? 'official',
         bytes: network.bytes,

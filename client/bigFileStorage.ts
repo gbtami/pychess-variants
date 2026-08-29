@@ -67,7 +67,13 @@ export class BigFileStorage {
             const handle = await opfs.getFileHandle(filename, { create: true });
             const writable = await handle.createWritable();
             try {
-                await writable.write(data);
+                const writableData =
+                    data instanceof Uint8Array
+                        ? data.buffer instanceof ArrayBuffer
+                            ? new Uint8Array(data.buffer, data.byteOffset, data.byteLength)
+                            : data.slice()
+                        : data;
+                await writable.write(writableData);
                 await writable.close();
                 return;
             } catch (error) {
