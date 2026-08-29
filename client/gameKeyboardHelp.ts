@@ -63,7 +63,7 @@ function buildPocketShortcutSection(ctrl: GameKeyboardHelpHost): ShortcutSection
         wide: true,
         items: [
             {
-                keys: [...POCKET_HOTKEYS.slice(0, roles.length)],
+                keys: POCKET_HOTKEYS.slice(0, roles.length),
                 description: _('Select pocket piece by position'),
                 compactKeys: true,
             },
