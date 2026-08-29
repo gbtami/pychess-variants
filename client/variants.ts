@@ -222,7 +222,7 @@ export const BOARD_FAMILIES: Record<string, BoardFamily> = {
 };
 
 export const PIECE_FAMILIES: Record<string, PieceFamily> = {
-    amazons: { pieceCSS: ['classic', 'arrow'], wallCSS: ['classic', 'arrow'] },
+    amazons: { pieceCSS: ['classic', 'arrow', 'disguised'], wallCSS: ['classic', 'arrow'] },
     ataxx: { pieceCSS: ['disguised', 'virus', 'zombie', 'cat-dog'] },
     standard: {
         pieceCSS: [
