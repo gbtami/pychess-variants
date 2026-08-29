@@ -120,6 +120,12 @@ export abstract class GameController extends ChessgroundController implements Ch
     keyboardHelpOpen: boolean;
     private readonly onGameKeyboardHelpKeyDown: (event: KeyboardEvent) => void;
 
+    get pocketHotkeyRoles(): readonly cg.Role[] | undefined {
+        return !this.spectator && this.status < 0 && this.variant.pocket
+            ? this.variant.pocket.roles[this.mycolor]
+            : undefined;
+    }
+
     constructor(
         el: HTMLElement,
         model: PyChessModel,

@@ -1,8 +1,10 @@
 import { h, type VNode } from 'snabbdom';
+import type * as cg from 'chessgroundx/types';
 
 import { _ } from './i18n';
 import { patch } from './document';
 import type { Variant } from './variants';
+import { POCKET_HOTKEYS } from './pocketHotkeys';
 
 interface ShortcutItem {
     keys: string[];
@@ -17,6 +19,7 @@ interface ShortcutSection {
 export interface GameKeyboardHelpHost {
     closeKeyboardHelp(): void;
     variant: Variant;
+    pocketHotkeyRoles?: readonly cg.Role[];
 }
 
 let keyboardHelpVNode: VNode | null = null;
@@ -45,6 +48,31 @@ function renderKeys(keys: string[]): VNode {
     );
 }
 
+const POCKET_HELP_ROW_SIZE = 5;
+
+function buildPocketShortcutSection(ctrl: GameKeyboardHelpHost): ShortcutSection | null {
+    const roles = ctrl.pocketHotkeyRoles;
+    if (!roles?.length) return null;
+
+    const items: ShortcutItem[] = [];
+    const hotkeys = POCKET_HOTKEYS.slice(0, roles.length);
+    for (let start = 0; start < hotkeys.length; start += POCKET_HELP_ROW_SIZE) {
+        const keys = [...hotkeys.slice(start, start + POCKET_HELP_ROW_SIZE)];
+        const from = start + 1;
+        const to = start + keys.length;
+        items.push({
+            keys,
+            description:
+                from === to ? _('Select pocket piece %1', from) : _('Select pocket pieces %1-%2', from, to),
+        });
+    }
+
+    return {
+        title: _('Drops'),
+        items,
+    };
+}
+
 export function buildGameKeyboardHelpSections(
     ctrl: GameKeyboardHelpHost,
     options: { flipDescription?: string } = {},
@@ -68,6 +96,9 @@ export function buildGameKeyboardHelpSections(
             ],
         },
     ];
+
+    const pocketShortcutSection = buildPocketShortcutSection(ctrl);
+    if (pocketShortcutSection) sections.push(pocketShortcutSection);
 
     if (ctrl.variant.rules.gate || ctrl.variant.name === 'duck' || ctrl.variant.name === 'supply') {
         sections.push({

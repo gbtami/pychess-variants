@@ -88,6 +88,16 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
     keyboardHelpOpen: boolean;
     private readonly onKeyboardHelpKeyDown: (event: KeyboardEvent) => void;
 
+    get pocketHotkeyRoles(): readonly cg.Role[] | undefined {
+        if (this.spectator || this.finishedGame || !this.variant.pocket) return undefined;
+
+        const myBoards = (['a', 'b'] as const).filter(board => this.seats.myColor(board) !== undefined);
+        if (myBoards.length !== 1) return undefined;
+
+        const color = this.seats.myColor(myBoards[0])!;
+        return this.variant.pocket.roles[color];
+    }
+
     constructor(
         el1: HTMLElement,
         el1Pocket1: HTMLElement,
