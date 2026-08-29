@@ -171,7 +171,7 @@ customPiece2 = m:DK`,
     expect(boardSettings.pieceCSS(variant.pieceFamily, variant)).toBe('courier');
 });
 
-test('catalogued Amazons offers classic and arrow piece styles with their own wall artwork', () => {
+test('catalogued Amazons offers classic, arrow, and disguised piece styles with correct wall handling', () => {
     const variant = register({
         name: 'testamazonspieces',
         displayName: 'Test Amazons Pieces',
@@ -192,7 +192,7 @@ test('catalogued Amazons offers classic and arrow piece styles with their own wa
     document.body.appendChild(board);
 
     expect(variant.pieceFamily).toBe('amazons');
-    expect(PIECE_FAMILIES.amazons.pieceCSS).toEqual(['classic', 'arrow']);
+    expect(PIECE_FAMILIES.amazons.pieceCSS).toEqual(['classic', 'arrow', 'disguised']);
     expect(boardSettings.pieceCSS(variant.pieceFamily, variant)).toBe('classic');
 
     boardSettings.updateScopedPieceStyle(variant, wrap);
@@ -204,6 +204,13 @@ test('catalogued Amazons offers classic and arrow piece styles with their own wa
     boardSettings.updateScopedPieceStyle(variant, wrap);
     expect(board.classList.contains('piece-style-amazons-arrow')).toBe(true);
     expect(board.classList.contains('catalogued-piece-wall-artwork')).toBe(true);
+    expect(board.classList.contains('catalogued-missing-piece-fallback')).toBe(false);
+
+    boardSettings.getSettings('PieceStyle', variant.pieceFamily, '', variant).value = 2;
+    expect(boardSettings.pieceCSS(variant.pieceFamily, variant)).toBe('disguised');
+    boardSettings.updateScopedPieceStyle(variant, wrap);
+    expect(board.classList.contains('piece-style-amazons-disguised')).toBe(true);
+    expect(board.classList.contains('catalogued-piece-wall-artwork')).toBe(false);
     expect(board.classList.contains('catalogued-missing-piece-fallback')).toBe(false);
 
     board.remove();

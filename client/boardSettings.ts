@@ -130,6 +130,7 @@ function setPieceStyleClass(target: HTMLElement, family: string, css: string, va
             !family.startsWith('catalogued-') &&
             !imageLayer &&
             !wallArtwork &&
+            css !== 'disguised' &&
             css !== 'letters' &&
             css !== 'invisible',
     );
