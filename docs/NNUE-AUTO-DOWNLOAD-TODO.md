@@ -1,61 +1,87 @@
 # Browser NNUE auto-download plan
 
-PyChess currently requires users to download a Fairy-Stockfish `.nnue` network themselves and select it in Board settings. The goal is to make official networks discoverable, downloadable, and cached by the browser while preserving manual imports for custom/testing networks.
+PyChess now discovers, downloads, validates, and persistently caches official
+Fairy-Stockfish NNUE networks from the analysis settings panel. Manual `.nnue`
+imports remain available for custom/testing networks.
 
-The variant network set is much larger than Lichess' and includes files above 250 MB, so downloads must remain on-demand and large downloads need explicit size-aware confirmation.
+The variant network set is much larger than Lichess' and includes files above
+250 MB, so downloads remain on-demand and large downloads require explicit
+size-aware confirmation.
 
 ## Hosting decision
 
 Do **not** publish an NNUE-only normal release in `gbtami/Fairy-Stockfish`.
 
-`fairyfishnet` resolves `https://api.github.com/repos/gbtami/Fairy-Stockfish/releases/latest` and expects the latest release to contain the exact platform engine binary. An NNUE-only latest release would therefore break automatic worker engine downloads.
+`fairyfishnet` resolves `https://api.github.com/repos/gbtami/Fairy-Stockfish/releases/latest`
+and expects the latest release to contain the exact platform engine binary. An
+NNUE-only latest release would therefore break automatic worker engine downloads.
 
-The networks are now archived as immutable hash-named assets in the dedicated `gbtami/Fairy-Stockfish-NNUE` repository's long-lived `networks` release. This keeps the NNUE archive completely independent from fairyfishnet's engine-binary release lifecycle.
+The networks are archived as immutable hash-named assets in the dedicated
+`gbtami/Fairy-Stockfish-NNUE` repository's long-lived `networks` release. This
+keeps the NNUE archive completely independent from fairyfishnet's engine-binary
+release lifecycle.
 
-GitHub Release assets are not suitable as the production browser download origin: current release downloads redirect to `release-assets.githubusercontent.com`, and the final asset response has been observed without the CORS headers required for cross-origin JavaScript fetches. Keep GitHub as the canonical archive/manifest and mirror the files to a CORS-capable object store for Step 3. Cloudflare R2 is the preferred delivery candidate because it supports explicit browser CORS policies and keeps large-file delivery separate from the GitHub archive.
+GitHub remains the canonical archive/manifest, but browser delivery uses a
+private Cloudflare R2 bucket behind the `pychess-nnue.gbtami.workers.dev`
+Worker. GitHub Release asset redirects are not a reliable cross-origin browser
+`fetch` origin, while the Worker gives PyChess explicit CORS and streams large
+objects without routing them through Heroku. See `docs/NNUE-R2.md`.
 
-## Steps
+## Completed implementation
 
 - [x] **1. Big-file storage foundation**
-  - Add OPFS-first storage with IndexedDB fallback, following Lichess' large-asset approach.
-  - Route existing manual NNUE imports through it.
-  - Lazily migrate existing `variant--nnue-data` IndexedDB entries so users keep their installed networks.
-  - Keep the existing manual file picker as the advanced/fallback path.
+  - OPFS-first storage with IndexedDB fallback.
+  - Existing manual imports use the big-file store.
+  - Legacy `variant--nnue-data` entries are lazily migrated when possible.
+  - Manual import remains the advanced/fallback path.
 
 - [x] **2. Official NNUE manifest**
-  - Bundle the 48 mirrored release assets in a client-side manifest so discovery does not require a runtime GitHub API/manifest request.
-  - Record immutable filename and exact byte size and retain the stable GitHub Release URL as the canonical archive URL, not the browser fetch URL.
-  - Resolve Fairy-Stockfish's documented compatibility aliases such as `chess -> nn`, `placement -> nn`, `cambodian -> makruk`, `caparandom/embassy/gothic -> capablanca`, and the Janggi compatibility variants.
-  - Reuse the same mapping for manual NNUE filename validation.
-  - User-defined variants remain manual unless their actual engine variant name is a known catalogued Fairy-Stockfish built-in/network alias.
+  - Bundle the 48 mirrored assets with immutable filename and exact byte size.
+  - Resolve Fairy-Stockfish's compatible-network aliases.
+  - Reuse the same mapping for manual filename validation.
+  - User-defined variants remain manual unless their engine variant resolves to
+    a known official network.
 
-- [ ] **3. On-demand download manager**
-  - [x] Add a configurable `NNUE_DOWNLOAD_ROOT`; automatic downloads stay disabled until a CORS-capable mirror is configured.
-  - [x] Download only the current variant's network, never prefetch the full set.
-  - [x] Report download progress in the analysis settings UI.
-  - [x] Reuse the big-file cache on later visits.
-  - [x] Validate the exact manifest byte size before storing or activating a download.
-  - [x] Start networks up to 64 MiB after an explicit user download request and require an additional size-aware confirmation above 64 MiB.
-  - [x] Mirror the 48 release assets to a private Cloudflare R2 bucket and serve them through the
-    `pychess-nnue.gbtami.workers.dev` Worker with explicit PyChess CORS headers. See `docs/NNUE-R2.md`.
-  - [ ] Set `NNUE_DOWNLOAD_ROOT=https://pychess-nnue.gbtami.workers.dev` on the deployed server when this
-    feature is released.
+- [x] **3. On-demand download manager**
+  - Configurable `NNUE_DOWNLOAD_ROOT`.
+  - Download only the current variant's network; never prefetch the full set.
+  - Live progress, exact-size validation, persistent cache reuse.
+  - Additional confirmation above 64 MiB.
+  - 48 release assets mirrored to private R2 and served through the Worker.
 
 - [x] **4. Analysis settings UX**
-  - Show whether the official network is missing, downloading, cached, or manually supplied.
-  - Show exact official file size and live byte/percentage progress.
-  - Keep “Use NNUE” separate from “network installed” state and explain that downloads are managed separately.
-  - Avoid silently downloading a 100–260 MB network merely because the historical `Use NNUE` setting defaults to enabled.
-  - Allow retry after download/storage failures and removal of the selected cached/manual network.
+  - Missing/downloading/cached/manual states with exact sizes and progress.
+  - **Use NNUE** is independent from whether a network is installed.
+  - Retry and explicit removal controls.
+  - Manual imports hot-load without requiring a page refresh.
 
 - [x] **5. Integrity and lifecycle**
-  - Validate exact byte size before activation and verify the SHA-256 prefix embedded in each official hash-named filename when Web Crypto is available.
-  - Record source/integrity metadata for cached networks; lazily validate and adopt official caches created by Steps 1-4.
-  - Delete corrupt/incomplete official cache entries and leave the official download action available for a clean retry.
-  - When the manifest moves to a new hash-named network, remove a superseded selected **official** cache entry so old networks do not accumulate indefinitely.
-  - Preserve manually selected files unless the user explicitly replaces/removes them.
+  - Exact-size validation plus SHA-256 filename-prefix verification when Web
+    Crypto is available.
+  - Source/integrity metadata for official versus manual caches.
+  - Corrupt/incomplete official caches are discarded for clean retry.
+  - Superseded selected official networks are removed without touching manual
+    files.
 
-- [ ] **6. Documentation and rollout**
-  - Update the NNUE blog/help text so manual Google Drive download is no longer the normal workflow.
-  - Test OPFS and IndexedDB fallback in Chromium and Firefox, including a large network.
-  - Verify mobile/narrow UI and quota/error messages before enabling automatic first-use downloads in production.
+- [x] **6. Documentation and rollout preparation**
+  - Preserve the historical NNUE blog posts unchanged; they document the
+    workflow that existed when they were published.
+  - Document the current official first-use download workflow separately from
+    historical announcements.
+  - Document R2/Worker maintenance, update/recovery, and rollback.
+  - Add the cross-browser/manual rollout matrix in `docs/NNUE-TESTING.md`.
+
+## Production rollout
+
+These are deployment actions, not implementation work:
+
+- [ ] Complete the manual Firefox and Chromium matrix in `docs/NNUE-TESTING.md`,
+      including one network above 64 MiB and a narrow/mobile viewport.
+- [ ] Set
+      `NNUE_DOWNLOAD_ROOT=https://pychess-nnue.gbtami.workers.dev` on the
+      production server and restart/deploy.
+- [ ] Run the production Worker/CORS smoke test and download one small and one
+      large network from the production analysis page.
+
+Rollback is intentionally simple: unset `NNUE_DOWNLOAD_ROOT`. Manual imports and
+already cached networks remain usable, and Heroku never proxies the NNUE bytes.

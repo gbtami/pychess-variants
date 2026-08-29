@@ -115,3 +115,64 @@ prefetches the complete network set.
 - Files are persisted through OPFS first, with IndexedDB fallback, and reused
   on later visits.
 - The manual file picker remains available for custom/test networks.
+
+## Updating the official networks
+
+The GitHub release is the source of truth and R2 is only its browser-delivery
+mirror. When Fairy-Stockfish publishes a replacement network:
+
+1. Keep the old hash-named GitHub Release asset for compatibility with older
+   clients.
+2. Add the new network to `gbtami/Fairy-Stockfish-NNUE`, regenerate its manifest,
+   and upload the new release asset.
+3. Upload the new `.nnue` object to the private R2 bucket with the same filename.
+4. Update `client/nnueManifest.ts` in PyChess to reference the new hash-named
+   filename and exact byte size.
+5. Deploy PyChess. Step 5 lifecycle handling removes a superseded **official**
+   selected cache when that variant is next used; manually supplied networks are
+   never garbage-collected by this update path.
+
+Useful mirror checks are:
+
+```bash
+rclone lsf r2:pychess-nnue --include '*.nnue' | wc -l
+rclone size r2:pychess-nnue --include '*.nnue'
+```
+
+For the initial 48-network mirror the expected total is `3,268,755,449` bytes.
+The R2 bucket stays private; do not re-enable its public `r2.dev` development URL.
+
+## Secrets and recovery
+
+R2 API credentials are maintenance credentials only. Keep them out of PyChess,
+Git, Worker source, logs, and support messages. The Worker needs only the `NNUE`
+R2 binding; browser users never receive R2 credentials.
+
+If the Worker must be recreated:
+
+1. Create a Worker named `pychess-nnue`.
+2. Bind the private `pychess-nnue` R2 bucket as `NNUE`.
+3. Allow only top-level `.nnue` keys and `GET`/`HEAD` (plus CORS preflight).
+4. Stream `object.body` directly and set the CORS/cache/content-type headers
+   documented above.
+5. Verify the Ataxx `HEAD` request before restoring `NNUE_DOWNLOAD_ROOT`.
+
+If R2/Workers are temporarily unavailable, already cached networks and manual
+imports continue working. New official downloads fail with a retryable UI error.
+To disable new automatic downloads immediately without a code rollback, unset:
+
+```text
+NNUE_DOWNLOAD_ROOT
+```
+
+## Local and production rollout
+
+Local development can exercise the real Worker by exporting:
+
+```bash
+export NNUE_DOWNLOAD_ROOT=https://pychess-nnue.gbtami.workers.dev
+```
+
+Restart the local PyChess server after changing it. Production uses the same
+root. See `docs/NNUE-TESTING.md` for the browser/storage/large-file matrix that
+should be run before and immediately after enabling the setting in production.
