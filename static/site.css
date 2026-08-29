@@ -1285,6 +1285,9 @@ span.notification.empty span.text {
 #settings-board {
   width: 300px;
 }
+#settings-variant {
+  min-width: 0;
+}
 #settings-board div {
   margin: 5px;
 }
