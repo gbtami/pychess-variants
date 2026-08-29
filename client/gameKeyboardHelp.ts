@@ -9,11 +9,13 @@ import { POCKET_HOTKEYS } from './pocketHotkeys';
 interface ShortcutItem {
     keys: string[];
     description: string;
+    compactKeys?: boolean;
 }
 
 interface ShortcutSection {
     title: string;
     items: ShortcutItem[];
+    wide?: boolean;
 }
 
 export interface GameKeyboardHelpHost {
@@ -41,35 +43,31 @@ function renderKey(key: string): VNode {
     return h('kbd', formatKeyLabel(key));
 }
 
-function renderKeys(keys: string[]): VNode {
+function renderKeys(keys: string[], compact = false): VNode {
     return h(
-        'div.keys',
-        keys.flatMap((key, index) => (index === 0 ? [renderKey(key)] : [h('span.sep', _('or')), renderKey(key)])),
+        compact ? 'div.keys.compact' : 'div.keys',
+        compact
+            ? keys.map(renderKey)
+            : keys.flatMap((key, index) =>
+                  index === 0 ? [renderKey(key)] : [h('span.sep', _('or')), renderKey(key)],
+              ),
     );
 }
-
-const POCKET_HELP_ROW_SIZE = 5;
 
 function buildPocketShortcutSection(ctrl: GameKeyboardHelpHost): ShortcutSection | null {
     const roles = ctrl.pocketHotkeyRoles;
     if (!roles?.length) return null;
 
-    const items: ShortcutItem[] = [];
-    const hotkeys = POCKET_HOTKEYS.slice(0, roles.length);
-    for (let start = 0; start < hotkeys.length; start += POCKET_HELP_ROW_SIZE) {
-        const keys = [...hotkeys.slice(start, start + POCKET_HELP_ROW_SIZE)];
-        const from = start + 1;
-        const to = start + keys.length;
-        items.push({
-            keys,
-            description:
-                from === to ? _('Select pocket piece %1', from) : _('Select pocket pieces %1-%2', from, to),
-        });
-    }
-
     return {
         title: _('Drops'),
-        items,
+        wide: true,
+        items: [
+            {
+                keys: [...POCKET_HOTKEYS.slice(0, roles.length)],
+                description: _('Select pocket piece by position'),
+                compactKeys: true,
+            },
+        ],
     };
 }
 
@@ -145,22 +143,25 @@ function view(ctrl: GameKeyboardHelpHost, sections: ShortcutSection[]): VNode {
                 ]),
                 h(
                     'div.keyboard-help__grid',
-                    sections.map(section =>
-                        h('section.keyboard-help__section', [
+                    sections.map(section => {
+                        const selector = section.wide
+                            ? 'section.keyboard-help__section.keyboard-help__section--wide'
+                            : 'section.keyboard-help__section';
+                        return h(selector, [
                             h('h3', section.title),
                             h('table', [
                                 h(
                                     'tbody',
                                     section.items.map(item =>
                                         h('tr', [
-                                            h('td.keys-cell', renderKeys(item.keys)),
+                                            h('td.keys-cell', renderKeys(item.keys, item.compactKeys)),
                                             h('td.description-cell', item.description),
                                         ]),
                                     ),
                                 ),
                             ]),
-                        ]),
-                    ),
+                        ]);
+                    }),
                 ),
             ]),
         ],

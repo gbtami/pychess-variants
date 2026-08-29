@@ -4224,6 +4224,9 @@ img.logo {
   margin: 0 0 0.75rem;
   font-size: 1rem;
 }
+.keyboard-help__section--wide {
+  grid-column: 1 / -1;
+}
 .keyboard-help__section table {
   width: 100%;
   border-collapse: collapse;
