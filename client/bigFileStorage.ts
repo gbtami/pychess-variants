@@ -42,6 +42,24 @@ export class BigFileStorage {
         return keys.some(storedKey => storedKey === key);
     }
 
+    async size(key: string): Promise<number | undefined> {
+        const opfs = await this.opfs();
+        if (opfs) {
+            try {
+                const handle = await opfs.getFileHandle(this.opfsName(key), { create: false });
+                const file = await handle.getFile();
+                return file.size;
+            } catch (error) {
+                if (!this.isNotFoundError(error)) console.warn('Unable to inspect big file size in OPFS:', error);
+            }
+        }
+
+        const stored = await idbGet<BigFileData>(key, BIG_FILE_STORE);
+        if (stored === undefined) return undefined;
+        if (stored instanceof Blob) return stored.size;
+        return stored.byteLength;
+    }
+
     async write(key: string, data: BigFileData): Promise<void> {
         const opfs = await this.opfs();
         if (opfs) {

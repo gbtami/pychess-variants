@@ -14,6 +14,7 @@ describe('official NNUE manifest', () => {
             id: 'crazyhouse',
             file: 'crazyhouse-8ebf84784ad2.nnue',
             bytes: 58534811,
+            sha256Prefix: '8ebf84784ad2',
             archiveUrl: `${OFFICIAL_NNUE_ARCHIVE_BASE_URL}/crazyhouse-8ebf84784ad2.nnue`,
         });
     });

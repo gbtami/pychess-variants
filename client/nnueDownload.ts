@@ -1,5 +1,6 @@
+import { verifyOfficialNnueData } from './nnueIntegrity';
 import type { OfficialNnueNetwork } from './nnueManifest';
-import { loadNnueFile, saveNnueData } from './nnueStorage';
+import { loadOfficialNnueFile, saveOfficialNnueData } from './nnueStorage';
 
 export const LARGE_NNUE_DOWNLOAD_BYTES = 64 * 1024 * 1024;
 
@@ -29,8 +30,8 @@ export async function downloadOfficialNnue(
     downloadRoot: string,
     onProgress?: (progress: NnueDownloadProgress) => void,
 ): Promise<Uint8Array> {
-    const cached = await loadNnueFile(variant, network.file);
-    if (cached?.byteLength === network.bytes) {
+    const cached = await loadOfficialNnueFile(variant, network);
+    if (cached) {
         onProgress?.({ loaded: network.bytes, total: network.bytes });
         return cached;
     }
@@ -39,7 +40,8 @@ export async function downloadOfficialNnue(
     if (!url) throw new Error('Official NNUE download server is not configured.');
 
     const data = await downloadNnueBytes(url, network.bytes, onProgress);
-    await saveNnueData(variant, network.file, data);
+    const hashVerified = await verifyOfficialNnueData(data, network);
+    await saveOfficialNnueData(variant, network, data, hashVerified);
     return data;
 }
 

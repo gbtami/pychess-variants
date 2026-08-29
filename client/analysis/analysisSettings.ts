@@ -7,7 +7,14 @@ import { Settings, BooleanSettings, NumberSettings, StringSettings } from '../se
 import { nnueFile, slider, sliderFromList, toggleSwitch } from '../view';
 import { downloadOfficialNnue, formatNnueSize, requiresLargeNnueConfirmation } from '../nnueDownload';
 import { officialNnueNetwork, type OfficialNnueNetwork } from '../nnueManifest';
-import { hasNnueFile, removeNnueFile } from '../nnueStorage';
+import {
+    hasNnueFile,
+    removeNnueFile,
+    removeSupersededOfficialNnue,
+    storedNnueMetadata,
+    storedNnueSize,
+    type NnueFileMetadata,
+} from '../nnueStorage';
 import { AnalysisController } from './analysisCtrl';
 import { patch } from '../document';
 import { updateMovelist } from '../movelist';
@@ -380,10 +387,42 @@ class NnueFileSettings extends StringSettings {
         if (!root) return;
 
         const generation = ++this.stateGeneration;
-        const selected = this.value;
+        const network = officialNnueNetwork(this.variant);
+        let statusMessage = message;
+        let selected = this.value;
         let available = false;
+        let metadata: NnueFileMetadata | undefined;
         try {
-            available = selected ? await hasNnueFile(this.variant, selected) : false;
+            if (network) {
+                const superseded = await removeSupersededOfficialNnue(this.variant, network);
+                if (superseded && selected === superseded) {
+                    this.value = '';
+                    selected = '';
+                    statusMessage ||= _('Previous official NNUE removed; updated network available');
+                }
+            }
+
+            if (selected) {
+                metadata = await storedNnueMetadata(this.variant);
+                available = await hasNnueFile(this.variant, selected);
+
+                if (!available && network?.file === selected && metadata?.source !== 'manual') {
+                    this.value = '';
+                    selected = '';
+                    metadata = undefined;
+                    statusMessage ||= _('Official NNUE cache is missing; download it again.');
+                } else if (available && network?.file === selected && metadata?.source !== 'manual') {
+                    const storedBytes = await storedNnueSize(this.variant, selected);
+                    if (storedBytes !== network.bytes) {
+                        await removeNnueFile(this.variant, selected);
+                        this.value = '';
+                        selected = '';
+                        available = false;
+                        metadata = undefined;
+                        statusMessage = _('Corrupt or incomplete official NNUE removed; download it again.');
+                    }
+                }
+            }
         } catch (error) {
             if (generation !== this.stateGeneration || root !== this.root) return;
             const state = root.querySelector('.nnue-network-state');
@@ -399,17 +438,17 @@ class NnueFileSettings extends StringSettings {
             }
             this.setManualInputDisabled(root, false);
             this.hideDownloadProgress(root);
-            this.updateDownloadStatus(root, message);
+            this.updateDownloadStatus(root, statusMessage);
             return;
         }
         if (generation !== this.stateGeneration || root !== this.root) return;
 
-        const network = officialNnueNetwork(this.variant);
         const state = root.querySelector('.nnue-network-state');
         const detail = root.querySelector('.nnue-network-detail');
         const downloadButton = root.querySelector('.nnue-download-button') as HTMLButtonElement | null;
         const removeButton = root.querySelector('.nnue-remove-button') as HTMLButtonElement | null;
-        const officialInstalled = network !== undefined && available && selected === network.file;
+        const officialInstalled =
+            network !== undefined && available && selected === network.file && metadata?.source !== 'manual';
 
         if (state && detail) {
             if (officialInstalled && network) {
@@ -442,7 +481,7 @@ class NnueFileSettings extends StringSettings {
         }
         this.setManualInputDisabled(root, false);
         this.hideDownloadProgress(root);
-        this.updateDownloadStatus(root, message);
+        this.updateDownloadStatus(root, statusMessage);
     }
 
     private async downloadOfficial(event: Event, network: OfficialNnueNetwork): Promise<void> {

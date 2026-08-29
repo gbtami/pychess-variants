@@ -19,7 +19,12 @@ import { movetimeChart } from './movetimeChart';
 import { renderClocks } from './analysisClock';
 import { copyBoardToPNG } from '../png';
 import { boardSettings } from '../boardSettings';
-import { loadNnueFile } from '../nnueStorage';
+import { officialNnueNetwork } from '../nnueManifest';
+import {
+    loadNnueFile,
+    loadOfficialNnueFile,
+    removeSupersededOfficialNnue,
+} from '../nnueStorage';
 import { patch, downloadPgnText } from '../document';
 import { variantsIni } from '../variantsIni';
 import { Chart } from 'highcharts';
@@ -782,7 +787,20 @@ export class AnalysisController extends GameController {
     }
 
     private async loadNnueIntoEngine(filename: string, data?: Uint8Array): Promise<void> {
-        const nnueData = data ?? (await loadNnueFile(this.variant.name, filename));
+        const network = officialNnueNetwork(this.variant.name);
+        if (network && (await removeSupersededOfficialNnue(this.variant.name, network)) === filename) {
+            localStorage[`${this.variant.name}-nnue`] = '';
+            this.evalFile = '';
+            this.nnueOk = false;
+            this.refreshNnueIndicator();
+            return;
+        }
+
+        const nnueData =
+            data ??
+            (network?.file === filename
+                ? await loadOfficialNnueFile(this.variant.name, network)
+                : await loadNnueFile(this.variant.name, filename));
         if (!nnueData) {
             this.nnueOk = false;
             this.refreshNnueIndicator();

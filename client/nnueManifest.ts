@@ -63,6 +63,7 @@ export interface OfficialNnueNetwork {
     readonly id: NnueNetworkId;
     readonly file: string;
     readonly bytes: number;
+    readonly sha256Prefix: string;
     readonly archiveUrl: string;
 }
 
@@ -103,10 +104,14 @@ export function officialNnueNetwork(engineVariant: string): OfficialNnueNetwork 
     if (!id) return undefined;
 
     const network = OFFICIAL_NNUE_NETWORKS[id];
+    const hashMatch = /-([0-9a-f]{12})\.nnue$/i.exec(network.file);
+    if (!hashMatch) throw new Error(`Official NNUE filename has no SHA-256 prefix: ${network.file}`);
+
     return {
         id,
         file: network.file,
         bytes: network.bytes,
+        sha256Prefix: hashMatch[1].toLowerCase(),
         archiveUrl: `${OFFICIAL_NNUE_ARCHIVE_BASE_URL}/${network.file}`,
     };
 }

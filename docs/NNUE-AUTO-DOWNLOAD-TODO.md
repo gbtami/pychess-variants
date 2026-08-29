@@ -48,11 +48,12 @@ GitHub Release assets are not suitable as the production browser download origin
   - Avoid silently downloading a 100–260 MB network merely because the historical `Use NNUE` setting defaults to enabled.
   - Allow retry after download/storage failures and removal of the selected cached/manual network.
 
-- [ ] **5. Integrity and lifecycle**
-  - Validate the expected byte size before activating a downloaded network.
-  - Delete a corrupt/incomplete cached network and permit a clean retry.
-  - When the manifest moves to a new hash-named network, remove the superseded selected official file so old networks do not accumulate indefinitely.
-  - Preserve manually selected files unless the user replaces/removes them.
+- [x] **5. Integrity and lifecycle**
+  - Validate exact byte size before activation and verify the SHA-256 prefix embedded in each official hash-named filename when Web Crypto is available.
+  - Record source/integrity metadata for cached networks; lazily validate and adopt official caches created by Steps 1-4.
+  - Delete corrupt/incomplete official cache entries and leave the official download action available for a clean retry.
+  - When the manifest moves to a new hash-named network, remove a superseded selected **official** cache entry so old networks do not accumulate indefinitely.
+  - Preserve manually selected files unless the user explicitly replaces/removes them.
 
 - [ ] **6. Documentation and rollout**
   - Update the NNUE blog/help text so manual Google Drive download is no longer the normal workflow.
