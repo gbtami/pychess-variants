@@ -46,6 +46,7 @@ import { GameController } from './gameCtrl';
 import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
 import { createWebsocket } from '@/socket/webSocketUtils';
 import { setPocketRowCssVars } from './pocketRow';
+import { bindPocketHotkeys } from './pocketHotkeys';
 import { SimulRoundHostController } from './simul/simulRoundHost';
 import { confirmDialog } from './confirmDialog';
 import { animatePassMove } from './passMove';
@@ -270,6 +271,9 @@ export class RoundController extends GameController {
 
         if (this.hasPockets) {
             setPocketRowCssVars(this);
+            if (!this.spectator && !this.finishedGame && this.variant.pocket) {
+                bindPocketHotkeys(this.chessground, this.mycolor, this.variant.pocket.roles[this.mycolor]);
+            }
         }
 
         if (this.isCevalDetectionEligible()) {

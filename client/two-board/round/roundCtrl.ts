@@ -55,6 +55,7 @@ import {
 import { trackToolsPlacement } from './toolsPlacement';
 import { trackSeatNamePlacement } from './seatNamePlacement';
 import { trackPartsWidth } from './partsWidth';
+import { bindPocketHotkeys } from '../../pocketHotkeys';
 
 // live remaining time of a clock, whether or not it is currently running (mirrors Clock's own tick math)
 const liveTime = (clock: Clock) => (clock.running ? clock.duration - (Date.now() - clock.startTime) : clock.duration);
@@ -250,6 +251,16 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
         Mousetrap.bind('down', () => selectMove(this, this.steps.length - 1));
         Mousetrap.bind('f', () => this.flipBoards());
         Mousetrap.bind('?', () => this.helpDialog());
+
+        if (!this.spectator && !this.finishedGame && this.variant.pocket) {
+            const myBoards = (['a', 'b'] as const).filter(board => this.seats.myColor(board) !== undefined);
+            if (myBoards.length === 1) {
+                const boardName = myBoards[0];
+                const color = this.seats.myColor(boardName)!;
+                const board = boardName === 'a' ? this.boardA : this.boardB;
+                bindPocketHotkeys(board.chessground, color, this.variant.pocket.roles[color]);
+            }
+        }
 
         soundThemeSettings.buildBugChatSounds();
     }
