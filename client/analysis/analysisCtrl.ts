@@ -1,6 +1,5 @@
 import { h, VNode } from 'snabbdom';
 
-import * as idb from 'idb-keyval';
 import * as Mousetrap from 'mousetrap';
 
 import * as cg from 'chessgroundx/types';
@@ -20,6 +19,7 @@ import { movetimeChart } from './movetimeChart';
 import { renderClocks } from './analysisClock';
 import { copyBoardToPNG } from '../png';
 import { boardSettings } from '../boardSettings';
+import { loadNnueFile } from '../nnueStorage';
 import { patch, downloadPgnText } from '../document';
 import { variantsIni } from '../variantsIni';
 import { Chart } from 'highcharts';
@@ -1069,24 +1069,23 @@ export class AnalysisController extends GameController {
             this.fsfPostMessage('isready');
 
             if (this.evalFile) {
-                idb.get(`${this.variant.name}--nnue-file`).then(nnuefile => {
-                    if (nnuefile === this.evalFile) {
-                        idb.get(`${this.variant.name}--nnue-data`).then(data => {
-                            const array = new Uint8Array(data);
-                            const filename = '/' + this.evalFile;
-                            window.fsf.FS.writeFile(filename, array);
-                            console.log('Loaded to fsf.FS:', filename);
-                            this.nnueOk = true;
-                            const nnueEl = document.querySelector('.nnue') as HTMLElement;
-                            const title = _('Multi-threaded WebAssembly (with NNUE evaluation)');
-                            patch(nnueEl, h('span.nnue', { props: { title: title } }, 'NNUE'));
-                            if (this.localAnalysis) {
-                                this.engineStop();
-                                this.engineGo();
-                            }
-                        });
-                    }
-                });
+                void loadNnueFile(this.variant.name, this.evalFile)
+                    .then(data => {
+                        if (!data) return;
+
+                        const filename = '/' + this.evalFile;
+                        window.fsf.FS.writeFile(filename, data);
+                        console.log('Loaded to fsf.FS:', filename);
+                        this.nnueOk = true;
+                        const nnueEl = document.querySelector('.nnue') as HTMLElement;
+                        const title = _('Multi-threaded WebAssembly (with NNUE evaluation)');
+                        patch(nnueEl, h('span.nnue', { props: { title: title } }, 'NNUE'));
+                        if (this.localAnalysis) {
+                            this.engineStop();
+                            this.engineGo();
+                        }
+                    })
+                    .catch(error => console.error('Failed to load NNUE file:', error));
             }
 
             window.addEventListener('beforeunload', () => this.fsfEngineBoard.delete());

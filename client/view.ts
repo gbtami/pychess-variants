@@ -1,12 +1,11 @@
 import { h, VNode } from 'snabbdom';
 
-import * as idb from 'idb-keyval';
-
 import { Settings } from './settings';
 import { _, ngettext } from './i18n';
 import { alertDialog } from './alertDialog';
 import { Variant } from './variants';
 import { notifyChessgroundResize } from './document';
+import { saveNnueFile } from './nnueStorage';
 
 export function radioList(
     settings: Settings<string>,
@@ -103,57 +102,26 @@ export function nnueFile(settings: Settings<string>, name: string, text: string,
             props: { name: name, type: 'file', accept: '*.nnue', title: _('Page reload required after change') },
             hook: { insert: vnode => setInputFileName(vnode, settings.value) },
             on: {
-                change: evt => {
+                change: async evt => {
                     const files = (evt.target as HTMLInputElement).files;
-                    if (files && files.length > 0) {
-                        const fileName = files[0].name;
-                        if (possibleNnueFile(fileName, variant)) {
-                            settings.value = '';
-                            console.log('Selected file:', fileName);
+                    if (!files?.length) return;
 
-                            idb.get(`${variant}--nnue-file`).then(nnuefile => {
-                                if (nnuefile === undefined) {
-                                    // First time .nnue file selection ever for this variant
-                                    saveNnueFileToIdb(settings, variant, files[0]);
-                                } else {
-                                    if (nnuefile === fileName) {
-                                        console.log(variant, 'is already in idb.');
-                                    } else {
-                                        // Delete old file name version info
-                                        idb.del(`${variant}--nnue-file`);
-                                        // Update idb with new .nnue file
-                                        saveNnueFileToIdb(settings, variant, files[0]);
-                                    }
-                                }
-                            });
-                        }
+                    const file = files[0];
+                    if (!possibleNnueFile(file.name, variant)) return;
+
+                    settings.value = '';
+                    console.log('Selected file:', file.name);
+                    try {
+                        await saveNnueFile(variant, file);
+                        settings.value = file.name;
+                        console.log(`${file.name} saved!`);
+                    } catch (error) {
+                        void alertDialog({ text: String(error) });
                     }
                 },
             },
         }),
     ];
-}
-
-function saveNnueFileToIdb(settings: Settings<string>, variant: string, file: File) {
-    const fileName = file.name;
-    var fileReader = new FileReader();
-    fileReader.onload = function (event) {
-        idb.set(`${variant}--nnue-data`, event.target!.result)
-            .then(() => {
-                idb.set(`${variant}--nnue-file`, fileName)
-                    .then(nnuefile => {
-                        settings.value = fileName;
-                        console.log(`${nnuefile} saved!`);
-                    })
-                    .catch(err => {
-                        void alertDialog({ text: String(err) });
-                    });
-            })
-            .catch(err => {
-                void alertDialog({ text: String(err) });
-            });
-    };
-    fileReader.readAsArrayBuffer(file);
 }
 
 export function timeControlStr(minutes: number | string, increment = 0, byoyomiPeriod = 0, day = 0): string {
