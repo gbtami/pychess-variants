@@ -10,7 +10,9 @@ Do **not** publish an NNUE-only normal release in `gbtami/Fairy-Stockfish`.
 
 `fairyfishnet` resolves `https://api.github.com/repos/gbtami/Fairy-Stockfish/releases/latest` and expects the latest release to contain the exact platform engine binary. An NNUE-only latest release would therefore break automatic worker engine downloads.
 
-Preferred solution: host immutable hash-named `.nnue` assets in a separate release repository, e.g. `gbtami/Fairy-Stockfish-NNUE`. A prerelease in the existing Fairy-Stockfish repository would also stay out of GitHub's `/releases/latest` result, but a separate repository keeps the two release lifecycles safely independent.
+The networks are now archived as immutable hash-named assets in the dedicated `gbtami/Fairy-Stockfish-NNUE` repository's long-lived `networks` release. This keeps the NNUE archive completely independent from fairyfishnet's engine-binary release lifecycle.
+
+GitHub Release assets are not suitable as the production browser download origin: current release downloads redirect to `release-assets.githubusercontent.com`, and the final asset response has been observed without the CORS headers required for cross-origin JavaScript fetches. Keep GitHub as the canonical archive/manifest and mirror the files to a CORS-capable object store for Step 3. Cloudflare R2 is the preferred delivery candidate because it supports explicit browser CORS policies and keeps large-file delivery separate from the GitHub archive.
 
 ## Steps
 
@@ -20,13 +22,15 @@ Preferred solution: host immutable hash-named `.nnue` assets in a separate relea
   - Lazily migrate existing `variant--nnue-data` IndexedDB entries so users keep their installed networks.
   - Keep the existing manual file picker as the advanced/fallback path.
 
-- [ ] **2. Official NNUE manifest**
-  - Add a client-side manifest keyed by the actual Fairy-Stockfish engine variant name.
-  - Record immutable filename, byte size, and download URL/tag.
-  - Reuse aliases such as `chess -> nn`, `placement -> nn`, and `cambodian -> makruk` where appropriate.
-  - Keep user-defined variants manual unless they map to a catalogued Fairy-Stockfish built-in with a known official network.
+- [x] **2. Official NNUE manifest**
+  - Bundle the 48 mirrored release assets in a client-side manifest so discovery does not require a runtime GitHub API/manifest request.
+  - Record immutable filename and exact byte size and retain the stable GitHub Release URL as the canonical archive URL, not the browser fetch URL.
+  - Resolve Fairy-Stockfish's documented compatibility aliases such as `chess -> nn`, `placement -> nn`, `cambodian -> makruk`, `caparandom/embassy/gothic -> capablanca`, and the Janggi compatibility variants.
+  - Reuse the same mapping for manual NNUE filename validation.
+  - User-defined variants remain manual unless their actual engine variant name is a known catalogued Fairy-Stockfish built-in/network alias.
 
 - [ ] **3. On-demand download manager**
+  - Mirror the release assets to a CORS-capable delivery origin (preferred: Cloudflare R2) and configure PyChess' allowed origins.
   - Download only the current variant's network, never prefetch the full set.
   - Stream download progress to the analysis settings UI.
   - Reuse the big-file cache on later visits.

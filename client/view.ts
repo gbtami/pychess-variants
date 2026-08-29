@@ -5,6 +5,7 @@ import { _, ngettext } from './i18n';
 import { alertDialog } from './alertDialog';
 import { Variant } from './variants';
 import { notifyChessgroundResize } from './document';
+import { nnueNetworkIdForEngineVariant } from './nnueManifest';
 import { saveNnueFile } from './nnueStorage';
 
 export function radioList(
@@ -177,22 +178,8 @@ export function spinner(): VNode {
 }
 
 function possibleNnueFile(fileName: string, variant: string) {
-    let possible: boolean;
-    let prefix: string;
-
-    switch (variant) {
-        case 'chess':
-        case 'placement':
-            prefix = 'nn';
-            break;
-        case 'cambodian':
-            prefix = 'makruk';
-            break;
-        default:
-            prefix = variant;
-    }
-
-    possible = fileName.startsWith(`${prefix}-`);
+    const prefix = nnueNetworkIdForEngineVariant(variant) ?? variant;
+    const possible = fileName.startsWith(`${prefix}-`);
     if (!possible) {
         void alertDialog({ text: `.nnue file name required to start with ${prefix}-` });
     }
