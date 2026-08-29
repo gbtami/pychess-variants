@@ -119,13 +119,17 @@ function setPieceStyleClass(target: HTMLElement, family: string, css: string, va
     }
     target.classList.add(pieceStyleClass(family, css));
     const catalogued = isCataloguedVariant(variant.name);
-    const imageLayer = PIECE_FAMILIES[family]?.imageLayerCSS?.includes(css) ?? false;
+    const pieceFamily = PIECE_FAMILIES[family];
+    const imageLayer = pieceFamily?.imageLayerCSS?.includes(css) ?? false;
+    const wallArtwork = pieceFamily?.wallCSS?.includes(css) ?? false;
     target.classList.toggle('catalogued-piece-variant', catalogued);
+    target.classList.toggle('catalogued-piece-wall-artwork', catalogued && wallArtwork);
     target.classList.toggle(
         'catalogued-missing-piece-fallback',
         catalogued &&
             !family.startsWith('catalogued-') &&
             !imageLayer &&
+            !wallArtwork &&
             css !== 'letters' &&
             css !== 'invisible',
     );

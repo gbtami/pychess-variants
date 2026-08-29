@@ -31,6 +31,9 @@ export interface PieceFamily {
     // without changing the piece element's chessground-owned transform. Applying
     // the missing-piece background to the element would show both images at once.
     readonly imageLayerCSS?: string[];
+    // Styles that provide their own artwork for the role used by wall squares.
+    // Catalogued variants otherwise receive the shared brick fallback.
+    readonly wallCSS?: string[];
 }
 
 export type HiddenInfoMode = 'none' | 'fog' | 'covered_pieces';
@@ -219,6 +222,7 @@ export const BOARD_FAMILIES: Record<string, BoardFamily> = {
 };
 
 export const PIECE_FAMILIES: Record<string, PieceFamily> = {
+    amazons: { pieceCSS: ['classic', 'arrow'], wallCSS: ['classic', 'arrow'] },
     ataxx: { pieceCSS: ['disguised', 'virus', 'zombie', 'cat-dog'] },
     standard: {
         pieceCSS: [

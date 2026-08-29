@@ -296,7 +296,7 @@
 }
 /* Walls in user-defined variants. Piece-set CSS is loaded before this file,
    so this also overrides the missing-piece and generic disguised-piece fallbacks. */
-.catalogued-piece-variant piece._-piece:not(.promoted) {
+.catalogued-piece-variant:not(.catalogued-piece-wall-artwork) piece._-piece:not(.promoted) {
   background-image: url('images/pieces/brick.svg');
 }
 /* Manchu banner */

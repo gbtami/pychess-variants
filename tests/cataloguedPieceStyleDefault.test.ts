@@ -27,6 +27,7 @@ const variantNames = [
     'testcentauroverride',
     'testmakrukwall',
     'testdecimalshogiimagelayer',
+    'testamazonspieces',
 ];
 
 function register(meta: CataloguedVariantClientDocument) {
@@ -168,6 +169,44 @@ customPiece2 = m:DK`,
 
     expect(variant.pieceFamily).toBe('courier');
     expect(boardSettings.pieceCSS(variant.pieceFamily, variant)).toBe('courier');
+});
+
+test('catalogued Amazons offers classic and arrow piece styles with their own wall artwork', () => {
+    const variant = register({
+        name: 'testamazonspieces',
+        displayName: 'Test Amazons Pieces',
+        tooltip: 'Catalogued variant',
+        ini: '[testamazonspieces:amazons]',
+        startFen: '3q2q3/10/10/q8q/10/10/Q8Q/10/10/Q*4Q3 w - - 0 1',
+        width: 10,
+        height: 10,
+        pieces: ['q'],
+        kingRoles: [],
+        pieceFamilyOverride: 'amazons',
+        rulesArrowing: true,
+    });
+    const board = document.createElement('div');
+    const wrap = document.createElement('div');
+    board.className = `${variant.boardFamily} ${variant.pieceFamily}`;
+    board.appendChild(wrap);
+    document.body.appendChild(board);
+
+    expect(variant.pieceFamily).toBe('amazons');
+    expect(PIECE_FAMILIES.amazons.pieceCSS).toEqual(['classic', 'arrow']);
+    expect(boardSettings.pieceCSS(variant.pieceFamily, variant)).toBe('classic');
+
+    boardSettings.updateScopedPieceStyle(variant, wrap);
+    expect(board.classList.contains('catalogued-piece-wall-artwork')).toBe(true);
+    expect(board.classList.contains('catalogued-missing-piece-fallback')).toBe(false);
+
+    boardSettings.getSettings('PieceStyle', variant.pieceFamily, '', variant).value = 1;
+    expect(boardSettings.pieceCSS(variant.pieceFamily, variant)).toBe('arrow');
+    boardSettings.updateScopedPieceStyle(variant, wrap);
+    expect(board.classList.contains('piece-style-amazons-arrow')).toBe(true);
+    expect(board.classList.contains('catalogued-piece-wall-artwork')).toBe(true);
+    expect(board.classList.contains('catalogued-missing-piece-fallback')).toBe(false);
+
+    board.remove();
 });
 
 test('catalogued variants can explicitly use Centaur pieces with Archbishop and Chancellor', () => {

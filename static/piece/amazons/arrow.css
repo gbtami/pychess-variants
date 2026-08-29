@@ -1,0 +1,10 @@
+/* Arrow artwork from PlayStrategy's Amazons piece set. */
+.amazons piece._-piece {
+    background-image: url('../../images/pieces/amazons/arrow/P.svg');
+}
+.amazons piece.q-piece.white {
+    background-image: url('../../images/pieces/amazons/arrow/wQ.svg');
+}
+.amazons piece.q-piece.black {
+    background-image: url('../../images/pieces/amazons/arrow/bQ.svg');
+}

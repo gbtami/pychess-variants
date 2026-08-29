@@ -11,6 +11,8 @@ from catalogued_variants import (
     FSF_CATALOGUED_BUILTIN_VARIANTS,
     FSF_CATALOGUED_BUILTIN_VARIANTS_CANDIDATES,
     FSF_CATALOGUED_RETIRED_BUILTIN_VARIANTS,
+    _build_fsf_builtin_doc,
+    _fsf_builtin_synced_fields,
     _remove_legacy_fsf_builtin_description_fields,
     ensure_fsf_catalogued_builtin_variants,
 )
@@ -78,6 +80,10 @@ class FsfBuiltinMetadataTestCase(TestCase):
     def test_amazons_is_seeded_with_arrowing_input(self) -> None:
         metadata = FSF_CATALOGUED_BUILTIN_VARIANTS["amazons"]
         self.assertTrue(metadata["rulesArrowing"])
+        self.assertEqual(metadata["pieceFamilyOverride"], "amazons")
+        doc = _build_fsf_builtin_doc("amazons", metadata)
+        self.assertEqual(doc["pieceFamilyOverride"], "amazons")
+        self.assertEqual(_fsf_builtin_synced_fields(doc)["pieceFamilyOverride"], "amazons")
         self.assertNotIn("amazons", FSF_CATALOGUED_BUILTIN_VARIANTS_CANDIDATES)
 
     def test_chigorin_is_not_seeded_until_side_specific_promotions_are_supported(self) -> None:

@@ -96,6 +96,7 @@ VARIANT_NAME_ERROR = (
 PYCHESS_PIECES_METADATA_KEY = "pychesspieces"
 CATALOGUED_PIECE_FAMILY_OVERRIDES = frozenset(
     {
+        "amazons",
         "asean",
         "ataxx",
         "borderlands",
@@ -299,6 +300,7 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
         ),
         "baseVariant": "",
         "clientVariant": "chess",
+        "pieceFamilyOverride": "amazons",
         "rulesArrowing": True,
     },
     "atomar": {
@@ -4371,6 +4373,7 @@ def _build_fsf_builtin_doc(
         fsf_builtin_variant=name,
         client_variant=str(metadata.get("clientVariant") or ""),
         premove_variant=str(metadata.get("premoveVariant") or ""),
+        piece_family_override=str(metadata.get("pieceFamilyOverride") or ""),
     )
     doc["references"] = references
     doc["rulesIni"] = str(metadata.get("rulesIni") or "").strip()
@@ -4395,6 +4398,7 @@ def _fsf_builtin_synced_fields(doc: Mapping[str, Any]) -> dict[str, Any]:
         "baseVariant",
         "clientVariant",
         "premoveVariant",
+        "pieceFamilyOverride",
         "enabled",
         "startFen",
         "width",
