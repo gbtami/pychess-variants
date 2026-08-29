@@ -89,6 +89,7 @@ export type PyChessModel = {
     seekEmpty: boolean;
     tournamentDirector: boolean;
     assetURL: string;
+    nnueDownloadRoot: string;
     puzzle: string;
 
     wplayerB: string;

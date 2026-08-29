@@ -1328,6 +1328,20 @@ span.notification.empty span.text {
 .analysis-settings label {
   padding-left: 0;
 }
+.nnue-file-settings .nnue-download {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin: .5rem 0 1rem;
+}
+.nnue-file-settings .nnue-download-progress {
+  flex: 1 1 8rem;
+  min-width: 6rem;
+}
+.nnue-file-settings .nnue-download-status {
+  flex: 0 0 auto;
+}
 div.labelled input[type="range"] {
   margin-right: 1ch;
 }

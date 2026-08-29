@@ -115,6 +115,7 @@ export class AnalysisController extends GameController {
     threads: number;
     hash: number;
     nnue: boolean;
+    readonly nnueDownloadRoot: string;
     evalFile: string;
     uciOk: boolean;
     nnueOk: boolean;
@@ -143,6 +144,7 @@ export class AnalysisController extends GameController {
     private pendingGoAfterStopReadyok: boolean;
     private fsfOriginalPrompt?: typeof window.prompt;
     private fsfInputQueue: string[];
+    private loadedNnueFilename?: string;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(
@@ -204,6 +206,7 @@ export class AnalysisController extends GameController {
         this.threads = localStorage.threads === undefined ? 1 : parseInt(localStorage.threads);
         this.hash = localStorage.hash === undefined ? 16 : parseInt(localStorage.hash);
         this.nnue = localStorage.nnue === undefined ? true : localStorage.nnue === 'true';
+        this.nnueDownloadRoot = model.nnueDownloadRoot;
         this.fsfDebug = localStorage.fsfDebug === undefined ? false : localStorage.fsfDebug === 'true';
         this.inlineNotation = localStorage.inlineNotation === 'true';
         this.disclosureMode = localStorage.disclosureMode === 'true';
@@ -737,11 +740,45 @@ export class AnalysisController extends GameController {
         }
     }
 
-    nnueIni() {
-        if (this.localAnalysis && this.nnueOk) {
-            this.engineStop();
-            this.engineGo();
+    nnueIni(data?: Uint8Array) {
+        if (!this.evalFile || !this.localEngine || !window.fsf) return;
+        this.nnueOk = false;
+        void this.loadNnueIntoEngine(this.evalFile, data).catch(error =>
+            console.error('Failed to load NNUE file:', error),
+        );
+    }
+
+    private async loadNnueIntoEngine(filename: string, data?: Uint8Array): Promise<void> {
+        const nnueData = data ?? (await loadNnueFile(this.variant.name, filename));
+        if (!nnueData) {
+            this.nnueOk = false;
+            return;
         }
+
+        const restartAnalysis = this.localAnalysis && this.isEngineReady;
+        if (restartAnalysis) this.engineStop();
+
+        if (this.loadedNnueFilename && this.loadedNnueFilename !== filename) {
+            try {
+                window.fsf.FS.unlink('/' + this.loadedNnueFilename);
+            } catch {
+                // The old in-memory file may already have been removed.
+            }
+        }
+
+        const fsFilename = '/' + filename;
+        window.fsf.FS.writeFile(fsFilename, nnueData);
+        console.log('Loaded to fsf.FS:', fsFilename);
+        this.loadedNnueFilename = filename;
+        this.nnueOk = true;
+
+        const nnueEl = document.querySelector('.nnue') as HTMLElement | null;
+        if (nnueEl) {
+            const title = _('Multi-threaded WebAssembly (with NNUE evaluation)');
+            patch(nnueEl, h('span.nnue', { props: { title: title } }, 'NNUE'));
+        }
+
+        if (restartAnalysis) this.engineGo();
     }
 
     pvboxIni() {
@@ -1068,25 +1105,7 @@ export class AnalysisController extends GameController {
             this.fsfEngineBoard = new this.ffish.Board(this.engineVariant, this.fullfen, this.chess960);
             this.fsfPostMessage('isready');
 
-            if (this.evalFile) {
-                void loadNnueFile(this.variant.name, this.evalFile)
-                    .then(data => {
-                        if (!data) return;
-
-                        const filename = '/' + this.evalFile;
-                        window.fsf.FS.writeFile(filename, data);
-                        console.log('Loaded to fsf.FS:', filename);
-                        this.nnueOk = true;
-                        const nnueEl = document.querySelector('.nnue') as HTMLElement;
-                        const title = _('Multi-threaded WebAssembly (with NNUE evaluation)');
-                        patch(nnueEl, h('span.nnue', { props: { title: title } }, 'NNUE'));
-                        if (this.localAnalysis) {
-                            this.engineStop();
-                            this.engineGo();
-                        }
-                    })
-                    .catch(error => console.error('Failed to load NNUE file:', error));
-            }
+            if (this.evalFile) this.nnueIni();
 
             window.addEventListener('beforeunload', () => this.fsfEngineBoard.delete());
 

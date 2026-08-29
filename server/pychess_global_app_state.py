@@ -74,6 +74,7 @@ from settings import (
     DISCORD_TOKEN,
     FISHNET_KEYS,
     LOCALHOST,
+    NNUE_DOWNLOAD_ROOT,
     PROD,
     SOURCE_VERSION,
     STATIC_ROOT,
@@ -789,6 +790,7 @@ class PychessGlobalAppState:
         env.globals["app_name"] = "PyChess"
         env.globals["languages"] = LANGUAGES
         env.globals["asseturl"] = STATIC_ROOT
+        env.globals["nnue_download_root"] = NNUE_DOWNLOAD_ROOT
         env.globals["home"] = URI
 
     def __start_bots(self):

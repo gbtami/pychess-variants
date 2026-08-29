@@ -1,8 +1,12 @@
 import { h, VNode } from 'snabbdom';
 
 import { _ } from '../i18n';
+import { alertDialog } from '../alertDialog';
+import { confirmDialog } from '../confirmDialog';
 import { Settings, BooleanSettings, NumberSettings, StringSettings } from '../settings';
 import { nnueFile, slider, sliderFromList, toggleSwitch } from '../view';
+import { downloadOfficialNnue, formatNnueSize, requiresLargeNnueConfirmation } from '../nnueDownload';
+import { officialNnueNetwork, type OfficialNnueNetwork } from '../nnueManifest';
 import { AnalysisController } from './analysisCtrl';
 import { patch } from '../document';
 import { updateMovelist } from '../movelist';
@@ -293,7 +297,95 @@ class NnueFileSettings extends StringSettings {
     }
 
     view(): VNode {
-        return h('div.labelled', nnueFile(this, 'evalFile', 'NNUE', this.variant));
+        const children = [h('div.labelled', nnueFile(this, 'evalFile', 'NNUE', this.variant))];
+        const network = officialNnueNetwork(this.variant);
+        if (network) children.push(this.officialDownloadView(network));
+        return h('div.nnue-file-settings', children);
+    }
+
+    private officialDownloadView(network: OfficialNnueNetwork): VNode {
+        const installed = this.value === network.file;
+        return h('div.nnue-download', [
+            h(
+                'button.button.nnue-download-button',
+                {
+                    props: { type: 'button', disabled: installed },
+                    on: { click: event => void this.downloadOfficial(event, network) },
+                },
+                installed
+                    ? _('Official NNUE installed')
+                    : _('Download official NNUE (%1)', formatNnueSize(network.bytes)),
+            ),
+            h('progress.nnue-download-progress', {
+                props: { max: network.bytes, value: 0, hidden: true },
+            }),
+            h('span.nnue-download-status'),
+        ]);
+    }
+
+    private async downloadOfficial(event: Event, network: OfficialNnueNetwork): Promise<void> {
+        const ctrl = this.analysisSettings.ctrl;
+        const button = event.currentTarget as HTMLButtonElement;
+        const container = button.closest('.nnue-download') as HTMLElement | null;
+
+        if (!ctrl.nnueDownloadRoot) {
+            await alertDialog({ text: _('Official NNUE downloads are not configured on this server.') });
+            return;
+        }
+
+        if (requiresLargeNnueConfirmation(network)) {
+            const size = `${formatNnueSize(network.bytes)} (${network.bytes.toLocaleString()} bytes)`;
+            const confirmed = await confirmDialog({
+                text: _('This NNUE network is %1. Download it now?', size),
+                confirmText: _('Download'),
+                cancelText: _('Cancel'),
+            });
+            if (!confirmed) return;
+        }
+
+        button.disabled = true;
+        this.updateDownloadStatus(container, _('Downloading NNUE…'));
+        try {
+            const data = await downloadOfficialNnue(this.variant, network, ctrl.nnueDownloadRoot, progress => {
+                this.updateDownloadProgress(container, progress.loaded, progress.total);
+            });
+
+            localStorage[this.name] = network.file;
+            this._value = network.file;
+            ctrl.evalFile = network.file;
+            ctrl.nnueIni(data);
+
+            button.textContent = _('Official NNUE installed');
+            this.updateDownloadProgress(container, network.bytes, network.bytes);
+            this.updateDownloadStatus(container, _('NNUE ready'));
+        } catch (error) {
+            button.disabled = false;
+            this.hideDownloadProgress(container);
+            const message = error instanceof Error ? error.message : String(error);
+            this.updateDownloadStatus(container, _('Download failed'));
+            await alertDialog({ text: _('NNUE download failed: %1', message) });
+        }
+    }
+
+    private updateDownloadProgress(container: HTMLElement | null, loaded: number, total: number): void {
+        const progress = container?.querySelector('progress') as HTMLProgressElement | null;
+        if (progress) {
+            progress.hidden = false;
+            progress.max = total;
+            progress.value = Math.min(loaded, total);
+        }
+        const percent = total > 0 ? Math.min(100, Math.round((loaded / total) * 100)) : 0;
+        this.updateDownloadStatus(container, _('Downloading NNUE… %1', `${percent}%`));
+    }
+
+    private hideDownloadProgress(container: HTMLElement | null): void {
+        const progress = container?.querySelector('progress') as HTMLProgressElement | null;
+        if (progress) progress.hidden = true;
+    }
+
+    private updateDownloadStatus(container: HTMLElement | null, text: string): void {
+        const status = container?.querySelector('.nnue-download-status');
+        if (status) status.textContent = text;
     }
 }
 

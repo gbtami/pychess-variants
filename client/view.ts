@@ -100,7 +100,7 @@ export function nnueFile(settings: Settings<string>, name: string, text: string,
     return [
         h('label', { attrs: { for: id } }, text),
         h(`input#${id}`, {
-            props: { name: name, type: 'file', accept: '*.nnue', title: _('Page reload required after change') },
+            props: { name: name, type: 'file', accept: '*.nnue' },
             hook: { insert: vnode => setInputFileName(vnode, settings.value) },
             on: {
                 change: async evt => {

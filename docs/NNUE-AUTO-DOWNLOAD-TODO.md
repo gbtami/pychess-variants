@@ -30,12 +30,13 @@ GitHub Release assets are not suitable as the production browser download origin
   - User-defined variants remain manual unless their actual engine variant name is a known catalogued Fairy-Stockfish built-in/network alias.
 
 - [ ] **3. On-demand download manager**
-  - Mirror the release assets to a CORS-capable delivery origin (preferred: Cloudflare R2) and configure PyChess' allowed origins.
-  - Download only the current variant's network, never prefetch the full set.
-  - Stream download progress to the analysis settings UI.
-  - Reuse the big-file cache on later visits.
-  - Automatically download reasonably sized networks after the user requests local NNUE analysis.
-  - Require explicit confirmation for large networks, with the exact download size shown. Initial proposed threshold: 64 MiB.
+  - [x] Add a configurable `NNUE_DOWNLOAD_ROOT`; automatic downloads stay disabled until a CORS-capable mirror is configured.
+  - [x] Download only the current variant's network, never prefetch the full set.
+  - [x] Report download progress in the analysis settings UI.
+  - [x] Reuse the big-file cache on later visits.
+  - [x] Validate the exact manifest byte size before storing or activating a download.
+  - [x] Start networks up to 64 MiB after an explicit user download request and require an additional size-aware confirmation above 64 MiB.
+  - [ ] Mirror the release assets to Cloudflare R2, configure CORS/custom-domain delivery, and set `NNUE_DOWNLOAD_ROOT` in the deployed server. See `docs/NNUE-R2.md`.
 
 - [ ] **4. Analysis settings UX**
   - Show whether the official network is missing, downloading, cached, or manually supplied.

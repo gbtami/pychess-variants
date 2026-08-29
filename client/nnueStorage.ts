@@ -14,12 +14,16 @@ export async function storedNnueFilename(variant: string): Promise<string | unde
 }
 
 export async function saveNnueFile(variant: string, file: File): Promise<void> {
+    return saveNnueData(variant, file.name, file);
+}
+
+export async function saveNnueData(variant: string, filename: string, data: Blob | Uint8Array): Promise<void> {
     const previousFilename = await storedNnueFilename(variant);
-    await bigFileStorage.write(nnueStorageKey(variant, file.name), file);
-    await idb.set(nnueFileKey(variant), file.name);
+    await bigFileStorage.write(nnueStorageKey(variant, filename), data);
+    await idb.set(nnueFileKey(variant), filename);
 
     await idb.del(legacyNnueDataKey(variant)).catch(error => console.warn('Unable to remove legacy NNUE data:', error));
-    if (previousFilename && previousFilename !== file.name) {
+    if (previousFilename && previousFilename !== filename) {
         await bigFileStorage
             .delete(nnueStorageKey(variant, previousFilename))
             .catch(error => console.warn('Unable to remove previous NNUE file:', error));

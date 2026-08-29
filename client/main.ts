@@ -167,6 +167,7 @@ function initModel(el: HTMLElement) {
         seekEmpty: el.getAttribute('data-seekempty') === 'True',
         tournamentDirector: el.getAttribute('data-tournamentdirector') === 'True',
         assetURL: el.getAttribute('data-asset-url') ?? '',
+        nnueDownloadRoot: el.getAttribute('data-nnue-download-root') ?? '',
         puzzle: el.getAttribute('data-puzzle') ?? '',
         blogs: el.getAttribute('data-blogs') ?? '',
         timeline: el.getAttribute('data-timeline') ?? '[]',
