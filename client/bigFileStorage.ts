@@ -1,4 +1,4 @@
-import { createStore, del as idbDel, get as idbGet, set as idbSet } from 'idb-keyval';
+import { createStore, del as idbDel, get as idbGet, keys as idbKeys, set as idbSet } from 'idb-keyval';
 
 // OPFS is substantially better suited than IndexedDB for the very large NNUE
 // networks used by some PyChess variants. Keep IndexedDB as a compatibility
@@ -25,6 +25,21 @@ export class BigFileStorage {
         }
 
         return this.readIdb(key);
+    }
+
+    async has(key: string): Promise<boolean> {
+        const opfs = await this.opfs();
+        if (opfs) {
+            try {
+                await opfs.getFileHandle(this.opfsName(key), { create: false });
+                return true;
+            } catch (error) {
+                if (!this.isNotFoundError(error)) console.warn('Unable to inspect big file in OPFS:', error);
+            }
+        }
+
+        const keys = await idbKeys(BIG_FILE_STORE);
+        return keys.some(storedKey => storedKey === key);
     }
 
     async write(key: string, data: BigFileData): Promise<void> {

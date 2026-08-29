@@ -7,6 +7,7 @@ import { Settings, BooleanSettings, NumberSettings, StringSettings } from '../se
 import { nnueFile, slider, sliderFromList, toggleSwitch } from '../view';
 import { downloadOfficialNnue, formatNnueSize, requiresLargeNnueConfirmation } from '../nnueDownload';
 import { officialNnueNetwork, type OfficialNnueNetwork } from '../nnueManifest';
+import { hasNnueFile, removeNnueFile } from '../nnueStorage';
 import { AnalysisController } from './analysisCtrl';
 import { patch } from '../document';
 import { updateMovelist } from '../movelist';
@@ -56,9 +57,9 @@ class AnalysisSettings {
 
         settingsList.push(this.settings['infiniteAnalysis'].view());
 
-        settingsList.push(this.getSettings(variantName as string).view());
-
         settingsList.push(this.settings['nnue'].view());
+
+        settingsList.push(this.getSettings(variantName as string).view());
 
         settingsList.push(this.settings['fsfDebug'].view());
 
@@ -269,18 +270,27 @@ class NnueSettings extends BooleanSettings {
         const ctrl = this.analysisSettings.ctrl;
         if ('nnue' in ctrl) {
             ctrl.nnue = this.value;
+            ctrl.refreshNnueIndicator();
             ctrl.pvboxIni();
         }
     }
 
     view(): VNode {
-        return h('div.nnue-toggle', toggleSwitch(this, 'nnue-enabled', _('Use NNUE'), false));
+        return h('div.nnue-toggle-settings', [
+            h('div.nnue-toggle', toggleSwitch(this, 'nnue-enabled', _('Use NNUE'), false)),
+            h(
+                'small.nnue-toggle-help',
+                _('Uses the installed NNUE network when available. Downloads are managed separately.'),
+            ),
+        ]);
     }
 }
 
 class NnueFileSettings extends StringSettings {
     readonly analysisSettings: AnalysisSettings;
     readonly variant: string;
+    private root?: HTMLElement;
+    private stateGeneration = 0;
 
     constructor(analysisSettings: AnalysisSettings, variant: string) {
         super(variant + '-nnue', '');
@@ -292,41 +302,154 @@ class NnueFileSettings extends StringSettings {
         const ctrl = this.analysisSettings.ctrl;
         if ('evalFile' in ctrl) {
             ctrl.evalFile = this.value;
-            ctrl.nnueIni();
+            if (this.value) ctrl.nnueIni();
+            else ctrl.nnueClear();
         }
     }
 
     view(): VNode {
-        const children = [h('div.labelled', nnueFile(this, 'evalFile', 'NNUE', this.variant))];
         const network = officialNnueNetwork(this.variant);
-        if (network) children.push(this.officialDownloadView(network));
-        return h('div.nnue-file-settings', children);
+        const actions: VNode[] = [];
+        if (network) actions.push(this.officialDownloadButton(network));
+        actions.push(
+            h(
+                'button.button.nnue-remove-button',
+                {
+                    props: { type: 'button', hidden: true },
+                    on: { click: () => void this.removeInstalled() },
+                },
+                _('Remove NNUE'),
+            ),
+        );
+
+        const children: VNode[] = [
+            h('div.nnue-network-status', [
+                h('strong.nnue-network-state', _('Checking NNUE storage…')),
+                h('span.nnue-network-detail', network ? this.officialNetworkDetail(network) : ''),
+            ]),
+            h('div.nnue-network-actions', actions),
+        ];
+
+        if (network) {
+            children.push(
+                h('div.nnue-download-feedback', [
+                    h('progress.nnue-download-progress', {
+                        props: { max: network.bytes, value: 0, hidden: true },
+                    }),
+                    h('span.nnue-download-status'),
+                ]),
+            );
+        }
+
+        children.push(
+            h(
+                'div.labelled.nnue-manual-file',
+                nnueFile(this, 'evalFile', _('Manual NNUE file'), this.variant, () => {
+                    void this.refreshStorageState(_('Manual NNUE ready'));
+                }),
+            ),
+        );
+
+        return h(
+            'div.nnue-file-settings',
+            {
+                hook: {
+                    insert: vnode => {
+                        this.root = vnode.elm as HTMLElement;
+                        void this.refreshStorageState();
+                    },
+                },
+            },
+            children,
+        );
     }
 
-    private officialDownloadView(network: OfficialNnueNetwork): VNode {
-        const installed = this.value === network.file;
-        return h('div.nnue-download', [
-            h(
-                'button.button.nnue-download-button',
-                {
-                    props: { type: 'button', disabled: installed },
-                    on: { click: event => void this.downloadOfficial(event, network) },
-                },
-                installed
-                    ? _('Official NNUE installed')
-                    : _('Download official NNUE (%1)', formatNnueSize(network.bytes)),
-            ),
-            h('progress.nnue-download-progress', {
-                props: { max: network.bytes, value: 0, hidden: true },
-            }),
-            h('span.nnue-download-status'),
-        ]);
+    private officialDownloadButton(network: OfficialNnueNetwork): VNode {
+        return h(
+            'button.button.nnue-download-button',
+            {
+                props: { type: 'button' },
+                on: { click: event => void this.downloadOfficial(event, network) },
+            },
+            _('Download official NNUE (%1)', formatNnueSize(network.bytes)),
+        );
+    }
+
+    private async refreshStorageState(message = ''): Promise<void> {
+        const root = this.root;
+        if (!root) return;
+
+        const generation = ++this.stateGeneration;
+        const selected = this.value;
+        let available = false;
+        try {
+            available = selected ? await hasNnueFile(this.variant, selected) : false;
+        } catch (error) {
+            if (generation !== this.stateGeneration || root !== this.root) return;
+            const state = root.querySelector('.nnue-network-state');
+            const detail = root.querySelector('.nnue-network-detail');
+            const downloadButton = root.querySelector('.nnue-download-button') as HTMLButtonElement | null;
+            const removeButton = root.querySelector('.nnue-remove-button') as HTMLButtonElement | null;
+            if (state) state.textContent = _('Unable to inspect NNUE storage');
+            if (detail) detail.textContent = error instanceof Error ? error.message : String(error);
+            if (downloadButton) downloadButton.disabled = false;
+            if (removeButton) {
+                removeButton.hidden = !selected;
+                removeButton.disabled = false;
+            }
+            this.setManualInputDisabled(root, false);
+            this.hideDownloadProgress(root);
+            this.updateDownloadStatus(root, message);
+            return;
+        }
+        if (generation !== this.stateGeneration || root !== this.root) return;
+
+        const network = officialNnueNetwork(this.variant);
+        const state = root.querySelector('.nnue-network-state');
+        const detail = root.querySelector('.nnue-network-detail');
+        const downloadButton = root.querySelector('.nnue-download-button') as HTMLButtonElement | null;
+        const removeButton = root.querySelector('.nnue-remove-button') as HTMLButtonElement | null;
+        const officialInstalled = network !== undefined && available && selected === network.file;
+
+        if (state && detail) {
+            if (officialInstalled && network) {
+                state.textContent = _('Official NNUE cached');
+                detail.textContent = this.officialNetworkDetail(network);
+            } else if (selected && available) {
+                state.textContent = _('Manual NNUE supplied');
+                detail.textContent = selected;
+            } else if (selected) {
+                state.textContent = _('Selected NNUE file is missing');
+                detail.textContent = selected;
+            } else if (network) {
+                state.textContent = _('Official NNUE not installed');
+                detail.textContent = this.officialNetworkDetail(network);
+            } else {
+                state.textContent = _('No NNUE network installed');
+                detail.textContent = _('Choose a manual .nnue file below.');
+            }
+        }
+
+        if (downloadButton && network) {
+            downloadButton.disabled = officialInstalled;
+            downloadButton.textContent = officialInstalled
+                ? _('Official NNUE cached')
+                : _('Download official NNUE (%1)', formatNnueSize(network.bytes));
+        }
+        if (removeButton) {
+            removeButton.hidden = !selected;
+            removeButton.disabled = false;
+        }
+        this.setManualInputDisabled(root, false);
+        this.hideDownloadProgress(root);
+        this.updateDownloadStatus(root, message);
     }
 
     private async downloadOfficial(event: Event, network: OfficialNnueNetwork): Promise<void> {
         const ctrl = this.analysisSettings.ctrl;
         const button = event.currentTarget as HTMLButtonElement;
-        const container = button.closest('.nnue-download') as HTMLElement | null;
+        const root = this.root;
+        if (!root) return;
 
         if (!ctrl.nnueDownloadRoot) {
             await alertDialog({ text: _('Official NNUE downloads are not configured on this server.') });
@@ -334,7 +457,7 @@ class NnueFileSettings extends StringSettings {
         }
 
         if (requiresLargeNnueConfirmation(network)) {
-            const size = `${formatNnueSize(network.bytes)} (${network.bytes.toLocaleString()} bytes)`;
+            const size = `${formatNnueSize(network.bytes)} (${_('%1 bytes', network.bytes.toLocaleString())})`;
             const confirmed = await confirmDialog({
                 text: _('This NNUE network is %1. Download it now?', size),
                 confirmText: _('Download'),
@@ -344,10 +467,14 @@ class NnueFileSettings extends StringSettings {
         }
 
         button.disabled = true;
-        this.updateDownloadStatus(container, _('Downloading NNUE…'));
+        const removeButton = root.querySelector('.nnue-remove-button') as HTMLButtonElement | null;
+        if (removeButton) removeButton.disabled = true;
+        this.setManualInputDisabled(root, true);
+        this.updateDownloadProgress(root, 0, network.bytes);
+
         try {
             const data = await downloadOfficialNnue(this.variant, network, ctrl.nnueDownloadRoot, progress => {
-                this.updateDownloadProgress(container, progress.loaded, progress.total);
+                this.updateDownloadProgress(root, progress.loaded, progress.total);
             });
 
             localStorage[this.name] = network.file;
@@ -355,37 +482,83 @@ class NnueFileSettings extends StringSettings {
             ctrl.evalFile = network.file;
             ctrl.nnueIni(data);
 
-            button.textContent = _('Official NNUE installed');
-            this.updateDownloadProgress(container, network.bytes, network.bytes);
-            this.updateDownloadStatus(container, _('NNUE ready'));
+            await this.refreshStorageState(_('NNUE ready'));
         } catch (error) {
-            button.disabled = false;
-            this.hideDownloadProgress(container);
+            await this.refreshStorageState();
             const message = error instanceof Error ? error.message : String(error);
-            this.updateDownloadStatus(container, _('Download failed'));
+            const retryButton = root.querySelector('.nnue-download-button') as HTMLButtonElement | null;
+            if (retryButton) {
+                retryButton.disabled = false;
+                retryButton.textContent = _('Retry official NNUE (%1)', formatNnueSize(network.bytes));
+            }
+            this.updateDownloadStatus(root, _('Download failed — retry is available'));
             await alertDialog({ text: _('NNUE download failed: %1', message) });
         }
     }
 
-    private updateDownloadProgress(container: HTMLElement | null, loaded: number, total: number): void {
-        const progress = container?.querySelector('progress') as HTMLProgressElement | null;
+    private async removeInstalled(): Promise<void> {
+        const selected = this.value;
+        if (!selected) return;
+
+        const confirmed = await confirmDialog({
+            text: _('Remove the installed NNUE network from this browser?'),
+            confirmText: _('Remove'),
+            cancelText: _('Cancel'),
+        });
+        if (!confirmed) return;
+
+        const root = this.root;
+        const removeButton = root?.querySelector('.nnue-remove-button') as HTMLButtonElement | null;
+        if (removeButton) removeButton.disabled = true;
+        if (root) this.setManualInputDisabled(root, true);
+
+        try {
+            await removeNnueFile(this.variant, selected);
+            this.value = '';
+            await this.refreshStorageState(_('NNUE removed'));
+        } catch (error) {
+            if (removeButton) removeButton.disabled = false;
+            if (root) this.setManualInputDisabled(root, false);
+            const message = error instanceof Error ? error.message : String(error);
+            await alertDialog({ text: _('Unable to remove NNUE: %1', message) });
+        }
+    }
+
+    private setManualInputDisabled(root: HTMLElement, disabled: boolean): void {
+        const input = root.querySelector('#evalFile') as HTMLInputElement | null;
+        if (input) input.disabled = disabled;
+    }
+
+    private updateDownloadProgress(root: HTMLElement, loaded: number, total: number): void {
+        const progress = root.querySelector('progress') as HTMLProgressElement | null;
         if (progress) {
             progress.hidden = false;
             progress.max = total;
             progress.value = Math.min(loaded, total);
         }
         const percent = total > 0 ? Math.min(100, Math.round((loaded / total) * 100)) : 0;
-        this.updateDownloadStatus(container, _('Downloading NNUE… %1', `${percent}%`));
+        this.updateDownloadStatus(
+            root,
+            _('Downloading NNUE… %1', `${formatNnueSize(loaded)} / ${formatNnueSize(total)} (${percent}%)`),
+        );
+
+        const state = root.querySelector('.nnue-network-state');
+        if (state) state.textContent = _('Downloading official NNUE');
     }
 
-    private hideDownloadProgress(container: HTMLElement | null): void {
-        const progress = container?.querySelector('progress') as HTMLProgressElement | null;
+    private hideDownloadProgress(root: HTMLElement): void {
+        const progress = root.querySelector('progress') as HTMLProgressElement | null;
         if (progress) progress.hidden = true;
     }
 
-    private updateDownloadStatus(container: HTMLElement | null, text: string): void {
-        const status = container?.querySelector('.nnue-download-status');
+    private updateDownloadStatus(root: HTMLElement, text: string): void {
+        const status = root.querySelector('.nnue-download-status');
         if (status) status.textContent = text;
+    }
+
+    private officialNetworkDetail(network: OfficialNnueNetwork): string {
+        const exactBytes = _('%1 bytes', network.bytes.toLocaleString());
+        return `${network.file} · ${formatNnueSize(network.bytes)} · ${exactBytes}`;
     }
 }
 

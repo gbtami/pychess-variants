@@ -1328,19 +1328,51 @@ span.notification.empty span.text {
 .analysis-settings label {
   padding-left: 0;
 }
-.nnue-file-settings .nnue-download {
+.nnue-toggle-settings {
+  margin-bottom: .75rem;
+}
+.nnue-toggle-settings .nnue-toggle-help {
+  display: block;
+  margin-top: .25rem;
+  opacity: .7;
+  line-height: 1.3;
+}
+.nnue-file-settings {
+  margin-bottom: 1rem;
+}
+.nnue-file-settings .nnue-network-status {
+  display: flex;
+  flex-direction: column;
+  gap: .15rem;
+  margin-bottom: .5rem;
+}
+.nnue-file-settings .nnue-network-detail {
+  font-size: .85em;
+  opacity: .75;
+  overflow-wrap: anywhere;
+}
+.nnue-file-settings .nnue-network-actions {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: .5rem;
-  margin: .5rem 0 1rem;
+}
+.nnue-file-settings .nnue-download-feedback {
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+  margin: .4rem 0;
 }
 .nnue-file-settings .nnue-download-progress {
-  flex: 1 1 8rem;
-  min-width: 6rem;
+  width: 100%;
 }
 .nnue-file-settings .nnue-download-status {
-  flex: 0 0 auto;
+  min-height: 1.2em;
+  font-size: .85em;
+  opacity: .8;
+}
+.nnue-file-settings .nnue-manual-file {
+  margin-top: .5rem;
 }
 div.labelled input[type="range"] {
   margin-right: 1ch;

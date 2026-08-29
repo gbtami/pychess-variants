@@ -741,17 +741,51 @@ export class AnalysisController extends GameController {
     }
 
     nnueIni(data?: Uint8Array) {
-        if (!this.evalFile || !this.localEngine || !window.fsf) return;
+        if (!this.evalFile || !this.localEngine || !window.fsf) {
+            this.nnueOk = false;
+            return;
+        }
         this.nnueOk = false;
+        this.refreshNnueIndicator();
         void this.loadNnueIntoEngine(this.evalFile, data).catch(error =>
             console.error('Failed to load NNUE file:', error),
         );
+    }
+
+    nnueClear() {
+        const restartAnalysis = this.localAnalysis && this.isEngineReady;
+        if (restartAnalysis) this.engineStop();
+
+        if (this.loadedNnueFilename && window.fsf) {
+            try {
+                window.fsf.FS.unlink('/' + this.loadedNnueFilename);
+            } catch {
+                // The in-memory file may already have been removed.
+            }
+        }
+
+        this.loadedNnueFilename = undefined;
+        this.nnueOk = false;
+        this.refreshNnueIndicator();
+        if (restartAnalysis) this.engineGo();
+    }
+
+    refreshNnueIndicator() {
+        const nnueEl = document.querySelector('.nnue') as HTMLElement | null;
+        if (!nnueEl) return;
+
+        const active = this.nnue && this.nnueOk && this.evalFile !== '';
+        const title = active
+            ? _('Multi-threaded WebAssembly (with NNUE evaluation)')
+            : _('Multi-threaded WebAssembly (classical evaluation)');
+        patch(nnueEl, h('span.nnue', { props: { title: title } }, active ? 'NNUE' : 'HCE'));
     }
 
     private async loadNnueIntoEngine(filename: string, data?: Uint8Array): Promise<void> {
         const nnueData = data ?? (await loadNnueFile(this.variant.name, filename));
         if (!nnueData) {
             this.nnueOk = false;
+            this.refreshNnueIndicator();
             return;
         }
 
@@ -772,11 +806,7 @@ export class AnalysisController extends GameController {
         this.loadedNnueFilename = filename;
         this.nnueOk = true;
 
-        const nnueEl = document.querySelector('.nnue') as HTMLElement | null;
-        if (nnueEl) {
-            const title = _('Multi-threaded WebAssembly (with NNUE evaluation)');
-            patch(nnueEl, h('span.nnue', { props: { title: title } }, 'NNUE'));
-        }
+        this.refreshNnueIndicator();
 
         if (restartAnalysis) this.engineGo();
     }

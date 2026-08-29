@@ -36,14 +36,17 @@ GitHub Release assets are not suitable as the production browser download origin
   - [x] Reuse the big-file cache on later visits.
   - [x] Validate the exact manifest byte size before storing or activating a download.
   - [x] Start networks up to 64 MiB after an explicit user download request and require an additional size-aware confirmation above 64 MiB.
-  - [ ] Mirror the release assets to Cloudflare R2, configure CORS/custom-domain delivery, and set `NNUE_DOWNLOAD_ROOT` in the deployed server. See `docs/NNUE-R2.md`.
+  - [x] Mirror the 48 release assets to a private Cloudflare R2 bucket and serve them through the
+    `pychess-nnue.gbtami.workers.dev` Worker with explicit PyChess CORS headers. See `docs/NNUE-R2.md`.
+  - [ ] Set `NNUE_DOWNLOAD_ROOT=https://pychess-nnue.gbtami.workers.dev` on the deployed server when this
+    feature is released.
 
-- [ ] **4. Analysis settings UX**
+- [x] **4. Analysis settings UX**
   - Show whether the official network is missing, downloading, cached, or manually supplied.
-  - Show download size and progress.
-  - Keep “Use NNUE” separate from “network installed” state.
+  - Show exact official file size and live byte/percentage progress.
+  - Keep “Use NNUE” separate from “network installed” state and explain that downloads are managed separately.
   - Avoid silently downloading a 100–260 MB network merely because the historical `Use NNUE` setting defaults to enabled.
-  - Allow retry/removal when storage quota or download errors occur.
+  - Allow retry after download/storage failures and removal of the selected cached/manual network.
 
 - [ ] **5. Integrity and lifecycle**
   - Validate the expected byte size before activating a downloaded network.

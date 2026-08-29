@@ -95,29 +95,42 @@ export function toggleSwitch(settings: Settings<boolean>, name: string, text: st
     ];
 }
 
-export function nnueFile(settings: Settings<string>, name: string, text: string, variant: string) {
+export function nnueFile(
+    settings: Settings<string>,
+    name: string,
+    text: string,
+    variant: string,
+    onSaved?: (file: File) => void,
+) {
     const id = name;
     return [
         h('label', { attrs: { for: id } }, text),
         h(`input#${id}`, {
             props: { name: name, type: 'file', accept: '*.nnue' },
-            hook: { insert: vnode => setInputFileName(vnode, settings.value) },
             on: {
                 change: async evt => {
-                    const files = (evt.target as HTMLInputElement).files;
+                    const input = evt.target as HTMLInputElement;
+                    const files = input.files;
                     if (!files?.length) return;
 
                     const file = files[0];
-                    if (!possibleNnueFile(file.name, variant)) return;
+                    if (!possibleNnueFile(file.name, variant)) {
+                        input.value = '';
+                        return;
+                    }
 
-                    settings.value = '';
                     console.log('Selected file:', file.name);
+                    input.disabled = true;
                     try {
                         await saveNnueFile(variant, file);
                         settings.value = file.name;
+                        onSaved?.(file);
                         console.log(`${file.name} saved!`);
                     } catch (error) {
                         void alertDialog({ text: String(error) });
+                    } finally {
+                        input.value = '';
+                        input.disabled = false;
                     }
                 },
             },
@@ -184,25 +197,6 @@ function possibleNnueFile(fileName: string, variant: string) {
         void alertDialog({ text: `.nnue file name required to start with ${prefix}-` });
     }
     return possible;
-}
-
-// Code borrowed from https://pqina.nl/blog/set-value-to-file-input/
-function setInputFileName(vnode: VNode, name: string) {
-    const fileInput = vnode.elm as HTMLInputElement;
-    // Create a new File object
-    const myFile = new File(['nnue file'], name, {
-        type: 'text/plain',
-    });
-
-    // Now let's create a FileList
-    const dataTransfer = new DataTransfer();
-    dataTransfer.items.add(myFile);
-    fileInput.files = dataTransfer.files;
-
-    // Help Safari out
-    if (fileInput.webkitEntries && fileInput.webkitEntries.length) {
-        fileInput.dataset.file = `${dataTransfer.files[0].name}`;
-    }
 }
 
 export function setAriaTabClick(setting: string) {

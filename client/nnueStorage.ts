@@ -13,6 +13,30 @@ export async function storedNnueFilename(variant: string): Promise<string | unde
     return idb.get<string>(nnueFileKey(variant));
 }
 
+export async function hasNnueFile(variant: string, filename: string): Promise<boolean> {
+    if ((await storedNnueFilename(variant)) !== filename) return false;
+    if (await bigFileStorage.has(nnueStorageKey(variant, filename))) return true;
+
+    // Legacy NNUE data lived in idb-keyval's default store. Inspect the keys
+    // instead of reading the value so checking a 100+ MB network does not pull
+    // the whole file into JavaScript memory merely to render settings state.
+    const legacyKeys = await idb.keys();
+    return legacyKeys.some(key => key === legacyNnueDataKey(variant));
+}
+
+export async function removeNnueFile(variant: string, selectedFilename?: string): Promise<void> {
+    const storedFilename = await storedNnueFilename(variant);
+    const filenames = new Set(
+        [storedFilename, selectedFilename].filter((name): name is string => name !== undefined && name !== ''),
+    );
+
+    for (const filename of filenames) {
+        await bigFileStorage.delete(nnueStorageKey(variant, filename));
+    }
+    await idb.del(nnueFileKey(variant));
+    await idb.del(legacyNnueDataKey(variant));
+}
+
 export async function saveNnueFile(variant: string, file: File): Promise<void> {
     return saveNnueData(variant, file.name, file);
 }
