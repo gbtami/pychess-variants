@@ -194,7 +194,7 @@ export function analysisView(model: PyChessModel): VNode[] {
                 ]),
             ]),
             analysisTools(isOngoingGame),
-            analysisSettings.view(variant.name),
+            analysisSettings.view(variant),
             h('div#move-controls'),
 
             h('div.pocket-bot', [

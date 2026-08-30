@@ -9,6 +9,7 @@ import { downloadOfficialNnue, formatNnueSize, requiresLargeNnueConfirmation } f
 import {
     nnueLookupContextForVariant,
     officialNnueNetwork,
+    type OfficialNnueLookupContext,
     type OfficialNnueNetwork,
 } from '../nnueManifest';
 import {
@@ -41,16 +42,20 @@ class AnalysisSettings {
         this.settings['fsfDebug'] = new FsfDebugSettings(this);
     }
 
-    getSettings(family: string) {
+    getSettings(family: string): NnueFileSettings {
         const fullName = family + 'Nnue';
         if (!this.settings[fullName]) {
             this.settings[fullName] = new NnueFileSettings(this, family);
         }
-        return this.settings[fullName];
+        return this.settings[fullName] as NnueFileSettings;
     }
 
-    view(variantName: string) {
-        if (!variantName) return h('div.analysis-settings');
+    view(variant: {
+        readonly name: string;
+        readonly cataloguedSource?: 'user' | 'fairy-stockfish-builtin';
+        readonly nnueFingerprint?: string;
+    }) {
+        if (!variant.name) return h('div.analysis-settings');
 
         const settingsList: VNode[] = [];
 
@@ -70,7 +75,9 @@ class AnalysisSettings {
 
         settingsList.push(this.settings['nnue'].view());
 
-        settingsList.push(this.getSettings(variantName as string).view());
+        const nnueFileSettings = this.getSettings(variant.name);
+        nnueFileSettings.setLookupContext(nnueLookupContextForVariant(variant));
+        settingsList.push(nnueFileSettings.view());
 
         settingsList.push(this.settings['fsfDebug'].view());
 
@@ -302,11 +309,19 @@ class NnueFileSettings extends StringSettings {
     readonly variant: string;
     private root?: HTMLElement;
     private stateGeneration = 0;
+    // Rendering happens before AnalysisController is constructed. Default to
+    // the restrictive UDV context until AnalysisSettings.view supplies the
+    // actual variant identity.
+    private lookupContext: OfficialNnueLookupContext = { userDefined: true };
 
     constructor(analysisSettings: AnalysisSettings, variant: string) {
         super(variant + '-nnue', '');
         this.analysisSettings = analysisSettings;
         this.variant = variant;
+    }
+
+    setLookupContext(context: OfficialNnueLookupContext): void {
+        this.lookupContext = context;
     }
 
     update(): void {
@@ -319,7 +334,7 @@ class NnueFileSettings extends StringSettings {
     }
 
     view(): VNode {
-        const network = officialNnueNetwork(this.variant, nnueLookupContextForVariant(this.analysisSettings.ctrl.variant));
+        const network = officialNnueNetwork(this.variant, this.lookupContext);
         const actions: VNode[] = [];
         if (network) actions.push(this.officialDownloadButton(network));
         actions.push(
@@ -391,7 +406,7 @@ class NnueFileSettings extends StringSettings {
         if (!root) return;
 
         const generation = ++this.stateGeneration;
-        const network = officialNnueNetwork(this.variant, nnueLookupContextForVariant(this.analysisSettings.ctrl.variant));
+        const network = officialNnueNetwork(this.variant, this.lookupContext);
         let statusMessage = message;
         let selected = this.value;
         let available = false;
