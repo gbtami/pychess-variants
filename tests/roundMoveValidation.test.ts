@@ -178,6 +178,7 @@ describe('round move validation', () => {
     test('sends current board positionId with move payload', () => {
         const sent: SentMessage[] = [];
         const persistPendingMove = jest.fn();
+        const onMoveSubmitted = jest.fn();
 
         const ctrl = {
             gameId: 'game-position',
@@ -203,7 +204,7 @@ describe('round move validation', () => {
             persistPendingMove,
             clockOn: false,
             oppcolor: 'black',
-            simulRoundHost: undefined,
+            ongoingRoundGames: { onMoveSubmitted },
         } as unknown as Record<string, unknown>;
 
         callRoundMethod(ctrl, 'doSendMove', 'e2e4');
@@ -226,5 +227,6 @@ describe('round move validation', () => {
                 positionId: 'pos-19',
             },
         ]);
+        expect(onMoveSubmitted).toHaveBeenCalledWith(20);
     });
 });

@@ -327,13 +327,13 @@ button.icon.icon-berserk {
     padding: 0 2vmin;
 }
 
-.simul-games-controls {
+.ongoing-games-controls {
     display: flex;
     justify-content: flex-end;
     margin-bottom: 0.5rem;
 }
 
-.simul-auto-skip {
+.ongoing-auto-skip {
     display: inline-flex;
     gap: 0.5rem;
     align-items: center;

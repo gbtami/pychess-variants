@@ -11,8 +11,11 @@ import { boardSettings } from './boardSettings';
 import { timeago } from './datetime';
 import { getLastMoveFen, VARIANTS } from './variants';
 import { displayUsername } from './user';
+import { compareGames } from './ongoingGameSelection';
+import type { OngoingGamesMode } from './ongoingGameSelection';
 
-export type OngoingGamesMode = 'corr' | 'simul';
+export { compareGames };
+export type { OngoingGamesMode };
 
 export interface Game {
     gameId: string;
@@ -120,30 +123,6 @@ function simulTurnIndicator(isMyTurn: boolean) {
 
 function gameIndicator(isMyTurn: boolean, date: string, mode: OngoingGamesMode) {
     return mode === 'simul' ? simulTurnIndicator(isMyTurn) : corrClockIndicator(isMyTurn, date);
-}
-
-export function compareGames(username: string, mode: OngoingGamesMode = 'corr') {
-    return function (a: Game, b: Game) {
-        const aFinished = typeof a.status === 'number' && a.status >= 0;
-        const bFinished = typeof b.status === 'number' && b.status >= 0;
-        if (aFinished && !bFinished) return 1;
-        if (!aFinished && bFinished) return -1;
-
-        const aIsUserTurn = a.tp === username;
-        const bIsUserTurn = b.tp === username;
-        if (aIsUserTurn && !bIsUserTurn) return -1;
-        if (!aIsUserTurn && bIsUserTurn) return 1;
-
-        if (mode === 'simul') {
-            return a.gameId.localeCompare(b.gameId);
-        }
-
-        const aMins = typeof a.mins === 'number' ? a.mins : Number.POSITIVE_INFINITY;
-        const bMins = typeof b.mins === 'number' ? b.mins : Number.POSITIVE_INFINITY;
-        if (aMins < bMins) return -1;
-        if (aMins > bMins) return 1;
-        return 0;
-    };
 }
 
 export function gameViewPlaying(

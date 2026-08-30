@@ -1478,7 +1478,7 @@ class TestGUI:
             assert f'data-simulid="{simul.id}"' in html
             assert 'data-simulhost="True"' in html
             # The round page must contain every simul game, not only the current one,
-            # because SimulRoundHostController uses this list for skip/navigation.
+            # because the ongoing-games controller uses this list for skip/navigation.
             simul_games_attr = html.split('data-simulgames="', 1)[1].split('"', 1)[0]
             round_simul_games = json.loads(unescape(simul_games_attr))
             assert {game["gameId"] for game in round_simul_games} == set(game_ids)
