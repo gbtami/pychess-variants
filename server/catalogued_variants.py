@@ -23,6 +23,7 @@ from compress import MAX_COMPRESSED_BOARD_HEIGHT, MAX_COMPRESSED_BOARD_WIDTH
 from const import ANON_PREFIX, STARTED, T_STARTED
 from fairy.fairy_board import sf
 from json_utils import json_response
+from nnue_identity import fsf_ini_v1_fingerprint
 from pychess_global_app_state_utils import get_app_state
 from pymongo.errors import DuplicateKeyError
 from request_utils import read_json_data, read_post_data, read_text_data
@@ -1192,6 +1193,7 @@ class CataloguedVariantClientDocument(TypedDict):
     author: NotRequired[str]
     source: NotRequired[str]
     system: NotRequired[bool]
+    nnueFingerprint: NotRequired[str]
     fsfBuiltinVariant: NotRequired[str]
     pieceFamilyOverride: NotRequired[str]
     boardFamilyOverride: NotRequired[str]
@@ -2881,6 +2883,19 @@ def _client_doc(
         "archived": bool(doc.get("archived", False)),
         "enabled": bool(doc.get("enabled", True)),
     }
+    if client_doc["source"] == CATALOGUED_SOURCE_USER and ini:
+        nnue_base_variant = extract_variant_base_name(ini)
+        # A section-only fingerprint is sufficient only when the inherited base
+        # is an engine/site built-in whose meaning a different UDV cannot
+        # replace. Custom-on-custom inheritance would need a full chain identity,
+        # so keep those variants on the manual NNUE path for now.
+        if not nnue_base_variant or _is_builtin_variant_name(nnue_base_variant):
+            try:
+                client_doc["nnueFingerprint"] = fsf_ini_v1_fingerprint(ini)
+            except ValueError:
+                # Existing/historical catalogued variants should remain renderable
+                # even if their stored INI cannot be fingerprinted conservatively.
+                pass
     client_variant = str(doc.get("clientVariant") or "").strip()
     if client_variant:
         client_doc["clientVariant"] = client_variant

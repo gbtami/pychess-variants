@@ -457,6 +457,8 @@ export interface Variant {
         readonly showCheckCounters: boolean;
     };
     readonly alternateStart?: Record<string, AlternateStart>;
+    readonly cataloguedSource?: 'user' | 'fairy-stockfish-builtin';
+    readonly nnueFingerprint?: string;
 }
 
 const pieceFamiliesWithMaterialDifferenceSupported = [
@@ -585,6 +587,8 @@ export function variant(config: VariantConfig): Variant {
             showCheckCounters: config.ui?.showCheckCounters ?? false,
         },
         alternateStart: alternateStarts(config.alternateStart),
+        cataloguedSource: config.cataloguedSource,
+        nnueFingerprint: config.nnueFingerprint,
     };
 }
 
@@ -603,6 +607,9 @@ interface VariantConfig {
     chess960?: boolean;
     // Whether Fairy-Stockfish AI is temporarily disabled for this catalogued variant
     aiDisabled?: boolean;
+    // Identity metadata used to gate automatic NNUE for user-defined variants.
+    cataloguedSource?: 'user' | 'fairy-stockfish-builtin';
+    nnueFingerprint?: string;
     // Pocket pieces are added from an external source, usually from a second board (e.g., bughouse)
     twoBoards?: boolean;
     // Whether games contribute to user ratings and site leaderboards (default: true)
@@ -2086,6 +2093,7 @@ export interface CataloguedVariantClientDocument {
     readonly author?: string;
     readonly source?: 'user' | 'fairy-stockfish-builtin';
     readonly system?: boolean;
+    readonly nnueFingerprint?: string;
     readonly fsfBuiltinVariant?: string;
     readonly pieceFamilyOverride?: keyof typeof PIECE_FAMILIES;
     readonly boardFamilyOverride?: keyof typeof BOARD_FAMILIES;
@@ -2780,6 +2788,8 @@ export function registerCataloguedVariant(meta: CataloguedVariantClientDocument)
         displayName: meta.displayName || meta.name,
         tooltip: meta.tooltip || 'Catalogued variant',
         aiDisabled: !!meta.aiDisabled,
+        cataloguedSource: meta.source,
+        nnueFingerprint: meta.nnueFingerprint,
         ratingEnabled: false,
         startFen: meta.startFen,
         icon: CATALOGUED_VARIANT_ICON,

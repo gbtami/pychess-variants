@@ -6,11 +6,15 @@ import { confirmDialog } from '../confirmDialog';
 import { Settings, BooleanSettings, NumberSettings, StringSettings } from '../settings';
 import { nnueFile, slider, sliderFromList, toggleSwitch } from '../view';
 import { downloadOfficialNnue, formatNnueSize, requiresLargeNnueConfirmation } from '../nnueDownload';
-import { officialNnueNetwork, type OfficialNnueNetwork } from '../nnueManifest';
+import {
+    nnueLookupContextForVariant,
+    officialNnueNetwork,
+    type OfficialNnueNetwork,
+} from '../nnueManifest';
 import {
     hasNnueFile,
     removeNnueFile,
-    removeSupersededOfficialNnue,
+    removeObsoleteOfficialNnue,
     storedNnueMetadata,
     storedNnueSize,
     type NnueFileMetadata,
@@ -315,7 +319,7 @@ class NnueFileSettings extends StringSettings {
     }
 
     view(): VNode {
-        const network = officialNnueNetwork(this.variant);
+        const network = officialNnueNetwork(this.variant, nnueLookupContextForVariant(this.analysisSettings.ctrl.variant));
         const actions: VNode[] = [];
         if (network) actions.push(this.officialDownloadButton(network));
         actions.push(
@@ -387,19 +391,20 @@ class NnueFileSettings extends StringSettings {
         if (!root) return;
 
         const generation = ++this.stateGeneration;
-        const network = officialNnueNetwork(this.variant);
+        const network = officialNnueNetwork(this.variant, nnueLookupContextForVariant(this.analysisSettings.ctrl.variant));
         let statusMessage = message;
         let selected = this.value;
         let available = false;
         let metadata: NnueFileMetadata | undefined;
         try {
-            if (network) {
-                const superseded = await removeSupersededOfficialNnue(this.variant, network);
-                if (superseded && selected === superseded) {
-                    this.value = '';
-                    selected = '';
-                    statusMessage ||= _('Previous official NNUE removed; updated network available');
-                }
+            const obsolete = await removeObsoleteOfficialNnue(this.variant, network);
+            if (obsolete && selected === obsolete) {
+                this.value = '';
+                selected = '';
+                statusMessage ||=
+                    network === undefined
+                        ? _('Official NNUE removed because this variant definition no longer matches it')
+                        : _('Previous official NNUE removed; updated network available');
             }
 
             if (selected) {

@@ -174,12 +174,12 @@ export async function loadOfficialNnueFile(
     return data;
 }
 
-export async function removeSupersededOfficialNnue(
+export async function removeObsoleteOfficialNnue(
     variant: string,
-    currentNetwork: OfficialNnueNetwork,
+    currentNetwork?: OfficialNnueNetwork,
 ): Promise<string | undefined> {
     const metadata = await storedNnueMetadata(variant);
-    if (!metadata || metadata.source !== 'official' || metadata.filename === currentNetwork.file) return undefined;
+    if (!metadata || metadata.source !== 'official' || metadata.filename === currentNetwork?.file) return undefined;
 
     const selected = await storedNnueFilename(variant);
     if (selected !== metadata.filename) return undefined;

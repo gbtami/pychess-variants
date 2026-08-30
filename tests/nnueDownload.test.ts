@@ -9,6 +9,7 @@ import {
 import { officialNnueNetwork } from '../client/nnueManifest';
 
 const originalXHR = global.XMLHttpRequest;
+const trustedVariant = { userDefined: false } as const;
 
 interface FakeResponse {
     status?: number;
@@ -66,7 +67,7 @@ afterEach(() => {
 
 describe('NNUE downloads', () => {
     test('builds download URLs without duplicate slashes', () => {
-        const network = officialNnueNetwork('crazyhouse')!;
+        const network = officialNnueNetwork('crazyhouse', trustedVariant)!;
         expect(officialNnueDownloadUrl('https://nnue.example.test///', network)).toBe(
             'https://nnue.example.test/crazyhouse-8ebf84784ad2.nnue',
         );
@@ -74,9 +75,9 @@ describe('NNUE downloads', () => {
     });
 
     test('marks only networks above 64 MiB as large', () => {
-        expect(requiresLargeNnueConfirmation(officialNnueNetwork('crazyhouse')!)).toBe(false);
-        expect(requiresLargeNnueConfirmation(officialNnueNetwork('dragon')!)).toBe(true);
-        expect(formatNnueSize(officialNnueNetwork('cannonshogi')!.bytes)).toBe('249 MiB');
+        expect(requiresLargeNnueConfirmation(officialNnueNetwork('crazyhouse', trustedVariant)!)).toBe(false);
+        expect(requiresLargeNnueConfirmation(officialNnueNetwork('dragon', trustedVariant)!)).toBe(true);
+        expect(formatNnueSize(officialNnueNetwork('cannonshogi', trustedVariant)!.bytes)).toBe('249 MiB');
     });
 
     test('downloads bytes and reports progress using the expected size as fallback', async () => {

@@ -126,8 +126,15 @@ mirror. When Fairy-Stockfish publishes a replacement network:
 2. Add the new network to `gbtami/Fairy-Stockfish-NNUE`, regenerate its manifest,
    and upload the new release asset.
 3. Upload the new `.nnue` object to the private R2 bucket with the same filename.
-4. Update `client/nnueManifest.ts` in PyChess to reference the new hash-named
-   filename and exact byte size.
+4. Regenerate PyChess' bundled catalogue from the mirror checkout:
+
+   ```bash
+   python3 scripts/update_nnue_catalogue.py ../Fairy-Stockfish-NNUE
+   ```
+
+   Commit the resulting `client/nnueCatalog.generated.ts`. The generator also
+   imports authoritative custom-variant fingerprints and trusted FSF aliases
+   from `variant-identities.json`.
 5. Deploy PyChess. Step 5 lifecycle handling removes a superseded **official**
    selected cache when that variant is next used; manually supplied networks are
    never garbage-collected by this update path.
@@ -139,8 +146,22 @@ rclone lsf r2:pychess-nnue --include '*.nnue' | wc -l
 rclone size r2:pychess-nnue --include '*.nnue'
 ```
 
-For the initial 48-network mirror the expected total is `3,268,755,449` bytes.
+The expanded verified mirror currently contains 140 networks totaling
+`7,118,164,801` bytes.
 The R2 bucket stays private; do not re-enable its public `r2.dev` development URL.
+
+## User-defined variant identity safety
+
+Automatic NNUE selection for a user-defined variant is never based on its
+internal name alone. A UDV must match an authoritative Fairy-Stockfish custom
+definition using the conservative `fsf-ini-v1` SHA-256 fingerprint. The shipped
+Fairy-Stockfish `src/variants.ini` definition is authoritative when present; the
+wiki is only a fallback.
+
+Built-in/site variants and explicit Fairy-Stockfish compatibility aliases keep
+their trusted mapping. UDV aliases are deliberately not followed. Networks with
+no authoritative custom definition remain available only through the manual
+NNUE file picker.
 
 ## Secrets and recovery
 

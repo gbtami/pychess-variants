@@ -36,18 +36,21 @@ objects without routing them through Heroku. See `docs/NNUE-R2.md`.
   - Manual import remains the advanced/fallback path.
 
 - [x] **2. Official NNUE manifest**
-  - Bundle the 48 mirrored assets with immutable filename and exact byte size.
+  - Bundle the mirrored assets with immutable filename and exact byte size.
   - Resolve Fairy-Stockfish's compatible-network aliases.
   - Reuse the same mapping for manual filename validation.
-  - User-defined variants remain manual unless their engine variant resolves to
-    a known official network.
+  - Synchronize catalogue metadata from `gbtami/Fairy-Stockfish-NNUE` with
+    `scripts/update_nnue_catalogue.py`.
+  - User-defined variants get automatic NNUE only when their `fsf-ini-v1`
+    fingerprint matches an authoritative Fairy-Stockfish custom definition;
+    name-only matches and aliases are not sufficient for UDV.
 
 - [x] **3. On-demand download manager**
   - Configurable `NNUE_DOWNLOAD_ROOT`.
   - Download only the current variant's network; never prefetch the full set.
   - Live progress, exact-size validation, persistent cache reuse.
   - Additional confirmation above 64 MiB.
-  - 48 release assets mirrored to private R2 and served through the Worker.
+  - 140 verified release assets mirrored to private R2 and served through the Worker.
 
 - [x] **4. Analysis settings UX**
   - Missing/downloading/cached/manual states with exact sizes and progress.
