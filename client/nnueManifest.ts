@@ -6,7 +6,7 @@ import {
 
 export { OFFICIAL_NNUE_NETWORKS } from './nnueCatalog.generated';
 
-export const OFFICIAL_NNUE_ARCHIVE_REPOSITORY = 'https://github.com/gbtami/Fairy-Stockfish-NNUE';
+export const OFFICIAL_NNUE_ARCHIVE_REPOSITORY = 'https://github.com/gbtami/Fairy-Stockfish-NNUE-Catalogue';
 export const OFFICIAL_NNUE_ARCHIVE_RELEASE_TAG = 'networks';
 export const OFFICIAL_NNUE_ARCHIVE_BASE_URL =
     `${OFFICIAL_NNUE_ARCHIVE_REPOSITORY}/releases/download/${OFFICIAL_NNUE_ARCHIVE_RELEASE_TAG}`;

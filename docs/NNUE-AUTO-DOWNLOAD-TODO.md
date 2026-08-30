@@ -17,7 +17,7 @@ and expects the latest release to contain the exact platform engine binary. An
 NNUE-only latest release would therefore break automatic worker engine downloads.
 
 The networks are archived as immutable hash-named assets in the dedicated
-`gbtami/Fairy-Stockfish-NNUE` repository's long-lived `networks` release. This
+`gbtami/Fairy-Stockfish-NNUE-Catalogue` repository's long-lived `networks` release. This
 keeps the NNUE archive completely independent from fairyfishnet's engine-binary
 release lifecycle.
 
@@ -39,7 +39,7 @@ objects without routing them through Heroku. See `docs/NNUE-R2.md`.
   - Bundle the mirrored assets with immutable filename and exact byte size.
   - Resolve Fairy-Stockfish's compatible-network aliases.
   - Reuse the same mapping for manual filename validation.
-  - Synchronize catalogue metadata from `gbtami/Fairy-Stockfish-NNUE` with
+  - Synchronize catalogue metadata from `gbtami/Fairy-Stockfish-NNUE-Catalogue` with
     `scripts/update_nnue_catalogue.py`.
   - User-defined variants get automatic NNUE only when their `fsf-ini-v1`
     fingerprint matches an authoritative Fairy-Stockfish custom definition;

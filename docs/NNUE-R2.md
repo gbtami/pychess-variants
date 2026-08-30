@@ -1,6 +1,6 @@
 # NNUE browser download origin (Cloudflare R2 + Worker)
 
-The GitHub repository `gbtami/Fairy-Stockfish-NNUE` remains the canonical
+The GitHub repository `gbtami/Fairy-Stockfish-NNUE-Catalogue` remains the canonical
 archive and manifest for official Fairy-Stockfish NNUE networks. Browser-side
 PyChess downloads need a CORS-capable delivery origin because GitHub Release
 asset redirects are not a reliable cross-origin `fetch`/XHR origin.
@@ -123,13 +123,13 @@ mirror. When Fairy-Stockfish publishes a replacement network:
 
 1. Keep the old hash-named GitHub Release asset for compatibility with older
    clients.
-2. Add the new network to `gbtami/Fairy-Stockfish-NNUE`, regenerate its manifest,
+2. Add the new network to `gbtami/Fairy-Stockfish-NNUE-Catalogue`, regenerate its manifest,
    and upload the new release asset.
 3. Upload the new `.nnue` object to the private R2 bucket with the same filename.
 4. Regenerate PyChess' bundled catalogue from the mirror checkout:
 
    ```bash
-   python3 scripts/update_nnue_catalogue.py ../Fairy-Stockfish-NNUE
+   python3 scripts/update_nnue_catalogue.py ../Fairy-Stockfish-NNUE-Catalogue
    ```
 
    Commit the resulting `client/nnueCatalog.generated.ts`. The generator also

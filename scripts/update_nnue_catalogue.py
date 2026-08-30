@@ -126,12 +126,12 @@ def build_catalogue(manifest: dict[str, Any], identities: dict[str, Any]) -> str
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Generate the bundled PyChess NNUE catalogue from Fairy-Stockfish-NNUE metadata."
+        description="Generate the bundled PyChess NNUE catalogue from Fairy-Stockfish-NNUE-Catalogue metadata."
     )
     parser.add_argument(
         "mirror_repo",
         type=Path,
-        help="Path to the gbtami/Fairy-Stockfish-NNUE checkout",
+        help="Path to the gbtami/Fairy-Stockfish-NNUE-Catalogue checkout",
     )
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     args = parser.parse_args()
