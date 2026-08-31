@@ -18,6 +18,41 @@
     initial-value: 0px;
 }
 
+/* THE ANALYSIS PAGE'S NAME DECISION, registered for the same second reason as the gap
+   above: a style query compares an unregistered property as TOKENS, so `style(--bug-name-
+   outside: 1)` would never match the `min(1, round(down, ...))` that computes to 1.
+   Registered as a number, it is compared as a computed value and matches.
+
+   Initial value 0 — a stack that supplies no room reserves no line, which is what makes
+   portrait and full zoom keep their names inside the strip without either being named. */
+@property --bug-name-outside {
+    syntax: '<number>';
+    inherits: true;
+    initial-value: 0;
+}
+
+/* WHICH WAY THE MOVE-TIMES CHART IS DRAWN, decided here and carried out by
+   `trackChartOrientation()` in movetimeChart.ts. Registered for the same reason as the two
+   above: unregistered, `getComputedStyle` hands the value back as an unresolved token.
+
+   The RULE lives in CSS because it is a question about a box, and the boxes are what this
+   file decides — the panel is tall and narrow in portrait's tools column and wide and short
+   in a landscape one, so the answer follows the layout rather than being a second opinion
+   about it. Only the ACT of re-rendering needs script: `inverted` is a Highcharts render
+   option that transposes axes, bar direction, tooltip anchoring and hit areas, and no
+   stylesheet can reach that. A `transform: rotate(90deg)` would turn the picture on its
+   side, labels and pointer geometry included, which is a different thing entirely.
+
+   Initial value 0 — horizontal. A panel whose tab is not selected has `display: none` and
+   so no principal box, which makes it no container at all and leaves this at its initial
+   value. That is also what makes showing the tab work: the box goes from nothing to real,
+   the observer fires, and the answer is computed for the first time against a real size. */
+@property --bug-chart-inverted {
+    syntax: '<number>';
+    inherits: true;
+    initial-value: 0;
+}
+
 /* THE USERNAME'S CEILING, AND THE ONE SIZE ON THIS PAGE THAT IS NOT DERIVED FROM A BOARD.
    16.8px is what a single-board round page draws a username at: `round-player0` is
    `font-size: 1.2em` in site.css over an `html` of 14px, measured on the live page at
@@ -29,7 +64,7 @@
    165.3px wide with nothing else on it, and 16.74px on its neighbour, for no reason other
    than that one board was smaller than the other. The pocket must match its board because
    it sits pieces on squares; a name must be legible. */
-.round-app.bug {
+:is(.round-app, .analysis-app).bug {
     --bug-name-fs-max: 16.8px;
 }
 
@@ -41,8 +76,13 @@
 
    Neutralised here rather than in site.css, which every other page depends on, and
    at the top level rather than per mode, because all three pin the body the same way
-   and inherit the same margin. */
-body[data-variant='bughouse'][data-view='round'] {
+   and inherit the same margin.
+
+   The analysis view is included since it started pinning itself in portrait for the same
+   reason. Measured before: a document 843px tall inside an 835px viewport, all of the
+   difference being this margin. */
+body[data-variant='bughouse'][data-view='round'],
+body[data-variant='bughouse'][data-view='analysis'] {
     margin-bottom: 0;
 }
 
@@ -71,7 +111,19 @@ body[data-variant='bughouse'][data-view='round'] {
    three times the size. At 12 the smallest external label is 9px and still reads, and anything
    under it goes internal and gets bigger rather than smaller. Measured across the ramp by
    driving --bug-coord-room directly: 16 -> 12px label, 14 -> 10.5, 12 -> 9, 10 -> 7.5, 8 -> 6. */
-.round-app.bug {
+/* BOTH TWO-BOARD PAGES, one treatment. Everything about coordinates in this file — these two
+   numbers, the on-the-squares rules near the end, the parity colouring and the `not style()`
+   block that puts the labels back outside — is written once and selected for both app roots.
+
+   It was scoped to the round page alone until 2026-08-29, which left the analysis page computing
+   `--bug-coord-gap` and then ignoring it: measured 0px at 100% zoom on a 1276x551 window, the
+   round page's signal for "no room, draw them on the squares", while its files sat at
+   `bottom: -16px` outside the board at chessground's own 0.8 opacity and 11.9px.
+
+   Widened rather than copied, deliberately. The colouring below is sixteen selectors that pair
+   each label with the square it sits on; a second copy under the other app class would be the
+   same body of rules with no mechanism keeping the two in step. */
+:is(.round-app, .analysis-app).bug {
     --bug-coord-overhang: calc(-1 * var(--files-bottom));
     --bug-coord-floor: 12px;
 }
@@ -111,48 +163,745 @@ body[data-variant='bughouse'][data-view='round'] {
 /* *****************************************************************************************
  * analysis.css
  ******************************************************************************************* */
-@media (min-width: 800px) {
-    /*.analysis-app.bug {
-        grid-template-columns: 500px
-                               var(--gauge-gap)
-                               calc(var(--pocketLength) * (var(--cg-width-a) / var(--files)))
-                               calc(var(--pocketLength) * (var(--cg-width-b) / var(--files)))
-                               var(--gauge-gap)
-                               0.8em
-                               500px;
-        grid-template-rows: min-content 1fr;
-        grid-template-areas: 'board gauge pocket-top pocket-top-partner gaugePartner d boardPartner'
-                             'board gauge tools tools gaugePartner d boardPartner'
-                             'board gauge tools tools gaugePartner d boardPartner'
-                             'board gauge pocket-bot pocket-bot-partner gaugePartner d boardPartner'
-                             '. . move-controls move-controls . . .'
-                             'gameinfo gameinfo uboard uboard uboard uboard uboard'
-    }*/
+/* THE ANALYSIS PAGE, arranged as the round page is.
+   ------------------------------------------------------------------------------------
+   What this replaces: a flat seven-column grid
+
+       board A | gauge | pocketA | pocketB | gaugePartner | d | board B
+
+   with the two boards pinned to the OUTER edges and both pockets, the movelist, the
+   engine panel and misc-info crammed into the centre gutter between them. A player
+   compares the two boards constantly and had the whole page between them, while the tools
+   they read sat in a column too narrow to read. Boards were `30vw * zoom` — width-derived,
+   the model the round page abandoned — and measured 425.3px against a much smaller
+   partner, neither filling its height.
+
+   REPLACED, not adjusted. Those columns encode the old arrangement, down to a `0.8em`
+   spacer column named `d`, and there is no sequence of edits from them to boards-adjacent
+   that passes through a working layout.
+
+   The page's elements are now two stacks — pocket / board / pocket in block flow, the
+   same shape the round page uses — plus a gauge beside each and one tools column. Each
+   gauge sits immediately RIGHT of the board it reports on, so it can never be read as
+   belonging to the other one; the cost is that the left gauge sits in the seam, which is
+   accepted because a gauge is a thin bar that belongs to the board on its left. */
+
+/* Landscape: main board, its gauge, other board, its gauge, tools.
+   ONE rule for both landscape modes — the round page splits desktop from short landscape
+   because its vertical budget differs, and this page has no such split to make yet. */
+@media (orientation: landscape) {
     .analysis-app.bug {
-        --board-scaleA: calc((var(--zoom-a) / 100));
-        --board-scaleB: calc((var(--zoom-b) / 100));
-        grid-row-gap: 2vmin;
-        grid-template-columns: calc(30vw * var(--board-scaleA))
-                               var(--gauge-gap)
-                               calc(var(--pocketLength) * (var(--cg-width-a) / var(--files)))
-                               calc(var(--pocketLength) * (var(--cg-width-b) / var(--files)))
-                               var(--gauge-gap)
-                               0.8em
-                               calc(30vw * var(--board-scaleB));
-        grid-template-rows: min-content 1fr;
-        grid-template-areas: 'board gauge pocket-top pocket-top-partner gaugePartner d boardPartner'
-                             'board gauge tools tools gaugePartner d boardPartner'
-                             'board gauge tools tools gaugePartner d boardPartner'
-                             'board gauge pocket-bot pocket-bot-partner gaugePartner d boardPartner'
-                             '. . move-controls move-controls . . .'
-                             'gameinfo gameinfo uboard uboard uboard uboard uboard'
+        display: grid;
+        /* TWO COLUMNS, `'ownstack rightcol'` — the round page's landscape template, with the
+           partner's board and the tools merged into the second one exactly as they are
+           there. This was three flat columns for a while, which put the same three things
+           in the same places but made this page a different SHAPE from the round page for
+           no reason anyone could state; every rule about the pair then had to be written
+           twice, once against two app columns and once against three.
+
+           Each track holds a stack, and a stack here is board PLUS its gauge — the `* 0.31`
+           the round page's identical track does not carry, and one of this page's three
+           real differences from it. */
+        /* Three tracks: each board sized by its own stack, then the tools taking what is left
+           up to this mode's cap. The stacks size themselves from `--bug-stack-sq`, so `auto` is
+           the whole declaration — no board width is written here any more. */
+        grid-template-columns: auto auto minmax(0, 20vw);
+        /* THE BOARD ROW IS BOUNDED, as the round page's is. `min-content` let the row take whatever
+           the merged column's content wanted — invisible while the tools sat in one fixed area
+           that could not grow, and the second thing to fail once they are placed individually.
+           `1fr` gives the column a definite height to divide, which is what lets a panel scroll
+           inside it instead of pushing the row past the viewport. `uleft` keeps its own auto row. */
+        grid-template-rows: minmax(0, 1fr) auto;
+        /* uleft gets a row of its own. Without one it is auto-placed and opens an IMPLICIT
+           COLUMN — measured as a seven-column grid where five were declared, which is what
+           pushed the tools off their track. There is no `uboard` row any more: the chart and
+           FEN & PGN are tabs of the tools panel now, so nothing is mounted under the boards. */
+        grid-template-areas: 'ownstack rightcol'
+                             'uleft uleft';
+        column-gap: 2vmin;
+        grid-row-gap: 0;
+        justify-content: center;
+        align-content: start;
+    }
+    /* The merged column's own two tracks, which is nearly all this page states about it:
+       `grid-area: rightcol`, `display: grid`, the zero minimums and the clipping all come
+       from the shared `.bug-right-column` rule the round page already carries, and the
+       round page's own landscape block states exactly these two tracks and nothing more.
+
+       The AREAS are re-stated because they are the second real difference: the round page's
+       parts are a chat panel, two preset rows and a tab bar, placed individually so that
+       `toolsPlacement.ts` can drop them under a shrunken board; this page has one tools
+       block holding its own tab list, so its column is a single row of two areas. */
+    /* Only the two track widths, which is all the round page's landscape block states too. The
+       areas, the rows, the zero minimums and the clipping come from the shared
+       `.bug-right-column` rule. The gauge's share of the stack track is the one real difference. */
+    /* ONE GRID FOR THE WHOLE PAGE, which is what lets a part move between the boards and the
+       space under them.
+       ------------------------------------------------------------------------------------
+       `.bug-right-column` is DISSOLVED here, so the partner stack, the tab panels and the tab
+       list stop being its children and become grid items of the app alongside the own stack —
+       `.bug-parts` already does the same for its own children. Every arrangeable thing is then a
+       sibling in one grid, and an area name is all it takes to move one.
+
+       A "drop zone" is therefore an AREA, not an element. Nothing is reparented and no JS moves
+       DOM: `toolsPlacement` toggles a class and the template below decides where a part lands.
+
+       THE OWN BOARD IS A COLUMN NOW, which it never was: it used to sit outside the merged
+       column entirely. That is what makes a row spanning under BOTH boards expressible, and it is
+       why the placement test will have to consider the own board's height too. */
+    .analysis-app.bug .bug-right-column {
+        display: contents;
+    }
+    /* THE AREAS ARE NAMED FOR WHERE THEY ARE, NOT FOR WHAT SITS IN THEM.
+       ------------------------------------------------------------------------------------
+       A part's home is not a property of the part: the tab list is in the tools column now and
+       under both boards a moment later, and tomorrow it may be the preset rows instead. Naming a
+       cell `tablist` is only true until something else lands in it.
+
+       So the three regions are named by position:
+
+         zoneTools1/2  the tools column beside the boards — one slot per part that stacks there
+         zoneA         the space the PARTNER board frees when it is scaled down; its width only
+         zoneB         the full width under BOTH boards
+
+       The boards keep `ownstack` and `stack`: they are not zones, they are the two fixed items
+       everything else arranges around, and those names are shared with the round page.
+
+       WHY A SLOT PER PART rather than one `zoneTools` holding both. Two items assigned the same
+       named area do not stack, they OVERLAP — measured, identical rectangles. A named area is one
+       rectangle and holds one item. That is the cost of this form, and the reason the number of
+       slots has to match the number of parts. */
+    .analysis-app.bug {
+        grid-template-areas:
+            'ownstack stack zoneTools1'
+            'ownstack stack zoneTools2'
+            'zoneB zoneB zoneB';
+        /* The first row absorbs the slack; the rest are their content's height. Two `1fr` rows
+           split the height evenly and drew a five-button bar 276px tall. */
+        grid-template-rows: minmax(0, 1fr) auto auto;
+    }
+    /* Higher specificity than the unscoped `.bug-parts > [role=...]` assignments further down the
+       file, so these win wherever they sit relative to them. */
+    .analysis-app.bug .bug-parts > [role='tabpanel'] {
+        grid-area: zoneTools1;
+    }
+    .analysis-app.bug .bug-parts > [role='tablist'] {
+        grid-area: zoneTools2;
+    }
+    /* DROPPED: the tab list goes to zoneB, under both boards, and `zoneTools1` grows into the row
+       it vacated so the panel keeps the full height of its column. zoneA is left free — it is the
+       partner board's own width, for a part narrow enough to want it. */
+    .analysis-app.bug.drop-tablist {
+        grid-template-areas:
+            'ownstack stack zoneTools1'
+            'ownstack zoneA zoneTools1'
+            'zoneB zoneB zoneB';
+    }
+    .analysis-app.bug.drop-tablist .bug-parts > [role='tablist'] {
+        grid-area: zoneB;
     }
 }
 
-.anal-clock.bug {
-    left:0;
-    right:initial;
+/* PORTRAIT, BUILT LIKE THE ROUND PAGE'S.
+   ------------------------------------------------------------------------------------
+   What this replaces: three full-width rows — partner stack, then tools, then the player's
+   own stack — which is the arrangement the round page abandoned and for the same reasons.
+   The partner board is square and a fifth of the viewport, so a full-width row for it wastes
+   everything to its right; the tools then took a whole row of their own between the two
+   boards; and the player's own board, the one thing a reader is looking at, was pushed to
+   1030px down an 835px viewport. Measured rows: 240 / 268 / 511.
+
+   The round page's answer, reused: the partner board and the tools are ONE block that takes
+   the region above, and inside it the tools occupy the space beside the small board rather
+   than below it. The player's own stack is the last row and sits flush on the bottom edge.
+   `.bug-right-column` is that block — the round page's element, its class, and its
+   `grid-area: stack` / `align-self: start` rules for the stack inside it apply unchanged. */
+@media (orientation: portrait) {
+    /* PINNED TO THE VIEWPORT, exactly as the round page pins itself, and for the same
+       reason: the app's `minmax(0, 1fr)` row can only distribute space that exists, so an
+       app sized by its content has no slack to give and the own stack floats wherever the
+       tools leave it. The cap has to be at every level between the body and the app, or the
+       lowest bare `fr` wins — a bare `1fr` is `minmax(auto, 1fr)`, whose minimum is
+       min-content. */
+    body[data-variant='bughouse'][data-view='analysis'] {
+        height: 100vh;
+        overflow: hidden;
+    }
+    body[data-variant='bughouse'][data-view='analysis'] #main-wrap {
+        height: 100%;
+        grid-template-rows: minmax(0, 1fr);
+    }
+    .analysis-app.bug {
+        display: grid;
+        /* One column. "The player's own board is full width" is then structural rather than
+           something each area has to spell out. */
+        grid-template-columns: minmax(0, 1fr);
+        /* The merged block takes the region above and gets the slack with it, so the own
+           stack below stays flush with the bottom of the viewport whatever the two boards
+           work out to. */
+        grid-template-rows: minmax(0, 1fr) min-content min-content;
+        grid-template-areas: 'rightcol'
+                             'ownstack'
+                             'uleft';
+        /* The app is exactly the width the full-width board can draw, and the sub-square
+           remainder is spent OUTSIDE it — on the app rather than on any box within it, so
+           every child starts at the same x and the leftover falls in the page margins where
+           nobody reads it as a gap. The round page's rule, verbatim. */
+        width: calc(var(--bug-portrait-sq) * 8);
+        margin-inline: auto;
+        row-gap: 0;
+    }
+    /* A REAL BOX HERE, unlike landscape. Two tracks: the partner board's eight squares, then
+       whatever is left — which is where the tools go. That leftover is the whole point; it is
+       the space a square board a fifth of the viewport tall cannot use. */
+    /* THE DROP CLASS NOW LIVES ON THE APP, so this mode needs the arrangement keyed to it.
+       Landscape dissolves `.bug-right-column` and states its areas on the app; portrait keeps that
+       column as a real grid, and the shared `.bug-right-column.drop-tablist` rule stopped matching
+       the moment `toolsPlacement` began toggling the class on the app instead. Measured: the tab
+       list back at 219px in its own column instead of 384px full width.
+
+       The areas are the shared ones, restated against the app's class — `p1`/`p2` name nothing on
+       this page, and rows with no items in them collapse to zero. */
+    .analysis-app.bug.drop-tablist .bug-right-column {
+        grid-template-areas:
+            'stack chat'
+            'stack p1'
+            'stack p2'
+            'tablist tablist';
+    }
+    /* NOTHING else for this page. Portrait's merged column is the round page's declaration for
+       declaration, and this mode's own unscoped `.bug-right-column` block below already states
+       the two track widths and the zero gap for both pages. The block that stood here restated
+       all of it and renamed the areas, which is what stopped anything dropping. */
+    /* Its content height, not the height of the row it spans. Stretched — the default for a
+       grid item — it would measure the full column and the space beside a small board would
+       never exist. The round page states this globally; restated because the analysis rules
+       above set an area on the same element. */
+    .analysis-app.bug .bug-partner-stack {
+        align-self: start;
+    }
+    /* NO EVAL GAUGE IN PORTRAIT, which is what makes the width above exact. The stack is
+       otherwise board PLUS gauge — 8.31 squares against an app of 8 — and the overflow has
+       nowhere to go once the body stops scrolling. The gauge is also the part that survives
+       being dropped: the partner's was 6.2px wide at this size, unreadable as a bar, and the
+       engine's evaluation is a number in the Moves tab regardless. The round page has no
+       gauge at all, so this is also what "follow the round page" means here. */
+    .analysis-app.bug .bug-own-stack,
+    .analysis-app.bug .bug-partner-stack {
+        grid-template-columns: calc(var(--bug-stack-sq) * 8);
+    }
+    .analysis-app.bug #gauge,
+    .analysis-app.bug #gaugePartner {
+        display: none;
+    }
+    /* AND NO BOARD LETTER, for the same reason and by the same arithmetic. The letter lives in
+       the gauge's column; portrait declares a ONE-column stack, so leaving it placed at
+       `grid-column: 2` creates an implicit second track and the stack stops being exactly its
+       eight squares — measured as an "A" at x=388 in a 386px viewport, i.e. off the screen,
+       dragging the pinned layout wider than the mode allows.
+
+       Portrait therefore has no answer to "which board is this" yet. It cannot reuse the
+       landscape one: there is no gauge column to sit under, and the strip rows are full — the
+       own stack's bottom strip is 5 squares of pocket plus a player bar that runs to the right
+       edge, with nothing spare. Anything that fits has to overlap the board or the strip, which
+       is a decision about portrait rather than a detail of this label. */
+    .analysis-app.bug .bug-own-stack > .board-label,
+    .analysis-app.bug .bug-partner-stack > .board-label {
+        display: none;
+    }
 }
+
+/* The areas, stated once for both orientations. THE BOARD TRACKS ABOVE ARE A PUBLISHED
+   UNIT TIMES THE FILE COUNT, with nothing multiplied in afterwards — that rule is the
+   whole reason the round page's boards match, and breaking it here would reintroduce the
+   defect it exists to prevent: a unit is a whole number of device pixels per square, so
+   multiplying it by a zoom fraction un-quantises it, chessgroundx floors the product
+   again and keeps the difference. The zoom is already inside --bug-tall-sq-a/-b. */
+/* Descendant, not child: both now sit inside `.bug-right-column`. In landscape that
+   wrapper is `display: contents`, so they are still grid ITEMS of the app and take these
+   areas — but `display: contents` changes layout, never the DOM, so a `>` combinator
+   stopped matching and both boards lost their area. */
+.analysis-app.bug .bug-own-stack { grid-area: ownstack; }
+/* The partner stack is deliberately NOT given an area here. It takes `grid-area: stack` from the
+   shared `.bug-partner-stack` rule — the same area the round page's takes — which is what lets the
+   shared arrangements place a dropped part beside it and under it. Naming it `partnerstack` was
+   what forced this page to restate the merged column's whole template, and that restatement is
+   what made the space under a short partner board unreachable. */
+
+/* A STACK IS A TWO-COLUMN GRID HERE: pocket / board / pocket down the first column, and
+   the gauge parked in the SECOND column on the board's row.
+
+   Scoped to the analysis page on purpose. The round page's stacks are block flow — "strip,
+   board, strip, in block flow" — and that is load-bearing there; this only reshapes them
+   where a gauge has to be placed.
+
+   The gauge needs no height of its own. Sitting in the board's row it stretches to exactly
+   the board, which is the whole reason for putting it inside: as a sibling of the stack it
+   spanned all three rows and overhung the board by a pocket at each end — measured 550.17px
+   against a 438.55px board.
+
+   The 0.31 is measured, not chosen: the gauge was a flat `--gauge-gap: 17px` from site.css
+   against a 54.8203px square on p1, and 16.99 / 54.8203 = 0.30994. Fixing it as a RATIO is
+   what makes the gauge follow the board through zoom and viewport changes, where a constant
+   px would drift further from the board's proportions at every step. */
+.analysis-app.bug .bug-own-stack,
+.analysis-app.bug .bug-partner-stack {
+    display: grid;
+    grid-auto-rows: auto;
+    justify-content: start;
+}
+/* EACH STACK KNOWS ITS OWN SQUARE, and everything inside it is sized from that one
+   variable: the board column, the gauge column and the pockets alike.
+
+   Declared on the STACK, which is what makes it usable by the pockets below. The stacks are
+   keyed by ROLE — yours, your partner's — while the pockets inside them are keyed by board
+   IDENTITY: `.pocket-top` is board A's pocket whichever stack board A ended up in, and this
+   page puts a board-B player's board B in the own stack. Inheriting the square from the
+   container is what lets the two agree without either knowing the other's mapping. It is
+   the move `.own-seat` / `.partner-seat` make on the round page, for the same reason. */
+.analysis-app.bug .bug-own-stack { --bug-stack-sq: var(--bug-tall-sq-a); }
+.analysis-app.bug .bug-partner-stack { --bug-stack-sq: var(--bug-tall-sq-b); }
+@media (orientation: portrait) {
+    .analysis-app.bug .bug-own-stack { --bug-stack-sq: var(--bug-portrait-sq); }
+    .analysis-app.bug .bug-partner-stack { --bug-stack-sq: var(--bug-portrait-partner-sq); }
+}
+/* THE BOARD COLUMN MUST BE A DEFINITE WIDTH, not max-content. `.cg-wrap` takes its height
+   from percentage padding against its own width, so with an indefinite column it has no
+   width to resolve against and collapses — measured as a 0x0 board the first time these
+   stacks became grids. The gauge column is the ratio; the gauge itself just fills it. */
+.analysis-app.bug .bug-own-stack,
+.analysis-app.bug .bug-partner-stack {
+    grid-template-columns: calc(var(--bug-stack-sq) * 8) calc(var(--bug-stack-sq) * 0.31);
+}
+/* Pockets and board keep the first column; only the gauge is placed by hand.
+
+   `grid-area: auto` FIRST, and it is the load-bearing half. Every one of these children
+   still carries a `grid-area` naming a line of the OLD full-page grid — `.pocket-top`,
+   `.pocket-bot`, and the boards. Inside a stack those names match no line, so each child
+   landed in its own implicit track: measured as a stack whose rows were `0px 438.553px`
+   with the pocket, the board and the gauge all piled into row 2 on top of each other.
+   Clearing the shorthand lets ordinary auto-placement put pocket, board, pocket down the
+   column in DOM order. */
+.analysis-app.bug .bug-own-stack > *,
+.analysis-app.bug .bug-partner-stack > * {
+    grid-area: auto;
+    grid-column: 1;
+}
+/* ID-SCOPED, and it has to be. `#mainboard { grid-area: board }` (site.css:453) and
+   `#bugboard { grid-area: boardPartner }` place the boards by NAMED LINE for the old
+   full-page grid, and an id selector outranks anything above. Left standing inside these
+   stacks the name matches no line here, so each board landed in an implicit column of zero
+   width — measured as a four-column stack, `438.553px 16.9907px 0px 0px`, with the board
+   0x0 because `.cg-wrap` takes its height from percentage padding against a width it never
+   got. */
+.analysis-app.bug .bug-own-stack > #mainboard,
+.analysis-app.bug .bug-own-stack > #bugboard,
+.analysis-app.bug .bug-partner-stack > #mainboard,
+.analysis-app.bug .bug-partner-stack > #bugboard {
+    grid-area: auto;
+    grid-column: 1;
+    grid-row: 2;
+}
+.analysis-app.bug .bug-own-stack > #gauge,
+.analysis-app.bug .bug-own-stack > #gaugePartner,
+.analysis-app.bug .bug-partner-stack > #gauge,
+.analysis-app.bug .bug-partner-stack > #gaugePartner {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: stretch;
+    height: auto;
+}
+/* The gauge fills the column the stack gave it, so the ratio is written once per stack
+   above rather than repeated here. `width` is overridden because analysis.css pins both
+   gauges to a flat `--gauge-gap`. */
+.analysis-app.bug .bug-own-stack > #gauge,
+.analysis-app.bug .bug-own-stack > #gaugePartner,
+.analysis-app.bug .bug-partner-stack > #gauge,
+.analysis-app.bug .bug-partner-stack > #gaugePartner {
+    width: 100%;
+}
+
+/* THE BOARD'S LETTER, under its gauge.
+   Row 3 is the bottom strip's row, and the label takes the gauge's column of it — so it sits
+   directly below the gauge, hard against the board's bottom edge, and inside the width the
+   stack already reserved. It costs the layout NOTHING: the row and the column both exist
+   already, and `justify-self` keeps the letter from stretching the 0.31-square track.
+
+   Sized from `--bug-stack-sq` like everything else in the stack, so it follows the board
+   through zoom and through the three modes instead of drifting at a fixed px. Dim by default
+   because it is a permanent caption, not a reading: it should be findable when asked for and
+   invisible the rest of the time. */
+.analysis-app.bug .bug-own-stack > .board-label,
+.analysis-app.bug .bug-partner-stack > .board-label {
+    grid-column: 2;
+    grid-row: 3;
+    justify-self: center;
+    align-self: start;
+    padding-top: calc(var(--bug-stack-sq) * 0.06);
+    font-size: calc(var(--bug-stack-sq) * 0.26);
+    line-height: 1;
+    font-weight: bold;
+    color: var(--text-dim-color);
+    user-select: none;
+}
+
+/* THE POCKETS, one board square per piece.
+   ------------------------------------------------------------------------------------
+   Nothing on this page sized them before, and the three modes failed in three different
+   ways — which is why only one of them looked passable.
+
+   DESKTOP LANDSCAPE was right by accident. The round page's `.pocket-top .twoboards .pocket`
+   is not scoped to `.round-app`, so it reaches this page too, and the `--cg-width-a` it reads
+   is written by chessgroundx and therefore defined here.
+
+   SHORT LANDSCAPE hit that rule's other copy, whose `--bug-pocket-sq` is declared on
+   `.round-app.bug` and so is missing here. The width was invalid at computed-value time and
+   dropped, leaving `width: auto` — which inside a definite eight-square column is a pocket
+   as wide as the whole board.
+
+   PORTRAIT matched no rule at all and fell through to extensions.css, which sizes a pocket
+   from `--cg-width` / `--cg-height`. The two-board page never writes those; it writes the
+   `-a` / `-b` pair. So the HEIGHT was dropped too, and a pocket with no height is a pocket
+   nobody can see.
+
+   Sized from --bug-stack-sq, not from --cg-width-a/-b. Both would be legal — a pocket does
+   not sit in the track it sizes itself from, so reading chessgroundx's measurement here is
+   not the forbidden self-reference — but the board column above IS `--bug-stack-sq * 8`, so
+   taking the pocket from the same variable makes a pocket piece exactly one board square BY
+   CONSTRUCTION, rather than by two independently derived numbers happening to agree.
+
+   A CELL IS A WHOLE SQUARE, not the round page's 0.8. That 0.8 is compaction and its reason
+   is stated where it is declared: a round-page pocket shares its row with a name and a clock
+   and has to leave them room. Here the pocket has the row to itself, so all three modes get
+   the uncompacted geometry — which is the one desktop was already showing. */
+.analysis-app.bug .bug-own-stack .twoboards .pocket,
+.analysis-app.bug .bug-partner-stack .twoboards .pocket {
+    width: calc(var(--pocketLength) * var(--bug-stack-sq));
+    height: var(--bug-stack-sq);
+    --fs: var(--bug-stack-sq);
+    font-size: var(--fs);
+}
+/* The wrapper is `display: inline` in extensions.css, and an inline box does two things
+   here: a width does not apply to it at all, and it generates a LINE BOX whose leading shows
+   as a band between a board and the pocket against it. The round page blockifies it in two
+   of its three modes for exactly this; stated once here for all three. Also more specific
+   than the rule above, which matches this element too — `.cg-wrap` carries `.pocket` as well
+   as the inner element does. */
+.analysis-app.bug .bug-own-stack .twoboards .cg-wrap.pocket,
+.analysis-app.bug .bug-partner-stack .twoboards .cg-wrap.pocket {
+    display: block;
+    width: max-content;
+}
+/* THE SEAT STRIPS: a pocket beside its player bar, one at each end of each board.
+   ------------------------------------------------------------------------------------
+   The round page's elements, class for class — `.seat-strip0` / `.seat-strip1` for which
+   end of the board, `.own-seat` / `.partner-seat` for whose board — so the strip skeleton
+   above and the whole of the name's sizing machinery apply here with no second copy. The
+   analysis strip simply has one fewer occupant: there is no clock in it, because this
+   page's clocks are absolutely positioned overlays on the board itself.
+
+   Every parameter comes from --bug-stack-sq, so a strip is one square of the board it
+   belongs to and the name's floor is the same fraction of a square the round page uses.
+   --bug-name-fs is only a FLOOR: the size that actually renders is `10cqi` capped at
+   --bug-name-fs-max, read from the room the name has rather than from the square. */
+.analysis-app.bug .bug-own-stack,
+.analysis-app.bug .bug-partner-stack {
+    --bug-strip-h: var(--bug-stack-sq);
+    --bug-name-fs: calc(var(--bug-stack-sq) * 0.218);
+}
+/* The name absorbs the width the pocket leaves. The shared rule says `flex: 0 0 auto`,
+   which is right where the name is an item of a COLUMN — the round page's seat block —
+   and wrong here, where it is an item of the strip's own row and would take only its
+   text's width. */
+.analysis-app.bug .seat-strip0 > round-player0,
+.analysis-app.bug .seat-strip1 > round-player1 {
+    flex: 1 1 auto;
+}
+/* THE NAME GOES TO THE END OF THE STRIP THE BOARD IS NOT ON, which is the round page's
+   rule — clock against the board, name on the outside — reaching the same arrangement
+   from the other direction. There the clock is IN the strip and the order of a column
+   settles it. Here the clock is an absolute overlay pinned to the board's edge, so it
+   lands in the strip's band nearest the board and the name has to leave that end alone.
+
+   It was `align-self: stretch` from the shared rule, which put the name at the TOP of
+   both strips. Harmless above a board, where the clock hangs at the strip's lower edge —
+   and a collision below one, where the clock is at the strip's upper edge: measured with
+   the bottom name's text box running to x=553.7 under a clock starting at x=536.5, in the
+   same 553-571 band. The top strip keeps the top; only the bottom one moves. */
+.analysis-app.bug .seat-strip0 > round-player0 {
+    align-self: flex-start;
+}
+.analysis-app.bug .seat-strip1 > round-player1 {
+    align-self: flex-end;
+}
+
+/* WHETHER THE NAME GETS A LINE OF ITS OWN, asked in CSS rather than measured.
+   ------------------------------------------------------------------------------------
+   Same question the round page's seatNamePlacement.ts answers: a name squeezed beside
+   the pocket gets whatever width the pocket leaves, and a line of its own is the full
+   width of the strip — but the line costs height, and at full zoom the stack is already
+   exactly the height it is given.
+
+   Here it needs no measuring and no observer, which is this page's standing rule. Both
+   sides of the comparison are lengths CSS already holds: the room is what the app's
+   height has left over the stack's ten squares, and the cost is bounded by the name's
+   own cap. So it is arithmetic — the same `min(1, round(down, ...))` the coordinate gap
+   uses to express a floor without a branch — and it cannot feed back into itself, because
+   neither --bug-app-h nor --bug-stack-sq moves when a name takes a line.
+
+   The room is what the COORDINATES have not already claimed. Both are drawn from the same
+   spare height, and letting each take what the other leaves would be two claims on one
+   budget — the shape that had the round page's version oscillating at 12Hz. The gap is
+   settled first and this takes the remainder, one way only.
+
+   The cost is the CAP, --bug-name-fs-max, not the rendered size: the rendered size is read
+   from a container query and asking for it here would be a length feeding the query it is
+   derived from. Over-estimating is the safe direction — too little room costs one seat a
+   line it might just have fitted, too much overflows the stack. */
+@media (orientation: landscape) {
+    .analysis-app.bug .bug-own-stack,
+    .analysis-app.bug .bug-partner-stack {
+        /* The stack's own spare height, per column, keyed exactly as its square is.
+           The round page declares this too, but from --bug-tall-sq-a/-b in one mode and
+           --bug-sq in the other; --bug-stack-sq is both of those for whichever stack this
+           is, so one rule is right in both landscape modes. Portrait declares nothing and
+           keeps the 0px default: its stacks are sized from WIDTH, so height left over is
+           not a thing they have. */
+        --bug-coord-room: calc(var(--bug-app-h) - 10 * var(--bug-stack-sq));
+    }
+}
+.analysis-app.bug .bug-own-stack,
+.analysis-app.bug .bug-partner-stack {
+    /* 1.6 of the font is the line box a name draws in — it carries a presence dot and a
+       rating beside the text, so it is well above the type's own line-height. */
+    --bug-name-line: calc(var(--bug-name-fs-max) * 1.6);
+    --bug-name-room: max(0px, calc(var(--bug-coord-room) - var(--bug-coord-gap)));
+    /* Two strips per stack, so the stack pays for the line twice or not at all. */
+    --bug-name-outside: min(1, round(down, var(--bug-name-room) / (2 * var(--bug-name-line)), 1));
+}
+/* PORTRAIT KEEPS EVERY NAME INSIDE ITS STRIP, which is what the round page does and now
+   what this page does too — the general arithmetic above already answers 0 here, because
+   portrait declares no --bug-coord-room: its stacks are sized from WIDTH, so leftover
+   height is not a quantity they have.
+
+   It is not merely that there is no room to spare. Portrait is now PINNED to the viewport
+   like the round page, and the own stack is exactly its ten squares — a strip, the board,
+   a strip. A name that left its strip would add a line at each end and push the stack past
+   the height it was given, which is the one thing a pinned layout cannot absorb. The round
+   page reaches the same conclusion by measuring: `spaceFor()` credits its own stack with
+   its own height and nothing more, so it can never take a line.
+
+   This overrode it to 1 for a while, on the reasoning that the page scrolled and a line
+   therefore cost nothing. That reasoning expired when portrait stopped scrolling. */
+/* NO BOX OF ITS OWN: the shared `.bug-parts { display: contents }` applies, so the panels and the
+   tab list are grid items of `.bug-right-column` and can be placed individually — which is the
+   whole mechanism. This was a flex column occupying a single `tools` area, and a single area is
+   exactly what nothing can drop out of. */
+.analysis-app.bug .bug-parts { min-width: 0; }
+/* THE PANELS ARE COLUMNS. The tab widget sets `display: flex` on a panel and nothing
+   else, so without this they lay their children out in a ROW: measured with #ceval taking
+   301px of a 284px panel and the movelist squeezed to a width of ZERO, which is why the
+   Moves tab looked empty apart from the engine header. */
+.analysis-app.bug .bug-parts > [role='tabpanel'] {
+    flex-flow: column;
+    min-width: 0;
+    /* THE PANEL TAKES THE HEIGHT ITS ROW GIVES IT, and this has to be said on THIS page only.
+       `site.css` gives every `div[role=tabpanel]` `height: var(--panel-height)`; the round page
+       never loads `analysis.css`, so that variable is undefined there, the declaration is invalid
+       at computed-value time, and height falls back to `auto` — which is why that page has never
+       needed this and why its own comment warns against "fixing" the site.css rule. This page
+       defines `--panel-height: 240px`, so the height is real.
+
+       It stayed hidden while `.bug-parts` was a flex column, because `flex: 1 1 auto` grew the
+       panel past its own height. A grid item has no flex to do that: the third thing to fail. */
+    height: auto;
+}
+/* The movelist fills what the engine panel and the controls leave, the same relationship
+   `main.round.bug .movelist-block` has inside the round page's Moves panel.
+
+   THE HEIGHT PAIR IS THE LOAD-BEARING HALF, not the flex. analysis.css pins this element to
+   `--movelist-max-height` (8rem) under `max-width: 799px and (orientation: portrait)` — a
+   single-board rule that reaches this page too. Releasing `flex` alone left both height
+   declarations standing, so the block grew to nothing: measured 97.2px of movelist in a
+   313.6px panel with 73px of it simply empty below the move controls. The round page never
+   hits this because its movelist is not inside `.movelist-block` under that query. */
+.analysis-app.bug .movelist-block {
+    flex: 1;
+    min-height: 0;
+    height: auto;
+    max-height: none;
+}
+/* EACH BOARD'S NUMBERS AS A COLUMN: evaluation on top, the depth it was reached at under it.
+   The two columns flank the engine's name and share the row's spare width equally, so the pair
+   reads left-to-right in the same order as the boards and the PV columns below.
+
+   `score` needs its flex reset. analysis.css pins it to `flex: 0 0 75px`, which was a WIDTH while
+   the score was a direct child of the row; inside a column that basis becomes a HEIGHT, and a
+   22px number was being given a 75px tall box. */
+.analysis-app.bug .engine-side {
+    /* `auto`, not a 0 basis: each column asks for the width its longest reading needs, and the
+       engine's name gives way. With a 0 basis the name kept its content width and the columns
+       split the remainder — 36px each, which is narrower than the word "knodes/s". */
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    justify-content: center;
+}
+.analysis-app.bug .engine-side score {
+    flex: 0 0 auto;
+    padding-left: 0;
+    align-self: center;
+}
+/* Dim and small on purpose: the depth qualifies the score above it rather than competing with
+   it, and under the alternating ladder one of the two is always the older reading. */
+.analysis-app.bug .engine-side info {
+    font-size: 0.78em;
+    line-height: 1.25;
+    text-align: center;
+    color: var(--text-dim-color);
+}
+/* Depth on one line, speed on the next, each unbroken. They are two readings, not a sentence:
+   left to wrap, a single phrase broke wherever it ran out — measured as "Depth", "17/18," and
+   "1362 knodes/s" across three ragged lines, and the panel 97px tall. Nowrap is what makes each
+   column ASK for a sensible width above, and it brought the panel to 70px. */
+.analysis-app.bug .engine-side info > span {
+    display: block;
+    white-space: nowrap;
+}
+/* THE NUMBERS COME FIRST, the engine's name second. `div.info, div.infoBug` in analysis.css is
+   `flex: 1 1 auto`, so the name grew to its content and the two number columns — basis 0 — were
+   left with what remained: measured at 159px of a 284px panel for the name against 36px for each
+   side, which is what forced the depth to wrap three ways. */
+.analysis-app.bug .engine .infoBug {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    /* Slightly smaller than the readings it sits between. It is a label — which engine, running
+       where — and it was taking 159px of a 284px panel while the numbers took 36px each. */
+    font-size: 0.85em;
+    line-height: 1.3;
+}
+
+/* TWO COLUMNS OF PRINCIPAL VARIATIONS, ONE PER BOARD.
+   Left column is the own stack's board, right is the partner's — the order `pvPanel()` builds
+   them in — so each column stands under the board it evaluates and neither needs a heading to
+   say which it is. Position is the label.
+
+   `1fr 1fr` rather than auto columns: the two lists must stay the same width whatever they hold,
+   or the column that happens to be evaluating a quiet position would steal room from the other
+   every slice, and the whole panel would jitter at the ladder's pace. `min-width: 0` is what
+   lets a long variation be clipped by its own column instead of widening the grid. */
+.analysis-app.bug .pvcolumns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 1px;
+    background-color: var(--border-color);
+}
+.analysis-app.bug .pvcol {
+    min-width: 0;
+    background-color: var(--bg-color0);
+}
+/* A DROP OF A PIECE NOBODY HOLDS YET. The engine searches these because in bughouse the piece
+   arrives from the partner's board, so the line is real but conditional: it says "if my partner
+   sends me a queen". Only the PIECE is marked — the square it would go to is not in doubt. */
+.analysis-app.bug .pv-borrowed {
+    color: var(--bad);
+    font-weight: bold;
+}
+
+/* Each line clips rather than wraps. A wrapped variation makes its row taller than the row
+   beside it, and the two columns stop being readable as a pair — the fifth line of one lands
+   against the fourth of the other. Clipped, every row is one line tall in both columns. */
+.analysis-app.bug .pvcol div.pv {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+/* THE ONE ENGINE SETTING, UNDER THE LINES IT CONTROLS.
+   `div.labelled` (site.css) already makes this a space-between row; what it does not do is
+   survive a 284px tools column, where the two-word label wrapped and the row stood 54px tall —
+   as much as three PV lines, to control how many PV lines there are.
+
+   So the label is allowed to shrink and the track is what gives way: `flex` on the input lets it
+   take whatever the label and the readout leave, and the readout is pinned by its content so the
+   `N / 5` never wraps mid-value. Nothing here needs a minimum track width — a slider two
+   centimetres wide with five stops is still a slider. */
+.analysis-app.bug .pvbox .multipv-setting {
+    gap: 1ch;
+    padding: 0.4em 0.5em;
+    border-bottom: 1px solid var(--border-color);
+}
+.analysis-app.bug .pvbox .multipv-setting label {
+    white-space: nowrap;
+    flex: 0 0 auto;
+    /* The site's `label` carries 8px of vertical padding, which is what a settings drawer wants
+       and this row does not: it made a 19px label 35px tall and the row 47px. */
+    padding: 0;
+}
+.analysis-app.bug .pvbox .multipv-setting input[type='range'] {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin-right: 0;
+}
+.analysis-app.bug .pvbox .multipv-setting .multipv_range_value {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+/* THE CHART FOLLOWS THE SHAPE OF ITS PANEL.
+   ------------------------------------------------------------------------------------
+   `container-type: size` is doing two jobs. It is what lets the aspect-ratio query below
+   ask about this box at all — and it is what makes the whole arrangement incapable of
+   looping. A size container's dimensions come from OUTSIDE it, so nothing the chart draws
+   can change the box, and the box is the only input to the answer. There is no feedback
+   path to terminate, which is why nothing here needs a guard.
+
+   The chart fills the panel rather than keeping analysis.css's flat `height: 240px`. That
+   height was written for a chart in a full-width row under the board; here the panel is a
+   tab of the tools column, and a chart that only ever used 240px of a 312px panel is the
+   reason the vertical form has room to be worth switching to. */
+.analysis-app.bug .chart-container {
+    container-type: size;
+    container-name: movechart;
+}
+.analysis-app.bug #chart-movetime {
+    width: 100%;
+    height: 100%;
+}
+/* Taller than wide gets the vertical form. The threshold is 1 rather than something tuned:
+   the question is literally which axis has more room for the plies to run along. */
+@container movechart (aspect-ratio < 1) {
+    .analysis-app.bug #chart-movetime {
+        --bug-chart-inverted: 1;
+    }
+}
+@container movechart (aspect-ratio >= 1) {
+    .analysis-app.bug #chart-movetime {
+        --bug-chart-inverted: 0;
+    }
+}
+/* site.css pins #movelist to `--movelist-max-height` (8rem), which is a scrap of a panel
+   this tall. Released here exactly as the round page releases it. */
+.analysis-app.bug #movelist {
+    height: 100%;
+    max-height: unset;
+}
+.analysis-app.bug > under-left { grid-area: uleft; min-width: 0; }
+
+/* NOTHING MIRRORS THE CLOCKS ANY MORE. `.anal-clock.bug { left: 0; right: initial }` used
+   to pull board B's clocks to its LEFT edge, which was right for the old layout: the two
+   boards were pinned to opposite edges of the page with everything else between them, so
+   each board's clocks faced inward, toward the reader.
+
+   Adjacent boards have no inward. The clocks keep analysis.css's `right: 0` in both stacks,
+   so they sit under the same corner of every board and the eye finds them in one place.
+
+   The class this hung on is board IDENTITY — `.bug` is board B whoever played on it — so it
+   also put the clocks on the wrong side for a board-B player, whose board B is the LEFT
+   stack here. Deleting it fixes that case as well, and it is the same identity-versus-role
+   trap the pockets and the boards each hit in their turn. */
 
 #gaugePartner {
     grid-area: gaugePartner;
@@ -221,9 +970,16 @@ body[data-variant='bughouse'][data-view='round'] {
  * order the three pieces read in — pocket, name, clock — and which of them
  * absorbs slack is the same everywhere, which is the point of decision 1b.
  *
- * Scoped to .round-app.bug rather than to the elements themselves: the analysis
- * page draws the same round-player and clock-wrap elements under .analysis-app
- * and must be untouched. That scope also out-specifies the page-wide
+ * Scoped to the two apps rather than to the elements themselves. It was
+ * `.round-app.bug` alone while the analysis page had no player bars of its own and
+ * had to be left as it was; it has them now, wants exactly this treatment, and the
+ * NAME half of this block is written `:is(.round-app, .analysis-app).bug` so there
+ * is one copy of it rather than two to keep in step. `:is()` takes the specificity
+ * of its most specific argument, so those rules still weigh (0,2,0) — unchanged for
+ * the round page, and still enough to out-specify the page-wide
+ * `main.bug round-player0`. What stays round-only is what names a round-only
+ * element: the clock, the seat block, the strip's own arrangement.
+ * That scope also out-specifies the page-wide
  * `main.bug round-player0` below (0,2,1 against 0,1,2), which is why the fixed
  * 0.7vw and 48px there are overridden here rather than deleted — deleting them
  * would change the analysis page too.
@@ -233,7 +989,7 @@ body[data-variant='bughouse'][data-view='round'] {
  * its declaration invalid at computed-value time, which leaves the size
  * inherited exactly as it was before a parameter existed.
  */
-.round-app.bug .seat-strip0, .round-app.bug .seat-strip1 {
+:is(.round-app, .analysis-app).bug .seat-strip0, :is(.round-app, .analysis-app).bug .seat-strip1 {
     height: var(--bug-strip-h, auto);
     overflow: hidden;
 }
@@ -281,7 +1037,7 @@ body[data-variant='bughouse'][data-view='round'] {
     flex: 1 1 0%;
     min-width: 0;
 }
-.round-app.bug round-player0, .round-app.bug round-player1 {
+:is(.round-app, .analysis-app).bug round-player0, :is(.round-app, .analysis-app).bug round-player1 {
     /* One line at the end of the column, sized by its content rather than by what
        is left over — there is nothing to share with now that the clock is above
        it rather than beside it. */
@@ -317,7 +1073,7 @@ body[data-variant='bughouse'][data-view='round'] {
    the presence dot can follow it. The markup is
    `i-side` then `player > (a.user-link, rating)`, with the dot first; `order` moves
    it after the name without touching the DOM, which flip and switch both move. */
-.round-app.bug .player-data {
+:is(.round-app, .analysis-app).bug .player-data {
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -364,8 +1120,8 @@ body[data-variant='bughouse'][data-view='round'] {
    Stated on both children, not on the container: a font-size on `.player-data` would be
    the basis for its own `cqi`, and a length that feeds the query it is derived from is
    the circularity this file has been bitten by twice. */
-.round-app.bug .player-data > player,
-.round-app.bug .player-data > i-side {
+:is(.round-app, .analysis-app).bug .player-data > player,
+:is(.round-app, .analysis-app).bug .player-data > i-side {
     font-size: clamp(
         min(var(--bug-name-fs, 0.85em), var(--bug-name-fs-max)),
         10cqi,
@@ -377,7 +1133,7 @@ body[data-variant='bughouse'][data-view='round'] {
 
    The rating is inside `player`, so it inherits the size above and there is no second
    rule to keep in step when bughouse starts carrying one. */
-.round-app.bug .player-data > player {
+:is(.round-app, .analysis-app).bug .player-data > player {
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -393,13 +1149,13 @@ body[data-variant='bughouse'][data-view='round'] {
    itself under the capped size and drew the name at 13.44px while the presence dot
    beside it — inheriting cleanly — sat at the full 16.8px. A multiplier the cap cannot
    see is the same defect as the `* 2` that was just removed, one floor down. */
-.round-app.bug .player-data a.user-link,
-.round-app.bug .player-data rating {
+:is(.round-app, .analysis-app).bug .player-data a.user-link,
+:is(.round-app, .analysis-app).bug .player-data rating {
     white-space: nowrap;
     font-size: inherit;
 }
 /* After the name, not before it. */
-.round-app.bug .player-data > i-side {
+:is(.round-app, .analysis-app).bug .player-data > i-side {
     order: 1;
     flex: 0 0 auto;
 }
@@ -617,14 +1373,18 @@ body[data-variant='bughouse'][data-view='round'] {
        of sitting on the bottom edge. Measured before: slack 15.57px of an intended
        148, and the block ending 132.76px short of the bottom.
 
-       `under-board` is hidden rather than merely collapsed. It is not empty in the
-       DOM sense — it carries `#janggi-setup-buttons`, which no bughouse game uses,
-       and a crosstable container — but it renders as 7.71px of nothing while
-       reserving a 30.7px row below the app, which is the difference between the
-       player's block sitting on the bottom edge and 30px above it. Short landscape
-       makes the same trade by letting this element fall past the fold and clipping
-       it; portrait says so explicitly. The cost is the crosstable, which is not
-       something to read mid-game on a phone. */
+       `under-board` used to be hidden here, and the rule is gone because the element
+       is: the round page no longer emits it (`two-board/round/round.ts`). It held
+       `#janggi-setup-buttons`, which no bughouse game uses, and an empty crosstable
+       container that nothing on this page ever filled — the crosstable is built by
+       the ONE-board controller, which this page does not run. It cost a 30.7px row
+       below the app for 7.71px of nothing, and the three modes each dealt with that
+       differently: portrait and tall landscape said `display: none`, short landscape
+       let it fall past the fold. Removing the markup settles all three at once.
+
+       The old comment here called the hiding a cost paid in crosstables. It was not:
+       there was never a crosstable in that box. Building one is a feature to add,
+       not something these rules took away. */
     body[data-variant='bughouse'][data-view='round'] #main-wrap {
         height: 100%;
         /* minmax(0, 1fr) for the same reason as main.round.bug below: a bare `1fr`
@@ -644,9 +1404,6 @@ body[data-variant='bughouse'][data-view='round'] {
            slack row to 233px. With a zero minimum the app is capped, its slack row
            absorbs, and the tools column scrolls its own content as intended. */
         grid-template-rows: minmax(0, 1fr) auto auto auto;
-    }
-    body[data-variant='bughouse'] main.round.bug > under-board {
-        display: none;
     }
     /* Portrait does NOT merge the columns — it keeps its own single-column-plus-
        tools arrangement, and its areas still name clockB-top, boardPartner,
@@ -806,10 +1563,16 @@ body[data-variant='bughouse'][data-view='round'] {
     /* `.round-app.bug` is required: the default sits later in the file at the same
        specificity as a bare `.chatpresets`, so without it this loses and the buttons
        stay at the floor. */
-    .round-app.bug 
-
-.chatpresets {
+    .round-app.bug .chatpresets {
         --bug-preset-btn: max(var(--bug-preset-btn-min), calc((100vw - 32px) / 10));
+    }
+
+    /* PORTRAIT KEEPS THE PAGE'S GROUND. The panel colour above is for the landscape modes,
+       where the parts move between three places and want to read as one object wherever they
+       land. Portrait has one arrangement and is not being changed. */
+    .round-app.bug .chatpresets-panel,
+    .round-app.bug .bug-presets-group {
+        background-color: transparent;
     }
 
     /* Widths of the merged column's two tracks — the only thing this mode does not
@@ -934,6 +1697,12 @@ body[data-variant='bughouse'][data-view='round'] {
     body[data-variant='bughouse'] main.round.bug {
         grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
         justify-content: stretch;
+        /* Zero, as tall landscape already sets for the same reason: the rows after the app
+           are empty, and a gap between empty rows is still charged. With `under-board`
+           removed the tracks came out `546.719px 0px 0px` and the two remaining gaps still
+           added 22.05px, leaving the document 569px against a 551px viewport. The gaps
+           separate nothing, so they cost nothing now. */
+        row-gap: 0;
     }
     /* This mode budgets the whole viewport height for the boards, so the page
        itself must not scroll. Scoped to the bughouse round page only: html keeps
@@ -948,6 +1717,64 @@ body[data-variant='bughouse'][data-view='round'] {
        to distribute and the column stays content-sized exactly as before. */
     body[data-variant='bughouse'][data-view='round'] #main-wrap {
         grid-template-columns: 1fr;
+    }
+    /* THE ANALYSIS PAGE IS PINNED THE SAME WAY, which it was not until 2026-08-29. It pinned its
+       wrapper in PORTRAIT and nowhere else, so in landscape the app had no definite height and
+       every `1fr` row inside it resolved against content instead of against the viewport. Nothing
+       showed while the tools sat in one fixed area, because that area could not grow; it is the
+       first thing to fail the moment the tools are placed as individual items, and it fails
+       silently — a row simply takes whatever its content wants.
+
+       Same three declarations the portrait block already states for this view. */
+    body[data-variant='bughouse'][data-view='analysis'] {
+        height: 100vh;
+        overflow: hidden;
+    }
+    body[data-variant='bughouse'][data-view='analysis'] #main-wrap {
+        height: 100%;
+        grid-template-rows: minmax(0, 1fr);
+        /* The tools track below is `1fr`, and a fraction can only share out space that exists.
+           #main-wrap's own track is content-sized here, so without this the 1fr has nothing to
+           distribute — the round page states exactly this, for exactly this reason. */
+        grid-template-columns: 1fr;
+    }
+    /* THIS MODE'S TRACKS, which are NOT the tall-landscape ones. The round page states them
+       separately per mode and this page did not: it had one `@media (orientation: landscape)`
+       block carrying the tall-landscape shape — a `max-content` second column and a `20vw` tools
+       track, centred — and short landscape inherited it. That is why the boards sat in a centred
+       block with 45px of dead space at each edge and the tools stopped at 255px.
+
+       Here the second column is `1fr` and the app stretches, so the boards go to the edge and the
+       tools take everything left over. Later in the file than the shared landscape block, so these
+       win at equal specificity. */
+    .analysis-app.bug {
+        height: 100%;
+        justify-content: stretch;
+    }
+    /* ONE HEIGHT-DERIVED SQUARE FOR BOTH BOARDS, which is what this mode means on the round
+       page and what this page had never done. It sized both stacks from `--bug-tall-sq-a/-b`,
+       the DESKTOP units — per board, and scaled by each profile's zoom slider — in every
+       landscape mode, because it had a single `@media (orientation: landscape)` block where the
+       round page has two.
+
+       What that produced, measured at 1276x551: on one window the own board filled its column at
+       54.67px while the partner board sat at 42.00px, 420px of a 551px column, and the 127px of
+       slack under it was enough for the tab list to drop — which this mode on the round page
+       never does, because there the stack fills the column by construction. On another window
+       both boards were 43.34px because that profile's zoom was lower, so two windows in the same
+       mode at the same size looked unrelated.
+
+       `--bug-sq` is the same unit the round page uses here: derived from the app's height so ten
+       rows fit it exactly, and identical for both boards. Zoom stops reaching the boards in this
+       mode as a result — the round page reaches that conclusion too and hides the resize handle
+       for it, which is the rule just below. */
+    .analysis-app.bug .bug-own-stack,
+    .analysis-app.bug .bug-partner-stack {
+        --bug-stack-sq: var(--bug-sq);
+    }
+    /* This mode gives the tools the whole leftover rather than a capped share. */
+    .analysis-app.bug {
+        grid-template-columns: auto auto minmax(0, 1fr);
     }
     .round-app.bug {
         /* Tracks are multiples of --bug-sq, the device-pixel-aligned square that
@@ -1040,7 +1867,9 @@ body[data-variant='bughouse'][data-view='round'] {
 
        Scoped to this page. The single-board round page and the analysis page keep
        their handles, and both honour zoom. */
-    .round-app.bug cg-resize {
+    /* Both pages, since 2026-08-29: the analysis page now sizes this mode's boards from
+       `--bug-sq` too, so the handle is a control that visibly does nothing here on either. */
+    :is(.round-app, .analysis-app).bug cg-resize {
         display: none;
     }
     /* The merged second column, as in tall landscape: the right board's stack
@@ -1109,6 +1938,45 @@ body[data-variant='bughouse'][data-view='round'] {
     .round-app.bug .chatpresets {
         --bug-preset-gap: max(3px, calc((var(--bug-parts-w, 0px) - 5 * var(--bug-preset-btn)) / 4));
     }
+
+    /* A DROPPED PART IS WIDER THAN THE COLUMN AND MUST NOT STEP WIDER.
+
+       Its row of ten sits directly under the rows of five still beside the board, and the
+       two only line up if both step by one pitch. Letting the dropped row fill its zone
+       gave it its own, larger pitch — measured 81.5px under the board against 74.8px in
+       the column — which put every button out of line except the last, the sets being
+       trailing-aligned.
+
+       So a dropped part keeps the COLUMN's pitch, and goes below it only where its own row
+       cannot hold ten buttons at that pitch: `min()` of the two, floored as ever. That is
+       what lets a part drop into a zone narrower than two full sets — the case this whole
+       rule exists for — while a zone with room to spare simply leaves the surplus in the
+       leading margin instead of spending it between the buttons.
+
+       THE SECOND TERM IS `100cqi`, NOT A PERCENTAGE. It is the width of the zone the part
+       dropped into, and it has to be read from an ancestor: the sets are sized by their
+       content, so a percentage written on a set would resolve against a width that is
+       itself the sum of these very gaps. The panel is the container because the part and
+       its sets are both inside it, so the part's gap between two sets and each set's gap
+       between two buttons resolve against the same number and cannot disagree. */
+    .round-app.bug .chatpresets-panel {
+        container-type: inline-size;
+    }
+    .round-app.bug .bug-right-column.drop-p1 .chatpresets-panel-1 .chatpresets,
+    .round-app.bug .bug-right-column.drop-p2 .chatpresets-panel-2 .chatpresets {
+        --bug-preset-gap: max(
+            3px,
+            min(
+                calc((var(--bug-parts-w, 0px) - 5 * var(--bug-preset-btn)) / 4),
+                /* Less one pixel, so the row it computes is a hair NARROWER than the box it
+                   has to fit in. Without it the ten buttons and their nine gaps come to
+                   exactly `100cqi` by construction, and whether they fit is then decided by
+                   rounding: measured pairing at a 703.4px part and stacking at 703.0px, the
+                   same layout either side of a boundary no one can see. */
+                calc((100cqi - 10 * var(--bug-preset-btn) - 1px) / 9)
+            )
+        );
+    }
     /* When the viewport is too narrow for everything, the chat is what gives way
        — never the boards. A grid item's automatic minimum size is its min-content,
        and this one's presets grid holds that at ~196px, which is enough to push
@@ -1152,7 +2020,7 @@ body[data-variant='bughouse'][data-view='round'] {
     .bug-own-stack > selection#mainboard, .bug-own-stack > selection#bugboard {
         z-index: 2;
     }
-    .round-app.bug .cg-wrap coords {
+    :is(.round-app, .analysis-app).bug .cg-wrap coords {
         pointer-events: none;
     }
 
@@ -1179,9 +2047,10 @@ body[data-variant='bughouse'][data-view='round'] {
        want and `under-board` reserves a row beneath it — measured here at 72.6px
        below the app, which the boards would then be overflowing the page by.
 
-       `under-board` costs the crosstable, as it does in the other two modes. That
-       is a heavier loss on a desktop than on a phone and is the part of this most
-       worth revisiting. */
+       `under-board` is gone from the markup entirely now, so the row it reserved is
+       not there to pin against in any mode. It cost no crosstable to remove: nothing
+       on this page ever drew one in it. A crosstable on a desktop bughouse board is
+       still worth having and is still worth revisiting — as something to BUILD. */
     body[data-variant='bughouse'][data-view='round'] {
         height: 100vh;
         overflow: hidden;
@@ -1194,6 +2063,26 @@ body[data-variant='bughouse'][data-view='round'] {
         height: var(--bug-app-h);
         grid-template-rows: minmax(0, 1fr);
     }
+    /* THE ANALYSIS PAGE, PINNED IDENTICALLY. It pinned its wrapper in portrait only; short
+       landscape got the same treatment on 2026-08-29 and this mode needs it for the same reason.
+       Left unpinned, the app's `1fr` row resolves against content rather than the viewport, and
+       once the tools are placed as individual grid items the panel is what that content is —
+       measured here at a 704px app in a 689px viewport, the page scrolling and the tab list below
+       the fold.
+
+       `--bug-app-h`, not `height: 100%`: this mode has the site header above the wrapper, so 100%
+       would be the whole viewport and overshoot by exactly the header. */
+    body[data-variant='bughouse'][data-view='analysis'] {
+        height: 100vh;
+        overflow: hidden;
+    }
+    body[data-variant='bughouse'][data-view='analysis'] #main-wrap {
+        height: var(--bug-app-h);
+        grid-template-rows: minmax(0, 1fr);
+    }
+    .analysis-app.bug {
+        height: 100%;
+    }
     body[data-variant='bughouse'] main.round.bug {
         height: 100%;
         /* Zero, because the three gaps between these four rows charged 16.54px each
@@ -1203,9 +2092,6 @@ body[data-variant='bughouse'][data-view='round'] {
         row-gap: 0;
         grid-template-rows: minmax(0, 1fr) auto auto auto;
     }
-    body[data-variant='bughouse'] main.round.bug > under-board {
-        display: none;
-    }
     /* `under-left` is the spectator strip, and it sits in an auto row of
        main.round.bug, so it takes its height off the app's `1fr` before the app
        sees it — measured at 49.6px, which left the app 717.41px of its 767 and put
@@ -1213,9 +2099,10 @@ body[data-variant='bughouse'][data-view='round'] {
 
        Short landscape and portrait already hide it. Doing the same here keeps one
        rule for all three modes, but it is the mode where a spectator list is most
-       worth having, so this is the second thing on this screen worth revisiting
-       (with `under-board`'s crosstable). Giving it a home inside the tools column
-       would settle both. */
+       worth having, so this is the thing on this screen most worth revisiting now
+       that `under-board` has been removed rather than hidden. Unlike that box, this
+       one is real: the round page does receive a spectator list. Giving it a home
+       inside the tools column would settle it. */
     body[data-variant='bughouse'] main.round.bug > under-left {
         display: none;
     }
@@ -1294,8 +2181,14 @@ body[data-variant='bughouse'][data-view='round'] {
            column would otherwise widen the app past the viewport — seen at 117px
            over. Capped, the page cannot overflow however the parts wrap; the column
            clips instead, which is the same bargain the tools column always made. */
+        /* THREE TRACKS, NOT TWO. The merged column's own two tracks — board B, then the tools
+           — are stated here instead, because that column is dissolved below and its children
+           are grid items of this app now. The same two numbers, one level up: nothing about
+           the widths changes. What changes is that a row can now span from the LEFT board's
+           edge to the tools' right edge, which is the whole point of zone B. */
         grid-template-columns: calc(var(--bug-tall-sq-a) * 8)
-                               minmax(0, max-content);
+                               calc(var(--bug-tall-sq-b) * 8)
+                               minmax(0, 20vw);
         column-gap: 2vmin;
         /* No row gap: the pockets are meant to sit flush against the board, and a
            gap here is the same leftover that shows as a line between them. */
@@ -1339,13 +2232,40 @@ body[data-variant='bughouse'][data-view='round'] {
            the stack has the height to arrange itself in, rather than being measured
            by tracks that had to be told how tall a strip becomes when a name leaves
            it. */
-        grid-template-rows: minmax(0, 1fr);
+        /* ONE ROW PER TOOLS PART, PLUS ZONE B. The first absorbs the slack — it is the chat's
+           row, and the chat is the part that takes whatever the others leave. The rest are
+           their content's height. Both stacks span rows 1-4, so the boards keep exactly the
+           height they have today while zone B is empty, and give some of it up when it is
+           not, which is what a row under both boards has to cost. */
+        grid-template-rows: minmax(0, 1fr) auto auto auto auto auto;
+        /* THE APP IS AS TALL AS ITS CONTENT, not as tall as the viewport — the taller board
+           plus whatever zone B holds, published by toolsPlacement.ts. Stretched to the viewport
+           it handed every unused pixel to the `1fr` row above, so the chat ran far past the
+           boards and the buttons under them sat below a band of nothing.
+
+           The fallback is the full height, which is what this was before, so the page is
+           correct on the frame before anything has been measured. */
+        height: var(--bug-app-content-h, 100%);
         /* The coordinate gap is no longer set here. It was a length assigned in this one
            block and read by nothing, beside a comment describing a minmax() row this
            template does not have. Both are gone; the gap is now computed once at the top
            of this file from the room each mode declares, and this mode declares its room
            on the two stacks below. */
-        grid-template-areas: 'ownstack rightcol';
+        /* NAMED FOR WHERE THEY ARE, NOT FOR WHAT SITS IN THEM — the analysis page's rule,
+           now shared. `zoneToolsN` is the strip beside the board on row N; `zoneAN` is that
+           same row widened to take the space the PARTNER board frees; `zoneB` is the full
+           width under BOTH boards. A part on row N sits in one of the first two, and the drop
+           classes below choose which.
+
+           One slot per ROW rather than one `zoneTools` for all of them, because a named area
+           is one rectangle and holds one item: two parts given the same name OVERLAP, which
+           is measured and is why the analysis page numbers its slots too. */
+        grid-template-areas: 'ownstack stack zoneTools1'
+                             'ownstack stack zoneTools2'
+                             'ownstack stack zoneTools3'
+                             'ownstack stack zoneTools4'
+                             'zoneB1   zoneB1 zoneB1'
+                             'zoneB2   zoneB2 zoneB2';
     }
     /* The merged second column: the right board's stack floated left, the tab parts
        and the bar arranging themselves in what is left of it.
@@ -1359,36 +2279,224 @@ body[data-variant='bughouse'][data-view='round'] {
 
        The float is contained rather than escaping, which is the whole reason for
        `flow-root` over a plain block. */
-    .bug-right-column {
-        /* Explicit areas, with client/two-board/round/toolsPlacement.ts choosing
-           between three arrangements. Two mechanisms that choose for themselves were
-           tried first and neither says the right thing.
+    /* DISSOLVED. Its two tracks are the app's now, and its children — the partner board's
+       stack and every tools part — are grid items of the app, placed by the areas above.
 
-           Floating the stack does nothing: every part carries `overflow: hidden
-           auto`, which makes it a block formatting context, and a BFC AVOIDS floats
-           rather than flowing around them — the space under a half-size board stayed
-           empty with every part still beside it.
+       This is the one structural change, and it is what zone B needs: a row under BOTH
+       boards can only be spanned by an item of the grid that owns both board columns. While
+       the parts were nested one level down, the widest a dropped part could ever be was the
+       merged column, which is the partner board plus the tools and never the left board.
 
-           `flex-flow: column wrap` does move parts under the board, but the wrong
-           ones and the wrong way: wrapping takes the LAST items into a new column
-           BESIDE, so the chat — the one part that should never move — was what went
-           under the board, and nothing widened, because a flex item cannot span
-           columns.
+       The analysis page already dissolves this same element for the same reason; this makes
+       the two pages the same shape rather than two shapes that happen to look alike.
 
-           What is wanted is an order (the tab bar leaves first, then the presets,
-           the chat never) and a span (what leaves goes full width, under both the
-           board and the parts above it). Grid areas state both exactly. */
-        grid-template-columns: calc(var(--bug-tall-sq-b) * 8)
-                               minmax(0, 20vw);
-        column-gap: 2vmin;
+       `display: contents` is the whole rule. It has no box, so its `overflow: hidden` and
+       its own tracks stop applying — which is why they are stated on the app above, and why
+       partsWidth.ts reads the app's last track when this element reports no tracks at all. */
+    .round-app.bug .bug-right-column {
+        display: contents;
     }
+
+    /* WHICH SLOT EACH PART OCCUPIES BESIDE THE BOARD, top to bottom: chat, the two preset
+       rows, the tab bar. These win over the unscoped `.bug-parts > ...` assignments further
+       down the file — the ones short landscape and portrait still use — on specificity, so
+       both forms can coexist without either being weakened.
+
+       The chat's slot takes every tab panel: only the selected one is displayed, so they
+       cannot overlap, and whichever is showing gets the row that absorbs the slack. */
+    .round-app.bug .bug-parts > [role='tabpanel'] {
+        grid-area: zoneTools1;
+    }
+    /* The first preset row and the end-of-game controls share a slot and never coexist —
+       the presets while the game is on, the controls once it is not. */
+    .round-app.bug .bug-parts .chatpresets-panel-1,
+    .round-app.bug .bug-parts > .bug-gameover {
+        grid-area: zoneTools2;
+    }
+    .round-app.bug .bug-parts .chatpresets-panel-2 {
+        grid-area: zoneTools3;
+    }
+    .round-app.bug .bug-parts > .bug-round-tools-bar {
+        grid-area: zoneTools4;
+    }
+
+    /* THE DROPPED ARRANGEMENTS, in the order parts leave the strip beside the board: the tab
+       bar first, then the presets from the bottom up. A dropped part's row widens to zoneAN —
+       the partner board's column plus the tools — which is exactly the span it had before
+       this page was flattened, so nothing about the dropped look changes here.
+
+       The classes are on the APP rather than on `.bug-right-column` because the element whose
+       template they swap has to be the element they sit on, and that is the app now.
+       toolsPlacement.ts puts them wherever it measures, which is the same element by
+       construction — see the note there about `display: contents` measuring zero. */
+    .round-app.bug.drop-tablist {
+        grid-template-areas: 'ownstack stack  zoneTools1'
+                             'ownstack stack  zoneTools2'
+                             'ownstack stack  zoneTools3'
+                             'ownstack zoneA4 zoneA4'
+                             'zoneB1   zoneB1 zoneB1'
+                             'zoneB2   zoneB2 zoneB2';
+    }
+    .round-app.bug.drop-tablist.drop-p2 {
+        grid-template-areas: 'ownstack stack  zoneTools1'
+                             'ownstack stack  zoneTools2'
+                             'ownstack zoneA3 zoneA3'
+                             'ownstack zoneA4 zoneA4'
+                             'zoneB1   zoneB1 zoneB1'
+                             'zoneB2   zoneB2 zoneB2';
+    }
+    .round-app.bug.drop-tablist.drop-p2.drop-p1 {
+        grid-template-areas: 'ownstack stack  zoneTools1'
+                             'ownstack zoneA2 zoneA2'
+                             'ownstack zoneA3 zoneA3'
+                             'ownstack zoneA4 zoneA4'
+                             'zoneB1   zoneB1 zoneB1'
+                             'zoneB2   zoneB2 zoneB2';
+    }
+    .round-app.bug.drop-tablist .bug-parts > .bug-round-tools-bar {
+        grid-area: zoneA4;
+    }
+
+    /* ZONE B FILLS FROM THE BOTTOM, TAB BAR FIRST.
+
+       The bar is the cheapest thing to move — one row of 40px against the presets' two — so it
+       is what zone B can afford first, and toolsPlacement.ts only offers the presets the zone
+       once the bar is already in it. The bar takes the LOWER slot and the presets land above
+       it, which leaves the bar where it has always been: last, under everything.
+
+       What this replaces looked like a swap: the bar dropped into zone A, beside the partner
+       board, while the presets jumped past it to the full width below — so on the way down the
+       two traded places instead of filling one after the other. */
+    .round-app.bug.drop-tablist-b .bug-parts > .bug-round-tools-bar {
+        grid-area: zoneB2;
+    }
+
+    /* The presets still in zone A while the bar has already gone to zone B.
+
+       THE BAR'S EMPTIED SLOT MOVES UP, above the zone A rows rather than below them, and that
+       is not cosmetic: a named area must be a single filled RECTANGLE, so leaving `zoneTools4`
+       at the bottom put `stack` in rows 1-2 and again in row 4 with a spanning row between.
+       Non-rectangular, so the whole declaration was invalid and dropped — the default template
+       applied, `zoneA3` named nothing, its panel fell into an implicit column, and partsWidth
+       read that trailing 0px track as the tools width. The button then shrank to its floor,
+       which made zone B look affordable, which moved the presets, which made it unaffordable
+       again: the layout oscillated between the two every frame.
+
+       The row is empty either way — the bar is in zone B — so putting it above costs nothing
+       and keeps every area a rectangle. */
+    .round-app.bug.drop-tablist-b.drop-p2 {
+        grid-template-areas: 'ownstack stack  zoneTools1'
+                             'ownstack stack  zoneTools2'
+                             'ownstack stack  zoneTools4'
+                             'ownstack zoneA3 zoneA3'
+                             'zoneB1   zoneB1 zoneB1'
+                             'zoneB2   zoneB2 zoneB2';
+    }
+    .round-app.bug.drop-tablist-b.drop-p2.drop-p1 {
+        grid-template-areas: 'ownstack stack  zoneTools1'
+                             'ownstack stack  zoneTools4'
+                             'ownstack zoneA2 zoneA2'
+                             'ownstack zoneA3 zoneA3'
+                             'zoneB1   zoneB1 zoneB1'
+                             'zoneB2   zoneB2 zoneB2';
+    }
+    .round-app.bug.drop-tablist-b.drop-p2 .bug-parts .chatpresets-panel-2 {
+        grid-area: zoneA3;
+    }
+    .round-app.bug.drop-tablist-b.drop-p2.drop-p1 .bug-parts .chatpresets-panel-1,
+    .round-app.bug.drop-tablist-b.drop-p2.drop-p1 .bug-parts > .bug-gameover {
+        grid-area: zoneA2;
+    }
+    .round-app.bug.drop-tablist.drop-p2 .bug-parts .chatpresets-panel-2 {
+        grid-area: zoneA3;
+    }
+    .round-app.bug.drop-tablist.drop-p2.drop-p1 .bug-parts .chatpresets-panel-1,
+    .round-app.bug.drop-tablist.drop-p2.drop-p1 .bug-parts > .bug-gameover {
+        grid-area: zoneA2;
+    }
+
+    /* ZONE B: the presets take the full width under BOTH boards.
+
+       The roomiest home they have, and the only one wide enough for a single row, so
+       toolsPlacement.ts tries it first and falls back to zone A. The group is the grid item
+       here and the two panels are its children.
+
+       WRAPPING CHOOSES THE SHAPE. Each panel is ten buttons wide; either two of them fit the
+       row or they do not, and flex wrap answers that on its own — one row of twenty when zone
+       B is wide enough, two rows of ten when it is not. Nothing measures, and there is no
+       state to keep in step. */
+    .round-app.bug.drop-presets-b .bug-presets-group {
+        grid-area: zoneB1;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        /* The join between the two panels, stated as the leftover of the row it completes:
+           twenty buttons and nineteen gaps in this box. A percentage resolves against this
+           element's own width, which is the same number the panels below read as `100cqi`,
+           so the gap between the two panels and the gaps inside them agree. */
+        column-gap: max(3px, calc((100% - 20 * var(--bug-preset-btn) - 1px) / 19));
+        row-gap: var(--bug-preset-row-gap);
+    }
+    /* A DEFINITE BASIS, which is the one thing a panel has never needed before.
+
+       Beside the board it is a grid item and its row stretches it; here it is a flex item, so
+       its width comes from its content — and its content is a part that stretches back to the
+       panel. Circular, and it resolved to zero: 0px panels with their buttons hanging 216px
+       out to the left, measured.
+
+       The basis is ten buttons at the floor pitch, which is the narrowest that row is ever
+       drawn — so it is also exactly the width at which two panels stop fitting side by side.
+       Wrapping therefore happens at the right moment without anything measuring, and `1` of
+       grow lets the pair fill the zone once they do fit. */
+    .round-app.bug.drop-presets-b .bug-parts .chatpresets-panel {
+        flex: 1 1 calc(10 * var(--bug-preset-btn) + 9 * 3px);
+        min-width: 0;
+    }
+
+    /* IN ONE ROW THE TWO PANELS TRADE PLACES: the tells lead and the piece requests follow.
+
+       `order` rather than `row-reverse`, which would also flip what `justify-content: flex-end`
+       means and send the row to the other edge. This moves the items and leaves the axis alone.
+
+       Only in the single row. Stacked, these are two rows one above the other and their order
+       is the order they have everywhere else on the page — beside the board, in zone A — so
+       reversing it there would make the same two rows read differently in different places. */
+    .round-app.bug.drop-presets-b.presets-one-row .bug-parts .chatpresets-panel-1 {
+        order: 1;
+    }
+
+    /* THE PITCH IN ZONE B, capped at the column's as everywhere else.
+
+       In one row it necessarily steps tighter than the column: twenty buttons at the column's
+       pitch want 1462px against the ~1200px zone B has, so the cap is never what binds there.
+       That is acceptable here and nowhere else — a single row under both boards is alone, with
+       no second row of the same buttons beside it to line up against.
+
+       ONE FORMULA COVERS BOTH SHAPES, because a panel holds ten buttons whichever shape it is
+       in — sharing the row or on its own — and `100cqi` is the PANEL, the nearest container.
+       Half the zone in one row and all of it in two, and the pitch follows either way. */
+    .round-app.bug.drop-presets-b .chatpresets {
+        --bug-preset-gap: max(
+            3px,
+            min(
+                calc((var(--bug-parts-w, 0px) - 5 * var(--bug-preset-btn)) / 4),
+                calc((100cqi - 10 * var(--bug-preset-btn) - 1px) / 9)
+            )
+        );
+    }
+
 
     /* Same policy as short landscape — see the comment there for the 0.6, for why the
        size comes from the column, and for why the selector carries `.round-app.bug`.
        This mode's track is literally `20vw`, so `--bug-parts-w` could have been written
        as a vw expression here; it is not, so that one rule covers both modes and neither
        can drift from the track it is supposed to follow. */
-    .round-app.bug .chatpresets {
+    /* The GROUP carries it as well, so that the panels inside it can state a width in terms of
+       the button — which is what zone B needs and what a panel beside the board never did,
+       being stretched by its grid row instead. Declared, not inherited from `.chatpresets`:
+       properties inherit downwards and the group is above the parts, not below them. */
+    .round-app.bug .chatpresets,
+    .round-app.bug .bug-presets-group {
         --bug-preset-btn: max(var(--bug-preset-btn-min), calc(var(--bug-parts-w, 0px) * 0.6 / 5));
     }
 
@@ -1397,6 +2505,31 @@ body[data-variant='bughouse'][data-view='round'] {
        `--bug-preset-btn`, which each mode sets for itself. */
     .round-app.bug .chatpresets {
         --bug-preset-gap: max(3px, calc((var(--bug-parts-w, 0px) - 5 * var(--bug-preset-btn)) / 4));
+    }
+
+    /* Same cap on a dropped part's pitch as short landscape, and for the same reasons —
+       see the comment there. */
+    .round-app.bug .chatpresets-panel {
+        container-type: inline-size;
+    }
+    /* Keyed on the APP, not on the merged column. This mode flattens the page, so the column
+       is dissolved and toolsPlacement.ts puts the drop classes on the app instead — the
+       element whose template they swap. Short landscape keeps the column and keeps the other
+       form; the two selectors can never match the same element. */
+    .round-app.bug.drop-p1 .chatpresets-panel-1 .chatpresets,
+    .round-app.bug.drop-p2 .chatpresets-panel-2 .chatpresets {
+        --bug-preset-gap: max(
+            3px,
+            min(
+                calc((var(--bug-parts-w, 0px) - 5 * var(--bug-preset-btn)) / 4),
+                /* Less one pixel, so the row it computes is a hair NARROWER than the box it
+                   has to fit in. Without it the ten buttons and their nine gaps come to
+                   exactly `100cqi` by construction, and whether they fit is then decided by
+                   rounding: measured pairing at a 703.4px part and stacking at 703.0px, the
+                   same layout either side of a boundary no one can see. */
+                calc((100cqi - 10 * var(--bug-preset-btn) - 1px) / 9)
+            )
+        );
     }
     /* Each seat's furniture is sized from ITS OWN board, the way portrait already
        does it with --bug-seat-sq. Sharing one unit across all four seats is what
@@ -1626,17 +2759,126 @@ body[data-variant='bughouse'][data-view='round'] {
    measured 91.33 against a real square of 40.67. Buttons keyed to --bug-sq came
    out 60.89 wide there — 2.25x too large, taking 60% of a 203px column. */
 .bug-round-tools-bar .btn-controls button {
-    /* --bug-own-sq, not --cg-width-a: the latter is board A whoever is playing on
-       it, so a viewer whose own board is B sized these from the PARTNER's board.
-       Measured in portrait with the boards that way round: two thirds of the
-       partner's 20.7px square gave 13.8px buttons — unusable, and the reason they
-       looked starved of space next to a tab list that had taken 339.8 of 367.3. */
-    flex: 0 0 calc(var(--bug-own-sq) * 2 / 3);
-    /* the basis alone is not enough: a flex item's automatic minimum size floors it
-       at min-content, which held resign at 28.79 where two thirds of a square is
-       27.11 — its flag glyph is wider than draw's ½, so only one of the pair
-       obeyed. Stating zero lets both take exactly the width asked for. */
+    /* THE ICON CARRIES THE STATED WIDTH, not the button. The button used to be
+       `flex: 0 0 calc(var(--bug-own-sq) * 2 / 3)` and that is still exactly what it comes
+       out as while the label is hidden — the label is then zero wide and the icon is the
+       whole content. What moving it inwards buys is that a shown label makes the button
+       wider by the label's width and by NOTHING ELSE, which is what lets the fit test in
+       toolsPlacement.ts subtract it back off and ask the same question in both states. A
+       button that also changed its padding would answer differently depending on its own
+       answer, which is the shape that had this page flickering. */
+    flex: 0 0 auto;
     min-width: 0;
+    /* A `button` does not inherit the page's font — the UA gives it its own, which came out
+       13.33px Arial against the tabs' 14px system stack sitting right beside it. The label has
+       to read as one of the row's words, not as a control's caption, so the font comes from
+       the bar like everything else in it. */
+    font: inherit;
+    /* THE ICON AND ITS LABEL CENTRE ON EACH OTHER, which inline layout cannot do here.
+
+       The button's line box is set by a 25.2px glyph, and an inline-block `<i>` takes that
+       glyph's baseline as its own — so `vertical-align: middle` on the label aligned it to a
+       baseline sitting near the bottom of the icon's box rather than to the box. Measured in
+       tall landscape: the icon centred on the bar's centre line at 706.7 and the label at
+       711.9, while the tab text it shares the row with sat at 705.8. Six pixels is not much
+       to look at and is plainly wrong to read — the row has one line of words in it and one
+       of them was low.
+
+       A flex row centres the two on their boxes, and the button being the bar's full height
+       then puts the label on the same centre line as the tabs. Nothing here distributes free
+       space: the button is `flex: 0 0 auto`, so it is exactly as wide as the icon and label
+       make it. */
+    display: flex;
+    align-items: center;
+}
+
+/* --bug-own-sq, not --cg-width-a: the latter is board A whoever is playing on it, so a
+   viewer whose own board is B sized these from the PARTNER's board. Measured in portrait
+   with the boards that way round: two thirds of the partner's 20.7px square gave 13.8px
+   buttons — unusable, and the reason they looked starved of space next to a tab list that
+   had taken 339.8 of 367.3.
+
+   The flag glyph is wider than this box, as it has always been — 28.79 against 27.11 — and
+   still overhangs it rather than widening the pair unequally. */
+.bug-round-tools-bar .btn-controls button > i {
+    display: inline-block;
+    width: calc(var(--bug-own-sq) * 2 / 3);
+    text-align: center;
+}
+
+/* WHETHER LABELS ARE ON OFFER AT ALL, published for toolsPlacement.ts to read rather than
+   worked out a second time there.
+
+   PORTRAIT NEVER LABELS THEM. The bar is a phone's width, and the room the fit test finds
+   is room the row has better uses for — the two icons are understood without captions, and
+   the words would be the first thing in the way when anything else has to go in that row.
+   That is a decision about the mode, so it is stated here, where the mode already lives,
+   and not as arithmetic that happens to come out against them at these widths.
+
+   Read rather than re-derived, for the same reason `owner()` asks the element how it is
+   displayed instead of asking which mode is on: one call site works in every mode and
+   cannot disagree with the stylesheet about which of them is in force. */
+.bug-round-tools-bar {
+    --bug-controls-labels: 1;
+}
+@media (orientation: portrait) {
+    .bug-round-tools-bar {
+        --bug-controls-labels: 0;
+    }
+}
+
+/* THE LABEL, PRESENT BUT UNMEASURED-WIDTH until there is room for both.
+   ------------------------------------------------------------------------------------
+   Hidden by width rather than by `display: none`, because the decision needs to know what
+   it WOULD take: a `display: none` element reports a zero `scrollWidth` and the question
+   could never be asked. Clipped to nothing, it still reports the width it wants.
+
+   The leading space is padding rather than margin so that it lives INSIDE the clipped box:
+   as margin it would widen the button by 0.35em even while the label showed nothing, and
+   the two states would then differ by more than the label itself. */
+.bug-round-tools-bar .control-label {
+    /* inline-block, because an INLINE element reports `scrollWidth: 0` whatever it contains —
+       so the width the label wants, which is the whole basis of the decision, read as nothing
+       and the labels showed wherever they were asked to. */
+    display: inline-block;
+    max-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+/* BOTH SPACES ARE INLINE CONTENT, not padding, and that is the whole point of them being
+   pseudo-elements: the leading one separates the label from its icon, the trailing one
+   separates the pair of buttons.
+
+   PADDING CANNOT BE CLIPPED. It was padding first, and `max-width: 0` does not remove it —
+   the used width becomes the padding's own 17.49px, the clip region is the padding box, and
+   the text starts after the leading padding: 12.6px of `Draw` showed through a label that was
+   supposed to be hidden, which is exactly the trailing padding's width. Resign, having none,
+   stayed invisible and hid the bug.
+
+   As content they are inside the box that `max-width: 0` collapses, so they cost nothing at
+   all when the label is hidden — and they are inside the width the fit test measures, so the
+   space between the buttons is accounted for without the test having to know it exists. As
+   margin, or as a `column-gap` on the strip, they would be neither: still there while the
+   labels were hidden, and a term the calculation would have to add by hand. */
+.bug-round-tools-bar .control-label::before {
+    content: '';
+    display: inline-block;
+    width: 0.35em;
+}
+/* Trailing space only where there is another button after it — the last one is against the
+   end of the bar and wants nothing there. */
+.bug-round-tools-bar .btn-controls button:not(:last-child) .control-label::after {
+    content: '';
+    display: inline-block;
+    width: 0.9em;
+}
+/* No `.round-app.bug` prefix: the class goes on whichever element owns the arrangement, which
+   is the app where the column has been flattened and the column itself everywhere else — so a
+   selector naming one of them silently misses in the other. `.bug-round-tools-bar` in the
+   selector is what scopes this to bughouse; the owner is not. */
+.controls-labelled .bug-round-tools-bar .control-label {
+    max-width: none;
 }
 
 /* The open panel takes the height the tablist bar leaves. This used to be the job
@@ -1691,7 +2933,13 @@ main.round.bug .pocket.bottom {
   --bug-own-sq: calc(var(--cg-width-b) / var(--files));
 }
 
-.chatpresets {
+/* The group carries the button floor as well as the part does. Custom properties inherit
+   downwards and the group sits ABOVE the parts, so a floor declared only on `.chatpresets` is
+   invisible to it — which makes every expression built from it invalid there. Not
+   hypothetical: the panels' flex basis in zone B is stated in buttons, and without this it
+   computed to nothing and drew 0px panels with their buttons hanging out to the left. */
+.chatpresets,
+.bug-presets-group {
   /* The size a preset button actually draws at. The floor below is the minimum; a
      mode that has room may raise it. Kept as its own variable so that raising it is
      a one-line statement per mode rather than a rewrite of the track. */
@@ -1795,7 +3043,39 @@ main.round.bug .pocket.bottom {
    zero: measured 0x0 buttons in a 5px panel. As a column's cross-axis item the
    grid stretches to the full width instead, which is exactly the relationship it
    had inside the chat view's own column before it was pulled out. */
-.bug-parts > .chatpresets-panel {
+/* ONE PANEL, WHEREVER THE PARTS END UP.
+   ------------------------------------------------------------------------------------
+   The buttons already carry the surface colour and their containers carried none, so the
+   block read as a scatter of tiles on the page's ground rather than as one panel — and it
+   read differently in each arrangement, because the arrangement decides how the tiles fall.
+   Painting the containers instead makes the ground between the buttons part of the panel, so
+   two rows beside the board, two rows under it and one row of twenty are all the same object.
+
+   The GROUP is painted for the same reason and only pays for itself in one arrangement: it
+   is `display: contents` everywhere else, and an element with no box paints nothing, so this
+   declaration is simply inert until zone B gives it one. There it is what covers the gap
+   between the two panels sharing a row — the join that the pitch needs and that would
+   otherwise show the page through the middle of the panel. */
+.chatpresets-panel,
+.bug-presets-group {
+    background-color: var(--bg-color0);
+}
+
+/* THE TWO PRESET ROWS AS ONE ITEM, and only where that is needed.
+
+   Dissolved by default, in every mode: the panels are placed individually — one per tools
+   row beside the board, or one per zone A row once they drop — and this element forms no box,
+   so nothing about those arrangements knows it exists. That is why it can be added without
+   touching portrait or short landscape.
+
+   It becomes a real box in zone B alone, because that arrangement needs both panels to be a
+   SINGLE grid item: a named area is one rectangle and holds one item, so a row of twenty
+   buttons under both boards can only exist if the twenty are inside one box. */
+.bug-presets-group {
+    display: contents;
+}
+
+.bug-parts .chatpresets-panel {
   flex: 0 0 auto;
   flex-flow: column;
   overflow: visible;
@@ -2253,6 +3533,40 @@ move-bug {
     white-space: nowrap;
 }
 
+/* THE MOVELIST FITS ITS BOX BY SIZING THE TYPE TO THE BOX, not by clipping what does not fit.
+   -----------------------------------------------------------------------------------------
+   A row is four `25% - 3ch` cells, so how much of a move fits is decided by the ratio between
+   the container's width and the font — and `1ch` is a font unit, so the counter's `3ch` grows
+   with the type and takes the growth out of the cell beside it. Measured on the analysis page's
+   247px panel at the inherited 15.4px: cell 35.4px against `Qxg6+` needing 47.2px plus 6px of
+   padding. An 18px shortfall, in a cell that gets SMALLER as the font gets bigger.
+
+   `cqi` is what closes it. One percent of the container's INLINE CONTENT BOX — which excludes a
+   vertical scrollbar — so the character budget per cell is the same at every width, and the
+   moment a scrollbar appears and takes 8px the type follows it down. That is the resize this
+   needs, and it needs no JavaScript and no second measurement: the browser does it as part of
+   layout, which is also why it cannot get out of step the way a measured value would.
+
+   4.2 is measured, not chosen. At the same 247px panel it gives a 10.7px cell font with 7.1px
+   spare on a six-character move (`Ngxf7+`) and still holds a seven-character one; 4.5 leaves
+   only 3.2px and fails at seven; 5.5 overflows this game's own moves.
+
+   `min(…, 16px)` caps the growth. The ratio holds at every width, so a wide movelist would
+   otherwise keep scaling up long past the point where the cell is roomy — the cap is about the
+   type looking right, never about fitting.
+
+   The padding goes with it: 6px was a constant beside a length that scales, so at a small font it
+   was eating a fifth of the cell. In `ch` it is the same fraction of a character at every size. */
+main.round.bug #movelist,
+.analysis-app.bug #movelist {
+    container-type: inline-size;
+}
+main.round.bug move-bug,
+.analysis-app.bug move-bug {
+    font-size: min(4.2cqi, 16px);
+    padding-left: 0.4ch;
+}
+
 move-bug.haschat {
     background-image: url('icons/bugchatmove.svg');
   background-size: 1em 1em;
@@ -2504,9 +3818,17 @@ player.bug {
    `.bug-parts` is a flex container and its children are flex items rather than grid
    items, so these names are simply ignored there. */
 .bug-parts > [role='tabpanel'] { grid-area: chat; }
-.bug-parts > .chatpresets-panel-1 { grid-area: p1; }
-.bug-parts > .chatpresets-panel-2 { grid-area: p2; }
+.bug-parts .chatpresets-panel-1 { grid-area: p1; }
+.bug-parts .chatpresets-panel-2 { grid-area: p2; }
 .bug-parts > .bug-round-tools-bar { grid-area: tablist; }
+/* The analysis page's tab list is the direct equivalent and drops the same way. Here it is a child
+   of `.bug-parts`; the round page's is nested inside its tools bar, so the two selectors can never
+   match the same element. */
+.bug-parts > [role='tablist'] { grid-area: tablist; }
+/* The analysis page's tab list is the direct equivalent and drops the same way. It is a child of
+   `.bug-parts` here; the round page's is nested inside its tools bar, so the two selectors cannot
+   both match the same element. */
+.bug-parts > [role='tablist'] { grid-area: tablist; }
 
 /* The two dropped arrangements, in the order parts leave the strip beside the
    board. A dropped part spans BOTH columns, which is the point: it does not merely
@@ -2628,6 +3950,42 @@ player.bug {
     height: auto;
 }
 
+/* THE NAME ON A LINE OF ITS OWN — the analysis page's half of the decision above.
+   ------------------------------------------------------------------------------------
+   The declarations are the round page's, which reach the same arrangement from a class
+   the JS toggles; asked here as a style query on the number the stack computed, so the
+   two pages agree about what "outside" looks like while deciding it differently.
+
+   Written in the POSITIVE direction, unlike the coordinate treatment below: a browser
+   without `@container style()` skips this block and every name stays inside its strip,
+   which is a real, complete arrangement and the one the page has at full zoom anyway.
+   Written the other way round, the same browser would give every name a line whether or
+   not the stack had height for it, and the strip's `overflow: hidden` would eat it. */
+@container style(--bug-name-outside: 1) {
+    .analysis-app.bug .seat-strip0,
+    .analysis-app.bug .seat-strip1 {
+        flex-wrap: wrap;
+        /* Content height, not the one square --bug-strip-h pins it to: the strip now has
+           two rows and takes what they need. The same reasoning as the round page's. */
+        height: auto;
+        align-content: flex-start;
+    }
+    /* A full basis, which the round page does not need and this page does. There it is
+       the name's own min-content — a nowrap name beside a pocket AND a clock — that
+       forces the wrap; here the pocket is five squares of eight and a name would simply
+       fit beside it, so the line has to be asked for rather than fallen into. */
+    .analysis-app.bug .seat-strip0 > round-player0,
+    .analysis-app.bug .seat-strip1 > round-player1 {
+        flex: 1 1 100%;
+        height: auto;
+    }
+    /* Outside, not below: the name leaves a TOP strip upwards, so the pocket stays
+       against the board in both strips. */
+    .analysis-app.bug .seat-strip0 > round-player0 {
+        order: -1;
+    }
+}
+
 /* ===========================================================================================
    COORDINATES — ON THE SQUARES BY DEFAULT, OUTSIDE THE BOARD WHEN THERE IS ROOM
 
@@ -2691,39 +4049,39 @@ player.bug {
    image. No outline or shadow: with the two colours coming from the board itself the
    contrast is already there, and an outline on an 8px glyph reads as a smudge.
    --------------------------------------------------------------------------- */
-.round-app.bug .cg-wrap coords {
+:is(.round-app, .analysis-app).bug .cg-wrap coords {
     /* also un-hides them on phones, where chessground.css hides them outright for want
        of anywhere to put them — inside the squares there is somewhere */
     display: flex;
     opacity: 1;
 }
-.round-app.bug .cg-wrap coords.side {
+:is(.round-app, .analysis-app).bug .cg-wrap coords.side {
     right: 0px;
     width: auto;
 }
-.round-app.bug .cg-wrap coords.bottom {
+:is(.round-app, .analysis-app).bug .cg-wrap coords.bottom {
     bottom: 0px;
     height: auto;
 }
-.round-app.bug .cg-wrap coords coord {
+:is(.round-app, .analysis-app).bug .cg-wrap coords coord {
     font-weight: 700;
     line-height: 1;
     padding: 1px 2px;
 }
 /* Files sit in the bottom-left corner of their square, ranks against the right edge. */
-.round-app.bug .cg-wrap coords.bottom coord {
+:is(.round-app, .analysis-app).bug .cg-wrap coords.bottom coord {
     text-align: left;
 }
-.round-app.bug .cg-wrap coords.side coord {
+:is(.round-app, .analysis-app).bug .cg-wrap coords.side coord {
     text-align: right;
     /* the desktop nudge that centred a label against a board edge; inside the square it
        is placed by its own box */
     transform: none;
 }
-.round-app.bug #mainboard coords coord {
+:is(.round-app, .analysis-app).bug #mainboard coords coord {
     font-size: calc(var(--cg-width-a) / 8 * 0.3);
 }
-.round-app.bug #bugboard coords coord {
+:is(.round-app, .analysis-app).bug #bugboard coords coord {
     font-size: calc(var(--cg-width-b) / 8 * 0.3);
 }
 
@@ -2754,28 +4112,28 @@ player.bug {
    which is the same bargain the rest of this treatment makes. */
 @container style(--bug-coord-gap: 0px) {
     /* Files laid out in DOM order: first child is leftmost, on a dark square. */
-    .round-app.bug coords.bottom.forward coord:nth-child(odd),
-    .round-app.bug coords.bottom.backward.black coord:nth-child(odd),
+    :is(.round-app, .analysis-app).bug coords.bottom.forward coord:nth-child(odd),
+    :is(.round-app, .analysis-app).bug coords.bottom.backward.black coord:nth-child(odd),
     /* Files laid out reversed: first child is rightmost, on a light square. */
-    .round-app.bug coords.bottom.backward coord:nth-child(even),
-    .round-app.bug coords.bottom.forward.black coord:nth-child(even),
+    :is(.round-app, .analysis-app).bug coords.bottom.backward coord:nth-child(even),
+    :is(.round-app, .analysis-app).bug coords.bottom.forward.black coord:nth-child(even),
     /* Ranks running top-down: first child is topmost, on a dark square. */
-    .round-app.bug coords.side.backward coord:nth-child(odd),
-    .round-app.bug coords.side.forward.black coord:nth-child(odd),
+    :is(.round-app, .analysis-app).bug coords.side.backward coord:nth-child(odd),
+    :is(.round-app, .analysis-app).bug coords.side.forward.black coord:nth-child(odd),
     /* Ranks running bottom-up: first child is lowest, on a light square. */
-    .round-app.bug coords.side.forward coord:nth-child(even),
-    .round-app.bug coords.side.backward.black coord:nth-child(even) {
+    :is(.round-app, .analysis-app).bug coords.side.forward coord:nth-child(even),
+    :is(.round-app, .analysis-app).bug coords.side.backward.black coord:nth-child(even) {
         color: var(--cg-light, #f0d9b5);
     }
 
-    .round-app.bug coords.bottom.forward coord:nth-child(even),
-    .round-app.bug coords.bottom.backward.black coord:nth-child(even),
-    .round-app.bug coords.bottom.backward coord:nth-child(odd),
-    .round-app.bug coords.bottom.forward.black coord:nth-child(odd),
-    .round-app.bug coords.side.backward coord:nth-child(even),
-    .round-app.bug coords.side.forward.black coord:nth-child(even),
-    .round-app.bug coords.side.forward coord:nth-child(odd),
-    .round-app.bug coords.side.backward.black coord:nth-child(odd) {
+    :is(.round-app, .analysis-app).bug coords.bottom.forward coord:nth-child(even),
+    :is(.round-app, .analysis-app).bug coords.bottom.backward.black coord:nth-child(even),
+    :is(.round-app, .analysis-app).bug coords.bottom.backward coord:nth-child(odd),
+    :is(.round-app, .analysis-app).bug coords.bottom.forward.black coord:nth-child(odd),
+    :is(.round-app, .analysis-app).bug coords.side.backward coord:nth-child(even),
+    :is(.round-app, .analysis-app).bug coords.side.forward.black coord:nth-child(even),
+    :is(.round-app, .analysis-app).bug coords.side.forward coord:nth-child(odd),
+    :is(.round-app, .analysis-app).bug coords.side.backward.black coord:nth-child(odd) {
         color: var(--cg-dark, #b58863);
     }
 }
@@ -2797,7 +4155,7 @@ player.bug {
    =========================================================================================== */
 @container not style(--bug-coord-gap: 0px) {
     /* chessground.css's own 0.8; the block above raises it to 1 to un-hide labels on a phone. */
-    .round-app.bug .cg-wrap coords {
+    :is(.round-app, .analysis-app).bug .cg-wrap coords {
         opacity: 0.8;
     }
     /* THE DISTANCE FROM A BOARD TO ITS OWN LABELS, and the one number the ranks now turn on.
@@ -2849,7 +4207,7 @@ player.bug {
 
        This page no longer positions from --ranks-right. It is left at its :root value, which every
        other board on the site still reads. */
-    .round-app.bug .cg-wrap coords.side {
+    :is(.round-app, .analysis-app).bug .cg-wrap coords.side {
         left: calc(100% + var(--bug-coord-lead));
         right: auto;
         width: max-content;
@@ -2863,19 +4221,19 @@ player.bug {
     .round-app.bug .cg-wrap {
         --files-bottom: calc(-1 * var(--bug-coord-gap));
     }
-    .round-app.bug .cg-wrap coords.bottom {
+    :is(.round-app, .analysis-app).bug .cg-wrap coords.bottom {
         bottom: var(--files-bottom);
         height: var(--bug-coord-gap);
         text-align: center;
     }
     /* The in-square placement undone: no padding crowding the glyph, chessground's own weight
        and line box back. */
-    .round-app.bug .cg-wrap coords coord {
+    :is(.round-app, .analysis-app).bug .cg-wrap coords coord {
         font-weight: bold;
         line-height: normal;
         padding: 0;
     }
-    .round-app.bug .cg-wrap coords.bottom coord {
+    :is(.round-app, .analysis-app).bug .cg-wrap coords.bottom coord {
         text-align: center;
     }
     /* `left`, where chessground.css has `right`. Right alignment inside the fixed 12px box was the
@@ -2889,19 +4247,19 @@ player.bug {
        restored unconditionally here because this block cannot be reached outside those bounds: a
        gap needs spare height, which only the tall landscape mode has, and that mode is a subset of
        both. Stated so the assumption is visible rather than silently relied upon. */
-    .round-app.bug .cg-wrap coords.side coord {
+    :is(.round-app, .analysis-app).bug .cg-wrap coords.side coord {
         text-align: left;
         transform: translateY(39%);
     }
     /* The type, per board and per axis. Id-scoped because the rules it has to outrank are —
        they read --cg-width-a/b, which are board identity — and a class-only selector would
        lose to them however many classes it carried. */
-    .round-app.bug #mainboard coords.side coord,
-    .round-app.bug #bugboard coords.side coord {
+    :is(.round-app, .analysis-app).bug #mainboard coords.side coord,
+    :is(.round-app, .analysis-app).bug #bugboard coords.side coord {
         font-size: 0.85em;
     }
-    .round-app.bug #mainboard coords.bottom coord,
-    .round-app.bug #bugboard coords.bottom coord {
+    :is(.round-app, .analysis-app).bug #mainboard coords.bottom coord,
+    :is(.round-app, .analysis-app).bug #bugboard coords.bottom coord {
         font-size: calc(var(--bug-coord-gap) * 0.75);
     }
 }

@@ -30,6 +30,9 @@ export interface Step {
 
     chat?: StepChat[];
 
+    // Only the entry for this step's mover is reliable; the other three are the mover client's
+    // stale view of seats it does not own, kept as diagnostics and slated to be reduced to that
+    // one number. Read them through `analysisClock.reconstructMainlineClocks`, never directly.
     clocks?: Clocks;
     clocksB?: Clocks;
     movetime?: number;

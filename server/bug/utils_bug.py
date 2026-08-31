@@ -142,17 +142,24 @@ async def load_game_bug_from_doc(
 
     base_clock_time = (game.base * 1000 * 60) + (0 if game.base > 0 else game.inc * 1000)
 
+    # NO `insert(0, base_clock_time)` HERE, and that is the difference from the one-board path.
+    #
+    # `server/utils.py` prepends the base because `game.py` STRIPS it on save (`self.clocks_w[1:]`).
+    # Bughouse never strips: `game_bug.py` writes `ply_clocks` whole, and that list is seeded with a
+    # `[base, base]` entry in `GameBugClocks.__init__` before any move. So `doc["cw"][0]` is already
+    # the starting time, and prepending another gave every array TWO of them — which showed on the
+    # analysis page as two consecutive plies where no clock had moved, and shifted every later ply.
+    #
+    # Read-side fix by choice: the stored documents are left exactly as they are, so every game ever
+    # played stays readable and starts being read correctly. See the change
+    # `bughouse-clock-record-investigation`.
     if "cw" in doc:
         clocktimes_w = doc["cw"] if len(doc["cw"]) > 0 else [base_clock_time]
         clocktimes_b = doc["cb"] if len(doc["cb"]) > 0 else [base_clock_time]
-        clocktimes_w.insert(0, base_clock_time)
-        clocktimes_b.insert(0, base_clock_time)
 
     if "cwB" in doc:
         clocktimes_wB = doc["cwB"] if len(doc["cwB"]) > 0 else [base_clock_time]
         clocktimes_bB = doc["cbB"] if len(doc["cbB"]) > 0 else [base_clock_time]
-        clocktimes_wB.insert(0, base_clock_time)
-        clocktimes_bB.insert(0, base_clock_time)
 
     board_ply = {"a": 0, "b": 0}
     last_move, last_move_b = "", ""
@@ -203,13 +210,38 @@ async def load_game_bug_from_doc(
                 "check": game.checkA if board_name == "a" else game.checkB,
             }
 
+            # `ply + 1`, because the two lists count differently. `ply` enumerates `mlist`, which
+            # is `doc["m"]` and holds one entry per MOVE — the same convention as `doc["o"]`,
+            # indexed with this very counter two lines up. The clock arrays hold one entry per ply
+            # PLUS the seeded `[base, base]` at index 0, so the clock recorded after move `ply`
+            # lives at `ply + 1`. Indexing them alike made every step carry the previous move's
+            # clocks, which is the second half of the two-ply shift (the first was a duplicated
+            # base, removed above).
+            #
+            # The step being built is appended below and becomes `game.steps[ply + 1]`, since
+            # `GameBug.__init__` has already put the initial position at `steps[0]`. So this reads
+            # `clocktimes[ply + 1]` into `steps[ply + 1]`: index for index, which is what makes a
+            # rebuilt game identical to the same game served from memory.
+            # DEPRECATED CONTENT, correct INDEXING. Only the entry belonging to this ply's mover is
+            # authoritative; the other three are the mover's stale view of seats it does not own
+            # (see `game_bug_clocks.update_clocks`). They are passed through unchanged so old games
+            # keep reading as they always did — the analysis page derives what it displays from the
+            # mover values alone, in `analysisClock.reconstructMainlineClocks`.
             step["clocks"] = [
-                clocktimes_w[ply] if ply < len(clocktimes_w) and clocktimes_w[ply] else None,
-                clocktimes_b[ply] if ply < len(clocktimes_b) and clocktimes_b[ply] else None,
+                clocktimes_w[ply + 1]
+                if ply + 1 < len(clocktimes_w) and clocktimes_w[ply + 1]
+                else None,
+                clocktimes_b[ply + 1]
+                if ply + 1 < len(clocktimes_b) and clocktimes_b[ply + 1]
+                else None,
             ]
             step["clocksB"] = [
-                clocktimes_wB[ply] if ply < len(clocktimes_wB) and clocktimes_wB[ply] else None,
-                clocktimes_bB[ply] if ply < len(clocktimes_bB) and clocktimes_bB[ply] else None,
+                clocktimes_wB[ply + 1]
+                if ply + 1 < len(clocktimes_wB) and clocktimes_wB[ply + 1]
+                else None,
+                clocktimes_bB[ply + 1]
+                if ply + 1 < len(clocktimes_bB) and clocktimes_bB[ply + 1]
+                else None,
             ]
 
             board_ply[board_name] += 1

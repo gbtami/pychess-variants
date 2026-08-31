@@ -77,8 +77,15 @@ class GameBugClocks:
             assert clocks is not None
             assert clocks_b is not None
 
+        # This is the ONE reliable value in the message: the mover's own clock, on the mover's own
+        # board, paused by its client before it was read. Nothing else here is authoritative.
         self.last_move_clocks[board][cur_color] = clocks_current[cur_color]
 
+        # DEPRECATED SHAPE: we store four values per ply and three of them are the mover's stale
+        # view of seats it does not own — see the comment in `roundCtrl.sendMove`. They are kept
+        # only as diagnostics (they are never read back into any clock), and no new code may use
+        # them. The intended shape is ONE number per ply, the mover's; the analysis page already
+        # derives the other three from those alone, so nothing needs these to be accurate.
         self.ply_clocks["a"].append(clocks)
         self.ply_clocks["b"].append(clocks_b)
 

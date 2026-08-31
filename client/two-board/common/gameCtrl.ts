@@ -8,6 +8,12 @@ import { predrop } from 'chessgroundx/predrop';
 import { uci2LastMove } from '@/chess';
 
 export class GameControllerBughouse extends GameController {
+    /* Narrowed from the base's `BoardName`, which carries the single-board page's `''`. A
+       bughouse controller is constructed with `'a'` or `'b'` — see the constructor below — so
+       callers that key something on the board (a PV column, a gauge, a stack) do not each have
+       to re-narrow a case that cannot arise. */
+    declare boardName: BugBoardName;
+
     partnerCC: GameControllerBughouse;
     parent: TwoBoardController;
     localAnalysis: boolean = false;

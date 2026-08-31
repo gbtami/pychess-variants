@@ -22,12 +22,30 @@
 const APP = '.round-app.bug';
 const COLUMN = '.bug-right-column';
 
-/** The last track of the merged column is the one the parts share; the first is the board. */
-function publish(app: HTMLElement, column: HTMLElement): void {
-    const tracks = getComputedStyle(column)
+/** The last of an element's column tracks, or NaN if it declares none. */
+function lastTrack(el: HTMLElement): number {
+    const tracks = getComputedStyle(el)
         .gridTemplateColumns.split(/\s+/)
         .filter(track => track.endsWith('px'));
-    const parts = parseFloat(tracks[tracks.length - 1]);
+    return parseFloat(tracks[tracks.length - 1]);
+}
+
+/**
+ * The parts share the LAST track of whichever element declares the tracks.
+ *
+ * Two shapes, one rule. Where the merged column is a grid of its own — short landscape and
+ * portrait — its tracks are the board and the parts, and the parts are the last. Where the
+ * page is flattened and that column is `display: contents` — tall landscape, so that a row
+ * can span both boards — it has no box and therefore no tracks at all, and the app's own
+ * three tracks end with the same parts track.
+ *
+ * Reading the column first and falling back is not a guess about which mode is on: an
+ * element with no box reports `none`, which is not a length, so the fallback is taken
+ * exactly when there is nothing to read and never when there is.
+ */
+function publish(app: HTMLElement, column: HTMLElement): void {
+    const own = lastTrack(column);
+    const parts = Number.isFinite(own) ? own : lastTrack(app);
 
     // `none` before the grid resolves, and NaN from anything unexpected: leave the
     // variable unset rather than publishing a wrong width. The CSS falls back to the

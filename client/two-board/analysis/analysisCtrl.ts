@@ -8,6 +8,7 @@ import { MsgBoard } from '../../messages';
 import { GameControllerBughouse } from '../common/gameCtrl';
 import { sound } from '../../sound';
 import { AnalysisClockView, renderClocks } from './analysisClock';
+import { AnalysisSeatView, renderSeatNames } from './analysisSeatView';
 import { movetimeChart, MovetimeChartView } from './movetimeChart';
 import { TwoBoardController, initBoardSettings } from '@/two-board/twoBoardCtrl';
 import { getPgn, PgnView, updateFENAndPGN } from './pgn';
@@ -15,6 +16,8 @@ import { buildScoreStr, EngineController } from './engine';
 import { AnalysisTreeController } from './analysisTree';
 import { GameInfoView } from '../common/gameInfo';
 import { MovelistView } from '../common/movelist';
+import { isOutsidePartnerStack, markBoardRoles } from '../common/boardRoles';
+import { trackToolsPlacement } from '../common/toolsPlacement';
 
 export default class AnalysisControllerBughouse extends TwoBoardController {
     pgn: string;
@@ -31,6 +34,7 @@ export default class AnalysisControllerBughouse extends TwoBoardController {
     tree: AnalysisTreeController;
     pgnView: PgnView;
     clockView: AnalysisClockView;
+    seatView: AnalysisSeatView;
 
     constructor(
         el1: HTMLElement,
@@ -45,6 +49,7 @@ export default class AnalysisControllerBughouse extends TwoBoardController {
         engine: EngineController,
         pgnView: PgnView,
         clockView: AnalysisClockView,
+        seatView: AnalysisSeatView,
         movetimeChartView: MovetimeChartView,
     ) {
         super(el1, el1Pocket1, el1Pocket2, el2, el2Pocket1, el2Pocket2, model, movelistView, gameInfoView);
@@ -70,6 +75,7 @@ export default class AnalysisControllerBughouse extends TwoBoardController {
         this.tree = new AnalysisTreeController(this);
         this.pgnView = pgnView;
         this.clockView = clockView;
+        this.seatView = seatView;
         this.movetimeChartView = movetimeChartView;
 
         const fens = model.fen.split(' | ');
@@ -87,7 +93,30 @@ export default class AnalysisControllerBughouse extends TwoBoardController {
         this.onMsgBoard(model['board'] as MsgBoard);
 
         initBoardSettings(this.boardA, this.boardB, this.variant);
+        // Which board is in the main position — the same positional test the round page
+        // uses, so `.own-board` / `.partner-board` mean the same thing on both pages.
+        // The view has already put the viewer's own board in `.bug-own-stack`.
+        markBoardRoles(isOutsidePartnerStack);
+        /* The tab list moves under the partner board once it no longer fits beside it, and spans
+           the column pair when it does — the round page's arrangement, driven by the same file.
+           One droppable part: the panel is this page's equivalent of that page's chat, the part
+           that never moves. */
+        trackToolsPlacement([['[role="tablist"]', 'drop-tablist']], '.analysis-app.bug');
+        // The four player bars, keyed by which end of which board they sit at. Painted
+        // here rather than by the view because the seat that is at a given end depends
+        // on the orientation set a few lines above.
+        renderSeatNames(this);
         this.syncBoardHitAreas();
+    }
+
+    // A flip changes which player is at the top of a board, so the names and the clocks
+    // that name them both have to be repainted. The base class only re-orients the
+    // boards; the round page overrides this for the same reason, moving its seat blocks
+    // between strips instead.
+    flipBoards(): void {
+        super.flipBoards();
+        renderSeatNames(this);
+        renderClocks(this);
     }
 
     private syncBoardHitAreas() {
