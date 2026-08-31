@@ -34,7 +34,6 @@
     "gettext.js": "^2.0.3",
     "highcharts": "^13.0.0",
     "howler": "^2.2.3",
-    "html-to-image": "^1.11.13",
     "idb-keyval": "^6.3.0",
     "mousetrap": "^1.6.5",
     "snabbdom": "^3.6.4"
