@@ -45,6 +45,7 @@
     "@types/mousetrap": "^1.6.11",
     "@types/showdown": "^2.0.6",
     "@types/trusted-types": "^2.0.7",
+    "@typescript/native": "npm:typescript@^7.0.2",
     "esbuild": "^0.28.1",
     "esbuild-plugin-compress": "^1.0.1",
     "esm": "^3.2.25",
@@ -58,13 +59,13 @@
     "showdown": "^2.1.0",
     "ts-jest": "^29",
     "tslib": "^2.8.1",
-    "typescript": "^6.0.3",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
     "yarn": "^1.22.22",
     "zlib": "^1.0.5"
   },
   "scripts": {
     "postinstall": "./cp2static.sh",
-    "typecheck": "./node_modules/typescript/bin/tsc",
+    "typecheck": "./node_modules/@typescript/native/bin/tsc",
     "lint": "oxlint --deny-warnings client tests esbuild.mjs md2html.js static/8queens.js static/cardgame.js static/service-worker.js",
     "lint:fix": "oxlint --fix client tests esbuild.mjs md2html.js static/8queens.js static/cardgame.js static/service-worker.js",
     "format": "oxfmt client tests esbuild.mjs md2html.js static/8queens.js static/cardgame.js static/service-worker.js",
