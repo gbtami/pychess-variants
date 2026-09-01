@@ -17,7 +17,7 @@ function pieceRowView(ctrl: EditorController, color: cg.Color, position: Positio
     if (ctrl.variant.promotion.type === 'shogi') {
         const len = roles.length;
         const extraRoles = roles
-            .filter(_ => !ctrl.variant.promotion.strict)
+            .filter(() => !ctrl.variant.promotion.strict)
             .filter(r => ctrl.variant.promotion.roles.includes(r as cg.Role))
             .map(r => promotedRole(ctrl.variant, { role: r as cg.Role, color: color }));
         if (len <= width && len + extraRoles.length > width) {

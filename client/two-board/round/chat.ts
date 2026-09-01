@@ -20,7 +20,7 @@ export function chatMessageBug(ply: number, ctrl: RoundControllerBughouse, x: St
     const isBottom = chatDiv.scrollHeight - (chatDiv.scrollTop + chatDiv.offsetHeight) < 80;
     const container = document.getElementById('messages') as HTMLElement;
 
-    const step = ctrl?.steps[ply!]!;
+    const step = ctrl.steps[ply];
     const boardName = step.turnColor === 'black' ? step.boardName?.toUpperCase() : step.boardName;
     const lastMoveSan = ply === 0 ? '' : getLocalMoveNum(step) + '' + boardName + '.' + step.san!;
 
@@ -81,7 +81,7 @@ export function chatMessageBug(ply: number, ctrl: RoundControllerBughouse, x: St
                     h(
                         't.bugchatpointer',
                         {
-                            attrs: { title: ctrl?.steps[ply!].san! },
+                            attrs: { title: step.san ?? '' },
                             on: {
                                 click: () => {
                                     onchatclick(ply, ctrl);
