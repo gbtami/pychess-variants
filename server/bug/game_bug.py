@@ -275,6 +275,8 @@ class GameBug:
                         ),  # can be derived from
                         # the fen and that is what i am actually doing - consider stop sending this value
                         "check": check,  # ignored. deriving  at the client the check status for each board from fens
+                        # Four values, one of them real — see `game_bug_clocks.update_clocks`. The
+                        # analysis page reconstructs the rest from the movers' own values.
                         "clocks": clocks,
                         "clocksB": clocks_b,
                         "ts": time_ns(),  # redundancy, but i am want to record how server time corresponds to sent

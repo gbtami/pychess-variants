@@ -327,7 +327,13 @@ async def finally_logic(
         if user.remove_ws_for_game(game.id, ws):
             user.update_online()
 
-        if user in (game.wplayer, game.bplayer) and (not game.corr):
+        # "Is this user a player here?" — `non_bot_players` answers it for both game types:
+        # two entries for one board, and for bughouse a SET of the four seats' users, so a simul's
+        # doubled seat collapses to one. The old test named `game.wplayer`/`game.bplayer`, which on
+        # a GameBug are board A's pair, so a board B player was misfiled as a departing spectator
+        # and NO abandon task was ever created — the game simply never ended. Bots cannot reach
+        # here (the enclosing `not user.bot`), so excluding them changes nothing for one board.
+        if user in game.non_bot_players and (not game.corr):
             task = asyncio.create_task(
                 user.abandon_game(game), name="abandone-game-%s-%s" % (user.username, game.id)
             )
@@ -1186,12 +1192,12 @@ async def handle_game_user_connected(
         if simul is not None and user.username == simul.created_by:
             await set_simul_host_game(simul, game.id)
 
-    # remove user seeks
-    if len(user.lobby_sockets) == 0 or (
-        game.status <= STARTED and user.username in (game.wplayer.username, game.bplayer.username)
-    ):
-        await game.wplayer.clear_seeks()
-        await game.bplayer.clear_seeks()
+    # remove user seeks — for every player in the game, not just board A's two. The old form
+    # named `game.wplayer`/`game.bplayer`, so on a bughouse game a board B player was neither
+    # recognised as a player here nor had their seeks cleared when the game began.
+    if len(user.lobby_sockets) == 0 or (game.status <= STARTED and user in game.non_bot_players):
+        for player in game.non_bot_players:
+            await player.clear_seeks()
 
     if not game.is_player(user):
         game.spectators.add(user)

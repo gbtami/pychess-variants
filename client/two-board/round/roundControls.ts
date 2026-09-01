@@ -5,6 +5,7 @@ import { patch } from '../../document';
 import { ChatController, chatView } from '../../chat';
 import { swap } from '../twoBoardCtrl';
 import { RoundSeatViews } from './roundSeatView';
+import { isOutsidePartnerStack, markBoardRoles } from '../common/boardRoles';
 
 // What an offer control is currently showing. Named for what the VIEWER may do rather
 // than for who sent what: `offering` means my side asked and is waiting, `offered` means
@@ -144,7 +145,13 @@ export class RoundControlsView {
                     on: { click: drawOffered ? spec.onAcceptDraw : spec.onDraw },
                     props: { title: drawOffered ? _('Accept draw') : _('Offer draw') },
                 },
-                [h('i', '½')],
+                // The label is always in the DOM and hidden by width, never by `display: none`
+                // — toolsPlacement.ts measures what it WOULD take before deciding whether both
+                // fit, and a `display: none` element measures zero, so the question could never
+                // be asked. It says `Draw`, not what the title says: the title changes with the
+                // offer state and this must not, or the button would resize under a player
+                // reaching for it, which is the one thing its fixed size exists to prevent.
+                [h('i', '½'), h('span.control-label', _('Draw'))],
             ),
             h(
                 'button#resign',
@@ -154,7 +161,7 @@ export class RoundControlsView {
                     on: { click: spec.onResign },
                     props: { title: resignConfirm ? _('Confirm resignation') : _('Resign') },
                 },
-                [h('i', { class: { icon: true, 'icon-flag-o': true } })],
+                [h('i', { class: { icon: true, 'icon-flag-o': true } }), h('span.control-label', _('Resign'))],
             ),
         ];
         this.gameControls = patch(this.gameControls, h('div.btn-controls', buttons));
@@ -328,28 +335,16 @@ export function swapBoardsForSwitch(): void {
 // each element from the role's scale, and keying that off `#mainboard`/`#bugboard`
 // would give a board-A player the partner's size on their own board.
 export function markRoles(views: RoundSeatViews): void {
+    // The seat strips are this page's alone — the analysis page has no strips, only
+    // absolutely positioned clock overlays on the board — so this half stays here.
     for (const board of ['a', 'b'] as const) {
         for (const position of [0, 1] as const) {
             const el = views[board][position].stripElement();
-            const own = isOwnSide(el);
+            const own = isOutsidePartnerStack(el);
             el.classList.toggle('own-seat', own);
             el.classList.toggle('partner-seat', !own);
         }
     }
-    for (const id of ['mainboard', 'bugboard'] as const) {
-        const el = document.getElementById(id);
-        if (!el) continue;
-        const own = isOwnSide(el);
-        el.classList.toggle('own-board', own);
-        el.classList.toggle('partner-board', !own);
-    }
-}
-
-// The partner's board and strips are the ones grouped in `.bug-partner-stack`; the
-// viewer's own are direct children of the round app. Portrait gives the group
-// `display: contents`, so it forms no box there — but it is still the DOM parent,
-// which is what this asks about, and what the stylesheet's `>` selectors match on
-// in every mode alike.
-function isOwnSide(el: HTMLElement): boolean {
-    return !el.parentElement?.classList.contains('bug-partner-stack');
+    // The board half is shared with the analysis page — see common/boardRoles.ts.
+    markBoardRoles(isOutsidePartnerStack);
 }

@@ -171,6 +171,13 @@ async def handle_resign_request_bughouse(game: GameBug, user: User) -> None:
     ONE MESSAGE TYPE, not two. The client sends `resign` for both steps and the server
     decides which one this is, so a client cannot confirm a resignation that was never
     asked for and the two steps cannot arrive out of order.
+
+    IN A SIMUL the team is one person holding both seats, so `partner_of()` is None and
+    "wait for your partner" would mean waiting for nobody: the game could not be resigned at
+    all, which is what it did until 2026-08-30. There the second press IS the partner's press,
+    because that player is the whole team. This cannot loosen anything for a normal team: there
+    `partner` is a real name, `team_is_one_user` is False, and an offerer pressing twice still
+    changes nothing.
     """
     team = game.team_of(user.username)
     if team is None:
@@ -178,8 +185,11 @@ async def handle_resign_request_bughouse(game: GameBug, user: User) -> None:
 
     partner = game.partner_of(user.username)
     pending = game.resign_offer
+    team_is_one_user = len(set(team)) == 1
 
-    if pending is not None and pending == partner:
+    if pending is not None and (
+        pending == partner or (team_is_one_user and pending == user.username)
+    ):
         async with game.move_lock:
             game.resign_offer = None
             response = await game.game_ended(user, "resign")

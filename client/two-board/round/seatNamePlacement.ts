@@ -85,6 +85,21 @@ function squareOf(app: HTMLElement, boardSelector: string): number {
  * the round app itself for the viewer's own board.
  */
 function spaceFor(app: HTMLElement, seat: HTMLElement): number {
+    // WHERE THE PAGE IS FLATTENED, BOTH STACKS SHARE ONE REGION and neither is in a column that
+    // can be measured. `.bug-right-column` is still their ancestor but it is `display: contents`
+    // there — no box, `clientHeight` reads 0 — so the partner seat was told it had no room at
+    // all and could never take the line, while the own seat fell through to the app and kept
+    // getting one. That is the asymmetry this fixes.
+    //
+    // The region is published rather than measured here: it is the pinned budget less whatever
+    // zone B holds, and the app's own height is no use for it — that now follows the stacks, so
+    // asking it would be asking the answer to include the question.
+    const dissolved = app.querySelector<HTMLElement>('.bug-right-column');
+    if (dissolved && getComputedStyle(dissolved).display === 'contents') {
+        const boards = parseFloat(getComputedStyle(app).getPropertyValue('--bug-boards-h'));
+        if (Number.isFinite(boards)) return boards;
+    }
+
     const column = seat.closest<HTMLElement>('.bug-right-column');
     if (column) return column.clientHeight;
 

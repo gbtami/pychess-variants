@@ -411,21 +411,20 @@ class User:
         await asyncio.sleep(abandon_timeout)
         if game.status <= STARTED and not self.is_user_active_in_game(game.id):
             response = await game.game_ended(self, "abandon")
-            await round_broadcast(game, response)
+            # `full=True` so the PLAYERS are told, not only the spectators: `round_broadcast()`
+            # builds its recipients as `non_bot_players if full else ()`. Without it this reached
+            # nobody who was playing, and a hand-rolled fallback delivered to a single opponent
+            # derived from `game.wplayer`/`game.bplayer` — board A's pair on a GameBug, so at most
+            # one of the four seats ever heard that the game had ended.
+            await round_broadcast(game, response, full=True)
 
-            opp_name = (
-                game.wplayer.username
-                if self.username == game.bplayer.username
-                else game.bplayer.username
-            )
-            users = self.app_state.users
-            if opp_name in users:
-                opp_player = users[opp_name]
-                if opp_player.bot:
-                    if game.id in opp_player.game_queues:
-                        await opp_player.game_queues[game.id].put(game.game_end)
-                else:
-                    await opp_player.send_game_message(game.id, response)
+            # Bots are the one thing a broadcast cannot reach, by the same definition above, so
+            # they still need their queue. Mirrors `Clock._notify_bot_game_end()`, which is how
+            # the flag path — the one ending that was always correct — does it.
+            if game.bot_game:
+                for player in game.all_players:
+                    if player.bot and game.id in player.game_queues:
+                        await player.game_queues[game.id].put(game.game_end)
 
             await self.app_state.maybe_remove_finished_game_from_cache_now(game)
 

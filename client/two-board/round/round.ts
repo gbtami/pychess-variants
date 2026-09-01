@@ -253,7 +253,17 @@ export function roundView(model: PyChessModel): VNode[] {
                     // does not want: landscape this one, portrait the two around it.
                     h('div.bug-parts', [
                         roundTabs.panel(0, 0),
-                        ...(chatPresetsView ? [roundTabs.panel(0, 1), roundTabs.panel(0, 2)] : []),
+                        // The two preset rows, grouped. `display: contents` everywhere except
+                        // zone B, so normally they are placed individually exactly as before
+                        // and this element is not in the layout at all.
+                        //
+                        // It exists for the one arrangement that needs both of them to be ONE
+                        // item: a named grid area is a single rectangle and holds a single
+                        // item, so twenty buttons can only share a row under both boards if
+                        // the twenty are inside one box. In zone B the group becomes that box.
+                        ...(chatPresetsView
+                            ? [h('div.bug-presets-group', [roundTabs.panel(0, 1), roundTabs.panel(0, 2)])]
+                            : []),
                         roundTabs.panel(1, 0),
                         roundTabs.panel(2, 0),
                         // Where the end-of-game controls are rendered, empty until
@@ -269,6 +279,22 @@ export function roundView(model: PyChessModel): VNode[] {
             ],
         ),
         h('under-left#spectators'),
-        h('under-board', [h('div#janggi-setup-buttons'), h('div.ctable-container')]),
+        // NO `under-board`. It was carried over from the one-board round view and nothing on this
+        // page has ever filled it: `.ctable-container` and `#janggi-setup-buttons` are populated by
+        // `client/roundCtrl.ts`, the ONE-board controller, and this page runs
+        // `RoundControllerBughouse extends TwoBoardController`, which never touches either. The
+        // two-board ANALYSIS page emits no `under-board` and wants for nothing, which is the same
+        // point made twice.
+        //
+        // Two empty divs are not free. `main.round.bug` gave them a 34px row plus two 11px gaps
+        // below the app, so in short landscape the document came out 603px against a 551px
+        // viewport — 52px hanging off the bottom, unseen only because `body`'s `overflow-y: hidden`
+        // propagates to the viewport. Portrait and tall landscape each carried a `display: none`
+        // to buy that space back; with the element gone, all three modes are the same and those
+        // rules are deleted.
+        //
+        // A crosstable here would be worth having — the stylesheet's comments call its absence a
+        // cost. But it was never a cost this markup was paying: nothing was ever drawn in it, so
+        // building one is a feature, not the restoration of something these lines provided.
     ];
 }

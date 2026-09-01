@@ -7,7 +7,7 @@ import { ChatPresetsView } from './chatPresets';
 import { Seat } from '../common/seat';
 import { Clock } from '../../clock';
 import { RoundControllerBughouseSocket } from '../socket/sockets';
-import { recordPendingMove } from '../socket/pendingMoves';
+import { consumePendingMove, recordPendingMove } from '../socket/pendingMoves';
 import { ChatController, chatMessage, chatSender } from '../../chat';
 import { updateMovelist, updateResult, selectMove, MovelistView } from '../common/movelist';
 import { GameInfoView } from '../common/gameInfo';
@@ -52,7 +52,7 @@ import {
     isKeyboardHelpShortcut,
     showGameKeyboardHelp,
 } from '../../gameKeyboardHelp';
-import { trackToolsPlacement } from './toolsPlacement';
+import { ROUND_DROPPABLE, trackToolsPlacement } from '../common/toolsPlacement';
 import { trackSeatNamePlacement } from './seatNamePlacement';
 import { trackPartsWidth } from './partsWidth';
 import { bindPocketHotkeys } from '../../pocketHotkeys';
@@ -66,6 +66,22 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
     readonly anon: boolean;
 
     autoPromote: boolean;
+
+    // MOVES WE HAVE SENT THAT THE SERVER HAS NOT ANSWERED FOR YET, per board.
+    //
+    // In memory only, and deliberately not the localStorage resend cache: that one is keyed by
+    // board and never cleared, so its contents say nothing about whether we are waiting on
+    // anything. This does — it is set when a move goes out and cleared the moment any message
+    // shows the server has dealt with it.
+    //
+    // What it is for: between sending a move and hearing back, the client's own picture is AHEAD
+    // of the server's, and `turnColor` does not know it (nothing advances it on our own move —
+    // see `gameCtrl.ts:138`, only `setState` writes it). So the client still believes it is our
+    // turn, and a full board message arriving in that window — a reconnect always sends one — is
+    // taken as an invitation to move. Measured: the board is left fully playable, and a premove
+    // fires by itself; both send a move for a ply the server has already passed, which ends the
+    // game as INVALIDMOVE against the player who reconnected.
+    private unconfirmedMove: Partial<Record<BugBoardName, string>> = {};
 
     private readonly seatViews: RoundSeatViews;
     // color rendered at the top (position 0) of each board. This represents only the
@@ -230,7 +246,7 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
         // First: it publishes the width the preset buttons are sized from, so the parts
         // are already their real height when the placement below measures them.
         trackPartsWidth();
-        trackToolsPlacement();
+        trackToolsPlacement(ROUND_DROPPABLE);
         trackSeatNamePlacement();
 
         initBoardSettings(this.boardA, this.boardB, this.variant);
@@ -322,11 +338,32 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
         this.seats.all.forEach(seat => {
             seat.clock!.onTick(diff => {
                 seat.clock!.renderTime(diff);
-                const counterpart = this.seats.opponentsPartnerOf(seat);
-                const otherMillis = liveTime(counterpart.clock!);
-                this.viewOf(seat).renderDifference(Math.round((diff - otherMillis) / 1000));
-                this.viewOf(counterpart).renderDifference(Math.round((otherMillis - diff) / 1000));
+                this.renderClockDifferences();
             });
+        });
+    }
+
+    /** Every seat's difference badge, recomputed from what the four clocks hold right now.
+     *
+     * ALL FOUR, and from live values rather than from the tick's own `diff`, because a clock's
+     * value changes TWO ways and only one of them used to reach here. Ticking called this; being
+     * SET did not — `Clock.setTime()` repaints the clock text and nothing else. So a seat that was
+     * resynced while PAUSED kept a badge computed from its pre-resync value until it next ran, which
+     * can be a whole move away.
+     *
+     * Measured on `d0cEddrd` 2026-08-30: after a reconnect gave board A black 44s back, the clocks
+     * agreed to the second — `aw - bw` and `bb - ab` both 114 — while the two paused seats still
+     * showed ±158. The badges corrected themselves only when that clock started ticking again.
+     *
+     * Cheap enough to do wholesale: four reads and four writes, on a tick whose granularity is
+     * measured in tenths of a second.
+     */
+    private renderClockDifferences(): void {
+        this.seats.all.forEach(seat => {
+            const counterpart = this.seats.opponentsPartnerOf(seat);
+            const mine = liveTime(seat.clock!);
+            const theirs = liveTime(counterpart.clock!);
+            this.viewOf(seat).renderDifference(Math.round((mine - theirs) / 1000));
         });
     }
 
@@ -375,12 +412,40 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
 
         moverClock.pause(false);
 
+        // PAUSE THE CLOCK THAT IS ABOUT TO BE RESTARTED, TOO — it may already be running, and then
+        // the `start()` below is a no-op that leaves its measurement origin stale.
+        //
+        // `Clock` keeps `duration` (the value when it last started) and `startTime`, and renders
+        // `duration - (now - startTime)`. `setTime()` writes `duration` alone, and `start()` returns
+        // immediately `if (this.running)` without refreshing `startTime`. So setting a server value
+        // on an already-running clock subtracts the elapsed time A SECOND TIME: the server has
+        // already deducted it before sending.
+        //
+        // On a normal move this cannot happen — the side to move next is the one that was just
+        // waiting, so its clock is stopped and `pause()` here returns at once. It bites on the FULL
+        // board message, a reconnect or a page load, where both boards' running clocks are re-set
+        // while still running. The error is the age of `startTime`: the time since that board's last
+        // move. Measured 2026-08-30 on `4G3ZyGze`: board A, whose last move was 57s earlier, came
+        // back 57s light; board B, which had not moved all game, came back **397s light** — the
+        // server sent a correct 3202447 and the page rendered 46:41 instead of 53:22. A board that
+        // has not moved for 19 minutes reads 19 minutes short, which is `ZdoeZseB`'s 41:14.
+        //
+        // Not fixed inside `setTime()`, deliberately: the one-board round page calls
+        // `setTime(duration + 15000)` on running clocks to add time, and relies on `startTime`
+        // surviving so that the live value gains exactly 15s.
+        nextClock.pause(false);
+
         whiteClock.setTime(msgClocks[WHITE]);
         blackClock.setTime(msgClocks[BLACK]);
 
         if (!this.isGameOver(status)) {
             nextClock.start();
         }
+
+        // The two clocks above were SET, not ticked, and a set does not reach the badges on its
+        // own — see `renderClockDifferences()`. Any resync therefore has to say so explicitly, or
+        // the seats that are not running keep showing a difference computed from the old values.
+        this.renderClockDifferences();
     }
 
     // required by the ChatController interface (chatView() calls ctrl.doSend()); forwards to the real implementation
@@ -429,6 +494,15 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
 
         // all those values are generally ignored on the server except the one for the current move which is
         // communicated to the other players and recorded in the server move history
+        //
+        // DEPRECATED: three of these four are noise and must not be used. `duration` on a RUNNING
+        // clock is its value at the last start, not what is on screen, so the seat thinking on the
+        // other board is reported as it was when its turn began — 447s stale in one measured case,
+        // and worse across a disconnect. Only the mover's own clock (paused just above) is real.
+        // This should shrink to that ONE number; analysis derives the other three from the mover
+        // values alone (`analysisClock.reconstructMainlineClocks`). Do not "fix" these by sending
+        // the rendered value instead: an observation by a client of a seat it does not own is still
+        // unreliable, and keeping the field invites new readers.
         const msgClocks = [
             this.seats.byBoardAndColor('a', 'white').clock!.duration,
             this.seats.byBoardAndColor('a', 'black').clock!.duration,
@@ -449,6 +523,8 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
         } as MsgMove;
 
         recordPendingMove(this.gameId, moveMsg);
+        // From here until the server answers, our board is ahead of the server's — see the field.
+        this.unconfirmedMove[b.boardName as BugBoardName] = move;
 
         this.socket.doSend(moveMsg as JSONObject);
         this.seats
@@ -778,10 +854,35 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
     ) => {
         console.log('updateBothBoardsAndClocksOnFullBoardMsg', lastStepA, lastStepB, clocksA, clocksB);
 
+        // Does this snapshot already account for the move we are waiting on? If its last step for
+        // that board IS our move, the server has it and we are in sync again.
+        if (lastStepA?.move !== undefined && lastStepA.move === this.unconfirmedMove['a'])
+            delete this.unconfirmedMove['a'];
+        if (lastStepB?.moveB !== undefined && lastStepB.moveB === this.unconfirmedMove['b'])
+            delete this.unconfirmedMove['b'];
+
         this.boardA.setState(fenA, getTurnColor(fenA), uci2LastMove(lastStepA?.move));
         this.boardA.renderState();
         this.boardB.setState(fenB, getTurnColor(fenB), uci2LastMove(lastStepB?.moveB));
         this.boardB.renderState();
+
+        // A BOARD WE ARE STILL AHEAD OF MUST NOT INVITE A MOVE.
+        //
+        // The snapshot has just been applied in full — the player sees the server's truth, nothing
+        // is hidden. But `setState()` ends in `setDests()`, which recomputes OUR legal moves from
+        // the fen it was handed, so a snapshot that predates our own move hands the board back to
+        // us with the turn it has already passed. Anything that moves from here — a premove
+        // releasing itself, or the player, who has just watched their move vanish and may simply
+        // play again — sends a move for a ply the server is beyond. An empty dests map is how this
+        // app makes a board unplayable (`gameCtrl.ts:366` sets dests the same way), and the next
+        // message restores it by calling `setDests()` again.
+        //
+        // The same condition gates the premove below: one rule, both routes, because a premove and
+        // a finger reach the server through the same `canMove` -> `processInput` path.
+        const aheadOfServerA = this.unconfirmedMove['a'] !== undefined;
+        const aheadOfServerB = this.unconfirmedMove['b'] !== undefined;
+        if (aheadOfServerA) this.boardA.chessground.set({ movable: { dests: new Map() } });
+        if (aheadOfServerB) this.boardB.chessground.set({ movable: { dests: new Map() } });
 
         if (!this.isGameOver()) {
             this.updateClocks('a', this.boardA.turnColor, clocksA, this.status);
@@ -798,9 +899,12 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
         }
 
         // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
-        // console.log("trying to play premove....");
-        if (this.boardA.premove && this.boardA.turnColor == this.seats.myColor('a')) this.boardA.performPremove();
-        if (this.boardB.premove && this.boardB.turnColor == this.seats.myColor('b')) this.boardB.performPremove();
+        // `aheadOfServer*`: `turnColor` alone cannot answer this — it is written from the snapshot's
+        // own fen, so on a stale one it says "your turn" and this check passes. See the field.
+        if (!aheadOfServerA && this.boardA.premove && this.boardA.turnColor == this.seats.myColor('a'))
+            this.boardA.performPremove();
+        if (!aheadOfServerB && this.boardB.premove && this.boardB.turnColor == this.seats.myColor('b'))
+            this.boardB.performPremove();
     };
 
     private updateSingleBoardAndClocks = (
@@ -878,11 +982,32 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
             }
         } else {
             //when message is about the move i just made
+            // The server has answered for it, so we are no longer ahead of it on this board.
+            delete this.unconfirmedMove[board.boardName as BugBoardName];
+
+            // Was this move RESENT after a reconnect? Then the server replayed it with its own
+            // clocks — it must, the queued copy carries `[-1, -1]` — and charged the stall to the
+            // seat whose turn it still was: OURS. The value we paused locally never saw that, so
+            // it is the stale one and the server's must win, even though our clock is not running.
+            // Measured on `aMyeueDb` before this: the mover held bw=3576 while both other windows
+            // and the record held 3513, permanently, 63s = the length of the stall. The single
+            // window invariant cannot see it (each window is internally consistent), so this is
+            // the class of bug only a cross-window comparison catches.
+            //
+            // `consumePendingMove()` also clears the cache entry, which is the reason it is called
+            // for EVERY confirmation and not only inside the branch below.
+            const replayed =
+                move !== undefined &&
+                consumePendingMove(this.gameId, board.boardName as BugBoardName, move);
+
             // if this clock is still running, sendMove() never got to pause it locally in this
             // session (e.g. this is confirming a move resent after a reconnect/refresh) - sync
             // from the server now instead of leaving it stuck in whatever state the earlier
             // full-board snapshot left it in.
-            if (this.seats.byBoardAndColor(board.boardName as BugBoardName, msgMoveColor).clock!.running) {
+            if (
+                replayed ||
+                this.seats.byBoardAndColor(board.boardName as BugBoardName, msgMoveColor).clock!.running
+            ) {
                 this.updateClocks(board.boardName, msgTurnColor, msgClocks, this.status);
             }
             board.setState(fen, board.turnColor === 'white' ? 'black' : 'white', lastMove);
@@ -1101,7 +1226,20 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
         // Only ever delivered to the two players on the resigning team, so there is no
         // opposing case to handle here: either this is my own request, or it is my
         // partner's and I am the one who confirms it.
-        this.controlsView.setResignOffer(msg.username === this.username ? 'offering' : 'offered');
+        //
+        // The message cannot tell these apart on its own — it goes to the WHOLE team, so the
+        // asker receives it too, and showing them a live "Confirm resignation" they are not
+        // allowed to press would be a button that lies. Hence the sender test.
+        //
+        // Unless I am the whole team: in a simul one user holds both seats, so the asker IS the
+        // confirmer and `'offering'` would disable the only control that can end the game — the
+        // reason a simul could not be resigned at all before 2026-08-30. The second press then
+        // does what a partner's press does, and the server agrees (see
+        // `handle_resign_request_bughouse`).
+        const iAmTheWholeTeam =
+            new Set(this.seats.myTeam().seats.map(seat => seat.player.username)).size === 1;
+        const mine = msg.username === this.username && !iAmTheWholeTeam;
+        this.controlsView.setResignOffer(mine ? 'offering' : 'offered');
     };
 
     onMsgResignCancelled = (msg: MsgResignCancelled) => {
