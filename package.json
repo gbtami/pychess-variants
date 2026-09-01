@@ -27,7 +27,7 @@
     "@pychess/betza": "^0.1.3",
     "@toast-ui/editor": "3.2.2",
     "chessgroundx": "^10.7.5",
-    "dompurify": "^3.4.12",
+    "dompurify": "^3.4.14",
     "fairy-stockfish-nnue.wasm": "^1.1.12",
     "ffish-alice-es6": "^0.0.1",
     "ffish-es6": "^0.7.10",
