@@ -50,7 +50,7 @@
     "esbuild-plugin-compress": "^1.0.1",
     "esm": "^3.2.25",
     "jest": "^30.4.2",
-    "jest-environment-jsdom": "^30.4.1",
+    "jest-environment-jsdom": "^30.5.0",
     "jsdom": "^30.0.1",
     "jsdom-global": "^3.0.2",
     "oxfmt": "0.61.0",
