@@ -26,6 +26,7 @@ class CataloguedVariantUpdateDocumentTest(unittest.IsolatedAsyncioTestCase):
             "boardSvg": {"svg": "<svg />", "size": 7},
             "boardSvgUpdatedAt": created_at,
             "gameCount": 4,
+            "favoriteCount": 2,
             "aiFailureCount": 2,
             "createdAt": created_at,
         }
@@ -38,6 +39,7 @@ class CataloguedVariantUpdateDocumentTest(unittest.IsolatedAsyncioTestCase):
             "boardSvg": existing["boardSvg"],
             "boardSvgUpdatedAt": created_at,
             "gameCount": 4,
+            "favoriteCount": 2,
             "aiFailureCount": 2,
             "createdAt": created_at,
         }
@@ -51,6 +53,7 @@ class CataloguedVariantUpdateDocumentTest(unittest.IsolatedAsyncioTestCase):
             "boardSvg",
             "boardSvgUpdatedAt",
             "gameCount",
+            "favoriteCount",
             "aiFailureCount",
             "createdAt",
         ):
@@ -91,13 +94,20 @@ class CataloguedVariantRenameDocumentTest(unittest.IsolatedAsyncioTestCase):
         updated_at = datetime.now(UTC)
 
         self.assertEqual(
-            _catalogued_rename_source_query("oldname", {"updatedAt": updated_at, "gameCount": 3}),
-            {"_id": "oldname", "updatedAt": updated_at, "gameCount": 3},
+            _catalogued_rename_source_query(
+                "oldname", {"updatedAt": updated_at, "gameCount": 3, "favoriteCount": 2}
+            ),
+            {
+                "_id": "oldname",
+                "updatedAt": updated_at,
+                "gameCount": 3,
+                "favoriteCount": 2,
+            },
         )
 
     async def test_rename_deletes_only_the_revision_that_was_read(self) -> None:
         updated_at = datetime.now(UTC)
-        existing = {"_id": "oldname", "updatedAt": updated_at, "gameCount": 0}
+        existing = {"_id": "oldname", "updatedAt": updated_at, "gameCount": 0, "favoriteCount": 0}
         doc: Any = {"_id": "newname", "name": "newname"}
         collection = SimpleNamespace(
             insert_one=AsyncMock(),
@@ -118,12 +128,12 @@ class CataloguedVariantRenameDocumentTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(name_collection.insert_one.await_args.args[0]["_id"], "oldname")
         collection.insert_one.assert_awaited_once_with(doc)
         collection.delete_one.assert_awaited_once_with(
-            {"_id": "oldname", "updatedAt": updated_at, "gameCount": 0}
+            {"_id": "oldname", "updatedAt": updated_at, "gameCount": 0, "favoriteCount": 0}
         )
 
     async def test_concurrent_change_rolls_back_rename(self) -> None:
         updated_at = datetime.now(UTC)
-        existing = {"_id": "oldname", "updatedAt": updated_at, "gameCount": 0}
+        existing = {"_id": "oldname", "updatedAt": updated_at, "gameCount": 0, "favoriteCount": 0}
         doc: Any = {"_id": "newname", "name": "newname"}
         collection = SimpleNamespace(
             insert_one=AsyncMock(),
@@ -150,7 +160,7 @@ class CataloguedVariantRenameDocumentTest(unittest.IsolatedAsyncioTestCase):
         name_collection.insert_one.assert_awaited_once()
         self.assertEqual(
             collection.delete_one.await_args_list[0].args[0],
-            {"_id": "oldname", "updatedAt": updated_at, "gameCount": 0},
+            {"_id": "oldname", "updatedAt": updated_at, "gameCount": 0, "favoriteCount": 0},
         )
         self.assertEqual(collection.delete_one.await_args_list[1].args[0], {"_id": "newname"})
 

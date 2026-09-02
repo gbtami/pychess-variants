@@ -67,9 +67,15 @@ async function favoriteVariant(button: HTMLButtonElement): Promise<void> {
             const text = await response.text();
             throw new Error(text || _('Failed to update favorite'));
         }
-        const payload = (await response.json()) as { favorite?: boolean };
+        const payload = (await response.json()) as { favorite?: boolean; favoriteCount?: number };
         const savedFavorite = !!payload.favorite;
         setFavoriteButton(button, savedFavorite);
+        const favoriteCount = button
+            .closest('.community-variant-card')
+            ?.querySelector<HTMLElement>('.community-variant-favorite-count');
+        if (favoriteCount && typeof payload.favoriteCount === 'number') {
+            favoriteCount.textContent = String(payload.favoriteCount);
+        }
 
         const page = document.querySelector<HTMLElement>('.community-variants-page');
         if (page?.dataset.favoritesOnly === '1' && !savedFavorite) {

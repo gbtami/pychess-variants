@@ -2100,6 +2100,7 @@ export interface CataloguedVariantClientDocument {
     readonly archived?: boolean;
     readonly enabled?: boolean;
     readonly gameCount?: number;
+    readonly favoriteCount?: number;
     readonly locked?: boolean;
     readonly visibility?: 'private' | 'unlisted' | 'public';
     readonly aiDisabled?: boolean;

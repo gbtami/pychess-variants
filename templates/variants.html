@@ -42,6 +42,7 @@
                 <option value="updated" {% if community_variants.sort == "updated" %}selected{% endif %}>{% trans %}Recently updated{% endtrans %}</option>
                 {% if community_variants.canFavorite %}<option value="favorites" {% if community_variants.sort == "favorites" %}selected{% endif %}>{% trans %}Favorites first{% endtrans %}</option>{% endif %}
                 <option value="played" {% if community_variants.sort == "played" %}selected{% endif %}>{% trans %}Most played{% endtrans %}</option>
+                <option value="favorited" {% if community_variants.sort == "favorited" %}selected{% endif %}>{% trans %}Most favorited{% endtrans %}</option>
                 <option value="newest" {% if community_variants.sort == "newest" %}selected{% endif %}>{% trans %}Newest{% endtrans %}</option>
                 <option value="name" {% if community_variants.sort == "name" %}selected{% endif %}>{% trans %}Name{% endtrans %}</option>
             </select>
@@ -106,6 +107,7 @@
                     {% endif %}
                     <div><dt>{% trans %}Board{% endtrans %}</dt><dd>{{ item.width }} × {{ item.height }}</dd></div>
                     <div><dt>{% trans %}Games{% endtrans %}</dt><dd>{{ item.gameCount }}</dd></div>
+                    <div><dt>{% trans %}Favorites{% endtrans %}</dt><dd class="community-variant-favorite-count">{{ item.favoriteCount }}</dd></div>
                 </dl>
                 <p class="community-variant-actions">
                     <a class="button catalogued-action-primary" href="{{ home }}/?any&variant={{ item.name }}">{% trans %}Play{% endtrans %}</a>

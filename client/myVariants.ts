@@ -20,7 +20,7 @@ import {
 
 type VariantVisibility = 'private' | 'unlisted' | 'public';
 type MessageTone = 'neutral' | 'success' | 'error';
-type ManagementSort = 'updated' | 'played' | 'newest' | 'name';
+type ManagementSort = 'updated' | 'played' | 'favorited' | 'newest' | 'name';
 
 const MAX_DISPLAY_NAME_LENGTH = 50;
 const DISPLAY_NAME_PATTERN = new RegExp('^[\\p{L}\\p{Nd} _.+/()_-]+$', 'u');
@@ -127,7 +127,7 @@ function isSystemManagedVariant(variant: ManagedVariant | null | undefined): boo
 }
 
 function managementSort(value: string | null): ManagementSort {
-    return value === 'played' || value === 'newest' || value === 'name' ? value : 'updated';
+    return value === 'played' || value === 'favorited' || value === 'newest' || value === 'name' ? value : 'updated';
 }
 
 function positivePage(value: string | null): number {
@@ -1525,6 +1525,7 @@ function renderAdminFilters(model: PyChessModel): VNode | null {
                 [
                     h('option', { props: { value: 'updated' } }, _('Recently updated')),
                     h('option', { props: { value: 'played' } }, _('Most played')),
+                    h('option', { props: { value: 'favorited' } }, _('Most favorited')),
                     h('option', { props: { value: 'newest' } }, _('Newest')),
                     h('option', { props: { value: 'name' } }, _('Name')),
                 ],
@@ -1594,6 +1595,7 @@ function renderRows(model: PyChessModel): VNode {
                     h('th', _('Status')),
                     h('th', _('Visibility')),
                     h('th', _('Games')),
+                    h('th', _('Favorites')),
                     h('th', _('Pieces')),
                     h('th', _('Board')),
                     h('th', _('Actions')),
@@ -1635,6 +1637,7 @@ function renderRows(model: PyChessModel): VNode {
                         ),
                         h('td', { attrs: { 'data-label': _('Visibility') } }, visibilityLabel(variant.visibility)),
                         h('td', { attrs: { 'data-label': _('Games') } }, String(variant.gameCount ?? 0)),
+                        h('td', { attrs: { 'data-label': _('Favorites') } }, String(variant.favoriteCount ?? 0)),
                         h('td', { attrs: { 'data-label': _('Pieces') } }, renderPieceSetControls(model, variant)),
                         h('td', { attrs: { 'data-label': _('Board') } }, renderBoardControls(model, variant)),
                         h('td.catalogued-row-actions', { attrs: { 'data-label': _('Actions') } }, [

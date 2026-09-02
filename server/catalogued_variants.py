@@ -25,6 +25,7 @@ from fairy.fairy_board import sf
 from json_utils import json_response
 from nnue_identity import fsf_ini_v1_fingerprint
 from pychess_global_app_state_utils import get_app_state
+from pymongo import ReturnDocument
 from pymongo.errors import DuplicateKeyError
 from request_utils import read_json_data, read_post_data, read_text_data
 from settings import ADMINS
@@ -1159,6 +1160,7 @@ class CataloguedVariantDocument(TypedDict):
     aiDisabledUntil: NotRequired[datetime]
     aiDisabledReason: NotRequired[str]
     gameCount: int
+    favoriteCount: int
     gameCountEffectIds: NotRequired[list[str]]
     createdAt: datetime
     updatedAt: datetime
@@ -1201,6 +1203,7 @@ class CataloguedVariantClientDocument(TypedDict):
     archived: NotRequired[bool]
     enabled: NotRequired[bool]
     gameCount: NotRequired[int]
+    favoriteCount: NotRequired[int]
     locked: NotRequired[bool]
     visibility: NotRequired[str]
     aiDisabled: NotRequired[bool]
@@ -2936,6 +2939,7 @@ def _client_doc(
         client_doc["locked"] = game_count > 0
     elif "gameCount" in doc:
         client_doc["gameCount"] = int(doc.get("gameCount") or 0)
+    client_doc["favoriteCount"] = max(0, int(doc.get("favoriteCount") or 0))
     return client_doc
 
 
@@ -3754,6 +3758,8 @@ async def community_catalogued_variants_page(
         sort_spec = [("createdAt", -1), ("name", 1)]
     elif sort == "played":
         sort_spec = [("gameCount", -1), ("updatedAt", -1), ("name", 1)]
+    elif sort == "favorited":
+        sort_spec = [("favoriteCount", -1), ("updatedAt", -1), ("name", 1)]
     elif use_favorite_sort:
         sort_spec = [("updatedAt", -1), ("name", 1)]
     else:
@@ -3804,6 +3810,7 @@ async def community_catalogued_variants_page(
                 "width": int(doc.get("width") or 0),
                 "height": int(doc.get("height") or 0),
                 "gameCount": count,
+                "favoriteCount": max(0, int(doc.get("favoriteCount") or 0)),
                 "updatedAt": doc.get("updatedAt"),
                 "favorite": name in favorite_names,
                 "startBoardPreview": catalogued_start_board_preview(doc),
@@ -3835,7 +3842,8 @@ async def set_catalogued_variant_favorite(request: web.Request) -> web.Response:
         raise web.HTTPServiceUnavailable(text="Database is unavailable.")
 
     doc = await app_state.db[CATALOGUED_VARIANT_COLLECTION].find_one(
-        {"_id": name, **_catalogued_public_query()}, projection={"_id": 1}
+        {"_id": name, **_catalogued_public_query()},
+        projection={"_id": 1, "favoriteCount": 1},
     )
     if doc is None:
         raise web.HTTPNotFound(text="Public catalogued variant not found.")
@@ -3852,14 +3860,69 @@ async def set_catalogued_variant_favorite(request: web.Request) -> web.Response:
             raise web.HTTPConflict(
                 text=f"You can favorite at most {MAX_CATALOGUED_FAVORITES_PER_USER} variants."
             )
+        user_result = await app_state.db.user.update_one(
+            {"_id": username}, {"$addToSet": {"cvf": name}}
+        )
         favorites.add(name)
-        await app_state.db.user.update_one({"_id": username}, {"$addToSet": {"cvf": name}})
+        delta = 1
     else:
+        user_result = await app_state.db.user.update_one(
+            {"_id": username}, {"$pull": {"cvf": name}}
+        )
         favorites.discard(name)
-        await app_state.db.user.update_one({"_id": username}, {"$pull": {"cvf": name}})
+        delta = -1
+
+    favorite_count = max(0, int(doc.get("favoriteCount") or 0))
+    if user_result.modified_count:
+        updated = await app_state.db[CATALOGUED_VARIANT_COLLECTION].find_one_and_update(
+            {"_id": name},
+            [
+                {
+                    "$set": {
+                        "favoriteCount": {
+                            "$max": [
+                                0,
+                                {
+                                    "$add": [
+                                        {"$ifNull": ["$favoriteCount", 0]},
+                                        delta,
+                                    ]
+                                },
+                            ]
+                        }
+                    }
+                }
+            ],
+            projection={"favoriteCount": 1},
+            return_document=ReturnDocument.AFTER,
+        )
+        if updated is None:
+            if favorite:
+                await app_state.db.user.update_one({"_id": username}, {"$pull": {"cvf": name}})
+                favorites.discard(name)
+            user.catalogued_variant_favorites = favorites
+            raise web.HTTPNotFound(text="Public catalogued variant not found.")
+        favorite_count = max(0, int(updated.get("favoriteCount") or 0))
+        cached_doc = getattr(app_state, "catalogued_variants", {}).get(name)
+        if cached_doc is not None:
+            cached_doc["favoriteCount"] = favorite_count
+    else:
+        current = await app_state.db[CATALOGUED_VARIANT_COLLECTION].find_one(
+            {"_id": name}, projection={"favoriteCount": 1}
+        )
+        if current is None:
+            raise web.HTTPNotFound(text="Public catalogued variant not found.")
+        favorite_count = max(0, int(current.get("favoriteCount") or 0))
 
     user.catalogued_variant_favorites = favorites
-    return json_response({"ok": True, "name": name, "favorite": favorite})
+    return json_response(
+        {
+            "ok": True,
+            "name": name,
+            "favorite": favorite,
+            "favoriteCount": favorite_count,
+        }
+    )
 
 
 async def _read_upload_payload(
@@ -4164,6 +4227,7 @@ def _build_doc(
     board_family_override: str = "",
     archived: bool = False,
     game_count: int = 0,
+    favorite_count: int = 0,
     source: str = CATALOGUED_SOURCE_USER,
     fsf_builtin_variant: str | None = None,
     client_variant: str = "",
@@ -4201,6 +4265,7 @@ def _build_doc(
         "pieceSetDirectional": piece_set_directional,
         "source": source,
         "gameCount": max(0, int(game_count)),
+        "favoriteCount": max(0, int(favorite_count)),
         "createdAt": created_at,
         "updatedAt": datetime.now(UTC),
     }
@@ -4387,6 +4452,7 @@ def _build_fsf_builtin_doc(
         visibility=str((existing or {}).get("visibility") or CATALOGUED_VISIBILITY_PUBLIC),
         archived=bool((existing or {}).get("archived", False)),
         game_count=int((existing or {}).get("gameCount") or 0),
+        favorite_count=int((existing or {}).get("favoriteCount") or 0),
         source=CATALOGUED_SOURCE_FSF_BUILTIN,
         fsf_builtin_variant=name,
         client_variant=str(metadata.get("clientVariant") or ""),
@@ -4844,6 +4910,8 @@ def _management_sort_spec(value: str) -> tuple[str, list[tuple[str, int]]]:
         return value, [("createdAt", -1), ("name", 1)]
     if value == "played":
         return value, [("gameCount", -1), ("updatedAt", -1), ("name", 1)]
+    if value == "favorited":
+        return value, [("favoriteCount", -1), ("updatedAt", -1), ("name", 1)]
     return "updated", [("updatedAt", -1), ("name", 1)]
 
 
@@ -4946,6 +5014,7 @@ CATALOGUED_CONCURRENTLY_UPDATED_FIELDS = frozenset(
         "_id",
         "createdAt",
         "gameCount",
+        "favoriteCount",
         "pieceSet",
         "pieceSetUpdatedAt",
         "boardSvg",
@@ -5021,12 +5090,68 @@ async def _reserve_catalogued_variant_name(
 def _catalogued_rename_source_query(old_name: str, existing: Mapping[str, Any]) -> dict[str, Any]:
     """Match the source revision so a concurrent upload cannot be discarded."""
     query: dict[str, Any] = {"_id": old_name}
-    for field in ("updatedAt", "gameCount"):
+    for field in ("updatedAt", "gameCount", "favoriteCount"):
         if field in existing:
             query[field] = existing[field]
         else:
             query[field] = {"$exists": False}
     return query
+
+
+async def _rename_catalogued_variant_favorites(
+    app_state: Any, old_name: str, new_name: str
+) -> None:
+    """Move stored user favorites to a renamed catalogued variant."""
+
+    if app_state.db is None or old_name == new_name:
+        return
+
+    await app_state.db.user.update_many(
+        {"cvf": old_name},
+        [
+            {
+                "$set": {
+                    "cvf": {
+                        "$setUnion": [
+                            {
+                                "$map": {
+                                    "input": {"$ifNull": ["$cvf", []]},
+                                    "as": "favorite",
+                                    "in": {
+                                        "$cond": [
+                                            {"$eq": ["$$favorite", old_name]},
+                                            new_name,
+                                            "$$favorite",
+                                        ]
+                                    },
+                                }
+                            },
+                            [],
+                        ]
+                    }
+                }
+            }
+        ],
+    )
+
+    for cached_user in app_state.users.values():
+        favorites = getattr(cached_user, "catalogued_variant_favorites", None)
+        if isinstance(favorites, set) and old_name in favorites:
+            favorites.discard(old_name)
+            favorites.add(new_name)
+
+
+async def _remove_catalogued_variant_favorites(app_state: Any, name: str) -> None:
+    """Remove a deleted catalogued variant from stored and cached favorites."""
+
+    if app_state.db is None:
+        return
+
+    await app_state.db.user.update_many({"cvf": name}, {"$pull": {"cvf": name}})
+    for cached_user in app_state.users.values():
+        favorites = getattr(cached_user, "catalogued_variant_favorites", None)
+        if isinstance(favorites, set):
+            favorites.discard(name)
 
 
 async def _rename_catalogued_variant_document(
@@ -5227,6 +5352,7 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
         board_family_override=board_family_override,
         archived=bool(existing.get("archived", False)),
         game_count=int(existing.get("gameCount") or 0),
+        favorite_count=int(existing.get("favoriteCount") or 0),
     )
 
     _copy_catalogued_uploaded_assets(doc, existing)
@@ -5240,6 +5366,7 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
             existing=existing,
             doc=doc,
         )
+        await _rename_catalogued_variant_favorites(app_state, old_name, new_name)
         await _remove_catalogued_variant_seeks(app_state, old_name)
         unregister_catalogued_server_variant(old_name)
         app_state.catalogued_variants.pop(old_name, None)
@@ -5282,6 +5409,7 @@ async def delete_catalogued_variant(request: web.Request) -> web.Response:
         app_state.db[CATALOGUED_VARIANT_NAME_COLLECTION], name, doc
     )
     await app_state.db[CATALOGUED_VARIANT_COLLECTION].delete_one({"_id": name})
+    await _remove_catalogued_variant_favorites(app_state, name)
     await _remove_catalogued_variant_seeks(app_state, name)
     app_state.catalogued_variants.pop(name, None)
     unregister_catalogued_server_variant(name)

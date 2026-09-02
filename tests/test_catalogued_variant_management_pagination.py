@@ -96,6 +96,7 @@ class CataloguedVariantManagementPaginationTestCase(unittest.IsolatedAsyncioTest
                 "author": author,
                 "source": "user",
                 "gameCount": i % 7,
+                "favoriteCount": i % 5,
                 "createdAt": i,
                 "updatedAt": i,
             }
@@ -137,6 +138,10 @@ class CataloguedVariantManagementPaginationTestCase(unittest.IsolatedAsyncioTest
         self.assertEqual(
             _management_sort_spec("played"),
             ("played", [("gameCount", -1), ("updatedAt", -1), ("name", 1)]),
+        )
+        self.assertEqual(
+            _management_sort_spec("favorited"),
+            ("favorited", [("favoriteCount", -1), ("updatedAt", -1), ("name", 1)]),
         )
         self.assertEqual(
             _management_sort_spec("invalid"),
@@ -250,6 +255,30 @@ class CataloguedVariantManagementPaginationTestCase(unittest.IsolatedAsyncioTest
         self.assertEqual(
             collection.cursor.sort_spec,
             [("gameCount", -1), ("updatedAt", -1), ("name", 1)],
+        )
+        self.assertEqual(
+            [item["name"] for item in payload["variants"]],
+            ["variant01", "variant00", "variant02"],
+        )
+
+    async def test_favorited_sort_matches_global_favorite_count_order(self):
+        docs = self.make_docs(3, author="admin")
+        docs[0]["favoriteCount"] = 12
+        docs[0]["updatedAt"] = 1
+        docs[1]["favoriteCount"] = 12
+        docs[1]["updatedAt"] = 3
+        docs[2]["favoriteCount"] = 4
+        docs[2]["updatedAt"] = 9
+
+        payload, collection = await self.call_handler(
+            "/api/catalogued-variants/mine?sort=favorited",
+            docs,
+        )
+
+        self.assertEqual(payload["sort"], "favorited")
+        self.assertEqual(
+            collection.cursor.sort_spec,
+            [("favoriteCount", -1), ("updatedAt", -1), ("name", 1)],
         )
         self.assertEqual(
             [item["name"] for item in payload["variants"]],
