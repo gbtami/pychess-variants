@@ -84,22 +84,21 @@ async def main() -> None:
         print(f"Rebuilt favorite total: {rebuilt_total}")
         print(f"Variants with favorites: {len(valid_counts)}")
         print(
-            f"Stale favorite names: {len(stale_counts)} "
-            f"({sum(stale_counts.values())} user entries)"
+            f"Stale favorite names: {len(stale_counts)} ({sum(stale_counts.values())} user entries)"
         )
 
         if valid_counts:
             print("Top favorites:")
-            for name, count in sorted(
-                valid_counts.items(), key=lambda item: (-item[1], item[0])
-            )[:20]:
+            for name, count in sorted(valid_counts.items(), key=lambda item: (-item[1], item[0]))[
+                :20
+            ]:
                 print(f"  {count:5d}  {name}")
 
         if stale_counts:
             print("Stale favorites that reference no current catalogued variant:")
-            for name, count in sorted(
-                stale_counts.items(), key=lambda item: (-item[1], item[0])
-            )[:20]:
+            for name, count in sorted(stale_counts.items(), key=lambda item: (-item[1], item[0]))[
+                :20
+            ]:
                 print(f"  {count:5d}  {name}")
 
         if not args.apply:

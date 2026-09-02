@@ -45,9 +45,7 @@ class CataloguedVariantFavoriteTestCase(unittest.IsolatedAsyncioTestCase):
         variant_collection = SimpleNamespace(
             find_one=AsyncMock(return_value={"_id": "variant", "favoriteCount": stored_count}),
             find_one_and_update=AsyncMock(
-                return_value=(
-                    None if updated_count is None else {"favoriteCount": updated_count}
-                )
+                return_value=(None if updated_count is None else {"favoriteCount": updated_count})
             ),
         )
         app_state = SimpleNamespace(
