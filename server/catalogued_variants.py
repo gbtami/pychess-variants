@@ -8,7 +8,7 @@ import re
 import sys
 import unicodedata
 import xml.etree.ElementTree as ET
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any, NamedTuple, NotRequired, TypedDict, cast
@@ -5098,43 +5098,65 @@ def _catalogued_rename_source_query(old_name: str, existing: Mapping[str, Any]) 
     return query
 
 
+def _catalogued_variant_user_collection(app_state: Any) -> Any | None:
+    """Return the user collection when the app state exposes one."""
+
+    db = getattr(app_state, "db", None)
+    if db is None:
+        return None
+    user_collection = getattr(db, "user", None)
+    if user_collection is None and isinstance(db, Mapping):
+        user_collection = db.get("user")
+    return user_collection
+
+
+def _cached_catalogued_variant_users(app_state: Any) -> Iterable[Any]:
+    """Return cached users when the app state has an initialized user cache."""
+
+    users = getattr(app_state, "users", None)
+    values = getattr(users, "values", None)
+    return values() if callable(values) else ()
+
+
 async def _rename_catalogued_variant_favorites(
     app_state: Any, old_name: str, new_name: str
 ) -> None:
     """Move stored user favorites to a renamed catalogued variant."""
 
-    if app_state.db is None or old_name == new_name:
+    if old_name == new_name:
         return
 
-    await app_state.db.user.update_many(
-        {"cvf": old_name},
-        [
-            {
-                "$set": {
-                    "cvf": {
-                        "$setUnion": [
-                            {
-                                "$map": {
-                                    "input": {"$ifNull": ["$cvf", []]},
-                                    "as": "favorite",
-                                    "in": {
-                                        "$cond": [
-                                            {"$eq": ["$$favorite", old_name]},
-                                            new_name,
-                                            "$$favorite",
-                                        ]
-                                    },
-                                }
-                            },
-                            [],
-                        ]
+    user_collection = _catalogued_variant_user_collection(app_state)
+    if user_collection is not None:
+        await user_collection.update_many(
+            {"cvf": old_name},
+            [
+                {
+                    "$set": {
+                        "cvf": {
+                            "$setUnion": [
+                                {
+                                    "$map": {
+                                        "input": {"$ifNull": ["$cvf", []]},
+                                        "as": "favorite",
+                                        "in": {
+                                            "$cond": [
+                                                {"$eq": ["$$favorite", old_name]},
+                                                new_name,
+                                                "$$favorite",
+                                            ]
+                                        },
+                                    }
+                                },
+                                [],
+                            ]
+                        }
                     }
                 }
-            }
-        ],
-    )
+            ],
+        )
 
-    for cached_user in app_state.users.values():
+    for cached_user in _cached_catalogued_variant_users(app_state):
         favorites = getattr(cached_user, "catalogued_variant_favorites", None)
         if isinstance(favorites, set) and old_name in favorites:
             favorites.discard(old_name)
@@ -5144,11 +5166,11 @@ async def _rename_catalogued_variant_favorites(
 async def _remove_catalogued_variant_favorites(app_state: Any, name: str) -> None:
     """Remove a deleted catalogued variant from stored and cached favorites."""
 
-    if app_state.db is None:
-        return
+    user_collection = _catalogued_variant_user_collection(app_state)
+    if user_collection is not None:
+        await user_collection.update_many({"cvf": name}, {"$pull": {"cvf": name}})
 
-    await app_state.db.user.update_many({"cvf": name}, {"$pull": {"cvf": name}})
-    for cached_user in app_state.users.values():
+    for cached_user in _cached_catalogued_variant_users(app_state):
         favorites = getattr(cached_user, "catalogued_variant_favorites", None)
         if isinstance(favorites, set):
             favorites.discard(name)
