@@ -1016,6 +1016,26 @@ already-validated client metadata, avoiding unnecessary permanent engine aliases
 Saving analysis from a finished game prefers that game's stored `vini`, so later catalogue
 edits cannot silently change the rules of the resulting Study.
 
+## 1G. MVP acceptance automation
+
+- [x] Add Playwright coverage for Study creation, persisted tree edits and page reload.
+- [x] Exercise a nested variation through the real board/movelist UI, including promote
+  and delete operations before persistence reload.
+- [x] Exercise chapter create/rename/delete and adjacent-current-chapter behavior.
+- [x] Load the persisted Study through a fresh application state backed by the same
+  database, proving there is no Study startup preload/recovery dependency.
+- [x] Exercise same-owner two-tab websocket synchronization, including near-concurrent
+  edits that must converge to the authoritative persisted tree.
+- [x] Exercise anonymous and different-user access denial through the rendered route.
+- [x] Exercise standalone analysis -> Save to Study -> persisted Study navigation.
+- [x] Keep historical catalogued/UDV snapshot correctness in focused server tests rather
+  than coupling the acceptance browser suite to the admin catalogue-management UI.
+
+The browser tests live with the existing real-app Playwright suite in `tests/test_study_gui.py`.
+The acceptance checkboxes below should only be marked complete after that Playwright suite
+has actually run successfully in an environment where Chromium may access the local test
+server.
+
 ## Phase 1 acceptance criteria
 
 - [ ] Create a Study with at least several chapters.
