@@ -339,7 +339,15 @@ export class AnalysisController extends GameController {
             (document.querySelector('.pgn-container') as HTMLElement).style.display = 'block';
         }
 
-        if (this.analysisContext.capabilities.usesRoundSocket) {
+        if (this.analysisExtension?.socketTarget) {
+            this.sock = createWebsocket(
+                this.analysisExtension.socketTarget,
+                () => this.analysisExtension?.onSocketOpen?.(),
+                () => this.analysisExtension?.onSocketReconnect?.(),
+                () => this.analysisExtension?.onSocketClose?.(),
+                (e: MessageEvent) => this.onMessage(e),
+            );
+        } else if (this.analysisContext.capabilities.usesRoundSocket) {
             this.sock = createWebsocket(
                 'wsr/' + this.gameId,
                 onOpen,
@@ -347,7 +355,12 @@ export class AnalysisController extends GameController {
                 () => {},
                 (e: MessageEvent) => this.onMessage(e),
             );
-        } else {
+        }
+
+        // A Study has its own websocket but still starts from page-provided analysis
+        // data just like standalone analysis. Socket ownership and initial tree loading
+        // are deliberately independent concerns.
+        if (!this.analysisContext.capabilities.usesRoundSocket) {
             this.onMsgBoard(model['board'] as MsgBoard);
             if (this.analysisContext.mode === 'standalone' && !this.hasAnalysisTree()) {
                 this.initAnalysisTreeAtPly(this.ply);
@@ -549,8 +562,8 @@ export class AnalysisController extends GameController {
         return this.tree.getTreeNodeForPly(ply);
     }
 
-    activateTreePath(path: string, redrawMovelist = true) {
-        this.tree.activateTreePath(path, redrawMovelist);
+    activateTreePath(path: string, redrawMovelist = true, userNavigation = true) {
+        this.tree.activateTreePath(path, redrawMovelist, userNavigation);
     }
 
     toggleSettings() {

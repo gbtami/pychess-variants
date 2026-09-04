@@ -18,7 +18,7 @@ from fairy.fairy_board import NOTATION_SAN, WHITE, FairyBoard, sf
 
 from study.constants import STUDY_CHAPTER_MAX_BSON_BYTES, STUDY_MAX_NODES_PER_CHAPTER
 from study.models import Study, StudyChapter
-from study.tree import StudyTree, StudyTreeNode, new_study_node_id
+from study.tree import StudyTree, StudyTreeNode, is_study_node_id, new_study_node_id
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -102,6 +102,7 @@ class StudyMutationService:
         parent_path: str,
         move: str,
         expected_revision: int,
+        node_id: str | None = None,
     ) -> StudyMutationResult:
         loaded = await self._load_owner_context(study_id, chapter_id, username)
         if isinstance(loaded, StudyMutationResult):
@@ -135,7 +136,13 @@ class StudyMutationService:
 
         siblings = chapter.root.children_of(parent_id)
         order = max((node.order for node in siblings), default=-1) + 1
-        node_id = new_study_node_id(chapter.root.nodes.keys())
+        if node_id is not None:
+            if not is_study_node_id(node_id):
+                return self._error(chapter.revision, "invalid_node_id")
+            if node_id in chapter.root.nodes:
+                return self._reload(chapter.revision, "node_id_conflict")
+        else:
+            node_id = new_study_node_id(chapter.root.nodes.keys())
         try:
             node = self._validated_child_node(
                 chapter,

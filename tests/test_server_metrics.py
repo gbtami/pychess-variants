@@ -110,6 +110,7 @@ class ServerMetricsDiagnosticsTestCase(AioHTTPTestCase):
         self.assertGreaterEqual(streams["bot_event_queued_messages"], 0)
         self.assertGreaterEqual(streams["bot_game_queued_messages"], 0)
         self.assertGreaterEqual(streams["bot_max_queue"], 0)
+        self.assertGreaterEqual(streams["study_websockets"], 0)
 
     async def test_metrics_anon_summary_has_bucket_and_detached_diagnostics(self):
         app_state = get_app_state(self.app)

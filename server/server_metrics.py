@@ -271,6 +271,9 @@ def _stream_summary(app_state: PychessGlobalAppState) -> dict[str, int]:
     simul_ws = sum(
         len(ws_set) for user in app_state.users.values() for ws_set in user.simul_sockets.values()
     )
+    study_ws = sum(
+        len(ws_set) for user in app_state.users.values() for ws_set in user.study_sockets.values()
+    )
     notify_queues = tuple(
         queue for user in app_state.users.values() for queue in user.notify_channels
     )
@@ -306,6 +309,7 @@ def _stream_summary(app_state: PychessGlobalAppState) -> dict[str, int]:
         "game_websockets": game_ws,
         "tournament_websockets": tournament_ws,
         "simul_websockets": simul_ws,
+        "study_websockets": study_ws,
         "game_sse": len(game_queues),
         "game_sse_queued_messages": game_sse_queued_messages,
         "game_sse_max_queue": game_sse_max_queue,
@@ -611,6 +615,7 @@ async def metrics_handler(request: web.Request) -> web.StreamResponse:
             "notifications": 0 if user.notifications is None else len(user.notifications),
             "tournament_sockets": sum(len(ws_set) for ws_set in user.tournament_sockets.values()),
             "simul_sockets": sum(len(ws_set) for ws_set in user.simul_sockets.values()),
+            "study_sockets": sum(len(ws_set) for ws_set in user.study_sockets.values()),
             "abandon_tasks": len(user.abandon_game_tasks),
             "background_tasks": len(user.background_tasks),
             "remove_anon_task": _task_state(user.remove_anon_task),

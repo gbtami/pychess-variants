@@ -180,3 +180,64 @@ export function studyTreeFromAnalysisTree(tree: AnalysisTree): StudyTreeDto {
 
     return { nodes };
 }
+
+export function addStudyNodeToAnalysisTree(
+    tree: AnalysisTree,
+    parentPath: string,
+    dtoNode: StudyTreeNodeDto,
+): string | undefined {
+    validateDtoNode(dtoNode);
+    const parent = tree.byPath.get(parentPath);
+    if (!parent) return undefined;
+
+    const expectedParentId = parentPath ? parent.id : null;
+    if (dtoNode.parentId !== expectedParentId) return undefined;
+    if (dtoNode.order !== parent.children.length) return undefined;
+
+    for (const node of tree.byPath.values()) {
+        if (node.id === dtoNode.id) return node.path;
+    }
+
+    const path = parentPath ? `${parentPath}.${dtoNode.id}` : dtoNode.id;
+    const onMainline = parent.mainlinePly !== undefined && dtoNode.order === 0 && !dtoNode.forceVariation;
+    const child: AnalysisTreeNode = {
+        id: dtoNode.id,
+        path,
+        ply: parent.ply + 1,
+        step: {
+            fen: dtoNode.fen,
+            move: dtoNode.move,
+            check: dtoNode.check,
+            turnColor: dtoNode.turnColor,
+            san: dtoNode.san,
+            sanSAN: dtoNode.sanSAN,
+        },
+        children: [],
+        forceVariation: dtoNode.forceVariation,
+        mainlinePly: onMainline ? parent.ply + 1 : undefined,
+    };
+    parent.children.push(child);
+    tree.byPath.set(path, child);
+    return path;
+}
+
+// Unlike ordinary post-game analysis, a Study's preferred mainline is mutable:
+// promote/delete/force operations can change child[0] after the tree was loaded.
+// Keep the generic analysis controller's mainline metadata/steps aligned with the
+// current Study tree, mirroring lila's habit of recomputing its mainline from the
+// tree after path/tree changes rather than treating the imported game as immutable.
+export function refreshStudyMainline(tree: AnalysisTree): Step[] {
+    tree.byPath.forEach(node => {
+        if (node !== tree.root) node.mainlinePly = undefined;
+    });
+    tree.root.mainlinePly = 0;
+
+    const steps: Step[] = [tree.root.step];
+    let current = tree.root;
+    while (current.children[0] && !current.children[0].forceVariation) {
+        current = current.children[0];
+        current.mainlinePly = steps.length;
+        steps.push(current.step);
+    }
+    return steps;
+}

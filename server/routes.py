@@ -143,6 +143,7 @@ from report_api import (
 from robots import robots
 from server_metrics import metrics_handler
 from simul.wss import simul_socket_handler
+from study.ws import study_socket_handler
 from system_messages_api import system_message_send
 from timeline import timeline_api, timeline_unsubscribe
 from tournament.tournament_calendar import tournament_calendar
@@ -386,6 +387,7 @@ get_routes: tuple[RouteDef, ...] = (
     ("/video/{videoId}", video.video),
     ("/wsl", lobby_socket_handler),
     ("/wsr/{gameId}", round_socket_handler),
+    ("/wsstudy/{studyId}", study_socket_handler),
     ("/wst", tournament_socket_handler),
     ("/wss", simul_socket_handler),
     ("/api/account", account),

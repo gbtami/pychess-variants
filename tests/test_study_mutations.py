@@ -86,6 +86,36 @@ class StudyMutationServiceTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(duplicate.node, added.node)
         self.assertEqual((await self._chapter()).revision, 1)
 
+    async def test_add_accepts_client_stable_node_id(self) -> None:
+        added = await self.service.add_node(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            parent_path="",
+            move="e2e4",
+            expected_revision=0,
+            node_id="Client0001",
+        )
+        self.assertEqual(added.status, "ok")
+        self.assertTrue(added.changed)
+        self.assertEqual(added.path, "Client0001")
+        self.assertIsNotNone(added.node)
+        assert added.node is not None
+        self.assertEqual(added.node.id, "Client0001")
+
+        invalid = await self.service.add_node(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            parent_path="",
+            move="d2d4",
+            expected_revision=1,
+            node_id="bad",
+        )
+        self.assertEqual(invalid.status, "error")
+        self.assertEqual(invalid.reason, "invalid_node_id")
+        self.assertEqual((await self._chapter()).revision, 1)
+
     async def test_add_rejects_illegal_move_and_stale_revision(self) -> None:
         illegal = await self._add("e2e5", 0)
         self.assertEqual(illegal.status, "error")

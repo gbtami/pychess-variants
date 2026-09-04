@@ -93,3 +93,42 @@ ROUND_TYPED_DECODERS: dict[str, msgspec.json.Decoder] = {
     "roundchat": msgspec.json.Decoder(type=RoundChatIn),
     "bugroundchat": msgspec.json.Decoder(type=BugRoundChatIn),
 }
+
+
+class StudyMutationIn(WsInboundStruct):
+    studyId: str
+    chapterId: str
+    clientOpId: str
+    expectedRevision: int
+
+
+class StudyAddNodeIn(StudyMutationIn):
+    type: Literal["study_add_node"]
+    parentPath: str
+    move: str
+    nodeId: str
+
+
+class StudyDeleteNodeIn(StudyMutationIn):
+    type: Literal["study_delete_node"]
+    path: str
+
+
+class StudyPromoteVariationIn(StudyMutationIn):
+    type: Literal["study_promote_variation"]
+    path: str
+    toMainline: bool
+
+
+class StudyForceVariationIn(StudyMutationIn):
+    type: Literal["study_force_variation"]
+    path: str
+    force: bool
+
+
+STUDY_TYPED_DECODERS: dict[str, msgspec.json.Decoder] = {
+    "study_add_node": msgspec.json.Decoder(type=StudyAddNodeIn),
+    "study_delete_node": msgspec.json.Decoder(type=StudyDeleteNodeIn),
+    "study_promote_variation": msgspec.json.Decoder(type=StudyPromoteVariationIn),
+    "study_force_variation": msgspec.json.Decoder(type=StudyForceVariationIn),
+}
