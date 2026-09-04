@@ -45,6 +45,7 @@ import { confirmDialog } from '../confirmDialog';
 import { animatePassMove } from '../passMove';
 import { renderFullTreePgnMoveText } from './analysisTree';
 import { AnalysisTreeController } from './analysisTreeCtrl';
+import { analysisContext, type AnalysisContext } from './analysisContext';
 import {
     CEVAL_ACTIVE_ROUNDS_STORAGE_KEY,
     CEVAL_DISABLE_STORAGE_KEY,
@@ -112,6 +113,7 @@ export class AnalysisController extends GameController {
     inlineNotation: boolean;
     disclosureMode: boolean;
     readonly tree: AnalysisTreeController;
+    readonly analysisContext: AnalysisContext;
     keyboardHelpOpen: boolean;
     private readonly onKeyboardHelpShortcutKeyDown: (event: KeyboardEvent) => void;
     private readonly onKeyboardHelpKeyDown: (event: KeyboardEvent) => void;
@@ -132,12 +134,15 @@ export class AnalysisController extends GameController {
             '',
         );
         this.tree = new AnalysisTreeController(this);
+        this.analysisContext = analysisContext(model);
         this.pvHoverPreview = new PvHoverPreview(this.variant);
         this.fsfError = [];
-        this.embed = model.embed;
-        this.puzzle = model['puzzle'] !== '';
-        this.isAnalysisBoard = this.gameId === '' && !this.puzzle;
-        if (!this.embed) {
+        // Compatibility properties for existing callers. New mode-specific code should
+        // prefer analysisContext/capabilities instead of recomputing these combinations.
+        this.embed = this.analysisContext.embed;
+        this.puzzle = this.analysisContext.puzzle;
+        this.isAnalysisBoard = this.analysisContext.analysisBoard;
+        if (this.analysisContext.capabilities.resizableCharts) {
             this.chartFunctions = [analysisChart, movetimeChart];
         }
 
@@ -149,7 +154,7 @@ export class AnalysisController extends GameController {
             }
         };
 
-        this.ongoing = this.status <= -1;
+        this.ongoing = this.analysisContext.ongoing;
 
         // is local stockfish.wasm engine supported at all
         this.localEngine = false;
@@ -157,7 +162,7 @@ export class AnalysisController extends GameController {
         // is local engine analysis enabled? (the switch)
         this.localAnalysis =
             localStorage.localAnalysis !== undefined &&
-            !this.ongoing &&
+            this.analysisContext.capabilities.localAnalysisAllowed &&
             !this.isLocalAnalysisBlockedByAntiCheat() &&
             localStorage.localAnalysis === 'true';
 
@@ -224,7 +229,7 @@ export class AnalysisController extends GameController {
             event.stopPropagation();
         };
 
-        if (!this.ongoing) {
+        if (this.analysisContext.capabilities.localAnalysisAllowed) {
             window.addEventListener('storage', this.onAntiCheatStorage);
             this.refreshLocalAnalysisAvailabilityForAntiCheat();
         }
@@ -252,7 +257,7 @@ export class AnalysisController extends GameController {
             setPocketRowCssVars(this);
         }
 
-        if (!this.isAnalysisBoard && !this.embed && !this.ongoing) {
+        if (this.analysisContext.capabilities.gamePanels) {
             this.ctableContainer = document.getElementById('panel-3') as HTMLElement;
             if (model['ct']) {
                 this.ctableContainer = patch(this.ctableContainer, h('panel-3'));
@@ -266,11 +271,11 @@ export class AnalysisController extends GameController {
         createMovelistButtons(this);
         this.vmovelist = document.getElementById('movelist') as HTMLElement;
 
-        if (!this.isAnalysisBoard && !this.embed && !this.puzzle && !this.ongoing) {
+        if (this.analysisContext.capabilities.roundChat) {
             patch(document.getElementById('roundchat') as HTMLElement, chatView(this, 'roundchat'));
         }
 
-        if (!this.embed && !this.ongoing) {
+        if (this.analysisContext.capabilities.engineTools) {
             const engineSettings = new EngineSettings(this);
             const et = document.querySelector('.engine-toggle') as HTMLElement;
             patch(et, engineSettings.view());
@@ -314,7 +319,7 @@ export class AnalysisController extends GameController {
 
         setAriaTabClick('analysis_tab');
 
-        if (!this.puzzle && !this.ongoing && !this.embed) {
+        if (this.analysisContext.capabilities.analysisTabs) {
             const initialEl = document.querySelector('[tabindex="0"]') as HTMLElement;
             initialEl.setAttribute('aria-selected', 'true');
             (
@@ -331,7 +336,7 @@ export class AnalysisController extends GameController {
             (document.querySelector('.pgn-container') as HTMLElement).style.display = 'block';
         }
 
-        if (!this.puzzle && !this.ongoing && this.gameId) {
+        if (this.analysisContext.capabilities.usesRoundSocket) {
             this.sock = createWebsocket(
                 'wsr/' + this.gameId,
                 onOpen,
@@ -341,7 +346,7 @@ export class AnalysisController extends GameController {
             );
         } else {
             this.onMsgBoard(model['board'] as MsgBoard);
-            if (this.isAnalysisBoard && !this.hasAnalysisTree()) {
+            if (this.analysisContext.mode === 'standalone' && !this.hasAnalysisTree()) {
                 this.initAnalysisTreeAtPly(this.ply);
                 updateMovelist(this, true, false);
             }
@@ -561,7 +566,7 @@ export class AnalysisController extends GameController {
     }
 
     isLocalAnalysisBlockedByAntiCheat(): boolean {
-        return !this.ongoing && hasActiveEligibleLiveGame();
+        return this.analysisContext.capabilities.localAnalysisAllowed && hasActiveEligibleLiveGame();
     }
 
     refreshLocalAnalysisAvailabilityForAntiCheat() {
@@ -851,7 +856,7 @@ export class AnalysisController extends GameController {
             updateMovelist(this, true, false);
 
             if (this.steps[0].analysis === undefined) {
-                if (!this.isAnalysisBoard && !this.embed) {
+                if (this.analysisContext.capabilities.serverAnalysisRequest) {
                     const el = document.getElementById('request-analysis') as HTMLElement;
                     el.style.display = 'flex';
                     patch(
@@ -879,7 +884,7 @@ export class AnalysisController extends GameController {
                 this.drawAnalysisChart(false);
             }
             const clocktimes = this.steps[1]?.clocks;
-            if (clocktimes !== undefined && !this.embed) {
+            if (clocktimes !== undefined && this.analysisContext.capabilities.moveTimeChart) {
                 patch(document.getElementById('anal-clock-top') as HTMLElement, h('div.anal-clock.top'));
                 patch(document.getElementById('anal-clock-bottom') as HTMLElement, h('div.anal-clock.bottom'));
                 renderClocks(this);
@@ -986,7 +991,7 @@ export class AnalysisController extends GameController {
 
             window.addEventListener('beforeunload', () => this.fsfEngineBoard.delete());
 
-            if (this.localAnalysis && !this.puzzle && !this.ongoing) this.pvboxIni();
+            if (this.localAnalysis && this.analysisContext.capabilities.evalCharts) this.pvboxIni();
         }
 
         this.refreshLocalAnalysisAvailabilityForAntiCheat();
@@ -1203,7 +1208,7 @@ export class AnalysisController extends GameController {
             if (evalEl) patch(evalEl, h('eval#ply' + String(ply), scoreStr));
         }
 
-        if (!this.puzzle && !this.ongoing) {
+        if (this.analysisContext.capabilities.evalCharts) {
             analysisChart(this);
             const hc = this.analysisChart;
             if (hc !== undefined) {
@@ -1439,7 +1444,7 @@ export class AnalysisController extends GameController {
                 this.setDests();
             }
 
-            if (!this.ongoing) {
+            if (this.analysisContext.capabilities.positionEvaluation) {
                 this.autoShapes = Array.from({ length: this.multipv }, () => []);
                 this.chessground.setAutoShapes([]);
                 this.drawEval(step.ceval, step.scoreStr, step.turnColor);
@@ -1449,7 +1454,7 @@ export class AnalysisController extends GameController {
             this.updateUCImoves();
             if (this.localAnalysis) this.engineGo();
 
-            if (!this.puzzle && !this.ongoing) {
+            if (this.analysisContext.capabilities.positionMetadata) {
                 const e = document.getElementById('fullfen') as HTMLInputElement;
                 e.value = this.fullfen;
 
@@ -1492,7 +1497,7 @@ export class AnalysisController extends GameController {
             this.setDests();
         }
 
-        if (!this.ongoing) {
+        if (this.analysisContext.capabilities.positionEvaluation) {
             this.autoShapes = Array.from({ length: this.multipv }, () => []);
             this.chessground.setAutoShapes([]);
             this.drawEval(step.ceval, step.scoreStr, step.turnColor);
@@ -1502,7 +1507,7 @@ export class AnalysisController extends GameController {
         this.updateUCImoves();
         if (this.localAnalysis) this.engineGo();
 
-        if (!this.puzzle && !this.ongoing) {
+        if (this.analysisContext.capabilities.positionMetadata) {
             const e = document.getElementById('fullfen') as HTMLInputElement;
             e.value = this.fullfen;
 
@@ -1648,7 +1653,7 @@ export class AnalysisController extends GameController {
             if (this.localAnalysis) this.engineGo();
         }
 
-        if (!this.puzzle && !this.ongoing) {
+        if (this.analysisContext.capabilities.positionMetadata) {
             const e = document.getElementById('fullfen') as HTMLInputElement;
             e.value = this.fullfen;
 
@@ -1666,7 +1671,7 @@ export class AnalysisController extends GameController {
         // console.log("got analysis_board msg:", msg);
         if (msg.gameId !== this.gameId) return;
         if (this.localAnalysis) this.engineStop();
-        if (!this.ongoing) this.clearPvlines();
+        if (this.analysisContext.capabilities.positionEvaluation) this.clearPvlines();
 
         this.fullfen = msg.fen;
         this.ply = msg.ply;
