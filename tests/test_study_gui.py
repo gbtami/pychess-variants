@@ -305,7 +305,15 @@ class TestStudyGUI:
                 response = await intruder_page.goto(study_url)
                 assert response is not None and response.status == 404
                 await anon_page.goto(study_url)
-                await expect(anon_page).to_have_url(re.compile(rf"{re.escape(base_url)}/login"))
+                # Study redirects anonymous viewers through /login, whose provider
+                # chooser intentionally lands on the homepage (#login). Assert the
+                # final protected-state behavior rather than the transient redirect.
+                await expect(anon_page).to_have_url(
+                    re.compile(rf"{re.escape(base_url)}/(?:#login)?$")
+                )
+                await expect(
+                    anon_page.get_by_role("button", name=re.compile(r"Login"))
+                ).to_be_visible()
             finally:
                 await owner_context.close()
                 await intruder_context.close()
