@@ -310,7 +310,7 @@ class TestStudyGUI:
                     rejected = {"d4", "c4"} - expected
                     for page in (page_a, page_b):
                         try:
-                            sans = set(await page.locator("#movelist move").all_text_contents())
+                            sans = set(await page.locator("#movelist move san").all_text_contents())
                         except PlaywrightError:
                             # The tab that loses the optimistic revision race reloads.
                             return False
