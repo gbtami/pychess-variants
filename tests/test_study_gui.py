@@ -11,6 +11,7 @@ from mongomock_motor import AsyncMongoMockClient
 from playwright.async_api import Error as PlaywrightError
 from playwright.async_api import async_playwright, expect
 from pychess_global_app_state_utils import get_app_state
+from study.tree import StudyTree
 
 from server import make_app
 
@@ -159,10 +160,9 @@ class TestStudyGUI:
                 async def sicilian_is_mainline():
                     doc = await app_state.db.study_chapter.find_one({"_id": first_chapter_id})
                     assert doc is not None
-                    nodes = {
-                        node["m"]: node for node_id, node in doc["root"].items() if node_id != "_"
-                    }
-                    return nodes["c7c5"]["o"] == 0 and nodes["e7e5"]["o"] == 1
+                    tree = StudyTree.from_document(doc["root"])
+                    nodes = {node.move: node for node in tree.nodes.values()}
+                    return nodes["c7c5"].order == 0 and nodes["e7e5"].order == 1
 
                 await self._eventually_async(sicilian_is_mainline)
                 d4 = page.locator("#movelist move", has_text="d4")
@@ -260,6 +260,11 @@ class TestStudyGUI:
 
                 await self._play_board_move(page_a, "e2", "e4")
                 await expect(page_b.locator("#movelist")).to_contain_text("e4", timeout=5000)
+
+                # Study mutations synchronize the shared tree, but Phase 1 intentionally
+                # keeps each tab's current path/board position independent. Follow the
+                # remote move in tab B before extending that line.
+                await page_b.locator("#movelist move", has_text="e4").click()
                 await self._play_board_move(page_b, "e7", "e5")
                 await expect(page_a.locator("#movelist")).to_contain_text("e5", timeout=5000)
                 await self._eventually_async(
@@ -324,7 +329,8 @@ class TestStudyGUI:
                 await expect(page.locator("#movelist")).to_contain_text("e4")
                 await expect(page.locator("#movelist")).to_contain_text("e5")
 
-                await page.get_by_role("tab", name="FEN & PGN").click()
+                # Standalone analysis displays the FEN/PGN panel directly and hides
+                # its tab bar, so Save to Study is already visible.
                 await page.get_by_role("button", name="Save to Study").click()
                 await page.wait_for_url(
                     re.compile(rf"{re.escape(base_url)}/study/\w{{8}}/\w{{8}}$")
