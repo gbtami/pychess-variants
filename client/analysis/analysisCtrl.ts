@@ -46,6 +46,7 @@ import { animatePassMove } from '../passMove';
 import { renderFullTreePgnMoveText } from './analysisTree';
 import { AnalysisTreeController } from './analysisTreeCtrl';
 import { analysisContext, type AnalysisContext } from './analysisContext';
+import type { AnalysisExtension, AnalysisExtensionFactory } from './analysisExtension';
 import {
     CEVAL_ACTIVE_ROUNDS_STORAGE_KEY,
     CEVAL_DISABLE_STORAGE_KEY,
@@ -114,6 +115,7 @@ export class AnalysisController extends GameController {
     disclosureMode: boolean;
     readonly tree: AnalysisTreeController;
     readonly analysisContext: AnalysisContext;
+    readonly analysisExtension?: AnalysisExtension;
     keyboardHelpOpen: boolean;
     private readonly onKeyboardHelpShortcutKeyDown: (event: KeyboardEvent) => void;
     private readonly onKeyboardHelpKeyDown: (event: KeyboardEvent) => void;
@@ -124,7 +126,7 @@ export class AnalysisController extends GameController {
     private fsfInputQueue: string[];
     private loadedNnueFilename?: string;
 
-    constructor(el: HTMLElement, model: PyChessModel) {
+    constructor(el: HTMLElement, model: PyChessModel, extensionFactory?: AnalysisExtensionFactory) {
         super(
             el,
             model,
@@ -133,8 +135,9 @@ export class AnalysisController extends GameController {
             document.getElementById('pocket1') as HTMLElement,
             '',
         );
-        this.tree = new AnalysisTreeController(this);
         this.analysisContext = analysisContext(model);
+        this.tree = new AnalysisTreeController(this);
+        this.analysisExtension = extensionFactory?.(this);
         this.pvHoverPreview = new PvHoverPreview(this.variant);
         this.fsfError = [];
         // Compatibility properties for existing callers. New mode-specific code should
@@ -1638,7 +1641,7 @@ export class AnalysisController extends GameController {
             const recorded = this.tree.recordMove(step);
             if (recorded) {
                 if (recorded.extendedMainline) this.checkStatus(msg);
-                this.activateTreePath(recorded.childPath);
+                this.tree.activateTreePath(recorded.childPath, true, false);
                 treeActivated = true;
             }
         } else {
@@ -1779,6 +1782,9 @@ export class AnalysisController extends GameController {
                 break;
             case 'deleted':
                 this.onMsgDeleted();
+                break;
+            default:
+                this.analysisExtension?.onSocketMessage?.(msg.type, msg);
                 break;
         }
     }

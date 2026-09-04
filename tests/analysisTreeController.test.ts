@@ -187,3 +187,60 @@ test('keyboard fork selection and right navigation use the extracted tree state'
     keyBindings.get('right')?.();
     expect(tree.getTreeCurrentNode()?.step.san).toBe('c5');
 });
+
+test('extension observes successful tree mutations without duplicate add notifications', () => {
+    const extension = {
+        onNodeAdded: jest.fn(),
+        onNodeDeleted: jest.fn(),
+        onVariationPromoted: jest.fn(),
+        onVariationForced: jest.fn(),
+    };
+    const ctrl = { ...stubCtrl(steps4()), analysisExtension: extension };
+    const tree = new AnalysisTreeController(ctrl as any);
+    tree.initAnalysisTreeAtPly(1);
+    const branchParent = tree.getTreeActivePath();
+    const c5Step = makeStep('v1 w - - 0 1', 'c7c5', 'white', 'c5');
+
+    const c5 = tree.recordMove(c5Step)!;
+    expect(extension.onNodeAdded).toHaveBeenCalledTimes(1);
+    expect(extension.onNodeAdded).toHaveBeenCalledWith(branchParent, tree.getTreeNodeAtPath(c5.childPath));
+
+    tree.recordMove(c5Step);
+    expect(extension.onNodeAdded).toHaveBeenCalledTimes(1);
+
+    tree.promoteTreeVariation(c5.childPath, false);
+    expect(extension.onVariationPromoted).toHaveBeenCalledWith(c5.childPath, false);
+
+    tree.forceTreeVariation(c5.childPath, true);
+    expect(extension.onVariationForced).toHaveBeenCalledWith(c5.childPath, true);
+
+    tree.deleteTreeNode(c5.childPath);
+    expect(extension.onNodeDeleted).toHaveBeenCalledWith(c5.childPath);
+});
+
+test('extension can veto user navigation while internal navigation still keeps tree state valid', () => {
+    const extension = {
+        canActivatePath: jest.fn((_path: string) => true),
+        onPathChanged: jest.fn(),
+    };
+    const ctrl = { ...stubCtrl(steps4()), analysisExtension: extension };
+    const tree = new AnalysisTreeController(ctrl as any);
+    tree.initAnalysisTreeAtPly(1);
+    const branchParent = tree.getTreeActivePath();
+    const c5 = tree.recordMove(makeStep('v1 w - - 0 1', 'c7c5', 'white', 'c5'))!;
+
+    extension.onPathChanged.mockClear();
+    extension.canActivatePath.mockImplementation(path => path !== c5.childPath);
+    tree.activateTreePath(c5.childPath);
+    expect(tree.getTreeActivePath()).toBe(branchParent);
+    expect(extension.onPathChanged).not.toHaveBeenCalled();
+
+    tree.activateTreePath(c5.childPath, false, false);
+    expect(tree.getTreeActivePath()).toBe(c5.childPath);
+    expect(extension.onPathChanged).toHaveBeenCalledWith(c5.childPath, branchParent);
+
+    extension.onPathChanged.mockClear();
+    tree.deleteTreeNode(c5.childPath);
+    expect(tree.getTreeActivePath()).toBe(branchParent);
+    expect(extension.onPathChanged).toHaveBeenCalledWith(branchParent, c5.childPath);
+});
