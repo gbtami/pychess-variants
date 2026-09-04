@@ -443,6 +443,16 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
         "promotionRoles": ("p",),
         "promotionOrder": ("j", "q", "r", "b", "n"),
     },
+    "joust": {
+        "displayName": "Joust",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://www.chessvariants.com/programs.dir/joust.html",
+        ),
+        "baseVariant": "",
+        "clientVariant": "chess",
+        "rulesArrowing": True,
+    },
     "kinglet": {
         "displayName": "Kinglet",
         "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
@@ -949,16 +959,6 @@ FSF_CATALOGUED_BUILTIN_VARIANTS_CANDIDATES: Mapping[str, Mapping[str, Any]] = {
         "baseVariant": "",
         "clientVariant": "chess",
         "reviewNotes": "Asymmetric goal variant; review result handling and piece identities.",
-    },
-    "joust": {
-        "displayName": "Joust",
-        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
-        "references": _fsf_builtin_references(
-            "https://www.chessvariants.com/programs.dir/joust.html",
-        ),
-        "baseVariant": "",
-        "clientVariant": "chess",
-        "reviewNotes": "Non-capturing knight game; verify objective and move display.",
     },
     "judkins": {
         "displayName": "Judkins Shogi",

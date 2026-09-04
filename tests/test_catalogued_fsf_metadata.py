@@ -31,6 +31,7 @@ class FsfBuiltinMetadataTestCase(TestCase):
             "georgian": ("amazon", "chess"),
             "giveaway": ("", "antichess"),
             "janus": ("", "capablanca"),
+            "joust": ("", "chess"),
             "kinglet": ("extinction", "chess"),
             "losers": ("", "antichess"),
             "modern": ("", "capablanca"),
@@ -87,6 +88,15 @@ class FsfBuiltinMetadataTestCase(TestCase):
         self.assertEqual(doc["pieceFamilyOverride"], "amazons")
         self.assertEqual(_fsf_builtin_synced_fields(doc)["pieceFamilyOverride"], "amazons")
         self.assertNotIn("amazons", FSF_CATALOGUED_BUILTIN_VARIANTS_CANDIDATES)
+
+    def test_joust_is_seeded_with_past_walling_input(self) -> None:
+        metadata = FSF_CATALOGUED_BUILTIN_VARIANTS["joust"]
+        self.assertTrue(metadata["rulesArrowing"])
+        self.assertNotIn("pieceFamilyOverride", metadata)
+        doc = _build_fsf_builtin_doc("joust", metadata)
+        self.assertTrue(doc["rulesArrowing"])
+        self.assertTrue(_fsf_builtin_synced_fields(doc)["rulesArrowing"])
+        self.assertNotIn("joust", FSF_CATALOGUED_BUILTIN_VARIANTS_CANDIDATES)
 
     def test_chigorin_is_not_seeded_until_side_specific_promotions_are_supported(self) -> None:
         self.assertNotIn("chigorin", FSF_CATALOGUED_BUILTIN_VARIANTS)

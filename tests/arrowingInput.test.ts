@@ -4,7 +4,7 @@ import * as cg from 'chessgroundx/types';
 import { GameController } from '../client/gameCtrl';
 import { ArrowingInput } from '../client/input/arrowing';
 
-describe('Amazons arrow input', () => {
+describe('Walling input', () => {
     beforeEach(() => {
         document.body.innerHTML = '<div id="undo"></div><button id="takeback"></button>';
     });
@@ -56,5 +56,34 @@ describe('Amazons arrow input', () => {
         expect(document.getElementById('undo')?.tagName).toBe('DIV');
         expect((document.getElementById('takeback') as HTMLElement).hidden).toBe(false);
         expect(processInput).toHaveBeenCalledWith(piece, 'd1', 'a1', {}, ',a1j:', 'arrowing');
+    });
+
+    test('automatically submits a deterministic wall on the vacated square', () => {
+        const piece: cg.Piece = { role: 'n-piece', color: 'white' };
+        const processInput = jest.fn();
+        const pieces = new Map<cg.Key, cg.Piece>([['c2', piece]]);
+        const ctrl = {
+            variant: { rules: { arrowing: true } },
+            legalMoves: jest.fn(() => ['d4c2,c2d4', 'd4e2,e2d4']),
+            chessground: {
+                state: { boardState: { pieces }, lastMove: undefined },
+                set: jest.fn(),
+                selectSquare: jest.fn(),
+            },
+            processInput,
+            undo: jest.fn(),
+            onArrowingInputStateChange: jest.fn(),
+        } as unknown as GameController;
+        const input = new ArrowingInput(ctrl);
+
+        input.start(piece, 'd4', 'c2', {} as cg.MoveMetadata);
+
+        expect(input.inputState).toBeUndefined();
+        expect(input.arrowDests).toEqual([]);
+        expect(pieces.has('a0')).toBe(false);
+        expect(ctrl.chessground.set).not.toHaveBeenCalled();
+        expect(ctrl.chessground.selectSquare).not.toHaveBeenCalled();
+        expect(ctrl.chessground.state.lastMove).toEqual(['d4', 'c2', 'd4']);
+        expect(processInput).toHaveBeenCalledWith(piece, 'd4', 'c2', {}, ',c2d4', 'arrowing');
     });
 });

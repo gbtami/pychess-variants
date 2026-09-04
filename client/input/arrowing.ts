@@ -68,6 +68,13 @@ export class ArrowingInput extends ExtraInput {
             ),
         ];
 
+        // PAST walling variants such as Joust always leave their wall on the
+        // vacated square. Submit that deterministic second leg immediately.
+        if (this.arrowDests.length === 1 && this.arrowDests[0] === orig) {
+            this.finish(this.arrowDests[0]);
+            return;
+        }
+
         // The arrow is represented by Fairy-Stockfish's wall/block piece "*".
         // Put a temporary blocker on the off-board a0 square, then let
         // chessground move it to one of the engine-provided legal arrow squares.
