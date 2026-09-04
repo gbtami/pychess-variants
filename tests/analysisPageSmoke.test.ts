@@ -29,7 +29,7 @@ jest.unstable_mockModule('../client/analysis/analysisSettings', () => ({
     },
 }));
 
-const { analysisView, embedView } = await import('../client/analysis');
+const { analysisView, embedView, renderAnalysisPage } = await import('../client/analysis');
 const { puzzleView } = await import('../client/puzzle');
 const { roundView } = await import('../client/round');
 
@@ -154,6 +154,30 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('#movelist')).not.toBeNull();
         expect(root.querySelector('#move-controls')).not.toBeNull();
         expect(root.querySelector('#pgntext')).not.toBeNull();
+    });
+
+    test('reusable analysis shell composes page-specific side and under-board content', () => {
+        const mountBoard = jest.fn();
+        const model = makeModel({ gameId: '', status: 1 });
+        const root = renderNodes(
+            renderAnalysisPage(model, {
+                side: h('div.study-side', 'Study chapters'),
+                underboard: h('div.study-underboard', 'Study notes'),
+                mountBoard,
+                ongoing: false,
+            }),
+        );
+
+        expect(mountBoard).toHaveBeenCalledTimes(1);
+        expect(mountBoard.mock.calls[0][1]).toBe(model);
+        expect(root.querySelector('.study-side')).not.toBeNull();
+        expect(root.querySelector('.study-underboard')).not.toBeNull();
+        expect(root.querySelector('#mainboard')).not.toBeNull();
+        expect(root.querySelector('#movelist')).not.toBeNull();
+        expect(root.querySelector('#move-controls')).not.toBeNull();
+        expect(root.querySelector('.analysis-settings')).not.toBeNull();
+        expect(root.querySelector('#pgntext')).toBeNull();
+        expect(root.querySelector('#roundchat')).toBeNull();
     });
 
     test('embed view stays lean and does not render PGN tab content', () => {

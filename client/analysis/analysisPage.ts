@@ -1,0 +1,112 @@
+import { h, type VNode } from 'snabbdom';
+
+import { _ } from '../i18n';
+import type { ColorName } from '../chess';
+import type { PyChessModel } from '../types';
+import { VARIANTS } from '../variants';
+import { gaugeSideColors } from '../variantColor';
+import { analysisSettings } from './analysisSettings';
+
+export type AnalysisPageParts = {
+    side: VNode | VNode[];
+    underboard: VNode | VNode[];
+    mountBoard: (vnode: VNode, model: PyChessModel) => void;
+    ongoing: boolean;
+};
+
+/**
+ * Shared single-board analysis shell.
+ *
+ * The board, engine/movelist tools, controls, pockets and spectators belong to
+ * generic analysis. Page modes provide only their page-specific sidebar,
+ * under-board content and controller mount. Study can therefore reuse this
+ * shell without teaching the generic renderer about Study-specific UI.
+ */
+export function renderAnalysisPage(model: PyChessModel, parts: AnalysisPageParts): VNode[] {
+    const variant = VARIANTS[model.variant];
+    const isOngoingGame = parts.ongoing;
+
+    return [
+        h('div.analysis-app', [
+            h('aside.sidebar-first', parts.side),
+            h(`selection#mainboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, [
+                h('div#anal-clock-top'),
+                h('div.cg-wrap.' + variant.board.cg, {
+                    hook: { insert: vnode => parts.mountBoard(vnode, model) },
+                }),
+                h('div#anal-clock-bottom'),
+            ]),
+            isOngoingGame ? '' : gauge(variant.colors),
+            h('div.pocket-top', [
+                h('div.' + variant.pieceFamily + '.' + model.variant, [
+                    h('div.cg-wrap.pocket', [h('div#pocket0.pocketrow')]),
+                ]),
+            ]),
+            analysisTools(isOngoingGame),
+            analysisSettings.view(variant),
+            h('div#move-controls'),
+            h('div.pocket-bot', [
+                h('div.' + variant.pieceFamily + '.' + model.variant, [
+                    h('div.cg-wrap.pocket', [h('div#pocket1.pocketrow')]),
+                ]),
+            ]),
+            h('under-left#spectators'),
+            h('under-board', parts.underboard),
+        ]),
+    ];
+}
+
+export function analysisTools(isOngoingGame: boolean = false) {
+    return h('div.analysis-tools', [
+        isOngoingGame
+            ? ''
+            : h('div#ceval', [
+                  h('div.engine', [
+                      h('score#score', ''),
+                      h('div.info', [
+                          'Fairy-Stockfish 14+ ',
+                          h(
+                              'span.nnue',
+                              { props: { title: _('Multi-threaded WebAssembly (classical evaluation)') } },
+                              'HCE',
+                          ),
+                          h('br'),
+                          h('info#info', _('in local browser')),
+                      ]),
+                      h('div.engine-toggle'),
+                  ]),
+              ]),
+        isOngoingGame ? '' : h('div.pvbox', [h('div#pv1'), h('div#pv2'), h('div#pv3'), h('div#pv4'), h('div#pv5')]),
+        h('div.movelist-block', [h('div#movelist')]),
+        h('div#misc-info', [h('div#misc-infow'), h('div#misc-info-center'), h('div#misc-infob')]),
+        isOngoingGame
+            ? ''
+            : h('div.feedback', [
+                  h('div.player'),
+                  h('div.view-hint', [h('a.button.hint')]),
+                  h('div.view-solution', [h('a.button.solution')]),
+              ]),
+    ]);
+}
+
+export function gauge(colors: { first: ColorName; second: ColorName }, id: string = 'gauge', extraClass?: string) {
+    const sideColors = gaugeSideColors(colors);
+    return h(
+        'div#' + id + (extraClass ? '.' + extraClass : ''),
+        {
+            attrs: {
+                style: `--analysis-gauge-first: ${sideColors.first}; --analysis-gauge-second: ${sideColors.second};`,
+            },
+        },
+        [
+            h('div.fill', { props: { style: 'height: 50%;' } }),
+            h('div.tick', { props: { style: 'height: 12.5%;' } }),
+            h('div.tick', { props: { style: 'height: 25%;' } }),
+            h('div.tick', { props: { style: 'height: 37.5%;' } }),
+            h('div.tick.zero', { props: { style: 'height: 50%;' } }),
+            h('div.tick', { props: { style: 'height: 62.5%;' } }),
+            h('div.tick', { props: { style: 'height: 75%;' } }),
+            h('div.tick', { props: { style: 'height: 87.5%;' } }),
+        ],
+    );
+}
