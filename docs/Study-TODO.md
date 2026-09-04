@@ -1024,8 +1024,9 @@ edits cannot silently change the rules of the resulting Study.
 - [x] Exercise chapter create/rename/delete and adjacent-current-chapter behavior.
 - [x] Load the persisted Study through a fresh application state backed by the same
   database, proving there is no Study startup preload/recovery dependency.
-- [x] Exercise same-owner two-tab websocket synchronization, including near-concurrent
-  edits that must converge to the authoritative persisted tree.
+- [x] Exercise same-owner two-tab websocket synchronization in both directions through
+  the real browser/socket path. Keep the deliberate stale-revision race in focused
+  websocket tests, where it is deterministic and does not depend on browser navigation timing.
 - [x] Exercise anonymous and different-user access denial through the rendered route.
 - [x] Exercise standalone analysis -> Save to Study -> persisted Study navigation.
 - [x] Keep historical catalogued/UDV snapshot correctness in focused server tests rather

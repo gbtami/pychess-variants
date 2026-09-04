@@ -276,49 +276,31 @@ class TestStudyGUI:
                     lambda: self._study_has_node_count(app_state, chapter_id, 2)
                 )
 
-                # Try independent root alternatives from both tabs at nearly the same
-                # time. They may serialize, or one tab may reload after the revision
-                # race. Either outcome must converge to the authoritative Mongo tree.
+                # Exercise bidirectional synchronization with deterministic edits from
+                # both tabs. The focused Study websocket tests cover the stale-revision
+                # race/reload path directly; forcing that race through two simultaneous
+                # browser clicks makes the GUI acceptance test flaky because one page may
+                # be navigating while Playwright is inspecting its DOM.
                 await page_a.locator(".btn-controls button:has(.icon-fast-backward)").click()
+                await self._play_board_move(page_a, "d2", "d4")
+                await expect(page_b.locator("#movelist")).to_contain_text("d4", timeout=5000)
+
                 await page_b.locator(".btn-controls button:has(.icon-fast-backward)").click()
-                await asyncio.gather(
-                    self._play_board_move(page_a, "d2", "d4"),
-                    self._play_board_move(page_b, "c2", "c4"),
+                await self._play_board_move(page_b, "c2", "c4")
+                await expect(page_a.locator("#movelist")).to_contain_text("c4", timeout=5000)
+                await self._eventually_async(
+                    lambda: self._study_has_node_count(app_state, chapter_id, 4)
                 )
 
-                async def concurrent_edits_settled():
-                    count = await self._study_node_count(app_state, chapter_id)
-                    return count in {3, 4}
-
-                await self._eventually_async(concurrent_edits_settled)
-                await asyncio.sleep(0.5)
-
-                async def views_match_authoritative_tree():
-                    doc = await app_state.db.study_chapter.find_one({"_id": chapter_id})
-                    assert doc is not None
-                    accepted_moves = {
-                        node["m"] for node_id, node in doc["root"].items() if node_id != "_"
-                    }
-                    if not accepted_moves & {"d2d4", "c2c4"}:
-                        return False
-
-                    expected = {
-                        san
-                        for uci, san in (("d2d4", "d4"), ("c2c4", "c4"))
-                        if uci in accepted_moves
-                    }
-                    rejected = {"d4", "c4"} - expected
-                    for page in (page_a, page_b):
-                        try:
-                            sans = set(await page.locator("#movelist move san").all_text_contents())
-                        except PlaywrightError:
-                            # The tab that loses the optimistic revision race reloads.
-                            return False
-                        if not expected <= sans or rejected & sans:
-                            return False
-                    return True
-
-                await self._eventually_async(views_match_authoritative_tree)
+                doc = await app_state.db.study_chapter.find_one({"_id": chapter_id})
+                assert doc is not None
+                accepted_moves = {
+                    node["m"] for node_id, node in doc["root"].items() if node_id != "_"
+                }
+                assert {"e2e4", "e7e5", "d2d4", "c2c4"} <= accepted_moves
+                for page in (page_a, page_b):
+                    sans = set(await page.locator("#movelist move san").all_text_contents())
+                    assert {"e4", "e5", "d4", "c4"} <= sans
 
                 response = await intruder_page.goto(study_url)
                 assert response is not None and response.status == 404
