@@ -4,6 +4,7 @@ import re
 import shutil
 import time
 from datetime import UTC, datetime, timedelta
+from types import SimpleNamespace
 
 import pytest
 import test_logger
@@ -213,19 +214,17 @@ class TestStudyGUI:
                 await expect(page.locator(".study-chapters")).to_contain_text("2. Last chapter")
                 await expect(page.locator(".study-chapters")).not_to_contain_text("Renamed middle")
 
-                # A fresh application state backed by the same database can load the
-                # Study and chapter directly. Do not start a second aiohttp test server
-                # in this event loop: PyChess graceful shutdown intentionally cancels
-                # loop-wide tasks, so two live app runners would interfere at teardown.
-                restarted_app = make_app(db_client=db_client, simple_cookie_storage=True)
-                restarted_state = get_app_state(restarted_app)
-                restarted_study = await load_owned_study(restarted_state, study_id, username)
+                # Study persistence has no in-memory preload dependency: the storage
+                # layer can reconstruct both objects from a fresh context that contains
+                # only the database handle. Do not start a second aiohttp test server in
+                # this event loop because PyChess graceful shutdown cancels loop-wide tasks.
+                fresh_storage = SimpleNamespace(db=app_state.db)
+                restarted_study = await load_owned_study(fresh_storage, study_id, username)
                 restarted_chapter = await load_owned_chapter(
-                    restarted_state, study_id, first_chapter_id, username
+                    fresh_storage, study_id, first_chapter_id, username
                 )
                 assert restarted_study is not None
                 assert restarted_chapter is not None
-                assert restarted_state.study_sockets == {}
                 restarted_moves = {node.move for node in restarted_chapter.root.nodes.values()}
                 assert {"e2e4", "c7c5", "g1f3", "e7e5"} <= restarted_moves
                 assert "d2d4" not in restarted_moves
@@ -293,16 +292,33 @@ class TestStudyGUI:
 
                 await self._eventually_async(concurrent_edits_settled)
                 await asyncio.sleep(0.5)
-                doc = await app_state.db.study_chapter.find_one({"_id": chapter_id})
-                assert doc is not None
-                accepted_moves = {
-                    node["m"] for node_id, node in doc["root"].items() if node_id != "_"
-                }
-                assert accepted_moves & {"d2d4", "c2c4"}
-                for uci, san in (("d2d4", "d4"), ("c2c4", "c4")):
-                    if uci in accepted_moves:
-                        await expect(page_a.locator("#movelist")).to_contain_text(san, timeout=5000)
-                        await expect(page_b.locator("#movelist")).to_contain_text(san, timeout=5000)
+
+                async def views_match_authoritative_tree():
+                    doc = await app_state.db.study_chapter.find_one({"_id": chapter_id})
+                    assert doc is not None
+                    accepted_moves = {
+                        node["m"] for node_id, node in doc["root"].items() if node_id != "_"
+                    }
+                    if not accepted_moves & {"d2d4", "c2c4"}:
+                        return False
+
+                    expected = {
+                        san
+                        for uci, san in (("d2d4", "d4"), ("c2c4", "c4"))
+                        if uci in accepted_moves
+                    }
+                    rejected = {"d4", "c4"} - expected
+                    for page in (page_a, page_b):
+                        try:
+                            sans = set(await page.locator("#movelist move").all_text_contents())
+                        except PlaywrightError:
+                            # The tab that loses the optimistic revision race reloads.
+                            return False
+                        if not expected <= sans or rejected & sans:
+                            return False
+                    return True
+
+                await self._eventually_async(views_match_authoritative_tree)
 
                 response = await intruder_page.goto(study_url)
                 assert response is not None and response.status == 404
