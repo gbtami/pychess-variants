@@ -9,14 +9,16 @@ import { spinner } from '../view';
 import { PyChessModel } from '../types';
 import { analysisContext, type AnalysisContext } from './analysisContext';
 import { renderAnalysisPage } from './analysisPage';
+import { studyTreeFromAnalysisTree } from '../study/studyTree';
 
 export { analysisTools, gauge, renderAnalysisPage } from './analysisPage';
 export type { AnalysisPageParts } from './analysisPage';
 
-function runGround(vnode: VNode, model: PyChessModel) {
+function runGround(vnode: VNode, model: PyChessModel, onReady?: (ctrl: AnalysisController) => void) {
     const el = vnode.elm as HTMLElement;
     const ctrl = new AnalysisController(el, model);
     window['onFSFline'] = ctrl.onFSFline;
+    onReady?.(ctrl);
 }
 
 function analysisSide(model: PyChessModel, context: AnalysisContext) {
@@ -94,7 +96,12 @@ export function embedView(model: PyChessModel): VNode[] {
     ];
 }
 
-export function analysisUnderboard(model: PyChessModel, context: AnalysisContext, isOngoingGame: boolean): VNode[] {
+export function analysisUnderboard(
+    model: PyChessModel,
+    context: AnalysisContext,
+    isOngoingGame: boolean,
+    saveToStudy?: () => void,
+): VNode[] {
     const tabindexCt = context.analysisBoard ? '-1' : '0';
     let tabindexPgn = context.analysisBoard ? '0' : '-1';
 
@@ -202,6 +209,9 @@ export function analysisUnderboard(model: PyChessModel, context: AnalysisContext
                 ]),
                 h('div#copyfen'),
                 h('div#pgntext'),
+                saveToStudy && !isOngoingGame && model.anon !== 'True'
+                    ? h('button.button', { on: { click: saveToStudy } }, _('Save to Study'))
+                    : '',
             ],
         ),
     ];
@@ -210,12 +220,43 @@ export function analysisUnderboard(model: PyChessModel, context: AnalysisContext
 export function analysisView(model: PyChessModel): VNode[] {
     const context = analysisContext(model);
     const isOngoingGame = model.status == -1;
+    let ctrl: AnalysisController | undefined;
     renderTimeago();
+
+    const saveToStudy = async () => {
+        const tree = ctrl?.analysisTree;
+        if (!ctrl || !tree) return;
+        try {
+            const response = await fetch('/study/from-analysis', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    variant: model.variant || 'chess',
+                    chess960: model.chess960 === 'True',
+                    initialFen: tree.root.step.fen,
+                    gameId: model.gameId || undefined,
+                    chapterName:
+                        model.gameId && model.wplayer && model.bplayer
+                            ? `${model.wplayer} - ${model.bplayer}`
+                            : _('Analysis'),
+                    tree: studyTreeFromAnalysisTree(tree),
+                }),
+            });
+            const payload = (await response.json()) as { ok?: boolean; url?: string; error?: string };
+            if (!response.ok || !payload.ok || !payload.url) {
+                window.alert(payload.error || _('Could not save analysis to Study.'));
+                return;
+            }
+            window.location.assign(payload.url);
+        } catch {
+            window.alert(_('Could not save analysis to Study.'));
+        }
+    };
 
     return renderAnalysisPage(model, {
         side: analysisSide(model, context),
-        underboard: analysisUnderboard(model, context, isOngoingGame),
-        mountBoard: runGround,
+        underboard: analysisUnderboard(model, context, isOngoingGame, saveToStudy),
+        mountBoard: vnode => runGround(vnode, model, mounted => (ctrl = mounted)),
         ongoing: isOngoingGame,
     });
 }

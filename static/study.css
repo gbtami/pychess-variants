@@ -102,3 +102,35 @@
     background: var(--bad);
     color: #fff;
 }
+.study-create-form {
+    display: grid;
+    grid-template-columns: minmax(10rem, 1fr) minmax(7rem, .6fr) minmax(14rem, 2fr) minmax(8rem, .8fr) auto;
+    gap: .4rem;
+    align-items: center;
+}
+.study-create-form input,
+.study-side__new-chapter input {
+    min-width: 0;
+    box-sizing: border-box;
+}
+.study-side__new-chapter {
+    flex: 1 1 100%;
+}
+.study-side__new-chapter summary {
+    cursor: pointer;
+    color: var(--link-color);
+    margin-bottom: .5rem;
+}
+.study-side__new-chapter form {
+    display: grid;
+    gap: .4rem;
+}
+@media (max-width: 799px) {
+    .study-list-top {
+        align-items: stretch;
+        flex-direction: column;
+    }
+    .study-create-form {
+        grid-template-columns: 1fr;
+    }
+}

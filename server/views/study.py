@@ -9,13 +9,14 @@ from catalogued_variants import catalogued_variant_client_doc_for_name
 from fairy import BLACK, FairyBoard
 from json_utils import json_dumps
 from pychess_global_app_state_utils import get_app_state
-from request_utils import read_post_data
+from request_utils import read_json_data, read_post_data
+from study.builder import StudyChapterBuilder, StudyChapterBuildError, StudyChapterDraft
 from study.models import Study, StudyChapter
 from study.storage import (
     StudyStorageError,
-    add_chapter,
+    add_chapter_from_draft,
     chapter_previews,
-    create_study_with_chapter,
+    create_study_from_draft,
     delete_chapter,
     delete_study,
     load_owned_chapter,
@@ -25,6 +26,7 @@ from study.storage import (
     select_chapter,
     studies_for_owner,
 )
+from study.variant import study_variant_client_doc, study_variant_context, study_variant_metadata
 from typing_defs import ViewContext
 from variants import ALL_VARIANTS, is_catalogued_variant
 
@@ -71,8 +73,39 @@ async def _owned_study_and_chapter(
     return user, context, study, chapter
 
 
-def _study_board(chapter: StudyChapter) -> dict[str, object]:
-    board = FairyBoard(chapter.variant, chapter.initial_fen, chapter.chess960)
+def _form_bool(value: object) -> bool:
+    return str(value or "").lower() in {"1", "true", "yes", "on"}
+
+
+async def _draft_from_form(
+    builder: StudyChapterBuilder,
+    data: Any,
+    *,
+    fallback_variant: str = "chess",
+    fallback_chess960: bool = False,
+) -> StudyChapterDraft:
+    game_id = str(data.get("gameId") or "").strip()
+    chapter_name = str(data.get("chapterName") or "").strip() or None
+    if game_id:
+        return await builder.from_game(game_id, name=chapter_name)
+
+    variant = str(data.get("variant") or fallback_variant).strip() or fallback_variant
+    fen = str(data.get("fen") or "").strip() or None
+    chess960 = (
+        _form_bool(data.get("chess960")) if data.get("chess960") is not None else fallback_chess960
+    )
+    orientation = "black" if str(data.get("orientation") or "").lower() == "black" else "white"
+    return await builder.blank_or_fen(
+        variant=variant,
+        fen=fen,
+        chess960=chess960,
+        name=chapter_name,
+        orientation=orientation,
+    )
+
+
+def _study_board(chapter: StudyChapter, *, runtime_variant: str | None = None) -> dict[str, object]:
+    board = FairyBoard(runtime_variant or chapter.variant, chapter.initial_fen, chapter.chess960)
     turn_color = "black" if board.color == BLACK else "white"
     return {
         "gameId": "",
@@ -119,9 +152,13 @@ async def study_create(request: web.Request) -> web.StreamResponse:
     data = await read_post_data(request)
     if data is None:
         raise web.HTTPNoContent()
-    study, chapter = await create_study_with_chapter(
-        app_state, user.username, name=data.get("name")
-    )
+    try:
+        draft = await _draft_from_form(StudyChapterBuilder(app_state, user.username), data)
+        study, chapter = await create_study_from_draft(
+            app_state, user.username, draft, name=data.get("name")
+        )
+    except StudyChapterBuildError as exc:
+        raise web.HTTPBadRequest(text=str(exc)) from exc
     raise web.HTTPFound(f"/study/{study.id}/{chapter.id}")
 
 
@@ -141,7 +178,22 @@ async def study_show(request: web.Request) -> ViewContext:
     context["initialFen"] = chapter.initial_fen
     context["status"] = 0
     context["ply"] = 0
-    context["board"] = json_dumps(_study_board(chapter))
+
+    snapshot_client_doc = None
+    if chapter.variant_ini:
+        metadata = await study_variant_metadata(app_state, chapter.variant)
+        try:
+            with study_variant_context(app_state, chapter.variant, chapter.variant_ini) as options:
+                context["board"] = json_dumps(
+                    _study_board(chapter, runtime_variant=options.runtime_variant)
+                )
+                snapshot_client_doc = study_variant_client_doc(
+                    chapter.variant, chapter.variant_ini, metadata=metadata
+                )
+        except (ValueError, web.HTTPException) as exc:
+            raise web.HTTPNotFound(text="Study variant snapshot is unavailable") from exc
+    else:
+        context["board"] = json_dumps(_study_board(chapter))
 
     # Study page data contains only the current full tree plus lightweight chapter
     # previews. Switching chapters is a normal navigation in the owner-only MVP.
@@ -160,7 +212,12 @@ async def study_show(request: web.Request) -> ViewContext:
         }
     )
 
-    if is_catalogued_variant(chapter.variant):
+    if snapshot_client_doc is not None:
+        variants = json.loads(str(context.get("catalogued_variants") or "[]"))
+        variants = [item for item in variants if item.get("name") != chapter.variant]
+        variants.append(snapshot_client_doc)
+        context["catalogued_variants"] = json_dumps(variants)
+    elif is_catalogued_variant(chapter.variant):
         catalogued_doc = catalogued_variant_client_doc_for_name(
             app_state, chapter.variant, user.username
         )
@@ -173,6 +230,48 @@ async def study_show(request: web.Request) -> ViewContext:
         raise web.HTTPNotFound(text="Study variant is unavailable")
 
     return context
+
+
+async def study_from_analysis(request: web.Request) -> web.StreamResponse:
+    user, _ = await get_user_context(request)
+    if user.anon:
+        return web.json_response({"ok": False, "error": "login_required"}, status=401)
+    if user.bot:
+        return web.json_response({"ok": False, "error": "forbidden"}, status=403)
+    app_state = get_app_state(request.app)
+    if app_state.db is None:
+        return web.json_response({"ok": False, "error": "db_unavailable"}, status=503)
+    data = await read_json_data(request)
+    if not isinstance(data, dict):
+        raise web.HTTPBadRequest(text="invalid analysis data")
+    tree_payload = data.get("tree")
+    if not isinstance(tree_payload, dict):
+        raise web.HTTPBadRequest(text="invalid analysis tree")
+    try:
+        draft = await StudyChapterBuilder(app_state, user.username).from_analysis(
+            variant=str(data.get("variant") or "chess"),
+            initial_fen=str(data.get("initialFen") or ""),
+            tree_payload=tree_payload,
+            chess960=bool(data.get("chess960", False)),
+            game_id=str(data.get("gameId") or "").strip() or None,
+            name=str(data.get("chapterName") or "").strip() or None,
+        )
+        study, chapter = await create_study_from_draft(
+            app_state,
+            user.username,
+            draft,
+            name=str(data.get("studyName") or "").strip() or None,
+        )
+    except StudyChapterBuildError as exc:
+        return web.json_response({"ok": False, "error": str(exc)}, status=400)
+    return web.json_response(
+        {
+            "ok": True,
+            "studyId": study.id,
+            "chapterId": chapter.id,
+            "url": f"/study/{study.id}/{chapter.id}",
+        }
+    )
 
 
 async def study_edit(request: web.Request) -> web.StreamResponse:
@@ -195,11 +294,18 @@ async def study_chapter_create(request: web.Request) -> web.StreamResponse:
     data = await read_post_data(request)
     if data is None:
         raise web.HTTPNoContent()
+    app_state = get_app_state(request.app)
     try:
-        created = await add_chapter(
-            get_app_state(request.app), study, chapter, name=data.get("name")
+        # A source-aware form creates a fresh chapter. The old one-button request still
+        # creates a blank chapter using the current chapter's variant as its default.
+        draft = await _draft_from_form(
+            StudyChapterBuilder(app_state, study.owner),
+            data,
+            fallback_variant=chapter.variant,
+            fallback_chess960=chapter.chess960,
         )
-    except StudyStorageError as exc:
+        created = await add_chapter_from_draft(app_state, study, draft)
+    except (StudyStorageError, StudyChapterBuildError) as exc:
         raise web.HTTPBadRequest(text=str(exc)) from exc
     raise web.HTTPFound(f"/study/{study.id}/{created.id}")
 

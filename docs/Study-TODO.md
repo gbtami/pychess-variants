@@ -1002,12 +1002,19 @@ before collaborators exist.
 
 ## 1F. Initial creation sources
 
-- [ ] Empty chapter from variant start position.
-- [ ] Chapter from validated FEN.
-- [ ] Study/chapter from a saved PyChess game.
-- [ ] Snapshot `vini`/custom rules for catalogued variants.
-- [ ] Add a basic "Save to Study" entry point from post-game/standalone analysis only
+- [x] Empty chapter from variant start position.
+- [x] Chapter from validated FEN.
+- [x] Study/chapter from a saved PyChess game.
+- [x] Snapshot `vini`/custom rules for catalogued variants.
+- [x] Add a basic "Save to Study" entry point from post-game/standalone analysis only
   after tree serialization is proven stable.
+
+Implementation note: historical catalogued/UDV snapshots run under a deterministic
+internal Fairy-Stockfish alias only when their saved INI differs from the currently
+loaded catalogue definition. Current unchanged snapshots reuse the live variant and its
+already-validated client metadata, avoiding unnecessary permanent engine aliases.
+Saving analysis from a finished game prefers that game's stored `vini`, so later catalogue
+edits cannot silently change the rules of the resulting Study.
 
 ## Phase 1 acceptance criteria
 

@@ -3,22 +3,17 @@ from __future__ import annotations
 import logging
 from collections import defaultdict
 from collections.abc import Mapping
-from contextlib import contextmanager
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Literal
 
 from bson import BSON
-from catalogued_variants import (
-    catalogued_legal_moves_need_history,
-    catalogued_show_promoted,
-    extract_variant_name,
-)
-from fairy.fairy_board import NOTATION_SAN, WHITE, FairyBoard, sf
+from fairy.fairy_board import NOTATION_SAN, WHITE, FairyBoard
 
 from study.constants import STUDY_CHAPTER_MAX_BSON_BYTES, STUDY_MAX_NODES_PER_CHAPTER
 from study.models import Study, StudyChapter
 from study.tree import StudyTree, StudyTreeNode, is_study_node_id, new_study_node_id
+from study.variant import study_variant_context
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -442,7 +437,9 @@ class StudyMutationService:
 
         try:
             with self._chapter_variant(chapter) as variant_options:
-                show_promoted, legal_moves_need_history = variant_options
+                show_promoted = variant_options.show_promoted
+                legal_moves_need_history = variant_options.legal_moves_need_history
+                runtime_variant = variant_options.runtime_variant
                 parent_fen = (
                     chapter.root.nodes[parent_id].fen
                     if parent_id is not None
@@ -453,7 +450,7 @@ class StudyMutationService:
                     # authoritative parent FEN makes appending to a 1,000-ply Study O(1)
                     # instead of replaying the whole line for every new move.
                     board = FairyBoard(
-                        chapter.variant,
+                        runtime_variant,
                         initial_fen=parent_fen,
                         chess960=chapter.chess960,
                         show_promoted=show_promoted,
@@ -462,7 +459,7 @@ class StudyMutationService:
                     # Janggi/Ataxx and custom rules such as perpetual-check illegality
                     # need the complete move history, so reconstruct those branches.
                     board = FairyBoard(
-                        chapter.variant,
+                        runtime_variant,
                         initial_fen=chapter.initial_fen,
                         chess960=chapter.chess960,
                         show_promoted=show_promoted,
@@ -507,52 +504,8 @@ class StudyMutationService:
             )
             raise _VariantUnavailable from exc
 
-    @contextmanager
     def _chapter_variant(self, chapter: StudyChapter):
-        """Temporarily restore a chapter's exact catalogued-variant snapshot.
-
-        `pyffish.load_variant_config()` is process-global. There is deliberately no
-        `await` while the snapshot is installed, so another asyncio request cannot run
-        against the temporary definition. If the same catalogue slot currently has a
-        newer active definition, restore it before returning to the event loop.
-        """
-
-        if chapter.variant_ini is None:
-            yield False, False
-            return
-
-        snapshot = chapter.variant_ini
-        try:
-            snapshot_name = extract_variant_name(snapshot)
-        except Exception as exc:
-            raise _VariantUnavailable from exc
-        if snapshot_name != chapter.variant:
-            raise _VariantUnavailable
-
-        active_doc = self.app_state.catalogued_variants.get(chapter.variant)
-        active_ini = ""
-        if isinstance(active_doc, Mapping):
-            active_ini = str(active_doc.get("ini") or "")
-
-        try:
-            sf.load_variant_config(snapshot)
-            yield (
-                catalogued_show_promoted(snapshot, chapter.initial_fen),
-                catalogued_legal_moves_need_history(snapshot),
-            )
-        finally:
-            if active_ini and active_ini != snapshot:
-                try:
-                    sf.load_variant_config(active_ini)
-                except Exception as exc:
-                    # Never return to the event loop with a known-wrong active ruleset.
-                    # The chapter mutation has not reached MongoDB yet, so rejecting the
-                    # operation is safer than accepting it after a failed restore.
-                    log.exception(
-                        "Failed to restore active catalogued variant %s after Study validation",
-                        chapter.variant,
-                    )
-                    raise _VariantUnavailable from exc
+        return study_variant_context(self.app_state, chapter.variant, chapter.variant_ini)
 
     @staticmethod
     def _candidate_chapter(chapter: StudyChapter, root: StudyTree) -> StudyChapter:

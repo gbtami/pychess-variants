@@ -329,13 +329,16 @@ class StudyMutationServiceTestCase(unittest.IsolatedAsyncioTestCase):
             variant_ini=snapshot,
         )
 
-        with (
-            patch("study.mutations.sf.load_variant_config") as load_config,
-            self.service._chapter_variant(chapter),
-        ):
-            pass
+        with patch("study.variant.validate_catalogued_ini") as validate_ini:
+            validate_ini.return_value = SimpleNamespace(
+                name="studysnap_test",
+                start_fen=FairyBoard.start_fen("chess"),
+                show_promoted=False,
+            )
+            with self.service._chapter_variant(chapter) as options:
+                self.assertEqual(options.runtime_variant, "studysnap_test")
 
-        self.assertEqual([call.args[0] for call in load_config.call_args_list], [snapshot, current])
+        self.assertEqual(validate_ini.call_count, 1)
 
 
 if __name__ == "__main__":

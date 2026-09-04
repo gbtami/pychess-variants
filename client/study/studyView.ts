@@ -8,12 +8,6 @@ import { _ } from '../i18n';
 import type { PyChessModel, StudyPageModel } from '../types';
 import { studyAnalysisExtension } from './studySync';
 
-function postForm(action: string, label: string, className?: string): VNode {
-    return h('form', { attrs: { method: 'post', action }, class: className ? { [className]: true } : undefined }, [
-        h('button.button', { attrs: { type: 'submit' } }, label),
-    ]);
-}
-
 function renameForm(action: string, value: string, label: string, maxLength: number): VNode {
     return h('form.study-side__rename', { attrs: { method: 'post', action } }, [
         h('input', {
@@ -46,7 +40,7 @@ function deleteForm(action: string, label: string, prompt: string, className?: s
     );
 }
 
-function studySide(study: StudyPageModel): VNode {
+function studySide(study: StudyPageModel, model: PyChessModel): VNode {
     const chapter = study.chapter;
     const chapters = study.chapters.map(item =>
         h('div.study-chapter__row', { class: { active: item.id === chapter.id } }, [
@@ -63,7 +57,50 @@ function studySide(study: StudyPageModel): VNode {
         h('div.study-chapters', chapters),
         renameForm(`/study/${study.id}/${chapter.id}/edit`, chapter.name, _('Chapter name'), 80),
         h('div.study-side__actions', [
-            postForm(`/study/${study.id}/chapter`, _('Add chapter')),
+            h('details.study-side__new-chapter', [
+                h('summary', _('Add chapter')),
+                h('form', { attrs: { method: 'post', action: `/study/${study.id}/chapter` } }, [
+                    h('input', {
+                        attrs: {
+                            type: 'text',
+                            name: 'chapterName',
+                            maxlength: '80',
+                            placeholder: _('Chapter name'),
+                            autocomplete: 'off',
+                        },
+                    }),
+                    h('input', {
+                        attrs: {
+                            type: 'text',
+                            name: 'variant',
+                            value: model.variant || 'chess',
+                            placeholder: _('Variant'),
+                            autocomplete: 'off',
+                        },
+                    }),
+                    model.chess960 === 'True'
+                        ? h('input', { attrs: { type: 'hidden', name: 'chess960', value: '1' } })
+                        : '',
+                    h('input', {
+                        attrs: {
+                            type: 'text',
+                            name: 'fen',
+                            placeholder: _('FEN (optional)'),
+                            autocomplete: 'off',
+                        },
+                    }),
+                    h('input', {
+                        attrs: {
+                            type: 'text',
+                            name: 'gameId',
+                            maxlength: '12',
+                            placeholder: _('Game ID (optional)'),
+                            autocomplete: 'off',
+                        },
+                    }),
+                    h('button.button', { attrs: { type: 'submit' } }, _('Create chapter')),
+                ]),
+            ]),
             study.chapters.length > 1
                 ? deleteForm(`/study/${study.id}/${chapter.id}/delete`, _('Delete chapter'), _('Delete this chapter?'))
                 : '',
@@ -93,7 +130,7 @@ export function studyView(model: PyChessModel): VNode[] {
     const context = analysisContext(model);
 
     return renderAnalysisPage(model, {
-        side: studySide(study),
+        side: studySide(study, model),
         underboard: analysisUnderboard(model, context, false),
         mountBoard: vnode => runStudyGround(vnode, model, study),
         ongoing: false,

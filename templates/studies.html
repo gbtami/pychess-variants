@@ -4,7 +4,11 @@
     <main class="study-list-page box box-pad">
         <div class="box__top study-list-top">
             <h1>{% trans %}My studies{% endtrans %}</h1>
-            <form method="post" action="/study">
+            <form class="study-create-form" method="post" action="/study">
+                <input type="text" name="name" maxlength="100" placeholder="{% trans %}Study name{% endtrans %}">
+                <input type="text" name="variant" value="chess" placeholder="{% trans %}Variant{% endtrans %}">
+                <input type="text" name="fen" placeholder="{% trans %}FEN (optional){% endtrans %}">
+                <input type="text" name="gameId" maxlength="12" placeholder="{% trans %}Game ID (optional){% endtrans %}">
                 <button class="button" type="submit">{% trans %}New study{% endtrans %}</button>
             </form>
         </div>

@@ -3,13 +3,17 @@ from __future__ import annotations
 import unittest
 from types import SimpleNamespace
 from typing import Any, cast
+from unittest.mock import patch
 
 from fairy import FairyBoard
 from mongomock_motor import AsyncMongoMockClient
+from study.builder import StudyChapterDraft
+from study.models import StudySource
 from study.storage import (
     StudyStorageError,
     add_chapter,
     chapter_previews,
+    create_study_from_draft,
     create_study_with_chapter,
     delete_chapter,
     delete_study,
@@ -46,6 +50,40 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(await load_owned_study(cast(Any, self.app_state), study.id, "other"))
         listed = (await studies_for_owner(cast(Any, self.app_state), "owner"))[0]
         self.assertEqual((listed.id, listed.name), (study.id, study.name))
+
+    async def test_create_from_draft_persists_source_tree_and_variant_snapshot(self) -> None:
+        draft = StudyChapterDraft(
+            variant="chess",
+            initial_fen=FairyBoard.start_fen("chess"),
+            variant_ini="[snapshot:chess]",
+            name="Imported",
+            source=StudySource("game", "game0001"),
+        )
+        study, chapter = await create_study_from_draft(
+            cast(Any, self.app_state), "owner", draft, name="Saved analysis"
+        )
+        self.assertEqual(study.source, StudySource("game", "game0001"))
+        self.assertEqual(chapter.name, "Imported")
+        self.assertEqual(chapter.variant_ini, "[snapshot:chess]")
+        loaded = await load_owned_chapter(cast(Any, self.app_state), study.id, chapter.id, "owner")
+        assert loaded is not None
+        self.assertEqual(loaded.id, chapter.id)
+        self.assertEqual(loaded.name, chapter.name)
+        self.assertEqual(loaded.variant_ini, chapter.variant_ini)
+        self.assertEqual(loaded.root, chapter.root)
+
+    async def test_create_from_draft_enforces_chapter_bson_limit(self) -> None:
+        draft = StudyChapterDraft(
+            variant="chess",
+            initial_fen=FairyBoard.start_fen("chess"),
+        )
+        with (
+            patch("study.storage.STUDY_CHAPTER_MAX_BSON_BYTES", 1),
+            self.assertRaisesRegex(StudyStorageError, "too large"),
+        ):
+            await create_study_from_draft(cast(Any, self.app_state), "owner", draft)
+        self.assertEqual(await self.db.study.count_documents({}), 0)
+        self.assertEqual(await self.db.study_chapter.count_documents({}), 0)
 
     async def test_chapter_crud_keeps_lightweight_ordered_previews(self) -> None:
         study, first = await create_study_with_chapter(cast(Any, self.app_state), "owner")
