@@ -12,6 +12,7 @@ from study.constants import (
     STUDY_MAX_NODES_PER_CHAPTER,
 )
 from study.models import Study, StudyChapter, StudySource, make_chapter, make_study
+from study.tree import StudyTree, StudyTreeNode
 
 
 class StudySchemaTestCase(unittest.TestCase):
@@ -60,7 +61,20 @@ class StudyModelTestCase(unittest.IsolatedAsyncioTestCase):
             initial_fen="8/8/8/8/8/8/8/8 w - - 0 1",
             orientation="black",
             variant_ini="[my-custom-variant]\nmaxRank = 8\n",
-            root={"node": "opaque-until-phase-1b"},
+            root=StudyTree(
+                {
+                    "StudyNode1": StudyTreeNode(
+                        id="StudyNode1",
+                        parent_id=None,
+                        order=0,
+                        move="a1a2",
+                        fen="8/8/8/8/8/8/P7/8 b - - 0 1",
+                        turn_color="black",
+                        san="a2",
+                        san_san="a2",
+                    )
+                }
+            ),
             order=2,
             now=now,
         )
@@ -97,7 +111,7 @@ class StudyModelTestCase(unittest.IsolatedAsyncioTestCase):
             variant="chess",
             initial_fen="start",
             orientation="white",
-            root={},
+            root=StudyTree(),
             created_at=now,
             updated_at=now,
         )

@@ -24,6 +24,9 @@ export interface AnalysisTree {
     // Fast random access by dotted path so UI navigation never has to re-walk the tree.
     byPath: Map<string, AnalysisTreeNode>;
     nextId: number;
+    // Study trees can inject collision-resistant stable IDs while ordinary analysis
+    // keeps the existing compact sequential path segments.
+    nodeIdFactory?: () => string;
 }
 
 export interface TreePathProjection {
@@ -49,12 +52,23 @@ export function parentPath(path: string): string {
 }
 
 function nextNodeId(tree: AnalysisTree): string {
+    if (tree.nodeIdFactory) {
+        for (let attempt = 0; attempt < 16; attempt++) {
+            const id = tree.nodeIdFactory();
+            if (!id || id.includes(PATH_SEPARATOR))
+                throw new Error('Analysis tree node IDs must be non-empty path segments');
+            const duplicate = Array.from(tree.byPath.values()).some(node => node.id === id);
+            if (!duplicate) return id;
+        }
+        throw new Error('Analysis tree node ID factory repeatedly produced duplicate node IDs');
+    }
+
     const id = tree.nextId.toString(36).padStart(2, '0');
     tree.nextId += 1;
     return id;
 }
 
-export function createAnalysisTree(steps: Step[]): AnalysisTree {
+export function createAnalysisTree(steps: Step[], nodeIdFactory?: () => string): AnalysisTree {
     // The synthetic root owns the initial position and lets us treat root alternatives
     // exactly the same way as sub-variations deeper in the tree.
     const root: AnalysisTreeNode = {
@@ -70,6 +84,7 @@ export function createAnalysisTree(steps: Step[]): AnalysisTree {
         root,
         byPath: new Map([[ROOT_PATH, root]]),
         nextId: 1,
+        nodeIdFactory,
     };
 
     let parent = root;

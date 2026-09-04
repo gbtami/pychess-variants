@@ -7,6 +7,8 @@ from typing import Any, Literal, cast
 
 from newid import new_id
 
+from study.tree import StudyTree
+
 StudyVisibility = Literal["private", "unlisted", "public"]
 StudyMemberRole = Literal["read", "write"]
 StudySourceKind = Literal["scratch", "game", "study", "import"]
@@ -184,7 +186,7 @@ class StudyChapter:
     variant: str
     initial_fen: str
     orientation: StudyOrientation
-    root: Mapping[str, object]
+    root: StudyTree
     created_at: datetime
     updated_at: datetime
     chess960: bool = False
@@ -208,7 +210,7 @@ class StudyChapter:
             "variant": self.variant,
             "initialFen": self.initial_fen,
             "orientation": self.orientation,
-            "root": dict(self.root),
+            "root": self.root.to_document(),
             "createdAt": _utc(self.created_at),
             "updatedAt": _utc(self.updated_at),
             "revision": self.revision,
@@ -240,7 +242,7 @@ class StudyChapter:
             variant=_required_str(doc, "variant"),
             initial_fen=_required_str(doc, "initialFen"),
             orientation=cast(StudyOrientation, raw_orientation),
-            root={str(key): value for key, value in raw_root.items()},
+            root=StudyTree.from_document(raw_root),
             created_at=_required_datetime(doc, "createdAt"),
             updated_at=_required_datetime(doc, "updatedAt"),
             chess960=raw_chess960,
@@ -282,7 +284,7 @@ async def make_chapter(
     name: str | None = None,
     chess960: bool = False,
     variant_ini: str | None = None,
-    root: Mapping[str, object] | None = None,
+    root: StudyTree | None = None,
     now: datetime | None = None,
 ) -> StudyChapter:
     created_at = _utc(now or datetime.now(UTC))
@@ -297,7 +299,7 @@ async def make_chapter(
         initial_fen=initial_fen,
         orientation=orientation,
         variant_ini=variant_ini,
-        root={} if root is None else dict(root),
+        root=StudyTree() if root is None else root,
         created_at=created_at,
         updated_at=created_at,
     )
