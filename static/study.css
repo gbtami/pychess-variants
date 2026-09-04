@@ -1,0 +1,104 @@
+@import 'analysis.css';
+
+.study-list-page {
+    width: min(900px, calc(100vw - 2rem));
+    margin: 2rem auto;
+}
+.study-list-top,
+.study-side__header,
+.study-side__actions,
+.study-chapter__row {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+}
+.study-list-top,
+.study-side__header {
+    justify-content: space-between;
+}
+.study-list {
+    display: flex;
+    flex-flow: column;
+    border-top: 1px solid var(--border-color);
+}
+.study-list__item {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem .5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+.study-list__item span {
+    color: var(--link-color);
+    white-space: nowrap;
+}
+.study-side {
+    display: flex;
+    flex-flow: column;
+    min-height: 0;
+    background: var(--bg-color0);
+    box-shadow: var(--base-shadow);
+}
+.study-side__header {
+    padding: .8rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+.study-side__header h2 {
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.study-chapters {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+}
+.study-chapter__row {
+    padding: .65rem .9rem;
+    border-bottom: 1px solid var(--border-color);
+}
+.study-chapter__row.active {
+    background: var(--bg-color2);
+    font-weight: bold;
+}
+.study-chapter__row a {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.study-side__actions {
+    flex-wrap: wrap;
+    padding: .8rem;
+    border-top: 1px solid var(--border-color);
+}
+.study-side form {
+    margin: 0;
+}
+.study-side input[type='text'] {
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+.study-side__rename {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: .4rem;
+    width: 100%;
+    padding: .7rem .8rem 0;
+}
+.study-side__danger {
+    margin-left: auto !important;
+}
+@media (max-width: 799px) {
+    .study-side {
+        margin-top: 1rem;
+    }
+}
+
+.study-side .button-red {
+    background: var(--bad);
+    color: #fff;
+}

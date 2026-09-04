@@ -73,6 +73,33 @@ describe('analysis context', () => {
         expect(context.capabilities.evalCharts).toBe(false);
     });
 
+    test('study is a persisted editable analysis mode without the round socket', () => {
+        const context = analysisContext(
+            model({
+                gameId: '',
+                study: {
+                    id: 'study001',
+                    name: 'Study',
+                    chapter: {
+                        id: 'chapter1',
+                        name: 'Chapter 1',
+                        revision: 0,
+                        orientation: 'white',
+                        tree: { nodes: [] },
+                    },
+                    chapters: [],
+                },
+            }),
+        );
+
+        expect(context.mode).toBe('study');
+        expect(context.analysisBoard).toBe(true);
+        expect(context.capabilities.editableTree).toBe(true);
+        expect(context.capabilities.usesRoundSocket).toBe(false);
+        expect(context.capabilities.serverAnalysisRequest).toBe(false);
+        expect(context.capabilities.engineTools).toBe(true);
+    });
+
     test('all negative game statuses use the ongoing capability set', () => {
         for (const status of [-1, -2]) {
             const context = analysisContext(model({ status }));

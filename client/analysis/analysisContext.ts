@@ -1,6 +1,6 @@
 import type { PyChessModel } from '../types';
 
-export type AnalysisMode = 'standalone' | 'game' | 'puzzle' | 'embed';
+export type AnalysisMode = 'standalone' | 'game' | 'puzzle' | 'embed' | 'study';
 
 export type AnalysisCapabilities = {
     resizableCharts: boolean;
@@ -30,10 +30,19 @@ export type AnalysisContext = {
 export function analysisContext(model: PyChessModel): AnalysisContext {
     const embed = model.embed;
     const puzzle = model.puzzle !== '';
+    const study = model.study != null;
     const analysisBoard = model.gameId === '' && !puzzle;
     const ongoing = model.status <= -1;
 
-    const mode: AnalysisMode = puzzle ? 'puzzle' : embed ? 'embed' : analysisBoard ? 'standalone' : 'game';
+    const mode: AnalysisMode = study
+        ? 'study'
+        : puzzle
+          ? 'puzzle'
+          : embed
+            ? 'embed'
+            : analysisBoard
+              ? 'standalone'
+              : 'game';
 
     return {
         mode,

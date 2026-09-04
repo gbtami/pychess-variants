@@ -24,7 +24,7 @@
         <link rel="stylesheet" href={{ static("admin.css") }}>
         {% endif %}
         <link rel="stylesheet" href={{ static(view_css) }}>
-        {% if view in ["round", "tv", "analysis", "puzzle", "editor", "embed", "paste"] %}
+        {% if view in ["round", "tv", "analysis", "study", "puzzle", "editor", "embed", "paste"] %}
         <link
             rel="preload"
             href={{ local_static("ffish-alice.wasm" if variant == "alice" else "ffish.wasm") }}
@@ -133,6 +133,7 @@
                                 data-btitle-b="{{ btitleB }}"
                                 data-bpatron-b="{{ bpatronB }}"
                                 data-brating-b="{{ bratingB }}"
+                                data-study="{{ study_data|default('') }}"
                                 data-vapid="{{ vapid_public_key }}"
     >
         {% block header %}{% endblock %}

@@ -946,59 +946,59 @@ No public listing, no collaborators, no chat, no likes/topics, no lesson modes.
 
 ## 1A. Database/domain foundation
 
-- [ ] Add `study` and `study_chapter` collections to `server/database/schema.py`.
-- [ ] Add the minimal owner/chapter-list indexes.
-- [ ] Add typed Study/Chapter data models and compact serialization helpers.
-- [ ] Add configurable chapter/node/document-size limits.
-- [ ] Use `new_id()` / existing 8-character ID convention for Study and chapter IDs.
-- [ ] Do not preload Studies during `PychessGlobalAppState.init_from_db()`.
-- [ ] Add lazy per-Study mutation locks and active socket rooms only as needed.
+- [x] Add `study` and `study_chapter` collections to `server/database/schema.py`.
+- [x] Add the minimal owner/chapter-list indexes.
+- [x] Add typed Study/Chapter data models and compact serialization helpers.
+- [x] Add configurable chapter/node/document-size limits.
+- [x] Use `new_id()` / existing 8-character ID convention for Study and chapter IDs.
+- [x] Do not preload Studies during `PychessGlobalAppState.init_from_db()`.
+- [x] Keep Studies out of startup preload and create active socket rooms lazily. Tree mutations use optimistic chapter revisions instead of per-Study locks.
 
 ## 1B. Stable tree persistence contract
 
-- [ ] Replace/augment client-local sequential tree IDs with stable Study-safe IDs.
-- [ ] Define persisted Study node DTO separately from runtime `Step`.
-- [ ] Add tree encode/decode adapters.
-- [ ] Ensure decode preserves mainline ordering and variation ordering.
-- [ ] Preserve `forceVariation`.
-- [ ] Add chapter `revision` and Study metadata `revision`.
+- [x] Replace/augment client-local sequential tree IDs with stable Study-safe IDs.
+- [x] Define persisted Study node DTO separately from runtime `Step`.
+- [x] Add tree encode/decode adapters.
+- [x] Ensure decode preserves mainline ordering and variation ordering.
+- [x] Preserve `forceVariation`.
+- [x] Add chapter `revision` and Study metadata `revision`.
 
 ## 1C. Server tree mutation service
 
-- [ ] Implement owner authorization.
-- [ ] Implement `addNode` with server-side `FairyBoard` validation.
-- [ ] Implement delete branch.
-- [ ] Implement promote variation / promote to mainline.
-- [ ] Implement force/unforce variation.
-- [ ] Enforce path validity, node cap and BSON-size guard.
-- [ ] Increment revision for every accepted mutation.
-- [ ] Deduplicate repeated identical child moves safely.
-- [ ] Return a structured reload/error response rather than leaving a client half-mutated.
+- [x] Implement owner authorization.
+- [x] Implement `addNode` with server-side `FairyBoard` validation.
+- [x] Implement delete branch.
+- [x] Implement promote variation / promote to mainline.
+- [x] Implement force/unforce variation.
+- [x] Enforce path validity, node cap and BSON-size guard.
+- [x] Increment revision for every accepted mutation.
+- [x] Deduplicate repeated identical child moves safely.
+- [x] Return a structured reload/error response rather than leaving a client half-mutated.
 
 ## 1D. Study websocket
 
-- [ ] Add a dedicated Study websocket using `process_ws()` and typed message decoders.
-- [ ] Connect Study page through the optional analysis extension.
-- [ ] Persist tree mutations through incremental commands.
-- [ ] Include `clientOpId` and expected/current revision.
-- [ ] Reload authoritative chapter on revision/path mismatch.
-- [ ] Owner-only is sufficient in this phase; broadcast can initially be only the
+- [x] Add a dedicated Study websocket using `process_ws()` and typed message decoders.
+- [x] Connect Study synchronization through the optional analysis extension.
+- [x] Persist tree mutations through incremental commands.
+- [x] Include `clientOpId` and expected/current revision.
+- [x] Reload authoritative chapter on revision/path mismatch.
+- [x] Owner-only is sufficient in this phase; broadcast accepted mutations to the
   origin/other tabs of the same owner.
-- [ ] Clean socket room state when the last connection leaves.
+- [x] Clean socket room state when the last connection leaves.
 
 Supporting multiple tabs for the same owner is a useful early synchronization test even
 before collaborators exist.
 
 ## 1E. Study/chapter pages
 
-- [ ] Add `/study` owner list with Create Study action.
-- [ ] Add Study page built from the generic analysis shell plus a Study chapter panel.
-- [ ] Add chapter list and current chapter selection.
-- [ ] Add chapter create/rename/delete.
-- [ ] Add Study rename/delete.
-- [ ] Add orientation setting if cheap; otherwise use initial side-to-move/default first.
-- [ ] Update browser address when chapter changes.
-- [ ] Load only current chapter tree plus lightweight chapter previews/names.
+- [x] Add `/study` owner list with Create Study action.
+- [x] Add Study page built from the generic analysis shell plus a Study chapter panel.
+- [x] Add chapter list and current chapter selection.
+- [x] Add chapter create/rename/delete.
+- [x] Add Study rename/delete.
+- [x] Honor persisted chapter orientation; new owner-only MVP chapters default to White. Editing orientation stays with richer chapter setup.
+- [x] Update browser address when chapter changes (normal chapter navigation in the MVP).
+- [x] Load only current chapter tree plus lightweight chapter previews/names.
 
 ## 1F. Initial creation sources
 

@@ -57,6 +57,29 @@ function makeCtrl() {
 describe('Study analysis websocket synchronization', () => {
     beforeEach(() => updateMovelistMock.mockClear());
 
+    test('loads the persisted tree into the generic analysis host before editing', () => {
+        const ctrl = makeCtrl();
+        ctrl.tree = { loadAnalysisTree: jest.fn((tree: unknown) => (ctrl.analysisTree = tree)) };
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 4,
+            tree: { nodes: [e4Node()] },
+            orientation: 'black',
+            onReloadRequired: jest.fn(),
+        });
+
+        extension.onInitialBoardLoaded();
+
+        expect(ctrl.tree.loadAnalysisTree).toHaveBeenCalledTimes(1);
+        expect(ctrl.analysisTree.root.children[0].id).toBe('StudyNode1');
+        expect(ctrl.steps.map((step: Step) => step.move)).toEqual([undefined, 'e2e4']);
+        expect(ctrl.mycolor).toBe('black');
+        expect(ctrl.oppcolor).toBe('white');
+        expect(extension.treeStorageKey).toBe('study:study001:chapter1');
+        expect(updateMovelistMock).toHaveBeenCalled();
+    });
+
     test('serializes optimistic mutations behind revision acknowledgements', () => {
         const ctrl = makeCtrl();
         const reload = jest.fn();

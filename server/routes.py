@@ -233,6 +233,9 @@ from views import (
 from views import (
     simul as simul_view,
 )
+from views import (
+    study as study_view,
+)
 from views import team as team_view
 from wsl import lobby_socket_handler
 from wsr import round_socket_handler
@@ -287,6 +290,9 @@ get_routes: tuple[RouteDef, ...] = (
     (r"/corranalysis/{gameId:\w{8}}", analysis.analysis),
     (r"/analysis/{variant:[a-z0-9_-]+}", analysis.analysis),
     (r"/analysis/{variant:[a-z0-9_-]+}/{fen}", analysis.analysis),
+    ("/study", study_view.studies),
+    (r"/study/{studyId:\w{8}}", study_view.study_show),
+    (r"/study/{studyId:\w{8}}/{chapterId:\w{8}}", study_view.study_show),
     ("/seek/{variant}", lobby.lobby),
     (r"/editor/{variant:[a-z0-9_-]+}", editor.editor),
     (r"/editor/{variant:[a-z0-9_-]+}/{fen}", editor.editor),
@@ -519,6 +525,12 @@ post_routes: tuple[RouteDef, ...] = (
     ("/simul", simul_view.simuls),
     ("/simuls/simul", simul_view.simuls),
     (r"/simul/{simulId:\w{8}}/edit", simul_view.update_simul),
+    ("/study", study_view.study_create),
+    (r"/study/{studyId:\w{8}}/edit", study_view.study_edit),
+    (r"/study/{studyId:\w{8}}/delete", study_view.study_delete),
+    (r"/study/{studyId:\w{8}}/chapter", study_view.study_chapter_create),
+    (r"/study/{studyId:\w{8}}/{chapterId:\w{8}}/edit", study_view.study_chapter_edit),
+    (r"/study/{studyId:\w{8}}/{chapterId:\w{8}}/delete", study_view.study_chapter_delete),
     ("/team/new", team_view.team_create),
     ("/team/{teamId}/edit", team_view.team_update),
     ("/team/{teamId}/leaders/add", team_view.team_leader_add),

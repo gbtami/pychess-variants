@@ -7,9 +7,11 @@ export interface AnalysisExtension {
     // Extensions such as Study can replace the ordinary round socket with their own
     // transport while reusing AnalysisController's heartbeat/message plumbing.
     socketTarget?: string;
+    treeStorageKey?: string;
     onSocketOpen?(): void;
     onSocketReconnect?(): void;
     onSocketClose?(): void;
+    onInitialBoardLoaded?(): void;
     canActivatePath?(path: string): boolean;
     onPathChanged?(path: string, previousPath: string): void;
     onNodeAdded?(parentPath: string, node: AnalysisTreeNode): void;

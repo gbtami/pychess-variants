@@ -31,6 +31,7 @@ jest.unstable_mockModule('../client/analysis/analysisSettings', () => ({
 
 const { analysisView, embedView, renderAnalysisPage } = await import('../client/analysis');
 const { puzzleView } = await import('../client/puzzle');
+const { studyView } = await import('../client/study/studyView');
 const { roundView } = await import('../client/round');
 
 function makeModel(overrides: Partial<PyChessModel> = {}): PyChessModel {
@@ -177,6 +178,42 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('#move-controls')).not.toBeNull();
         expect(root.querySelector('.analysis-settings')).not.toBeNull();
         expect(root.querySelector('#pgntext')).toBeNull();
+        expect(root.querySelector('#roundchat')).toBeNull();
+    });
+
+    test('study view composes the analysis shell with chapter navigation', () => {
+        const root = renderNodes(
+            studyView(
+                makeModel({
+                    gameId: '',
+                    status: 0,
+                    study: {
+                        id: 'StUdY001',
+                        name: 'Opening ideas',
+                        chapter: {
+                            id: 'ChAp0001',
+                            name: 'Main line',
+                            revision: 3,
+                            orientation: 'white',
+                            tree: { nodes: [] },
+                        },
+                        chapters: [
+                            { id: 'ChAp0001', name: 'Main line', order: 1 },
+                            { id: 'ChAp0002', name: 'Sideline', order: 2 },
+                        ],
+                    },
+                }),
+            ),
+        );
+
+        expect(root.querySelector('.study-side')).not.toBeNull();
+        expect(root.querySelectorAll('.study-chapter__row')).toHaveLength(2);
+        expect(root.querySelector('.study-chapter__row.active a')?.getAttribute('href')).toBe(
+            '/study/StUdY001/ChAp0001',
+        );
+        expect(root.querySelector('#mainboard')).not.toBeNull();
+        expect(root.querySelector('#movelist')).not.toBeNull();
+        expect(root.querySelector('#pgntext')).not.toBeNull();
         expect(root.querySelector('#roundchat')).toBeNull();
     });
 

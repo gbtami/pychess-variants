@@ -12,9 +12,11 @@ import type { AnalysisExtension, AnalysisExtensionFactory } from '../analysis/an
 import type { JSONObject } from '../types';
 import {
     addStudyNodeToAnalysisTree,
+    analysisTreeFromStudy,
     isStudyNodeId,
     newStudyNodeId,
     refreshStudyMainline,
+    type StudyTreeDto,
     type StudyTreeNodeDto,
 } from './studyTree';
 
@@ -41,6 +43,8 @@ export interface StudySyncOptions {
     studyId: string;
     chapterId: string;
     revision: number;
+    tree?: StudyTreeDto;
+    orientation?: 'white' | 'black';
     onReloadRequired?: (reason: string) => void;
     opIdFactory?: () => string;
 }
@@ -80,6 +84,7 @@ function asStudyTreeNode(value: unknown): StudyTreeNodeDto | undefined {
 
 export class StudyAnalysisExtension implements AnalysisExtension {
     readonly socketTarget: string;
+    readonly treeStorageKey: string;
     private currentRevision: number;
     private connected = false;
     private openedOnce = false;
@@ -97,7 +102,12 @@ export class StudyAnalysisExtension implements AnalysisExtension {
             throw new Error('Study revision must be a non-negative integer');
         }
         this.currentRevision = options.revision;
+        if (options.orientation) {
+            ctrl.mycolor = options.orientation;
+            ctrl.oppcolor = options.orientation === 'white' ? 'black' : 'white';
+        }
         this.socketTarget = `wsstudy/${options.studyId}`;
+        this.treeStorageKey = `study:${options.studyId}:${options.chapterId}`;
         this.onReloadRequired = options.onReloadRequired ?? (() => window.location.reload());
         this.opIdFactory = options.opIdFactory ?? newStudyNodeId;
     }
@@ -108,6 +118,23 @@ export class StudyAnalysisExtension implements AnalysisExtension {
 
     get pendingCount(): number {
         return this.pending.length;
+    }
+
+    onInitialBoardLoaded(): void {
+        if (!this.options.tree) return;
+        const rootStep = this.ctrl.steps[0];
+        if (!rootStep) {
+            this.requestReload('missing_root_position');
+            return;
+        }
+        try {
+            const tree = analysisTreeFromStudy(rootStep, this.options.tree);
+            this.ctrl.tree.loadAnalysisTree(tree);
+            this.refreshPreferredMainline();
+            updateMovelist(this.ctrl, true, false);
+        } catch {
+            this.requestReload('invalid_initial_tree');
+        }
     }
 
     onSocketOpen(): void {

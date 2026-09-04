@@ -21,6 +21,7 @@ import { directChallengeView } from './directChallenge';
 import { renderGames } from './games';
 import { editorView } from '@/editor/editor';
 import { analysisView, embedView } from './analysis';
+import { studyView } from './study/studyView';
 import { puzzleView } from './puzzle';
 import { profileView } from './profile';
 import { tournamentView } from './tournament';
@@ -169,6 +170,7 @@ function initModel(el: HTMLElement) {
         assetURL: el.getAttribute('data-asset-url') ?? '',
         nnueDownloadRoot: el.getAttribute('data-nnue-download-root') ?? '',
         puzzle: el.getAttribute('data-puzzle') ?? '',
+        study: JSON.parse(el.getAttribute('data-study') || 'null'),
         blogs: el.getAttribute('data-blogs') ?? '',
         timeline: el.getAttribute('data-timeline') ?? '[]',
         corrGames: el.getAttribute('data-corrgames') ?? '',
@@ -212,6 +214,8 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
             } else {
                 return h('div#main-wrap', analysisView(model));
             }
+        case 'study':
+            return h('div#main-wrap', studyView(model));
         case 'puzzle':
             return h('div#main-wrap', puzzleView(model));
         case 'invite':
@@ -280,7 +284,7 @@ function start() {
             }
         }
 
-        if (['round', 'analysis', 'puzzle', 'editor', 'tv', 'embed', 'paste'].includes(dataView)) {
+        if (['round', 'analysis', 'study', 'puzzle', 'editor', 'tv', 'embed', 'paste'].includes(dataView)) {
             console.time('load ffish');
             const variantIni =
                 dataView === 'paste'

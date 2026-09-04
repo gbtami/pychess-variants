@@ -94,7 +94,7 @@ export function embedView(model: PyChessModel): VNode[] {
     ];
 }
 
-function analysisUnderboard(model: PyChessModel, context: AnalysisContext, isOngoingGame: boolean): VNode[] {
+export function analysisUnderboard(model: PyChessModel, context: AnalysisContext, isOngoingGame: boolean): VNode[] {
     const tabindexCt = context.analysisBoard ? '-1' : '0';
     let tabindexPgn = context.analysisBoard ? '0' : '-1';
 

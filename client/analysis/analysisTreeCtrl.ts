@@ -108,6 +108,16 @@ export class AnalysisTreeController {
         this.activateTreePath(initialPath, false, false);
     }
 
+    loadAnalysisTree(tree: AnalysisTree, path: string = '') {
+        this.analysisTree = tree;
+        this.analysisPath = '';
+        this.treeForkIndex = 0;
+        this.treeContextMenu = undefined;
+        this.applyTreeCollapsedPaths();
+        this.revealTreePath(path);
+        this.activateTreePath(path, false, false);
+    }
+
     getTreeActivePath() {
         return this.analysisPath;
     }
@@ -404,7 +414,9 @@ export class AnalysisTreeController {
     }
 
     private treeCollapsedStorageKey() {
-        return `${TREE_COLLAPSED_STORAGE_KEY}:${this.ctrl.gameId || `analysis:${this.ctrl.variant.name}`}`;
+        const scope =
+            this.ctrl.analysisExtension?.treeStorageKey ?? (this.ctrl.gameId || `analysis:${this.ctrl.variant.name}`);
+        return `${TREE_COLLAPSED_STORAGE_KEY}:${scope}`;
     }
 
     private applyTreeCollapsedPaths() {

@@ -362,6 +362,7 @@ export class AnalysisController extends GameController {
         // are deliberately independent concerns.
         if (!this.analysisContext.capabilities.usesRoundSocket) {
             this.onMsgBoard(model['board'] as MsgBoard);
+            this.analysisExtension?.onInitialBoardLoaded?.();
             if (this.analysisContext.mode === 'standalone' && !this.hasAnalysisTree()) {
                 this.initAnalysisTreeAtPly(this.ply);
                 updateMovelist(this, true, false);

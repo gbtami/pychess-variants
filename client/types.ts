@@ -29,6 +29,25 @@ export interface SimulGame {
     result: string;
 }
 
+export type StudyChapterPreview = {
+    id: string;
+    name: string;
+    order: number;
+};
+
+export type StudyPageModel = {
+    id: string;
+    name: string;
+    chapter: {
+        id: string;
+        name: string;
+        revision: number;
+        orientation: 'white' | 'black';
+        tree: import('./study/studyTree').StudyTreeDto;
+    };
+    chapters: StudyChapterPreview[];
+};
+
 export type PyChessModel = {
     ffish: FairyStockfish;
     username: string;
@@ -91,6 +110,7 @@ export type PyChessModel = {
     assetURL: string;
     nnueDownloadRoot: string;
     puzzle: string;
+    study: StudyPageModel | null;
 
     wplayerB: string;
     wtitleB: string;
