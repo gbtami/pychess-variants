@@ -43,31 +43,8 @@ import { PvHoverPreview } from './pvHoverPreview';
 import { alertDialog } from '../alertDialog';
 import { confirmDialog } from '../confirmDialog';
 import { animatePassMove } from '../passMove';
-import {
-    addOrSelectChild,
-    AnalysisTree,
-    branchStartPath,
-    canPromoteVariation,
-    createAnalysisTree,
-    currentLineEndPath,
-    deleteNodePath,
-    extendPath,
-    forceVariationAt,
-    getNodeList,
-    mainlineEndPath,
-    mainlinePathAtPly,
-    nextBranchPath,
-    nodeAtPath,
-    parentPath,
-    pathIsForcedVariation,
-    previousBranchPath,
-    promoteNodePath,
-    renderLinePgnMoveText,
-    setCollapsedFrom,
-    someCollapsedFrom,
-    stepLinePath,
-    renderFullTreePgnMoveText,
-} from './analysisTree';
+import { renderFullTreePgnMoveText } from './analysisTree';
+import { AnalysisTreeController } from './analysisTreeCtrl';
 import {
     CEVAL_ACTIVE_ROUNDS_STORAGE_KEY,
     CEVAL_DISABLE_STORAGE_KEY,
@@ -86,8 +63,6 @@ const EVAL_REGEX = new RegExp(
 );
 
 const maxDepth = 18;
-const TREE_COLLAPSED_STORAGE_KEY = 'analysisTreeCollapsedPaths';
-
 const emptySan = '\xa0';
 
 export function titleCase(words: string) {
@@ -136,11 +111,7 @@ export class AnalysisController extends GameController {
     lastBroadcastLocalAnalysisFen?: string;
     inlineNotation: boolean;
     disclosureMode: boolean;
-    analysisTree?: AnalysisTree;
-    analysisPath: string;
-    treeForkIndex: number;
-    treeContextMenu?: { path: string; x: number; y: number };
-    private readonly onTreeContextMenuDocumentClick: (event: MouseEvent) => void;
+    readonly tree: AnalysisTreeController;
     keyboardHelpOpen: boolean;
     private readonly onKeyboardHelpShortcutKeyDown: (event: KeyboardEvent) => void;
     private readonly onKeyboardHelpKeyDown: (event: KeyboardEvent) => void;
@@ -160,6 +131,7 @@ export class AnalysisController extends GameController {
             document.getElementById('pocket1') as HTMLElement,
             '',
         );
+        this.tree = new AnalysisTreeController(this);
         this.pvHoverPreview = new PvHoverPreview(this.variant);
         this.fsfError = [];
         this.embed = model.embed;
@@ -220,17 +192,10 @@ export class AnalysisController extends GameController {
         this.nnueOk = false;
         this.importedBy = '';
         this.lastBroadcastLocalAnalysisFen = undefined;
-        this.analysisPath = '';
-        this.treeForkIndex = 0;
         this.keyboardHelpOpen = false;
         this.awaitingStopReadyok = false;
         this.pendingGoAfterStopReadyok = false;
         this.fsfInputQueue = [];
-        this.onTreeContextMenuDocumentClick = (event: MouseEvent) => {
-            const target = event.target as HTMLElement | null;
-            if (target?.closest('.tree-context-menu')) return;
-            this.closeTreeContextMenu();
-        };
         this.onKeyboardHelpShortcutKeyDown = (event: KeyboardEvent) => {
             if (this.keyboardHelpOpen || !isKeyboardHelpShortcut(event)) return;
 
@@ -397,47 +362,6 @@ export class AnalysisController extends GameController {
         if (this.variant.name !== 'racingkings' && this.mycolor === 'black') gaugeEl.classList.add('flipped');
 
         this.autoShapes = [];
-
-        Mousetrap.bind('left', () => {
-            if (!this.hasAnalysisTree()) return;
-            const target = this.getTreeParentPath();
-            if (target !== this.analysisPath) this.activateTreePath(target);
-        });
-        Mousetrap.bind('right', () => {
-            if (!this.hasAnalysisTree()) return;
-            const target = this.getTreeMainChildPath();
-            if (target) this.activateTreePath(target);
-        });
-        Mousetrap.bind(['up', '0', 'home'], (event?: KeyboardEvent) => {
-            if (!this.hasAnalysisTree()) return;
-            if (event?.key === 'ArrowUp' && this.selectTreeFork('prev')) return;
-            this.activateTreePath('');
-        });
-        Mousetrap.bind(['down', '$', 'end'], (event?: KeyboardEvent) => {
-            if (!this.hasAnalysisTree()) return;
-            if (event?.key === 'ArrowDown' && this.selectTreeFork('next')) return;
-            this.activateTreePath(this.getTreeMainlineEndPath());
-        });
-        Mousetrap.bind('shift+left', () => {
-            if (!this.hasAnalysisTree()) return;
-            const target = this.getTreePreviousBranchPath();
-            if (target !== this.analysisPath) this.activateTreePath(target);
-        });
-        Mousetrap.bind('shift+right', () => {
-            if (!this.hasAnalysisTree()) return;
-            const target = this.getTreeNextBranchPath();
-            if (target !== this.analysisPath) this.activateTreePath(target);
-        });
-        Mousetrap.bind('shift+up', () => {
-            if (!this.hasAnalysisTree()) return;
-            const target = this.getTreeStepLinePath('prev');
-            if (target !== this.analysisPath) this.activateTreePath(target);
-        });
-        Mousetrap.bind('shift+down', () => {
-            if (!this.hasAnalysisTree()) return;
-            const target = this.getTreeStepLinePath('next');
-            if (target !== this.analysisPath) this.activateTreePath(target);
-        });
     }
 
     helpDialog() {
@@ -461,8 +385,24 @@ export class AnalysisController extends GameController {
         hideKeyboardHelp();
     }
 
+    get analysisTree() {
+        return this.tree.analysisTree;
+    }
+
+    get analysisPath() {
+        return this.tree.analysisPath;
+    }
+
+    get treeForkIndex() {
+        return this.tree.treeForkIndex;
+    }
+
+    get treeContextMenu() {
+        return this.tree.treeContextMenu;
+    }
+
     hasAnalysisTree() {
-        return this.analysisTree !== undefined;
+        return this.tree.hasAnalysisTree();
     }
 
     isTreeInlineNotation() {
@@ -474,246 +414,135 @@ export class AnalysisController extends GameController {
     }
 
     initAnalysisTreeAtPly(ply: number) {
-        if (this.steps.length === 0) return;
-        // We rebuild the in-memory tree from the persisted mainline and then place
-        // the active cursor on the requested ply. All later user-created branches
-        // are attached to this tree only on the client.
-        this.analysisTree = createAnalysisTree(this.steps);
-        this.applyTreeCollapsedPaths();
-        this.analysisPath = mainlinePathAtPly(this.analysisTree, ply);
-        this.revealTreePath(this.analysisPath);
-        this.activateTreePath(this.analysisPath, false);
+        this.tree.initAnalysisTreeAtPly(ply);
     }
 
     getTreeActivePath() {
-        return this.analysisPath;
+        return this.tree.getTreeActivePath();
     }
 
     getTreeCurrentNode() {
-        if (!this.analysisTree) return undefined;
-        return nodeAtPath(this.analysisTree, this.analysisPath);
+        return this.tree.getTreeCurrentNode();
     }
 
     getTreeNodeList() {
-        if (!this.analysisTree) return [];
-        // This breadcrumb is the canonical source for UCI/PGN generation in tree mode.
-        return getNodeList(this.analysisTree, this.analysisPath);
+        return this.tree.getTreeNodeList();
     }
 
     getTreeMainlineEndPath() {
-        if (!this.analysisTree) return '';
-        return mainlineEndPath(this.analysisTree);
+        return this.tree.getTreeMainlineEndPath();
     }
 
     getTreeLineStartPath() {
-        if (!this.analysisTree) return '';
-        return branchStartPath(this.analysisTree, this.analysisPath);
+        return this.tree.getTreeLineStartPath();
     }
 
     getTreeLineEndPath() {
-        if (!this.analysisTree) return '';
-        return currentLineEndPath(this.analysisTree, this.analysisPath);
+        return this.tree.getTreeLineEndPath();
     }
 
     getTreeParentPath() {
-        return parentPath(this.analysisPath);
+        return this.tree.getTreeParentPath();
     }
 
     getTreeMainChildPath() {
-        const node = this.getTreeCurrentNode();
-        return node?.children[this.treeForkIndex]?.path ?? node?.children[0]?.path;
+        return this.tree.getTreeMainChildPath();
     }
 
     getTreeNodeAtPath(path: string) {
-        if (!this.analysisTree) return undefined;
-        return nodeAtPath(this.analysisTree, path);
+        return this.tree.getTreeNodeAtPath(path);
     }
 
     pathIsTreeMainline(path: string) {
-        if (!this.analysisTree) return true;
-        return this.getTreeNodeListForPath(path).every((node, idx) => idx === 0 || node.mainlinePly !== undefined);
+        return this.tree.pathIsTreeMainline(path);
     }
 
     pathIsTreeForcedVariation(path: string) {
-        if (!this.analysisTree) return false;
-        return pathIsForcedVariation(this.analysisTree, path);
+        return this.tree.pathIsTreeForcedVariation(path);
     }
 
     getTreeNodeListForPath(path: string) {
-        if (!this.analysisTree) return [];
-        return getNodeList(this.analysisTree, path);
+        return this.tree.getTreeNodeListForPath(path);
     }
 
     canPromoteTreeVariation(path: string) {
-        if (!this.analysisTree) return false;
-        return canPromoteVariation(this.analysisTree, path);
+        return this.tree.canPromoteTreeVariation(path);
     }
 
     someTreeCollapsed(collapsed: boolean) {
-        if (!this.analysisTree) return false;
-        return someCollapsedFrom(this.analysisTree, collapsed);
+        return this.tree.someTreeCollapsed(collapsed);
     }
 
     getTreeSelectedChildPath() {
-        return this.treeForkIndex > 0 ? this.getTreeMainChildPath() : undefined;
+        return this.tree.getTreeSelectedChildPath();
     }
 
     getTreeContextMenu() {
-        return this.treeContextMenu;
+        return this.tree.getTreeContextMenu();
     }
 
     openTreeContextMenu(path: string, clientX: number, clientY: number) {
-        const container = document.getElementById('movelist');
-        if (!container) return;
-
-        const rect = container.getBoundingClientRect();
-        const x = clientX - rect.left + container.scrollLeft;
-        const y = clientY - rect.top + container.scrollTop;
-
-        this.treeContextMenu = { path, x, y };
-        document.addEventListener('click', this.onTreeContextMenuDocumentClick, false);
-        updateMovelist(this, true, false);
+        this.tree.openTreeContextMenu(path, clientX, clientY);
     }
 
     closeTreeContextMenu() {
-        if (!this.treeContextMenu) return;
-        this.treeContextMenu = undefined;
-        document.removeEventListener('click', this.onTreeContextMenuDocumentClick, false);
-        updateMovelist(this, true, false);
+        this.tree.closeTreeContextMenu();
     }
 
     copyTreeLinePgn(path: string) {
-        if (!this.analysisTree) return;
-        this.ensureTreeSanSan();
-        const onMainline = this.pathIsTreeMainline(path) && !this.pathIsTreeForcedVariation(path);
-        copyTextToClipboard(
-            renderLinePgnMoveText(
-                this.analysisTree,
-                onMainline ? extendPath(this.analysisTree, path, true) : path,
-                node => node.step.sanSAN ?? '',
-            ),
-        );
-        this.closeTreeContextMenu();
+        this.tree.copyTreeLinePgn(path);
     }
 
     collapseAllTree() {
-        if (!this.analysisTree) return;
-        setCollapsedFrom(this.analysisTree, '', true);
-        this.saveTreeCollapsedPaths();
-        this.closeTreeContextMenu();
+        this.tree.collapseAllTree();
     }
 
     expandAllTree() {
-        if (!this.analysisTree) return;
-        setCollapsedFrom(this.analysisTree, '', false);
-        this.saveTreeCollapsedPaths();
-        this.closeTreeContextMenu();
+        this.tree.expandAllTree();
     }
 
     promoteTreeVariation(path: string, toMainline: boolean) {
-        if (!this.analysisTree) return;
-        promoteNodePath(this.analysisTree, path, toMainline);
-        updateMovelist(this, true, false);
-        this.closeTreeContextMenu();
+        this.tree.promoteTreeVariation(path, toMainline);
     }
 
     forceTreeVariation(path: string, force: boolean) {
-        if (!this.analysisTree) return;
-        forceVariationAt(this.analysisTree, path, force);
-        this.activateTreePath(path);
+        this.tree.forceTreeVariation(path, force);
     }
 
     deleteTreeNode(path: string) {
-        if (!this.analysisTree || !path) return;
-        const nextPath =
-            this.analysisPath === path || this.analysisPath.startsWith(`${path}.`)
-                ? parentPath(path)
-                : this.analysisPath;
-        deleteNodePath(this.analysisTree, path);
-        this.revealTreePath(nextPath);
-        this.saveTreeCollapsedPaths();
-        this.activateTreePath(nextPath);
-        this.closeTreeContextMenu();
+        this.tree.deleteTreeNode(path);
     }
 
     getTreePreviousBranchPath() {
-        if (!this.analysisTree) return this.analysisPath;
-        return previousBranchPath(this.analysisTree, this.analysisPath);
+        return this.tree.getTreePreviousBranchPath();
     }
 
     getTreeNextBranchPath() {
-        if (!this.analysisTree) return this.analysisPath;
-        return nextBranchPath(this.analysisTree, this.analysisPath, this.treeForkIndex);
+        return this.tree.getTreeNextBranchPath();
     }
 
     getTreeStepLinePath(which: 'prev' | 'next') {
-        if (!this.analysisTree) return this.analysisPath;
-        return stepLinePath(this.analysisTree, this.analysisPath, which);
+        return this.tree.getTreeStepLinePath(which);
     }
 
     selectTreeFork(which: 'prev' | 'next') {
-        const node = this.getTreeCurrentNode();
-        if (!node || node.children.length < 2) return false;
-
-        const delta = which === 'next' ? 1 : -1;
-        this.treeForkIndex = (node.children.length + this.treeForkIndex + delta) % node.children.length;
-        updateMovelist(this, true, false);
-        return true;
+        return this.tree.selectTreeFork(which);
     }
 
     toggleTreeCollapsed(path: string) {
-        if (!this.analysisTree) return;
-        const node = nodeAtPath(this.analysisTree, path);
-        if (!node || node.children.length < 2) return;
-
-        node.collapsed = !node.collapsed;
-        if (node.collapsed) {
-            const mainChildPath = node.children[0]?.path;
-            if (this.analysisPath !== path && mainChildPath && !this.analysisPath.startsWith(mainChildPath)) {
-                this.analysisPath = path;
-                this.goPly(node.ply, 0);
-            }
-        }
-        this.revealTreePath(this.analysisPath);
-        this.saveTreeCollapsedPaths();
-        updateMovelist(this, true, false);
+        this.tree.toggleTreeCollapsed(path);
     }
 
     activateTreeMainlinePly(ply: number) {
-        if (!this.analysisTree) return;
-        this.activateTreePath(mainlinePathAtPly(this.analysisTree, ply));
+        this.tree.activateTreeMainlinePly(ply);
     }
 
     private getTreeNodeForPly(ply: number) {
-        if (!this.analysisTree) return undefined;
-
-        // First prefer the currently selected branch. Falling back to persisted mainline
-        // preserves older callers that still address positions by raw ply only.
-        const nodeOnActivePath = this.getTreeNodeList().find(n => n.ply === ply);
-        if (nodeOnActivePath) return nodeOnActivePath;
-
-        const mainlinePath = mainlinePathAtPly(this.analysisTree, ply);
-        const mainlineNode = nodeAtPath(this.analysisTree, mainlinePath);
-        if (mainlineNode) this.analysisPath = mainlinePath;
-        return mainlineNode;
+        return this.tree.getTreeNodeForPly(ply);
     }
 
     activateTreePath(path: string, redrawMovelist = true) {
-        if (!this.analysisTree) return;
-        const node = nodeAtPath(this.analysisTree, path);
-        if (!node) return;
-
-        // `analysisPath` is the single source of truth for tree-mode selection.
-        // `goPly()` then projects that node back into the existing board/eval widgets.
-        this.treeForkIndex = 0;
-        this.treeContextMenu = undefined;
-        document.removeEventListener('click', this.onTreeContextMenuDocumentClick, false);
-        this.analysisPath = path;
-        this.revealTreePath(path);
-        this.plyVari = 0;
-        this.goPly(node.ply, 0);
-
-        if (redrawMovelist) updateMovelist(this, true, false);
+        this.tree.activateTreePath(path, redrawMovelist);
     }
 
     toggleSettings() {
@@ -1721,7 +1550,7 @@ export class AnalysisController extends GameController {
         }
 
         if (this.hasAnalysisTree()) {
-            this.ensureTreeSanSan();
+            this.tree.ensureTreeSanSan();
         } else
             for (let ply = 1; ply <= this.ply; ply++) {
                 if (blackStarts && ply === 1) {
@@ -1762,60 +1591,6 @@ export class AnalysisController extends GameController {
         return `${event}\n${site}\n${date}\n${white}\n${black}\n${result}\n${variant}\n${fen}\n${setup}\n\n${moveText} *\n`;
     }
 
-    private ensureTreeSanSan() {
-        if (!this.analysisTree) return;
-
-        const visit = (parentFen: string, nodes: AnalysisTree['root']['children']) => {
-            nodes.forEach(node => {
-                if (node.step.sanSAN === undefined && node.step.move !== undefined) {
-                    this.ffishBoard.setFen(parentFen);
-                    node.step.sanSAN = this.ffishBoard.sanMove(node.step.move);
-                }
-                visit(node.step.fen, node.children);
-            });
-        };
-
-        visit(this.steps[0].fen, this.analysisTree.root.children);
-    }
-
-    private treeCollapsedStorageKey() {
-        return `${TREE_COLLAPSED_STORAGE_KEY}:${this.gameId || `analysis:${this.variant.name}`}`;
-    }
-
-    private applyTreeCollapsedPaths() {
-        if (!this.analysisTree) return;
-        let collapsedPaths: string[] = [];
-        try {
-            collapsedPaths = JSON.parse(localStorage[this.treeCollapsedStorageKey()] ?? '[]');
-        } catch {
-            collapsedPaths = [];
-        }
-        collapsedPaths.forEach(path => {
-            const node = nodeAtPath(this.analysisTree!, path);
-            if (node) node.collapsed = true;
-        });
-    }
-
-    private saveTreeCollapsedPaths() {
-        if (!this.analysisTree) return;
-        const collapsedPaths: string[] = [];
-        const visit = (node: AnalysisTree['root']) => {
-            if (node.collapsed) collapsedPaths.push(node.path);
-            node.children.forEach(visit);
-        };
-        visit(this.analysisTree.root);
-        localStorage[this.treeCollapsedStorageKey()] = JSON.stringify(collapsedPaths);
-    }
-
-    private revealTreePath(path: string) {
-        if (!this.analysisTree) return;
-        getNodeList(this.analysisTree, path)
-            .slice(0, -1)
-            .forEach(node => {
-                node.collapsed = false;
-            });
-    }
-
     doSendMove(move: string) {
         const san = this.ffishBoard.sanMove(move, this.notationAsObject);
         const sanSAN = this.ffishBoard.sanMove(move);
@@ -1854,30 +1629,13 @@ export class AnalysisController extends GameController {
         // `activateTreePath()` already refreshes board state, UCI move list and engine
         // analysis for tree mode, so we must not kick off a second `engineGo()` here.
         let treeActivated = false;
-        if (this.hasAnalysisTree() && this.analysisTree) {
-            const currentNode = this.getTreeCurrentNode() ?? this.analysisTree.root;
-            const followMainlineMove = currentNode.children[0]?.step.move;
-            const extendsMainlineTail =
-                this.analysisPath === this.getTreeMainlineEndPath() &&
-                currentNode.mainlinePly !== undefined &&
-                currentNode.mainlinePly === this.steps.length - 1;
-
-            const childPath = addOrSelectChild(
-                this.analysisTree,
-                this.analysisPath,
-                step,
-                extendsMainlineTail && followMainlineMove === undefined,
-                extendsMainlineTail ? this.steps.length : undefined,
-            );
-
-            if (extendsMainlineTail && followMainlineMove === undefined) {
-                this.steps.push(step);
-                this.recordedMainlinePly = this.steps.length - 1;
-                this.checkStatus(msg);
+        if (this.hasAnalysisTree()) {
+            const recorded = this.tree.recordMove(step);
+            if (recorded) {
+                if (recorded.extendedMainline) this.checkStatus(msg);
+                this.activateTreePath(recorded.childPath);
+                treeActivated = true;
             }
-
-            this.activateTreePath(childPath);
-            treeActivated = true;
         } else {
             this.steps.push(step);
             this.ply = this.steps.length - 1;
