@@ -11,6 +11,7 @@ from mongomock_motor import AsyncMongoMockClient
 from playwright.async_api import Error as PlaywrightError
 from playwright.async_api import async_playwright, expect
 from pychess_global_app_state_utils import get_app_state
+from study.storage import load_owned_chapter, load_owned_study
 from study.tree import StudyTree
 
 from server import make_app
@@ -212,17 +213,22 @@ class TestStudyGUI:
                 await expect(page.locator(".study-chapters")).to_contain_text("2. Last chapter")
                 await expect(page.locator(".study-chapters")).not_to_contain_text("Renamed middle")
 
-                # A second app instance has fresh in-memory state but the same database.
-                # Loading the Study there proves no startup recovery/preload is required.
+                # A fresh application state backed by the same database can load the
+                # Study and chapter directly. Do not start a second aiohttp test server
+                # in this event loop: PyChess graceful shutdown intentionally cancels
+                # loop-wide tasks, so two live app runners would interfere at teardown.
                 restarted_app = make_app(db_client=db_client, simple_cookie_storage=True)
-                restarted_server = await aiohttp_server(restarted_app, host="127.0.0.1")
-                restarted_base = f"http://{restarted_server.host}:{restarted_server.port}"
-                await page.goto(f"{restarted_base}/study/{study_id}/{first_chapter_id}")
-                await expect(page.locator("#movelist")).to_contain_text("e4")
-                await expect(page.locator("#movelist")).to_contain_text("c5")
-                await expect(page.locator("#movelist")).to_contain_text("Nf3")
-                await expect(page.locator("#movelist")).to_contain_text("e5")
-                await expect(page.locator("#movelist")).not_to_contain_text("d4")
+                restarted_state = get_app_state(restarted_app)
+                restarted_study = await load_owned_study(restarted_state, study_id, username)
+                restarted_chapter = await load_owned_chapter(
+                    restarted_state, study_id, first_chapter_id, username
+                )
+                assert restarted_study is not None
+                assert restarted_chapter is not None
+                assert restarted_state.study_sockets == {}
+                restarted_moves = {node.move for node in restarted_chapter.root.nodes.values()}
+                assert {"e2e4", "c7c5", "g1f3", "e7e5"} <= restarted_moves
+                assert "d2d4" not in restarted_moves
             finally:
                 await context.close()
                 await browser.close()
@@ -274,8 +280,8 @@ class TestStudyGUI:
                 # Try independent root alternatives from both tabs at nearly the same
                 # time. They may serialize, or one tab may reload after the revision
                 # race. Either outcome must converge to the authoritative Mongo tree.
-                await page_a.locator("#move-controls button").nth(1).click()
-                await page_b.locator("#move-controls button").nth(1).click()
+                await page_a.locator(".btn-controls button:has(.icon-fast-backward)").click()
+                await page_b.locator(".btn-controls button:has(.icon-fast-backward)").click()
                 await asyncio.gather(
                     self._play_board_move(page_a, "d2", "d4"),
                     self._play_board_move(page_b, "c2", "c4"),
