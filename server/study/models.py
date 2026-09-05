@@ -7,6 +7,7 @@ from typing import Any, Literal, cast
 
 from newid import new_id
 
+from study.annotations import canonical_description, canonical_tags
 from study.tree import StudyTree
 
 StudyVisibility = Literal["private", "unlisted", "public"]
@@ -191,6 +192,8 @@ class StudyChapter:
     updated_at: datetime
     chess960: bool = False
     variant_ini: str | None = None
+    description: str = ""
+    tags: Mapping[str, str] = field(default_factory=dict)
     revision: int = 0
 
     def to_document(self) -> dict[str, object]:
@@ -200,6 +203,8 @@ class StudyChapter:
             raise ValueError(f"Unknown Study chapter orientation: {self.orientation!r}")
         if self.revision < 0:
             raise ValueError("Study chapter revision must be non-negative")
+        description = canonical_description(self.description)
+        tags = canonical_tags(self.tags)
 
         doc: dict[str, object] = {
             "_id": self.id,
@@ -219,6 +224,10 @@ class StudyChapter:
             doc["chess960"] = True
         if self.variant_ini is not None:
             doc["variantIni"] = self.variant_ini
+        if description:
+            doc["description"] = description
+        if tags:
+            doc["tags"] = tags
         return doc
 
     @classmethod
@@ -232,6 +241,7 @@ class StudyChapter:
         raw_chess960 = doc.get("chess960", False)
         if not isinstance(raw_chess960, bool):
             raise TypeError("Study chapter field 'chess960' must be boolean")
+        raw_tags = doc.get("tags", {})
 
         return cls(
             id=_required_str(doc, "_id"),
@@ -247,6 +257,8 @@ class StudyChapter:
             updated_at=_required_datetime(doc, "updatedAt"),
             chess960=raw_chess960,
             variant_ini=_optional_str(doc, "variantIni"),
+            description=canonical_description(doc.get("description", "")),
+            tags=canonical_tags(raw_tags),
             revision=_nonnegative_int(doc, "revision", default=0),
         )
 

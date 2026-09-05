@@ -206,6 +206,8 @@ async def study_show(request: web.Request) -> ViewContext:
                 "name": chapter.name,
                 "revision": chapter.revision,
                 "orientation": chapter.orientation,
+                "description": chapter.description,
+                "tags": dict(chapter.tags),
                 "tree": chapter.root.to_payload(),
             },
             "chapters": await chapter_previews(app_state, study.id),

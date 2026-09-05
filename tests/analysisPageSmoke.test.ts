@@ -10,7 +10,17 @@ import { PyChessModel } from '../client/types';
 jest.useFakeTimers();
 
 jest.unstable_mockModule('../client/analysis/analysisCtrl', () => ({
-    AnalysisController: class AnalysisController {},
+    AnalysisController: class AnalysisController {
+        analysisPath = '';
+        analysisTree = undefined;
+        chessground = { setShapes: jest.fn() };
+        username = 'tester';
+        onFSFline = jest.fn();
+
+        constructor(_el: HTMLElement, _model: PyChessModel, extensionFactory?: (ctrl: unknown) => unknown) {
+            extensionFactory?.(this);
+        }
+    },
 }));
 jest.unstable_mockModule('../client/puzzleCtrl', () => ({
     PuzzleController: class PuzzleController {},
@@ -210,7 +220,16 @@ describe('analysis page smoke coverage', () => {
                             name: 'Main line',
                             revision: 3,
                             orientation: 'white',
-                            tree: { nodes: [] },
+                            description: 'Chapter description',
+                            tags: { Event: 'Test event', Site: 'PyChess' },
+                            tree: {
+                                rootAnnotations: {
+                                    shapes: [],
+                                    comments: [{ id: 'Comment001', author: 'tester', text: 'Root note' }],
+                                    nags: [1],
+                                },
+                                nodes: [],
+                            },
                         },
                         chapters: [
                             { id: 'ChAp0001', name: 'Main line', order: 1 },
@@ -234,6 +253,15 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('details.study-side__new-chapter')).not.toBeNull();
         expect(root.querySelector('input[name="fen"]')).not.toBeNull();
         expect(root.querySelector('input[name="gameId"]')).not.toBeNull();
+        expect(root.querySelector('.study-annotations')).not.toBeNull();
+        expect(root.querySelector('.study-annotations__comment-input')).not.toBeNull();
+        expect(root.querySelectorAll('.study-annotations__nag')).toHaveLength(6);
+        expect((root.querySelector('.study-annotations__description textarea') as HTMLTextAreaElement).value).toBe(
+            'Chapter description',
+        );
+        expect((root.querySelector('.study-annotations__tags textarea') as HTMLTextAreaElement).value).toBe(
+            'Event=Test event\nSite=PyChess',
+        );
     });
 
     test('embed view stays lean and does not render PGN tab content', () => {
@@ -500,7 +528,7 @@ describe('analysis tree movelist gating', () => {
         expect(disclosureMove?.textContent).not.toContain('Ba4');
     });
 
-    test('tree nodes expose selected-line state and split SAN glyph suffixes', () => {
+    test('tree nodes expose selected-line state, SAN suffixes and persisted NAG glyphs', () => {
         document.body.innerHTML = '<div id="movelist"></div>';
 
         const steps: Step[] = [
@@ -511,6 +539,7 @@ describe('analysis tree movelist gating', () => {
         ];
         const tree = createAnalysisTree(steps);
         const e4Path = mainlinePathAtPly(tree, 1);
+        tree.root.children[0].children[0].annotations = { shapes: [], comments: [], nags: [3, 7] };
         addOrSelectChild(tree, e4Path, makeStep('v1 w - - 0 1', 'c7c5', 'white', 'c5?!'), false);
 
         const ctrl = {
@@ -542,6 +571,10 @@ describe('analysis tree movelist gating', () => {
         expect(firstMove?.classList.contains('currentline')).toBe(true);
         expect(firstMove?.querySelector('san')?.textContent).toBe('e4');
         expect(firstMove?.querySelector('glyph.good')?.textContent).toBe('!');
+
+        const secondMove = document.querySelector('#movelist move[data-path="01.02"]') as HTMLElement | null;
+        expect(secondMove?.querySelector('glyph.brilliant')?.textContent).toBe('!!');
+        expect([...secondMove!.querySelectorAll('glyph')].some(glyph => glyph.textContent === '$7')).toBe(true);
 
         const sidelineMove = document.querySelector('#movelist move[data-path="01.04"]') as HTMLElement | null;
         expect(sidelineMove?.classList.contains('sideline')).toBe(true);

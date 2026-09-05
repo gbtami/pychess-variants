@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import unittest
 
+from study.annotations import StudyAnnotations, StudyComment, StudyShape
 from study.tree import (
     STUDY_NODE_ID_LENGTH,
     STUDY_TREE_ROOT_KEY,
@@ -28,6 +29,7 @@ def make_node(
     turn_color: StudyTurnColor = "black",
     check: bool = False,
     force_variation: bool = False,
+    annotations: StudyAnnotations | None = None,
 ) -> StudyTreeNode:
     return StudyTreeNode(
         id=node_id,
@@ -40,6 +42,7 @@ def make_node(
         san="e4",
         san_san="e4",
         force_variation=force_variation,
+        annotations=annotations or StudyAnnotations(),
     )
 
 
@@ -70,6 +73,31 @@ class StudyTreeTestCase(unittest.TestCase):
         self.assertEqual(restored, tree)
         self.assertEqual([node.id for node in restored.children_of(None)], [ROOT_A, ROOT_B])
         self.assertEqual(restored.children_of(ROOT_A)[0].id, CHILD_A)
+
+    def test_root_and_node_annotations_round_trip_in_document_and_payload(self) -> None:
+        root_annotations = StudyAnnotations(
+            shapes=(StudyShape("e4", "e5", "red"),),
+            comments=(StudyComment("Comment001", "owner", "Root note"),),
+            nags=(1, 3),
+        )
+        node_annotations = StudyAnnotations(
+            shapes=(StudyShape("d4", brush="blue"),),
+            comments=(StudyComment("Comment002", "owner", "Node note"),),
+            nags=(2,),
+        )
+        tree = StudyTree(
+            {ROOT_A: make_node(ROOT_A, annotations=node_annotations)},
+            root_annotations=root_annotations,
+        )
+
+        doc = tree.to_document()
+        self.assertEqual(doc[STUDY_TREE_ROOT_KEY]["a"]["n"], [1, 3])  # type: ignore[index]
+        self.assertIn("a", doc[ROOT_A])  # type: ignore[operator]
+        self.assertEqual(StudyTree.from_document(doc), tree)
+
+        payload = tree.to_payload()
+        self.assertEqual(payload["rootAnnotations"]["nags"], [1, 3])  # type: ignore[index]
+        self.assertEqual(StudyTree.from_payload(payload), tree)
 
     def test_payload_round_trip_and_stable_path_resolution(self) -> None:
         tree = StudyTree(

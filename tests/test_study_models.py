@@ -83,6 +83,31 @@ class StudyModelTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(restored, chapter)
         self.assertEqual(restored.name, "Chapter 2")
 
+    async def test_chapter_description_and_tags_are_canonicalized_and_round_trip(self) -> None:
+        now = datetime(2026, 9, 4, 12, 0, tzinfo=UTC)
+        chapter = StudyChapter(
+            id="chapter1",
+            study_id="study001",
+            name="Chapter 1",
+            order=1,
+            owner="owner",
+            variant="chess",
+            initial_fen="start",
+            orientation="white",
+            root=StudyTree(),
+            description="  Line one\r\nLine two  ",
+            tags={"Site": "  PyChess  ", "Event": "Test", "Empty": "  "},
+            created_at=now,
+            updated_at=now,
+        )
+
+        doc = chapter.to_document()
+        self.assertEqual(doc["description"], "Line one\nLine two")
+        self.assertEqual(doc["tags"], {"Event": "Test", "Site": "PyChess"})
+        restored = StudyChapter.from_document(doc)
+        self.assertEqual(restored.description, "Line one\nLine two")
+        self.assertEqual(restored.tags, {"Event": "Test", "Site": "PyChess"})
+
     def test_source_round_trip(self) -> None:
         source = StudySource("game", "abcdefgh")
         self.assertEqual(StudySource.decode(source.encode()), source)
@@ -118,6 +143,8 @@ class StudyModelTestCase(unittest.IsolatedAsyncioTestCase):
         doc = chapter.to_document()
         self.assertNotIn("chess960", doc)
         self.assertNotIn("variantIni", doc)
+        self.assertNotIn("description", doc)
+        self.assertNotIn("tags", doc)
 
 
 if __name__ == "__main__":

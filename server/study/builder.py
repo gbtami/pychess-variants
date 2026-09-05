@@ -10,6 +10,7 @@ from fairy.fairy_board import NOTATION_SAN, WHITE, FairyBoard
 from utils import load_game, sanitize_fen
 from variants import ALL_VARIANTS, C2V, TWO_BOARD_VARIANT_CODES, is_catalogued_variant
 
+from study.annotations import StudyAnnotations, StudyComment
 from study.models import StudySource
 from study.tree import StudyTree, StudyTreeNode
 from study.variant import study_variant_context
@@ -175,6 +176,7 @@ class StudyChapterBuilder:
                     show_promoted=options.show_promoted,
                     legal_moves_need_history=options.legal_moves_need_history,
                     runtime_variant=options.runtime_variant,
+                    comment_author=self.owner,
                 )
             except StudyChapterBuildError:
                 raise
@@ -246,6 +248,7 @@ class StudyChapterBuilder:
         show_promoted: bool,
         legal_moves_need_history: bool,
         runtime_variant: str,
+        comment_author: str,
     ) -> StudyTree:
         rebuilt: dict[str, StudyTreeNode] = {}
         pending = deque([(None, initial_fen, ())])
@@ -300,6 +303,9 @@ class StudyChapterBuilder:
                     san=san,
                     san_san=san_san,
                     force_variation=submitted.force_variation,
+                    annotations=StudyChapterBuilder._canonical_annotation_authors(
+                        submitted.annotations, comment_author
+                    ),
                 )
                 rebuilt[node.id] = node
                 moves = parent_moves + (node.move,)
@@ -307,4 +313,24 @@ class StudyChapterBuilder:
 
         if len(rebuilt) != tree.count():
             raise StudyChapterBuildError("Analysis tree is disconnected")
-        return StudyTree(rebuilt)
+        return StudyTree(
+            rebuilt,
+            root_annotations=StudyChapterBuilder._canonical_annotation_authors(
+                tree.root_annotations, comment_author
+            ),
+        )
+
+    @staticmethod
+    def _canonical_annotation_authors(
+        annotations: StudyAnnotations, comment_author: str
+    ) -> StudyAnnotations:
+        if not annotations.comments:
+            return annotations
+        return StudyAnnotations(
+            shapes=annotations.shapes,
+            comments=tuple(
+                StudyComment(comment.id, comment_author, comment.text)
+                for comment in annotations.comments
+            ),
+            nags=annotations.nags,
+        )

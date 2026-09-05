@@ -126,9 +126,49 @@ class StudyForceVariationIn(StudyMutationIn):
     force: bool
 
 
+class StudySetShapesIn(StudyMutationIn):
+    type: Literal["study_set_shapes"]
+    path: str
+    shapes: list[dict[str, object]]
+
+
+class StudySetCommentIn(StudyMutationIn):
+    type: Literal["study_set_comment"]
+    path: str
+    commentId: str
+    text: str
+
+
+class StudySetNagsIn(StudyMutationIn):
+    type: Literal["study_set_nags"]
+    path: str
+    nags: list[int]
+
+
+class StudyClearAnnotationsIn(StudyMutationIn):
+    type: Literal["study_clear_annotations"]
+    path: str
+
+
+class StudySetDescriptionIn(StudyMutationIn):
+    type: Literal["study_set_description"]
+    description: str
+
+
+class StudySetTagsIn(StudyMutationIn):
+    type: Literal["study_set_tags"]
+    tags: dict[str, str]
+
+
 STUDY_TYPED_DECODERS: dict[str, msgspec.json.Decoder] = {
     "study_add_node": msgspec.json.Decoder(type=StudyAddNodeIn),
     "study_delete_node": msgspec.json.Decoder(type=StudyDeleteNodeIn),
     "study_promote_variation": msgspec.json.Decoder(type=StudyPromoteVariationIn),
     "study_force_variation": msgspec.json.Decoder(type=StudyForceVariationIn),
+    "study_set_shapes": msgspec.json.Decoder(type=StudySetShapesIn),
+    "study_set_comment": msgspec.json.Decoder(type=StudySetCommentIn),
+    "study_set_nags": msgspec.json.Decoder(type=StudySetNagsIn),
+    "study_clear_annotations": msgspec.json.Decoder(type=StudyClearAnnotationsIn),
+    "study_set_description": msgspec.json.Decoder(type=StudySetDescriptionIn),
+    "study_set_tags": msgspec.json.Decoder(type=StudySetTagsIn),
 }

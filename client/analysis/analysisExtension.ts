@@ -1,3 +1,5 @@
+import type { DrawShape } from 'chessgroundx/draw';
+
 import type { AnalysisTreeNode } from './analysisTree';
 import type { AnalysisController } from './analysisCtrl';
 
@@ -14,6 +16,7 @@ export interface AnalysisExtension {
     onInitialBoardLoaded?(): void;
     canActivatePath?(path: string): boolean;
     onPathChanged?(path: string, previousPath: string): void;
+    onShapesChanged?(shapes: DrawShape[]): void;
     onNodeAdded?(parentPath: string, node: AnalysisTreeNode): void;
     onNodeDeleted?(path: string): void;
     onVariationPromoted?(path: string, toMainline: boolean): void;

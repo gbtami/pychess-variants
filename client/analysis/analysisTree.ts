@@ -1,7 +1,21 @@
+import type { DrawShape } from 'chessgroundx/draw';
+
 import { Step } from '../messages';
 
 const ROOT_PATH = '';
 const PATH_SEPARATOR = '.';
+
+export interface AnalysisComment {
+    id: string;
+    author: string;
+    text: string;
+}
+
+export interface AnalysisAnnotations {
+    shapes: DrawShape[];
+    comments: AnalysisComment[];
+    nags: number[];
+}
 
 export interface AnalysisTreeNode {
     // Stable per-parent id segment used to build dotted paths like `01.0a.0b`.
@@ -17,6 +31,9 @@ export interface AnalysisTreeNode {
     forceVariation?: boolean;
     // Present only for nodes that still sit on the original persisted game mainline.
     mainlinePly?: number;
+    // Persisted analysis-document metadata. Ordinary analysis leaves this undefined;
+    // Study uses it for root/node drawings, comments and NAGs.
+    annotations?: AnalysisAnnotations;
 }
 
 export interface AnalysisTree {

@@ -10,6 +10,16 @@ from typing import TYPE_CHECKING, Literal
 from bson import BSON
 from fairy.fairy_board import NOTATION_SAN, WHITE, FairyBoard
 
+from study.annotations import (
+    StudyAnnotations,
+    StudyComment,
+    StudyShape,
+    canonical_comment_text,
+    canonical_description,
+    canonical_nags,
+    canonical_tags,
+    is_study_comment_id,
+)
 from study.constants import STUDY_CHAPTER_MAX_BSON_BYTES, STUDY_MAX_NODES_PER_CHAPTER
 from study.models import Study, StudyChapter
 from study.tree import StudyTree, StudyTreeNode, is_study_node_id, new_study_node_id
@@ -39,6 +49,9 @@ class StudyMutationResult:
     reason: str | None = None
     path: str | None = None
     node: StudyTreeNode | None = None
+    annotations: StudyAnnotations | None = None
+    description: str | None = None
+    tags: Mapping[str, str] | None = None
 
     def to_payload(self) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -53,6 +66,12 @@ class StudyMutationResult:
             payload["path"] = self.path
         if self.node is not None:
             payload["node"] = self.node.to_payload()
+        if self.annotations is not None:
+            payload["annotations"] = self.annotations.to_payload()
+        if self.description is not None:
+            payload["description"] = self.description
+        if self.tags is not None:
+            payload["tags"] = dict(self.tags)
         return payload
 
 
@@ -156,7 +175,9 @@ class StudyMutationService:
 
         nodes = dict(chapter.root.nodes)
         nodes[node.id] = node
-        candidate = self._candidate_chapter(chapter, StudyTree(nodes))
+        candidate = self._candidate_chapter(
+            chapter, StudyTree(nodes, root_annotations=chapter.root.root_annotations)
+        )
         size_error = self._size_error(candidate)
         if size_error is not None:
             return size_error
@@ -216,7 +237,9 @@ class StudyMutationService:
                 nodes[sibling.id] = replacement
                 changed_nodes[sibling.id] = replacement
 
-        candidate = self._candidate_chapter(chapter, StudyTree(nodes))
+        candidate = self._candidate_chapter(
+            chapter, StudyTree(nodes, root_annotations=chapter.root.root_annotations)
+        )
         result = await self._commit(
             chapter,
             candidate,
@@ -293,7 +316,9 @@ class StudyMutationService:
                 status="ok", revision=chapter.revision, changed=False, path=path
             )
 
-        candidate = self._candidate_chapter(chapter, StudyTree(nodes))
+        candidate = self._candidate_chapter(
+            chapter, StudyTree(nodes, root_annotations=chapter.root.root_annotations)
+        )
         size_error = self._size_error(candidate)
         if size_error is not None:
             return size_error
@@ -346,7 +371,9 @@ class StudyMutationService:
                 status="ok", revision=chapter.revision, changed=False, path=path
             )
 
-        candidate = self._candidate_chapter(chapter, StudyTree(nodes))
+        candidate = self._candidate_chapter(
+            chapter, StudyTree(nodes, root_annotations=chapter.root.root_annotations)
+        )
         size_error = self._size_error(candidate)
         if size_error is not None:
             return size_error
@@ -358,6 +385,273 @@ class StudyMutationService:
             revision=candidate.revision,
             changed=True,
             path=path,
+        )
+
+    async def set_shapes(
+        self,
+        *,
+        study_id: str,
+        chapter_id: str,
+        username: str,
+        path: str,
+        shapes: object,
+        expected_revision: int,
+    ) -> StudyMutationResult:
+        loaded = await self._load_owner_context(study_id, chapter_id, username)
+        if isinstance(loaded, StudyMutationResult):
+            return loaded
+        chapter = loaded.chapter
+        mismatch = self._revision_mismatch(chapter, expected_revision)
+        if mismatch is not None:
+            return mismatch
+        current = self._annotations_for_path(chapter.root, path)
+        if current is None:
+            return self._reload(chapter.revision, "invalid_path")
+        try:
+            if not isinstance(shapes, list):
+                raise TypeError
+            canonical_shapes = tuple(
+                StudyShape.from_payload(shape) for shape in shapes if isinstance(shape, Mapping)
+            )
+            if len(canonical_shapes) != len(shapes):
+                raise TypeError
+            annotations = StudyAnnotations(
+                shapes=canonical_shapes, comments=current.comments, nags=current.nags
+            )
+        except (TypeError, ValueError):
+            return self._error(chapter.revision, "invalid_shapes")
+        return await self._set_position_annotations(chapter, path, annotations)
+
+    async def set_comment(
+        self,
+        *,
+        study_id: str,
+        chapter_id: str,
+        username: str,
+        path: str,
+        comment_id: str,
+        text: object,
+        expected_revision: int,
+    ) -> StudyMutationResult:
+        loaded = await self._load_owner_context(study_id, chapter_id, username)
+        if isinstance(loaded, StudyMutationResult):
+            return loaded
+        chapter = loaded.chapter
+        mismatch = self._revision_mismatch(chapter, expected_revision)
+        if mismatch is not None:
+            return mismatch
+        current = self._annotations_for_path(chapter.root, path)
+        if current is None:
+            return self._reload(chapter.revision, "invalid_path")
+        if not is_study_comment_id(comment_id):
+            return self._error(chapter.revision, "invalid_comment_id")
+        try:
+            canonical_text = canonical_comment_text(text)
+            comments = [comment for comment in current.comments if comment.id != comment_id]
+            if canonical_text:
+                comments.append(StudyComment(comment_id, username, canonical_text))
+            annotations = StudyAnnotations(
+                shapes=current.shapes, comments=tuple(comments), nags=current.nags
+            )
+        except (TypeError, ValueError):
+            return self._error(chapter.revision, "invalid_comment")
+        return await self._set_position_annotations(chapter, path, annotations)
+
+    async def set_nags(
+        self,
+        *,
+        study_id: str,
+        chapter_id: str,
+        username: str,
+        path: str,
+        nags: object,
+        expected_revision: int,
+    ) -> StudyMutationResult:
+        loaded = await self._load_owner_context(study_id, chapter_id, username)
+        if isinstance(loaded, StudyMutationResult):
+            return loaded
+        chapter = loaded.chapter
+        mismatch = self._revision_mismatch(chapter, expected_revision)
+        if mismatch is not None:
+            return mismatch
+        current = self._annotations_for_path(chapter.root, path)
+        if current is None:
+            return self._reload(chapter.revision, "invalid_path")
+        try:
+            annotations = StudyAnnotations(
+                shapes=current.shapes,
+                comments=current.comments,
+                nags=canonical_nags(nags),
+            )
+        except (TypeError, ValueError):
+            return self._error(chapter.revision, "invalid_nags")
+        return await self._set_position_annotations(chapter, path, annotations)
+
+    async def clear_annotations(
+        self,
+        *,
+        study_id: str,
+        chapter_id: str,
+        username: str,
+        path: str,
+        expected_revision: int,
+    ) -> StudyMutationResult:
+        loaded = await self._load_owner_context(study_id, chapter_id, username)
+        if isinstance(loaded, StudyMutationResult):
+            return loaded
+        chapter = loaded.chapter
+        mismatch = self._revision_mismatch(chapter, expected_revision)
+        if mismatch is not None:
+            return mismatch
+        current = self._annotations_for_path(chapter.root, path)
+        if current is None:
+            return self._reload(chapter.revision, "invalid_path")
+        return await self._set_position_annotations(chapter, path, StudyAnnotations())
+
+    async def set_description(
+        self,
+        *,
+        study_id: str,
+        chapter_id: str,
+        username: str,
+        description: object,
+        expected_revision: int,
+    ) -> StudyMutationResult:
+        loaded = await self._load_owner_context(study_id, chapter_id, username)
+        if isinstance(loaded, StudyMutationResult):
+            return loaded
+        chapter = loaded.chapter
+        mismatch = self._revision_mismatch(chapter, expected_revision)
+        if mismatch is not None:
+            return mismatch
+        try:
+            canonical = canonical_description(description)
+        except (TypeError, ValueError):
+            return self._error(chapter.revision, "invalid_description")
+        if canonical == chapter.description:
+            return StudyMutationResult(
+                status="ok", revision=chapter.revision, changed=False, description=canonical
+            )
+        candidate = replace(
+            chapter,
+            description=canonical,
+            updated_at=datetime.now(UTC),
+            revision=chapter.revision + 1,
+        )
+        size_error = self._size_error(candidate)
+        if size_error is not None:
+            return size_error
+        result = await self._commit(
+            chapter,
+            candidate,
+            extra_set={"description": canonical} if canonical else None,
+            extra_unset={"description"} if not canonical else None,
+        )
+        if result is not None:
+            return result
+        return StudyMutationResult(
+            status="ok", revision=candidate.revision, changed=True, description=canonical
+        )
+
+    async def set_tags(
+        self,
+        *,
+        study_id: str,
+        chapter_id: str,
+        username: str,
+        tags: object,
+        expected_revision: int,
+    ) -> StudyMutationResult:
+        loaded = await self._load_owner_context(study_id, chapter_id, username)
+        if isinstance(loaded, StudyMutationResult):
+            return loaded
+        chapter = loaded.chapter
+        mismatch = self._revision_mismatch(chapter, expected_revision)
+        if mismatch is not None:
+            return mismatch
+        try:
+            canonical = canonical_tags(tags)
+        except (TypeError, ValueError):
+            return self._error(chapter.revision, "invalid_tags")
+        if canonical == dict(chapter.tags):
+            return StudyMutationResult(
+                status="ok", revision=chapter.revision, changed=False, tags=canonical
+            )
+        candidate = replace(
+            chapter,
+            tags=canonical,
+            updated_at=datetime.now(UTC),
+            revision=chapter.revision + 1,
+        )
+        size_error = self._size_error(candidate)
+        if size_error is not None:
+            return size_error
+        result = await self._commit(
+            chapter,
+            candidate,
+            extra_set={"tags": canonical} if canonical else None,
+            extra_unset={"tags"} if not canonical else None,
+        )
+        if result is not None:
+            return result
+        return StudyMutationResult(
+            status="ok", revision=candidate.revision, changed=True, tags=canonical
+        )
+
+    @staticmethod
+    def _annotations_for_path(tree: StudyTree, path: str) -> StudyAnnotations | None:
+        if not path:
+            return tree.root_annotations
+        node = tree.node_at_path(path)
+        return None if node is None else node.annotations
+
+    async def _set_position_annotations(
+        self, chapter: StudyChapter, path: str, annotations: StudyAnnotations
+    ) -> StudyMutationResult:
+        current = self._annotations_for_path(chapter.root, path)
+        if current is None:
+            return self._reload(chapter.revision, "invalid_path")
+        if annotations == current:
+            return StudyMutationResult(
+                status="ok",
+                revision=chapter.revision,
+                changed=False,
+                path=path,
+                annotations=annotations,
+            )
+
+        nodes = dict(chapter.root.nodes)
+        if path:
+            target = chapter.root.node_at_path(path)
+            if target is None:
+                return self._reload(chapter.revision, "invalid_path")
+            nodes[target.id] = replace(target, annotations=annotations)
+            root = StudyTree(nodes, root_annotations=chapter.root.root_annotations)
+            annotation_field = f"root.{target.id}.a"
+        else:
+            root = StudyTree(nodes, root_annotations=annotations)
+            annotation_field = "root._.a"
+
+        candidate = self._candidate_chapter(chapter, root)
+        size_error = self._size_error(candidate)
+        if size_error is not None:
+            return size_error
+        result = await self._commit(
+            chapter,
+            candidate,
+            extra_set={annotation_field: annotations.to_document()}
+            if not annotations.empty
+            else None,
+            extra_unset={annotation_field} if annotations.empty else None,
+        )
+        if result is not None:
+            return result
+        return StudyMutationResult(
+            status="ok",
+            revision=candidate.revision,
+            changed=True,
+            path=path,
+            annotations=annotations,
         )
 
     async def _load_owner_context(
@@ -534,6 +828,8 @@ class StudyMutationService:
         *,
         set_nodes: Mapping[str, StudyTreeNode] | None = None,
         unset_node_ids: set[str] | None = None,
+        extra_set: Mapping[str, object] | None = None,
+        extra_unset: set[str] | None = None,
     ) -> StudyMutationResult | None:
         set_fields: dict[str, object] = {
             "updatedAt": candidate.updated_at,
@@ -541,10 +837,14 @@ class StudyMutationService:
         }
         for node_id, node in (set_nodes or {}).items():
             set_fields[f"root.{node_id}"] = node.to_document()
+        if extra_set:
+            set_fields.update(extra_set)
 
         update: dict[str, object] = {"$set": set_fields}
-        if unset_node_ids:
-            update["$unset"] = {f"root.{node_id}": "" for node_id in unset_node_ids}
+        unset_fields = {f"root.{node_id}" for node_id in (unset_node_ids or set())}
+        unset_fields.update(extra_unset or set())
+        if unset_fields:
+            update["$unset"] = {field: "" for field in unset_fields}
 
         result = await self.db.study_chapter.update_one(
             {

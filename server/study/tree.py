@@ -8,6 +8,7 @@ from collections.abc import Collection, Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Literal, cast
 
+from study.annotations import StudyAnnotations
 from study.constants import STUDY_MAX_NODES_PER_CHAPTER
 
 StudyTurnColor = Literal["white", "black"]
@@ -66,6 +67,7 @@ class StudyTreeNode:
     san: str | None = None
     san_san: str | None = None
     force_variation: bool = False
+    annotations: StudyAnnotations = field(default_factory=StudyAnnotations)
 
     def __post_init__(self) -> None:
         if not is_study_node_id(self.id):
@@ -100,6 +102,8 @@ class StudyTreeNode:
             doc["ss"] = self.san_san
         if self.force_variation:
             doc["v"] = True
+        if not self.annotations.empty:
+            doc["a"] = self.annotations.to_document()
         return doc
 
     @classmethod
@@ -127,6 +131,9 @@ class StudyTreeNode:
         raw_force = doc.get("v", False)
         if not isinstance(raw_force, bool):
             raise TypeError(f"{context} field 'v' must be boolean")
+        raw_annotations = doc.get("a", {})
+        if not isinstance(raw_annotations, Mapping):
+            raise TypeError(f"{context} field 'a' must be a mapping")
 
         return cls(
             id=node_id,
@@ -139,6 +146,7 @@ class StudyTreeNode:
             san=_optional_str(doc, "s", context=context),
             san_san=_optional_str(doc, "ss", context=context),
             force_variation=raw_force,
+            annotations=StudyAnnotations.from_document(raw_annotations),
         )
 
     def to_payload(self) -> dict[str, object]:
@@ -157,6 +165,8 @@ class StudyTreeNode:
             payload["sanSAN"] = self.san_san
         if self.force_variation:
             payload["forceVariation"] = True
+        if not self.annotations.empty:
+            payload["annotations"] = self.annotations.to_payload()
         return payload
 
     @classmethod
@@ -174,6 +184,9 @@ class StudyTreeNode:
         raw_force = payload.get("forceVariation", False)
         if not isinstance(raw_force, bool):
             raise TypeError(f"{context} field 'forceVariation' must be boolean")
+        raw_annotations = payload.get("annotations", {})
+        if not isinstance(raw_annotations, Mapping):
+            raise TypeError(f"{context} field 'annotations' must be a mapping")
 
         return cls(
             id=_required_str(payload, "id", context=context),
@@ -186,6 +199,7 @@ class StudyTreeNode:
             san=_optional_str(payload, "san", context=context),
             san_san=_optional_str(payload, "sanSAN", context=context),
             force_variation=raw_force,
+            annotations=StudyAnnotations.from_payload(raw_annotations),
         )
 
 
@@ -199,6 +213,7 @@ class StudyTree:
     """
 
     nodes: Mapping[str, StudyTreeNode] = field(default_factory=dict)
+    root_annotations: StudyAnnotations = field(default_factory=StudyAnnotations)
 
     def __post_init__(self) -> None:
         nodes = dict(self.nodes)
@@ -278,9 +293,12 @@ class StudyTree:
         return node
 
     def to_document(self) -> dict[str, object]:
-        # Keep a dedicated root record like lila's StudyFlatTree. It is empty in the
-        # owner-only MVP and gives Phase 2 a stable home for start-position annotations.
-        doc: dict[str, object] = {STUDY_TREE_ROOT_KEY: {}}
+        # Keep a dedicated root record like lila's StudyFlatTree so start-position
+        # annotations are first-class and can be updated incrementally.
+        root_record: dict[str, object] = {}
+        if not self.root_annotations.empty:
+            root_record["a"] = self.root_annotations.to_document()
+        doc: dict[str, object] = {STUDY_TREE_ROOT_KEY: root_record}
         for node_id, node in self.nodes.items():
             doc[node_id] = node.to_document()
         return doc
@@ -290,8 +308,13 @@ class StudyTree:
         raw_root = doc.get(STUDY_TREE_ROOT_KEY)
         if not isinstance(raw_root, Mapping):
             raise TypeError("Study tree root record must be a mapping")
-        if raw_root:
-            raise ValueError("Study tree root annotations are not supported yet")
+        raw_root_annotations = raw_root.get("a", {})
+        if not isinstance(raw_root_annotations, Mapping):
+            raise TypeError("Study tree root annotation record must be a mapping")
+        unexpected_root_keys = set(raw_root) - {"a"}
+        if unexpected_root_keys:
+            raise ValueError("Study tree root record contains unsupported fields")
+        root_annotations = StudyAnnotations.from_document(raw_root_annotations)
 
         nodes: dict[str, StudyTreeNode] = {}
         for node_id, raw_node in doc.items():
@@ -302,7 +325,7 @@ class StudyTree:
             if not isinstance(raw_node, Mapping):
                 raise TypeError(f"Study node {node_id!r} must be a mapping")
             nodes[node_id] = StudyTreeNode.from_document(node_id, raw_node)
-        return cls(nodes)
+        return cls(nodes, root_annotations=root_annotations)
 
     def to_payload(self) -> dict[str, object]:
         # Payload order is deterministic and topological, but consumers must use the
@@ -319,11 +342,17 @@ class StudyTree:
             node = pending.pop()
             ordered.append(node)
             pending.extend(reversed(children[node.id]))
-        return {"nodes": [node.to_payload() for node in ordered]}
+        payload: dict[str, object] = {"nodes": [node.to_payload() for node in ordered]}
+        if not self.root_annotations.empty:
+            payload["rootAnnotations"] = self.root_annotations.to_payload()
+        return payload
 
     @classmethod
     def from_payload(cls, payload: Mapping[str, object]) -> StudyTree:
         raw_nodes = payload.get("nodes")
+        raw_root_annotations = payload.get("rootAnnotations", {})
+        if not isinstance(raw_root_annotations, Mapping):
+            raise TypeError("Study tree payload field 'rootAnnotations' must be a mapping")
         if not isinstance(raw_nodes, Sequence) or isinstance(raw_nodes, (str, bytes)):
             raise TypeError("Study tree payload field 'nodes' must be a list")
         nodes: dict[str, StudyTreeNode] = {}
@@ -334,4 +363,4 @@ class StudyTree:
             if node.id in nodes:
                 raise ValueError(f"Duplicate Study node id: {node.id!r}")
             nodes[node.id] = node
-        return cls(nodes)
+        return cls(nodes, root_annotations=StudyAnnotations.from_payload(raw_root_annotations))

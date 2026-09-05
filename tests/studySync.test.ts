@@ -47,6 +47,8 @@ function makeCtrl() {
         steps: [tree.root.step],
         recordedMainlinePly: undefined,
         doSend: jest.fn(),
+        username: 'owner',
+        chessground: { setShapes: jest.fn() },
     };
     ctrl.activateTreePath = jest.fn((path: string) => {
         ctrl.analysisPath = path;
@@ -78,6 +80,180 @@ describe('Study analysis websocket synchronization', () => {
         expect(ctrl.oppcolor).toBe('white');
         expect(extension.treeStorageKey).toBe('study:study001:chapter1');
         expect(updateMovelistMock).toHaveBeenCalled();
+    });
+
+    test('restores persisted shapes on initial load and path navigation', () => {
+        const ctrl = makeCtrl();
+        ctrl.tree = { loadAnalysisTree: jest.fn((tree: unknown) => (ctrl.analysisTree = tree)) };
+        const stateChanged = jest.fn();
+        const node = {
+            ...e4Node(),
+            annotations: {
+                shapes: [{ orig: 'e4', dest: 'e5', brush: 'red' as const }],
+                comments: [],
+                nags: [1],
+            },
+        };
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            tree: {
+                rootAnnotations: {
+                    shapes: [{ orig: 'd4', brush: 'blue' }],
+                    comments: [],
+                    nags: [],
+                },
+                nodes: [node],
+            },
+            onAnnotationStateChanged: stateChanged,
+            onReloadRequired: jest.fn(),
+        });
+
+        extension.onInitialBoardLoaded();
+        expect(ctrl.chessground.setShapes).toHaveBeenLastCalledWith([{ orig: 'd4', brush: 'blue' }]);
+
+        ctrl.analysisPath = 'StudyNode1';
+        extension.onPathChanged();
+        expect(ctrl.chessground.setShapes).toHaveBeenLastCalledWith([{ orig: 'e4', dest: 'e5', brush: 'red' }]);
+        expect(stateChanged).toHaveBeenLastCalledWith(
+            expect.objectContaining({ path: 'StudyNode1', annotations: expect.objectContaining({ nags: [1] }) }),
+        );
+    });
+
+    test('queues a local drawing mutation and accepts the canonical server shape without echoing it', () => {
+        const ctrl = makeCtrl();
+        const reload = jest.fn();
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            onReloadRequired: reload,
+            opIdFactory: () => 'ShapeOp001',
+        });
+        extension.onSocketOpen();
+        extension.onShapesChanged([
+            { orig: 'e4', dest: 'e5', brush: 'red' },
+            { orig: 'a1', brush: 'green', customSvg: '<svg />' },
+        ]);
+
+        expect(ctrl.doSend).toHaveBeenCalledTimes(1);
+        expect(ctrl.doSend).toHaveBeenCalledWith({
+            type: 'study_set_shapes',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'ShapeOp001',
+            expectedRevision: 0,
+            path: '',
+            shapes: [{ orig: 'e4', dest: 'e5', brush: 'red' }],
+        });
+
+        extension.onSocketMessage('study_set_shapes', {
+            type: 'study_set_shapes',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'ShapeOp001',
+            revision: 1,
+            changed: true,
+            path: '',
+            annotations: { shapes: [{ orig: 'e4', dest: 'e5', brush: 'red' }], comments: [], nags: [] },
+        });
+
+        expect(ctrl.chessground.setShapes).toHaveBeenCalledWith([{ orig: 'e4', dest: 'e5', brush: 'red' }]);
+        expect(ctrl.doSend).toHaveBeenCalledTimes(1);
+        expect(extension.revision).toBe(1);
+        expect(reload).not.toHaveBeenCalled();
+    });
+
+    test('server-canonical comment acknowledgement replaces optimistic text and author', () => {
+        const ctrl = makeCtrl();
+        const states = jest.fn();
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            onAnnotationStateChanged: states,
+            onReloadRequired: jest.fn(),
+            opIdFactory: () => 'CommentOp1',
+        });
+        extension.onSocketOpen();
+        extension.setComment('Comment001', ' local text ');
+        expect(extension.annotationState.annotations.comments[0].text).toBe('local text');
+
+        extension.onSocketMessage('study_set_comment', {
+            type: 'study_set_comment',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'CommentOp1',
+            revision: 1,
+            changed: true,
+            path: '',
+            annotations: {
+                shapes: [],
+                comments: [{ id: 'Comment001', author: 'owner', text: 'canonical text' }],
+                nags: [],
+            },
+        });
+
+        expect(extension.annotationState.annotations.comments).toEqual([
+            { id: 'Comment001', author: 'owner', text: 'canonical text' },
+        ]);
+        expect(states).toHaveBeenCalled();
+    });
+
+    test('applies remote root annotations and chapter metadata without changing the active path', () => {
+        const ctrl = makeCtrl();
+        const e4 = e4Node();
+        addStudyNodeToAnalysisTree(ctrl.analysisTree, '', e4);
+        ctrl.analysisPath = 'StudyNode1';
+        const states = jest.fn();
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            description: 'old',
+            onAnnotationStateChanged: states,
+            onReloadRequired: jest.fn(),
+        });
+
+        extension.onSocketMessage('study_set_shapes', {
+            type: 'study_set_shapes',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'RemoteShape',
+            revision: 1,
+            changed: true,
+            path: '',
+            annotations: { shapes: [{ orig: 'd4', brush: 'blue' }], comments: [], nags: [] },
+        });
+        expect(ctrl.analysisPath).toBe('StudyNode1');
+        expect(ctrl.chessground.setShapes).not.toHaveBeenCalled();
+        expect(ctrl.analysisTree.root.annotations?.shapes).toEqual([{ orig: 'd4', brush: 'blue' }]);
+
+        extension.onSocketMessage('study_set_description', {
+            type: 'study_set_description',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'RemoteDescription',
+            revision: 2,
+            changed: true,
+            description: 'canonical description',
+        });
+        extension.onSocketMessage('study_set_tags', {
+            type: 'study_set_tags',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'RemoteTags',
+            revision: 3,
+            changed: true,
+            tags: { Event: 'Test' },
+        });
+
+        expect(extension.annotationState).toEqual(
+            expect.objectContaining({ description: 'canonical description', tags: { Event: 'Test' } }),
+        );
+        expect(extension.revision).toBe(3);
+        expect(states).toHaveBeenCalled();
     });
 
     test('serializes optimistic mutations behind revision acknowledgements', () => {

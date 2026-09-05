@@ -1,10 +1,30 @@
-import { AnalysisTree, AnalysisTreeNode } from '../analysis/analysisTree';
+import type { DrawShape } from 'chessgroundx/draw';
+
+import { AnalysisTree, AnalysisTreeNode, type AnalysisAnnotations } from '../analysis/analysisTree';
 import { Step } from '../messages';
 
 export const STUDY_NODE_ID_LENGTH = 10;
 const STUDY_NODE_ID_RE = new RegExp(`^[A-Za-z0-9]{${STUDY_NODE_ID_LENGTH}}$`);
 const STUDY_NODE_ID_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 const ROOT_PARENT_KEY = '';
+
+export interface StudyShapeDto {
+    orig: string;
+    dest?: string;
+    brush: 'green' | 'red' | 'blue' | 'yellow';
+}
+
+export interface StudyCommentDto {
+    id: string;
+    author: string;
+    text: string;
+}
+
+export interface StudyAnnotationsDto {
+    shapes: StudyShapeDto[];
+    comments: StudyCommentDto[];
+    nags: number[];
+}
 
 export interface StudyTreeNodeDto {
     id: string;
@@ -17,10 +37,12 @@ export interface StudyTreeNodeDto {
     san?: string;
     sanSAN?: string;
     forceVariation?: boolean;
+    annotations?: StudyAnnotationsDto;
 }
 
 export interface StudyTreeDto {
     nodes: StudyTreeNodeDto[];
+    rootAnnotations?: StudyAnnotationsDto;
 }
 
 export function isStudyNodeId(value: unknown): value is string {
@@ -44,6 +66,94 @@ export function newStudyNodeId(): string {
     return id;
 }
 
+const STUDY_BRUSHES = new Set(['green', 'red', 'blue', 'yellow']);
+
+function asRecord(value: unknown): Record<string, unknown> | undefined {
+    return value !== null && typeof value === 'object' && !Array.isArray(value)
+        ? (value as Record<string, unknown>)
+        : undefined;
+}
+
+export function parseStudyAnnotations(value: unknown): StudyAnnotationsDto {
+    const annotation = asRecord(value);
+    if (!annotation) throw new Error('Invalid Study annotations');
+    const rawShapes = annotation.shapes ?? [];
+    const rawComments = annotation.comments ?? [];
+    const rawNags = annotation.nags ?? [];
+    if (!Array.isArray(rawShapes) || !Array.isArray(rawComments) || !Array.isArray(rawNags)) {
+        throw new Error('Invalid Study annotation arrays');
+    }
+
+    const shapes = rawShapes.map(raw => {
+        const shape = asRecord(raw);
+        if (!shape || typeof shape.orig !== 'string') throw new Error('Invalid Study shape');
+        if (shape.dest !== undefined && typeof shape.dest !== 'string') throw new Error('Invalid Study shape');
+        const brush = shape.brush ?? 'green';
+        if (typeof brush !== 'string' || !STUDY_BRUSHES.has(brush)) throw new Error('Invalid Study brush');
+        return {
+            orig: shape.orig,
+            dest: shape.dest as string | undefined,
+            brush: brush as StudyShapeDto['brush'],
+        };
+    });
+
+    const comments = rawComments.map(raw => {
+        const comment = asRecord(raw);
+        if (
+            !comment ||
+            !isStudyNodeId(comment.id) ||
+            typeof comment.author !== 'string' ||
+            !comment.author ||
+            typeof comment.text !== 'string' ||
+            !comment.text
+        ) {
+            throw new Error('Invalid Study comment');
+        }
+        return { id: comment.id, author: comment.author, text: comment.text };
+    });
+    if (new Set(comments.map(comment => comment.id)).size !== comments.length) {
+        throw new Error('Duplicate Study comment id');
+    }
+
+    const nags: number[] = [];
+    for (const rawNag of rawNags) {
+        if (!Number.isInteger(rawNag) || (rawNag as number) < 1 || (rawNag as number) > 255) {
+            throw new Error('Invalid Study NAG');
+        }
+        const nag = rawNag as number;
+        if (!nags.includes(nag)) nags.push(nag);
+    }
+    return { shapes, comments, nags };
+}
+
+export function analysisAnnotationsFromStudy(value: StudyAnnotationsDto | undefined): AnalysisAnnotations | undefined {
+    if (!value) return undefined;
+    const annotation = parseStudyAnnotations(value);
+    if (!annotation.shapes.length && !annotation.comments.length && !annotation.nags.length) return undefined;
+    return {
+        shapes: annotation.shapes.map(shape => ({ ...shape }) as DrawShape),
+        comments: annotation.comments.map(comment => ({ ...comment })),
+        nags: [...annotation.nags],
+    };
+}
+
+export function studyAnnotationsFromAnalysis(value: AnalysisAnnotations | undefined): StudyAnnotationsDto | undefined {
+    if (!value) return undefined;
+    const annotations: StudyAnnotationsDto = {
+        shapes: value.shapes.map(shape => ({
+            orig: shape.orig,
+            ...(shape.dest ? { dest: shape.dest } : {}),
+            brush: STUDY_BRUSHES.has(shape.brush ?? 'green')
+                ? ((shape.brush ?? 'green') as StudyShapeDto['brush'])
+                : 'green',
+        })),
+        comments: value.comments.map(comment => ({ ...comment })),
+        nags: [...new Set(value.nags.filter(nag => Number.isInteger(nag) && nag >= 1 && nag <= 255))],
+    };
+    if (!annotations.shapes.length && !annotations.comments.length && !annotations.nags.length) return undefined;
+    return annotations;
+}
+
 function validateDtoNode(node: StudyTreeNodeDto): void {
     if (!isStudyNodeId(node.id)) throw new Error(`Invalid Study node id: ${node.id}`);
     if (node.parentId !== null && !isStudyNodeId(node.parentId)) {
@@ -53,6 +163,7 @@ function validateDtoNode(node: StudyTreeNodeDto): void {
     if (!node.move) throw new Error('Study node move must be non-empty');
     if (!node.fen) throw new Error('Study node FEN must be non-empty');
     if (node.turnColor !== 'white' && node.turnColor !== 'black') throw new Error('Invalid Study node turn color');
+    if (node.annotations !== undefined) parseStudyAnnotations(node.annotations);
 }
 
 function parentKey(parentId: string | null): string {
@@ -90,6 +201,7 @@ export function analysisTreeFromStudy(rootStep: Step, dto: StudyTreeDto): Analys
         step: rootStep,
         children: [],
         mainlinePly: 0,
+        annotations: analysisAnnotationsFromStudy(dto.rootAnnotations),
     };
     const tree: AnalysisTree = {
         root,
@@ -125,6 +237,7 @@ export function analysisTreeFromStudy(rootStep: Step, dto: StudyTreeDto): Analys
                 children: [],
                 forceVariation: dtoNode.forceVariation,
                 mainlinePly: onMainline ? current.parent.ply + 1 : undefined,
+                annotations: analysisAnnotationsFromStudy(dtoNode.annotations),
             };
             current.parent.children.push(node);
             tree.byPath.set(path, node);
@@ -151,6 +264,7 @@ function allocateStableId(preferred: string, used: Set<string>): string {
 
 export function studyTreeFromAnalysisTree(tree: AnalysisTree): StudyTreeDto {
     const nodes: StudyTreeNodeDto[] = [];
+    const rootAnnotations = studyAnnotationsFromAnalysis(tree.root.annotations);
     const used = new Set<string>();
     const queue: Array<{ parent: AnalysisTreeNode; stableParentId: string | null }> = [
         { parent: tree.root, stableParentId: null },
@@ -173,12 +287,14 @@ export function studyTreeFromAnalysisTree(tree: AnalysisTree): StudyTreeDto {
             if (child.step.san !== undefined) node.san = child.step.san;
             if (child.step.sanSAN !== undefined) node.sanSAN = child.step.sanSAN;
             if (child.forceVariation) node.forceVariation = true;
+            const annotations = studyAnnotationsFromAnalysis(child.annotations);
+            if (annotations) node.annotations = annotations;
             nodes.push(node);
             queue.push({ parent: child, stableParentId: id });
         });
     }
 
-    return { nodes };
+    return rootAnnotations ? { nodes, rootAnnotations } : { nodes };
 }
 
 export function addStudyNodeToAnalysisTree(
@@ -215,6 +331,7 @@ export function addStudyNodeToAnalysisTree(
         children: [],
         forceVariation: dtoNode.forceVariation,
         mainlinePly: onMainline ? parent.ply + 1 : undefined,
+        annotations: analysisAnnotationsFromStudy(dtoNode.annotations),
     };
     parent.children.push(child);
     tree.byPath.set(path, child);

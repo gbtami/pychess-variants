@@ -24,6 +24,7 @@ log = logging.getLogger(__name__)
 _CLIENT_OP_ID_RE = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
 _MAX_PATH_LENGTH = 40_000
 _MAX_MOVE_LENGTH = 256
+_MAX_ANNOTATION_PATH_LENGTH = _MAX_PATH_LENGTH
 
 
 def _as_mapping(data: object) -> Mapping[str, object] | None:
@@ -117,6 +118,12 @@ async def _finish_mutation(
         payload["path"] = result.path
     if result.node is not None:
         payload["node"] = result.node.to_payload()
+    if result.annotations is not None:
+        payload["annotations"] = result.annotations.to_payload()
+    if result.description is not None:
+        payload["description"] = result.description
+    if result.tags is not None:
+        payload["tags"] = dict(result.tags)
     if extra:
         payload.update(extra)
 
@@ -181,6 +188,90 @@ async def process_message(
             result,
             {"parentPath": parent_path, "move": move},
         )
+        return
+
+    if message_type in {
+        "study_set_shapes",
+        "study_set_comment",
+        "study_set_nags",
+        "study_clear_annotations",
+    }:
+        path = data.get("path")
+        if not isinstance(path, str) or len(path) > _MAX_ANNOTATION_PATH_LENGTH:
+            await _send_invalid_message(ws, data)
+            return
+        if message_type == "study_set_shapes":
+            result = await service.set_shapes(
+                study_id=study_id,
+                chapter_id=chapter_id,
+                username=user.username,
+                path=path,
+                shapes=data.get("shapes"),
+                expected_revision=expected_revision,
+            )
+        elif message_type == "study_set_comment":
+            comment_id = data.get("commentId")
+            text = data.get("text")
+            if not isinstance(comment_id, str) or not isinstance(text, str):
+                await _send_invalid_message(ws, data)
+                return
+            result = await service.set_comment(
+                study_id=study_id,
+                chapter_id=chapter_id,
+                username=user.username,
+                path=path,
+                comment_id=comment_id,
+                text=text,
+                expected_revision=expected_revision,
+            )
+        elif message_type == "study_set_nags":
+            result = await service.set_nags(
+                study_id=study_id,
+                chapter_id=chapter_id,
+                username=user.username,
+                path=path,
+                nags=data.get("nags"),
+                expected_revision=expected_revision,
+            )
+        else:
+            result = await service.clear_annotations(
+                study_id=study_id,
+                chapter_id=chapter_id,
+                username=user.username,
+                path=path,
+                expected_revision=expected_revision,
+            )
+        await _finish_mutation(app_state, ws, study_id, data, result, {"path": path})
+        return
+
+    if message_type == "study_set_description":
+        description = data.get("description")
+        if not isinstance(description, str):
+            await _send_invalid_message(ws, data)
+            return
+        result = await service.set_description(
+            study_id=study_id,
+            chapter_id=chapter_id,
+            username=user.username,
+            description=description,
+            expected_revision=expected_revision,
+        )
+        await _finish_mutation(app_state, ws, study_id, data, result)
+        return
+
+    if message_type == "study_set_tags":
+        tags = data.get("tags")
+        if not isinstance(tags, Mapping):
+            await _send_invalid_message(ws, data)
+            return
+        result = await service.set_tags(
+            study_id=study_id,
+            chapter_id=chapter_id,
+            username=user.username,
+            tags=tags,
+            expected_revision=expected_revision,
+        )
+        await _finish_mutation(app_state, ws, study_id, data, result)
         return
 
     path = data.get("path")

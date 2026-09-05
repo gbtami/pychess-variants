@@ -8,6 +8,7 @@ from unittest.mock import patch
 
 from fairy.fairy_board import FairyBoard
 from mongomock_motor import AsyncMongoMockClient
+from study.annotations import StudyShape
 from study.models import Study, StudyChapter
 from study.mutations import StudyMutationService
 from study.tree import StudyTree
@@ -290,6 +291,154 @@ class StudyMutationServiceTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(noop.status, "ok")
         self.assertFalse(noop.changed)
         self.assertEqual(noop.revision, 4)
+
+    async def test_root_and_node_annotations_are_incremental_and_survive_tree_edits(self) -> None:
+        root_shapes = await self.service.set_shapes(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            path="",
+            shapes=[{"orig": "e4", "dest": "e5", "brush": "red", "ignored": True}],
+            expected_revision=0,
+        )
+        self.assertEqual(root_shapes.status, "ok")
+        self.assertEqual(root_shapes.revision, 1)
+        self.assertEqual(root_shapes.annotations.shapes, (StudyShape("e4", "e5", "red"),))  # type: ignore[union-attr]
+
+        e4 = await self._add("e2e4", 1)
+        assert e4.path is not None and e4.node is not None
+        comment = await self.service.set_comment(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            path=e4.path,
+            comment_id="Comment001",
+            text="  useful https://tinyurl.com/bad  ",
+            expected_revision=2,
+        )
+        self.assertEqual(comment.status, "ok")
+        self.assertEqual(comment.revision, 3)
+        assert comment.annotations is not None
+        self.assertEqual(comment.annotations.comments[0].author, OWNER)
+        self.assertEqual(comment.annotations.comments[0].text, "useful [redacted]")
+
+        nags = await self.service.set_nags(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            path=e4.path,
+            nags=[1, 3, 1],
+            expected_revision=3,
+        )
+        self.assertEqual(nags.revision, 4)
+        assert nags.annotations is not None
+        self.assertEqual(nags.annotations.nags, (1, 3))
+
+        d4 = await self._add("d2d4", 4)
+        assert d4.path is not None
+        promoted = await self.service.promote_variation(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            path=d4.path,
+            to_mainline=True,
+            expected_revision=5,
+        )
+        self.assertEqual(promoted.revision, 6)
+
+        chapter = await self._chapter()
+        self.assertEqual(chapter.root.root_annotations.shapes, (StudyShape("e4", "e5", "red"),))
+        self.assertEqual(chapter.root.nodes[e4.node.id].annotations.nags, (1, 3))
+        self.assertEqual(chapter.root.nodes[e4.node.id].annotations.comments[0].id, "Comment001")
+
+        raw = await self.db.study_chapter.find_one({"_id": CHAPTER_ID})
+        assert raw is not None
+        self.assertIn("a", raw["root"]["_"])
+        self.assertIn("a", raw["root"][e4.node.id])
+
+    async def test_clear_annotations_and_chapter_metadata_canonicalization(self) -> None:
+        shaped = await self.service.set_shapes(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            path="",
+            shapes=[{"orig": "a1", "brush": "blue"}],
+            expected_revision=0,
+        )
+        self.assertEqual(shaped.revision, 1)
+
+        cleared = await self.service.clear_annotations(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            path="",
+            expected_revision=1,
+        )
+        self.assertTrue(cleared.changed)
+        self.assertEqual(cleared.revision, 2)
+        assert cleared.annotations is not None
+        self.assertTrue(cleared.annotations.empty)
+
+        description = await self.service.set_description(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            description="  Line one\r\nLine two  ",
+            expected_revision=2,
+        )
+        self.assertEqual(description.description, "Line one\nLine two")
+        self.assertEqual(description.revision, 3)
+
+        tags = await self.service.set_tags(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            tags={"Site": " PyChess ", "Event": " Study test ", "Empty": "  "},
+            expected_revision=3,
+        )
+        self.assertEqual(tags.tags, {"Event": "Study test", "Site": "PyChess"})
+        self.assertEqual(tags.revision, 4)
+
+        chapter = await self._chapter()
+        self.assertTrue(chapter.root.root_annotations.empty)
+        self.assertEqual(chapter.description, "Line one\nLine two")
+        self.assertEqual(chapter.tags, {"Event": "Study test", "Site": "PyChess"})
+        raw = await self.db.study_chapter.find_one({"_id": CHAPTER_ID})
+        assert raw is not None
+        self.assertNotIn("a", raw["root"]["_"])
+
+    async def test_annotation_validation_rejects_without_revision_change(self) -> None:
+        invalid_shape = await self.service.set_shapes(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            path="",
+            shapes=[{"orig": "z99", "brush": "green"}],
+            expected_revision=0,
+        )
+        self.assertEqual(invalid_shape.status, "error")
+        self.assertEqual(invalid_shape.reason, "invalid_shapes")
+
+        invalid_comment = await self.service.set_comment(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            path="",
+            comment_id="bad",
+            text="comment",
+            expected_revision=0,
+        )
+        self.assertEqual(invalid_comment.reason, "invalid_comment_id")
+
+        invalid_tags = await self.service.set_tags(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            tags={"Bad Tag": "value"},
+            expected_revision=0,
+        )
+        self.assertEqual(invalid_tags.reason, "invalid_tags")
+        self.assertEqual((await self._chapter()).revision, 0)
 
     async def test_node_and_bson_limits_reject_without_partial_write(self) -> None:
         first = await self._add("e2e4", 0)

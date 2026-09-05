@@ -90,12 +90,25 @@ function parseTreeMove(move: string | undefined): ParsedTreeMove {
     };
 }
 
-function renderTreeMoveText(move: string | undefined): VNode[] {
+const NAG_GLYPHS: Record<number, { text: string; cls: MoveGlyphClass }> = {
+    1: { text: '!', cls: 'good' },
+    2: { text: '?', cls: 'mistake' },
+    3: { text: '!!', cls: 'brilliant' },
+    4: { text: '??', cls: 'blunder' },
+    5: { text: '!?', cls: 'interesting' },
+    6: { text: '?!', cls: 'inaccuracy' },
+};
+
+function renderTreeMoveText(move: string | undefined, nags: number[] = []): VNode[] {
     const parsed = parseTreeMove(move);
     const nodes: VNode[] = [h('san', parsed.san)];
 
     if (parsed.glyph) {
         nodes.push(h(`glyph.${parsed.glyph.cls}`, parsed.glyph.text));
+    }
+    for (const nag of nags) {
+        const glyph = NAG_GLYPHS[nag];
+        nodes.push(glyph ? h(`glyph.${glyph.cls}`, glyph.text) : h('glyph', `$${nag}`));
     }
 
     return nodes;
@@ -343,7 +356,12 @@ function renderTreeMove(
                 },
             },
         },
-        [disclosureButton, prefix ? h('index', prefix) : undefined, ...renderTreeMoveText(move), evalNode],
+        [
+            disclosureButton,
+            prefix ? h('index', prefix) : undefined,
+            ...renderTreeMoveText(move, node.annotations?.nags),
+            evalNode,
+        ],
     );
 }
 
@@ -535,7 +553,7 @@ function renderTreeColumnMove(
                 },
             },
         },
-        [disclosureButton, ...renderTreeMoveText(move), evalNode],
+        [disclosureButton, ...renderTreeMoveText(move, node.annotations?.nags), evalNode],
     );
 }
 

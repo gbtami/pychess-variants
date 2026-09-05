@@ -12,7 +12,13 @@ from study.models import Study, StudyChapter
 from study.mutations import StudyMutationService
 from study.tree import StudyTree
 from study.ws import finally_logic, init_ws, process_message
-from ws_structs import StudyAddNodeIn
+from ws_structs import (
+    StudyAddNodeIn,
+    StudySetCommentIn,
+    StudySetDescriptionIn,
+    StudySetShapesIn,
+    StudySetTagsIn,
+)
 
 STUDY_ID = "study001"
 CHAPTER_ID = "chapter1"
@@ -128,6 +134,160 @@ class StudyWebsocketTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(payload["changed"])
         self.assertEqual(payload["path"], "Client0001")
         self.assertEqual(cast(dict[str, object], payload["node"])["id"], "Client0001")
+
+    async def test_root_shapes_and_comment_broadcast_canonical_annotations(self) -> None:
+        first = await self._connect()
+        second = await self._connect()
+        first.sent.clear()
+        second.sent.clear()
+
+        await process_message(
+            cast(Any, self.app_state),
+            cast(Any, self.user),
+            cast(Any, first),
+            StudySetShapesIn(
+                type="study_set_shapes",
+                studyId=STUDY_ID,
+                chapterId=CHAPTER_ID,
+                clientOpId="shape1",
+                expectedRevision=0,
+                path="",
+                shapes=[{"orig": "e4", "dest": "e5", "brush": "red", "ignored": True}],
+            ),
+            study_id=STUDY_ID,
+            service=self.service,
+        )
+
+        self.assertEqual(first.sent, second.sent)
+        self.assertEqual(first.sent[0]["type"], "study_set_shapes")
+        self.assertEqual(first.sent[0]["revision"], 1)
+        self.assertEqual(first.sent[0]["path"], "")
+        annotations = cast(dict[str, object], first.sent[0]["annotations"])
+        self.assertEqual(
+            annotations["shapes"],
+            [{"orig": "e4", "dest": "e5", "brush": "red"}],
+        )
+
+        first.sent.clear()
+        second.sent.clear()
+        await process_message(
+            cast(Any, self.app_state),
+            cast(Any, self.user),
+            cast(Any, first),
+            StudySetCommentIn(
+                type="study_set_comment",
+                studyId=STUDY_ID,
+                chapterId=CHAPTER_ID,
+                clientOpId="comment1",
+                expectedRevision=1,
+                path="",
+                commentId="Comment001",
+                text="  Root note  ",
+            ),
+            study_id=STUDY_ID,
+            service=self.service,
+        )
+
+        self.assertEqual(first.sent, second.sent)
+        self.assertEqual(first.sent[0]["revision"], 2)
+        annotations = cast(dict[str, object], first.sent[0]["annotations"])
+        self.assertEqual(
+            annotations["comments"],
+            [{"id": "Comment001", "author": OWNER, "text": "Root note"}],
+        )
+
+    async def test_description_and_tags_broadcast_server_canonical_values(self) -> None:
+        first = await self._connect()
+        second = await self._connect()
+        first.sent.clear()
+        second.sent.clear()
+
+        await process_message(
+            cast(Any, self.app_state),
+            cast(Any, self.user),
+            cast(Any, first),
+            StudySetDescriptionIn(
+                type="study_set_description",
+                studyId=STUDY_ID,
+                chapterId=CHAPTER_ID,
+                clientOpId="description1",
+                expectedRevision=0,
+                description="  Line one\r\nLine two  ",
+            ),
+            study_id=STUDY_ID,
+            service=self.service,
+        )
+        self.assertEqual(first.sent, second.sent)
+        self.assertEqual(first.sent[0]["description"], "Line one\nLine two")
+        self.assertEqual(first.sent[0]["revision"], 1)
+
+        first.sent.clear()
+        second.sent.clear()
+        await process_message(
+            cast(Any, self.app_state),
+            cast(Any, self.user),
+            cast(Any, first),
+            StudySetTagsIn(
+                type="study_set_tags",
+                studyId=STUDY_ID,
+                chapterId=CHAPTER_ID,
+                clientOpId="tags1",
+                expectedRevision=1,
+                tags={"Site": " PyChess ", "Event": "Test", "Empty": "  "},
+            ),
+            study_id=STUDY_ID,
+            service=self.service,
+        )
+        self.assertEqual(first.sent, second.sent)
+        self.assertEqual(first.sent[0]["tags"], {"Event": "Test", "Site": "PyChess"})
+        self.assertEqual(first.sent[0]["revision"], 2)
+
+    async def test_stale_annotation_mutation_gets_reload_without_cross_broadcast(self) -> None:
+        first = await self._connect()
+        second = await self._connect()
+        first.sent.clear()
+        second.sent.clear()
+
+        await process_message(
+            cast(Any, self.app_state),
+            cast(Any, self.user),
+            cast(Any, first),
+            StudySetShapesIn(
+                type="study_set_shapes",
+                studyId=STUDY_ID,
+                chapterId=CHAPTER_ID,
+                clientOpId="fresh",
+                expectedRevision=0,
+                path="",
+                shapes=[{"orig": "e4", "brush": "blue"}],
+            ),
+            study_id=STUDY_ID,
+            service=self.service,
+        )
+        first.sent.clear()
+        second.sent.clear()
+
+        await process_message(
+            cast(Any, self.app_state),
+            cast(Any, self.user),
+            cast(Any, second),
+            StudySetShapesIn(
+                type="study_set_shapes",
+                studyId=STUDY_ID,
+                chapterId=CHAPTER_ID,
+                clientOpId="stale-shape",
+                expectedRevision=0,
+                path="",
+                shapes=[{"orig": "d4", "brush": "green"}],
+            ),
+            study_id=STUDY_ID,
+            service=self.service,
+        )
+
+        self.assertEqual(first.sent, [])
+        self.assertEqual(second.sent[0]["type"], "study_reload")
+        self.assertEqual(second.sent[0]["revision"], 1)
+        self.assertEqual(second.sent[0]["reason"], "revision_mismatch")
 
     async def test_stale_second_tab_gets_reload_without_broadcast(self) -> None:
         first = await self._connect()

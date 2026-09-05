@@ -33,6 +33,11 @@ class StudyChapterBuilderTestCase(unittest.IsolatedAsyncioTestCase):
     async def test_analysis_tree_is_replayed_authoritatively(self) -> None:
         root_fen = FairyBoard.start_fen("chess")
         submitted = {
+            "rootAnnotations": {
+                "shapes": [{"orig": "e4", "brush": "blue"}],
+                "comments": [{"id": "Comment001", "author": "spoofed", "text": "Root note"}],
+                "nags": [1],
+            },
             "nodes": [
                 {
                     "id": "Client0001",
@@ -43,6 +48,13 @@ class StudyChapterBuilderTestCase(unittest.IsolatedAsyncioTestCase):
                     "turnColor": "white",
                     "check": True,
                     "san": "fake-san",
+                    "annotations": {
+                        "shapes": [{"orig": "e4", "dest": "e5", "brush": "red"}],
+                        "comments": [
+                            {"id": "Comment002", "author": "spoofed", "text": "Node note"}
+                        ],
+                        "nags": [3],
+                    },
                 },
                 {
                     "id": "Client0002",
@@ -63,7 +75,7 @@ class StudyChapterBuilderTestCase(unittest.IsolatedAsyncioTestCase):
                     "check": False,
                     "forceVariation": True,
                 },
-            ]
+            ],
         }
         draft = await self.builder.from_analysis(
             variant="chess",
@@ -79,6 +91,11 @@ class StudyChapterBuilderTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(draft.root.nodes["Client0002"].san, "e5")
         self.assertTrue(draft.root.nodes["Client0003"].force_variation)
         self.assertEqual([n.id for n in draft.root.children_of(None)], ["Client0001", "Client0003"])
+        self.assertEqual(draft.root.root_annotations.comments[0].text, "Root note")
+        self.assertEqual(draft.root.root_annotations.comments[0].author, "owner")
+        self.assertEqual(first.annotations.comments[0].text, "Node note")
+        self.assertEqual(first.annotations.comments[0].author, "owner")
+        self.assertEqual(first.annotations.nags, (3,))
 
     async def test_analysis_from_saved_game_uses_historical_variant_snapshot(self) -> None:
         variant = "studysource"

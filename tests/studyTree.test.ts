@@ -52,6 +52,40 @@ describe('Study tree persistence adapter', () => {
         expect(restored.root.children[1].mainlinePly).toBeUndefined();
     });
 
+    test('round-trips root and node annotations through the generic analysis tree', () => {
+        const rootStep = makeStep('start w - - 0 1', undefined, 'white');
+        const dto: StudyTreeDto = {
+            rootAnnotations: {
+                shapes: [{ orig: 'e4', dest: 'e5', brush: 'red' }],
+                comments: [{ id: 'Comment001', author: 'owner', text: 'Root note' }],
+                nags: [1, 3],
+            },
+            nodes: [
+                {
+                    id: 'StudyNode1',
+                    parentId: null,
+                    order: 0,
+                    move: 'e2e4',
+                    fen: 'e4 b - - 0 1',
+                    turnColor: 'black',
+                    check: false,
+                    san: 'e4',
+                    annotations: {
+                        shapes: [{ orig: 'd4', brush: 'blue' }],
+                        comments: [{ id: 'Comment002', author: 'owner', text: 'Node note' }],
+                        nags: [2],
+                    },
+                },
+            ],
+        };
+
+        const tree = analysisTreeFromStudy(rootStep, dto);
+        expect(tree.root.annotations?.comments[0].text).toBe('Root note');
+        expect(tree.root.children[0].annotations?.shapes).toEqual([{ orig: 'd4', brush: 'blue' }]);
+        expect(tree.root.children[0].annotations?.nags).toEqual([2]);
+        expect(studyTreeFromAnalysisTree(tree)).toEqual(dto);
+    });
+
     test('loaded Study trees allocate stable IDs for newly explored moves', () => {
         const rootStep = makeStep('start w - - 0 1', undefined, 'white');
         const dto: StudyTreeDto = {

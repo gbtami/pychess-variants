@@ -254,6 +254,9 @@ export class AnalysisController extends GameController {
                 dropNewPiece: this.onDrop(),
                 select: this.onSelect(),
             },
+            drawable: {
+                onChange: shapes => this.analysisExtension?.onShapesChanged?.(shapes),
+            },
         });
 
         if (this.hasPockets) {

@@ -43,6 +43,8 @@ export type StudyPageModel = {
         name: string;
         revision: number;
         orientation: 'white' | 'black';
+        description: string;
+        tags: Record<string, string>;
         tree: import('./study/studyTree').StudyTreeDto;
     };
     chapters: StudyChapterPreview[];

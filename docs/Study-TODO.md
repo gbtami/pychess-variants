@@ -1039,15 +1039,19 @@ server.
 
 ## Phase 1 acceptance criteria
 
-- [ ] Create a Study with at least several chapters.
-- [ ] Make nested variations, promote/delete them, reload the page, and get exactly the
+- [x] Create a Study with at least several chapters.
+- [x] Make nested variations, promote/delete them, reload the page, and get exactly the
   same tree.
-- [ ] Open the same Study in two tabs; accepted edits converge or trigger an explicit
+- [x] Open the same Study in two tabs; accepted edits converge or trigger an explicit
   reload rather than corrupting the tree.
-- [ ] Restart the server and load the Study without any startup preload/recovery step.
-- [ ] A catalogued-variant chapter still works after the live catalogue definition is
+- [x] Restart the server and load the Study without any startup preload/recovery step.
+- [x] A catalogued-variant chapter still works after the live catalogue definition is
   edited/archived, using its saved rules snapshot.
-- [ ] Anonymous/other users cannot read or mutate the owner-only Phase 1 Study.
+- [x] Anonymous/other users cannot read or mutate the owner-only Phase 1 Study.
+
+Phase 1 acceptance was completed on 2026-09-05: the maintainer ran the three Study
+Playwright acceptance tests successfully (3/3). Historical catalogued/UDV snapshot
+behavior remains covered by the focused server tests rather than the browser suite.
 
 # Phase 2 — annotations and import/export
 
@@ -1055,15 +1059,23 @@ Goal: turn persisted trees into genuinely useful saved analysis documents.
 
 ## 2A. Node annotations
 
-- [ ] Arrow/circle shapes persisted per node.
-- [ ] Text comments per node.
-- [ ] Glyphs/NAGs per node.
-- [ ] Chapter description.
-- [ ] PGN tags.
-- [ ] Clear annotations action.
-- [ ] Appropriate text limits/sanitization.
+- [x] Arrow/circle shapes persisted at the root and per node.
+- [x] Text comments at the root and per node, with stable comment ID and server-authoritative author.
+- [x] Glyphs/NAGs at the root and per node.
+- [x] Chapter description.
+- [x] PGN tags.
+- [x] Clear annotations action.
+- [x] Appropriate text/shape/NAG/tag limits and server-side sanitization/canonicalization.
 
-Persist these as incremental operations, not whole-tree replacement.
+Persist these as incremental operations, not whole-tree replacement. Root/node annotation
+updates write only the compact annotation subdocument, while description/tags update their
+individual chapter fields. Structural tree edits preserve root annotations. Saving a local
+analysis tree into a Study preserves annotations while replaying moves server-authoritatively;
+submitted comment authors are canonicalized to the authenticated Study owner.
+
+Phase 2A focused verification on 2026-09-05 covers Study tree/model/builder/mutation/websocket
+behavior, Study/analysis client synchronization and page smoke coverage. The broad GUI and
+unrelated long-running suites are intentionally outside this Phase 2A verification pass.
 
 ## 2B. PGN export
 
