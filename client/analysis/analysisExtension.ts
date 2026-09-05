@@ -1,4 +1,5 @@
 import type { VNode } from 'snabbdom';
+import type { WebsocketHeartbeatJs } from '../socket/socket';
 import type { DrawShape } from 'chessgroundx/draw';
 
 import type { AnalysisTreeNode } from './analysisTree';
@@ -10,6 +11,7 @@ export interface AnalysisExtension {
     // Extensions such as Study can replace the ordinary round socket with their own
     // transport while reusing AnalysisController's heartbeat/message plumbing.
     socketTarget?: string;
+    socket?: WebsocketHeartbeatJs;
     treeStorageKey?: string;
     onSocketOpen?(): void;
     onSocketReconnect?(): void;

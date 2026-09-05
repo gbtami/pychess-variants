@@ -79,6 +79,7 @@ export interface StudyAnnotationState {
 }
 
 export interface StudySyncOptions {
+    socket?: AnalysisExtension['socket'];
     studyId: string;
     chapterId: string;
     revision: number;
@@ -180,9 +181,11 @@ function simpleShapes(shapes: DrawShape[]): StudyAnnotationsDto['shapes'] {
 }
 
 export class StudyAnalysisExtension implements AnalysisExtension {
+    readonly socket?: AnalysisExtension['socket'];
     readonly socketTarget: string;
     readonly treeStorageKey: string;
     readonly contextMenuActions?: AnalysisExtension['contextMenuActions'];
+    private readonly idleWaiters = new Set<{ resolve: () => void; reject: () => void }>();
     private currentRevision: number;
     private connected = false;
     private openedOnce = false;
@@ -203,6 +206,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         if (!Number.isInteger(options.revision) || options.revision < 0) {
             throw new Error('Study revision must be a non-negative integer');
         }
+        this.socket = options.socket;
         this.currentRevision = options.revision;
         this.description = options.description ?? '';
         this.tags = { ...options.tags };
@@ -216,6 +220,25 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         this.onAnnotationStateChanged = options.onAnnotationStateChanged;
         this.contextMenuActions = options.contextMenuActions;
         this.opIdFactory = options.opIdFactory ?? newStudyNodeId;
+    }
+
+    whenIdle(timeoutMs = 10000): Promise<void> {
+        if (this.reloadRequested) return Promise.reject(new Error('Study needs to reload.'));
+        if (!this.pending.length) return Promise.resolve();
+        return new Promise((resolve, reject) => {
+            const done = (error?: Error) => {
+                clearTimeout(timer);
+                this.idleWaiters.delete(waiter);
+                if (error) reject(error);
+                else resolve();
+            };
+            const waiter = {
+                resolve: () => done(),
+                reject: () => done(new Error('Study changes could not be saved.')),
+            };
+            const timer = setTimeout(waiter.reject, timeoutMs);
+            this.idleWaiters.add(waiter);
+        });
     }
 
     get revision(): number {
@@ -599,6 +622,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
 
         this.currentRevision = data.revision as number;
         this.pending.shift();
+        if (!this.pending.length) for (const waiter of this.idleWaiters) waiter.resolve();
         this.pump();
     }
 
@@ -705,6 +729,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     private requestReload(reason: string): void {
         if (this.reloadRequested) return;
         this.reloadRequested = true;
+        for (const waiter of this.idleWaiters) waiter.reject();
         this.connected = false;
         this.onReloadRequired(reason);
     }

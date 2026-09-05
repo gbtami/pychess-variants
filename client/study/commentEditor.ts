@@ -57,6 +57,12 @@ export class StudyCommentEditor {
         for (const [id, input] of existing) if (!entries.some(comment => comment.id === id)) input.remove();
     }
 
+    reset(): void {
+        this.flush();
+        this.path = undefined;
+        this.root.replaceChildren();
+    }
+
     flush(): void {
         clearTimeout(this.timer);
         this.timer = undefined;

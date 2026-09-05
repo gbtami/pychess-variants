@@ -122,6 +122,10 @@ export class AnalysisController extends GameController {
     private fsfInputQueue: string[];
     private loadedNnueFilename?: string;
     private lastRoundBoardSnapshot?: string;
+    private destroyed = false;
+    private engineConfigReady?: Promise<void>;
+    private resolveEngineConfig?: () => void;
+    private readonly onEngineBoardUnload = () => this.fsfEngineBoard?.delete();
 
     constructor(el: HTMLElement, model: PyChessModel, extensionFactory?: AnalysisExtensionFactory) {
         super(
@@ -339,7 +343,9 @@ export class AnalysisController extends GameController {
             (document.querySelector('.pgn-container') as HTMLElement).style.display = 'block';
         }
 
-        if (this.analysisExtension?.socketTarget) {
+        if (this.analysisExtension?.socket) {
+            this.sock = this.analysisExtension.socket;
+        } else if (this.analysisExtension?.socketTarget) {
             this.sock = createWebsocket(
                 this.analysisExtension.socketTarget,
                 () => this.analysisExtension?.onSocketOpen?.(),
@@ -371,7 +377,7 @@ export class AnalysisController extends GameController {
 
         setTimeout(() => {
             const container = document.getElementById('movelist');
-            if (container && this.hasAnalysisTree()) updateMovelist(this, true, false);
+            if (!this.destroyed && container && this.hasAnalysisTree()) updateMovelist(this, true, false);
         }, 0);
 
         analysisSettings.ctrl = this;
@@ -384,6 +390,22 @@ export class AnalysisController extends GameController {
         if (this.variant.name !== 'racingkings' && this.mycolor === 'black') gaugeEl.classList.add('flipped');
 
         this.autoShapes = [];
+    }
+
+    override destroy(): void {
+        this.engineStop();
+        this.destroyed = true;
+        this.restoreFsfPrompt();
+        window.removeEventListener('storage', this.onAntiCheatStorage);
+        window.removeEventListener('beforeunload', this.onEngineBoardUnload);
+        document.removeEventListener('keydown', this.onKeyboardHelpShortcutKeyDown, true);
+        document.removeEventListener('keydown', this.onKeyboardHelpKeyDown, true);
+        this.fsfEngineBoard?.delete();
+        this.fsfEngineBoard = undefined;
+        this.pvHoverPreview.destroy();
+        this.tree.destroy();
+        Mousetrap.unbind('p');
+        super.destroy();
     }
 
     helpDialog() {
@@ -639,7 +661,9 @@ export class AnalysisController extends GameController {
 
     private async loadNnueIntoEngine(filename: string, data?: Uint8Array): Promise<void> {
         const network = officialNnueNetwork(this.variant.name, nnueLookupContextForVariant(this.variant));
-        if ((await removeObsoleteOfficialNnue(this.variant.name, network)) === filename) {
+        const obsolete = await removeObsoleteOfficialNnue(this.variant.name, network);
+        if (this.destroyed) return;
+        if (obsolete === filename) {
             localStorage[`${this.variant.name}-nnue`] = '';
             this.evalFile = '';
             this.nnueOk = false;
@@ -652,6 +676,7 @@ export class AnalysisController extends GameController {
             (network?.file === filename
                 ? await loadOfficialNnueFile(this.variant.name, network)
                 : await loadNnueFile(this.variant.name, filename));
+        if (this.destroyed) return;
         if (!nnueData) {
             this.nnueOk = false;
             this.refreshNnueIndicator();
@@ -958,6 +983,7 @@ export class AnalysisController extends GameController {
     }
 
     onFSFline = (line: string) => {
+        if (this.destroyed) return;
         if (this.fsfDebug) console.debug('--->', line);
 
         if (this.ongoing) return;
@@ -989,6 +1015,9 @@ export class AnalysisController extends GameController {
         if (line.includes('uciok')) {
             this.uciOk = true;
             this.restoreFsfPrompt();
+            this.resolveEngineConfig?.();
+            this.resolveEngineConfig = undefined;
+            this.engineConfigReady = undefined;
         }
 
         if (line.includes('readyok')) {
@@ -1004,7 +1033,6 @@ export class AnalysisController extends GameController {
 
         if (line.startsWith('Fairy-Stockfish')) {
             this.loadVariantsIntoFsfEngine();
-            this.fsfPostMessage('uci');
         }
 
         if (!this.localEngine && this.uciOk && this.variantSupportedByFSF) {
@@ -1014,9 +1042,9 @@ export class AnalysisController extends GameController {
 
             if (this.evalFile) this.nnueIni();
 
-            window.addEventListener('beforeunload', () => this.fsfEngineBoard.delete());
+            window.addEventListener('beforeunload', this.onEngineBoardUnload);
 
-            if (this.localAnalysis && this.analysisContext.capabilities.evalCharts) this.pvboxIni();
+            if (this.localAnalysis) this.pvboxIni();
         }
 
         this.refreshLocalAnalysisAvailabilityForAntiCheat();
@@ -1262,12 +1290,9 @@ export class AnalysisController extends GameController {
         this.pendingGoAfterStopReadyok = false;
         this.lastBroadcastLocalAnalysisFen = undefined;
 
-        if (this.chess960) {
-            this.fsfPostMessage('setoption name UCI_Chess960 value true');
-        }
-        if (this.engineVariant !== 'chess') {
-            this.fsfPostMessage('setoption name UCI_Variant value ' + this.engineVariant);
-        }
+        // A Study keeps the engine alive while switching chapters and variants.
+        this.fsfPostMessage('setoption name UCI_Variant value ' + this.engineVariant);
+        this.fsfPostMessage('setoption name UCI_Chess960 value ' + this.chess960);
         if (this.evalFile === '' || !this.nnueOk || !this.nnue) {
             this.fsfPostMessage('setoption name Use NNUE value false');
         } else {
@@ -1295,6 +1320,7 @@ export class AnalysisController extends GameController {
     };
 
     fsfPostMessage(msg: string, debug = true) {
+        if (this.destroyed) return;
         if (window.fsf === undefined) {
             // At very first time we may have to wait for fsf module to initialize
             setTimeout(this.fsfPostMessage.bind(this), 100, msg, debug);
@@ -1305,6 +1331,10 @@ export class AnalysisController extends GameController {
     }
 
     loadVariantsIntoFsfEngine() {
+        if (this.destroyed || this.engineConfigReady) return;
+        this.engineConfigReady = new Promise(resolve => {
+            this.resolveEngineConfig = resolve;
+        });
         const config = variantConfigIni(variantsIni, this.variant.name);
         const marker = 'PYCHESS_VARIANTS_INI_EOF_' + Date.now();
         const lines = config.replace(/\r\n/g, '\n').split('\n');
@@ -1317,6 +1347,22 @@ export class AnalysisController extends GameController {
         this.installFsfPromptQueue([...lines, marker]);
         if (this.fsfDebug) console.debug('<---', '... variants.ini content queued for prompt stdin ...');
         this.fsfPostMessage('load <<' + marker);
+        this.fsfPostMessage('uci');
+    }
+
+    async whenEngineConfigured(): Promise<void> {
+        if (!this.engineConfigReady) return;
+        let timer: ReturnType<typeof setTimeout> | undefined;
+        try {
+            await Promise.race([
+                this.engineConfigReady,
+                new Promise<never>((_, reject) => {
+                    timer = setTimeout(() => reject(new Error('Engine configuration is still loading.')), 10000);
+                }),
+            ]);
+        } finally {
+            clearTimeout(timer);
+        }
     }
 
     installFsfPromptQueue(lines: string[]) {

@@ -83,3 +83,34 @@ async def test_analysis_can_append_to_existing_owned_study(aiohttp_client) -> No
     assert chapters[1]["name"] == "Imported analysis"
     assert chapters[1]["orientation"] == "black"
     assert chapters[1]["tags"] == {"Black": "Bob", "White": "Alice"}
+
+
+@pytest.mark.asyncio
+async def test_chapter_navigation_returns_an_owner_only_json_snapshot(aiohttp_client) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    await _insert_user(app_state, "chapter_owner")
+    await _insert_user(app_state, "chapter_intruder")
+    draft = await StudyChapterBuilder(app_state, "chapter_owner").blank_or_fen(
+        variant="chess", name="Chapter snapshot"
+    )
+    study, chapter = await create_study_from_draft(app_state, "chapter_owner", draft)
+    url = f"/study/{study.id}/{chapter.id}"
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie("chapter_owner")})
+    response = await client.get(url, headers={"Accept": "application/json"})
+    assert response.status == 200
+    data = await response.json()
+    assert data["study"]["chapter"]["id"] == chapter.id
+    assert data["study"]["chapter"]["revision"] == chapter.revision
+    assert data["study"]["chapter"]["tree"] == chapter.root.to_payload()
+    assert data["board"]["fen"] == chapter.initial_fen
+    assert data["board"]["steps"][0]["fen"] == chapter.initial_fen
+    assert isinstance(data["cataloguedVariants"], list)
+    response = await client.get(url)
+    assert response.status == 200
+    assert response.content_type == "text/html"
+    client.session.cookie_jar.clear()
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie("chapter_intruder")})
+    response = await client.get(url, headers={"Accept": "application/json"})
+    assert response.status == 404

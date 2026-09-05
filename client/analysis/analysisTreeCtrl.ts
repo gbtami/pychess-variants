@@ -52,6 +52,24 @@ export class AnalysisTreeController {
         this.bindTreeKeys();
     }
 
+    destroy(): void {
+        document.removeEventListener('click', this.onTreeContextMenuDocumentClick, false);
+        Mousetrap.unbind([
+            'left',
+            'right',
+            'up',
+            'down',
+            '0',
+            'home',
+            '$',
+            'end',
+            'shift+left',
+            'shift+right',
+            'shift+up',
+            'shift+down',
+        ]);
+    }
+
     private bindTreeKeys() {
         Mousetrap.bind('left', () => {
             if (!this.hasAnalysisTree()) return;

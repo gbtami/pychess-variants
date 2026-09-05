@@ -232,7 +232,14 @@ class TestStudyGUI:
                 await add.get_by_role("button", name="Create chapter").click()
                 _, last_chapter_id = self._study_ids_from_url(page.url)
 
+                await page.evaluate(
+                    "window.studySidebar = document.querySelector('.sidebar-first')"
+                )
                 await page.get_by_role("link", name="2. Renamed middle").click()
+                await page.wait_for_url(f"{base_url}/study/{study_id}/{middle_chapter_id}")
+                assert await page.evaluate(
+                    "window.studySidebar === document.querySelector('.sidebar-first')"
+                )
                 assert self._study_ids_from_url(page.url)[1] == middle_chapter_id
                 await page.get_by_role("button", name="Edit chapter: Renamed middle").click()
                 await (

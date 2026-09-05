@@ -1156,6 +1156,9 @@ panels, and tree comment rendering as references:
 
 - [x] Compact chapter sidebar with current-chapter highlighting, chapter settings,
   and an Add a new chapter action.
+- [x] Switch chapters in place, retaining the shared page shell and Study socket,
+  waiting for pending annotation saves, remembering chapter positions, and supporting
+  Back/Forward navigation and variant-specific board/engine cleanup.
 - [x] Study/chapter rename and deletion in focused dialogs; chapter creation uses
   the existing grouped variant selector. Native dialogs support Escape and restore focus.
 - [x] Underboard tabs for PGN tags, position comments, glyphs, chapter description,

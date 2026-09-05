@@ -494,3 +494,54 @@ describe('Study analysis websocket synchronization', () => {
         expect(ctrl.recordedMainlinePly).toBeUndefined();
     });
 });
+
+test('chapter navigation waits until the pending mutation is acknowledged', async () => {
+    const extension = new StudyAnalysisExtension(makeCtrl(), {
+        studyId: 'study001',
+        chapterId: 'chapter1',
+        revision: 0,
+        onReloadRequired: jest.fn(),
+        opIdFactory: () => 'CommentOp1',
+    });
+    extension.onSocketOpen();
+    extension.setComment('Comment001', 'Before switching');
+    const saved = jest.fn();
+    const idle = extension.whenIdle().then(saved);
+    await Promise.resolve();
+    expect(saved).not.toHaveBeenCalled();
+    extension.onSocketMessage('study_set_comment', {
+        type: 'study_set_comment',
+        studyId: 'study001',
+        chapterId: 'chapter1',
+        clientOpId: 'CommentOp1',
+        revision: 1,
+        changed: true,
+        path: '',
+        annotations: {
+            shapes: [],
+            comments: [{ id: 'Comment001', author: 'owner', text: 'Before switching' }],
+            nags: [],
+        },
+    });
+    await idle;
+    expect(saved).toHaveBeenCalledTimes(1);
+});
+
+test('unacknowledged edits prevent a chapter switch after the save timeout', async () => {
+    jest.useFakeTimers();
+    try {
+        const extension = new StudyAnalysisExtension(makeCtrl(), {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            onReloadRequired: jest.fn(),
+        });
+        extension.setComment('Comment001', 'Offline edit');
+        const assertion = expect(extension.whenIdle(100)).rejects.toThrow('could not be saved');
+        jest.advanceTimersByTime(100);
+        await assertion;
+        expect(extension.pendingCount).toBe(1);
+    } finally {
+        jest.useRealTimers();
+    }
+});

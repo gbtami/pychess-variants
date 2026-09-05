@@ -1,14 +1,20 @@
-import { h, type VNode } from 'snabbdom';
+import { h, toVNode, type VNode } from 'snabbdom';
+import ffishModule from 'ffish-es6';
+import ffishAliceModule from 'ffish-alice-es6';
 
 import { analysisUnderboard } from '../analysis';
 import { alertDialog } from '../alertDialog';
 import { analysisContext } from '../analysis/analysisContext';
 import { AnalysisController } from '../analysis/analysisCtrl';
 import { renderAnalysisPage } from '../analysis/analysisPage';
-import { downloadText, notifyChessgroundResize } from '../document';
+import { downloadText, notifyChessgroundResize, patch } from '../document';
 import { _, ngettext } from '../i18n';
 import type { PyChessModel, StudyPageModel } from '../types';
-import { selectVariant, twoBoarsVariants } from '../variants';
+import { selectVariant, twoBoarsVariants, loadCataloguedVariantsFromJson, variantConfigIni } from '../variants';
+import { variantsIni } from '../variantsIni';
+import { createWebsocket } from '../socket/webSocketUtils';
+import { StudyChapterNavigation } from './chapterNavigation';
+import { analysisTreeFromStudy } from './studyTree';
 import { StudyAnalysisExtension, type StudyAnnotationState } from './studySync';
 import { GLYPH_GROUPS, toggleGlyph } from '../analysis/glyphs';
 import { StudyCommentEditor } from './commentEditor';
@@ -377,40 +383,40 @@ function updateAnnotationPanel(state: StudyAnnotationState, editor: StudyComment
     if (tags && document.activeElement !== tags) tags.value = tagsText(state.tags);
 }
 
-function bindAnnotationPanel(extension: StudyAnalysisExtension): void {
+function bindAnnotationPanel(getExtension: () => StudyAnalysisExtension): void {
     document.querySelectorAll<HTMLButtonElement>('.study-annotations__nag').forEach(button => {
         button.addEventListener('click', () => {
             const nag = Number(button.dataset.nag);
-            const current = extension.annotationState.annotations.nags;
-            extension.setNags(toggleGlyph(current, nag));
+            const current = getExtension().annotationState.annotations.nags;
+            getExtension().setNags(toggleGlyph(current, nag));
         });
     });
     const description = document.querySelector<HTMLTextAreaElement>('.study-annotations__description textarea');
     document
         .querySelector<HTMLButtonElement>('.study-annotations__description .button')
         ?.addEventListener('click', () => {
-            if (description) extension.setDescription(description.value);
+            if (description) getExtension().setDescription(description.value);
         });
 
     const tags = document.querySelector<HTMLTextAreaElement>('.study-annotations__tags textarea');
     document.querySelector<HTMLButtonElement>('.study-annotations__tags .button')?.addEventListener('click', () => {
-        if (tags) extension.setTags(parseTags(tags.value));
+        if (tags) getExtension().setTags(parseTags(tags.value));
     });
 }
 
-function bindExportPanel(extension: StudyAnalysisExtension, study: StudyPageModel): void {
+function bindExportPanel(getExtension: () => StudyAnalysisExtension, study: StudyPageModel): void {
     const chapterButton = document.querySelector<HTMLButtonElement>('.study-export__chapter');
     chapterButton?.addEventListener('click', () => {
-        const pgnStudy = extension.pgnStudy;
-        const chapter = extension.pgnChapter;
+        const pgnStudy = getExtension().pgnStudy;
+        const chapter = getExtension().pgnChapter;
         if (!pgnStudy || !chapter) return;
         downloadText(studyPgnFilename(study.name, chapter.name), renderStudyChapterPgn(pgnStudy, chapter));
     });
 
     const studyButton = document.querySelector<HTMLButtonElement>('.study-export__study');
     studyButton?.addEventListener('click', async () => {
-        const pgnStudy = extension.pgnStudy;
-        const currentChapter = extension.pgnChapter;
+        const pgnStudy = getExtension().pgnStudy;
+        const currentChapter = getExtension().pgnChapter;
         if (!pgnStudy || !currentChapter || !studyButton) return;
         studyButton.disabled = true;
         try {
@@ -459,39 +465,168 @@ function studyContextMenu(ctrl: AnalysisController, path: string): VNode[] {
     ];
 }
 
-function runStudyGround(vnode: VNode, model: PyChessModel, study: StudyPageModel): void {
+function runStudyGround(vnode: VNode, model: PyChessModel, study: StudyPageModel, sideVNode: VNode): void {
     let extension: StudyAnalysisExtension;
+    let ctrl: AnalysisController;
+    const paths = new Map<string, string>();
+    const modules = new Map<boolean, Promise<PyChessModel['ffish']>>([
+        [model.variant === 'alice', Promise.resolve(model.ffish)],
+    ]);
     const editor = new StudyCommentEditor(
         document.querySelector<HTMLElement>('.study-annotations__comments')!,
         (path, id, text) => extension.setComment(id, text, path),
     );
-    const ctrl = new AnalysisController(vnode.elm as HTMLElement, model, analysisCtrl => {
-        extension = new StudyAnalysisExtension(analysisCtrl, {
-            studyId: study.id,
-            chapterId: study.chapter.id,
-            revision: study.chapter.revision,
-            tree: study.chapter.tree,
-            orientation: study.chapter.orientation,
-            description: study.chapter.description,
-            tags: study.chapter.tags,
-            studyName: study.name,
-            chapterName: study.chapter.name,
-            chapterOrder: study.chapter.order,
-            owner: study.owner,
-            home: model.home,
-            variant: study.chapter.variant,
-            chess960: study.chapter.chess960,
-            initialFen: study.chapter.initialFen,
-            variantIni: study.chapter.variantIni ?? undefined,
-            createdAt: study.chapter.createdAt,
-            onAnnotationStateChanged: state => updateAnnotationPanel(state, editor),
-            contextMenuActions: path => studyContextMenu(analysisCtrl, path),
+    const socket = createWebsocket(
+        `wsstudy/${study.id}`,
+        () => extension.onSocketOpen(),
+        () => extension.onSocketReconnect(),
+        () => extension.onSocketClose(),
+        event => {
+            if (event.data === '/n') return;
+            const message = JSON.parse(event.data);
+            extension.onSocketMessage(message.type, message);
+        },
+    );
+    const mount = (el: HTMLElement) => {
+        ctrl = new AnalysisController(el, model, analysisCtrl => {
+            extension = new StudyAnalysisExtension(analysisCtrl, {
+                socket,
+                studyId: study.id,
+                chapterId: study.chapter.id,
+                revision: study.chapter.revision,
+                tree: study.chapter.tree,
+                orientation: study.chapter.orientation,
+                description: study.chapter.description,
+                tags: study.chapter.tags,
+                studyName: study.name,
+                chapterName: study.chapter.name,
+                chapterOrder: study.chapter.order,
+                owner: study.owner,
+                home: model.home,
+                variant: study.chapter.variant,
+                chess960: study.chapter.chess960,
+                initialFen: study.chapter.initialFen,
+                variantIni: study.chapter.variantIni ?? undefined,
+                createdAt: study.chapter.createdAt,
+                onAnnotationStateChanged: state => updateAnnotationPanel(state, editor),
+                contextMenuActions: path => studyContextMenu(analysisCtrl, path),
+            });
+            return extension;
         });
-        return extension;
+        if (socket.ws.readyState === WebSocket.OPEN) extension.onSocketOpen();
+        updateAnnotationPanel(extension.annotationState, editor);
+        window['onFSFline'] = ctrl.onFSFline;
+    };
+    mount(vnode.elm as HTMLElement);
+    bindAnnotationPanel(() => extension);
+    bindExportPanel(() => extension, study);
+
+    const navigation = new StudyChapterNavigation({
+        studyId: study.id,
+        currentChapter: () => study.chapter.id,
+        flush: () => {
+            editor.flush();
+            return extension.whenIdle();
+        },
+        busy: busy => {
+            const app = document.querySelector<HTMLElement>('.study-app')!;
+            app.setAttribute('aria-busy', String(busy));
+            for (const child of app.children) {
+                if (!child.classList.contains('sidebar-first')) (child as HTMLElement).inert = busy;
+            }
+        },
+        error: error => {
+            console.error('Could not load chapter', error);
+            void alertDialog({ text: _('Could not load chapter: %1', String(error)) });
+        },
+        apply: async (data, isCurrent) => {
+            // Validate the tree and load the required WASM module before touching
+            // the current board. Alice and the ordinary variants use separate modules.
+            analysisTreeFromStudy(data.board.steps[0], data.study.chapter.tree);
+            const alice = data.study.chapter.variant === 'alice';
+            if (!modules.has(alice)) {
+                const script = document.querySelector<HTMLScriptElement>('script[src*="/static/pychess-variants.js"]');
+                const version = script ? new URL(script.src).search : '';
+                modules.set(
+                    alice,
+                    (alice ? ffishAliceModule : ffishModule)({
+                        locateFile: (path: string, prefix: string) =>
+                            path.endsWith('.wasm') ? `/static/${path}${version}` : prefix + path,
+                    }).catch((error: unknown) => {
+                        modules.delete(alice);
+                        throw error;
+                    }),
+                );
+            }
+            const ffish = await modules.get(alice)!;
+            await ctrl.whenEngineConfigured();
+            if (!isCurrent()) return;
+            paths.set(study.chapter.id, ctrl.analysisPath);
+            ctrl.destroy();
+            editor.reset();
+            Object.assign(study, data.study);
+            model = {
+                ...model,
+                study,
+                ffish,
+                board: data.board,
+                variant: study.chapter.variant,
+                chess960: study.chapter.chess960 ? 'True' : 'False',
+                initialFen: study.chapter.initialFen,
+                fen: study.chapter.initialFen,
+                ply: 0,
+            };
+            loadCataloguedVariantsFromJson(JSON.stringify(data.cataloguedVariants));
+            ffish.loadVariantConfig(variantConfigIni(variantsIni, model.variant));
+            document.body.dataset.variant = model.variant;
+            document.title = `${study.name} • PyChess`;
+            // Patch only chapter-dependent parts. The main grid, sidebar, tool tabs
+            // and underboard editors remain mounted throughout the switch.
+            const next = renderAnalysisPage(model, {
+                side: [],
+                underboard: [],
+                ongoing: false,
+                mountBoard: () => {},
+            })[0];
+            const app = document.querySelector<HTMLElement>('.study-app')!;
+            const selectors = [
+                '#mainboard',
+                '#gauge',
+                '.pocket-top',
+                '.analysis-tools',
+                '.analysis-settings',
+                '#move-controls',
+                '.pocket-bot',
+            ];
+            for (const selector of selectors) {
+                const current = app.querySelector<HTMLElement>(
+                    `:scope > ${selector === '#move-controls' ? '#btn-controls-top' : selector}`,
+                );
+                if (selector === '.analysis-settings') current?.replaceChildren();
+                const replacement = (next.children as VNode[]).find(child => child.sel?.includes(selector));
+                if (current && replacement) patch(toVNode(current), replacement);
+            }
+            sideVNode = patch(sideVNode, studySide(study, model));
+            mount(app.querySelector<HTMLElement>('#mainboard > .cg-wrap')!);
+            const path = paths.get(study.chapter.id);
+            if (path && ctrl.getTreeNodeAtPath(path)) ctrl.activateTreePath(path);
+            notifyChessgroundResize();
+            if (window.fsf) {
+                ctrl.loadVariantsIntoFsfEngine();
+            }
+        },
     });
-    bindAnnotationPanel(extension!);
-    bindExportPanel(extension!, study);
-    updateAnnotationPanel(extension!.annotationState, editor);
+    document.querySelector('.sidebar-first')!.addEventListener('click', event => {
+        const mouse = event as MouseEvent;
+        const link = (event.target as Element).closest<HTMLAnchorElement>('.study-chapters a');
+        if (!link || mouse.button !== 0 || mouse.ctrlKey || mouse.metaKey || mouse.shiftKey || mouse.altKey) return;
+        event.preventDefault();
+        void navigation.go(new URL(link.href).pathname.split('/').pop()!);
+    });
+    window.addEventListener('popstate', () => {
+        const [prefix, studyId, chapterId] = window.location.pathname.split('/').filter(Boolean);
+        if (prefix === 'study' && studyId === study.id && chapterId) void navigation.go(chapterId, 'pop');
+    });
     window.addEventListener('beforeunload', event => {
         editor.flush();
         if (extension.pendingCount > 0) {
@@ -499,17 +634,17 @@ function runStudyGround(vnode: VNode, model: PyChessModel, study: StudyPageModel
             event.returnValue = '';
         }
     });
-    window['onFSFline'] = ctrl.onFSFline;
 }
 
 export function studyView(model: PyChessModel): VNode[] {
     const study = model.study;
     if (!study) return [h('div.box.box-pad', _('Study data is unavailable.'))];
 
+    const side = studySide(study, model);
     const page = renderAnalysisPage(model, {
-        side: studySide(study, model),
+        side,
         underboard: studyUnderboard(study, model),
-        mountBoard: vnode => runStudyGround(vnode, model, study),
+        mountBoard: vnode => runStudyGround(vnode, model, study, side),
         ongoing: false,
     });
     page[0].data = { ...page[0].data, class: { 'study-app': true } };
