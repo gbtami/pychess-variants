@@ -1137,11 +1137,17 @@ continues to use the lightweight parser, with its generic Variant/FEN/tag helper
 
 ## 2D. "Add to Study" workflows
 
-- [ ] From a finished game.
-- [ ] From standalone analysis/FEN.
-- [ ] From an existing local analysis tree with variations.
-- [ ] Choose New Study or an existing owned/contributed Study.
-- [ ] Preserve current orientation and relevant PGN tags.
+- [x] From a finished game.
+- [x] From standalone analysis/FEN.
+- [x] From an existing local analysis tree with variations.
+- [x] Choose New Study or an existing owned Study. Contributor destinations are added in Phase 4.
+- [x] Preserve current orientation and relevant PGN tags.
+
+The existing Phase-1 "Save to Study" path is now the single Add-to-Study workflow. The browser
+loads the owner Study chooser only when requested, submits the current local analysis tree (including
+variations/annotations), board orientation and current PGN headers, and either creates a new Study or
+adds a chapter to the selected Study. Finished-game analyses retain their saved-game source/snapshot
+validation on the server. Chapter-cap and ownership checks remain server-authoritative.
 
 # Phase 3 — read-only sharing and visibility
 

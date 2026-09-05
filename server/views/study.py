@@ -189,6 +189,18 @@ async def study_create(request: web.Request) -> web.StreamResponse:
     raise web.HTTPFound(f"/study/{study.id}/{chapter.id}")
 
 
+async def study_choices(request: web.Request) -> web.StreamResponse:
+    user, _ = await get_user_context(request)
+    _require_owner_user(user)
+    app_state = get_app_state(request.app)
+    if app_state.db is None:
+        return web.json_response({"studies": [], "error": "db_unavailable"}, status=503)
+    studies = await studies_for_owner(app_state, user.username)
+    return web.json_response(
+        {"studies": [{"id": study.id, "name": study.name} for study in studies]}
+    )
+
+
 @aiohttp_jinja2.template("analysis.html")
 async def study_show(request: web.Request) -> ViewContext:
     user, context, study, chapter = await _owned_study_and_chapter(request)
@@ -302,6 +314,9 @@ async def study_from_analysis(request: web.Request) -> web.StreamResponse:
     if not isinstance(tree_payload, dict):
         raise web.HTTPBadRequest(text="invalid analysis tree")
     try:
+        raw_tags = data.get("tags")
+        if raw_tags is not None and not isinstance(raw_tags, Mapping):
+            raise StudyChapterBuildError("Analysis PGN tags are invalid")
         draft = await StudyChapterBuilder(app_state, user.username).from_analysis(
             variant=str(data.get("variant") or "chess"),
             initial_fen=str(data.get("initialFen") or ""),
@@ -309,14 +324,25 @@ async def study_from_analysis(request: web.Request) -> web.StreamResponse:
             chess960=bool(data.get("chess960", False)),
             game_id=str(data.get("gameId") or "").strip() or None,
             name=str(data.get("chapterName") or "").strip() or None,
+            orientation="black"
+            if str(data.get("orientation") or "").lower() == "black"
+            else "white",
+            tags=cast(Mapping[str, str], raw_tags) if raw_tags is not None else None,
         )
-        study, chapter = await create_study_from_draft(
-            app_state,
-            user.username,
-            draft,
-            name=str(data.get("studyName") or "").strip() or None,
-        )
-    except StudyChapterBuildError as exc:
+        destination_id = str(data.get("studyId") or "").strip()
+        if destination_id:
+            study = await load_owned_study(app_state, destination_id, user.username)
+            if study is None:
+                return web.json_response({"ok": False, "error": "study_not_found"}, status=404)
+            chapter = await add_chapter_from_draft(app_state, study, draft)
+        else:
+            study, chapter = await create_study_from_draft(
+                app_state,
+                user.username,
+                draft,
+                name=str(data.get("studyName") or "").strip() or None,
+            )
+    except (StudyChapterBuildError, StudyStorageError) as exc:
         return web.json_response({"ok": False, "error": str(exc)}, status=400)
     return web.json_response(
         {

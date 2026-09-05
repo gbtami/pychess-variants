@@ -97,6 +97,30 @@ class StudyChapterBuilderTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(first.annotations.comments[0].author, "owner")
         self.assertEqual(first.annotations.nags, (3,))
 
+    async def test_analysis_preserves_orientation_and_pgn_tags(self) -> None:
+        draft = await self.builder.from_analysis(
+            variant="chess",
+            initial_fen=FairyBoard.start_fen("chess"),
+            tree_payload={"nodes": []},
+            orientation="black",
+            tags={"White": "Alice", "Black": "Bob", "Event": "PyChess casual game"},
+        )
+
+        self.assertEqual(draft.orientation, "black")
+        self.assertEqual(
+            dict(draft.tags),
+            {"Black": "Bob", "Event": "PyChess casual game", "White": "Alice"},
+        )
+
+    async def test_analysis_rejects_invalid_pgn_tags(self) -> None:
+        with self.assertRaisesRegex(StudyChapterBuildError, "PGN tags"):
+            await self.builder.from_analysis(
+                variant="chess",
+                initial_fen=FairyBoard.start_fen("chess"),
+                tree_payload={"nodes": []},
+                tags={"not valid tag": "value"},
+            )
+
     async def test_analysis_from_saved_game_uses_historical_variant_snapshot(self) -> None:
         variant = "studysource"
         root_fen = FairyBoard.start_fen("chess")

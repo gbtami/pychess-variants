@@ -10,6 +10,8 @@ import { PyChessModel } from '../types';
 import { analysisContext, type AnalysisContext } from './analysisContext';
 import { renderAnalysisPage } from './analysisPage';
 import { studyTreeFromAnalysisTree } from '../study/studyTree';
+import { chooseStudy } from '../study/addToStudy';
+import { extractPgnTags } from '../pgn';
 
 export { analysisTools, gauge, renderAnalysisPage } from './analysisPage';
 export type { AnalysisPageParts } from './analysisPage';
@@ -100,7 +102,7 @@ export function analysisUnderboard(
     model: PyChessModel,
     context: AnalysisContext,
     isOngoingGame: boolean,
-    saveToStudy?: () => void,
+    addToStudy?: () => void,
 ): VNode[] {
     const tabindexCt = context.analysisBoard ? '-1' : '0';
     let tabindexPgn = context.analysisBoard ? '0' : '-1';
@@ -209,12 +211,29 @@ export function analysisUnderboard(
                 ]),
                 h('div#copyfen'),
                 h('div#pgntext'),
-                saveToStudy && !isOngoingGame && model.anon !== 'True'
-                    ? h('button.button', { on: { click: saveToStudy } }, _('Save to Study'))
+                addToStudy && !isOngoingGame && model.anon !== 'True'
+                    ? h('button.button', { on: { click: addToStudy } }, _('Add to Study'))
                     : '',
             ],
         ),
     ];
+}
+
+function studyTagsFromAnalysis(model: PyChessModel, ctrl: AnalysisController): Record<string, string> {
+    if (!model.gameId || ctrl.pgn) return extractPgnTags(ctrl.isAnalysisBoard ? ctrl.getPgn() : ctrl.pgn);
+
+    const date = model.date ? model.date.slice(0, 10).replace(/-/g, '.') : '';
+    const tags: Record<string, string> = {
+        Event: `PyChess ${model.rated === '1' ? 'rated' : 'casual'} game`,
+        Site: `${model.home}/${model.gameId}`,
+        White: model.wplayer || '?',
+        Black: model.bplayer || '?',
+        Result: model.result || '*',
+        WhiteElo: model.wrating || '?',
+        BlackElo: model.brating || '?',
+    };
+    if (date) tags.Date = date;
+    return tags;
 }
 
 export function analysisView(model: PyChessModel): VNode[] {
@@ -223,10 +242,15 @@ export function analysisView(model: PyChessModel): VNode[] {
     let ctrl: AnalysisController | undefined;
     renderTimeago();
 
-    const saveToStudy = async () => {
+    const addToStudy = async () => {
         const tree = ctrl?.analysisTree;
         if (!ctrl || !tree) return;
         try {
+            const defaultChapterName =
+                model.gameId && model.wplayer && model.bplayer ? `${model.wplayer} - ${model.bplayer}` : _('Analysis');
+            const destination = await chooseStudy(defaultChapterName);
+            if (!destination) return;
+            const tags = studyTagsFromAnalysis(model, ctrl);
             const response = await fetch('/study/from-analysis', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -235,27 +259,28 @@ export function analysisView(model: PyChessModel): VNode[] {
                     chess960: model.chess960 === 'True',
                     initialFen: tree.root.step.fen,
                     gameId: model.gameId || undefined,
-                    chapterName:
-                        model.gameId && model.wplayer && model.bplayer
-                            ? `${model.wplayer} - ${model.bplayer}`
-                            : _('Analysis'),
+                    studyId: destination.studyId,
+                    studyName: destination.studyName,
+                    chapterName: destination.chapterName,
+                    orientation: ctrl.chessground.state.orientation,
+                    tags,
                     tree: studyTreeFromAnalysisTree(tree),
                 }),
             });
             const payload = (await response.json()) as { ok?: boolean; url?: string; error?: string };
             if (!response.ok || !payload.ok || !payload.url) {
-                window.alert(payload.error || _('Could not save analysis to Study.'));
+                window.alert(payload.error || _('Could not add analysis to Study.'));
                 return;
             }
             window.location.assign(payload.url);
         } catch {
-            window.alert(_('Could not save analysis to Study.'));
+            window.alert(_('Could not add analysis to Study.'));
         }
     };
 
     return renderAnalysisPage(model, {
         side: analysisSide(model, context),
-        underboard: analysisUnderboard(model, context, isOngoingGame, saveToStudy),
+        underboard: analysisUnderboard(model, context, isOngoingGame, addToStudy),
         mountBoard: vnode => runGround(vnode, model, mounted => (ctrl = mounted)),
         ongoing: isOngoingGame,
     });

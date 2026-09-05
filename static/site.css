@@ -4550,3 +4550,29 @@ div button.login-btn {
     padding: 1rem;
     border-radius: 4px;
 }
+
+.study-add-dialog-form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.study-add-dialog-form label {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.study-add-dialog-form input,
+.study-add-dialog-form select {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  background: var(--bg-color2);
+  color: var(--font-color);
+  font: inherit;
+}
+
+.study-add-dialog-form input:disabled {
+  opacity: 0.55;
+}

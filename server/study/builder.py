@@ -10,7 +10,7 @@ from fairy.fairy_board import FEN_OK, NOTATION_SAN, WHITE, FairyBoard, validate_
 from utils import MAX_CUSTOM_FEN_LENGTH, load_game, sanitize_fen
 from variants import ALL_VARIANTS, C2V, TWO_BOARD_VARIANT_CODES, is_catalogued_variant
 
-from study.annotations import StudyAnnotations, StudyComment
+from study.annotations import StudyAnnotations, StudyComment, canonical_tags
 from study.models import StudySource
 from study.tree import StudyTree, StudyTreeNode
 from study.variant import study_variant_context
@@ -238,6 +238,8 @@ class StudyChapterBuilder:
         chess960: bool = False,
         game_id: str | None = None,
         name: str | None = None,
+        orientation: StudyOrientation = "white",
+        tags: Mapping[str, str] | None = None,
     ) -> StudyChapterDraft:
         source_game = await self._analysis_source_game(game_id, variant, chess960)
         source_snapshot = str(source_game.get("vini") or "") if source_game is not None else ""
@@ -276,16 +278,22 @@ class StudyChapterBuilder:
             except Exception as exc:
                 raise StudyChapterBuildError("Analysis tree is invalid") from exc
 
+        try:
+            normalized_tags = canonical_tags(tags or {})
+        except (TypeError, ValueError) as exc:
+            raise StudyChapterBuildError("Analysis PGN tags are invalid") from exc
+
         source = StudySource("game", game_id) if game_id else StudySource()
         return StudyChapterDraft(
             variant=variant,
             chess960=chess960,
             initial_fen=sanitized_fen,
-            orientation="white",
+            orientation=orientation,
             variant_ini=variant_ini,
             root=root,
             name=name,
             source=source,
+            tags=normalized_tags,
         )
 
     async def _analysis_source_game(

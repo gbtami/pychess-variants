@@ -155,7 +155,7 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('#movelist')).not.toBeNull();
         expect(root.querySelector('#move-controls')).not.toBeNull();
         expect(root.querySelector('#pgntext')).not.toBeNull();
-        expect([...root.querySelectorAll('button')].some(button => button.textContent === 'Save to Study')).toBe(true);
+        expect([...root.querySelectorAll('button')].some(button => button.textContent === 'Add to Study')).toBe(true);
         expect(root.querySelectorAll('[role="tab"]').length).toBeGreaterThan(0);
     });
 
@@ -166,18 +166,18 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('#movelist')).not.toBeNull();
         expect(root.querySelector('#move-controls')).not.toBeNull();
         expect(root.querySelector('#pgntext')).not.toBeNull();
-        expect([...root.querySelectorAll('button')].some(button => button.textContent === 'Save to Study')).toBe(true);
+        expect([...root.querySelectorAll('button')].some(button => button.textContent === 'Add to Study')).toBe(true);
     });
 
-    test('ongoing and anonymous analysis do not offer Save to Study', () => {
+    test('ongoing and anonymous analysis do not offer Add to Study', () => {
         const ongoing = renderNodes(analysisView(makeModel({ gameId: 'cPeP5Di1', status: -1 })));
-        expect([...ongoing.querySelectorAll('button')].some(button => button.textContent === 'Save to Study')).toBe(
+        expect([...ongoing.querySelectorAll('button')].some(button => button.textContent === 'Add to Study')).toBe(
             false,
         );
 
         document.body.innerHTML = '';
         const anonymous = renderNodes(analysisView(makeModel({ gameId: '', status: 1, anon: 'True' })));
-        expect([...anonymous.querySelectorAll('button')].some(button => button.textContent === 'Save to Study')).toBe(
+        expect([...anonymous.querySelectorAll('button')].some(button => button.textContent === 'Add to Study')).toBe(
             false,
         );
     });
@@ -256,7 +256,7 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('#movelist')).not.toBeNull();
         expect(root.querySelector('#pgntext')).not.toBeNull();
         expect(root.querySelector('#roundchat')).toBeNull();
-        expect([...root.querySelectorAll('button')].some(button => button.textContent === 'Save to Study')).toBe(false);
+        expect([...root.querySelectorAll('button')].some(button => button.textContent === 'Add to Study')).toBe(false);
         expect(root.querySelector('details.study-side__new-chapter')).not.toBeNull();
         expect(root.querySelector('input[name="fen"]')).not.toBeNull();
         expect(root.querySelector('input[name="gameId"]')).not.toBeNull();
