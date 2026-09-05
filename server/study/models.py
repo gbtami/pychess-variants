@@ -297,6 +297,8 @@ async def make_chapter(
     chess960: bool = False,
     variant_ini: str | None = None,
     root: StudyTree | None = None,
+    description: str = "",
+    tags: Mapping[str, str] | None = None,
     now: datetime | None = None,
 ) -> StudyChapter:
     created_at = _utc(now or datetime.now(UTC))
@@ -312,6 +314,8 @@ async def make_chapter(
         orientation=orientation,
         variant_ini=variant_ini,
         root=StudyTree() if root is None else root,
+        description=description,
+        tags={} if tags is None else dict(tags),
         created_at=created_at,
         updated_at=created_at,
     )

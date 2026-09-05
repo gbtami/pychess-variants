@@ -6,8 +6,8 @@ from dataclasses import dataclass, field
 from typing import Any, Literal, cast
 
 from catalogued_variants import find_catalogued_variant_doc
-from fairy.fairy_board import NOTATION_SAN, WHITE, FairyBoard
-from utils import load_game, sanitize_fen
+from fairy.fairy_board import FEN_OK, NOTATION_SAN, WHITE, FairyBoard, validate_fen
+from utils import MAX_CUSTOM_FEN_LENGTH, load_game, sanitize_fen
 from variants import ALL_VARIANTS, C2V, TWO_BOARD_VARIANT_CODES, is_catalogued_variant
 
 from study.annotations import StudyAnnotations, StudyComment
@@ -32,6 +32,8 @@ class StudyChapterDraft:
     root: StudyTree = field(default_factory=StudyTree)
     name: str | None = None
     source: StudySource = field(default_factory=StudySource)
+    description: str = ""
+    tags: Mapping[str, str] = field(default_factory=dict)
 
 
 class StudyChapterBuilder:
@@ -134,6 +136,97 @@ class StudyChapterBuilder:
             root=StudyTree(nodes),
             name=name or default_name,
             source=StudySource("game", game_id),
+        )
+
+    async def from_import(
+        self,
+        *,
+        variant: str,
+        initial_fen: str,
+        tree_payload: Mapping[str, object],
+        chess960: bool = False,
+        variant_ini: str | None = None,
+        name: str | None = None,
+        orientation: StudyOrientation = "white",
+        description: str = "",
+        tags: Mapping[str, str] | None = None,
+    ) -> StudyChapterDraft:
+        variant = variant.strip().lower()
+        if not variant:
+            raise StudyChapterBuildError("PGN variant is required")
+        initial_fen = initial_fen.strip()
+        if not initial_fen:
+            raise StudyChapterBuildError("PGN initial FEN is required")
+        if len(initial_fen) > MAX_CUSTOM_FEN_LENGTH:
+            raise StudyChapterBuildError("PGN initial FEN is too long")
+
+        snapshot = variant_ini if isinstance(variant_ini, str) and variant_ini.strip() else None
+        if snapshot is not None:
+            if chess960:
+                raise StudyChapterBuildError(
+                    "Embedded custom variant snapshots do not support Chess960"
+                )
+            server_variant = ALL_VARIANTS.get(variant)
+            if server_variant is not None and not is_catalogued_variant(variant):
+                raise StudyChapterBuildError(
+                    "Built-in variants cannot use an embedded custom rules snapshot"
+                )
+            try:
+                with study_variant_context(self.app_state, variant, snapshot) as options:
+                    if validate_fen(initial_fen, options.runtime_variant, chess960) != FEN_OK:
+                        raise StudyChapterBuildError(
+                            "Invalid PGN FEN for embedded variant snapshot"
+                        )
+                    submitted = StudyTree.from_payload(tree_payload)
+                    root = self._validated_tree(
+                        submitted,
+                        variant=variant,
+                        initial_fen=initial_fen,
+                        chess960=chess960,
+                        show_promoted=options.show_promoted,
+                        legal_moves_need_history=options.legal_moves_need_history,
+                        runtime_variant=options.runtime_variant,
+                        comment_author=self.owner,
+                    )
+            except StudyChapterBuildError:
+                raise
+            except Exception as exc:
+                raise StudyChapterBuildError("Embedded PGN variant snapshot is invalid") from exc
+        else:
+            snapshot = await self._variant_snapshot(variant, chess960)
+            with study_variant_context(self.app_state, variant, snapshot) as options:
+                valid, sanitized_fen = sanitize_fen(variant, initial_fen, chess960)
+                if not valid:
+                    raise StudyChapterBuildError("Invalid PGN FEN for this variant")
+                initial_fen = sanitized_fen
+                try:
+                    submitted = StudyTree.from_payload(tree_payload)
+                    root = self._validated_tree(
+                        submitted,
+                        variant=variant,
+                        initial_fen=initial_fen,
+                        chess960=chess960,
+                        show_promoted=options.show_promoted,
+                        legal_moves_need_history=options.legal_moves_need_history,
+                        runtime_variant=options.runtime_variant,
+                        comment_author=self.owner,
+                    )
+                except StudyChapterBuildError:
+                    raise
+                except Exception as exc:
+                    raise StudyChapterBuildError("PGN import tree is invalid") from exc
+
+        return StudyChapterDraft(
+            variant=variant,
+            chess960=chess960,
+            initial_fen=initial_fen,
+            orientation=orientation,
+            variant_ini=snapshot,
+            root=root,
+            name=name,
+            source=StudySource("import"),
+            description=description,
+            tags=dict(tags or {}),
         )
 
     async def from_analysis(

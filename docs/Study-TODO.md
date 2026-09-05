@@ -1110,12 +1110,30 @@ Phase 2C should recognize these extensions when importing a PyChess Study export
 
 ## 2C. PGN import
 
-- [ ] Import one PGN with complete variation tree, not only mainline.
-- [ ] Import comments and NAGs.
-- [ ] Validate every branch using the selected variant.
-- [ ] Import multiple PGNs as multiple chapters up to remaining capacity.
-- [ ] Produce actionable errors for unsupported/ambiguous variant notation.
-- [ ] Do not silently flatten or discard variations.
+The Study-side import core is parser-neutral. `client/study/studyPgnImport.ts` consumes a rich
+recursive PGN AST, replays every branch with browser Fairy-Stockfish, converts comments/NAGs
+and `[%csl ...]`/`[%cal ...]`/PyChess export extensions into the existing Study DTO, then posts
+only normalized chapter data. The server replays every submitted branch again before persistence
+for authorization/integrity, validates the full batch before inserting it, and enforces the remaining
+chapter cap. Raw PGN grammar parsing is intentionally outside the Study core.
+
+The current `ffish.js`/`client/paste.ts` reader exposes headers and the main line only, so it must
+**not** be advertised as the full Study parser: doing so would silently flatten RAVs and discard
+comments/NAGs. A future Fairy-Stockfish binding or dedicated WASM parser should implement the
+`StudyPgnParser` contract and declare complete recursive/comments/NAG/multi-game capabilities.
+Until then there is deliberately no raw-PGN Study import UI. The existing one-game Paste workflow
+continues to use the lightweight parser, with its generic Variant/FEN/tag helpers shared through
+`client/pgn.ts`.
+
+- [x] Define parser-neutral recursive PGN AST / adapter contract.
+- [x] Normalize one complete parsed PGN into a full variation tree, not only mainline.
+- [x] Import comments, NAGs, shapes, root `[%pynag ...]`, and PyChess export extensions.
+- [x] Validate/replay every branch using the selected variant in the browser and again server-side.
+- [x] Import multiple normalized PGNs as multiple chapters up to remaining capacity.
+- [x] Produce actionable errors for unsupported/ambiguous variant notation.
+- [x] Refuse parser adapters that cannot preserve variations/comments/NAGs/multiple games.
+- [ ] Implement/connect a raw PGN parser with the complete `StudyPgnParser` capabilities.
+- [ ] Add the raw-PGN Study import UI once that complete parser adapter exists.
 
 ## 2D. "Add to Study" workflows
 

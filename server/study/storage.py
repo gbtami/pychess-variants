@@ -93,6 +93,8 @@ async def create_study_from_draft(
         orientation=draft.orientation,
         variant_ini=draft.variant_ini,
         root=draft.root,
+        description=draft.description,
+        tags=draft.tags,
         order=1,
         name=_clean_name(
             draft.name, fallback="Chapter 1", max_length=STUDY_CHAPTER_NAME_MAX_LENGTH
@@ -149,6 +151,8 @@ async def add_chapter_from_draft(
         orientation=draft.orientation,
         variant_ini=draft.variant_ini,
         root=draft.root,
+        description=draft.description,
+        tags=draft.tags,
         order=order,
         name=_clean_name(
             draft.name, fallback=f"Chapter {order}", max_length=STUDY_CHAPTER_NAME_MAX_LENGTH
@@ -162,6 +166,69 @@ async def add_chapter_from_draft(
         {"$set": {"currentChapter": chapter.id, "updatedAt": now}, "$inc": {"revision": 1}},
     )
     return chapter
+
+
+async def add_chapters_from_drafts(
+    app_state: Any,
+    study: Study,
+    drafts: list[StudyChapterDraft],
+) -> list[StudyChapter]:
+    if not drafts:
+        raise StudyStorageError("PGN import contains no chapters")
+
+    count = await app_state.db.study_chapter.count_documents({"studyId": study.id})
+    if count + len(drafts) > STUDY_MAX_CHAPTERS:
+        remaining = max(0, STUDY_MAX_CHAPTERS - count)
+        raise StudyStorageError(
+            f"Study has room for {remaining} more chapter{'s' if remaining != 1 else ''}"
+        )
+
+    last = await app_state.db.study_chapter.find_one(
+        {"studyId": study.id}, projection={"order": 1}, sort=[("order", -1)]
+    )
+    start_order = int(last["order"]) + 1 if last is not None else 1
+    chapters: list[StudyChapter] = []
+    for offset, draft in enumerate(drafts):
+        order = start_order + offset
+        chapter = await make_chapter(
+            app_state.db.study_chapter,
+            study_id=study.id,
+            owner=study.owner,
+            variant=draft.variant,
+            chess960=draft.chess960,
+            initial_fen=draft.initial_fen,
+            orientation=draft.orientation,
+            variant_ini=draft.variant_ini,
+            root=draft.root,
+            description=draft.description,
+            tags=draft.tags,
+            order=order,
+            name=_clean_name(
+                draft.name, fallback=f"Chapter {order}", max_length=STUDY_CHAPTER_NAME_MAX_LENGTH
+            ),
+        )
+        _ensure_chapter_size(chapter)
+        chapters.append(chapter)
+
+    ids = [chapter.id for chapter in chapters]
+    try:
+        await app_state.db.study_chapter.insert_many(
+            [chapter.to_document() for chapter in chapters]
+        )
+        now = datetime.now(UTC)
+        result = await app_state.db.study.update_one(
+            {"_id": study.id, "owner": study.owner},
+            {
+                "$set": {"currentChapter": chapters[-1].id, "updatedAt": now},
+                "$inc": {"revision": 1},
+            },
+        )
+        if result.matched_count != 1:
+            raise StudyStorageError("Study disappeared during PGN import")
+    except Exception:
+        await app_state.db.study_chapter.delete_many({"_id": {"$in": ids}, "studyId": study.id})
+        raise
+    return chapters
 
 
 async def add_chapter(

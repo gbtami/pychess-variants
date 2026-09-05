@@ -1,4 +1,5 @@
 import type { Step } from '../messages';
+import { encodePgnUtf8Base64 } from '../pgn';
 import { renderFullTreePgnMoveText, type AnalysisAnnotations, type AnalysisTreeNode } from '../analysis/analysisTree';
 import { analysisTreeFromStudy, type StudyTreeDto } from './studyTree';
 
@@ -30,46 +31,6 @@ const BRUSH_CODE: Record<string, string> = {
     blue: 'B',
     yellow: 'Y',
 };
-
-const BASE64_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-
-function utf8Bytes(value: string): number[] {
-    const bytes: number[] = [];
-    for (let index = 0; index < value.length; index++) {
-        const codePoint = value.codePointAt(index)!;
-        if (codePoint > 0xffff) index += 1;
-        if (codePoint <= 0x7f) bytes.push(codePoint);
-        else if (codePoint <= 0x7ff) {
-            bytes.push(0xc0 | (codePoint >> 6), 0x80 | (codePoint & 0x3f));
-        } else if (codePoint <= 0xffff) {
-            bytes.push(0xe0 | (codePoint >> 12), 0x80 | ((codePoint >> 6) & 0x3f), 0x80 | (codePoint & 0x3f));
-        } else {
-            bytes.push(
-                0xf0 | (codePoint >> 18),
-                0x80 | ((codePoint >> 12) & 0x3f),
-                0x80 | ((codePoint >> 6) & 0x3f),
-                0x80 | (codePoint & 0x3f),
-            );
-        }
-    }
-    return bytes;
-}
-
-function utf8Base64(value: string): string {
-    const bytes = utf8Bytes(value);
-    let result = '';
-    for (let index = 0; index < bytes.length; index += 3) {
-        const first = bytes[index];
-        const second = bytes[index + 1];
-        const third = bytes[index + 2];
-        const triple = (first << 16) | ((second ?? 0) << 8) | (third ?? 0);
-        result += BASE64_ALPHABET[(triple >> 18) & 63];
-        result += BASE64_ALPHABET[(triple >> 12) & 63];
-        result += second === undefined ? '=' : BASE64_ALPHABET[(triple >> 6) & 63];
-        result += third === undefined ? '=' : BASE64_ALPHABET[triple & 63];
-    }
-    return result;
-}
 
 function tagValue(value: string): string {
     return value
@@ -158,7 +119,7 @@ function chapterTags(study: StudyPgnContext, chapter: StudyPgnChapterData): Arra
 
     if (chapter.variantIni) {
         tags.set('PyChessVariantIniEncoding', 'base64');
-        tags.set('PyChessVariantIni', utf8Base64(chapter.variantIni));
+        tags.set('PyChessVariantIni', encodePgnUtf8Base64(chapter.variantIni));
     } else {
         tags.delete('PyChessVariantIniEncoding');
         tags.delete('PyChessVariantIni');
@@ -166,7 +127,7 @@ function chapterTags(study: StudyPgnContext, chapter: StudyPgnChapterData): Arra
 
     if (chapter.description) {
         tags.set('PyChessChapterDescriptionEncoding', 'base64');
-        tags.set('PyChessChapterDescription', utf8Base64(chapter.description));
+        tags.set('PyChessChapterDescription', encodePgnUtf8Base64(chapter.description));
     } else {
         tags.delete('PyChessChapterDescriptionEncoding');
         tags.delete('PyChessChapterDescription');

@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import json
-from typing import Any
+from collections.abc import Mapping
+from typing import Any, cast
 
 import aiohttp_jinja2
 from aiohttp import web
@@ -10,11 +11,18 @@ from fairy import BLACK, FairyBoard
 from json_utils import json_dumps
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_json_data, read_post_data
-from study.builder import StudyChapterBuilder, StudyChapterBuildError, StudyChapterDraft
+from study.builder import (
+    StudyChapterBuilder,
+    StudyChapterBuildError,
+    StudyChapterDraft,
+    StudyOrientation,
+)
+from study.constants import STUDY_MAX_CHAPTERS
 from study.models import Study, StudyChapter
 from study.storage import (
     StudyStorageError,
     add_chapter_from_draft,
+    add_chapters_from_drafts,
     chapter_previews,
     create_study_from_draft,
     delete_chapter,
@@ -316,6 +324,127 @@ async def study_from_analysis(request: web.Request) -> web.StreamResponse:
             "studyId": study.id,
             "chapterId": chapter.id,
             "url": f"/study/{study.id}/{chapter.id}",
+        }
+    )
+
+
+async def study_import_pgn(request: web.Request) -> web.StreamResponse:
+    user, _, study, _ = await _owned_study_and_chapter(request)
+    app_state = get_app_state(request.app)
+    data = await read_json_data(request)
+    if not isinstance(data, Mapping):
+        return web.json_response({"ok": False, "error": "invalid import payload"}, status=400)
+    raw_chapters = data.get("chapters")
+    if not isinstance(raw_chapters, list) or not raw_chapters:
+        return web.json_response(
+            {"ok": False, "error": "PGN import contains no chapters"}, status=400
+        )
+
+    existing = await app_state.db.study_chapter.count_documents({"studyId": study.id})
+    remaining = max(0, STUDY_MAX_CHAPTERS - existing)
+    if len(raw_chapters) > remaining:
+        return web.json_response(
+            {
+                "ok": False,
+                "error": f"Study has room for {remaining} more chapter{'s' if remaining != 1 else ''}",
+            },
+            status=400,
+        )
+
+    builder = StudyChapterBuilder(app_state, user.username)
+    drafts: list[StudyChapterDraft] = []
+    for index, raw in enumerate(raw_chapters, start=1):
+        if not isinstance(raw, Mapping):
+            return web.json_response(
+                {"ok": False, "error": f"Imported chapter {index} is invalid"}, status=400
+            )
+        raw_tree = raw.get("tree")
+        if not isinstance(raw_tree, Mapping):
+            return web.json_response(
+                {"ok": False, "error": f"Imported chapter {index} has no valid tree"}, status=400
+            )
+        raw_chess960 = raw.get("chess960", False)
+        if not isinstance(raw_chess960, bool):
+            return web.json_response(
+                {"ok": False, "error": f"Imported chapter {index} has invalid Chess960 mode"},
+                status=400,
+            )
+        raw_orientation = raw.get("orientation", "white")
+        if raw_orientation not in ("white", "black"):
+            return web.json_response(
+                {"ok": False, "error": f"Imported chapter {index} has invalid orientation"},
+                status=400,
+            )
+        raw_tags = raw.get("tags", {})
+        if not isinstance(raw_tags, Mapping):
+            return web.json_response(
+                {"ok": False, "error": f"Imported chapter {index} has invalid PGN tags"},
+                status=400,
+            )
+        if not all(
+            isinstance(key, str) and isinstance(value, str) for key, value in raw_tags.items()
+        ):
+            return web.json_response(
+                {"ok": False, "error": f"Imported chapter {index} has invalid PGN tags"},
+                status=400,
+            )
+        raw_snapshot = raw.get("variantIni")
+        if raw_snapshot is not None and not isinstance(raw_snapshot, str):
+            return web.json_response(
+                {"ok": False, "error": f"Imported chapter {index} has invalid variant snapshot"},
+                status=400,
+            )
+        raw_variant = raw.get("variant")
+        raw_initial_fen = raw.get("initialFen")
+        raw_name = raw.get("name")
+        raw_description = raw.get("description", "")
+        if not isinstance(raw_variant, str) or not isinstance(raw_initial_fen, str):
+            return web.json_response(
+                {"ok": False, "error": f"Imported chapter {index} has invalid variant/FEN data"},
+                status=400,
+            )
+        if raw_name is not None and not isinstance(raw_name, str):
+            return web.json_response(
+                {"ok": False, "error": f"Imported chapter {index} has invalid name"}, status=400
+            )
+        if not isinstance(raw_description, str):
+            return web.json_response(
+                {"ok": False, "error": f"Imported chapter {index} has invalid description"},
+                status=400,
+            )
+
+        try:
+            drafts.append(
+                await builder.from_import(
+                    variant=raw_variant,
+                    initial_fen=raw_initial_fen,
+                    tree_payload=cast(Mapping[str, object], raw_tree),
+                    chess960=raw_chess960,
+                    variant_ini=cast(str | None, raw_snapshot),
+                    name=raw_name.strip() or None if raw_name is not None else None,
+                    orientation=cast(StudyOrientation, raw_orientation),
+                    description=raw_description,
+                    tags=cast(Mapping[str, str], raw_tags),
+                )
+            )
+        except StudyChapterBuildError as exc:
+            return web.json_response(
+                {"ok": False, "error": f"Imported chapter {index}: {exc}"}, status=400
+            )
+
+    try:
+        chapters = await add_chapters_from_drafts(app_state, study, drafts)
+    except StudyStorageError as exc:
+        return web.json_response({"ok": False, "error": str(exc)}, status=400)
+
+    last = chapters[-1]
+    return web.json_response(
+        {
+            "ok": True,
+            "imported": len(chapters),
+            "studyId": study.id,
+            "chapterId": last.id,
+            "url": f"/study/{study.id}/{last.id}",
         }
     )
 
