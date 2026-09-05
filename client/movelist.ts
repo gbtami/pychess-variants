@@ -5,9 +5,14 @@ import { GameController } from './gameCtrl';
 import { result } from './result';
 import { patch } from './document';
 import { AnalysisTreeNode } from './analysis/analysisTree';
+import type { AnalysisContext } from './analysis/analysisContext';
+import type { AnalysisExtension } from './analysis/analysisExtension';
+import { GLYPHS } from './analysis/glyphs';
 
 type TreeCtrl = GameController & {
     analysisTree?: { root: AnalysisTreeNode };
+    analysisContext?: AnalysisContext;
+    analysisExtension?: AnalysisExtension;
     hasAnalysisTree?: () => boolean;
     isTreeInlineNotation?: () => boolean;
     isTreeDisclosureMode?: () => boolean;
@@ -90,12 +95,29 @@ function parseTreeMove(move: string | undefined): ParsedTreeMove {
     };
 }
 
-function renderTreeMoveText(move: string | undefined): VNode[] {
+const NAG_GLYPHS: Record<number, { text: string; cls: MoveGlyphClass }> = {
+    1: { text: '!', cls: 'good' },
+    2: { text: '?', cls: 'mistake' },
+    3: { text: '!!', cls: 'brilliant' },
+    4: { text: '??', cls: 'blunder' },
+    5: { text: '!?', cls: 'interesting' },
+    6: { text: '?!', cls: 'inaccuracy' },
+};
+
+function renderTreeMoveText(move: string | undefined, nags: number[] = []): VNode[] {
     const parsed = parseTreeMove(move);
     const nodes: VNode[] = [h('san', parsed.san)];
 
     if (parsed.glyph) {
         nodes.push(h(`glyph.${parsed.glyph.cls}`, parsed.glyph.text));
+    }
+    for (const nag of nags) {
+        const glyph = NAG_GLYPHS[nag];
+        nodes.push(
+            glyph
+                ? h(`glyph.${glyph.cls}`, glyph.text)
+                : h('glyph', GLYPHS.find(glyph => glyph.id === nag)?.symbol ?? `$${nag}`),
+        );
     }
 
     return nodes;
@@ -273,6 +295,14 @@ export function createMovelistButtons(ctrl: GameController) {
     ctrl.moveControls = patch(container, h('div#btn-controls-top.btn-controls', buttons));
 }
 
+// Like lila's treeView: comments interrupt the mainline columns, and flow
+// with variations. Text stays plain text, including imported PGN annotations.
+function renderTreeComments(node: AnalysisTreeNode): VNode[] {
+    return (node.annotations?.comments ?? []).map(comment =>
+        h('comment.tree-comment', { attrs: { title: comment.author } }, comment.text),
+    );
+}
+
 function renderTreeMove(
     ctrl: TreeCtrl,
     path: string,
@@ -343,7 +373,12 @@ function renderTreeMove(
                 },
             },
         },
-        [disclosureButton, prefix ? h('index', prefix) : undefined, ...renderTreeMoveText(move), evalNode],
+        [
+            disclosureButton,
+            prefix ? h('index', prefix) : undefined,
+            ...renderTreeMoveText(move, node.annotations?.nags),
+            evalNode,
+        ],
     );
 }
 
@@ -402,6 +437,7 @@ function renderTreeBranch(
                 currentParentDisclose,
             ),
         );
+        out.push(...renderTreeComments(currentNode));
         if (currentParentDisclose !== 'collapsed') {
             currentBranchSiblings.forEach(sideline => {
                 out.push(
@@ -426,7 +462,7 @@ function renderTreeBranch(
 function renderTreeMovelist(ctrl: TreeCtrl): VNode[] {
     const root = ctrl.analysisTree!.root;
     const rootTurnColor = root.step.turnColor;
-    const moves: VNode[] = [];
+    const moves: VNode[] = renderTreeComments(root);
     const mainline = root.children[0];
     const rootDisclose = treeDiscloseState(root);
     if (mainline)
@@ -535,7 +571,7 @@ function renderTreeColumnMove(
                 },
             },
         },
-        [disclosureButton, ...renderTreeMoveText(move), evalNode],
+        [disclosureButton, ...renderTreeMoveText(move, node.annotations?.nags), evalNode],
     );
 }
 
@@ -561,6 +597,8 @@ function renderTreeLineSequence(ctrl: TreeCtrl, nodes: AnalysisTreeNode[], args:
             currentParentDisclose,
         ),
     );
+
+    moves.push(...renderTreeComments(child));
 
     if (currentParentDisclose !== 'collapsed' && (args.parenthetical || args.flowInline) && siblings.length > 0) {
         moves.push(renderTreeVariationLines(ctrl, siblings, args));
@@ -640,9 +678,12 @@ function renderTreeColumnNodes(ctrl: TreeCtrl, nodes: AnalysisTreeNode[], args: 
 
     out.push(renderTreeColumnMove(ctrl, child.path, child, args.isMainline, args.parentPath, currentParentDisclose));
 
-    if (currentParentDisclose !== 'collapsed' && siblings.length > 0) {
+    const comments = renderTreeComments(child);
+    if (currentParentDisclose !== 'collapsed' && (siblings.length > 0 || comments.length > 0)) {
         if (isWhiteMove) out.push(h('move.empty', '...'));
-        out.push(h('interrupt', [renderTreeVariationLines(ctrl, siblings, args)]));
+        out.push(
+            h('interrupt', [...comments, ...(siblings.length ? [renderTreeVariationLines(ctrl, siblings, args)] : [])]),
+        );
         if (isWhiteMove && child.children.length > 0) {
             out.push(h('index', `${Math.ceil(child.ply / 2)}`));
             out.push(h('move.empty', '...'));
@@ -663,7 +704,8 @@ function renderTreeColumnNodes(ctrl: TreeCtrl, nodes: AnalysisTreeNode[], args: 
 
 function renderTreeColumnMovelist(ctrl: TreeCtrl): VNode[] {
     const root = ctrl.analysisTree!.root;
-    const moves: VNode[] = [];
+    const comments = renderTreeComments(root);
+    const moves: VNode[] = comments.length ? [h('interrupt', comments)] : [];
 
     if (root.step.turnColor === 'black' && root.children[0]) {
         moves.push(h('index', '1'));
@@ -743,6 +785,8 @@ function renderTreeContextMenu(ctrl: TreeCtrl): VNode | undefined {
         actions.push(action('icon-plus-square', _('Expand all'), () => ctrl.expandAllTree?.()));
     }
 
+    actions.push(...(ctrl.analysisExtension?.contextMenuActions?.(menu.path) ?? []));
+
     actions.push(
         action('icon-clipboard', onMainline ? _('Copy main line PGN') : _('Copy variation PGN'), () =>
             ctrl.copyTreeLinePgn?.(menu.path),
@@ -774,7 +818,7 @@ export function updateMovelist(ctrl: GameController, full = true, activate = tru
         const inlineNotation = treeCtrl.isTreeInlineNotation?.() ?? false;
         const moves = inlineNotation ? renderTreeMovelist(treeCtrl) : renderTreeColumnMovelist(treeCtrl);
         const contextMenu = renderTreeContextMenu(treeCtrl);
-        if (ctrl.status >= 0 && needResult) {
+        if (ctrl.status >= 0 && needResult && treeCtrl.analysisContext?.capabilities.gamePanels !== false) {
             moves.push(h('div.result', ctrl.result));
             moves.push(h('div.status', result(ctrl.variant, ctrl.status, ctrl.result)));
         }

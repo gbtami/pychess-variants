@@ -50,6 +50,14 @@ export class PvHoverPreview {
         this.rootEl = rootEl;
     }
 
+    destroy(): void {
+        this.clearHideTimer();
+        this.cg?.destroy();
+        this.rootEl?.remove();
+        this.cg = undefined;
+        this.rootEl = undefined;
+    }
+
     hide() {
         this.clearHideTimer();
         if (this.rootEl) this.rootEl.style.visibility = 'hidden';

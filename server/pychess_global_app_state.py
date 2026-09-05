@@ -228,6 +228,9 @@ class PychessGlobalAppState:
             self.chat_flood = ChatFlood()
             # one dict per tournament! {tournamentId: {user.username: user.tournament_sockets, ...}, ...}
             self.tourneysockets: dict[str, dict[str, set[WebSocketResponse | None]]] = {}
+            # Study rooms are created lazily when the first browser opens /wsstudy/<id>
+            # and removed as soon as their last websocket leaves. No Study is preloaded.
+            self.study_sockets: dict[str, set[WebSocketResponse]] = {}
             self.background_tasks: set[asyncio.Task[Any]] = set()
             self.game_remove_tasks: dict[str, asyncio.Task[None]] = {}
             self.tournament_remove_tasks: dict[str, asyncio.Task[None]] = {}
@@ -1297,6 +1300,11 @@ class PychessGlobalAppState:
                         if ws is None:
                             continue
                         await ws.close()
+
+        # Study rooms are lazy, so only currently open browser tabs need closing.
+        for ws_set in tuple(self.study_sockets.values()):
+            for ws in tuple(ws_set):
+                await ws.close()
 
         log.debug("--- Cancel running tasks---")
         for task in asyncio.all_tasks():

@@ -20,11 +20,7 @@ import { renderClocks } from './analysisClock';
 import { copyBoardToPNG } from '../png';
 import { boardSettings } from '../boardSettings';
 import { nnueLookupContextForVariant, officialNnueNetwork } from '../nnueManifest';
-import {
-    loadNnueFile,
-    loadOfficialNnueFile,
-    removeObsoleteOfficialNnue,
-} from '../nnueStorage';
+import { loadNnueFile, loadOfficialNnueFile, removeObsoleteOfficialNnue } from '../nnueStorage';
 import { patch, downloadPgnText } from '../document';
 import { variantsIni } from '../variantsIni';
 import { Chart } from 'highcharts';
@@ -43,31 +39,10 @@ import { PvHoverPreview } from './pvHoverPreview';
 import { alertDialog } from '../alertDialog';
 import { confirmDialog } from '../confirmDialog';
 import { animatePassMove } from '../passMove';
-import {
-    addOrSelectChild,
-    AnalysisTree,
-    branchStartPath,
-    canPromoteVariation,
-    createAnalysisTree,
-    currentLineEndPath,
-    deleteNodePath,
-    extendPath,
-    forceVariationAt,
-    getNodeList,
-    mainlineEndPath,
-    mainlinePathAtPly,
-    nextBranchPath,
-    nodeAtPath,
-    parentPath,
-    pathIsForcedVariation,
-    previousBranchPath,
-    promoteNodePath,
-    renderLinePgnMoveText,
-    setCollapsedFrom,
-    someCollapsedFrom,
-    stepLinePath,
-    renderFullTreePgnMoveText,
-} from './analysisTree';
+import { renderFullTreePgnMoveText } from './analysisTree';
+import { AnalysisTreeController } from './analysisTreeCtrl';
+import { analysisContext, type AnalysisContext } from './analysisContext';
+import type { AnalysisExtension, AnalysisExtensionFactory } from './analysisExtension';
 import {
     CEVAL_ACTIVE_ROUNDS_STORAGE_KEY,
     CEVAL_DISABLE_STORAGE_KEY,
@@ -86,8 +61,6 @@ const EVAL_REGEX = new RegExp(
 );
 
 const maxDepth = 18;
-const TREE_COLLAPSED_STORAGE_KEY = 'analysisTreeCollapsedPaths';
-
 const emptySan = '\xa0';
 
 export function titleCase(words: string) {
@@ -136,11 +109,9 @@ export class AnalysisController extends GameController {
     lastBroadcastLocalAnalysisFen?: string;
     inlineNotation: boolean;
     disclosureMode: boolean;
-    analysisTree?: AnalysisTree;
-    analysisPath: string;
-    treeForkIndex: number;
-    treeContextMenu?: { path: string; x: number; y: number };
-    private readonly onTreeContextMenuDocumentClick: (event: MouseEvent) => void;
+    readonly tree: AnalysisTreeController;
+    readonly analysisContext: AnalysisContext;
+    readonly analysisExtension?: AnalysisExtension;
     keyboardHelpOpen: boolean;
     private readonly onKeyboardHelpShortcutKeyDown: (event: KeyboardEvent) => void;
     private readonly onKeyboardHelpKeyDown: (event: KeyboardEvent) => void;
@@ -150,8 +121,13 @@ export class AnalysisController extends GameController {
     private fsfOriginalPrompt?: typeof window.prompt;
     private fsfInputQueue: string[];
     private loadedNnueFilename?: string;
+    private lastRoundBoardSnapshot?: string;
+    private destroyed = false;
+    private engineConfigReady?: Promise<void>;
+    private resolveEngineConfig?: () => void;
+    private readonly onEngineBoardUnload = () => this.fsfEngineBoard?.delete();
 
-    constructor(el: HTMLElement, model: PyChessModel) {
+    constructor(el: HTMLElement, model: PyChessModel, extensionFactory?: AnalysisExtensionFactory) {
         super(
             el,
             model,
@@ -160,12 +136,17 @@ export class AnalysisController extends GameController {
             document.getElementById('pocket1') as HTMLElement,
             '',
         );
+        this.analysisContext = analysisContext(model);
+        this.tree = new AnalysisTreeController(this);
+        this.analysisExtension = extensionFactory?.(this);
         this.pvHoverPreview = new PvHoverPreview(this.variant);
         this.fsfError = [];
-        this.embed = model.embed;
-        this.puzzle = model['puzzle'] !== '';
-        this.isAnalysisBoard = this.gameId === '' && !this.puzzle;
-        if (!this.embed) {
+        // Compatibility properties for existing callers. New mode-specific code should
+        // prefer analysisContext/capabilities instead of recomputing these combinations.
+        this.embed = this.analysisContext.embed;
+        this.puzzle = this.analysisContext.puzzle;
+        this.isAnalysisBoard = this.analysisContext.analysisBoard;
+        if (this.analysisContext.capabilities.resizableCharts) {
             this.chartFunctions = [analysisChart, movetimeChart];
         }
 
@@ -177,7 +158,7 @@ export class AnalysisController extends GameController {
             }
         };
 
-        this.ongoing = this.status <= -1;
+        this.ongoing = this.analysisContext.ongoing;
 
         // is local stockfish.wasm engine supported at all
         this.localEngine = false;
@@ -185,7 +166,7 @@ export class AnalysisController extends GameController {
         // is local engine analysis enabled? (the switch)
         this.localAnalysis =
             localStorage.localAnalysis !== undefined &&
-            !this.ongoing &&
+            this.analysisContext.capabilities.localAnalysisAllowed &&
             !this.isLocalAnalysisBlockedByAntiCheat() &&
             localStorage.localAnalysis === 'true';
 
@@ -220,17 +201,10 @@ export class AnalysisController extends GameController {
         this.nnueOk = false;
         this.importedBy = '';
         this.lastBroadcastLocalAnalysisFen = undefined;
-        this.analysisPath = '';
-        this.treeForkIndex = 0;
         this.keyboardHelpOpen = false;
         this.awaitingStopReadyok = false;
         this.pendingGoAfterStopReadyok = false;
         this.fsfInputQueue = [];
-        this.onTreeContextMenuDocumentClick = (event: MouseEvent) => {
-            const target = event.target as HTMLElement | null;
-            if (target?.closest('.tree-context-menu')) return;
-            this.closeTreeContextMenu();
-        };
         this.onKeyboardHelpShortcutKeyDown = (event: KeyboardEvent) => {
             if (this.keyboardHelpOpen || !isKeyboardHelpShortcut(event)) return;
 
@@ -259,7 +233,7 @@ export class AnalysisController extends GameController {
             event.stopPropagation();
         };
 
-        if (!this.ongoing) {
+        if (this.analysisContext.capabilities.localAnalysisAllowed) {
             window.addEventListener('storage', this.onAntiCheatStorage);
             this.refreshLocalAnalysisAvailabilityForAntiCheat();
         }
@@ -281,13 +255,16 @@ export class AnalysisController extends GameController {
                 dropNewPiece: this.onDrop(),
                 select: this.onSelect(),
             },
+            drawable: {
+                onChange: shapes => this.analysisExtension?.onShapesChanged?.(shapes),
+            },
         });
 
         if (this.hasPockets) {
             setPocketRowCssVars(this);
         }
 
-        if (!this.isAnalysisBoard && !this.embed && !this.ongoing) {
+        if (this.analysisContext.capabilities.gamePanels) {
             this.ctableContainer = document.getElementById('panel-3') as HTMLElement;
             if (model['ct']) {
                 this.ctableContainer = patch(this.ctableContainer, h('panel-3'));
@@ -301,11 +278,11 @@ export class AnalysisController extends GameController {
         createMovelistButtons(this);
         this.vmovelist = document.getElementById('movelist') as HTMLElement;
 
-        if (!this.isAnalysisBoard && !this.embed && !this.puzzle && !this.ongoing) {
+        if (this.analysisContext.capabilities.roundChat) {
             patch(document.getElementById('roundchat') as HTMLElement, chatView(this, 'roundchat'));
         }
 
-        if (!this.embed && !this.ongoing) {
+        if (this.analysisContext.capabilities.engineTools) {
             const engineSettings = new EngineSettings(this);
             const et = document.querySelector('.engine-toggle') as HTMLElement;
             patch(et, engineSettings.view());
@@ -347,10 +324,10 @@ export class AnalysisController extends GameController {
             (document.getElementById('misc-infob') as HTMLElement).style.textAlign = 'center';
         }
 
-        setAriaTabClick('analysis_tab');
+        setAriaTabClick('analysis_tab', document.querySelector('.analysis-tabs') ?? document);
 
-        if (!this.puzzle && !this.ongoing && !this.embed) {
-            const initialEl = document.querySelector('[tabindex="0"]') as HTMLElement;
+        if (this.analysisContext.capabilities.analysisTabs) {
+            const initialEl = document.querySelector('.analysis-tabs [tabindex="0"]') as HTMLElement;
             initialEl.setAttribute('aria-selected', 'true');
             (
                 initialEl!.parentNode!.parentNode!.querySelector(
@@ -362,11 +339,21 @@ export class AnalysisController extends GameController {
             menuEl.style.display = 'block';
         }
         if (this.isAnalysisBoard) {
-            (document.querySelector('[role="tablist"]') as HTMLElement).style.display = 'none';
+            (document.querySelector('.analysis-tabs') as HTMLElement).style.display = 'none';
             (document.querySelector('.pgn-container') as HTMLElement).style.display = 'block';
         }
 
-        if (!this.puzzle && !this.ongoing && this.gameId) {
+        if (this.analysisExtension?.socket) {
+            this.sock = this.analysisExtension.socket;
+        } else if (this.analysisExtension?.socketTarget) {
+            this.sock = createWebsocket(
+                this.analysisExtension.socketTarget,
+                () => this.analysisExtension?.onSocketOpen?.(),
+                () => this.analysisExtension?.onSocketReconnect?.(),
+                () => this.analysisExtension?.onSocketClose?.(),
+                (e: MessageEvent) => this.onMessage(e),
+            );
+        } else if (this.analysisContext.capabilities.usesRoundSocket) {
             this.sock = createWebsocket(
                 'wsr/' + this.gameId,
                 onOpen,
@@ -374,9 +361,15 @@ export class AnalysisController extends GameController {
                 () => {},
                 (e: MessageEvent) => this.onMessage(e),
             );
-        } else {
-            this.onMsgBoard(model['board'] as MsgBoard);
-            if (this.isAnalysisBoard && !this.hasAnalysisTree()) {
+        }
+
+        // Every analysis page already includes its board/history. Render it even
+        // when the round socket is delayed or unavailable; chat and server analysis
+        // can connect independently of move navigation and local analysis.
+        if (typeof model.board !== 'string') {
+            this.onMsgBoard(model.board);
+            this.analysisExtension?.onInitialBoardLoaded?.();
+            if (this.analysisContext.mode === 'standalone' && !this.hasAnalysisTree()) {
                 this.initAnalysisTreeAtPly(this.ply);
                 updateMovelist(this, true, false);
             }
@@ -384,7 +377,7 @@ export class AnalysisController extends GameController {
 
         setTimeout(() => {
             const container = document.getElementById('movelist');
-            if (container && this.hasAnalysisTree()) updateMovelist(this, true, false);
+            if (!this.destroyed && container && this.hasAnalysisTree()) updateMovelist(this, true, false);
         }, 0);
 
         analysisSettings.ctrl = this;
@@ -397,47 +390,22 @@ export class AnalysisController extends GameController {
         if (this.variant.name !== 'racingkings' && this.mycolor === 'black') gaugeEl.classList.add('flipped');
 
         this.autoShapes = [];
+    }
 
-        Mousetrap.bind('left', () => {
-            if (!this.hasAnalysisTree()) return;
-            const target = this.getTreeParentPath();
-            if (target !== this.analysisPath) this.activateTreePath(target);
-        });
-        Mousetrap.bind('right', () => {
-            if (!this.hasAnalysisTree()) return;
-            const target = this.getTreeMainChildPath();
-            if (target) this.activateTreePath(target);
-        });
-        Mousetrap.bind(['up', '0', 'home'], (event?: KeyboardEvent) => {
-            if (!this.hasAnalysisTree()) return;
-            if (event?.key === 'ArrowUp' && this.selectTreeFork('prev')) return;
-            this.activateTreePath('');
-        });
-        Mousetrap.bind(['down', '$', 'end'], (event?: KeyboardEvent) => {
-            if (!this.hasAnalysisTree()) return;
-            if (event?.key === 'ArrowDown' && this.selectTreeFork('next')) return;
-            this.activateTreePath(this.getTreeMainlineEndPath());
-        });
-        Mousetrap.bind('shift+left', () => {
-            if (!this.hasAnalysisTree()) return;
-            const target = this.getTreePreviousBranchPath();
-            if (target !== this.analysisPath) this.activateTreePath(target);
-        });
-        Mousetrap.bind('shift+right', () => {
-            if (!this.hasAnalysisTree()) return;
-            const target = this.getTreeNextBranchPath();
-            if (target !== this.analysisPath) this.activateTreePath(target);
-        });
-        Mousetrap.bind('shift+up', () => {
-            if (!this.hasAnalysisTree()) return;
-            const target = this.getTreeStepLinePath('prev');
-            if (target !== this.analysisPath) this.activateTreePath(target);
-        });
-        Mousetrap.bind('shift+down', () => {
-            if (!this.hasAnalysisTree()) return;
-            const target = this.getTreeStepLinePath('next');
-            if (target !== this.analysisPath) this.activateTreePath(target);
-        });
+    override destroy(): void {
+        this.engineStop();
+        this.destroyed = true;
+        this.restoreFsfPrompt();
+        window.removeEventListener('storage', this.onAntiCheatStorage);
+        window.removeEventListener('beforeunload', this.onEngineBoardUnload);
+        document.removeEventListener('keydown', this.onKeyboardHelpShortcutKeyDown, true);
+        document.removeEventListener('keydown', this.onKeyboardHelpKeyDown, true);
+        this.fsfEngineBoard?.delete();
+        this.fsfEngineBoard = undefined;
+        this.pvHoverPreview.destroy();
+        this.tree.destroy();
+        Mousetrap.unbind('p');
+        super.destroy();
     }
 
     helpDialog() {
@@ -461,8 +429,24 @@ export class AnalysisController extends GameController {
         hideKeyboardHelp();
     }
 
+    get analysisTree() {
+        return this.tree.analysisTree;
+    }
+
+    get analysisPath() {
+        return this.tree.analysisPath;
+    }
+
+    get treeForkIndex() {
+        return this.tree.treeForkIndex;
+    }
+
+    get treeContextMenu() {
+        return this.tree.treeContextMenu;
+    }
+
     hasAnalysisTree() {
-        return this.analysisTree !== undefined;
+        return this.tree.hasAnalysisTree();
     }
 
     isTreeInlineNotation() {
@@ -474,246 +458,135 @@ export class AnalysisController extends GameController {
     }
 
     initAnalysisTreeAtPly(ply: number) {
-        if (this.steps.length === 0) return;
-        // We rebuild the in-memory tree from the persisted mainline and then place
-        // the active cursor on the requested ply. All later user-created branches
-        // are attached to this tree only on the client.
-        this.analysisTree = createAnalysisTree(this.steps);
-        this.applyTreeCollapsedPaths();
-        this.analysisPath = mainlinePathAtPly(this.analysisTree, ply);
-        this.revealTreePath(this.analysisPath);
-        this.activateTreePath(this.analysisPath, false);
+        this.tree.initAnalysisTreeAtPly(ply);
     }
 
     getTreeActivePath() {
-        return this.analysisPath;
+        return this.tree.getTreeActivePath();
     }
 
     getTreeCurrentNode() {
-        if (!this.analysisTree) return undefined;
-        return nodeAtPath(this.analysisTree, this.analysisPath);
+        return this.tree.getTreeCurrentNode();
     }
 
     getTreeNodeList() {
-        if (!this.analysisTree) return [];
-        // This breadcrumb is the canonical source for UCI/PGN generation in tree mode.
-        return getNodeList(this.analysisTree, this.analysisPath);
+        return this.tree.getTreeNodeList();
     }
 
     getTreeMainlineEndPath() {
-        if (!this.analysisTree) return '';
-        return mainlineEndPath(this.analysisTree);
+        return this.tree.getTreeMainlineEndPath();
     }
 
     getTreeLineStartPath() {
-        if (!this.analysisTree) return '';
-        return branchStartPath(this.analysisTree, this.analysisPath);
+        return this.tree.getTreeLineStartPath();
     }
 
     getTreeLineEndPath() {
-        if (!this.analysisTree) return '';
-        return currentLineEndPath(this.analysisTree, this.analysisPath);
+        return this.tree.getTreeLineEndPath();
     }
 
     getTreeParentPath() {
-        return parentPath(this.analysisPath);
+        return this.tree.getTreeParentPath();
     }
 
     getTreeMainChildPath() {
-        const node = this.getTreeCurrentNode();
-        return node?.children[this.treeForkIndex]?.path ?? node?.children[0]?.path;
+        return this.tree.getTreeMainChildPath();
     }
 
     getTreeNodeAtPath(path: string) {
-        if (!this.analysisTree) return undefined;
-        return nodeAtPath(this.analysisTree, path);
+        return this.tree.getTreeNodeAtPath(path);
     }
 
     pathIsTreeMainline(path: string) {
-        if (!this.analysisTree) return true;
-        return this.getTreeNodeListForPath(path).every((node, idx) => idx === 0 || node.mainlinePly !== undefined);
+        return this.tree.pathIsTreeMainline(path);
     }
 
     pathIsTreeForcedVariation(path: string) {
-        if (!this.analysisTree) return false;
-        return pathIsForcedVariation(this.analysisTree, path);
+        return this.tree.pathIsTreeForcedVariation(path);
     }
 
     getTreeNodeListForPath(path: string) {
-        if (!this.analysisTree) return [];
-        return getNodeList(this.analysisTree, path);
+        return this.tree.getTreeNodeListForPath(path);
     }
 
     canPromoteTreeVariation(path: string) {
-        if (!this.analysisTree) return false;
-        return canPromoteVariation(this.analysisTree, path);
+        return this.tree.canPromoteTreeVariation(path);
     }
 
     someTreeCollapsed(collapsed: boolean) {
-        if (!this.analysisTree) return false;
-        return someCollapsedFrom(this.analysisTree, collapsed);
+        return this.tree.someTreeCollapsed(collapsed);
     }
 
     getTreeSelectedChildPath() {
-        return this.treeForkIndex > 0 ? this.getTreeMainChildPath() : undefined;
+        return this.tree.getTreeSelectedChildPath();
     }
 
     getTreeContextMenu() {
-        return this.treeContextMenu;
+        return this.tree.getTreeContextMenu();
     }
 
     openTreeContextMenu(path: string, clientX: number, clientY: number) {
-        const container = document.getElementById('movelist');
-        if (!container) return;
-
-        const rect = container.getBoundingClientRect();
-        const x = clientX - rect.left + container.scrollLeft;
-        const y = clientY - rect.top + container.scrollTop;
-
-        this.treeContextMenu = { path, x, y };
-        document.addEventListener('click', this.onTreeContextMenuDocumentClick, false);
-        updateMovelist(this, true, false);
+        this.tree.openTreeContextMenu(path, clientX, clientY);
     }
 
     closeTreeContextMenu() {
-        if (!this.treeContextMenu) return;
-        this.treeContextMenu = undefined;
-        document.removeEventListener('click', this.onTreeContextMenuDocumentClick, false);
-        updateMovelist(this, true, false);
+        this.tree.closeTreeContextMenu();
     }
 
     copyTreeLinePgn(path: string) {
-        if (!this.analysisTree) return;
-        this.ensureTreeSanSan();
-        const onMainline = this.pathIsTreeMainline(path) && !this.pathIsTreeForcedVariation(path);
-        copyTextToClipboard(
-            renderLinePgnMoveText(
-                this.analysisTree,
-                onMainline ? extendPath(this.analysisTree, path, true) : path,
-                node => node.step.sanSAN ?? '',
-            ),
-        );
-        this.closeTreeContextMenu();
+        this.tree.copyTreeLinePgn(path);
     }
 
     collapseAllTree() {
-        if (!this.analysisTree) return;
-        setCollapsedFrom(this.analysisTree, '', true);
-        this.saveTreeCollapsedPaths();
-        this.closeTreeContextMenu();
+        this.tree.collapseAllTree();
     }
 
     expandAllTree() {
-        if (!this.analysisTree) return;
-        setCollapsedFrom(this.analysisTree, '', false);
-        this.saveTreeCollapsedPaths();
-        this.closeTreeContextMenu();
+        this.tree.expandAllTree();
     }
 
     promoteTreeVariation(path: string, toMainline: boolean) {
-        if (!this.analysisTree) return;
-        promoteNodePath(this.analysisTree, path, toMainline);
-        updateMovelist(this, true, false);
-        this.closeTreeContextMenu();
+        this.tree.promoteTreeVariation(path, toMainline);
     }
 
     forceTreeVariation(path: string, force: boolean) {
-        if (!this.analysisTree) return;
-        forceVariationAt(this.analysisTree, path, force);
-        this.activateTreePath(path);
+        this.tree.forceTreeVariation(path, force);
     }
 
     deleteTreeNode(path: string) {
-        if (!this.analysisTree || !path) return;
-        const nextPath =
-            this.analysisPath === path || this.analysisPath.startsWith(`${path}.`)
-                ? parentPath(path)
-                : this.analysisPath;
-        deleteNodePath(this.analysisTree, path);
-        this.revealTreePath(nextPath);
-        this.saveTreeCollapsedPaths();
-        this.activateTreePath(nextPath);
-        this.closeTreeContextMenu();
+        this.tree.deleteTreeNode(path);
     }
 
     getTreePreviousBranchPath() {
-        if (!this.analysisTree) return this.analysisPath;
-        return previousBranchPath(this.analysisTree, this.analysisPath);
+        return this.tree.getTreePreviousBranchPath();
     }
 
     getTreeNextBranchPath() {
-        if (!this.analysisTree) return this.analysisPath;
-        return nextBranchPath(this.analysisTree, this.analysisPath, this.treeForkIndex);
+        return this.tree.getTreeNextBranchPath();
     }
 
     getTreeStepLinePath(which: 'prev' | 'next') {
-        if (!this.analysisTree) return this.analysisPath;
-        return stepLinePath(this.analysisTree, this.analysisPath, which);
+        return this.tree.getTreeStepLinePath(which);
     }
 
     selectTreeFork(which: 'prev' | 'next') {
-        const node = this.getTreeCurrentNode();
-        if (!node || node.children.length < 2) return false;
-
-        const delta = which === 'next' ? 1 : -1;
-        this.treeForkIndex = (node.children.length + this.treeForkIndex + delta) % node.children.length;
-        updateMovelist(this, true, false);
-        return true;
+        return this.tree.selectTreeFork(which);
     }
 
     toggleTreeCollapsed(path: string) {
-        if (!this.analysisTree) return;
-        const node = nodeAtPath(this.analysisTree, path);
-        if (!node || node.children.length < 2) return;
-
-        node.collapsed = !node.collapsed;
-        if (node.collapsed) {
-            const mainChildPath = node.children[0]?.path;
-            if (this.analysisPath !== path && mainChildPath && !this.analysisPath.startsWith(mainChildPath)) {
-                this.analysisPath = path;
-                this.goPly(node.ply, 0);
-            }
-        }
-        this.revealTreePath(this.analysisPath);
-        this.saveTreeCollapsedPaths();
-        updateMovelist(this, true, false);
+        this.tree.toggleTreeCollapsed(path);
     }
 
     activateTreeMainlinePly(ply: number) {
-        if (!this.analysisTree) return;
-        this.activateTreePath(mainlinePathAtPly(this.analysisTree, ply));
+        this.tree.activateTreeMainlinePly(ply);
     }
 
     private getTreeNodeForPly(ply: number) {
-        if (!this.analysisTree) return undefined;
-
-        // First prefer the currently selected branch. Falling back to persisted mainline
-        // preserves older callers that still address positions by raw ply only.
-        const nodeOnActivePath = this.getTreeNodeList().find(n => n.ply === ply);
-        if (nodeOnActivePath) return nodeOnActivePath;
-
-        const mainlinePath = mainlinePathAtPly(this.analysisTree, ply);
-        const mainlineNode = nodeAtPath(this.analysisTree, mainlinePath);
-        if (mainlineNode) this.analysisPath = mainlinePath;
-        return mainlineNode;
+        return this.tree.getTreeNodeForPly(ply);
     }
 
-    activateTreePath(path: string, redrawMovelist = true) {
-        if (!this.analysisTree) return;
-        const node = nodeAtPath(this.analysisTree, path);
-        if (!node) return;
-
-        // `analysisPath` is the single source of truth for tree-mode selection.
-        // `goPly()` then projects that node back into the existing board/eval widgets.
-        this.treeForkIndex = 0;
-        this.treeContextMenu = undefined;
-        document.removeEventListener('click', this.onTreeContextMenuDocumentClick, false);
-        this.analysisPath = path;
-        this.revealTreePath(path);
-        this.plyVari = 0;
-        this.goPly(node.ply, 0);
-
-        if (redrawMovelist) updateMovelist(this, true, false);
+    activateTreePath(path: string, redrawMovelist = true, userNavigation = true) {
+        this.tree.activateTreePath(path, redrawMovelist, userNavigation);
     }
 
     toggleSettings() {
@@ -732,7 +605,7 @@ export class AnalysisController extends GameController {
     }
 
     isLocalAnalysisBlockedByAntiCheat(): boolean {
-        return !this.ongoing && hasActiveEligibleLiveGame();
+        return this.analysisContext.capabilities.localAnalysisAllowed && hasActiveEligibleLiveGame();
     }
 
     refreshLocalAnalysisAvailabilityForAntiCheat() {
@@ -788,7 +661,9 @@ export class AnalysisController extends GameController {
 
     private async loadNnueIntoEngine(filename: string, data?: Uint8Array): Promise<void> {
         const network = officialNnueNetwork(this.variant.name, nnueLookupContextForVariant(this.variant));
-        if ((await removeObsoleteOfficialNnue(this.variant.name, network)) === filename) {
+        const obsolete = await removeObsoleteOfficialNnue(this.variant.name, network);
+        if (this.destroyed) return;
+        if (obsolete === filename) {
             localStorage[`${this.variant.name}-nnue`] = '';
             this.evalFile = '';
             this.nnueOk = false;
@@ -801,6 +676,7 @@ export class AnalysisController extends GameController {
             (network?.file === filename
                 ? await loadOfficialNnueFile(this.variant.name, network)
                 : await loadNnueFile(this.variant.name, filename));
+        if (this.destroyed) return;
         if (!nnueData) {
             this.nnueOk = false;
             this.refreshNnueIndicator();
@@ -982,6 +858,14 @@ export class AnalysisController extends GameController {
     onMsgBoard(msg: MsgBoard) {
         if (msg.gameId !== this.gameId) return;
 
+        if (this.analysisContext.capabilities.usesRoundSocket) {
+            // The socket repeats the page's snapshot on connect/reconnect. Do not
+            // rebuild the tree and discard local variations for an unchanged board.
+            const snapshot = JSON.stringify(msg);
+            if (snapshot === this.lastRoundBoardSnapshot) return;
+            this.lastRoundBoardSnapshot = snapshot;
+        }
+
         this.importedBy = msg.by;
         // Enable to delete imported games
         if (this.rated === '2' && this.importedBy === this.username) {
@@ -1022,7 +906,7 @@ export class AnalysisController extends GameController {
             updateMovelist(this, true, false);
 
             if (this.steps[0].analysis === undefined) {
-                if (!this.isAnalysisBoard && !this.embed) {
+                if (this.analysisContext.capabilities.serverAnalysisRequest) {
                     const el = document.getElementById('request-analysis') as HTMLElement;
                     el.style.display = 'flex';
                     patch(
@@ -1050,7 +934,7 @@ export class AnalysisController extends GameController {
                 this.drawAnalysisChart(false);
             }
             const clocktimes = this.steps[1]?.clocks;
-            if (clocktimes !== undefined && !this.embed) {
+            if (clocktimes !== undefined && this.analysisContext.capabilities.moveTimeChart) {
                 patch(document.getElementById('anal-clock-top') as HTMLElement, h('div.anal-clock.top'));
                 patch(document.getElementById('anal-clock-bottom') as HTMLElement, h('div.anal-clock.bottom'));
                 renderClocks(this);
@@ -1099,6 +983,7 @@ export class AnalysisController extends GameController {
     }
 
     onFSFline = (line: string) => {
+        if (this.destroyed) return;
         if (this.fsfDebug) console.debug('--->', line);
 
         if (this.ongoing) return;
@@ -1130,6 +1015,9 @@ export class AnalysisController extends GameController {
         if (line.includes('uciok')) {
             this.uciOk = true;
             this.restoreFsfPrompt();
+            this.resolveEngineConfig?.();
+            this.resolveEngineConfig = undefined;
+            this.engineConfigReady = undefined;
         }
 
         if (line.includes('readyok')) {
@@ -1145,7 +1033,6 @@ export class AnalysisController extends GameController {
 
         if (line.startsWith('Fairy-Stockfish')) {
             this.loadVariantsIntoFsfEngine();
-            this.fsfPostMessage('uci');
         }
 
         if (!this.localEngine && this.uciOk && this.variantSupportedByFSF) {
@@ -1155,9 +1042,9 @@ export class AnalysisController extends GameController {
 
             if (this.evalFile) this.nnueIni();
 
-            window.addEventListener('beforeunload', () => this.fsfEngineBoard.delete());
+            window.addEventListener('beforeunload', this.onEngineBoardUnload);
 
-            if (this.localAnalysis && !this.puzzle && !this.ongoing) this.pvboxIni();
+            if (this.localAnalysis) this.pvboxIni();
         }
 
         this.refreshLocalAnalysisAvailabilityForAntiCheat();
@@ -1374,7 +1261,7 @@ export class AnalysisController extends GameController {
             if (evalEl) patch(evalEl, h('eval#ply' + String(ply), scoreStr));
         }
 
-        if (!this.puzzle && !this.ongoing) {
+        if (this.analysisContext.capabilities.evalCharts) {
             analysisChart(this);
             const hc = this.analysisChart;
             if (hc !== undefined) {
@@ -1403,12 +1290,9 @@ export class AnalysisController extends GameController {
         this.pendingGoAfterStopReadyok = false;
         this.lastBroadcastLocalAnalysisFen = undefined;
 
-        if (this.chess960) {
-            this.fsfPostMessage('setoption name UCI_Chess960 value true');
-        }
-        if (this.engineVariant !== 'chess') {
-            this.fsfPostMessage('setoption name UCI_Variant value ' + this.engineVariant);
-        }
+        // A Study keeps the engine alive while switching chapters and variants.
+        this.fsfPostMessage('setoption name UCI_Variant value ' + this.engineVariant);
+        this.fsfPostMessage('setoption name UCI_Chess960 value ' + this.chess960);
         if (this.evalFile === '' || !this.nnueOk || !this.nnue) {
             this.fsfPostMessage('setoption name Use NNUE value false');
         } else {
@@ -1436,6 +1320,7 @@ export class AnalysisController extends GameController {
     };
 
     fsfPostMessage(msg: string, debug = true) {
+        if (this.destroyed) return;
         if (window.fsf === undefined) {
             // At very first time we may have to wait for fsf module to initialize
             setTimeout(this.fsfPostMessage.bind(this), 100, msg, debug);
@@ -1446,6 +1331,10 @@ export class AnalysisController extends GameController {
     }
 
     loadVariantsIntoFsfEngine() {
+        if (this.destroyed || this.engineConfigReady) return;
+        this.engineConfigReady = new Promise(resolve => {
+            this.resolveEngineConfig = resolve;
+        });
         const config = variantConfigIni(variantsIni, this.variant.name);
         const marker = 'PYCHESS_VARIANTS_INI_EOF_' + Date.now();
         const lines = config.replace(/\r\n/g, '\n').split('\n');
@@ -1458,6 +1347,22 @@ export class AnalysisController extends GameController {
         this.installFsfPromptQueue([...lines, marker]);
         if (this.fsfDebug) console.debug('<---', '... variants.ini content queued for prompt stdin ...');
         this.fsfPostMessage('load <<' + marker);
+        this.fsfPostMessage('uci');
+    }
+
+    async whenEngineConfigured(): Promise<void> {
+        if (!this.engineConfigReady) return;
+        let timer: ReturnType<typeof setTimeout> | undefined;
+        try {
+            await Promise.race([
+                this.engineConfigReady,
+                new Promise<never>((_, reject) => {
+                    timer = setTimeout(() => reject(new Error('Engine configuration is still loading.')), 10000);
+                }),
+            ]);
+        } finally {
+            clearTimeout(timer);
+        }
     }
 
     installFsfPromptQueue(lines: string[]) {
@@ -1610,7 +1515,7 @@ export class AnalysisController extends GameController {
                 this.setDests();
             }
 
-            if (!this.ongoing) {
+            if (this.analysisContext.capabilities.positionEvaluation) {
                 this.autoShapes = Array.from({ length: this.multipv }, () => []);
                 this.chessground.setAutoShapes([]);
                 this.drawEval(step.ceval, step.scoreStr, step.turnColor);
@@ -1620,7 +1525,7 @@ export class AnalysisController extends GameController {
             this.updateUCImoves();
             if (this.localAnalysis) this.engineGo();
 
-            if (!this.puzzle && !this.ongoing) {
+            if (this.analysisContext.capabilities.positionMetadata) {
                 const e = document.getElementById('fullfen') as HTMLInputElement;
                 e.value = this.fullfen;
 
@@ -1663,7 +1568,7 @@ export class AnalysisController extends GameController {
             this.setDests();
         }
 
-        if (!this.ongoing) {
+        if (this.analysisContext.capabilities.positionEvaluation) {
             this.autoShapes = Array.from({ length: this.multipv }, () => []);
             this.chessground.setAutoShapes([]);
             this.drawEval(step.ceval, step.scoreStr, step.turnColor);
@@ -1673,7 +1578,7 @@ export class AnalysisController extends GameController {
         this.updateUCImoves();
         if (this.localAnalysis) this.engineGo();
 
-        if (!this.puzzle && !this.ongoing) {
+        if (this.analysisContext.capabilities.positionMetadata) {
             const e = document.getElementById('fullfen') as HTMLInputElement;
             e.value = this.fullfen;
 
@@ -1705,7 +1610,17 @@ export class AnalysisController extends GameController {
         }
     }
 
+    refreshPgnView() {
+        if (!this.analysisContext.capabilities.engineTools) return;
+        const container = document.getElementById('pgntext');
+        if (!container) return;
+        this.vpgn = patch(this.vpgn ?? container, h('div#pgntext', this.getPgn()));
+    }
+
     getPgn() {
+        const extensionPgn = this.analysisExtension?.getPgn?.();
+        if (extensionPgn !== undefined) return extensionPgn;
+
         const moves: string[] = [];
         let moveCounter: string = '';
         let whiteMove: boolean = true;
@@ -1721,7 +1636,7 @@ export class AnalysisController extends GameController {
         }
 
         if (this.hasAnalysisTree()) {
-            this.ensureTreeSanSan();
+            this.tree.ensureTreeSanSan();
         } else
             for (let ply = 1; ply <= this.ply; ply++) {
                 if (blackStarts && ply === 1) {
@@ -1762,60 +1677,6 @@ export class AnalysisController extends GameController {
         return `${event}\n${site}\n${date}\n${white}\n${black}\n${result}\n${variant}\n${fen}\n${setup}\n\n${moveText} *\n`;
     }
 
-    private ensureTreeSanSan() {
-        if (!this.analysisTree) return;
-
-        const visit = (parentFen: string, nodes: AnalysisTree['root']['children']) => {
-            nodes.forEach(node => {
-                if (node.step.sanSAN === undefined && node.step.move !== undefined) {
-                    this.ffishBoard.setFen(parentFen);
-                    node.step.sanSAN = this.ffishBoard.sanMove(node.step.move);
-                }
-                visit(node.step.fen, node.children);
-            });
-        };
-
-        visit(this.steps[0].fen, this.analysisTree.root.children);
-    }
-
-    private treeCollapsedStorageKey() {
-        return `${TREE_COLLAPSED_STORAGE_KEY}:${this.gameId || `analysis:${this.variant.name}`}`;
-    }
-
-    private applyTreeCollapsedPaths() {
-        if (!this.analysisTree) return;
-        let collapsedPaths: string[] = [];
-        try {
-            collapsedPaths = JSON.parse(localStorage[this.treeCollapsedStorageKey()] ?? '[]');
-        } catch {
-            collapsedPaths = [];
-        }
-        collapsedPaths.forEach(path => {
-            const node = nodeAtPath(this.analysisTree!, path);
-            if (node) node.collapsed = true;
-        });
-    }
-
-    private saveTreeCollapsedPaths() {
-        if (!this.analysisTree) return;
-        const collapsedPaths: string[] = [];
-        const visit = (node: AnalysisTree['root']) => {
-            if (node.collapsed) collapsedPaths.push(node.path);
-            node.children.forEach(visit);
-        };
-        visit(this.analysisTree.root);
-        localStorage[this.treeCollapsedStorageKey()] = JSON.stringify(collapsedPaths);
-    }
-
-    private revealTreePath(path: string) {
-        if (!this.analysisTree) return;
-        getNodeList(this.analysisTree, path)
-            .slice(0, -1)
-            .forEach(node => {
-                node.collapsed = false;
-            });
-    }
-
     doSendMove(move: string) {
         const san = this.ffishBoard.sanMove(move, this.notationAsObject);
         const sanSAN = this.ffishBoard.sanMove(move);
@@ -1854,30 +1715,13 @@ export class AnalysisController extends GameController {
         // `activateTreePath()` already refreshes board state, UCI move list and engine
         // analysis for tree mode, so we must not kick off a second `engineGo()` here.
         let treeActivated = false;
-        if (this.hasAnalysisTree() && this.analysisTree) {
-            const currentNode = this.getTreeCurrentNode() ?? this.analysisTree.root;
-            const followMainlineMove = currentNode.children[0]?.step.move;
-            const extendsMainlineTail =
-                this.analysisPath === this.getTreeMainlineEndPath() &&
-                currentNode.mainlinePly !== undefined &&
-                currentNode.mainlinePly === this.steps.length - 1;
-
-            const childPath = addOrSelectChild(
-                this.analysisTree,
-                this.analysisPath,
-                step,
-                extendsMainlineTail && followMainlineMove === undefined,
-                extendsMainlineTail ? this.steps.length : undefined,
-            );
-
-            if (extendsMainlineTail && followMainlineMove === undefined) {
-                this.steps.push(step);
-                this.recordedMainlinePly = this.steps.length - 1;
-                this.checkStatus(msg);
+        if (this.hasAnalysisTree()) {
+            const recorded = this.tree.recordMove(step);
+            if (recorded) {
+                if (recorded.extendedMainline) this.checkStatus(msg);
+                this.tree.activateTreePath(recorded.childPath, true, false);
+                treeActivated = true;
             }
-
-            this.activateTreePath(childPath);
-            treeActivated = true;
         } else {
             this.steps.push(step);
             this.ply = this.steps.length - 1;
@@ -1890,7 +1734,7 @@ export class AnalysisController extends GameController {
             if (this.localAnalysis) this.engineGo();
         }
 
-        if (!this.puzzle && !this.ongoing) {
+        if (this.analysisContext.capabilities.positionMetadata) {
             const e = document.getElementById('fullfen') as HTMLInputElement;
             e.value = this.fullfen;
 
@@ -1908,7 +1752,7 @@ export class AnalysisController extends GameController {
         // console.log("got analysis_board msg:", msg);
         if (msg.gameId !== this.gameId) return;
         if (this.localAnalysis) this.engineStop();
-        if (!this.ongoing) this.clearPvlines();
+        if (this.analysisContext.capabilities.positionEvaluation) this.clearPvlines();
 
         this.fullfen = msg.fen;
         this.ply = msg.ply;
@@ -2016,6 +1860,9 @@ export class AnalysisController extends GameController {
                 break;
             case 'deleted':
                 this.onMsgDeleted();
+                break;
+            default:
+                this.analysisExtension?.onSocketMessage?.(msg.type, msg);
                 break;
         }
     }

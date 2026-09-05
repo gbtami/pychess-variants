@@ -13,6 +13,7 @@ import { clearPassMoveAnimation } from '@/passMove';
 type MouchEvent = Event & Partial<MouseEvent & TouchEvent>;
 
 export abstract class ChessgroundController implements BoardController {
+    private readonly onBoardUnload = () => this.ffishBoard.delete();
     boardName: BoardName;
     readonly home: string;
 
@@ -94,7 +95,13 @@ export abstract class ChessgroundController implements BoardController {
             model.initialFen || this.fullfen,
         );
         this.ffishBoard = new this.ffish.Board(this.engineVariant, this.fullfen, this.chess960);
-        window.addEventListener('beforeunload', () => this.ffishBoard.delete());
+        window.addEventListener('beforeunload', this.onBoardUnload);
+    }
+
+    destroy(): void {
+        window.removeEventListener('beforeunload', this.onBoardUnload);
+        this.chessground.destroy();
+        this.ffishBoard.delete();
     }
 
     onInsert = () => {

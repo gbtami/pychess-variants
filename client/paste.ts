@@ -9,29 +9,12 @@ import { cwdaEngineVariant, VARIANTS } from './variants';
 import { alertDialog } from './alertDialog';
 import { parseKif, resultString } from '../client/kif';
 import { PyChessModel } from './types';
+import { extractPgnTags, parsePgnVariantTag, replacePgnVariantTag, validatePgnFenTag } from './pgn';
 import { importGameBugH } from '@/two-board/paste';
 
 const BRAINKING_SITE = '[Site "BrainKing.com (Prague, Czech Republic)"]';
 const EMBASSY_FEN = '[FEN "rnbqkmcbnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKMCBNR w KQkq - 0 1"]';
 const IMPORT_FFISH_ERROR_BUFFER: string[] = [];
-const FEN_VALIDATION_ERRORS: Record<number, string> = {
-    [-14]: 'Invalid counting rule field',
-    [-13]: 'Invalid check count field',
-    [-12]: 'Invalid promoted piece marker',
-    [-11]: 'Invalid number of FEN fields',
-    [-10]: 'Invalid character in board layout',
-    [-9]: 'Touching kings are not allowed',
-    [-8]: 'Invalid board geometry',
-    [-7]: 'Invalid pocket information',
-    [-6]: 'Invalid side to move field',
-    [-5]: 'Invalid castling information',
-    [-4]: 'Invalid en-passant square',
-    [-3]: 'Invalid number of kings',
-    [-2]: 'Invalid half-move counter',
-    [-1]: 'Invalid move counter',
-    [0]: 'Empty FEN',
-};
-
 export function recordImportFfishError(text: string): void {
     const message = text.trim();
     if (/^Variant '.*' already exists\.$/.test(message)) return;
@@ -142,7 +125,7 @@ export function pasteView(model: PyChessModel): VNode[] {
                     board.delete();
                 } else {
                     const sourceTags = extractPgnTags(pgn);
-                    const sourceVariantInfo = parseVariantTag(sourceTags['Variant'] ?? 'chess');
+                    const sourceVariantInfo = parsePgnVariantTag(sourceTags['Variant'] ?? 'chess');
                     const cwdaInitialFen = sourceTags['FEN'] ?? VARIANTS.cwda.startFen;
                     const parserPgn =
                         sourceVariantInfo.variant === 'cwda'
@@ -157,7 +140,7 @@ export function pasteView(model: PyChessModel): VNode[] {
                     const variantInfo =
                         sourceVariantInfo.variant === 'cwda'
                             ? sourceVariantInfo
-                            : parseVariantTag(game.headers('Variant'));
+                            : parsePgnVariantTag(game.headers('Variant'));
                     variant = variantInfo.variant;
 
                     if (variant === 'alice') {
@@ -174,7 +157,7 @@ export function pasteView(model: PyChessModel): VNode[] {
                     initialFen = VARIANTS[variant].startFen;
                     const f = game.headers('FEN');
                     if (f) {
-                        const fenValidation = validateFenTag(ffish, f, variantInfo.variant, variantInfo.chess960);
+                        const fenValidation = validatePgnFenTag(ffish, f, variantInfo.variant, variantInfo.chess960);
                         if (fenValidation !== null) {
                             throw new Error(fenValidation);
                         }
@@ -301,53 +284,15 @@ function getStatus(termination: string) {
     return '11'; // unknown
 }
 
-function parseVariantTag(rawVariant: string): { variant: string; chess960: boolean; raw: string } {
-    const raw = rawVariant || 'chess';
-    let variant = raw.toLowerCase();
-    let chess960 = variant.includes('960') || variant.includes('random');
-
-    variant = variant.endsWith('960') ? variant.slice(0, -3) : variant;
-    if (variant === 'caparandom') {
-        variant = 'capablanca';
-        chess960 = true;
-    } else if (variant === 'fischerandom') {
-        variant = 'chess';
-        chess960 = true;
-    }
-    return { variant, chess960, raw };
-}
-
-function validateFenTag(ffish: FairyStockfish, fen: string, variant: string, chess960: boolean): string | null {
-    const validationCode = ffish.validateFen(fen, variant, chess960);
-    if (validationCode === 1) return null;
-
-    const details = FEN_VALIDATION_ERRORS[validationCode] ?? 'Unknown FEN validation error';
-    return `Invalid [FEN] tag (code ${validationCode}): ${details}.`;
-}
-
 function getLatestFfishError(fromIndex: number): string | null {
     if (IMPORT_FFISH_ERROR_BUFFER.length <= fromIndex) return null;
     const latest = IMPORT_FFISH_ERROR_BUFFER[IMPORT_FFISH_ERROR_BUFFER.length - 1];
     return latest && latest.trim() ? latest.trim() : null;
 }
 
-function extractPgnTags(pgn: string): Record<string, string> {
-    const tags: Record<string, string> = {};
-    const regex = /^\s*\[([A-Za-z0-9_]+)\s+"((?:[^"\\]|\\.)*)"\]\s*$/gm;
-    let match: RegExpExecArray | null;
-    while ((match = regex.exec(pgn)) !== null) {
-        tags[match[1]] = match[2].replace(/\\"/g, '"');
-    }
-    return tags;
-}
-
-function replacePgnVariantTag(pgn: string, variant: string): string {
-    return pgn.replace(/^(\s*\[Variant\s+")[^"]*("\]\s*)$/im, `$1${variant}$2`);
-}
-
 function buildImportErrorMessage(err: unknown, pgn: string, ffish: FairyStockfish): string {
     const tags = extractPgnTags(pgn);
-    const variantInfo = parseVariantTag(tags['Variant'] ?? 'chess');
+    const variantInfo = parsePgnVariantTag(tags['Variant'] ?? 'chess');
 
     if (!(variantInfo.variant in VARIANTS)) {
         return `Unsupported PGN Variant tag: ${variantInfo.raw}.`;
@@ -355,7 +300,7 @@ function buildImportErrorMessage(err: unknown, pgn: string, ffish: FairyStockfis
 
     const fen = tags['FEN'];
     if (fen) {
-        const fenValidation = validateFenTag(ffish, fen, variantInfo.variant, variantInfo.chess960);
+        const fenValidation = validatePgnFenTag(ffish, fen, variantInfo.variant, variantInfo.chess960);
         if (fenValidation !== null) return fenValidation;
     }
 

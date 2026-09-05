@@ -1,0 +1,29 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+    <main class="study-list-page box box-pad">
+        <div class="box__top study-list-top">
+            <h1>{% trans %}My studies{% endtrans %}</h1>
+            <form class="study-create-form" method="post" action="/study">
+                <input type="text" name="name" maxlength="100" placeholder="{% trans %}Study name{% endtrans %}">
+                <input type="text" name="variant" value="chess" placeholder="{% trans %}Variant{% endtrans %}">
+                <input type="text" name="fen" placeholder="{% trans %}FEN (optional){% endtrans %}">
+                <input type="text" name="gameId" maxlength="12" placeholder="{% trans %}Game ID (optional){% endtrans %}">
+                <button class="button" type="submit">{% trans %}New study{% endtrans %}</button>
+            </form>
+        </div>
+        {% if studies %}
+        <div class="study-list">
+            {% for study in studies %}
+            <a class="study-list__item" href="/study/{{ study.id }}">
+                <strong>{{ study.name }}</strong>
+                <span>{{ study.updated_at.strftime('%Y-%m-%d %H:%M') }}</span>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="study-empty">{% trans %}You do not have any studies yet.{% endtrans %}</p>
+        {% endif %}
+    </main>
+</div>
+{% endblock %}

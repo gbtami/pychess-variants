@@ -3039,20 +3039,11 @@ vari-move {
   font-weight: normal;
 }
 
+/* Annotation glyphs read as SAN suffixes, as in lila's move tree. */
 #movelist.tview2.analysis-tree glyph {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 1.15rem;
-  height: 1.1rem;
-  margin-left: 0.28rem;
-  padding: 0 0.28rem;
-  border-radius: 999px;
-  font-size: 0.7em;
+  display: inline;
+  font-size: inherit;
   font-style: normal;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  background: color-mix(in srgb, var(--bg-color2) 80%, transparent);
 }
 
 #movelist.tview2.analysis-tree glyph.good,
@@ -3164,7 +3155,7 @@ vari-move {
   display: flex;
   flex: 0 0 43.5%;
   align-items: center;
-  gap: 0.45em;
+  gap: 0;
   font-size: 1.185em;
   line-height: 1.75em;
   padding: 0 0.3em 0 0.5em;
@@ -4549,4 +4540,30 @@ div button.login-btn {
     overflow: auto;
     padding: 1rem;
     border-radius: 4px;
+}
+
+.study-add-dialog-form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.study-add-dialog-form label {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.study-add-dialog-form input,
+.study-add-dialog-form select {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  background: var(--bg-color2);
+  color: var(--font-color);
+  font: inherit;
+}
+
+.study-add-dialog-form input:disabled {
+  opacity: 0.55;
 }

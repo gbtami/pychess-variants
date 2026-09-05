@@ -121,6 +121,8 @@ COLLECTIONS = (
     CollectionSpec("simul_chat"),
     CollectionSpec("stats"),
     CollectionSpec("stats_humans"),
+    CollectionSpec("study"),
+    CollectionSpec("study_chapter"),
     CollectionSpec("team"),
     CollectionSpec("team_member"),
     CollectionSpec("team_request"),
@@ -255,6 +257,9 @@ INDEXES = (
         sparse=True,
         startup_policy=StartupPolicy.AFTER_STARTUP,
     ),
+    # Studies. Phase 1 only needs owner lists and ordered chapter lookup.
+    _index("study", ("owner", 1), ("updatedAt", -1), name="owner_updatedAt"),
+    _index("study_chapter", ("studyId", 1), ("order", 1), name="studyId_order"),
     # Notifications, inboxes, teams, forums, and moderation.
     _index("notify", ("notifies", 1)),
     _index("notify", ("expireAt", 1), expire_after_seconds=0),
