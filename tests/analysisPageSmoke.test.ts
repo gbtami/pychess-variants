@@ -257,10 +257,10 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('#pgntext')).not.toBeNull();
         expect(root.querySelector('#roundchat')).toBeNull();
         expect([...root.querySelectorAll('button')].some(button => button.textContent === 'Add to Study')).toBe(false);
-        expect(root.querySelector('details.study-side__new-chapter')).not.toBeNull();
+        expect(root.querySelector('dialog#study-new-chapter .study-side__new-chapter')).not.toBeNull();
         expect(root.querySelector('input[name="fen"]')).not.toBeNull();
         expect(root.querySelector('input[name="gameId"]')).not.toBeNull();
-        expect(root.querySelector('.study-annotations')).not.toBeNull();
+        expect(root.querySelector('under-board .study-underboard')).not.toBeNull();
         expect(root.querySelector('.study-annotations__comment-input')).not.toBeNull();
         expect(root.querySelectorAll('.study-annotations__nag')).toHaveLength(6);
         expect((root.querySelector('.study-annotations__description textarea') as HTMLTextAreaElement).value).toBe(
@@ -271,6 +271,14 @@ describe('analysis page smoke coverage', () => {
         );
         expect(root.querySelector('.study-export__chapter')?.textContent).toBe('Download chapter PGN');
         expect(root.querySelector('.study-export__study')?.textContent).toBe('Download study PGN');
+        const comments = root.querySelector<HTMLButtonElement>('#study-tab-comments')!;
+        comments.click();
+        expect(root.querySelector<HTMLElement>('#study-panel-comments')!.hidden).toBe(false);
+        expect(root.querySelector<HTMLElement>('#study-panel-tags')!.hidden).toBe(true);
+        comments.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+        expect(root.querySelector('#study-tab-glyphs')?.getAttribute('aria-selected')).toBe('true');
+        expect(document.activeElement).toBe(root.querySelector('#study-tab-glyphs'));
+        expect(root.querySelector<HTMLElement>('#study-panel-comments')!.hidden).toBe(true);
     });
 
     test('embed view stays lean and does not render PGN tab content', () => {
@@ -365,6 +373,63 @@ describe('analysis tree movelist gating', () => {
         const movelist = document.getElementById('movelist')!;
         expect(movelist.classList.contains('analysis-tree')).toBe(true);
         expect(movelist.classList.contains('tview2-column')).toBe(true);
+    });
+
+    test('study comments interrupt move pairs and keep imported text inert', () => {
+        document.body.innerHTML = '<div id="movelist"></div>';
+        const steps = [
+            makeStep('start w - - 0 1', undefined, 'white'),
+            makeStep('s1 b - - 0 1', 'e2e4', 'black', 'e4'),
+            makeStep('s2 w - - 0 1', 'e7e5', 'white', 'e5'),
+        ];
+        const tree = createAnalysisTree(steps);
+        tree.root.annotations = {
+            shapes: [],
+            nags: [],
+            comments: [{ id: 'rootnote', author: 'tester', text: 'Start here' }],
+        };
+        tree.root.children[0].annotations = {
+            shapes: [],
+            nags: [],
+            comments: [{ id: 'movenote', author: 'tester', text: '<img src=x onerror=alert(1)>' }],
+        };
+        const ctrl = {
+            steps,
+            status: 0,
+            result: '*',
+            ply: 2,
+            plyVari: 0,
+            vmovelist: document.getElementById('movelist'),
+            variant: { name: 'chess' },
+            analysisContext: { capabilities: { gamePanels: false } },
+            fog: false,
+            mycolor: 'white',
+            spectator: true,
+            analysisTree: tree,
+            hasAnalysisTree: () => true,
+            isTreeInlineNotation: () => false,
+            getTreeActivePath: () => '',
+            activateTreePath: () => undefined,
+        } as any;
+        updateMovelist(ctrl, true, false);
+        const list = document.getElementById('movelist')!;
+        expect(list.querySelectorAll('interrupt .tree-comment')).toHaveLength(2);
+        expect(list.querySelector('img')).toBeNull();
+        expect(list.querySelector('.result, .status')).toBeNull();
+        expect([...list.children].map(el => el.tagName.toLowerCase())).toEqual([
+            'interrupt',
+            'index',
+            'move',
+            'move',
+            'interrupt',
+            'index',
+            'move',
+            'move',
+        ]);
+        ctrl.isTreeInlineNotation = () => true;
+        updateMovelist(ctrl, true, false);
+        expect(document.querySelectorAll('#movelist .tree-comment')).toHaveLength(2);
+        expect(document.querySelectorAll('#movelist move:not(.empty)')).toHaveLength(2);
     });
 
     test('legacy controllers keep the old movelist structure', () => {

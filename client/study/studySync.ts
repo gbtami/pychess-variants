@@ -352,6 +352,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         }
         node.annotations = analysisAnnotationsFromStudy(annotations);
         this.notifyAnnotationState();
+        updateMovelist(this.ctrl, true, false);
         this.enqueue('study_set_comment', { path: node.path, commentId, text });
     }
 

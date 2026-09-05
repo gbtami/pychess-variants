@@ -319,10 +319,10 @@ export class AnalysisController extends GameController {
             (document.getElementById('misc-infob') as HTMLElement).style.textAlign = 'center';
         }
 
-        setAriaTabClick('analysis_tab');
+        setAriaTabClick('analysis_tab', document.querySelector('.analysis-tabs') ?? document);
 
         if (this.analysisContext.capabilities.analysisTabs) {
-            const initialEl = document.querySelector('[tabindex="0"]') as HTMLElement;
+            const initialEl = document.querySelector('.analysis-tabs [tabindex="0"]') as HTMLElement;
             initialEl.setAttribute('aria-selected', 'true');
             (
                 initialEl!.parentNode!.parentNode!.querySelector(
@@ -334,7 +334,7 @@ export class AnalysisController extends GameController {
             menuEl.style.display = 'block';
         }
         if (this.isAnalysisBoard) {
-            (document.querySelector('[role="tablist"]') as HTMLElement).style.display = 'none';
+            (document.querySelector('.analysis-tabs') as HTMLElement).style.display = 'none';
             (document.querySelector('.pgn-container') as HTMLElement).style.display = 'block';
         }
 

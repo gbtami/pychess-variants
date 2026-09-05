@@ -1149,6 +1149,32 @@ variations/annotations), board orientation and current PGN headers, and either c
 adds a chapter to the selected Study. Finished-game analyses retain their saved-game source/snapshot
 validation on the server. Chapter-cap and ownership checks remain server-authoritative.
 
+## UI/UX checkpoint before Phase 3
+
+Implemented 2026-09-05, using the local lila Study view, chapter list, underboard
+panels, and tree comment rendering as references:
+
+- [x] Compact chapter sidebar with current-chapter highlighting, chapter settings,
+  and an Add a new chapter action.
+- [x] Study/chapter rename and deletion in focused dialogs; chapter creation uses
+  the existing grouped variant selector. Native dialogs support Escape and restore focus.
+- [x] Underboard tabs for PGN tags, position comments, glyphs, chapter description,
+  and chapter/Study PGN downloads; raw FEN/PGN is available inside the export panel.
+- [x] Comments appear next to their positions in the shared move tree, including root
+  and variation comments. Editing a comment updates the existing comment.
+- [x] Comment drafts remain attached to their position when navigating the tree.
+- [x] Keyboard-accessible tool tabs, selected annotation counts, and light/dark styling.
+- [x] Stable board positioning when switching tools, responsive desktop/tablet/mobile
+  layouts, and bounded pockets for variants such as Shogi.
+- [x] Omit the finished-game status footer when the analysis context has no game panels.
+- [x] Frontend checks and Study GUI workflows cover the updated controls; browser
+  checks include annotations, exports, focus/hover states, both themes, and chess,
+  Shogi, Capablanca, and Xiangqi layouts.
+
+The board, engine, move navigation, and tree stay in shared analysis. This pass does
+not add members/chat, REC/SYNC modes, sharing, or other later-phase controls. Existing
+owner-only authorization and incremental persistence remain the same.
+
 # Phase 3 — read-only sharing and visibility
 
 Goal: other users can consume a Study safely before they can edit it.

@@ -185,10 +185,41 @@ class TestStudyGUI:
                 await expect(page.locator("#movelist")).to_contain_text("e5")
                 await expect(page.locator("#movelist")).not_to_contain_text("d4")
 
+                # Annotation tabs belong below the board, and comments remain visible
+                # in the move list after changing tools and reopening the chapter.
+                await page.locator("#movelist move.mainline").first.click()
+                await page.get_by_role("tab", name="Comment this position").click()
+                await page.get_by_role("textbox", name="Study comment").fill("Control the centre")
+                await page.get_by_role("button", name="Add comment", exact=True).click()
+                await expect(page.locator("#movelist")).to_contain_text("Control the centre")
+                await page.get_by_role("tab", name="Annotate with glyphs").click()
+                await page.locator('[data-nag="3"]').click()
+                await expect(page.locator('[data-nag="3"]')).to_have_attribute(
+                    "aria-pressed", "true"
+                )
+                await page.get_by_role("tab", name="Comment this position").click()
+                await (
+                    page.locator(".study-annotations__comment")
+                    .get_by_role("button", name="Edit", exact=True)
+                    .click()
+                )
+                await page.get_by_role("textbox", name="Study comment").fill("Claim the centre")
+                await page.get_by_role("button", name="Save comment").click()
+                await expect(page.locator("#movelist")).to_contain_text("Claim the centre")
+                await page.get_by_role("button", name="Edit study", exact=True).click()
+                await expect(page.locator("#study-settings")).to_be_visible()
+                await page.keyboard.press("Escape")
+                await expect(
+                    page.get_by_role("button", name="Edit study", exact=True)
+                ).to_be_focused()
+                await page.reload()
+                await expect(page.locator("#movelist")).to_contain_text("Claim the centre")
+                await expect(page.locator("#movelist .status")).to_have_count(0)
+
                 # Build three chapters, rename the middle one, then delete it and
                 # verify that the formerly third chapter becomes the adjacent current one.
-                add = page.locator("details.study-side__new-chapter")
-                await add.locator("summary").click()
+                await page.get_by_role("button", name="Add a new chapter").click()
+                add = page.locator("#study-new-chapter")
                 await add.locator('input[name="chapterName"]').fill("Middle chapter")
                 await add.get_by_role("button", name="Create chapter").click()
                 await page.wait_for_url(
@@ -196,20 +227,26 @@ class TestStudyGUI:
                 )
                 _, middle_chapter_id = self._study_ids_from_url(page.url)
 
-                chapter_rename = page.locator("form.study-side__rename").nth(1)
+                await page.get_by_role("button", name="Edit chapter: Middle chapter").click()
+                chapter_rename = page.locator("dialog[open] form.study-side__rename")
                 await chapter_rename.locator('input[name="name"]').fill("Renamed middle")
                 await chapter_rename.get_by_role("button", name="Rename").click()
                 await expect(page.locator(".study-chapters")).to_contain_text("2. Renamed middle")
 
-                add = page.locator("details.study-side__new-chapter")
-                await add.locator("summary").click()
+                await page.get_by_role("button", name="Add a new chapter").click()
+                add = page.locator("#study-new-chapter")
                 await add.locator('input[name="chapterName"]').fill("Last chapter")
                 await add.get_by_role("button", name="Create chapter").click()
                 _, last_chapter_id = self._study_ids_from_url(page.url)
 
                 await page.get_by_role("link", name="2. Renamed middle").click()
                 assert self._study_ids_from_url(page.url)[1] == middle_chapter_id
-                await page.get_by_role("button", name="Delete chapter").click()
+                await page.get_by_role("button", name="Edit chapter: Renamed middle").click()
+                await (
+                    page.locator("dialog[open]")
+                    .get_by_role("button", name="Delete chapter")
+                    .click()
+                )
                 await page.wait_for_url(f"{base_url}/study/{study_id}/{last_chapter_id}")
                 await expect(page.locator(".study-chapters")).to_contain_text("2. Last chapter")
                 await expect(page.locator(".study-chapters")).not_to_contain_text("Renamed middle")
@@ -343,7 +380,8 @@ class TestStudyGUI:
 
                 # Standalone analysis displays the FEN/PGN panel directly and hides
                 # its tab bar, so Save to Study is already visible.
-                await page.get_by_role("button", name="Save to Study").click()
+                await page.get_by_role("button", name="Add to Study").click()
+                await page.locator(".study-add-dialog__submit").click()
                 await page.wait_for_url(
                     re.compile(rf"{re.escape(base_url)}/study/\w{{8}}/\w{{8}}$")
                 )

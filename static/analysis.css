@@ -620,3 +620,15 @@ div.more {
 .puzzle_vote .vote.vote-down.active {
   background:#c33
 }
+
+/* PGN comments belong to the shared analysis tree, including Study chapters. */
+.analysis-app .tree-comment {
+    display: block;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    padding: .25rem .5rem;
+    font-size: .9rem;
+    line-height: 1.4;
+    color: var(--font-color);
+    background: var(--bg-color2);
+}

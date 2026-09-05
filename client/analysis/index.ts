@@ -184,7 +184,7 @@ export function analysisUnderboard(
     }
 
     return [
-        h('div', { attrs: { role: 'tablist', 'aria-label': 'Analysis Tabs' } }, tabs),
+        h('div.analysis-tabs', { attrs: { role: 'tablist', 'aria-label': 'Analysis Tabs' } }, tabs),
         h(
             'div.chart-container',
             { attrs: { id: 'panel-1', role: 'tabpanel', tabindex: '-1', 'aria-labelledby': 'tab-1' } },
