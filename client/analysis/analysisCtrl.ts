@@ -121,6 +121,7 @@ export class AnalysisController extends GameController {
     private fsfOriginalPrompt?: typeof window.prompt;
     private fsfInputQueue: string[];
     private loadedNnueFilename?: string;
+    private lastRoundBoardSnapshot?: string;
 
     constructor(el: HTMLElement, model: PyChessModel, extensionFactory?: AnalysisExtensionFactory) {
         super(
@@ -356,11 +357,11 @@ export class AnalysisController extends GameController {
             );
         }
 
-        // A Study has its own websocket but still starts from page-provided analysis
-        // data just like standalone analysis. Socket ownership and initial tree loading
-        // are deliberately independent concerns.
-        if (!this.analysisContext.capabilities.usesRoundSocket) {
-            this.onMsgBoard(model['board'] as MsgBoard);
+        // Every analysis page already includes its board/history. Render it even
+        // when the round socket is delayed or unavailable; chat and server analysis
+        // can connect independently of move navigation and local analysis.
+        if (typeof model.board !== 'string') {
+            this.onMsgBoard(model.board);
             this.analysisExtension?.onInitialBoardLoaded?.();
             if (this.analysisContext.mode === 'standalone' && !this.hasAnalysisTree()) {
                 this.initAnalysisTreeAtPly(this.ply);
@@ -831,6 +832,14 @@ export class AnalysisController extends GameController {
 
     onMsgBoard(msg: MsgBoard) {
         if (msg.gameId !== this.gameId) return;
+
+        if (this.analysisContext.capabilities.usesRoundSocket) {
+            // The socket repeats the page's snapshot on connect/reconnect. Do not
+            // rebuild the tree and discard local variations for an unchanged board.
+            const snapshot = JSON.stringify(msg);
+            if (snapshot === this.lastRoundBoardSnapshot) return;
+            this.lastRoundBoardSnapshot = snapshot;
+        }
 
         this.importedBy = msg.by;
         // Enable to delete imported games
