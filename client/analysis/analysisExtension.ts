@@ -1,3 +1,4 @@
+import type { VNode } from 'snabbdom';
 import type { DrawShape } from 'chessgroundx/draw';
 
 import type { AnalysisTreeNode } from './analysisTree';
@@ -14,6 +15,7 @@ export interface AnalysisExtension {
     onSocketReconnect?(): void;
     onSocketClose?(): void;
     getPgn?(): string | undefined;
+    contextMenuActions?(path: string): VNode[];
     onInitialBoardLoaded?(): void;
     canActivatePath?(path: string): boolean;
     onPathChanged?(path: string, previousPath: string): void;

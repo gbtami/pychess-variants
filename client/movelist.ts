@@ -6,10 +6,13 @@ import { result } from './result';
 import { patch } from './document';
 import { AnalysisTreeNode } from './analysis/analysisTree';
 import type { AnalysisContext } from './analysis/analysisContext';
+import type { AnalysisExtension } from './analysis/analysisExtension';
+import { GLYPHS } from './analysis/glyphs';
 
 type TreeCtrl = GameController & {
     analysisTree?: { root: AnalysisTreeNode };
     analysisContext?: AnalysisContext;
+    analysisExtension?: AnalysisExtension;
     hasAnalysisTree?: () => boolean;
     isTreeInlineNotation?: () => boolean;
     isTreeDisclosureMode?: () => boolean;
@@ -110,7 +113,11 @@ function renderTreeMoveText(move: string | undefined, nags: number[] = []): VNod
     }
     for (const nag of nags) {
         const glyph = NAG_GLYPHS[nag];
-        nodes.push(glyph ? h(`glyph.${glyph.cls}`, glyph.text) : h('glyph', `$${nag}`));
+        nodes.push(
+            glyph
+                ? h(`glyph.${glyph.cls}`, glyph.text)
+                : h('glyph', GLYPHS.find(glyph => glyph.id === nag)?.symbol ?? `$${nag}`),
+        );
     }
 
     return nodes;
@@ -777,6 +784,8 @@ function renderTreeContextMenu(ctrl: TreeCtrl): VNode | undefined {
     if (ctrl.someTreeCollapsed?.(true)) {
         actions.push(action('icon-plus-square', _('Expand all'), () => ctrl.expandAllTree?.()));
     }
+
+    actions.push(...(ctrl.analysisExtension?.contextMenuActions?.(menu.path) ?? []));
 
     actions.push(
         action('icon-clipboard', onMainline ? _('Copy main line PGN') : _('Copy variation PGN'), () =>

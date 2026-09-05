@@ -190,7 +190,6 @@ class TestStudyGUI:
                 await page.locator("#movelist move.mainline").first.click()
                 await page.get_by_role("tab", name="Comment this position").click()
                 await page.get_by_role("textbox", name="Study comment").fill("Control the centre")
-                await page.get_by_role("button", name="Add comment", exact=True).click()
                 await expect(page.locator("#movelist")).to_contain_text("Control the centre")
                 await page.get_by_role("tab", name="Annotate with glyphs").click()
                 await page.locator('[data-nag="3"]').click()
@@ -198,13 +197,7 @@ class TestStudyGUI:
                     "aria-pressed", "true"
                 )
                 await page.get_by_role("tab", name="Comment this position").click()
-                await (
-                    page.locator(".study-annotations__comment")
-                    .get_by_role("button", name="Edit", exact=True)
-                    .click()
-                )
                 await page.get_by_role("textbox", name="Study comment").fill("Claim the centre")
-                await page.get_by_role("button", name="Save comment").click()
                 await expect(page.locator("#movelist")).to_contain_text("Claim the centre")
                 await page.get_by_role("button", name="Edit study", exact=True).click()
                 await expect(page.locator("#study-settings")).to_be_visible()

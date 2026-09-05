@@ -86,7 +86,6 @@
 .study-tool-tabs button[aria-selected='true'] { color: var(--rusty); border-bottom-color: var(--rusty); }
 /* Tag icon from lila public/images/svg-icons/tag.svg (AGPL-3.0). */
 .study-tag-icon { display: inline-block; width: 1.1em; height: 1.1em; background: currentColor; mask: url('images/study/tag.svg') center / contain no-repeat; vertical-align: middle; }
-.study-comment-actions { display: flex; flex-shrink: 0; align-items: center; }
 .study-tool-count { font-size: .7rem; margin-left: .2rem; vertical-align: super; }
 .study-app button.study-icon-button:hover, .study-app .study-side__add:hover, .study-tool-tabs button:hover, .study-annotations__nag:hover {
     background: var(--bg-color2);
@@ -129,14 +128,38 @@
 .study-app .button:hover { filter: brightness(1.1); }
 .study-app .button-empty { background: transparent; color: var(--link-color); }
 .study-app .button-red { background: var(--bad); }
-.study-annotations__context { margin-bottom: .5rem; color: var(--link-color); font-size: .9rem; }
+.study-underboard { container-type: inline-size; }
+#study-panel-comments, #study-panel-glyphs { padding: 0; }
+#study-panel-comments { background: transparent; }
 .study-annotations__comments { display: grid; gap: .4rem; }
-.study-annotations__comment { display: flex; align-items: flex-start; justify-content: space-between; gap: .5rem; padding: .5rem; background: var(--bg-color2); overflow-wrap: anywhere; white-space: pre-wrap; }
-.study-annotations__comment > div { min-width: 0; }
-.study-annotations__nags { display: flex; flex-wrap: wrap; gap: .4rem; margin: .7rem 0; }
-.study-annotations__nag { min-width: 3rem; min-height: 2.8rem; font-size: 1.3rem; border: 1px solid var(--border-color); border-radius: 3px; }
-.study-annotations__nag.active { color: var(--link-color-blue); background: var(--bg-color2); outline: 2px solid var(--link-color-blue); }
-.study-annotations__nag:disabled { opacity: .4; cursor: default; }
+.study-annotations__comment-input { min-height: 5rem; }
+/* Like lila's glyph panel, wrap whole groups instead of their labels. */
+.study-annotations__nags { display: flex; flex-wrap: wrap; overflow: hidden; border-radius: 0 0 4px 4px; }
+.study-glyph-group { flex: 1 0 30%; }
+.study-annotations__nag {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    min-height: 2.3em;
+    padding: 0;
+    gap: .5em;
+    text-align: left;
+    white-space: nowrap;
+    line-height: 2.3;
+    font-size: .95rem;
+}
+.study-annotations__nag::before {
+    content: attr(data-symbol);
+    flex: 0 0 2em;
+    text-align: center;
+    background: var(--bg-color2);
+    font-size: 1.15em;
+    font-weight: bold;
+}
+.study-annotations__nag.active { color: var(--link-color-blue); background: var(--bg-color2); }
+.study-annotations__nag.active::before { background: var(--link-color-blue); color: #fff; }
+.study-annotations__nag:disabled { color: var(--font-color); opacity: .5; cursor: default; }
+.study-glyph-icon { display: inline-block; font-style: normal; text-align: center; }
 .study-export__actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: .5rem; }
 .study-position-export .pgn-container { height: auto; max-height: 18rem; }
 .study-position-export #pgntext { overflow-wrap: anywhere; }
@@ -151,10 +174,19 @@
 
 @media (min-width: 1100px) {
     .study-app {
-        grid-template-columns: minmax(210px, 20vw) 1rem minmax(0, calc(100vh * var(--board-scale) - 100px)) var(--gauge-gap) minmax(260px, 1fr);
+        /* Match the bounded side and move columns of the game-play layout. */
+        /* Reserve the game layout's board minimum, capped by the space left
+           after the two side-column minima (250px + 240px) and gaps. */
+        --study-board-min: min(calc(70vmin * var(--board-scale)), calc(100vw - 2 * var(--main-margin) - 490px - 2vmin - var(--gauge-gap)));
+        grid-template-columns: minmax(250px, 350px) 2vmin minmax(var(--study-board-min), calc(100vh * var(--board-scale) - 100px)) var(--gauge-gap) minmax(240px, 400px);
     }
 }
 @media (min-width: 800px) and (max-width: 1099px) {
+    /* Fractional tablet columns need a definite main track, using the site's
+       width variable while retaining its shared centering grid. */
+    body[data-view='study'] #main-wrap {
+        --main-max-width: calc(100vw - 2 * var(--main-margin));
+    }
     .study-app {
         grid-template-columns: minmax(0, 1fr) var(--gauge-gap) minmax(260px, .7fr);
         grid-template-rows: min-content minmax(0, 1fr) min-content auto auto;
@@ -174,13 +206,6 @@
     .study-tool-tabs button { min-height: 2.75rem; }
     .study-list-top { flex-direction: column; align-items: stretch; }
     .study-create-form { grid-template-columns: 1fr; }
-}
-
-/* Give the workspace a stable track. Intrinsic sizing of #main-wrap otherwise
-   moves the board sideways when changing panels without resizing the board. */
-body[data-view='study'] #main-wrap {
-    grid-template-columns: var(--main-margin) minmax(0, 1fr) var(--main-margin);
-    grid-template-areas: '. main .';
 }
 
 @media (max-width: 799px) and (orientation: landscape) {

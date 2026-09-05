@@ -262,7 +262,7 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('input[name="gameId"]')).not.toBeNull();
         expect(root.querySelector('under-board .study-underboard')).not.toBeNull();
         expect(root.querySelector('.study-annotations__comment-input')).not.toBeNull();
-        expect(root.querySelectorAll('.study-annotations__nag')).toHaveLength(6);
+        expect(root.querySelectorAll('.study-annotations__nag')).toHaveLength(24);
         expect((root.querySelector('.study-annotations__description textarea') as HTMLTextAreaElement).value).toBe(
             'Chapter description',
         );
@@ -648,7 +648,7 @@ describe('analysis tree movelist gating', () => {
 
         const secondMove = document.querySelector('#movelist move[data-path="01.02"]') as HTMLElement | null;
         expect(secondMove?.querySelector('glyph.brilliant')?.textContent).toBe('!!');
-        expect([...secondMove!.querySelectorAll('glyph')].some(glyph => glyph.textContent === '$7')).toBe(true);
+        expect([...secondMove!.querySelectorAll('glyph')].some(glyph => glyph.textContent === '□')).toBe(true);
 
         const sidelineMove = document.querySelector('#movelist move[data-path="01.04"]') as HTMLElement | null;
         expect(sidelineMove?.classList.contains('sideline')).toBe(true);

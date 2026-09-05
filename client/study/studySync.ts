@@ -99,6 +99,7 @@ export interface StudySyncOptions {
     onAnnotationStateChanged?: (state: StudyAnnotationState) => void;
     onReloadRequired?: (reason: string) => void;
     opIdFactory?: () => string;
+    contextMenuActions?: AnalysisExtension['contextMenuActions'];
 }
 
 function record(message: unknown): Record<string, unknown> | undefined {
@@ -181,6 +182,7 @@ function simpleShapes(shapes: DrawShape[]): StudyAnnotationsDto['shapes'] {
 export class StudyAnalysisExtension implements AnalysisExtension {
     readonly socketTarget: string;
     readonly treeStorageKey: string;
+    readonly contextMenuActions?: AnalysisExtension['contextMenuActions'];
     private currentRevision: number;
     private connected = false;
     private openedOnce = false;
@@ -212,6 +214,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         this.treeStorageKey = `study:${options.studyId}:${options.chapterId}`;
         this.onReloadRequired = options.onReloadRequired ?? (() => window.location.reload());
         this.onAnnotationStateChanged = options.onAnnotationStateChanged;
+        this.contextMenuActions = options.contextMenuActions;
         this.opIdFactory = options.opIdFactory ?? newStudyNodeId;
     }
 
@@ -342,8 +345,8 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         return commentId;
     }
 
-    setComment(commentId: string, text: string): void {
-        const node = this.currentNode();
+    setComment(commentId: string, text: string, path = this.ctrl.analysisPath ?? ''): void {
+        const node = this.ctrl.analysisTree && nodeAtPath(this.ctrl.analysisTree, path);
         if (!node || !isStudyNodeId(commentId)) return;
         const annotations = cloneAnnotations(node.annotations);
         annotations.comments = annotations.comments.filter(comment => comment.id !== commentId);
@@ -351,7 +354,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
             annotations.comments.push({ id: commentId, author: this.ctrl.username, text: text.trim() });
         }
         node.annotations = analysisAnnotationsFromStudy(annotations);
-        this.notifyAnnotationState();
+        if (path === (this.ctrl.analysisPath ?? '')) this.notifyAnnotationState();
         updateMovelist(this.ctrl, true, false);
         this.enqueue('study_set_comment', { path: node.path, commentId, text });
     }
@@ -560,6 +563,18 @@ export class StudyAnalysisExtension implements AnalysisExtension {
             } catch {
                 this.requestReload('invalid_annotation_ack');
                 return;
+            }
+            for (const queued of this.pending.slice(1)) {
+                if (queued.body.path !== path) continue;
+                if (queued.type === 'study_clear_annotations') annotations = { shapes: [], comments: [], nags: [] };
+                else if (queued.type === 'study_set_comment') {
+                    const id = queued.body.commentId as string;
+                    annotations.comments = annotations.comments.filter(comment => comment.id !== id);
+                    const text = (queued.body.text as string).trim();
+                    if (text) annotations.comments.push({ id, author: this.ctrl.username, text });
+                } else if (queued.type === 'study_set_nags') annotations.nags = queued.body.nags as number[];
+                else if (queued.type === 'study_set_shapes')
+                    annotations.shapes = parseStudyAnnotations({ shapes: queued.body.shapes }).shapes;
             }
             if (!this.setPositionAnnotations(path, annotations)) {
                 this.requestReload('tree_mismatch');

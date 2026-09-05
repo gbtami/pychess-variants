@@ -10,16 +10,9 @@ import { _, ngettext } from '../i18n';
 import type { PyChessModel, StudyPageModel } from '../types';
 import { selectVariant, twoBoarsVariants } from '../variants';
 import { StudyAnalysisExtension, type StudyAnnotationState } from './studySync';
+import { GLYPH_GROUPS, toggleGlyph } from '../analysis/glyphs';
+import { StudyCommentEditor } from './commentEditor';
 import { fetchStudyChapterExportData, renderStudyChapterPgn, renderStudyPgn, studyPgnFilename } from './studyPgn';
-
-const NAG_BUTTONS = [
-    [1, '!'],
-    [2, '?'],
-    [3, '!!'],
-    [4, '??'],
-    [5, '!?'],
-    [6, '?!'],
-] as const;
 
 function renameForm(action: string, value: string, label: string, maxLength: number): VNode {
     return h('form.study-side__rename', { attrs: { method: 'post', action } }, [
@@ -284,35 +277,29 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel): VNode {
                 h('button.button', { attrs: { type: 'button' } }, _('Save tags')),
             ]),
         ]),
-        toolPanel('comments', [
-            h('div.study-annotations__context', { attrs: { 'aria-live': 'polite' } }),
-            h('div.study-annotations__comments'),
-            h('textarea.study-annotations__comment-input', {
-                attrs: {
-                    maxlength: '4000',
-                    rows: '3',
-                    placeholder: _('Add a comment'),
-                    'aria-label': _('Study comment'),
-                },
-            }),
-            h('button.button.study-annotations__add-comment', { attrs: { type: 'button' } }, _('Add comment')),
-        ]),
+        toolPanel('comments', [h('div.study-annotations__comments')]),
         toolPanel('glyphs', [
-            h('p', _('Annotate the selected move')),
             h(
                 'div.study-annotations__nags',
-                NAG_BUTTONS.map(([nag, label]) =>
+                Object.entries(GLYPH_GROUPS).map(([group, glyphs]) =>
                     h(
-                        'button.study-annotations__nag',
-                        { attrs: { type: 'button', 'data-nag': String(nag), 'aria-pressed': 'false', title: label } },
-                        label,
+                        `div.study-glyph-group.study-glyph-group--${group}`,
+                        glyphs.map(glyph =>
+                            h(
+                                'button.study-annotations__nag',
+                                {
+                                    attrs: {
+                                        type: 'button',
+                                        'data-nag': String(glyph.id),
+                                        'data-symbol': glyph.symbol,
+                                        'aria-pressed': 'false',
+                                    },
+                                },
+                                glyph.name(),
+                            ),
+                        ),
                     ),
                 ),
-            ),
-            h(
-                'button.button.button-empty.study-annotations__clear',
-                { attrs: { type: 'button' } },
-                _('Clear position annotations'),
             ),
         ]),
         toolPanel('description', [
@@ -355,64 +342,8 @@ function parseTags(text: string): Record<string, string> {
     return tags;
 }
 
-const commentDrafts = new WeakMap<HTMLTextAreaElement, Map<string, { text: string; id: string }>>();
-
-function updateAnnotationPanel(state: StudyAnnotationState, extension: StudyAnalysisExtension): void {
-    const comments = document.querySelector('.study-annotations__comments');
-    const input = document.querySelector<HTMLTextAreaElement>('.study-annotations__comment-input');
-    if (input && input.dataset.path !== state.path) {
-        // Drafts live with this page's editor, not with the persisted Study tree.
-        const drafts = commentDrafts.get(input) ?? new Map<string, { text: string; id: string }>();
-        if (input.dataset.path !== undefined)
-            drafts.set(input.dataset.path, { text: input.value, id: input.dataset.commentId ?? '' });
-        const draft = drafts.get(state.path);
-        input.value = draft?.text ?? '';
-        input.dataset.commentId = draft?.id ?? '';
-        input.dataset.path = state.path;
-        commentDrafts.set(input, drafts);
-        const save = document.querySelector('.study-annotations__add-comment');
-        if (save) save.textContent = draft?.id ? _('Save comment') : _('Add comment');
-    }
-    if (comments) {
-        comments.replaceChildren(
-            ...state.annotations.comments.map(comment => {
-                const row = document.createElement('div');
-                row.className = 'study-annotations__comment';
-                const body = document.createElement('div');
-                const author = document.createElement('strong');
-                author.textContent = comment.author;
-                const text = document.createElement('span');
-                text.textContent = comment.text;
-                body.append(author, document.createTextNode(': '), text);
-                const remove = document.createElement('button');
-                remove.type = 'button';
-                remove.className = 'button study-annotations__remove-comment';
-                remove.textContent = '×';
-                remove.title = _('Delete comment');
-                remove.setAttribute('aria-label', _('Delete comment'));
-                remove.addEventListener('click', () => extension.setComment(comment.id, ''));
-                const edit = document.createElement('button');
-                edit.type = 'button';
-                edit.className = 'study-icon-button';
-                edit.textContent = _('Edit');
-                edit.addEventListener('click', () => {
-                    const input = document.querySelector<HTMLTextAreaElement>('.study-annotations__comment-input');
-                    if (!input) return;
-                    input.value = comment.text;
-                    input.dataset.commentId = comment.id;
-                    const save = document.querySelector('.study-annotations__add-comment');
-                    if (save) save.textContent = _('Save comment');
-                    input.focus();
-                });
-                const actions = document.createElement('div');
-                actions.className = 'study-comment-actions';
-                actions.append(edit, remove);
-                row.append(body, actions);
-                return row;
-            }),
-        );
-    }
-
+function updateAnnotationPanel(state: StudyAnnotationState, editor: StudyCommentEditor): void {
+    editor.update(state.path, state.annotations.comments);
     document.querySelectorAll<HTMLButtonElement>('.study-annotations__nag').forEach(button => {
         const nag = Number(button.dataset.nag);
         button.classList.toggle('active', state.annotations.nags.includes(nag));
@@ -439,8 +370,6 @@ function updateAnnotationPanel(state: StudyAnnotationState, extension: StudyAnal
                 return row;
             }),
         );
-    const position = document.querySelector('.study-annotations__context');
-    if (position) position.textContent = state.path ? _('Comment this position') : _('Start position');
 
     const description = document.querySelector<HTMLTextAreaElement>('.study-annotations__description textarea');
     if (description && document.activeElement !== description) description.value = state.description;
@@ -449,29 +378,13 @@ function updateAnnotationPanel(state: StudyAnnotationState, extension: StudyAnal
 }
 
 function bindAnnotationPanel(extension: StudyAnalysisExtension): void {
-    const commentInput = document.querySelector<HTMLTextAreaElement>('.study-annotations__comment-input');
-    document.querySelector<HTMLButtonElement>('.study-annotations__add-comment')?.addEventListener('click', () => {
-        if (!commentInput) return;
-        const commentId = commentInput.dataset.commentId;
-        if (commentId) extension.setComment(commentId, commentInput.value);
-        else if (!extension.addComment(commentInput.value)) return;
-        commentInput.value = '';
-        commentInput.dataset.commentId = '';
-        const save = document.querySelector('.study-annotations__add-comment');
-        if (save) save.textContent = _('Add comment');
-    });
-
     document.querySelectorAll<HTMLButtonElement>('.study-annotations__nag').forEach(button => {
         button.addEventListener('click', () => {
             const nag = Number(button.dataset.nag);
             const current = extension.annotationState.annotations.nags;
-            extension.setNags(current.includes(nag) ? current.filter(item => item !== nag) : [...current, nag]);
+            extension.setNags(toggleGlyph(current, nag));
         });
     });
-    document
-        .querySelector<HTMLButtonElement>('.study-annotations__clear')
-        ?.addEventListener('click', () => extension.clearAnnotations());
-
     const description = document.querySelector<HTMLTextAreaElement>('.study-annotations__description textarea');
     document
         .querySelector<HTMLButtonElement>('.study-annotations__description .button')
@@ -519,8 +432,39 @@ function bindExportPanel(extension: StudyAnalysisExtension, study: StudyPageMode
     });
 }
 
+function studyContextMenu(ctrl: AnalysisController, path: string): VNode[] {
+    const action = (tab: 'comments' | 'glyphs', label: string, symbol: VNode | string) =>
+        h(
+            'button',
+            {
+                attrs: { type: 'button' },
+                on: {
+                    click: () => {
+                        ctrl.activateTreePath(path);
+                        ctrl.closeTreeContextMenu();
+                        selectStudyTab(tab);
+                        document
+                            .querySelector<HTMLElement>(
+                                `#study-panel-${tab} ${tab === 'comments' ? 'textarea' : 'button'}`,
+                            )
+                            ?.focus();
+                    },
+                },
+            },
+            [typeof symbol === 'string' ? h('i.study-glyph-icon', symbol) : symbol, h('span', label)],
+        );
+    return [
+        action('comments', _('Comment on this move'), icon('comment-o')),
+        action('glyphs', _('Annotate with glyphs'), '!?'),
+    ];
+}
+
 function runStudyGround(vnode: VNode, model: PyChessModel, study: StudyPageModel): void {
     let extension: StudyAnalysisExtension;
+    const editor = new StudyCommentEditor(
+        document.querySelector<HTMLElement>('.study-annotations__comments')!,
+        (path, id, text) => extension.setComment(id, text, path),
+    );
     const ctrl = new AnalysisController(vnode.elm as HTMLElement, model, analysisCtrl => {
         extension = new StudyAnalysisExtension(analysisCtrl, {
             studyId: study.id,
@@ -540,13 +484,21 @@ function runStudyGround(vnode: VNode, model: PyChessModel, study: StudyPageModel
             initialFen: study.chapter.initialFen,
             variantIni: study.chapter.variantIni ?? undefined,
             createdAt: study.chapter.createdAt,
-            onAnnotationStateChanged: state => updateAnnotationPanel(state, extension),
+            onAnnotationStateChanged: state => updateAnnotationPanel(state, editor),
+            contextMenuActions: path => studyContextMenu(analysisCtrl, path),
         });
         return extension;
     });
     bindAnnotationPanel(extension!);
     bindExportPanel(extension!, study);
-    updateAnnotationPanel(extension!.annotationState, extension!);
+    updateAnnotationPanel(extension!.annotationState, editor);
+    window.addEventListener('beforeunload', event => {
+        editor.flush();
+        if (extension.pendingCount > 0) {
+            event.preventDefault();
+            event.returnValue = '';
+        }
+    });
     window['onFSFline'] = ctrl.onFSFline;
 }
 

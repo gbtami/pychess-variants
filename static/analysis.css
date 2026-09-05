@@ -621,14 +621,19 @@ div.more {
   background:#c33
 }
 
-/* PGN comments belong to the shared analysis tree, including Study chapters. */
+/* PGN comments flow with variations, and interrupt mainline move pairs. */
 .analysis-app .tree-comment {
-    display: block;
+    display: inline;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
-    padding: .25rem .5rem;
-    font-size: .9rem;
+    padding: 0 .25em;
+    font-size: inherit;
+    font-style: normal;
     line-height: 1.4;
     color: var(--font-color);
+}
+.analysis-app #movelist > interrupt > .tree-comment {
+    display: block;
+    padding: .25rem .5rem;
     background: var(--bg-color2);
 }

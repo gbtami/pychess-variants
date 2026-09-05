@@ -1162,8 +1162,15 @@ panels, and tree comment rendering as references:
   and chapter/Study PGN downloads; raw FEN/PGN is available inside the export panel.
 - [x] Comments appear next to their positions in the shared move tree, including root
   and variation comments. Editing a comment updates the existing comment.
-- [x] Comment drafts remain attached to their position when navigating the tree.
+- [x] Simple comment textareas save automatically; clearing text deletes the comment.
+  Navigation saves pending text to its original position, and imported comments retain
+  their individual identities. Variation comments flow inline with their moves.
+- [x] Move context-menu actions open and focus the comment or glyph tab for that move.
+- [x] The glyph picker offers all 24 named lichess glyphs in three groups, with
+  exclusive move/position assessments and independently selectable observations.
 - [x] Keyboard-accessible tool tabs, selected annotation counts, and light/dark styling.
+- [x] Use the site-wide centered main grid and game-play sidebar/move-panel width
+  limits, leaving balanced outer margins on large screens.
 - [x] Stable board positioning when switching tools, responsive desktop/tablet/mobile
   layouts, and bounded pockets for variants such as Shogi.
 - [x] Omit the finished-game status footer when the analysis context has no game panels.

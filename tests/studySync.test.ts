@@ -201,6 +201,54 @@ describe('Study analysis websocket synchronization', () => {
         expect(states).toHaveBeenCalled();
     });
 
+    test('saving a delayed comment targets its original path', () => {
+        const ctrl = makeCtrl();
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            onReloadRequired: jest.fn(),
+            opIdFactory: () => 'CommentOp1',
+        });
+        addStudyNodeToAnalysisTree(ctrl.analysisTree, '', e4Node());
+        ctrl.analysisPath = 'StudyNode1';
+        extension.onSocketOpen();
+        extension.setComment('Comment001', 'Root draft', '');
+        expect(ctrl.analysisPath).toBe('StudyNode1');
+        expect(ctrl.analysisTree.root.annotations.comments[0].text).toBe('Root draft');
+        expect(extension.annotationState.annotations.comments).toEqual([]);
+        expect(ctrl.doSend).toHaveBeenLastCalledWith(expect.objectContaining({ path: '', text: 'Root draft' }));
+    });
+
+    test('an older acknowledgement preserves newer comment and glyph edits', () => {
+        const ctrl = makeCtrl();
+        let op = 0;
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            onReloadRequired: jest.fn(),
+            opIdFactory: () => `CommentOp${++op}`,
+        });
+        extension.onSocketOpen();
+        extension.setComment('Comment001', 'First');
+        extension.setComment('Comment001', 'Latest');
+        extension.setNags([14, 146]);
+        extension.onSocketMessage('study_set_comment', {
+            type: 'study_set_comment',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'CommentOp1',
+            revision: 1,
+            changed: true,
+            path: '',
+            annotations: { comments: [{ id: 'Comment001', author: 'owner', text: 'First' }], shapes: [], nags: [] },
+        });
+        expect(extension.annotationState.annotations.comments[0].text).toBe('Latest');
+        expect(extension.annotationState.annotations.nags).toEqual([14, 146]);
+        expect(extension.pendingCount).toBe(2);
+    });
+
     test('applies remote root annotations and chapter metadata without changing the active path', () => {
         const ctrl = makeCtrl();
         const e4 = e4Node();
