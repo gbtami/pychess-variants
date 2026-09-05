@@ -111,7 +111,24 @@ describe('Study PGN export', () => {
         expect(pgn).toContain('[PyChessChapterDescriptionEncoding "base64"]');
 
         expect(pgn).toContain('{Root note} {[%csl Ge4]} {[%pynag 3]}');
-        expect(pgn).toContain('1. e4 $1 {King pawn} {[%cal Re2e4]} (1. d4 $6) e5 *');
+        expect(pgn).toContain('1. e4! {King pawn} {[%cal Re2e4]} (1. d4?!) e5 *');
+    });
+
+    test.each([
+        [1, '!'],
+        [2, '?'],
+        [3, '!!'],
+        [4, '??'],
+        [5, '!?'],
+        [6, '?!'],
+    ])('attaches NAG %s to SAN and keeps other NAGs as numeric tokens', (nag, symbol) => {
+        const data = chapter();
+        const node = data.tree.nodes[0];
+        node.sanSAN = 'e4+';
+        node.annotations!.nags = [14, Number(nag), 146, 255];
+        const pgn = renderStudyChapterPgn(study, data);
+        expect(pgn).toContain(`1. e4+${symbol} $14 $146 $255 {King pawn}`);
+        expect(pgn).toContain('(1. d4?!)');
     });
 
     test('exports 960 identity explicitly', () => {

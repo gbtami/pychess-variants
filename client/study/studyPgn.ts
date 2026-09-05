@@ -1,4 +1,5 @@
 import type { Step } from '../messages';
+import { GLYPH_GROUPS } from '../analysis/glyphs';
 import { encodePgnUtf8Base64 } from '../pgn';
 import { renderFullTreePgnMoveText, type AnalysisAnnotations, type AnalysisTreeNode } from '../analysis/analysisTree';
 import { analysisTreeFromStudy, type StudyTreeDto } from './studyTree';
@@ -87,10 +88,22 @@ function annotationComments(annotations: AnalysisAnnotations | undefined, root =
     return result;
 }
 
+function nodeSan(node: AnalysisTreeNode): string {
+    const san = node.step.sanSAN ?? node.step.san ?? node.step.move ?? '';
+    // The six punctuation annotations attach to SAN; all other NAGs are tokens.
+    const suffix = (node.annotations?.nags ?? [])
+        .filter(nag => nag >= 1 && nag <= 6)
+        .map(nag => GLYPH_GROUPS.move.find(glyph => glyph.id === nag)!.symbol)
+        .join('');
+    return san + suffix;
+}
+
 function nodeSuffix(node: AnalysisTreeNode): string {
     const annotations = node.annotations;
     if (!annotations) return '';
-    return [...annotations.nags.map(nag => `$${nag}`), ...annotationComments(annotations)].join(' ');
+    return [...annotations.nags.filter(nag => nag > 6).map(nag => `$${nag}`), ...annotationComments(annotations)].join(
+        ' ',
+    );
 }
 
 function chapterTags(study: StudyPgnContext, chapter: StudyPgnChapterData): Array<[string, string]> {
@@ -175,11 +188,7 @@ export function renderStudyChapterPgn(study: StudyPgnContext, chapter: StudyPgnC
         turnColor: rootTurnColor(chapter.initialFen),
     };
     const tree = analysisTreeFromStudy(rootStep, chapter.tree);
-    const moveText = renderFullTreePgnMoveText(
-        tree,
-        node => node.step.sanSAN ?? node.step.san ?? node.step.move ?? '',
-        nodeSuffix,
-    );
+    const moveText = renderFullTreePgnMoveText(tree, nodeSan, nodeSuffix);
     const initialComments = annotationComments(tree.root.annotations, true);
     const body = [...initialComments, moveText, '*'].filter(Boolean).join(' ');
     const headers = chapterTags(study, chapter)
