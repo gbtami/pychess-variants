@@ -369,10 +369,12 @@ export class AnalysisController extends GameController {
         if (typeof model.board !== 'string') {
             this.onMsgBoard(model.board);
             this.analysisExtension?.onInitialBoardLoaded?.();
-            if (this.analysisContext.mode === 'standalone' && !this.hasAnalysisTree()) {
-                this.initAnalysisTreeAtPly(this.ply);
-                updateMovelist(this, true, false);
-            }
+        }
+        // Standalone analysis starts from a FEN without a board/history payload.
+        // It still needs a tree so new moves can branch from earlier positions.
+        if (this.analysisContext.mode === 'standalone' && !this.hasAnalysisTree()) {
+            this.initAnalysisTreeAtPly(this.ply);
+            updateMovelist(this, true, false);
         }
 
         setTimeout(() => {

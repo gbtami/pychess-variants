@@ -378,6 +378,17 @@ class TestStudyGUI:
                 await expect(page.locator("#movelist")).to_contain_text("e4")
                 await expect(page.locator("#movelist")).to_contain_text("e5")
 
+                # A standalone page has no initial history payload, but must still
+                # create a tree so revisiting a move can add a genuine variation.
+                await page.locator("#movelist move", has_text="e4").click()
+                await self._play_board_move(page, "c7", "c5")
+                await expect(page.locator("#movelist move.mainline", has_text="e5")).to_have_count(
+                    1
+                )
+                await expect(page.locator("#movelist move.sideline", has_text="c5")).to_have_count(
+                    1
+                )
+
                 # Standalone analysis displays the FEN/PGN panel directly and hides
                 # its tab bar, so Save to Study is already visible.
                 await page.get_by_role("button", name="Add to Study").click()
@@ -390,7 +401,7 @@ class TestStudyGUI:
                 await expect(page.locator("#movelist")).to_contain_text("e4")
                 await expect(page.locator("#movelist")).to_contain_text("e5")
                 await self._eventually_async(
-                    lambda: self._study_has_node_count(app_state, chapter_id, 2)
+                    lambda: self._study_has_node_count(app_state, chapter_id, 3)
                 )
                 study_doc = await app_state.db.study.find_one({"_id": study_id})
                 chapter_doc = await app_state.db.study_chapter.find_one({"_id": chapter_id})
