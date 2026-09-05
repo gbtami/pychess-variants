@@ -20,11 +20,7 @@ import { renderClocks } from './analysisClock';
 import { copyBoardToPNG } from '../png';
 import { boardSettings } from '../boardSettings';
 import { nnueLookupContextForVariant, officialNnueNetwork } from '../nnueManifest';
-import {
-    loadNnueFile,
-    loadOfficialNnueFile,
-    removeObsoleteOfficialNnue,
-} from '../nnueStorage';
+import { loadNnueFile, loadOfficialNnueFile, removeObsoleteOfficialNnue } from '../nnueStorage';
 import { patch, downloadPgnText } from '../document';
 import { variantsIni } from '../variantsIni';
 import { Chart } from 'highcharts';
@@ -1559,7 +1555,17 @@ export class AnalysisController extends GameController {
         }
     }
 
+    refreshPgnView() {
+        if (!this.analysisContext.capabilities.engineTools) return;
+        const container = document.getElementById('pgntext');
+        if (!container) return;
+        this.vpgn = patch(this.vpgn ?? container, h('div#pgntext', this.getPgn()));
+    }
+
     getPgn() {
+        const extensionPgn = this.analysisExtension?.getPgn?.();
+        if (extensionPgn !== undefined) return extensionPgn;
+
         const moves: string[] = [];
         let moveCounter: string = '';
         let whiteMove: boolean = true;

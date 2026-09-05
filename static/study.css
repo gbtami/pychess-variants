@@ -190,3 +190,25 @@
 .study-annotations__clear {
     width: 100%;
 }
+.study-export {
+    border-top: 1px solid var(--border-color);
+    padding: .55rem .8rem .7rem;
+}
+.study-export summary {
+    cursor: pointer;
+    font-weight: bold;
+    margin-bottom: .45rem;
+}
+.study-export__actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .4rem;
+}
+.study-export__actions .button {
+    width: 100%;
+}
+@media (max-width: 799px) {
+    .study-export__actions {
+        grid-template-columns: 1fr;
+    }
+}

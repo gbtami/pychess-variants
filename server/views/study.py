@@ -131,6 +131,25 @@ def _study_board(chapter: StudyChapter, *, runtime_variant: str | None = None) -
     }
 
 
+def _chapter_export_payload(chapter: StudyChapter) -> dict[str, object]:
+    payload: dict[str, object] = {
+        "id": chapter.id,
+        "name": chapter.name,
+        "order": chapter.order,
+        "variant": chapter.variant,
+        "chess960": chapter.chess960,
+        "initialFen": chapter.initial_fen,
+        "orientation": chapter.orientation,
+        "description": chapter.description,
+        "tags": dict(chapter.tags),
+        "createdAt": chapter.created_at.isoformat(),
+        "tree": chapter.root.to_payload(),
+    }
+    if chapter.variant_ini is not None:
+        payload["variantIni"] = chapter.variant_ini
+    return payload
+
+
 @aiohttp_jinja2.template("studies.html")
 async def studies(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
@@ -201,11 +220,18 @@ async def study_show(request: web.Request) -> ViewContext:
         {
             "id": study.id,
             "name": study.name,
+            "owner": study.owner,
             "chapter": {
                 "id": chapter.id,
                 "name": chapter.name,
                 "revision": chapter.revision,
+                "order": chapter.order,
                 "orientation": chapter.orientation,
+                "variant": chapter.variant,
+                "chess960": chapter.chess960,
+                "initialFen": chapter.initial_fen,
+                "variantIni": chapter.variant_ini,
+                "createdAt": chapter.created_at.isoformat(),
                 "description": chapter.description,
                 "tags": dict(chapter.tags),
                 "tree": chapter.root.to_payload(),
@@ -232,6 +258,24 @@ async def study_show(request: web.Request) -> ViewContext:
         raise web.HTTPNotFound(text="Study variant is unavailable")
 
     return context
+
+
+async def study_chapter_export_data(request: web.Request) -> web.StreamResponse:
+    user, _ = await get_user_context(request)
+    _require_owner_user(user)
+    app_state = get_app_state(request.app)
+    if app_state.db is None:
+        raise web.HTTPServiceUnavailable(text="Studies require database access.")
+
+    study_id = request.match_info["studyId"]
+    chapter_id = request.match_info["chapterId"]
+    study = await load_owned_study(app_state, study_id, user.username)
+    if study is None:
+        raise web.HTTPNotFound()
+    chapter = await load_owned_chapter(app_state, study.id, chapter_id, user.username)
+    if chapter is None:
+        raise web.HTTPNotFound()
+    return web.json_response(_chapter_export_payload(chapter))
 
 
 async def study_from_analysis(request: web.Request) -> web.StreamResponse:

@@ -4,8 +4,7 @@ import { sanitizeURL } from './url';
 
 export const patch = init([classModule, attributesModule, propsModule, eventListenersModule, styleModule]);
 
-export function downloadPgnText(filename: string) {
-    const text = (document.getElementById('pgntext') as HTMLInputElement).innerHTML;
+export function downloadText(filename: string, text: string) {
     const element = document.createElement('a');
     element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
     element.setAttribute('download', filename);
@@ -16,6 +15,11 @@ export function downloadPgnText(filename: string) {
     element.click();
 
     document.body.removeChild(element);
+}
+
+export function downloadPgnText(filename: string) {
+    const text = document.getElementById('pgntext')?.textContent ?? '';
+    downloadText(filename, text);
 }
 
 export function getDocumentData(name: string): string | null {

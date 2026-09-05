@@ -13,6 +13,7 @@ export interface AnalysisExtension {
     onSocketOpen?(): void;
     onSocketReconnect?(): void;
     onSocketClose?(): void;
+    getPgn?(): string | undefined;
     onInitialBoardLoaded?(): void;
     canActivatePath?(path: string): boolean;
     onPathChanged?(path: string, previousPath: string): void;

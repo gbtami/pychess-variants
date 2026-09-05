@@ -1079,12 +1079,34 @@ unrelated long-running suites are intentionally outside this Phase 2A verificati
 
 ## 2B. PGN export
 
-- [ ] Export one chapter including variations.
-- [ ] Export comments, NAGs and supported annotations in compatible PGN form.
-- [ ] Export Study as multiple PGNs/chapters.
-- [ ] Preserve Variant/FEN tags required by PyChess variants.
-- [ ] Preserve/snapshot custom variant identity where standard PGN cannot describe it;
+- [x] Export one chapter including variations.
+- [x] Export comments, NAGs and supported annotations in compatible PGN form.
+- [x] Export Study as multiple PGNs/chapters.
+- [x] Preserve Variant/FEN tags required by PyChess variants.
+- [x] Preserve/snapshot custom variant identity where standard PGN cannot describe it;
   document any PyChess-specific tag extension.
+
+Phase 2B keeps PGN generation on the client. The current chapter is rendered directly from
+the live local analysis tree. Whole-Study export fetches the other persisted chapter DTOs
+sequentially through the owner-only `.../{chapterId}/export-data` endpoint and renders each
+PGN in the browser; the server does not generate SAN/PGN or instantiate Fairy-Stockfish for
+export. This keeps export work away from the latency-sensitive game server.
+
+Interoperable annotations follow the Lichess/de-facto PGN convention: node NAGs use normal
+`$N` syntax, circles use `[%csl ...]`, and arrows use `[%cal ...]`. Standard PGN has no
+position for a root NAG, so PyChess preserves those in the ignorable comment extension
+`[%pynag ...]`. The authoritative `Variant`, `FEN`, `SetUp`, and `Result` tags cannot be
+overridden by chapter free-form tags. PyChess also exports these explicit extension tags:
+
+- `PyChessVariant` -- exact PyChess variant key.
+- `PyChessChess960` -- `1` when the chapter uses the 960 form.
+- `PyChessVariantIniEncoding=base64` plus `PyChessVariantIni` -- exact UTF-8 custom-variant
+  INI snapshot when one exists.
+- `PyChessChapterDescriptionEncoding=base64` plus `PyChessChapterDescription` -- exact UTF-8
+  chapter description, since PGN has no standard chapter-description field.
+
+Unknown PGN tags and the `[%pynag ...]` comment remain safely ignorable by ordinary readers;
+Phase 2C should recognize these extensions when importing a PyChess Study export.
 
 ## 2C. PGN import
 

@@ -430,6 +430,7 @@ function renderPgnSequence(
     firstInVariation: boolean,
     isMainline: boolean,
     getSan: (node: AnalysisTreeNode) => string,
+    getSuffix?: (node: AnalysisTreeNode) => string,
 ): string[] {
     const [child, ...siblings] = nodes;
     if (!child) return [];
@@ -442,22 +443,24 @@ function renderPgnSequence(
     while (current) {
         if (current.forceVariation && isMainline) {
             tokens.push(
-                `(${renderPgnSequence([current, ...branchSiblings], rootTurnColor, true, false, getSan).join(' ')})`,
+                `(${renderPgnSequence([current, ...branchSiblings], rootTurnColor, true, false, getSan, getSuffix).join(' ')})`,
             );
             break;
         }
 
         const prefix = movePrefix(current, rootTurnColor, isFirst);
-        tokens.push(prefix ? `${prefix} ${getSan(current)}` : getSan(current));
+        const suffix = getSuffix?.(current);
+        const move = prefix ? `${prefix} ${getSan(current)}` : getSan(current);
+        tokens.push(suffix ? `${move} ${suffix}` : move);
 
         // Siblings represent alternative moves from the same parent position.
         branchSiblings.forEach(sideline => {
-            tokens.push(`(${renderPgnSequence([sideline], rootTurnColor, true, false, getSan).join(' ')})`);
+            tokens.push(`(${renderPgnSequence([sideline], rootTurnColor, true, false, getSan, getSuffix).join(' ')})`);
         });
         branchSiblings = [];
 
         current.children.slice(1).forEach(sideline => {
-            tokens.push(`(${renderPgnSequence([sideline], rootTurnColor, true, false, getSan).join(' ')})`);
+            tokens.push(`(${renderPgnSequence([sideline], rootTurnColor, true, false, getSan, getSuffix).join(' ')})`);
         });
 
         current = current.children[0];
@@ -467,10 +470,14 @@ function renderPgnSequence(
     return tokens;
 }
 
-export function renderFullTreePgnMoveText(tree: AnalysisTree, getSan: (node: AnalysisTreeNode) => string): string {
+export function renderFullTreePgnMoveText(
+    tree: AnalysisTree,
+    getSan: (node: AnalysisTreeNode) => string,
+    getSuffix?: (node: AnalysisTreeNode) => string,
+): string {
     // PGN movetext is closest to the inline-notation renderer: a single token stream
     // with recursive parenthesized alternatives attached at each branch point.
-    return renderPgnSequence(tree.root.children, tree.root.step.turnColor, false, true, getSan).join(' ');
+    return renderPgnSequence(tree.root.children, tree.root.step.turnColor, false, true, getSan, getSuffix).join(' ');
 }
 
 function collectLineNodes(

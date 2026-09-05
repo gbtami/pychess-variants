@@ -1,12 +1,15 @@
 import { h, type VNode } from 'snabbdom';
 
 import { analysisUnderboard } from '../analysis';
+import { alertDialog } from '../alertDialog';
 import { analysisContext } from '../analysis/analysisContext';
 import { AnalysisController } from '../analysis/analysisCtrl';
 import { renderAnalysisPage } from '../analysis/analysisPage';
+import { downloadText } from '../document';
 import { _ } from '../i18n';
 import type { PyChessModel, StudyPageModel } from '../types';
 import { StudyAnalysisExtension, type StudyAnnotationState } from './studySync';
+import { fetchStudyChapterExportData, renderStudyChapterPgn, renderStudyPgn, studyPgnFilename } from './studyPgn';
 
 const NAG_BUTTONS = [
     [1, '!'],
@@ -96,6 +99,16 @@ function annotationPanel(): VNode {
     ]);
 }
 
+function exportPanel(): VNode {
+    return h('details.study-export', [
+        h('summary', _('PGN export')),
+        h('div.study-export__actions', [
+            h('button.button.study-export__chapter', { attrs: { type: 'button' } }, _('Download chapter PGN')),
+            h('button.button.study-export__study', { attrs: { type: 'button' } }, _('Download study PGN')),
+        ]),
+    ]);
+}
+
 function studySide(study: StudyPageModel, model: PyChessModel): VNode {
     const chapter = study.chapter;
     const chapters = study.chapters.map(item =>
@@ -113,6 +126,7 @@ function studySide(study: StudyPageModel, model: PyChessModel): VNode {
         h('div.study-chapters', chapters),
         renameForm(`/study/${study.id}/${chapter.id}/edit`, chapter.name, _('Chapter name'), 80),
         annotationPanel(),
+        exportPanel(),
         h('div.study-side__actions', [
             h('details.study-side__new-chapter', [
                 h('summary', _('Add chapter')),
@@ -253,6 +267,40 @@ function bindAnnotationPanel(extension: StudyAnalysisExtension): void {
     });
 }
 
+function bindExportPanel(extension: StudyAnalysisExtension, study: StudyPageModel): void {
+    const chapterButton = document.querySelector<HTMLButtonElement>('.study-export__chapter');
+    chapterButton?.addEventListener('click', () => {
+        const pgnStudy = extension.pgnStudy;
+        const chapter = extension.pgnChapter;
+        if (!pgnStudy || !chapter) return;
+        downloadText(studyPgnFilename(study.name, chapter.name), renderStudyChapterPgn(pgnStudy, chapter));
+    });
+
+    const studyButton = document.querySelector<HTMLButtonElement>('.study-export__study');
+    studyButton?.addEventListener('click', async () => {
+        const pgnStudy = extension.pgnStudy;
+        const currentChapter = extension.pgnChapter;
+        if (!pgnStudy || !currentChapter || !studyButton) return;
+        studyButton.disabled = true;
+        try {
+            const chapters = [];
+            for (const preview of [...study.chapters].sort((a, b) => a.order - b.order)) {
+                chapters.push(
+                    preview.id === currentChapter.id
+                        ? currentChapter
+                        : await fetchStudyChapterExportData(study.id, preview.id),
+                );
+            }
+            downloadText(studyPgnFilename(study.name), renderStudyPgn(pgnStudy, chapters));
+        } catch (error) {
+            const detail = error instanceof Error ? error.message : String(error);
+            await alertDialog({ text: _('Could not export Study PGN: %1', detail) });
+        } finally {
+            studyButton.disabled = false;
+        }
+    });
+}
+
 function runStudyGround(vnode: VNode, model: PyChessModel, study: StudyPageModel): void {
     let extension: StudyAnalysisExtension;
     const ctrl = new AnalysisController(vnode.elm as HTMLElement, model, analysisCtrl => {
@@ -264,11 +312,22 @@ function runStudyGround(vnode: VNode, model: PyChessModel, study: StudyPageModel
             orientation: study.chapter.orientation,
             description: study.chapter.description,
             tags: study.chapter.tags,
+            studyName: study.name,
+            chapterName: study.chapter.name,
+            chapterOrder: study.chapter.order,
+            owner: study.owner,
+            home: model.home,
+            variant: study.chapter.variant,
+            chess960: study.chapter.chess960,
+            initialFen: study.chapter.initialFen,
+            variantIni: study.chapter.variantIni ?? undefined,
+            createdAt: study.chapter.createdAt,
             onAnnotationStateChanged: state => updateAnnotationPanel(state, extension),
         });
         return extension;
     });
     bindAnnotationPanel(extension!);
+    bindExportPanel(extension!, study);
     updateAnnotationPanel(extension!.annotationState, extension!);
     window['onFSFline'] = ctrl.onFSFline;
 }

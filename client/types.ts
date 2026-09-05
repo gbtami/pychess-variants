@@ -38,11 +38,18 @@ export type StudyChapterPreview = {
 export type StudyPageModel = {
     id: string;
     name: string;
+    owner: string;
     chapter: {
         id: string;
         name: string;
         revision: number;
+        order: number;
         orientation: 'white' | 'black';
+        variant: string;
+        chess960: boolean;
+        initialFen: string;
+        variantIni: string | null;
+        createdAt: string;
         description: string;
         tags: Record<string, string>;
         tree: import('./study/studyTree').StudyTreeDto;

@@ -22,10 +22,12 @@ import {
     parseStudyAnnotations,
     refreshStudyMainline,
     studyAnnotationsFromAnalysis,
+    studyTreeFromAnalysisTree,
     type StudyAnnotationsDto,
     type StudyTreeDto,
     type StudyTreeNodeDto,
 } from './studyTree';
+import { renderStudyChapterPgn, type StudyPgnChapterData, type StudyPgnContext } from './studyPgn';
 
 const STUDY_SOCKET_TYPES = new Set([
     'study_user_connected',
@@ -84,6 +86,16 @@ export interface StudySyncOptions {
     orientation?: 'white' | 'black';
     description?: string;
     tags?: Record<string, string>;
+    studyName?: string;
+    chapterName?: string;
+    chapterOrder?: number;
+    owner?: string;
+    home?: string;
+    variant?: string;
+    chess960?: boolean;
+    initialFen?: string;
+    variantIni?: string;
+    createdAt?: string;
     onAnnotationStateChanged?: (state: StudyAnnotationState) => void;
     onReloadRequired?: (reason: string) => void;
     opIdFactory?: () => string;
@@ -174,6 +186,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     private openedOnce = false;
     private reconnecting = false;
     private reloadRequested = false;
+    private initialTreeLoaded = false;
     private description: string;
     private tags: Record<string, string>;
     private readonly pending: PendingMutation[] = [];
@@ -220,6 +233,43 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         };
     }
 
+    get pgnStudy(): StudyPgnContext | undefined {
+        const { studyName, owner, home } = this.options;
+        if (!studyName || !owner || !home) return undefined;
+        return { id: this.options.studyId, name: studyName, owner, home };
+    }
+
+    get pgnChapter(): StudyPgnChapterData | undefined {
+        const { chapterName, chapterOrder, variant, initialFen, orientation } = this.options;
+        if (!chapterName || !Number.isInteger(chapterOrder) || !variant || !initialFen || !orientation)
+            return undefined;
+        const tree =
+            this.initialTreeLoaded && this.ctrl.analysisTree
+                ? studyTreeFromAnalysisTree(this.ctrl.analysisTree)
+                : this.options.tree;
+        if (!tree) return undefined;
+        return {
+            id: this.options.chapterId,
+            name: chapterName,
+            order: chapterOrder as number,
+            variant,
+            chess960: this.options.chess960 ?? false,
+            initialFen,
+            orientation,
+            description: this.description,
+            tags: { ...this.tags },
+            tree,
+            ...(this.options.variantIni ? { variantIni: this.options.variantIni } : {}),
+            ...(this.options.createdAt ? { createdAt: this.options.createdAt } : {}),
+        };
+    }
+
+    getPgn(): string | undefined {
+        const study = this.pgnStudy;
+        const chapter = this.pgnChapter;
+        return study && chapter ? renderStudyChapterPgn(study, chapter) : undefined;
+    }
+
     onInitialBoardLoaded(): void {
         if (!this.options.tree) return;
         const rootStep = this.ctrl.steps[0];
@@ -230,10 +280,12 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         try {
             const tree = analysisTreeFromStudy(rootStep, this.options.tree);
             this.ctrl.tree.loadAnalysisTree(tree);
+            this.initialTreeLoaded = true;
             this.refreshPreferredMainline();
             this.restoreCurrentShapes();
             this.notifyAnnotationState();
             updateMovelist(this.ctrl, true, false);
+            this.ctrl.refreshPgnView?.();
         } catch {
             this.requestReload('invalid_initial_tree');
         }
@@ -342,6 +394,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
             return;
         }
         this.refreshPreferredMainline();
+        this.ctrl.refreshPgnView?.();
         this.enqueue('study_add_node', {
             parentPath,
             move: node.step.move,
@@ -351,16 +404,19 @@ export class StudyAnalysisExtension implements AnalysisExtension {
 
     onNodeDeleted(path: string): void {
         this.refreshPreferredMainline();
+        this.ctrl.refreshPgnView?.();
         this.enqueue('study_delete_node', { path });
     }
 
     onVariationPromoted(path: string, toMainline: boolean): void {
         this.refreshPreferredMainline();
+        this.ctrl.refreshPgnView?.();
         this.enqueue('study_promote_variation', { path, toMainline });
     }
 
     onVariationForced(path: string, force: boolean): void {
         this.refreshPreferredMainline();
+        this.ctrl.refreshPgnView?.();
         this.enqueue('study_force_variation', { path, force });
     }
 
@@ -411,6 +467,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
 
     private notifyAnnotationState(): void {
         this.onAnnotationStateChanged?.(this.annotationState);
+        this.ctrl.refreshPgnView?.();
     }
 
     private restoreCurrentShapes(): void {
@@ -617,6 +674,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         this.refreshPreferredMainline();
         this.currentRevision = data.revision as number;
         updateMovelist(this.ctrl, true, false);
+        this.ctrl.refreshPgnView?.();
     }
 
     private refreshPreferredMainline(): void {

@@ -215,11 +215,18 @@ describe('analysis page smoke coverage', () => {
                     study: {
                         id: 'StUdY001',
                         name: 'Opening ideas',
+                        owner: 'tester',
                         chapter: {
                             id: 'ChAp0001',
                             name: 'Main line',
                             revision: 3,
+                            order: 1,
                             orientation: 'white',
+                            variant: 'chess',
+                            chess960: false,
+                            initialFen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+                            variantIni: null,
+                            createdAt: '2026-09-05T08:00:00+00:00',
                             description: 'Chapter description',
                             tags: { Event: 'Test event', Site: 'PyChess' },
                             tree: {
@@ -262,6 +269,8 @@ describe('analysis page smoke coverage', () => {
         expect((root.querySelector('.study-annotations__tags textarea') as HTMLTextAreaElement).value).toBe(
             'Event=Test event\nSite=PyChess',
         );
+        expect(root.querySelector('.study-export__chapter')?.textContent).toBe('Download chapter PGN');
+        expect(root.querySelector('.study-export__study')?.textContent).toBe('Download study PGN');
     });
 
     test('embed view stays lean and does not render PGN tab content', () => {
