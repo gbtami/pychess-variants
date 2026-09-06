@@ -14,7 +14,7 @@ import type { AnalysisController } from '../analysis/analysisCtrl';
 import type { AnalysisExtension, AnalysisExtensionFactory } from '../analysis/analysisExtension';
 import type { JSONObject } from '../types';
 import {
-    addStudyNodeToAnalysisTree,
+    mergeStudyNodeIntoAnalysisTree,
     analysisAnnotationsFromStudy,
     analysisTreeFromStudy,
     isStudyNodeId,
@@ -31,6 +31,7 @@ import { renderStudyChapterPgn, type StudyPgnChapterData, type StudyPgnContext }
 
 const STUDY_SOCKET_TYPES = new Set([
     'study_user_connected',
+    'study_members',
     'study_add_node',
     'study_delete_node',
     'study_promote_variation',
@@ -99,6 +100,7 @@ export interface StudySyncOptions {
     createdAt?: string;
     onAnnotationStateChanged?: (state: StudyAnnotationState) => void;
     onReloadRequired?: (reason: string) => void;
+    onMembersChanged?: (members: Record<string, 'read' | 'write'>) => void;
     opIdFactory?: () => string;
     contextMenuActions?: AnalysisExtension['contextMenuActions'];
     writable?: boolean;
@@ -116,6 +118,17 @@ function asStringRecord(value: unknown): Record<string, string> | undefined {
     for (const [key, entry] of Object.entries(data)) {
         if (typeof entry !== 'string') return undefined;
         result[key] = entry;
+    }
+    return result;
+}
+
+function asStudyMembers(value: unknown): Record<string, 'read' | 'write'> | undefined {
+    const data = record(value);
+    if (!data) return undefined;
+    const result: Record<string, 'read' | 'write'> = {};
+    for (const [username, role] of Object.entries(data)) {
+        if (!username || (role !== 'read' && role !== 'write')) return undefined;
+        result[username] = role;
     }
     return result;
 }
@@ -199,7 +212,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     private readonly onReloadRequired: (reason: string) => void;
     private readonly onAnnotationStateChanged?: (state: StudyAnnotationState) => void;
     private readonly opIdFactory: () => string;
-    private readonly writable: boolean;
+    private writable: boolean;
 
     constructor(
         private readonly ctrl: AnalysisController,
@@ -467,6 +480,21 @@ export class StudyAnalysisExtension implements AnalysisExtension {
             this.requestReload('wrong_study');
             return true;
         }
+
+        if (type === 'study_members') {
+            const members = asStudyMembers(data.members);
+            if (!members) {
+                this.requestReload('invalid_members');
+                return true;
+            }
+            const nextWritable = members[this.ctrl.username] === 'write';
+            const capabilityChanged = nextWritable !== this.writable;
+            this.writable = nextWritable;
+            this.options.onMembersChanged?.(members);
+            if (capabilityChanged) this.requestReload('write_access_changed');
+            return true;
+        }
+
         if (data.chapterId !== this.options.chapterId) return true;
 
         if (type === 'study_error' || type === 'study_reload') {
@@ -481,9 +509,12 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         const pending = this.pending[0];
         if (pending && data.clientOpId === pending.clientOpId) {
             this.acceptOwnMutation(pending, data);
-        } else if (pending) {
-            this.requestReload('concurrent_edit');
         } else {
+            // The server sequences all Study mutations and broadcasts them in that
+            // order. A remote operation may therefore arrive while our optimistic
+            // operation is still waiting for its acknowledgement. Apply the remote
+            // revision first; the already-sent local operation is safely rebased by
+            // the server against the latest authoritative tree.
             this.applyRemoteMutation(type as StudyMutationType, data);
         }
         return true;
@@ -573,10 +604,17 @@ export class StudyAnalysisExtension implements AnalysisExtension {
             const localNodeId = pending.body.nodeId;
             const parent = pending.body.parentPath;
             const expectedPath = parent ? `${parent}.${localNodeId}` : localNodeId;
-            if (!node || node.id !== localNodeId || data.path !== expectedPath) {
+            if (!node || node.id !== localNodeId || data.path !== expectedPath || !this.ctrl.analysisTree) {
                 this.requestReload('node_canonicalized');
                 return;
             }
+            if (mergeStudyNodeIntoAnalysisTree(this.ctrl.analysisTree, parent as string, node) !== expectedPath) {
+                this.requestReload('tree_mismatch');
+                return;
+            }
+            this.refreshPreferredMainline();
+            updateMovelist(this.ctrl, true, false);
+            this.ctrl.refreshPgnView?.();
         } else if (POSITION_ANNOTATION_MUTATIONS.has(pending.type)) {
             const path = data.path;
             if (typeof path !== 'string') {
@@ -590,18 +628,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
                 this.requestReload('invalid_annotation_ack');
                 return;
             }
-            for (const queued of this.pending.slice(1)) {
-                if (queued.body.path !== path) continue;
-                if (queued.type === 'study_clear_annotations') annotations = { shapes: [], comments: [], nags: [] };
-                else if (queued.type === 'study_set_comment') {
-                    const id = queued.body.commentId as string;
-                    annotations.comments = annotations.comments.filter(comment => comment.id !== id);
-                    const text = (queued.body.text as string).trim();
-                    if (text) annotations.comments.push({ id, author: this.ctrl.username, text });
-                } else if (queued.type === 'study_set_nags') annotations.nags = queued.body.nags as number[];
-                else if (queued.type === 'study_set_shapes')
-                    annotations.shapes = parseStudyAnnotations({ shapes: queued.body.shapes }).shapes;
-            }
+            annotations = this.overlayPendingAnnotations(path, annotations, this.pending.slice(1));
             if (!this.setPositionAnnotations(path, annotations)) {
                 this.requestReload('tree_mismatch');
                 return;
@@ -648,7 +675,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
                 this.requestReload('invalid_remote_add');
                 return;
             }
-            const attachedPath = addStudyNodeToAnalysisTree(tree, parentPathValue, node);
+            const attachedPath = mergeStudyNodeIntoAnalysisTree(tree, parentPathValue, node);
             if (attachedPath !== path) {
                 this.requestReload('tree_mismatch');
                 return;
@@ -693,6 +720,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
                 this.requestReload('invalid_remote_annotation');
                 return;
             }
+            annotations = this.overlayPendingAnnotations(path, annotations, this.pending);
             if (!this.setPositionAnnotations(path, annotations)) {
                 this.requestReload('tree_mismatch');
                 return;
@@ -702,22 +730,51 @@ export class StudyAnalysisExtension implements AnalysisExtension {
                 this.requestReload('invalid_remote_description');
                 return;
             }
-            this.description = data.description;
-            this.notifyAnnotationState();
+            if (!this.pending.some(pending => pending.type === 'study_set_description')) {
+                this.description = data.description;
+                this.notifyAnnotationState();
+            }
         } else if (type === 'study_set_tags') {
             const tags = asStringRecord(data.tags);
             if (!tags) {
                 this.requestReload('invalid_remote_tags');
                 return;
             }
-            this.tags = tags;
-            this.notifyAnnotationState();
+            if (!this.pending.some(pending => pending.type === 'study_set_tags')) {
+                this.tags = tags;
+                this.notifyAnnotationState();
+            }
         }
 
         this.refreshPreferredMainline();
         this.currentRevision = data.revision as number;
         updateMovelist(this.ctrl, true, false);
         this.ctrl.refreshPgnView?.();
+    }
+
+    private overlayPendingAnnotations(
+        path: string,
+        base: StudyAnnotationsDto,
+        pendingMutations: PendingMutation[],
+    ): StudyAnnotationsDto {
+        let annotations: StudyAnnotationsDto = {
+            shapes: base.shapes.map(shape => ({ ...shape })),
+            comments: base.comments.map(comment => ({ ...comment })),
+            nags: [...base.nags],
+        };
+        for (const queued of pendingMutations) {
+            if (queued.body.path !== path) continue;
+            if (queued.type === 'study_clear_annotations') annotations = emptyAnnotations();
+            else if (queued.type === 'study_set_comment') {
+                const id = queued.body.commentId as string;
+                annotations.comments = annotations.comments.filter(comment => comment.id !== id);
+                const text = (queued.body.text as string).trim();
+                if (text) annotations.comments.push({ id, author: this.ctrl.username, text });
+            } else if (queued.type === 'study_set_nags') annotations.nags = queued.body.nags as number[];
+            else if (queued.type === 'study_set_shapes')
+                annotations.shapes = parseStudyAnnotations({ shapes: queued.body.shapes }).shapes;
+        }
+        return annotations;
     }
 
     private refreshPreferredMainline(): void {

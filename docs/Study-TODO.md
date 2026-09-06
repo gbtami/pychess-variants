@@ -952,7 +952,7 @@ No public listing, no collaborators, no chat, no likes/topics, no lesson modes.
 - [x] Add configurable chapter/node/document-size limits.
 - [x] Use `new_id()` / existing 8-character ID convention for Study and chapter IDs.
 - [x] Do not preload Studies during `PychessGlobalAppState.init_from_db()`.
-- [x] Keep Studies out of startup preload and create active socket rooms lazily. Tree mutations use optimistic chapter revisions instead of per-Study locks.
+- [x] Keep Studies out of startup preload and create active socket rooms lazily. The owner-only MVP used optimistic chapter revisions; Phase 4B adds lazy per-Study sequencing for collaboration.
 
 ## 1B. Stable tree persistence contract
 
@@ -1244,18 +1244,31 @@ persist tree/annotation edits, create/import/rename/delete chapters, and appear 
 destinations; read members can view private Studies but cannot persist changes. Membership updates
 use the Study metadata revision as a bounded compare-and-swap, and a `writeMembers + updatedAt`
 index supports contributor destination lookup without scanning the Study collection. The configurable
-member cap defaults to 30. Membership changes currently close the Study room so clients reload their
-authoritative capabilities; Phase 4B replaces that coarse refresh with realtime room-state updates.
+member cap defaults to 30. Phase 4B broadcasts membership changes to the room, updates unaffected
+clients in place, and reloads only clients whose own write capability changed; users who lose access to
+a private Study have their sockets closed immediately.
 
 ## 4B. Room synchronization
 
-- [ ] Broadcast accepted incremental mutations to every connected Study client.
-- [ ] Track origin/session or `clientOpId` so optimistic local edits are not applied twice.
-- [ ] Maintain monotonic revisions.
-- [ ] Reload on missing path/revision gap/failed local application.
-- [ ] Show collaborator presence/activity only if it remains inexpensive.
-- [ ] Test two contributors making moves on different branches simultaneously.
-- [ ] Test two contributors trying to add/promote/delete around the same branch.
+- [x] Broadcast accepted incremental mutations to every connected Study client.
+- [x] Track origin/session or `clientOpId` so optimistic local edits are not applied twice.
+- [x] Maintain monotonic revisions.
+- [x] Reload on missing path/revision gap/failed local application.
+- [x] Keep collaborator presence/activity deferred: the room tracks only socket identity needed for
+  authorization/capability updates, avoiding an extra presence protocol/UI until it has clear value.
+- [x] Test two contributors making moves on different branches simultaneously.
+- [x] Test two contributors trying to add/promote/delete around the same branch.
+
+Phase 4B now gives each active Study a lazy `asyncio.Lock` sequencer and holds it through the
+authoritative mutation plus room broadcast, so connected clients observe one ordered stream. Websocket
+mutations may submit an older chapter revision while waiting behind another collaborator: under the
+Study lock the server revalidates that operation against the latest tree and applies it when its path is
+still valid. Future revisions, missing/deleted paths, revision gaps, malformed canonical payloads, or
+failed client-side application trigger a reload rather than attempting a CRDT-style merge. Client
+`clientOpId` values distinguish optimistic local operations from remote broadcasts; remote revisions can
+now be merged while a local operation is pending, including authoritative sibling ordering and pending
+annotation overlays. Membership changes use a separate room-state message instead of tearing down all
+Study sockets.
 
 ## 4C. Separate record and follow modes
 

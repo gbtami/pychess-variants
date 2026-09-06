@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import logging
 import re
 from collections.abc import Mapping
@@ -141,6 +142,26 @@ async def _finish_mutation(
 
 
 async def process_message(
+    app_state: PychessGlobalAppState,
+    user: User,
+    ws: WebSocketResponse,
+    raw_data: object,
+    *,
+    study_id: str,
+    service: StudyMutationService,
+) -> None:
+    # One Study-wide sequencer is enough for PyChess: all chapter mutations in a
+    # room are processed and broadcast in one total order. Holding the lock through
+    # broadcast guarantees every connected client observes monotonically ordered
+    # revisions before the next queued mutation starts.
+    lock = app_state.study_mutation_locks.setdefault(study_id, asyncio.Lock())
+    async with lock:
+        await _process_message_unlocked(
+            app_state, user, ws, raw_data, study_id=study_id, service=service
+        )
+
+
+async def _process_message_unlocked(
     app_state: PychessGlobalAppState,
     user: User,
     ws: WebSocketResponse,
@@ -343,6 +364,8 @@ async def init_ws(
 ) -> None:
     room = app_state.study_sockets.setdefault(study.id, set())
     room.add(ws)
+    app_state.study_mutation_locks.setdefault(study.id, asyncio.Lock())
+    app_state.study_socket_users.setdefault(study.id, {})[ws] = user.username
     user.study_sockets.setdefault(study.id, set()).add(ws)
     user.update_online()
     await ws_send_json(
@@ -363,8 +386,13 @@ async def finally_logic(
     room = app_state.study_sockets.get(study_id)
     if room is not None:
         room.discard(ws)
+        users = app_state.study_socket_users.get(study_id)
+        if users is not None:
+            users.pop(ws, None)
         if not room:
             app_state.study_sockets.pop(study_id, None)
+            app_state.study_mutation_locks.pop(study_id, None)
+            app_state.study_socket_users.pop(study_id, None)
 
     user_room = user.study_sockets.get(study_id)
     if user_room is not None:
@@ -372,6 +400,32 @@ async def finally_logic(
         if not user_room:
             user.study_sockets.pop(study_id, None)
     user.update_online()
+
+
+async def broadcast_study_members(app_state: PychessGlobalAppState, study: Study) -> None:
+    """Broadcast membership/capability changes without tearing down the whole room.
+
+    Clients whose access was actually revoked from a private Study are closed after
+    receiving the update; public/unlisted former members may remain as read-only
+    viewers.
+    """
+
+    room = app_state.study_sockets.get(study.id)
+    if not room:
+        return
+    await ws_send_json_many(
+        tuple(room),
+        {
+            "type": "study_members",
+            "studyId": study.id,
+            "members": dict(study.members),
+            "revision": study.revision,
+        },
+    )
+    users = app_state.study_socket_users.get(study.id, {})
+    for ws, username in tuple(users.items()):
+        if not can_view_study(study, username):
+            await ws.close()
 
 
 async def close_study_sockets(app_state: PychessGlobalAppState, study_id: str) -> None:
@@ -400,7 +454,7 @@ async def study_socket_handler(request: web.Request) -> web.StreamResponse:
         raise web.HTTPNotFound()
     user = await get_user(session, request)
 
-    service = StudyMutationService(app_state)
+    service = StudyMutationService(app_state, allow_stale_revision=True)
 
     async def on_init(
         inner_app_state: PychessGlobalAppState,

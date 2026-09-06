@@ -54,7 +54,7 @@ from study.storage import (
     studies_writable_by,
 )
 from study.variant import study_variant_client_doc, study_variant_context, study_variant_metadata
-from study.ws import close_study_sockets
+from study.ws import broadcast_study_members, close_study_sockets
 from typing_defs import ViewContext
 from utils import USERNAME_PREFIX_RE
 from variants import ALL_VARIANTS, is_catalogued_variant
@@ -751,13 +751,14 @@ async def study_member_add(request: web.Request) -> web.StreamResponse:
     if data is None:
         raise web.HTTPNoContent()
     target = await _study_member_target(request, data)
+    app_state = get_app_state(request.app)
     try:
-        await add_study_member(
-            get_app_state(request.app), study.id, user.username, target, data.get("role", "read")
+        updated = await add_study_member(
+            app_state, study.id, user.username, target, data.get("role", "read")
         )
     except (StudyStorageError, ValueError) as exc:
         raise web.HTTPBadRequest(text=str(exc)) from exc
-    await close_study_sockets(get_app_state(request.app), study.id)
+    await broadcast_study_members(app_state, updated)
     raise web.HTTPFound(f"/study/{study.id}")
 
 
@@ -767,13 +768,14 @@ async def study_member_role(request: web.Request) -> web.StreamResponse:
     if data is None:
         raise web.HTTPNoContent()
     target = str(data.get("username") or "").strip()
+    app_state = get_app_state(request.app)
     try:
-        await set_study_member_role(
-            get_app_state(request.app), study.id, user.username, target, data.get("role")
+        updated = await set_study_member_role(
+            app_state, study.id, user.username, target, data.get("role")
         )
     except (StudyStorageError, ValueError) as exc:
         raise web.HTTPBadRequest(text=str(exc)) from exc
-    await close_study_sockets(get_app_state(request.app), study.id)
+    await broadcast_study_members(app_state, updated)
     raise web.HTTPFound(f"/study/{study.id}")
 
 
@@ -783,11 +785,12 @@ async def study_member_remove(request: web.Request) -> web.StreamResponse:
     if data is None:
         raise web.HTTPNoContent()
     target = str(data.get("username") or "").strip()
+    app_state = get_app_state(request.app)
     try:
-        await remove_study_member(get_app_state(request.app), study.id, user.username, target)
+        updated = await remove_study_member(app_state, study.id, user.username, target)
     except StudyStorageError as exc:
         raise web.HTTPBadRequest(text=str(exc)) from exc
-    await close_study_sockets(get_app_state(request.app), study.id)
+    await broadcast_study_members(app_state, updated)
     raise web.HTTPFound(f"/study/{study.id}")
 
 
@@ -801,10 +804,10 @@ async def study_leave(request: web.Request) -> web.StreamResponse:
     if study is None or not can_view_study(study, user.username):
         raise web.HTTPNotFound()
     try:
-        await leave_study(app_state, study.id, user.username)
+        updated = await leave_study(app_state, study.id, user.username)
     except StudyStorageError as exc:
         raise web.HTTPBadRequest(text=str(exc)) from exc
-    await close_study_sockets(app_state, study.id)
+    await broadcast_study_members(app_state, updated)
     raise web.HTTPFound("/study")
 
 

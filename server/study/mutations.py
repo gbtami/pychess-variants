@@ -97,14 +97,15 @@ class _VariantUnavailable(Exception):
 class StudyMutationService:
     """Authoritative Study tree mutations for owners and write contributors.
 
-    Mutations remain optimistic compare-and-swap operations on the chapter revision.
-    Phase 4A broadens authorization to explicit write members; room-level ordering and
-    richer concurrent-merge behavior are layered on in Phase 4B.
+    Direct callers keep strict optimistic revision checks by default. Study websocket
+    rooms may opt into stale-revision rebasing because Phase 4B serializes every room
+    mutation and validates the operation again against the latest authoritative tree.
     """
 
-    def __init__(self, app_state: PychessGlobalAppState):
+    def __init__(self, app_state: PychessGlobalAppState, *, allow_stale_revision: bool = False):
         self.app_state = app_state
         self.db = app_state.db
+        self.allow_stale_revision = allow_stale_revision
 
     async def add_node(
         self,
@@ -677,12 +678,13 @@ class StudyMutationService:
             return self._error(None, "invalid_chapter")
         return _MutationContext(study, chapter)
 
-    @staticmethod
     def _revision_mismatch(
-        chapter: StudyChapter, expected_revision: int
+        self, chapter: StudyChapter, expected_revision: int
     ) -> StudyMutationResult | None:
-        if expected_revision < 0 or expected_revision != chapter.revision:
-            return StudyMutationService._reload(chapter.revision, "revision_mismatch")
+        if expected_revision < 0 or expected_revision > chapter.revision:
+            return self._reload(chapter.revision, "revision_mismatch")
+        if not self.allow_stale_revision and expected_revision != chapter.revision:
+            return self._reload(chapter.revision, "revision_mismatch")
         return None
 
     @staticmethod

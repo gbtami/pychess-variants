@@ -786,6 +786,13 @@ function runStudyGround(vnode: VNode, model: PyChessModel, study: StudyPageModel
                 variantIni: study.chapter.variantIni ?? undefined,
                 createdAt: study.chapter.createdAt,
                 onAnnotationStateChanged: state => updateAnnotationPanel(state, editor),
+                onMembersChanged: members => {
+                    const previousCanWrite = study.canWrite;
+                    study.members = { ...members };
+                    study.canWrite = model.username ? members[model.username] === 'write' : false;
+                    sideVNode = patch(sideVNode, studySide(study, model));
+                    if (study.canWrite !== previousCanWrite) window.location.reload();
+                },
                 contextMenuActions: study.canWrite ? path => studyContextMenu(analysisCtrl, path) : undefined,
                 writable: study.canWrite,
             });

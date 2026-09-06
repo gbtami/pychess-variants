@@ -394,6 +394,36 @@ describe('Study analysis websocket synchronization', () => {
         expect(ctrl.doSend).not.toHaveBeenCalled();
     });
 
+    test('updates membership live and reloads when the current contributor loses write access', () => {
+        const ctrl = makeCtrl();
+        ctrl.username = 'writer';
+        const reload = jest.fn();
+        const membersChanged = jest.fn();
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            writable: true,
+            onMembersChanged: membersChanged,
+            onReloadRequired: reload,
+        });
+        extension.onSocketOpen();
+
+        expect(
+            extension.onSocketMessage('study_members', {
+                type: 'study_members',
+                studyId: 'study001',
+                members: { owner: 'write', writer: 'read' },
+                revision: 1,
+            }),
+        ).toBe(true);
+
+        expect(membersChanged).toHaveBeenCalledWith({ owner: 'write', writer: 'read' });
+        expect(reload).toHaveBeenCalledWith('write_access_changed');
+        extension.setDescription('must stay local');
+        expect(ctrl.doSend).not.toHaveBeenCalled();
+    });
+
     test('applies a remote node incrementally and advances the revision', () => {
         const ctrl = makeCtrl();
         const reload = jest.fn();
@@ -423,7 +453,7 @@ describe('Study analysis websocket synchronization', () => {
         expect(reload).not.toHaveBeenCalled();
     });
 
-    test('reloads instead of merging a competing remote edit while a local edit is pending', () => {
+    test('merges a remote sibling while a local add is pending and accepts canonical ordering', () => {
         const ctrl = makeCtrl();
         const reload = jest.fn();
         const extension = new StudyAnalysisExtension(ctrl, {
@@ -433,23 +463,53 @@ describe('Study analysis websocket synchronization', () => {
             onReloadRequired: reload,
             opIdFactory: () => 'LocalOp1',
         });
-        const node = e4Node();
-        addStudyNodeToAnalysisTree(ctrl.analysisTree, '', node);
+        const local = e4Node();
+        addStudyNodeToAnalysisTree(ctrl.analysisTree, '', local);
         extension.onSocketOpen();
         extension.onNodeAdded('', ctrl.analysisTree.root.children[0]);
 
-        extension.onSocketMessage('study_force_variation', {
-            type: 'study_force_variation',
+        const remote: StudyTreeNodeDto = {
+            ...e4Node(),
+            id: 'StudyNode2',
+            order: 0,
+            move: 'd2d4',
+            fen: 'd4 b - - 0 1',
+            san: 'd4',
+            sanSAN: 'd4',
+        };
+        extension.onSocketMessage('study_add_node', {
+            type: 'study_add_node',
             studyId: 'study001',
             chapterId: 'chapter1',
             clientOpId: 'RemoteOp',
             revision: 1,
             changed: true,
-            path: 'StudyNode1',
-            force: true,
+            parentPath: '',
+            path: 'StudyNode2',
+            node: remote,
         });
 
-        expect(reload).toHaveBeenCalledWith('concurrent_edit');
+        expect(ctrl.analysisTree.root.children.map((node: any) => node.id)).toEqual(['StudyNode2', 'StudyNode1']);
+        expect(extension.revision).toBe(1);
+        expect(extension.pendingCount).toBe(1);
+        expect(reload).not.toHaveBeenCalled();
+
+        extension.onSocketMessage('study_add_node', {
+            type: 'study_add_node',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'LocalOp1',
+            revision: 2,
+            changed: true,
+            parentPath: '',
+            path: 'StudyNode1',
+            node: { ...local, order: 1 },
+        });
+
+        expect(ctrl.analysisTree.root.children.map((node: any) => node.id)).toEqual(['StudyNode2', 'StudyNode1']);
+        expect(extension.revision).toBe(2);
+        expect(extension.pendingCount).toBe(0);
+        expect(reload).not.toHaveBeenCalled();
     });
 
     test('reloads after a real websocket reconnect because broadcasts may have been missed', () => {

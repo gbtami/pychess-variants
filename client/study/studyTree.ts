@@ -338,6 +338,67 @@ export function addStudyNodeToAnalysisTree(
     return path;
 }
 
+// Merge one authoritative server node into a tree that may also contain local
+// optimistic siblings. Stable node ids make this safe without rebuilding the whole
+// chapter: a remote sibling can be inserted before an unsaved local node, and the
+// origin node can later be moved to the canonical server order on acknowledgement.
+export function mergeStudyNodeIntoAnalysisTree(
+    tree: AnalysisTree,
+    parentPath: string,
+    dtoNode: StudyTreeNodeDto,
+): string | undefined {
+    validateDtoNode(dtoNode);
+    const parent = tree.byPath.get(parentPath);
+    if (!parent) return undefined;
+
+    const expectedParentId = parentPath ? parent.id : null;
+    if (dtoNode.parentId !== expectedParentId) return undefined;
+    const path = parentPath ? `${parentPath}.${dtoNode.id}` : dtoNode.id;
+
+    const existing = Array.from(tree.byPath.values()).find(node => node.id === dtoNode.id);
+    if (existing) {
+        if (existing.path !== path) return undefined;
+        const currentIndex = parent.children.indexOf(existing);
+        if (currentIndex < 0 || dtoNode.order >= parent.children.length) return undefined;
+        if (currentIndex !== dtoNode.order) {
+            parent.children.splice(currentIndex, 1);
+            parent.children.splice(dtoNode.order, 0, existing);
+        }
+        existing.step = {
+            fen: dtoNode.fen,
+            move: dtoNode.move,
+            check: dtoNode.check,
+            turnColor: dtoNode.turnColor,
+            san: dtoNode.san,
+            sanSAN: dtoNode.sanSAN,
+        };
+        existing.forceVariation = dtoNode.forceVariation;
+        existing.annotations = analysisAnnotationsFromStudy(dtoNode.annotations);
+        return path;
+    }
+
+    if (dtoNode.order > parent.children.length) return undefined;
+    const child: AnalysisTreeNode = {
+        id: dtoNode.id,
+        path,
+        ply: parent.ply + 1,
+        step: {
+            fen: dtoNode.fen,
+            move: dtoNode.move,
+            check: dtoNode.check,
+            turnColor: dtoNode.turnColor,
+            san: dtoNode.san,
+            sanSAN: dtoNode.sanSAN,
+        },
+        children: [],
+        forceVariation: dtoNode.forceVariation,
+        annotations: analysisAnnotationsFromStudy(dtoNode.annotations),
+    };
+    parent.children.splice(dtoNode.order, 0, child);
+    tree.byPath.set(path, child);
+    return path;
+}
+
 // Unlike ordinary post-game analysis, a Study's preferred mainline is mutable:
 // promote/delete/force operations can change child[0] after the tree was loaded.
 // Keep the generic analysis controller's mainline metadata/steps aligned with the
