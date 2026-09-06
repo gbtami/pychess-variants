@@ -8,6 +8,7 @@ from typing import Any, Literal, cast
 from newid import new_id
 
 from study.annotations import canonical_description, canonical_tags
+from study.constants import STUDY_SEARCH_MAX_TOKENS
 from study.tree import StudyTree
 
 StudyVisibility = Literal["private", "unlisted", "public"]
@@ -47,17 +48,26 @@ def _search_words(value: str) -> tuple[str, ...]:
     return tuple(words)
 
 
-def study_search_tokens(name: str, owner: str) -> tuple[str, ...]:
-    """Return bounded, language-neutral word-prefix tokens for public Study search."""
+def study_search_tokens(name: str, owner: str, *content: str) -> tuple[str, ...]:
+    """Return bounded word-prefix tokens for Study discovery.
+
+    The Study name and owner are always passed first so they retain priority if
+    unusually large chapter metadata reaches the global token budget. Chapter
+    names, variants, descriptions, and PGN tags are appended by the storage
+    layer for richer discovery.
+    """
 
     tokens: set[str] = set()
-    for word in (*_search_words(name), *_search_words(owner)):
-        if len(word) < 3:
-            continue
-        # Study names are short, but cap token expansion so a single long word
-        # cannot create an unnecessarily large multikey index entry set.
-        for length in range(3, min(len(word), 32) + 1):
-            tokens.add(word[:length])
+    for value in (name, owner, *content):
+        for word in _search_words(value):
+            if len(word) < 3:
+                continue
+            # Cap each individual prefix and the complete multikey array. Long
+            # annotation text must never grow the Study index without bound.
+            for length in range(3, min(len(word), 32) + 1):
+                tokens.add(word[:length])
+                if len(tokens) >= STUDY_SEARCH_MAX_TOKENS:
+                    return tuple(sorted(tokens))
     return tuple(sorted(tokens))
 
 

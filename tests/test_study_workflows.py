@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import time
+from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 
 import aiohttp
@@ -481,6 +482,90 @@ async def test_public_study_discovery_and_search_never_expose_link_only_studies(
     # while private remains protected.
     assert (await client.get(f"/study/{unlisted.id}", allow_redirects=False)).status == 302
     assert (await client.get(f"/study/{private.id}", allow_redirects=False)).status == 404
+
+
+@pytest.mark.asyncio
+async def test_richer_study_search_indexes_chapter_metadata_without_leaking_unlisted_studies(
+    aiohttp_client,
+) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    for username in ("search_public", "search_secret", "search_viewer"):
+        await _insert_user(app_state, username)
+
+    public_draft = await StudyChapterBuilder(app_state, "search_public").blank_or_fen(
+        variant="chess", name="Dragon attack"
+    )
+    public_draft = replace(
+        public_draft,
+        description="Poisoned pawn investigation",
+        tags={"Event": "Budapest Masters", "White": "Alice"},
+    )
+    public, _ = await create_study_from_draft(
+        app_state, "search_public", public_draft, name="Opening notes"
+    )
+    await set_study_visibility(app_state, public, "public")
+
+    secret_draft = await StudyChapterBuilder(app_state, "search_secret").blank_or_fen(
+        variant="chess", name="Hidden dragon"
+    )
+    secret_draft = replace(secret_draft, description="Poisoned pawn secret")
+    unlisted, _ = await create_study_from_draft(
+        app_state, "search_secret", secret_draft, name="Link only notes"
+    )
+    await set_study_visibility(app_state, unlisted, "unlisted")
+
+    private_draft = await StudyChapterBuilder(app_state, "search_secret").blank_or_fen(
+        variant="chess", name="Fortress endgame"
+    )
+    private, _ = await create_study_from_draft(
+        app_state, "search_secret", private_draft, name="Member notes"
+    )
+    await add_study_member(app_state, private.id, "search_secret", "search_viewer", "read")
+
+    response = await client.get("/study/search?q=poi")
+    assert response.status == 200
+    html = await response.text()
+    assert "Opening notes" in html
+    assert "Link only notes" not in html
+    assert "Member notes" not in html
+
+    response = await client.get("/study/search?q=bud")
+    assert response.status == 200
+    assert "Opening notes" in await response.text()
+
+    response = await client.get("/study/search?q=owner:search_public+dra")
+    assert response.status == 200
+    html = await response.text()
+    assert "Opening notes" in html
+    assert "Link only notes" not in html
+
+    # A member filter never bypasses Study discovery privacy for anonymous users.
+    response = await client.get("/study/search?q=member:search_viewer+for")
+    assert response.status == 200
+    assert "Member notes" not in await response.text()
+
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie("search_viewer")})
+    response = await client.get("/study/search?q=member:search_viewer+for")
+    assert response.status == 200
+    html = await response.text()
+    assert "Member notes" in html
+    assert "Link only notes" not in html
+
+    # The personal list search form carries the same owner/member query syntax
+    # as Lichess, so submitting it keeps the intended personal scope.
+    response = await client.get("/study/member")
+    assert response.status == 200
+    assert 'value="member:search_viewer "' in await response.text()
+
+    client.session.cookie_jar.clear()
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie("search_secret")})
+    response = await client.get("/study/search?q=owner:search_secret+poi")
+    assert response.status == 200
+    html = await response.text()
+    assert "Link only notes" in html
+    assert "Opening notes" not in html
 
 
 @pytest.mark.asyncio

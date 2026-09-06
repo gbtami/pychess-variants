@@ -295,6 +295,7 @@ get_routes: tuple[RouteDef, ...] = (
     ("/study/member", study_view.studies_contributed),
     ("/study/public", study_view.studies_mine_public),
     ("/study/private", study_view.studies_mine_private),
+    ("/study/search", study_view.studies_search),
     ("/study/choices", study_view.study_choices),
     ("/study/by/{username}", study_view.studies_by_owner),
     (

@@ -53,6 +53,7 @@ from study.storage import (
     studies_for_owner_view,
     studies_writable_by,
     study_list_order,
+    study_search_page,
 )
 from study.variant import study_variant_client_doc, study_variant_context, study_variant_metadata
 from study.ws import broadcast_study_members, close_study_sockets
@@ -107,6 +108,16 @@ def _study_list_query_href(
 def _populate_study_list_navigation(context: ViewContext, *, active: str) -> None:
     context["study_list_navigation"] = True
     context["study_list_active"] = active
+
+
+def _populate_study_search_form(
+    context: ViewContext,
+    value: str = "",
+    *,
+    clear_href: str = "",
+) -> None:
+    context["study_search_value"] = value
+    context["study_search_clear_href"] = clear_href
 
 
 def _populate_study_page(
@@ -328,6 +339,7 @@ async def studies(request: web.Request) -> ViewContext:
     context["study_list_can_create"] = True
     context["study_list_show_visibility"] = True
     context["study_list_show_owner"] = False
+    _populate_study_search_form(context, f"owner:{user.username} ")
     _populate_study_page(context, request, result, active="mine")
     return context
 
@@ -354,6 +366,7 @@ async def studies_contributed(request: web.Request) -> ViewContext:
     context["study_list_can_create"] = True
     context["study_list_show_visibility"] = True
     context["study_list_show_owner"] = True
+    _populate_study_search_form(context, f"member:{user.username} ")
     _populate_study_page(context, request, result, active="member")
     return context
 
@@ -381,6 +394,7 @@ async def studies_mine_public(request: web.Request) -> ViewContext:
     context["study_list_can_create"] = True
     context["study_list_show_visibility"] = False
     context["study_list_show_owner"] = False
+    _populate_study_search_form(context, f"owner:{user.username} ")
     _populate_study_page(context, request, result, active="mine-public")
     return context
 
@@ -408,6 +422,7 @@ async def studies_mine_private(request: web.Request) -> ViewContext:
     context["study_list_can_create"] = True
     context["study_list_show_visibility"] = True
     context["study_list_show_owner"] = False
+    _populate_study_search_form(context, f"owner:{user.username} ")
     _populate_study_page(context, request, result, active="mine-private")
     return context
 
@@ -434,6 +449,11 @@ async def studies_public(request: web.Request) -> ViewContext:
     context["study_list_show_visibility"] = False
     context["study_list_show_owner"] = True
     context["study_public"] = result
+    _populate_study_search_form(
+        context,
+        str(result.get("q") or ""),
+        clear_href=f"/study/all?order={order}",
+    )
     _populate_study_page(context, request, result, active="all")
     return context
 
@@ -462,6 +482,40 @@ async def studies_by_owner(request: web.Request) -> ViewContext:
     context["study_list_show_visibility"] = is_self
     context["study_list_show_owner"] = False
     context["study_list_navigation"] = False
+    _populate_study_search_form(context, f"owner:{owner} ")
+    return context
+
+
+@aiohttp_jinja2.template("studies.html")
+async def studies_search(request: web.Request) -> ViewContext:
+    user, context = await get_user_context(request)
+    app_state = get_app_state(request.app)
+    if app_state.db is None:
+        raise web.HTTPServiceUnavailable(text="Studies require database access.")
+
+    _study_context(context)
+    context["title"] = "Search studies • PyChess"
+    order = study_list_order(request.rel_url.query.get("order"))
+    viewer = None if user.anon else user.username
+    result = await study_search_page(
+        app_state,
+        q=request.rel_url.query.get("q", ""),
+        viewer=viewer,
+        order=order,
+        page=_positive_page(request.rel_url.query.get("page")),
+    )
+    context["study_list_owner"] = ""
+    context["study_list_is_self"] = False
+    context["study_list_can_create"] = not user.anon and not user.bot
+    context["study_list_show_visibility"] = not user.anon
+    context["study_list_show_owner"] = True
+    context["study_search"] = result
+    _populate_study_search_form(
+        context,
+        str(result.get("q") or ""),
+        clear_href=f"/study/all?order={order}",
+    )
+    _populate_study_page(context, request, result, active="search")
     return context
 
 

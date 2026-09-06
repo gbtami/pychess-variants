@@ -434,6 +434,10 @@ class StudyMutationServiceTestCase(unittest.IsolatedAsyncioTestCase):
         raw = await self.db.study_chapter.find_one({"_id": CHAPTER_ID})
         assert raw is not None
         self.assertNotIn("a", raw["root"]["_"])
+        raw_study = await self.db.study.find_one({"_id": STUDY_ID})
+        assert raw_study is not None
+        self.assertIn("line", raw_study["searchTokens"])
+        self.assertIn("pychess", raw_study["searchTokens"])
 
     async def test_annotation_validation_rejects_without_revision_change(self) -> None:
         invalid_shape = await self.service.set_shapes(

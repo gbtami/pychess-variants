@@ -40,6 +40,8 @@ class StudyStorageError(ValueError):
 STUDY_LIST_PAGE_SIZE = 16
 StudyListOrder = Literal["updated", "newest", "oldest", "alphabetical"]
 _STUDY_LIST_ORDERS = frozenset(("updated", "newest", "oldest", "alphabetical"))
+_STUDY_SEARCH_USERNAME_RE = re.compile(r"^[A-Za-z0-9_-]{3,20}$")
+_STUDY_SEARCH_QUERY_MAX_LENGTH = 100
 
 
 def study_list_order(value: object) -> StudyListOrder:
@@ -129,6 +131,156 @@ async def contributed_studies_page(
         },
         order=order,
         page=page,
+    )
+
+
+def _study_search_parts(value: object) -> tuple[str, tuple[str, ...], str | None, str | None, bool]:
+    clean_query = " ".join(str(value or "").split())[:_STUDY_SEARCH_QUERY_MAX_LENGTH]
+    owner: str | None = None
+    member: str | None = None
+    free_parts: list[str] = []
+    for part in clean_query.split():
+        key, separator, raw_value = part.partition(":")
+        if separator and key.casefold() in {"owner", "member"}:
+            if _STUDY_SEARCH_USERNAME_RE.fullmatch(raw_value):
+                if key.casefold() == "owner":
+                    owner = raw_value
+                else:
+                    member = raw_value
+            else:
+                free_parts.append(part)
+        else:
+            free_parts.append(part)
+
+    free_query = " ".join(free_parts)
+    tokens = study_search_query_tokens(free_query)
+    query_too_short = bool(free_query and not tokens and owner is None and member is None)
+    return clean_query, tokens, owner, member, query_too_short
+
+
+def _member_query(username: str) -> dict[str, object]:
+    # New Study documents keep the bounded memberIds array indexed. The safe
+    # dotted-field fallback preserves membership discovery for pre-Phase-5 docs.
+    return {
+        "$or": [
+            {"memberIds": username},
+            {
+                "memberIds": {"$exists": False},
+                f"members.{username}": {"$exists": True},
+            },
+        ]
+    }
+
+
+def _study_search_access_query(viewer: str | None) -> dict[str, object]:
+    # Unlisted Studies are link-viewable, but must not become discoverable merely
+    # because somebody searches for their chapter text. Only public Studies and
+    # the viewer's own/member Studies belong in search results.
+    if viewer is None:
+        return {"visibility": "public"}
+    return {
+        "$or": [
+            {"visibility": "public"},
+            {"owner": viewer},
+            _member_query(viewer),
+        ]
+    }
+
+
+async def study_search_page(
+    app_state: Any,
+    *,
+    q: str,
+    viewer: str | None,
+    order: StudyListOrder = "updated",
+    page: int = 1,
+) -> dict[str, object]:
+    """Search discoverable Studies using text plus Lichess-style owner/member filters."""
+
+    clean_query, tokens, owner, member, query_too_short = _study_search_parts(q)
+    if query_too_short:
+        return {
+            "studies": [],
+            "q": clean_query,
+            "order": order,
+            "page": 1,
+            "pages": 1,
+            "total": 0,
+            "prev_page": None,
+            "next_page": None,
+            "query_too_short": True,
+        }
+
+    clauses: list[dict[str, object]] = [_study_search_access_query(viewer)]
+    if owner is not None:
+        clauses.append({"owner": owner})
+    if member is not None:
+        clauses.append(_member_query(member))
+    for token in tokens:
+        clauses.append({"searchTokens": token})
+
+    # Empty /study/search requests behave like All studies rather than exposing
+    # every private membership to an accidental blank search.
+    if not clean_query:
+        result = await public_studies_page(app_state, order=order, page=page)
+    else:
+        result = await _studies_page(
+            app_state,
+            {"$and": clauses},
+            order=order,
+            page=page,
+        )
+    result["q"] = clean_query
+    result["query_too_short"] = False
+    result["owner_filter"] = owner
+    result["member_filter"] = member
+    return result
+
+
+async def refresh_study_search_tokens(app_state: Any, study_id: str) -> None:
+    """Rebuild the bounded denormalized search vocabulary for one Study."""
+
+    study_doc = await app_state.db.study.find_one(
+        {"_id": study_id}, projection={"name": 1, "owner": 1}
+    )
+    if study_doc is None:
+        return
+
+    metadata: list[str] = []
+    descriptions: list[str] = []
+    cursor = app_state.db.study_chapter.find(
+        {"studyId": study_id},
+        projection={
+            "name": 1,
+            "variant": 1,
+            "chess960": 1,
+            "description": 1,
+            "tags": 1,
+            "order": 1,
+        },
+    ).sort("order", 1)
+    async for chapter in cursor:
+        metadata.append(str(chapter.get("name") or ""))
+        metadata.append(str(chapter.get("variant") or ""))
+        if chapter.get("chess960") is True:
+            metadata.append("chess960")
+        tags = chapter.get("tags")
+        if isinstance(tags, dict):
+            for tag_name, tag_value in tags.items():
+                metadata.extend((str(tag_name), str(tag_value)))
+        description = chapter.get("description")
+        if isinstance(description, str) and description:
+            descriptions.append(description)
+
+    tokens = study_search_tokens(
+        str(study_doc.get("name") or ""),
+        str(study_doc.get("owner") or ""),
+        *metadata,
+        *descriptions,
+    )
+    await app_state.db.study.update_one(
+        {"_id": study_id},
+        {"$set": {"searchTokens": list(tokens)}},
     )
 
 
@@ -456,6 +608,7 @@ async def create_study_from_draft(
     await app_state.db.study.insert_one(study.to_document())
     try:
         await app_state.db.study_chapter.insert_one(chapter.to_document())
+        await refresh_study_search_tokens(app_state, study.id)
     except Exception:
         await app_state.db.study.delete_one({"_id": study.id, "owner": owner})
         raise
@@ -541,6 +694,7 @@ async def clone_study(
             [chapter.to_document() for chapter in chapters]
         )
         await app_state.db.study.insert_one(cloned.to_document())
+        await refresh_study_search_tokens(app_state, cloned.id)
     except Exception:
         await app_state.db.study_chapter.delete_many(
             {"_id": {"$in": chapter_ids}, "studyId": cloned.id}
@@ -592,6 +746,7 @@ async def add_chapter_from_draft(
             "$inc": {"revision": 1},
         },
     )
+    await refresh_study_search_tokens(app_state, study.id)
     return chapter
 
 
@@ -656,6 +811,7 @@ async def add_chapters_from_drafts(
     except Exception:
         await app_state.db.study_chapter.delete_many({"_id": {"$in": ids}, "studyId": study.id})
         raise
+    await refresh_study_search_tokens(app_state, study.id)
     return chapters
 
 
@@ -698,6 +854,7 @@ async def add_chapter(
             "$inc": {"revision": 1},
         },
     )
+    await refresh_study_search_tokens(app_state, study.id)
     return chapter
 
 
@@ -758,12 +915,12 @@ async def rename_study(app_state: Any, study: Study, name: object) -> str:
         {
             "$set": {
                 "name": clean,
-                "searchTokens": list(study_search_tokens(clean, study.owner)),
                 "updatedAt": now,
             },
             "$inc": {"revision": 1},
         },
     )
+    await refresh_study_search_tokens(app_state, study.id)
     return clean
 
 
@@ -820,6 +977,7 @@ async def edit_chapter_metadata(
         {"_id": chapter.study_id, "owner": chapter.owner},
         {"$set": {"updatedAt": now}, "$inc": {"revision": 1}},
     )
+    await refresh_study_search_tokens(app_state, chapter.study_id)
     return clean_name, typed_orientation
 
 
@@ -861,6 +1019,7 @@ async def delete_chapter(app_state: Any, study: Study, chapter: StudyChapter) ->
         {"_id": study.id, "owner": study.owner},
         update,
     )
+    await refresh_study_search_tokens(app_state, study.id)
     return next_chapter_id
 
 

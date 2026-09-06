@@ -34,6 +34,9 @@ STUDY_CHAPTER_MAX_BSON_BYTES = min(
 
 STUDY_NAME_MAX_LENGTH = 100
 STUDY_CHAPTER_NAME_MAX_LENGTH = 80
+# Keep the denormalized Study discovery index bounded even when a Study has
+# many chapters with long descriptions and PGN tag values.
+STUDY_SEARCH_MAX_TOKENS = 4_096
 
 # Phase 2A annotation limits. These are deliberately conservative because annotations
 # live in the same MongoDB chapter document as the variation tree.

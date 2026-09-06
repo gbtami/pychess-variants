@@ -1314,9 +1314,13 @@ Add these based on actual PyChess usage rather than parity for its own sake.
   My studies, Studies I contribute to, My public studies, and My private studies (private +
   unlisted). The contributed list includes every non-owner membership, including read-only access,
   backed by a bounded `memberIds` index. All paged lists support recently-updated, newest, oldest,
-  and alphabetical ordering. Public name/owner prefix search remains the intentionally smaller Phase 3
-  search surface.
-- [ ] Richer Study search beyond the Phase 3 public name/owner prefix search.
+  and alphabetical ordering.
+- [x] Richer Study search beyond the Phase 3 public name/owner prefix search.
+  The Lichess-style `/study/search` surface now searches Study name/owner plus chapter names, variants,
+  descriptions, and PGN tag names/values through a bounded denormalized prefix index. Personal list
+  search boxes prefill `owner:<username>` / `member:<username>` filters. Search discovery includes public
+  Studies plus the signed-in viewer's own/member Studies, while unlisted Studies remain undiscoverable to
+  non-members and private Studies remain hidden. Chapter-local search remains a separate TODO below.
 - [ ] Chapter search.
 - [ ] Likes/favorites.
 - [ ] Topics/tags for discovery.

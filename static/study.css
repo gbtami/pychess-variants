@@ -205,17 +205,17 @@
     grid-column: 1 / -1;
     justify-self: end;
 }
-.study-public-search {
+.study-search {
     display: flex;
     align-items: stretch;
     gap: .5rem;
     padding: 0 2rem 1rem;
 }
-.study-public-search__query {
+.study-search__query {
     flex: 1 1 auto;
     min-width: 0;
 }
-.study-public-search input {
+.study-search input {
     box-sizing: border-box;
     width: 100%;
     height: 2.8rem;
@@ -226,11 +226,11 @@
     color: var(--font-color);
     font: inherit;
 }
-.study-public-search input:focus {
+.study-search input:focus {
     outline: 2px solid var(--link-color-blue);
     outline-offset: -1px;
 }
-.study-public-search .button {
+.study-search .button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -238,14 +238,14 @@
     min-height: 2.8rem;
     white-space: nowrap;
 }
-.study-public-search__hint,
-.study-public-count {
+.study-search__hint,
+.study-search-count {
     margin: 0;
     padding: 0 2rem 1rem;
     color: color-mix(in srgb, var(--font-color) 65%, transparent);
     font-size: .9rem;
 }
-.study-public-search__hint { color: var(--bad); }
+.study-search__hint { color: var(--bad); }
 .study-public-pages {
     display: flex;
     align-items: center;
@@ -666,10 +666,10 @@
     .study-create-form { grid-template-columns: 1fr; }
     .study-create-form__wide, .study-create-form__submit { grid-column: auto; }
     .study-create-form__submit { width: 100%; justify-self: stretch; }
-    .study-public-search { flex-wrap: wrap; padding: 0 1rem 1rem; }
-    .study-public-search__query { flex-basis: 100%; }
-    .study-public-search .button { flex: 1 1 auto; }
-    .study-public-search__hint, .study-public-count { padding-inline: 1rem; }
+    .study-search { flex-wrap: wrap; padding: 0 1rem 1rem; }
+    .study-search__query { flex-basis: 100%; }
+    .study-search .button { flex: 1 1 auto; }
+    .study-search__hint, .study-search-count { padding-inline: 1rem; }
     .study-public-pages { gap: .6rem; padding-inline: 1rem; }
     .studies { grid-template-columns: 1fr; }
     .study-card { border-inline-end: 0; }

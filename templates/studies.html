@@ -16,7 +16,9 @@
         <section class="study-index{% if study_list_navigation %} page-menu__content{% endif %} box">
             <div class="study-index__top">
                 <h1>
-                    {% if study_list_active == 'all' %}
+                    {% if study_list_active == 'search' %}
+                    {% trans %}Search studies{% endtrans %}
+                    {% elif study_list_active == 'all' %}
                     {% trans %}All studies{% endtrans %}
                     {% elif study_list_active == 'member' %}
                     {% trans %}Studies I contribute to{% endtrans %}
@@ -75,24 +77,34 @@
                 </details>
                 {% endif %}
             </div>
-            {% if study_public is defined %}
-            <form class="study-public-search" method="get" action="{{ home }}/study/all">
-                <input type="hidden" name="order" value="{{ study_list_order }}">
-                <label class="study-public-search__query">
-                    <input type="search" name="q" value="{{ study_public.q }}" minlength="3" maxlength="80" placeholder="{% trans %}Search by study name or owner{% endtrans %}" aria-label="{% trans %}Search studies{% endtrans %}">
+            {% if study_search_value is defined %}
+            <form class="study-search" method="get" action="{{ home }}/study/search">
+                {% if study_page is defined %}<input type="hidden" name="order" value="{{ study_list_order }}">{% endif %}
+                <label class="study-search__query">
+                    <input type="search" name="q" value="{{ study_search_value }}" minlength="3" maxlength="100" placeholder="{% trans %}Search studies{% endtrans %}" aria-label="{% trans %}Search studies{% endtrans %}" enterkeyhint="search">
                 </label>
                 <button class="button" type="submit">
                     <span class="icon icon-search" aria-hidden="true"></span>
                     {% trans %}Search{% endtrans %}
                 </button>
-                {% if study_public.q %}
-                <a class="button button-empty" href="{{ home }}/study/all?order={{ study_list_order }}">{% trans %}Clear{% endtrans %}</a>
+                {% if study_search_clear_href and study_search_value %}
+                <a class="button button-empty" href="{{ study_search_clear_href }}">{% trans %}Clear{% endtrans %}</a>
                 {% endif %}
             </form>
-            {% if study_public.query_too_short %}
-            <p class="study-public-search__hint">{% trans %}Enter at least 3 characters to search studies.{% endtrans %}</p>
+            {% endif %}
+            {% if study_search is defined %}
+            {% if study_search.query_too_short %}
+            <p class="study-search__hint">{% trans %}Enter at least 3 characters to search studies.{% endtrans %}</p>
             {% else %}
-            <p class="study-public-count">
+            <p class="study-search-count">
+                {% trans count=study_search.total %}{{ count }} matching study{% pluralize %}{{ count }} matching studies{% endtrans %}
+            </p>
+            {% endif %}
+            {% elif study_public is defined %}
+            {% if study_public.query_too_short %}
+            <p class="study-search__hint">{% trans %}Enter at least 3 characters to search studies.{% endtrans %}</p>
+            {% else %}
+            <p class="study-search-count">
                 {% trans count=study_public.total %}{{ count }} public study{% pluralize %}{{ count }} public studies{% endtrans %}
             </p>
             {% endif %}
@@ -120,6 +132,11 @@
                     </a>
                 </article>
                 {% endfor %}
+            </div>
+            {% elif study_search is defined %}
+            <div class="study-empty">
+                <span class="study-empty__icon icon icon-book" aria-hidden="true"></span>
+                <p>{% trans %}No studies match this search.{% endtrans %}</p>
             </div>
             {% elif study_public is defined %}
             <div class="study-empty">

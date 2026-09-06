@@ -10,6 +10,7 @@ from study.constants import (
     STUDY_CHAPTER_MAX_BSON_BYTES,
     STUDY_MAX_CHAPTERS,
     STUDY_MAX_NODES_PER_CHAPTER,
+    STUDY_SEARCH_MAX_TOKENS,
 )
 from study.models import (
     Study,
@@ -51,6 +52,10 @@ class StudySchemaTestCase(unittest.TestCase):
             study_indexes["public_searchTokens_updatedAt"].partial_filter,
             {"visibility": "public"},
         )
+        self.assertEqual(
+            study_indexes["searchTokens_updatedAt"].key,
+            (("searchTokens", 1), ("updatedAt", -1), ("_id", 1)),
+        )
 
         chapter_indexes = INDEXES_BY_COLLECTION["study_chapter"]
         self.assertEqual(len(chapter_indexes), 1)
@@ -72,6 +77,26 @@ class StudySearchTokenTestCase(unittest.TestCase):
         self.assertIn("gbtami", tokens)
         self.assertIn("google", tokens)
         self.assertNotIn("si", tokens)
+
+    def test_search_tokens_cover_richer_content_and_stay_bounded(self) -> None:
+        tokens = study_search_tokens(
+            "Opening lab",
+            "owner",
+            "Dragon chapter",
+            "atomic",
+            "Budapest Masters",
+            "Poisoned pawn investigation",
+        )
+        self.assertIn("dra", tokens)
+        self.assertIn("atomic", tokens)
+        self.assertIn("bud", tokens)
+        self.assertIn("poisoned", tokens)
+
+        many_words = " ".join(f"word{index}" for index in range(10_000))
+        self.assertLessEqual(
+            len(study_search_tokens("Study", "owner", many_words)),
+            STUDY_SEARCH_MAX_TOKENS,
+        )
 
     def test_query_tokens_are_casefolded_deduplicated_and_bounded(self) -> None:
         self.assertEqual(study_search_query_tokens(" SIC sic DEF "), ("sic", "def"))

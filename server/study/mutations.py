@@ -23,6 +23,7 @@ from study.annotations import (
 from study.constants import STUDY_CHAPTER_MAX_BSON_BYTES, STUDY_MAX_NODES_PER_CHAPTER
 from study.models import Study, StudyChapter
 from study.permissions import can_write_study
+from study.storage import refresh_study_search_tokens
 from study.tree import StudyTree, StudyTreeNode, is_study_node_id, new_study_node_id
 from study.variant import study_variant_context
 
@@ -549,6 +550,7 @@ class StudyMutationService:
         )
         if result is not None:
             return result
+        await refresh_study_search_tokens(self.app_state, study_id)
         return StudyMutationResult(
             status="ok", revision=candidate.revision, changed=True, description=canonical
         )
@@ -594,6 +596,7 @@ class StudyMutationService:
         )
         if result is not None:
             return result
+        await refresh_study_search_tokens(self.app_state, study_id)
         return StudyMutationResult(
             status="ok", revision=candidate.revision, changed=True, tags=canonical
         )
