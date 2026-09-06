@@ -74,6 +74,7 @@ class StudyExportDataTestCase(unittest.IsolatedAsyncioTestCase):
         )
         user = SimpleNamespace(username=username, anon=False, bot=False)
         with (
+            patch("views.study.aiohttp_session.get_session", return_value={"user_name": username}),
             patch("views.study.get_user_context", return_value=(user, {})),
             patch("views.study.get_app_state", return_value=self.app_state),
         ):
