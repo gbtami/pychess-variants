@@ -277,6 +277,7 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('under-board .study-underboard')).not.toBeNull();
         expect(root.querySelector('under-board .study-tool-tabs > .study-mode--sync')).not.toBeNull();
         expect(root.querySelector('under-board .study-tool-tabs > .study-mode--write')).not.toBeNull();
+        expect(root.querySelector('#study-tab-tags')?.getAttribute('aria-selected')).toBe('true');
         expect(root.querySelector('.study-side .study-mode')).toBeNull();
         expect(root.querySelector('.study-annotations__comment-input')).not.toBeNull();
         expect(root.querySelectorAll('.study-annotations__nag')).toHaveLength(24);

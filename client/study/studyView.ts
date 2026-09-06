@@ -562,7 +562,7 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions
                             title: label,
                             'aria-label': label,
                             'aria-controls': `study-panel-${tab}`,
-                            'aria-selected': tab === 'tags',
+                            'aria-selected': tab === 'tags' ? 'true' : 'false',
                             tabindex: tab === 'tags' ? 0 : -1,
                             'data-study-tab': tab,
                         },
