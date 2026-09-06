@@ -311,21 +311,15 @@
     background: color-mix(in srgb, var(--link-color-blue) 10%, var(--bg-color0));
 }
 .study-chapter__row.active a { color: var(--link-color-blue); }
-.study-modes {
-    display: flex;
-    align-items: stretch;
-    min-height: 2.35rem;
-    background: var(--bg-color0);
-    border-top: 1px solid var(--border-color);
-    box-shadow: var(--base-shadow);
-}
 .study-mode {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: .3rem;
-    min-width: 4.2rem;
-    padding: .35rem .55rem;
+    flex: 0 0 auto;
+    min-width: 0;
+    align-self: stretch;
+    padding: .35rem .45rem;
     border: 0;
     border-radius: 0;
     background: transparent;
@@ -348,7 +342,7 @@
     line-height: 1.25rem;
     text-align: center;
 }
-.study-app button.study-icon-button, .study-app .study-side__add, .study-tool-tabs button, .study-annotations__nag {
+.study-app button.study-icon-button, .study-app .study-side__add, .study-tool-tabs button[role='tab'], .study-annotations__nag {
     border: 0;
     border-radius: 0;
     background: transparent;
@@ -375,13 +369,13 @@
 .study-side__metadata { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .7rem; padding: 1rem .5rem; }
 .study-side__metadata h3 { flex-basis: 100%; font-size: 1.1rem; margin: 0; overflow-wrap: anywhere; }
 .study-side__metadata a { font-size: .9rem; }
-.study-tool-tabs { display: flex; border-bottom: 1px solid var(--border-color); }
-.study-tool-tabs button { position: relative; flex: 1; min-height: 2.8rem; font-size: 1.2rem; border-bottom: 2px solid transparent; }
-.study-tool-tabs button[aria-selected='true'] { color: var(--rusty); border-bottom-color: var(--rusty); }
+.study-tool-tabs { display: flex; align-items: stretch; padding-top: 5px; border-bottom: 1px solid var(--border-color); }
+.study-tool-tabs button[role='tab'] { position: relative; flex: 1; min-height: 2.8rem; font-size: 1.2rem; border-bottom: 2px solid transparent; }
+.study-tool-tabs button[role='tab'][aria-selected='true'] { color: var(--rusty); border-bottom-color: var(--rusty); }
 /* Tag icon from lila public/images/svg-icons/tag.svg (AGPL-3.0). */
 .study-tag-icon { display: inline-block; width: 1.1em; height: 1.1em; background: currentColor; mask: url('images/study/tag.svg') center / contain no-repeat; vertical-align: middle; }
 .study-tool-count { font-size: .7rem; margin-left: .2rem; vertical-align: super; }
-.study-app button.study-icon-button:hover, .study-app .study-side__add:hover, .study-tool-tabs button:hover, .study-annotations__nag:hover {
+.study-app button.study-icon-button:hover, .study-app .study-side__add:hover, .study-tool-tabs button[role='tab']:hover, .study-annotations__nag:hover {
     background: var(--bg-color2);
     color: var(--link-color-blue);
 }
@@ -515,7 +509,7 @@
     .study-side__metadata { display: none; }
     .study-app > .sidebar-first { margin-bottom: .8rem; }
     .study-app .movelist-block { flex: auto; height: 12rem; max-height: 35vh; }
-    .study-tool-tabs button { min-height: 2.75rem; }
+    .study-tool-tabs button[role='tab'] { min-height: 2.75rem; }
     .study-index { margin-top: .75rem; }
     .study-index__nav a { flex: 1; text-align: center; padding-inline: .75rem; }
     .study-index__top { padding: 1.25rem 1rem 1rem; }

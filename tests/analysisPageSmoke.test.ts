@@ -275,6 +275,9 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('input[name="fen"]')).not.toBeNull();
         expect(root.querySelector('input[name="gameId"]')).not.toBeNull();
         expect(root.querySelector('under-board .study-underboard')).not.toBeNull();
+        expect(root.querySelector('under-board .study-tool-tabs > .study-mode--sync')).not.toBeNull();
+        expect(root.querySelector('under-board .study-tool-tabs > .study-mode--write')).not.toBeNull();
+        expect(root.querySelector('.study-side .study-mode')).toBeNull();
         expect(root.querySelector('.study-annotations__comment-input')).not.toBeNull();
         expect(root.querySelectorAll('.study-annotations__nag')).toHaveLength(24);
         expect((root.querySelector('.study-annotations__description textarea') as HTMLTextAreaElement).value).toBe(
@@ -333,8 +336,9 @@ describe('analysis page smoke coverage', () => {
         const root = renderNodes(studyView(makeModel({ gameId: '', status: 0, study })));
 
         expect(root.querySelector('.study-side__readonly')?.textContent).toBe('Read only');
-        expect(root.querySelector('.study-mode--sync')?.textContent).toContain('SYNC');
+        expect(root.querySelector('under-board .study-tool-tabs > .study-mode--sync')?.textContent).toContain('SYNC');
         expect(root.querySelector('.study-mode--write')).toBeNull();
+        expect(root.querySelector('.study-side .study-mode')).toBeNull();
         expect(root.querySelector('.study-side__add')).toBeNull();
         expect(root.querySelector('dialog#study-settings')).toBeNull();
         expect(root.querySelector('#study-tab-comments')).toBeNull();

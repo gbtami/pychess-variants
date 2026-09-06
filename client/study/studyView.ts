@@ -246,10 +246,10 @@ function initializeStudyModes(study: StudyPageModel): void {
     } else if (!study.canWrite) study.write = false;
 }
 
-function studyModeButtons(study: StudyPageModel, actions: StudyModeActions): VNode {
+function studyModeButtons(study: StudyPageModel, actions: StudyModeActions): VNode[] {
     const behind = study.behind ?? 0;
     const state = (on: boolean) => h('span.study-mode__state', on ? '✓' : '✕');
-    return h('div.study-modes', [
+    return [
         h(
             'button.study-mode.study-mode--sync',
             {
@@ -280,10 +280,25 @@ function studyModeButtons(study: StudyPageModel, actions: StudyModeActions): VNo
                   ),
               ]
             : []),
-    ]);
+    ];
 }
 
-function studySide(study: StudyPageModel, model: PyChessModel, modeActions: StudyModeActions): VNode {
+function refreshStudyModeButtons(study: StudyPageModel): void {
+    const update = (selector: string, on: boolean, behind = 0): void => {
+        const button = document.querySelector<HTMLButtonElement>(`.study-tool-tabs > ${selector}`);
+        if (!button) return;
+        button.classList.toggle('on', on);
+        button.setAttribute('aria-pressed', String(on));
+        const indicator = button.querySelector<HTMLSpanElement>('.study-mode__state, .study-mode__behind');
+        if (!indicator) return;
+        indicator.className = behind ? 'study-mode__behind' : 'study-mode__state';
+        indicator.textContent = behind ? String(behind) : on ? '✓' : '✕';
+    };
+    update('.study-mode--sync', Boolean(study.sticky), study.behind ?? 0);
+    update('.study-mode--write', Boolean(study.write));
+}
+
+function studySide(study: StudyPageModel, model: PyChessModel): VNode {
     const chapter = study.chapter;
     const canWrite = study.canWrite;
     return h('div.study-side', [
@@ -346,7 +361,6 @@ function studySide(study: StudyPageModel, model: PyChessModel, modeActions: Stud
                 ]),
             ),
         ),
-        studyModeButtons(study, modeActions),
         ...(canWrite
             ? [
                   h(
@@ -523,7 +537,7 @@ export function updateStudyUnderboardChapter(study: StudyPageModel, model: PyChe
     if (shareLinks) patch(toVNode(shareLinks), studyShareLinks(study, model));
 }
 
-function studyUnderboard(study: StudyPageModel, model: PyChessModel): VNode {
+function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions: StudyModeActions): VNode {
     const tabs: [StudyTab, string, VNode | string][] = [
         ['tags', _('PGN tags'), h('i.study-tag-icon', { attrs: { 'aria-hidden': 'true' } })],
         ...(study.canWrite
@@ -536,10 +550,9 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel): VNode {
         ['export', _('Share & export'), icon('download')],
     ];
     return h('div.study-underboard', [
-        h(
-            'nav.study-tool-tabs',
-            { attrs: { role: 'tablist', 'aria-label': _('Study tools') } },
-            tabs.map(([tab, label, symbol]) =>
+        h('nav.study-tool-tabs', { attrs: { role: 'tablist', 'aria-label': _('Study tools') } }, [
+            ...studyModeButtons(study, modeActions),
+            ...tabs.map(([tab, label, symbol]) =>
                 h(
                     `button#study-tab-${tab}`,
                     {
@@ -577,7 +590,7 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel): VNode {
                     ],
                 ),
             ),
-        ),
+        ]),
         toolPanel('tags', [
             h('h2.study-underboard__title', `${study.name}: ${study.chapter.name}`),
             h('table.study-tags'),
@@ -855,7 +868,7 @@ function runStudyGround(
                     else {
                         study.sticky = false;
                         study.behind = Math.max(1, study.behind ?? 0);
-                        sideVNode = patch(sideVNode, studySide(study, model, modeActions));
+                        refreshStudyModeButtons(study);
                     }
                 },
                 onSharedPositionChanged: (chapterId, path) => {
@@ -864,11 +877,11 @@ function runStudyGround(
                     study.sharedPath = path;
                     if (!study.sticky) {
                         if (changed) study.behind = (study.behind ?? 0) + 1;
-                        sideVNode = patch(sideVNode, studySide(study, model, modeActions));
+                        refreshStudyModeButtons(study);
                         return;
                     }
                     study.behind = 0;
-                    sideVNode = patch(sideVNode, studySide(study, model, modeActions));
+                    refreshStudyModeButtons(study);
                     if (chapterId !== study.chapter.id) void navigation?.go(chapterId, 'replace');
                     else if (!extension.followSharedPath(path)) window.location.reload();
                 },
@@ -877,7 +890,8 @@ function runStudyGround(
                     study.members = { ...members };
                     study.canWrite = model.username ? members[model.username] === 'write' : false;
                     if (!study.canWrite) study.write = false;
-                    sideVNode = patch(sideVNode, studySide(study, model, modeActions));
+                    sideVNode = patch(sideVNode, studySide(study, model));
+                    refreshStudyModeButtons(study);
                     if (study.canWrite !== previousCanWrite) window.location.reload();
                 },
                 contextMenuActions: study.canWrite ? path => studyContextMenu(analysisCtrl, path) : undefined,
@@ -980,7 +994,8 @@ function runStudyGround(
                 const replacement = (next.children as VNode[]).find(child => child.sel?.includes(selector));
                 if (current && replacement) patch(toVNode(current), replacement);
             }
-            sideVNode = patch(sideVNode, studySide(study, model, modeActions));
+            sideVNode = patch(sideVNode, studySide(study, model));
+            refreshStudyModeButtons(study);
             mount(app.querySelector<HTMLElement>('#mainboard > .cg-wrap')!);
             if (study.sticky && study.chapter.id === study.sharedChapter) {
                 if (!extension.followSharedPath(study.sharedPath)) window.location.reload();
@@ -997,21 +1012,21 @@ function runStudyGround(
 
     const followAuthoritativePosition = (): void => {
         study.behind = 0;
-        sideVNode = patch(sideVNode, studySide(study, model, modeActions));
+        refreshStudyModeButtons(study);
         if (study.sharedChapter !== study.chapter.id) void navigation?.go(study.sharedChapter, 'replace');
         else void navigation?.reload();
     };
     modeActions.toggleSticky = () => {
         study.sticky = !study.sticky;
         if (study.sticky) followAuthoritativePosition();
-        else sideVNode = patch(sideVNode, studySide(study, model, modeActions));
+        else refreshStudyModeButtons(study);
     };
     modeActions.toggleWrite = () => {
         if (!study.canWrite) return;
         study.write = !study.write;
         localStorage.setItem(studyRecordingKey(study.id), String(study.write));
         extension.setRecording(Boolean(study.write));
-        sideVNode = patch(sideVNode, studySide(study, model, modeActions));
+        refreshStudyModeButtons(study);
         void navigation?.reload();
     };
 
@@ -1029,14 +1044,17 @@ function runStudyGround(
             if (study.canWrite && study.write && extension.sharePosition(chapterId, '')) return;
             study.sticky = false;
             study.behind = Math.max(1, study.behind ?? 0);
-            sideVNode = patch(sideVNode, studySide(study, model, modeActions));
+            refreshStudyModeButtons(study);
         }
         void navigation?.go(chapterId);
     });
     window.addEventListener('popstate', () => {
         const [prefix, studyId, chapterId] = window.location.pathname.split('/').filter(Boolean);
         if (prefix === 'study' && studyId === study.id && chapterId) {
-            if (chapterId !== study.sharedChapter) study.sticky = false;
+            if (chapterId !== study.sharedChapter) {
+                study.sticky = false;
+                refreshStudyModeButtons(study);
+            }
             void navigation?.go(chapterId, 'pop');
         }
     });
@@ -1105,10 +1123,10 @@ export function studyView(model: PyChessModel): VNode[] {
 
     initializeStudyModes(study);
     const modeActions: StudyModeActions = { toggleSticky: () => {}, toggleWrite: () => {} };
-    const side = studySide(study, model, modeActions);
+    const side = studySide(study, model);
     const page = renderAnalysisPage(model, {
         side,
-        underboard: studyUnderboard(study, model),
+        underboard: studyUnderboard(study, model, modeActions),
         mountBoard: vnode => runStudyGround(vnode, model, study, side, modeActions),
         ongoing: false,
     });
