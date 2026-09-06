@@ -11,7 +11,7 @@ from fairy import FairyBoard
 from mongomock_motor import AsyncMongoMockClient
 from pychess_global_app_state_utils import get_app_state
 from study.builder import StudyChapterBuilder
-from study.storage import create_study_from_draft
+from study.storage import create_study_from_draft, set_study_visibility
 
 from server import make_app
 
@@ -186,6 +186,73 @@ async def test_study_visibility_controls_page_export_and_write_access(aiohttp_cl
     assert (await client.get(url, headers={"Accept": "application/json"})).status == 404
     assert (await client.get(export_url)).status == 404
     assert (await client.get(embed_url)).status == 404
+
+
+@pytest.mark.asyncio
+async def test_profile_study_listing_only_exposes_public_studies(aiohttp_client) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    owner = "study_profile_owner"
+    viewer = "study_profile_viewer"
+    await _insert_user(app_state, owner)
+    await _insert_user(app_state, viewer)
+
+    builder = StudyChapterBuilder(app_state, owner)
+    _private, _ = await create_study_from_draft(
+        app_state, owner, await builder.blank_or_fen(variant="chess"), name="Private repertoire"
+    )
+    unlisted, _ = await create_study_from_draft(
+        app_state, owner, await builder.blank_or_fen(variant="chess"), name="Link repertoire"
+    )
+    public, _ = await create_study_from_draft(
+        app_state, owner, await builder.blank_or_fen(variant="chess"), name="Public repertoire"
+    )
+    await set_study_visibility(app_state, unlisted, "unlisted")
+    await set_study_visibility(app_state, public, "public")
+
+    response = await client.get(f"/study/by/{owner}")
+    assert response.status == 200
+    html = await response.text()
+    assert "Public repertoire" in html
+    assert "Private repertoire" not in html
+    assert "Link repertoire" not in html
+
+    response = await client.get(f"/@/{owner}", headers={"Referer": str(client.make_url("/"))})
+    assert response.status == 200
+    profile_html = await response.text()
+    assert f"/study/by/{owner}" in profile_html
+    assert "Studies" in profile_html
+    assert "(1)" in profile_html
+
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie(viewer)})
+    response = await client.get(f"/@/{owner}")
+    assert response.status == 200
+    profile_html = await response.text()
+    assert f"/study/by/{owner}" in profile_html
+    assert "Studies" in profile_html
+    assert "(1)" in profile_html
+
+    client.session.cookie_jar.clear()
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie(owner)})
+    response = await client.get(f"/study/by/{owner}")
+    assert response.status == 200
+    html = await response.text()
+    assert "Public repertoire" in html
+    assert "Private repertoire" in html
+    assert "Link repertoire" in html
+    assert ">public<" in html
+    assert ">private<" in html
+    assert ">unlisted<" in html
+
+    response = await client.get(f"/@/{owner}")
+    assert response.status == 200
+    profile_html = await response.text()
+    assert f"/study/by/{owner}" in profile_html
+    assert "(3)" in profile_html
+
+    response = await client.get("/study/by/no_such_study_owner")
+    assert response.status == 404
 
 
 @pytest.mark.asyncio

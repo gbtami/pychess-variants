@@ -15,6 +15,16 @@
 .study-list { border-top: 1px solid var(--border-color); }
 .study-list__item { padding: 1rem .5rem; border-bottom: 1px solid var(--border-color); }
 .study-list__item span { color: var(--link-color); white-space: nowrap; }
+.study-list__meta { display: inline-flex; align-items: center; gap: .6rem; }
+.study-list__visibility {
+    padding: .12rem .4rem;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    color: var(--font-color);
+    font-size: .72rem;
+    text-transform: capitalize;
+    opacity: .75;
+}
 .study-create-form {
     display: grid;
     grid-template-columns: minmax(10rem, 1fr) minmax(7rem, .6fr) minmax(14rem, 2fr) minmax(8rem, .8fr) auto;

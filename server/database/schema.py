@@ -257,7 +257,8 @@ INDEXES = (
         sparse=True,
         startup_policy=StartupPolicy.AFTER_STARTUP,
     ),
-    # Studies. Phase 1 only needs owner lists and ordered chapter lookup.
+    # Studies. The owner/updatedAt index serves both self and public per-owner
+    # listings; global public discovery/search indexes remain deferred.
     _index("study", ("owner", 1), ("updatedAt", -1), name="owner_updatedAt"),
     _index("study_chapter", ("studyId", 1), ("order", 1), name="studyId_order"),
     # Notifications, inboxes, teams, forums, and moderation.

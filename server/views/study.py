@@ -39,6 +39,7 @@ from study.storage import (
     select_chapter,
     set_study_visibility,
     studies_for_owner,
+    studies_for_owner_view,
 )
 from study.variant import study_variant_client_doc, study_variant_context, study_variant_metadata
 from study.ws import close_study_sockets
@@ -211,6 +212,35 @@ async def studies(request: web.Request) -> ViewContext:
         raise web.HTTPServiceUnavailable(text="Studies require database access.")
     _study_context(context)
     context["studies"] = await studies_for_owner(app_state, user.username)
+    context["study_list_owner"] = user.username
+    context["study_list_is_self"] = True
+    context["study_list_can_create"] = True
+    context["study_list_show_visibility"] = True
+    return context
+
+
+@aiohttp_jinja2.template("studies.html")
+async def studies_by_owner(request: web.Request) -> ViewContext:
+    user, context = await get_user_context(request)
+    app_state = get_app_state(request.app)
+    if app_state.db is None:
+        raise web.HTTPServiceUnavailable(text="Studies require database access.")
+
+    requested_owner = request.match_info["username"]
+    profile_user = await app_state.public_users.get_profile(requested_owner)
+    if profile_user is None or not profile_user.enabled:
+        raise web.HTTPNotFound()
+
+    owner = profile_user.username
+    viewer = None if user.anon else user.username
+    is_self = viewer == owner
+    _study_context(context)
+    context["title"] = f"Studies by {owner} • PyChess"
+    context["studies"] = await studies_for_owner_view(app_state, owner, viewer)
+    context["study_list_owner"] = owner
+    context["study_list_is_self"] = is_self
+    context["study_list_can_create"] = is_self and not user.bot
+    context["study_list_show_visibility"] = is_self
     return context
 
 

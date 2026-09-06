@@ -16,6 +16,7 @@ from study.storage import (
     add_chapter_from_draft,
     chapter_previews,
     clone_study,
+    count_studies_for_owner_view,
     create_study_from_draft,
     create_study_with_chapter,
     delete_chapter,
@@ -25,7 +26,9 @@ from study.storage import (
     rename_chapter,
     rename_study,
     select_chapter,
+    set_study_visibility,
     studies_for_owner,
+    studies_for_owner_view,
 )
 
 
@@ -53,6 +56,42 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(await load_owned_study(cast(Any, self.app_state), study.id, "other"))
         listed = (await studies_for_owner(cast(Any, self.app_state), "owner"))[0]
         self.assertEqual((listed.id, listed.name), (study.id, study.name))
+
+    async def test_owner_view_listing_keeps_unlisted_and_private_out_of_profiles(self) -> None:
+        private, _ = await create_study_with_chapter(
+            cast(Any, self.app_state), "owner", name="Private ideas"
+        )
+        unlisted, _ = await create_study_with_chapter(
+            cast(Any, self.app_state), "owner", name="Link-only ideas"
+        )
+        public, _ = await create_study_with_chapter(
+            cast(Any, self.app_state), "owner", name="Public ideas"
+        )
+        await set_study_visibility(cast(Any, self.app_state), unlisted, "unlisted")
+        await set_study_visibility(cast(Any, self.app_state), public, "public")
+
+        owner_ids = {
+            study.id
+            for study in await studies_for_owner_view(cast(Any, self.app_state), "owner", "owner")
+        }
+        public_ids = {
+            study.id
+            for study in await studies_for_owner_view(cast(Any, self.app_state), "owner", None)
+        }
+        other_ids = {
+            study.id
+            for study in await studies_for_owner_view(cast(Any, self.app_state), "owner", "other")
+        }
+
+        self.assertEqual(owner_ids, {private.id, unlisted.id, public.id})
+        self.assertEqual(public_ids, {public.id})
+        self.assertEqual(other_ids, {public.id})
+        self.assertEqual(
+            await count_studies_for_owner_view(cast(Any, self.app_state), "owner", "owner"), 3
+        )
+        self.assertEqual(
+            await count_studies_for_owner_view(cast(Any, self.app_state), "owner", "other"), 1
+        )
 
     async def test_create_from_draft_persists_source_tree_and_variant_snapshot(self) -> None:
         draft = StudyChapterDraft(

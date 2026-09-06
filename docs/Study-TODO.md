@@ -1206,7 +1206,9 @@ This is a deliberately separate milestone from collaboration.
   can read a Study may clone it. The clone is always private, owned only by the cloner,
   gets fresh Study/chapter ids and revisions, and records the source Study id. Configurable
   per-Study clone permissions remain deferred to Phase 5.
-- [ ] Consider profile "Studies" listing and `/study/by/{username}`.
+- [x] Add profile "Studies" count/link and `/study/by/{username}` owner listings.
+  Owner views include all of their Studies; other viewers see public Studies only, so
+  unlisted Studies remain link-only and private Studies never leak through profile pages.
 - [ ] Add public search/discovery indexes only when public listing/search is implemented.
 
 Do not couple visibility with editing rights. A public Study is not publicly editable.

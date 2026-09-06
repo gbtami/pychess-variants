@@ -50,6 +50,30 @@ async def studies_for_owner(app_state: Any, owner: str, *, limit: int = 100) -> 
     return [Study.from_document(doc) async for doc in cursor]
 
 
+def _owner_listing_filter(owner: str, viewer: str | None) -> dict[str, object]:
+    # Unlisted Studies stay out of owner/profile listings. Owners still need a
+    # complete self-view, matching the existing /study page and Lichess's
+    # by-owner behavior for the signed-in owner.
+    if viewer == owner:
+        return {"owner": owner}
+    return {"owner": owner, "visibility": "public"}
+
+
+async def studies_for_owner_view(
+    app_state: Any, owner: str, viewer: str | None, *, limit: int = 100
+) -> list[Study]:
+    cursor = (
+        app_state.db.study.find(_owner_listing_filter(owner, viewer))
+        .sort("updatedAt", -1)
+        .limit(limit)
+    )
+    return [Study.from_document(doc) async for doc in cursor]
+
+
+async def count_studies_for_owner_view(app_state: Any, owner: str, viewer: str | None) -> int:
+    return await app_state.db.study.count_documents(_owner_listing_filter(owner, viewer))
+
+
 async def load_owned_study(app_state: Any, study_id: str, owner: str) -> Study | None:
     doc = await app_state.db.study.find_one({"_id": study_id, "owner": owner})
     return Study.from_document(doc) if doc is not None else None

@@ -3,7 +3,14 @@
 <div id="main-wrap">
     <main class="study-list-page box box-pad">
         <div class="box__top study-list-top">
-            <h1>{% trans %}My studies{% endtrans %}</h1>
+            <h1>
+                {% if study_list_is_self %}
+                {% trans %}My studies{% endtrans %}
+                {% else %}
+                {% trans %}Studies by{% endtrans %} <a href="{{ home }}/@/{{ study_list_owner | urlencode }}">{{ study_list_owner }}</a>
+                {% endif %}
+            </h1>
+            {% if study_list_can_create %}
             <form class="study-create-form" method="post" action="/study">
                 <input type="text" name="name" maxlength="100" placeholder="{% trans %}Study name{% endtrans %}">
                 <input type="text" name="variant" value="chess" placeholder="{% trans %}Variant{% endtrans %}">
@@ -11,18 +18,26 @@
                 <input type="text" name="gameId" maxlength="12" placeholder="{% trans %}Game ID (optional){% endtrans %}">
                 <button class="button" type="submit">{% trans %}New study{% endtrans %}</button>
             </form>
+            {% endif %}
         </div>
         {% if studies %}
         <div class="study-list">
             {% for study in studies %}
             <a class="study-list__item" href="/study/{{ study.id }}">
                 <strong>{{ study.name }}</strong>
-                <span>{{ study.updated_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                <span class="study-list__meta">
+                    {% if study_list_show_visibility %}
+                    <small class="study-list__visibility">{{ study.visibility }}</small>
+                    {% endif %}
+                    <time datetime="{{ study.updated_at.isoformat() }}">{{ study.updated_at.strftime('%Y-%m-%d %H:%M') }}</time>
+                </span>
             </a>
             {% endfor %}
         </div>
-        {% else %}
+        {% elif study_list_is_self %}
         <p class="study-empty">{% trans %}You do not have any studies yet.{% endtrans %}</p>
+        {% else %}
+        <p class="study-empty">{{ study_list_owner }} {% trans %}has no public studies yet.{% endtrans %}</p>
         {% endif %}
     </main>
 </div>

@@ -7,6 +7,7 @@ from custom_trophy_owners import CUSTOM_TROPHY_OWNERS
 from glicko2.glicko2 import PROVISIONAL_PHI
 from pychess_global_app_state_utils import get_app_state
 from settings import ADMINS, SIMULING
+from study.storage import count_studies_for_owner_view
 from team import profile_teams_for_user
 from typedefs import REQUEST_PROFILE_RESTRICTED_KEY
 from typing_defs import ViewContext
@@ -202,6 +203,7 @@ async def profile(request: web.Request) -> ViewContext:
     )
     context["profile_teams"] = []
     context["profile_simul_count"] = 0
+    context["profile_study_count"] = 0
     context["ublog_posts"] = []
     context["ublog_post_count"] = 0
     if app_state.db is not None and not profile_restricted:
@@ -211,6 +213,11 @@ async def profile(request: web.Request) -> ViewContext:
             )
         if not user.anon:
             context["profile_teams"] = await profile_teams_for_user(app_state, profileId)
+        if not profile_user.bot:
+            viewer = None if user.anon else user.username
+            context["profile_study_count"] = await count_studies_for_owner_view(
+                app_state, profile_user.username, viewer
+            )
         context["ublog_post_count"] = await app_state.db.ublog_post.count_documents(
             {"author": profileId, "live": True}
         )
