@@ -52,8 +52,9 @@ export type StudyPageModel = {
     sticky?: boolean;
     write?: boolean;
     behind?: number;
-    // Local sidebar tab, kept across in-place chapter and member refreshes.
+    // Local sidebar UI state, kept across in-place chapter and member refreshes.
     sideTab?: 'chapters' | 'members';
+    memberConfig?: string;
     chapter: {
         id: string;
         name: string;

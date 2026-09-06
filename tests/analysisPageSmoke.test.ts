@@ -279,12 +279,22 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('#roundchat')).toBeNull();
         expect([...root.querySelectorAll('button')].some(button => button.textContent === 'Add to Study')).toBe(false);
         expect(root.querySelector('dialog#study-new-chapter .study-side__new-chapter')).not.toBeNull();
-        expect(root.querySelector('dialog#study-members')).not.toBeNull();
-        expect(root.querySelectorAll('.study-members__member')).toHaveLength(3);
-        const removeWriter = root.querySelector<HTMLInputElement>(
-            'form.study-members__remove input[name="username"][value="writer"]',
-        );
-        expect(removeWriter).not.toBeNull();
+        expect(root.querySelector('dialog#study-members')).toBeNull();
+        const writerRow = root.querySelector<HTMLElement>('[data-study-member="writer"]')!;
+        const writerConfigButton = writerRow.querySelector<HTMLButtonElement>('[data-study-member-config-button]')!;
+        const writerConfig = root.querySelector<HTMLElement>('[data-study-member-config="writer"]')!;
+        expect(writerConfig.hidden).toBe(true);
+        writerConfigButton.click();
+        expect(writerRow.classList.contains('editing')).toBe(true);
+        expect(writerConfig.hidden).toBe(false);
+        expect(writerConfig.querySelector<HTMLInputElement>('input[type="checkbox"]')?.checked).toBe(true);
+        expect(writerConfig.querySelector('.study-members-side__kick')?.textContent).toContain('KICK');
+        expect(writerConfigButton.getAttribute('aria-expanded')).toBe('true');
+        writerConfigButton.click();
+        expect(writerConfig.hidden).toBe(true);
+        expect(writerConfigButton.getAttribute('aria-expanded')).toBe('false');
+        expect(root.querySelector('dialog#study-invite .study-invite__form')).not.toBeNull();
+        expect(root.querySelector('dialog#study-invite select[name="role"]')).toBeNull();
         expect(root.querySelector('input[name="fen"]')).not.toBeNull();
         expect(root.querySelector('input[name="gameId"]')).not.toBeNull();
         expect(root.querySelector('under-board .study-underboard')).not.toBeNull();

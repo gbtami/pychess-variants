@@ -136,99 +136,72 @@ function orderedStudyMembers(study: StudyPageModel): Array<[string, 'read' | 'wr
     });
 }
 
-function studyMembersDialog(study: StudyPageModel, model: PyChessModel): VNode {
-    const members = orderedStudyMembers(study);
-    const myRole = model.username ? study.members[model.username] : undefined;
-    const roleLabel = (username: string, role: 'read' | 'write') =>
-        username === study.owner ? _('Owner') : role === 'write' ? _('Contributor') : _('Read only');
+async function postStudyMemberAction(action: string, fields: Record<string, string>): Promise<void> {
+    const response = await fetch(action, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(fields),
+        redirect: 'manual',
+    });
+    // Successful Study member mutations redirect back to the Study. With manual
+    // redirect handling browsers expose that as an opaque redirect, avoiding an
+    // unnecessary full-page GET while the websocket delivers the updated member map.
+    if (response.type === 'opaqueredirect' || response.ok) return;
+    const message = (await response.text()).trim();
+    throw new Error(message || response.statusText || _('Could not update Study members'));
+}
 
-    return dialog('study-members', _('Study members'), [
+function reportStudyMemberError(error: unknown): void {
+    void alertDialog({
+        text: _('Could not update Study members: %1', error instanceof Error ? error.message : String(error)),
+    });
+}
+
+function studyInviteDialog(study: StudyPageModel): VNode {
+    const memberCount = Object.keys(study.members).length;
+    return dialog('study-invite', _('Add members'), [
+        h('p.study-invite__info', _('Add people you know and trust. New members start as read only.')),
         h(
-            'div.study-members__list',
-            members.map(([username, role]) =>
-                h('div.study-members__member', [
-                    h('div.study-members__identity', [
-                        h('a', { attrs: { href: `/@/${username}` } }, username),
-                        h('span', roleLabel(username, role)),
-                    ]),
-                    ...(study.isOwner && username !== study.owner
-                        ? [
-                              h(
-                                  'form.study-members__role',
-                                  { attrs: { method: 'post', action: `/study/${study.id}/member/role` } },
-                                  [
-                                      h('input', { attrs: { type: 'hidden', name: 'username', value: username } }),
-                                      h(
-                                          'select',
-                                          { attrs: { name: 'role', 'aria-label': _('Role for %1', username) } },
-                                          [
-                                              h(
-                                                  'option',
-                                                  { attrs: { value: 'read', selected: role === 'read' } },
-                                                  _('Read only'),
-                                              ),
-                                              h(
-                                                  'option',
-                                                  { attrs: { value: 'write', selected: role === 'write' } },
-                                                  _('Contributor'),
-                                              ),
-                                          ],
-                                      ),
-                                      h('button.button.button-thin', { attrs: { type: 'submit' } }, _('Save')),
-                                  ],
-                              ),
-                              deleteForm(
-                                  `/study/${study.id}/member/remove`,
-                                  _('Remove'),
-                                  _('Remove %1 from this Study?', username),
-                                  'study-members__remove',
-                                  { username },
-                              ),
-                          ]
-                        : []),
-                ]),
-            ),
+            'form.study-invite__form',
+            {
+                attrs: { method: 'post', action: `/study/${study.id}/member` },
+                on: {
+                    submit: event => {
+                        event.preventDefault();
+                        const form = event.currentTarget as HTMLFormElement;
+                        const input = form.elements.namedItem('username') as HTMLInputElement;
+                        const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+                        const username = input.value.trim();
+                        if (!username) return;
+                        if (submit) submit.disabled = true;
+                        void postStudyMemberAction(`/study/${study.id}/member`, { username, role: 'read' })
+                            .then(() => {
+                                input.value = '';
+                                form.closest<HTMLDialogElement>('dialog')?.close();
+                            })
+                            .catch(reportStudyMemberError)
+                            .finally(() => {
+                                if (submit?.isConnected) submit.disabled = false;
+                            });
+                    },
+                },
+            },
+            [
+                h('input', {
+                    attrs: {
+                        type: 'text',
+                        name: 'username',
+                        required: true,
+                        maxlength: '20',
+                        autocomplete: 'off',
+                        placeholder: _('Search by username'),
+                        'aria-label': _('Username'),
+                    },
+                }),
+                h('button.button', { attrs: { type: 'submit' } }, _('Add member')),
+            ],
         ),
-        ...(study.isOwner && members.length < study.maxMembers
-            ? [
-                  h('form.study-members__add', { attrs: { method: 'post', action: `/study/${study.id}/member` } }, [
-                      h('h3', _('Add a member')),
-                      h('input', {
-                          attrs: {
-                              type: 'text',
-                              name: 'username',
-                              required: true,
-                              maxlength: '20',
-                              autocomplete: 'off',
-                              placeholder: _('Username'),
-                              'aria-label': _('Username'),
-                          },
-                      }),
-                      h('select', { attrs: { name: 'role', 'aria-label': _('Member role') } }, [
-                          h('option', { attrs: { value: 'read' } }, _('Read only')),
-                          h('option', { attrs: { value: 'write' } }, _('Contributor')),
-                      ]),
-                      h('button.button', { attrs: { type: 'submit' } }, _('Add member')),
-                  ]),
-                  h('p.study-members__limit', `${members.length} / ${study.maxMembers} ${_('members')}`),
-              ]
-            : []),
-        ...(!study.isOwner && myRole
-            ? [
-                  h(
-                      'form.study-members__leave',
-                      {
-                          attrs: { method: 'post', action: `/study/${study.id}/leave` },
-                          on: {
-                              submit: event => {
-                                  if (!window.confirm(_('Leave this Study?'))) event.preventDefault();
-                              },
-                          },
-                      },
-                      [h('button.button.button-red', { attrs: { type: 'submit' } }, _('Leave study'))],
-                  ),
-              ]
-            : []),
+        h('p.study-invite__limit', `${memberCount} / ${study.maxMembers} ${_('members')}`),
     ]);
 }
 
@@ -353,50 +326,146 @@ function studySideTabButton(study: StudyPageModel, tab: StudySideTab, label: str
     );
 }
 
+function selectStudyMemberConfig(study: StudyPageModel, username?: string): void {
+    study.memberConfig = username && study.memberConfig !== username ? username : undefined;
+    const side = document.querySelector<HTMLElement>('.study-side');
+    if (!side) return;
+    side.querySelectorAll<HTMLElement>('[data-study-member]').forEach(row => {
+        row.classList.toggle('editing', row.dataset.studyMember === study.memberConfig);
+    });
+    side.querySelectorAll<HTMLButtonElement>('[data-study-member-config-button]').forEach(button => {
+        button.setAttribute('aria-expanded', String(button.dataset.studyMemberConfigButton === study.memberConfig));
+    });
+    side.querySelectorAll<HTMLElement>('[data-study-member-config]').forEach(panel => {
+        panel.hidden = panel.dataset.studyMemberConfig !== study.memberConfig;
+    });
+}
+
+function studyMemberConfig(study: StudyPageModel, username: string, role: 'read' | 'write'): VNode {
+    const contributor = role === 'write';
+    return h(
+        `div#study-member-config-${username}.study-members-side__config-panel`,
+        {
+            attrs: {
+                'data-study-member-config': username,
+                hidden: study.memberConfig !== username,
+            },
+        },
+        [
+            h('div.study-members-side__role-control', [
+                h('label.switch', [
+                    h('input', {
+                        props: { type: 'checkbox', checked: contributor },
+                        attrs: { 'aria-label': _('Contributor') },
+                        on: {
+                            change: event => {
+                                const input = event.currentTarget as HTMLInputElement;
+                                const nextRole = input.checked ? 'write' : 'read';
+                                input.disabled = true;
+                                selectStudyMemberConfig(study);
+                                void postStudyMemberAction(`/study/${study.id}/member/role`, {
+                                    username,
+                                    role: nextRole,
+                                }).catch(error => {
+                                    input.checked = contributor;
+                                    reportStudyMemberError(error);
+                                });
+                            },
+                        },
+                    }),
+                    h('span.sw-slider'),
+                ]),
+                h('span', _('Contributor')),
+            ]),
+            h(
+                'button.study-members-side__kick',
+                {
+                    attrs: {
+                        type: 'button',
+                        title: _('Remove %1 from this Study', username),
+                        'aria-label': _('Remove %1 from this Study', username),
+                    },
+                    on: {
+                        click: event => {
+                            const button = event.currentTarget as HTMLButtonElement;
+                            button.disabled = true;
+                            selectStudyMemberConfig(study);
+                            void postStudyMemberAction(`/study/${study.id}/member/remove`, { username }).catch(
+                                error => {
+                                    if (button.isConnected) button.disabled = false;
+                                    reportStudyMemberError(error);
+                                },
+                            );
+                        },
+                    },
+                },
+                [h('span.study-members-side__kick-icon', { attrs: { 'aria-hidden': 'true' } }, '✖'), _('KICK')],
+            ),
+        ],
+    );
+}
+
 function studyMembersSide(study: StudyPageModel, model: PyChessModel): VNode {
     const members = orderedStudyMembers(study);
     const myRole = model.username ? study.members[model.username] : undefined;
     const roleLabel = (username: string, role: 'read' | 'write') =>
         username === study.owner ? _('Owner') : role === 'write' ? _('Contributor') : _('Read only');
 
+    if (study.memberConfig && !study.members[study.memberConfig]) study.memberConfig = undefined;
+
     return h('div.study-members-side', [
         h(
             'div.study-members-side__list',
-            members.map(([username, role]) =>
-                h('div.study-members-side__member', [
-                    h('div.study-members-side__identity', [
-                        h(
-                            `span.study-members-side__status.study-members-side__status--${role}`,
-                            {
-                                class: { current: username === model.username },
-                                attrs: {
-                                    role: 'img',
-                                    title: roleLabel(username, role),
-                                    'aria-label': roleLabel(username, role),
-                                },
-                            },
-                            [h('i.study-members-side__role-icon', { attrs: { 'aria-hidden': 'true' } })],
-                        ),
-                        h('a', { attrs: { href: `/@/${username}` } }, username),
-                    ]),
-                    ...(study.isOwner && username !== study.owner
-                        ? [
-                              h(
-                                  'button.study-icon-button.study-members-side__config',
-                                  {
-                                      attrs: {
-                                          type: 'button',
-                                          title: _('Manage %1', username),
-                                          'aria-label': _('Manage %1', username),
-                                      },
-                                      on: { click: () => openDialog('study-members') },
-                                  },
-                                  [icon('cog')],
-                              ),
-                          ]
-                        : []),
-                ]),
-            ),
+            members.flatMap(([username, role]) => {
+                const configurable = study.isOwner && username !== study.owner;
+                const editing = study.memberConfig === username;
+                return [
+                    h(
+                        'div.study-members-side__member',
+                        {
+                            class: { editing },
+                            attrs: { 'data-study-member': username },
+                        },
+                        [
+                            h('div.study-members-side__identity', [
+                                h(
+                                    `span.study-members-side__status.study-members-side__status--${role}`,
+                                    {
+                                        class: { current: username === model.username },
+                                        attrs: {
+                                            role: 'img',
+                                            title: roleLabel(username, role),
+                                            'aria-label': roleLabel(username, role),
+                                        },
+                                    },
+                                    [h('i.study-members-side__role-icon', { attrs: { 'aria-hidden': 'true' } })],
+                                ),
+                                h('a', { attrs: { href: `/@/${username}` } }, username),
+                            ]),
+                            ...(configurable
+                                ? [
+                                      h(
+                                          'button.study-icon-button.study-members-side__config',
+                                          {
+                                              attrs: {
+                                                  type: 'button',
+                                                  title: _('Manage %1', username),
+                                                  'aria-label': _('Manage %1', username),
+                                                  'aria-controls': `study-member-config-${username}`,
+                                                  'aria-expanded': editing ? 'true' : 'false',
+                                                  'data-study-member-config-button': username,
+                                              },
+                                              on: { click: () => selectStudyMemberConfig(study, username) },
+                                          },
+                                          [icon('cog')],
+                                      ),
+                                  ]
+                                : []),
+                        ],
+                    ),
+                    ...(configurable ? [studyMemberConfig(study, username, role)] : []),
+                ];
+            }),
         ),
         ...(study.isOwner && members.length < study.maxMembers
             ? [
@@ -404,7 +473,7 @@ function studyMembersSide(study: StudyPageModel, model: PyChessModel): VNode {
                       'button.study-side__add.study-members-side__add',
                       {
                           attrs: { type: 'button' },
-                          on: { click: () => openDialog('study-members') },
+                          on: { click: () => openDialog('study-invite') },
                       },
                       [icon('plus-square'), _('Add members')],
                   ),
@@ -588,7 +657,7 @@ function studySide(study: StudyPageModel, model: PyChessModel): VNode {
                   ]),
               ]
             : []),
-        studyMembersDialog(study, model),
+        ...(study.isOwner && Object.keys(study.members).length < study.maxMembers ? [studyInviteDialog(study)] : []),
     ]);
 }
 
@@ -1040,6 +1109,7 @@ function runStudyGround(
                 onMembersChanged: members => {
                     const previousCanWrite = study.canWrite;
                     study.members = { ...members };
+                    if (study.memberConfig && !members[study.memberConfig]) study.memberConfig = undefined;
                     study.canWrite = model.username ? members[model.username] === 'write' : false;
                     if (!study.canWrite) study.write = false;
                     sideVNode = patch(sideVNode, studySide(study, model));

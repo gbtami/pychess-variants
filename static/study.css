@@ -581,7 +581,7 @@
     body[data-view='study'] .topnav:not(:has(.navbar-show)) { display: none; }
 }
 
-/* Lichess-style member list shown directly in the Study sidebar. */
+/* Lichess-style member list and inline member configuration. */
 .study-members-side {
     overflow: hidden;
     border-radius: 0 0 4px 4px;
@@ -597,9 +597,15 @@
     display: flex;
     align-items: stretch;
     min-height: 2.35rem;
+    transition: background 150ms ease;
 }
-.study-members-side__member:hover, .study-members-side__member:focus-within {
+.study-members-side__member:hover,
+.study-members-side__member:focus-within {
     background: color-mix(in srgb, var(--link-color-blue) 10%, var(--bg-color0));
+}
+.study-members-side__member.editing,
+.study-members-side__config-panel {
+    background: color-mix(in srgb, var(--rusty) 10%, var(--bg-color0));
 }
 .study-members-side__identity {
     display: flex;
@@ -635,33 +641,70 @@
 .study-members-side__status--write .study-members-side__role-icon { mask-image: url('images/study/user.svg'); }
 .study-members-side__status--read .study-members-side__role-icon { mask-image: url('images/study/eye.svg'); }
 .study-members-side__config { opacity: .18; }
-.study-members-side__member:hover .study-members-side__config, .study-members-side__config:focus-visible { opacity: .8; }
+.study-members-side__member:hover .study-members-side__config,
+.study-members-side__config:focus-visible,
+.study-members-side__member.editing .study-members-side__config { opacity: .8; }
+.study-members-side__config-panel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    min-height: 2.7rem;
+    padding: .35rem .65rem .5rem .55rem;
+}
+.study-members-side__config-panel[hidden] { display: none; }
+.study-members-side__role-control {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+}
+.study-members-side__role-control .switch {
+    transform: scale(.92);
+    transform-origin: left center;
+}
+.study-members-side__kick {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .35rem .2rem;
+    border: 0;
+    background: transparent;
+    color: var(--bad);
+    font: inherit;
+    font-weight: bold;
+    cursor: pointer;
+}
+.study-members-side__kick:hover,
+.study-members-side__kick:focus-visible { filter: brightness(1.12); }
+.study-members-side__kick:disabled { opacity: .45; cursor: wait; }
+.study-members-side__kick-icon { font-size: 1.25rem; line-height: 1; }
 .study-app .study-members-side__add { box-shadow: none; }
 .study-members-side__leave { margin: 0; border-top: 1px solid var(--border-color); }
 .study-members-side__leave .button { width: 100%; border-radius: 0; text-align: left; }
 
-.study-members__list { display: grid; gap: .55rem; }
-.study-members__member {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    gap: .5rem;
-    align-items: center;
-    padding: .55rem 0;
-    border-bottom: 1px solid var(--border-color);
+.study-invite__info {
+    margin: 0 0 1rem;
+    padding: .8rem 1rem;
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--rusty) 18%, var(--bg-color0));
+    line-height: 1.35;
 }
-.study-members__identity { display: grid; min-width: 0; }
-.study-members__identity a { overflow: hidden; text-overflow: ellipsis; font-weight: bold; }
-.study-members__identity span, .study-members__limit { font-size: .82rem; opacity: .7; }
-.study-members__role { display: flex; gap: .35rem; margin: 0 !important; }
-.study-dialog .study-members__role select { width: auto; min-width: 8rem; padding: .45rem; }
-.study-members__remove { margin: 0 !important; }
-.study-members__add { display: grid; grid-template-columns: minmax(0, 1fr) 9rem auto; gap: .5rem; align-items: end; }
-.study-members__add h3 { grid-column: 1 / -1; margin: 0; }
-.study-members__limit { margin: .4rem 0 0; text-align: right; }
-.study-members__leave { border-top: 1px solid var(--border-color); padding-top: .9rem; }
+.study-dialog form.study-invite__form {
+    display: flex;
+    align-items: stretch;
+    gap: .55rem;
+    margin-top: 0;
+}
+.study-dialog .study-invite__form input { flex: 1 1 auto; }
+.study-dialog .study-invite__form .button { flex: 0 0 auto; }
+.study-invite__limit {
+    margin: .55rem 0 0;
+    text-align: right;
+    font-size: .82rem;
+    opacity: .7;
+}
 
 @media (max-width: 520px) {
-    .study-members__member { grid-template-columns: 1fr; }
-    .study-members__role, .study-members__add { grid-template-columns: 1fr; display: grid; }
-    .study-dialog .study-members__role select { width: 100%; }
+    .study-dialog form.study-invite__form { display: grid; }
+    .study-dialog .study-invite__form .button { width: 100%; }
 }
