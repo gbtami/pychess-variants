@@ -41,7 +41,7 @@ jest.unstable_mockModule('../client/analysis/analysisSettings', () => ({
 
 const { analysisView, embedView, renderAnalysisPage } = await import('../client/analysis');
 const { puzzleView } = await import('../client/puzzle');
-const { studyEmbedView, studyView } = await import('../client/study/studyView');
+const { studyEmbedView, studyView, updateStudyUnderboardChapter } = await import('../client/study/studyView');
 const { roundView } = await import('../client/round');
 
 function makeModel(overrides: Partial<PyChessModel> = {}): PyChessModel {
@@ -332,6 +332,50 @@ describe('analysis page smoke coverage', () => {
         ]);
         expect(root.querySelector('.study-export__chapter')?.textContent).toBe('Download chapter PGN');
         expect(root.querySelector('.study-export__study')?.textContent).toBe('Download study PGN');
+    });
+
+    test('switching Study chapters refreshes share and embed links', () => {
+        const study: StudyPageModel = {
+            id: 'StUdY001',
+            name: 'Shared ideas',
+            owner: 'owner',
+            visibility: 'public',
+            canWrite: true,
+            chapter: {
+                id: 'ChAp0001',
+                name: 'First line',
+                revision: 1,
+                order: 1,
+                orientation: 'white',
+                variant: 'chess',
+                chess960: false,
+                initialFen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+                variantIni: null,
+                createdAt: '2026-09-06T08:00:00+00:00',
+                description: '',
+                tags: {},
+                tree: { nodes: [] },
+            },
+            chapters: [
+                { id: 'ChAp0001', name: 'First line', order: 1 },
+                { id: 'ChAp0002', name: 'Second line', order: 2 },
+            ],
+        };
+        const model = makeModel({ gameId: '', status: 0, study });
+        const root = renderNodes(studyView(model));
+
+        study.chapter = { ...study.chapter, id: 'ChAp0002', name: 'Second line', order: 2 };
+        updateStudyUnderboardChapter(study, model);
+
+        const shareLinks = [...root.querySelectorAll<HTMLInputElement>('.study-share__copy input')].map(
+            input => input.value,
+        );
+        expect(shareLinks).toEqual([
+            'http://127.0.0.1:8080/study/StUdY001',
+            'http://127.0.0.1:8080/study/StUdY001/ChAp0002',
+            '<iframe width="600" height="371" src="http://127.0.0.1:8080/study/embed/StUdY001/ChAp0002" frameborder="0"></iframe>',
+        ]);
+        expect(root.querySelector('.study-underboard__title')?.textContent).toBe('Shared ideas: Second line');
     });
 
     test('study embed reuses the lean analysis embed shell', () => {

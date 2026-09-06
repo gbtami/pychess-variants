@@ -280,18 +280,7 @@ function toolPanel(tab: StudyTab, children: VNode[]): VNode {
     );
 }
 
-function studyUnderboard(study: StudyPageModel, model: PyChessModel): VNode {
-    const tabs: [StudyTab, string, VNode | string][] = [
-        ['tags', _('PGN tags'), h('i.study-tag-icon', { attrs: { 'aria-hidden': 'true' } })],
-        ...(study.canWrite
-            ? ([
-                  ['comments', _('Comment this position'), icon('comment-o')],
-                  ['glyphs', _('Annotate with glyphs'), '!?'],
-              ] as [StudyTab, string, VNode | string][])
-            : []),
-        ['description', _('Chapter description'), icon('book')],
-        ['export', _('Share & export'), icon('download')],
-    ];
+function studyShareLinks(study: StudyPageModel, model: PyChessModel): VNode {
     const studyUrl = `${model.home}/study/${study.id}`;
     const chapterUrl = `${model.home}/study/${study.id}/${study.chapter.id}`;
     const embedUrl = `${model.home}/study/embed/${study.id}/${study.chapter.id}`;
@@ -323,6 +312,44 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel): VNode {
                 ),
             ]),
         ]);
+
+    return h('div.study-share__links', [
+        shareLink(_('Study link'), studyUrl),
+        shareLink(_('Current chapter link'), chapterUrl),
+        shareLink(
+            _('Embed this chapter'),
+            study.visibility === 'private' ? _('Private Studies cannot be embedded.') : embedCode,
+            {
+                disabled: study.visibility === 'private',
+                copyLabel: _('Copy embed code'),
+            },
+        ),
+        ...(study.visibility === 'private'
+            ? [h('p.study-share__private', _('This Study is private. Only authorized members can open these links.'))]
+            : []),
+    ]);
+}
+
+export function updateStudyUnderboardChapter(study: StudyPageModel, model: PyChessModel): void {
+    const title = document.querySelector<HTMLElement>('.study-underboard__title');
+    if (title) patch(toVNode(title), h('h2.study-underboard__title', `${study.name}: ${study.chapter.name}`));
+
+    const shareLinks = document.querySelector<HTMLElement>('.study-share__links');
+    if (shareLinks) patch(toVNode(shareLinks), studyShareLinks(study, model));
+}
+
+function studyUnderboard(study: StudyPageModel, model: PyChessModel): VNode {
+    const tabs: [StudyTab, string, VNode | string][] = [
+        ['tags', _('PGN tags'), h('i.study-tag-icon', { attrs: { 'aria-hidden': 'true' } })],
+        ...(study.canWrite
+            ? ([
+                  ['comments', _('Comment this position'), icon('comment-o')],
+                  ['glyphs', _('Annotate with glyphs'), '!?'],
+              ] as [StudyTab, string, VNode | string][])
+            : []),
+        ['description', _('Chapter description'), icon('book')],
+        ['export', _('Share & export'), icon('download')],
+    ];
     return h('div.study-underboard', [
         h(
             'nav.study-tool-tabs',
@@ -424,26 +451,7 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel): VNode {
                 : h('p.study-description__readonly', study.chapter.description || _('No chapter description.')),
         ]),
         toolPanel('export', [
-            h('div.study-share__links', [
-                shareLink(_('Study link'), studyUrl),
-                shareLink(_('Current chapter link'), chapterUrl),
-                shareLink(
-                    _('Embed this chapter'),
-                    study.visibility === 'private' ? _('Private Studies cannot be embedded.') : embedCode,
-                    {
-                        disabled: study.visibility === 'private',
-                        copyLabel: _('Copy embed code'),
-                    },
-                ),
-                ...(study.visibility === 'private'
-                    ? [
-                          h(
-                              'p.study-share__private',
-                              _('This Study is private. Only authorized members can open these links.'),
-                          ),
-                      ]
-                    : []),
-            ]),
+            studyShareLinks(study, model),
             h('div.study-export__actions', [
                 h('button.button.study-export__chapter', { attrs: { type: 'button' } }, _('Download chapter PGN')),
                 h('button.button.study-export__study', { attrs: { type: 'button' } }, _('Download study PGN')),
@@ -708,6 +716,7 @@ function runStudyGround(vnode: VNode, model: PyChessModel, study: StudyPageModel
                 fen: study.chapter.initialFen,
                 ply: 0,
             };
+            updateStudyUnderboardChapter(study, model);
             loadCataloguedVariantsFromJson(JSON.stringify(data.cataloguedVariants));
             ffish.loadVariantConfig(variantConfigIni(variantsIni, model.variant));
             document.body.dataset.variant = model.variant;
