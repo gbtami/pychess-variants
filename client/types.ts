@@ -52,6 +52,8 @@ export type StudyPageModel = {
     sticky?: boolean;
     write?: boolean;
     behind?: number;
+    // Local sidebar tab, kept across in-place chapter and member refreshes.
+    sideTab?: 'chapters' | 'members';
     chapter: {
         id: string;
         name: string;

@@ -127,13 +127,17 @@ function dialog(id: string, title: string, content: VNode[]): VNode {
     );
 }
 
-function studyMembersDialog(study: StudyPageModel, model: PyChessModel): VNode {
-    const members = Object.entries(study.members).sort(([a, aRole], [b, bRole]) => {
+function orderedStudyMembers(study: StudyPageModel): Array<[string, 'read' | 'write']> {
+    return Object.entries(study.members).sort(([a, aRole], [b, bRole]) => {
         if (a === study.owner) return -1;
         if (b === study.owner) return 1;
         if (aRole !== bRole) return aRole === 'write' ? -1 : 1;
         return a.localeCompare(b);
     });
+}
+
+function studyMembersDialog(study: StudyPageModel, model: PyChessModel): VNode {
+    const members = orderedStudyMembers(study);
     const myRole = model.username ? study.members[model.username] : undefined;
     const roleLabel = (username: string, role: 'read' | 'write') =>
         username === study.owner ? _('Owner') : role === 'write' ? _('Contributor') : _('Read only');
@@ -298,61 +302,94 @@ function refreshStudyModeButtons(study: StudyPageModel): void {
     update('.study-mode--write', Boolean(study.write));
 }
 
-function studySide(study: StudyPageModel, model: PyChessModel): VNode {
-    const chapter = study.chapter;
-    const canWrite = study.canWrite;
-    return h('div.study-side', [
-        h('div.study-side__header', [
-            h('h2', ngettext('%1 chapter', '%1 chapters', study.chapters.length)),
-            h('div.study-side__header-actions', [
-                h(
-                    'button.study-icon-button',
-                    {
-                        attrs: { type: 'button', title: _('Study members'), 'aria-label': _('Study members') },
-                        on: { click: () => openDialog('study-members') },
-                    },
-                    [icon('user')],
-                ),
-                ...(study.isOwner
-                    ? [
-                          h(
-                              'button.study-icon-button',
-                              {
-                                  attrs: { type: 'button', title: _('Edit study'), 'aria-label': _('Edit study') },
-                                  on: { click: () => openDialog('study-settings') },
-                              },
-                              [icon('bars')],
-                          ),
-                      ]
-                    : [h('span.study-side__readonly', canWrite ? _('Contributor') : _('Read only'))]),
-            ]),
-        ]),
+type StudySideTab = 'chapters' | 'members';
+
+function selectStudySideTab(study: StudyPageModel, tab: StudySideTab, focus = false): void {
+    study.sideTab = tab;
+    const side = document.querySelector<HTMLElement>('.study-side');
+    if (!side) return;
+    side.querySelectorAll<HTMLButtonElement>('[data-study-side-tab]').forEach(button => {
+        const selected = button.dataset.studySideTab === tab;
+        button.classList.toggle('active', selected);
+        button.setAttribute('aria-selected', String(selected));
+        button.tabIndex = selected ? 0 : -1;
+        if (selected && focus) button.focus();
+    });
+    side.querySelectorAll<HTMLElement>('[data-study-side-panel]').forEach(panel => {
+        panel.hidden = panel.dataset.studySidePanel !== tab;
+    });
+    notifyChessgroundResize();
+}
+
+function studySideTabButton(study: StudyPageModel, tab: StudySideTab, label: string): VNode {
+    const selected = (study.sideTab ?? 'chapters') === tab;
+    return h(
+        `button#study-side-tab-${tab}.study-side__tab`,
+        {
+            class: { active: selected },
+            attrs: {
+                type: 'button',
+                role: 'tab',
+                'aria-controls': `study-side-panel-${tab}`,
+                'aria-selected': selected ? 'true' : 'false',
+                tabindex: selected ? 0 : -1,
+                'data-study-side-tab': tab,
+            },
+            on: {
+                click: () => selectStudySideTab(study, tab),
+                keydown: event => {
+                    let next: StudySideTab | undefined;
+                    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight')
+                        next = tab === 'chapters' ? 'members' : 'chapters';
+                    else if (event.key === 'Home') next = 'chapters';
+                    else if (event.key === 'End') next = 'members';
+                    if (!next) return;
+                    event.preventDefault();
+                    selectStudySideTab(study, next, true);
+                },
+            },
+        },
+        label,
+    );
+}
+
+function studyMembersSide(study: StudyPageModel, model: PyChessModel): VNode {
+    const members = orderedStudyMembers(study);
+    const myRole = model.username ? study.members[model.username] : undefined;
+    const roleLabel = (username: string, role: 'read' | 'write') =>
+        username === study.owner ? _('Owner') : role === 'write' ? _('Contributor') : _('Read only');
+
+    return h('div.study-members-side', [
         h(
-            'nav.study-chapters',
-            { attrs: { 'aria-label': _('Chapters') } },
-            study.chapters.map(item =>
-                h('div.study-chapter__row', { class: { active: item.id === chapter.id } }, [
-                    h(
-                        'a',
-                        {
-                            attrs: {
-                                href: `/study/${study.id}/${item.id}`,
-                                'aria-current': item.id === chapter.id ? 'page' : 'false',
+            'div.study-members-side__list',
+            members.map(([username, role]) =>
+                h('div.study-members-side__member', [
+                    h('div.study-members-side__identity', [
+                        h(
+                            `span.study-members-side__status.study-members-side__status--${role}`,
+                            {
+                                class: { current: username === model.username },
+                                attrs: {
+                                    role: 'img',
+                                    title: roleLabel(username, role),
+                                    'aria-label': roleLabel(username, role),
+                                },
                             },
-                        },
-                        [h('span.study-chapter__number', `${item.order}. `), h('span.study-chapter__name', item.name)],
-                    ),
-                    ...(canWrite
+                            [h('i.study-members-side__role-icon', { attrs: { 'aria-hidden': 'true' } })],
+                        ),
+                        h('a', { attrs: { href: `/@/${username}` } }, username),
+                    ]),
+                    ...(study.isOwner && username !== study.owner
                         ? [
                               h(
-                                  'button.study-icon-button.study-chapter__edit',
+                                  'button.study-icon-button.study-members-side__config',
                                   {
                                       attrs: {
                                           type: 'button',
-                                          title: _('Edit chapter'),
-                                          'aria-label': _('Edit chapter: %1', item.name),
+                                          title: _('Manage %1', username),
+                                          'aria-label': _('Manage %1', username),
                                       },
-                                      on: { click: () => openDialog(`chapter-settings-${item.id}`) },
+                                      on: { click: () => openDialog('study-members') },
                                   },
                                   [icon('cog')],
                               ),
@@ -361,18 +398,133 @@ function studySide(study: StudyPageModel, model: PyChessModel): VNode {
                 ]),
             ),
         ),
-        ...(canWrite
+        ...(study.isOwner && members.length < study.maxMembers
             ? [
                   h(
-                      'button.study-side__add',
+                      'button.study-side__add.study-members-side__add',
                       {
                           attrs: { type: 'button' },
-                          on: { click: () => openDialog('study-new-chapter') },
+                          on: { click: () => openDialog('study-members') },
                       },
-                      [icon('plus-square'), _('Add a new chapter')],
+                      [icon('plus-square'), _('Add members')],
                   ),
               ]
             : []),
+        ...(!study.isOwner && myRole
+            ? [
+                  h(
+                      'form.study-members-side__leave',
+                      {
+                          attrs: { method: 'post', action: `/study/${study.id}/leave` },
+                          on: {
+                              submit: event => {
+                                  if (!window.confirm(_('Leave this Study?'))) event.preventDefault();
+                              },
+                          },
+                      },
+                      [h('button.button.button-empty', { attrs: { type: 'submit' } }, _('Leave study'))],
+                  ),
+              ]
+            : []),
+    ]);
+}
+
+function studySide(study: StudyPageModel, model: PyChessModel): VNode {
+    const chapter = study.chapter;
+    const canWrite = study.canWrite;
+    const activeTab = study.sideTab ?? 'chapters';
+    const memberCount = Object.keys(study.members).length;
+    return h('div.study-side', [
+        h('div.study-side__tabs', { attrs: { role: 'tablist', 'aria-label': _('Study navigation') } }, [
+            studySideTabButton(study, 'chapters', ngettext('%1 chapter', '%1 chapters', study.chapters.length)),
+            studySideTabButton(study, 'members', ngettext('%1 member', '%1 members', memberCount)),
+            ...(study.isOwner
+                ? [
+                      h(
+                          'button.study-icon-button.study-side__more',
+                          {
+                              attrs: { type: 'button', title: _('Edit study'), 'aria-label': _('Edit study') },
+                              on: { click: () => openDialog('study-settings') },
+                          },
+                          [icon('bars')],
+                      ),
+                  ]
+                : [h('span.study-side__readonly', canWrite ? _('Contributor') : _('Read only'))]),
+        ]),
+        h(
+            'section#study-side-panel-chapters.study-side__panel',
+            {
+                attrs: {
+                    role: 'tabpanel',
+                    'aria-labelledby': 'study-side-tab-chapters',
+                    'data-study-side-panel': 'chapters',
+                    hidden: activeTab !== 'chapters',
+                },
+            },
+            [
+                h(
+                    'nav.study-chapters',
+                    { attrs: { 'aria-label': _('Chapters') } },
+                    study.chapters.map(item =>
+                        h('div.study-chapter__row', { class: { active: item.id === chapter.id } }, [
+                            h(
+                                'a',
+                                {
+                                    attrs: {
+                                        href: `/study/${study.id}/${item.id}`,
+                                        'aria-current': item.id === chapter.id ? 'page' : 'false',
+                                    },
+                                },
+                                [
+                                    h('span.study-chapter__number', `${item.order}. `),
+                                    h('span.study-chapter__name', item.name),
+                                ],
+                            ),
+                            ...(canWrite
+                                ? [
+                                      h(
+                                          'button.study-icon-button.study-chapter__edit',
+                                          {
+                                              attrs: {
+                                                  type: 'button',
+                                                  title: _('Edit chapter'),
+                                                  'aria-label': _('Edit chapter: %1', item.name),
+                                              },
+                                              on: { click: () => openDialog(`chapter-settings-${item.id}`) },
+                                          },
+                                          [icon('cog')],
+                                      ),
+                                  ]
+                                : []),
+                        ]),
+                    ),
+                ),
+                ...(canWrite
+                    ? [
+                          h(
+                              'button.study-side__add',
+                              {
+                                  attrs: { type: 'button' },
+                                  on: { click: () => openDialog('study-new-chapter') },
+                              },
+                              [icon('plus-square'), _('Add a new chapter')],
+                          ),
+                      ]
+                    : []),
+            ],
+        ),
+        h(
+            'section#study-side-panel-members.study-side__panel',
+            {
+                attrs: {
+                    role: 'tabpanel',
+                    'aria-labelledby': 'study-side-tab-members',
+                    'data-study-side-panel': 'members',
+                    hidden: activeTab !== 'members',
+                },
+            },
+            [studyMembersSide(study, model)],
+        ),
         h('div.study-side__metadata', [
             h('h3', study.name),
             h('a', { attrs: { href: `/@/${study.owner}` } }, study.owner),

@@ -256,10 +256,23 @@ describe('analysis page smoke coverage', () => {
         );
 
         expect(root.querySelector('.study-side')).not.toBeNull();
+        expect(root.querySelector('#study-side-tab-chapters')?.getAttribute('aria-selected')).toBe('true');
+        expect(root.querySelector('#study-side-tab-members')?.getAttribute('aria-selected')).toBe('false');
         expect(root.querySelectorAll('.study-chapter__row')).toHaveLength(2);
         expect(root.querySelector('.study-chapter__row.active a')?.getAttribute('href')).toBe(
             '/study/StUdY001/ChAp0001',
         );
+        expect(root.querySelector<HTMLElement>('#study-side-panel-members')!.hidden).toBe(true);
+        const membersTab = root.querySelector<HTMLButtonElement>('#study-side-tab-members')!;
+        membersTab.click();
+        expect(membersTab.getAttribute('aria-selected')).toBe('true');
+        expect(root.querySelector<HTMLElement>('#study-side-panel-chapters')!.hidden).toBe(true);
+        expect(root.querySelector<HTMLElement>('#study-side-panel-members')!.hidden).toBe(false);
+        expect(root.querySelectorAll('.study-members-side__member')).toHaveLength(3);
+        expect(root.querySelector('.study-members-side__add')?.textContent).toContain('Add members');
+        membersTab.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
+        expect(root.querySelector('#study-side-tab-chapters')?.getAttribute('aria-selected')).toBe('true');
+        expect(document.activeElement).toBe(root.querySelector('#study-side-tab-chapters'));
         expect(root.querySelector('#mainboard')).not.toBeNull();
         expect(root.querySelector('#movelist')).not.toBeNull();
         expect(root.querySelector('#pgntext')).not.toBeNull();
