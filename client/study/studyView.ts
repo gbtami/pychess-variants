@@ -228,7 +228,62 @@ function studyMembersDialog(study: StudyPageModel, model: PyChessModel): VNode {
     ]);
 }
 
-function studySide(study: StudyPageModel, model: PyChessModel): VNode {
+type StudyModeActions = {
+    toggleSticky: () => void;
+    toggleWrite: () => void;
+};
+
+function studyRecordingKey(studyId: string): string {
+    return `study.rec:${studyId}`;
+}
+
+function initializeStudyModes(study: StudyPageModel): void {
+    if (study.sticky === undefined) study.sticky = study.chapter.id === study.sharedChapter;
+    if (study.behind === undefined) study.behind = 0;
+    if (study.write === undefined) {
+        const stored = localStorage.getItem(studyRecordingKey(study.id));
+        study.write = study.canWrite && stored !== 'false';
+    } else if (!study.canWrite) study.write = false;
+}
+
+function studyModeButtons(study: StudyPageModel, actions: StudyModeActions): VNode {
+    const behind = study.behind ?? 0;
+    const state = (on: boolean) => h('span.study-mode__state', on ? '✓' : '✕');
+    return h('div.study-modes', [
+        h(
+            'button.study-mode.study-mode--sync',
+            {
+                class: { on: Boolean(study.sticky) },
+                attrs: {
+                    type: 'button',
+                    title: _('All Study members remain on the same position'),
+                    'aria-pressed': String(Boolean(study.sticky)),
+                },
+                on: { click: () => actions.toggleSticky() },
+            },
+            [behind ? h('span.study-mode__behind', String(behind)) : state(Boolean(study.sticky)), 'SYNC'],
+        ),
+        ...(study.canWrite
+            ? [
+                  h(
+                      'button.study-mode.study-mode--write',
+                      {
+                          class: { on: Boolean(study.write) },
+                          attrs: {
+                              type: 'button',
+                              title: _('Share changes with Study members'),
+                              'aria-pressed': String(Boolean(study.write)),
+                          },
+                          on: { click: () => actions.toggleWrite() },
+                      },
+                      [state(Boolean(study.write)), 'REC'],
+                  ),
+              ]
+            : []),
+    ]);
+}
+
+function studySide(study: StudyPageModel, model: PyChessModel, modeActions: StudyModeActions): VNode {
     const chapter = study.chapter;
     const canWrite = study.canWrite;
     return h('div.study-side', [
@@ -291,6 +346,7 @@ function studySide(study: StudyPageModel, model: PyChessModel): VNode {
                 ]),
             ),
         ),
+        studyModeButtons(study, modeActions),
         ...(canWrite
             ? [
                   h(
@@ -741,9 +797,16 @@ function studyContextMenu(ctrl: AnalysisController, path: string): VNode[] {
     ];
 }
 
-function runStudyGround(vnode: VNode, model: PyChessModel, study: StudyPageModel, sideVNode: VNode): void {
-    let extension: StudyAnalysisExtension;
-    let ctrl: AnalysisController;
+function runStudyGround(
+    vnode: VNode,
+    model: PyChessModel,
+    study: StudyPageModel,
+    sideVNode: VNode,
+    modeActions: StudyModeActions,
+): void {
+    let extension!: StudyAnalysisExtension;
+    let ctrl!: AnalysisController;
+    let navigation: StudyChapterNavigation | undefined;
     const paths = new Map<string, string>();
     const modules = new Map<boolean, Promise<PyChessModel['ffish']>>([
         [model.variant === 'alice', Promise.resolve(model.ffish)],
@@ -786,15 +849,40 @@ function runStudyGround(vnode: VNode, model: PyChessModel, study: StudyPageModel
                 variantIni: study.chapter.variantIni ?? undefined,
                 createdAt: study.chapter.createdAt,
                 onAnnotationStateChanged: state => updateAnnotationPanel(state, editor),
+                onLocalPathChanged: path => {
+                    if (!study.sticky) return;
+                    if (study.canWrite && study.write) extension.sharePosition(study.chapter.id, path);
+                    else {
+                        study.sticky = false;
+                        study.behind = Math.max(1, study.behind ?? 0);
+                        sideVNode = patch(sideVNode, studySide(study, model, modeActions));
+                    }
+                },
+                onSharedPositionChanged: (chapterId, path) => {
+                    const changed = study.sharedChapter !== chapterId || study.sharedPath !== path;
+                    study.sharedChapter = chapterId;
+                    study.sharedPath = path;
+                    if (!study.sticky) {
+                        if (changed) study.behind = (study.behind ?? 0) + 1;
+                        sideVNode = patch(sideVNode, studySide(study, model, modeActions));
+                        return;
+                    }
+                    study.behind = 0;
+                    sideVNode = patch(sideVNode, studySide(study, model, modeActions));
+                    if (chapterId !== study.chapter.id) void navigation?.go(chapterId, 'replace');
+                    else if (!extension.followSharedPath(path)) window.location.reload();
+                },
                 onMembersChanged: members => {
                     const previousCanWrite = study.canWrite;
                     study.members = { ...members };
                     study.canWrite = model.username ? members[model.username] === 'write' : false;
-                    sideVNode = patch(sideVNode, studySide(study, model));
+                    if (!study.canWrite) study.write = false;
+                    sideVNode = patch(sideVNode, studySide(study, model, modeActions));
                     if (study.canWrite !== previousCanWrite) window.location.reload();
                 },
                 contextMenuActions: study.canWrite ? path => studyContextMenu(analysisCtrl, path) : undefined,
                 writable: study.canWrite,
+                recording: study.canWrite && Boolean(study.write),
             });
             return extension;
         });
@@ -806,7 +894,7 @@ function runStudyGround(vnode: VNode, model: PyChessModel, study: StudyPageModel
     if (study.canWrite) bindAnnotationPanel(() => extension);
     bindExportPanel(() => extension, study);
 
-    const navigation = new StudyChapterNavigation({
+    navigation = new StudyChapterNavigation({
         studyId: study.id,
         currentChapter: () => study.chapter.id,
         flush: () => {
@@ -892,26 +980,65 @@ function runStudyGround(vnode: VNode, model: PyChessModel, study: StudyPageModel
                 const replacement = (next.children as VNode[]).find(child => child.sel?.includes(selector));
                 if (current && replacement) patch(toVNode(current), replacement);
             }
-            sideVNode = patch(sideVNode, studySide(study, model));
+            sideVNode = patch(sideVNode, studySide(study, model, modeActions));
             mount(app.querySelector<HTMLElement>('#mainboard > .cg-wrap')!);
-            const path = paths.get(study.chapter.id);
-            if (path && ctrl.getTreeNodeAtPath(path)) ctrl.activateTreePath(path);
+            if (study.sticky && study.chapter.id === study.sharedChapter) {
+                if (!extension.followSharedPath(study.sharedPath)) window.location.reload();
+            } else {
+                const path = paths.get(study.chapter.id);
+                if (path && ctrl.getTreeNodeAtPath(path)) ctrl.activateTreePath(path);
+            }
             notifyChessgroundResize();
             if (window.fsf) {
                 ctrl.loadVariantsIntoFsfEngine();
             }
         },
     });
+
+    const followAuthoritativePosition = (): void => {
+        study.behind = 0;
+        sideVNode = patch(sideVNode, studySide(study, model, modeActions));
+        if (study.sharedChapter !== study.chapter.id) void navigation?.go(study.sharedChapter, 'replace');
+        else void navigation?.reload();
+    };
+    modeActions.toggleSticky = () => {
+        study.sticky = !study.sticky;
+        if (study.sticky) followAuthoritativePosition();
+        else sideVNode = patch(sideVNode, studySide(study, model, modeActions));
+    };
+    modeActions.toggleWrite = () => {
+        if (!study.canWrite) return;
+        study.write = !study.write;
+        localStorage.setItem(studyRecordingKey(study.id), String(study.write));
+        extension.setRecording(Boolean(study.write));
+        sideVNode = patch(sideVNode, studySide(study, model, modeActions));
+        void navigation?.reload();
+    };
+
+    if (study.sticky && study.chapter.id === study.sharedChapter && study.sharedPath) {
+        if (!extension.followSharedPath(study.sharedPath)) window.location.reload();
+    }
+
     document.querySelector('.sidebar-first')!.addEventListener('click', event => {
         const mouse = event as MouseEvent;
         const link = (event.target as Element).closest<HTMLAnchorElement>('.study-chapters a');
         if (!link || mouse.button !== 0 || mouse.ctrlKey || mouse.metaKey || mouse.shiftKey || mouse.altKey) return;
         event.preventDefault();
-        void navigation.go(new URL(link.href).pathname.split('/').pop()!);
+        const chapterId = new URL(link.href).pathname.split('/').pop()!;
+        if (study.sticky) {
+            if (study.canWrite && study.write && extension.sharePosition(chapterId, '')) return;
+            study.sticky = false;
+            study.behind = Math.max(1, study.behind ?? 0);
+            sideVNode = patch(sideVNode, studySide(study, model, modeActions));
+        }
+        void navigation?.go(chapterId);
     });
     window.addEventListener('popstate', () => {
         const [prefix, studyId, chapterId] = window.location.pathname.split('/').filter(Boolean);
-        if (prefix === 'study' && studyId === study.id && chapterId) void navigation.go(chapterId, 'pop');
+        if (prefix === 'study' && studyId === study.id && chapterId) {
+            if (chapterId !== study.sharedChapter) study.sticky = false;
+            void navigation?.go(chapterId, 'pop');
+        }
     });
     window.addEventListener('beforeunload', event => {
         editor?.flush();
@@ -976,11 +1103,13 @@ export function studyView(model: PyChessModel): VNode[] {
     const study = model.study;
     if (!study) return [h('div.box.box-pad', _('Study data is unavailable.'))];
 
-    const side = studySide(study, model);
+    initializeStudyModes(study);
+    const modeActions: StudyModeActions = { toggleSticky: () => {}, toggleWrite: () => {} };
+    const side = studySide(study, model, modeActions);
     const page = renderAnalysisPage(model, {
         side,
         underboard: studyUnderboard(study, model),
-        mountBoard: vnode => runStudyGround(vnode, model, study, side),
+        mountBoard: vnode => runStudyGround(vnode, model, study, side, modeActions),
         ongoing: false,
     });
     page[0].data = { ...page[0].data, class: { 'study-app': true } };

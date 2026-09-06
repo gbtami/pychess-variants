@@ -93,6 +93,24 @@ test('Back/Forward loads without pushing another history entry', async () => {
     expect(window.history.length).toBe(length);
 });
 
+test('replace navigation updates the chapter without growing browser history', async () => {
+    const { nav } = setup();
+    fetchMock.mockResolvedValue(response('second'));
+    const length = window.history.length;
+    await nav.go('second', 'replace');
+    expect(window.location.pathname).toBe('/study/study001/second');
+    expect(window.history.length).toBe(length);
+});
+
+test('reload fetches and reapplies the current chapter without changing its URL', async () => {
+    const { nav, apply } = setup();
+    fetchMock.mockResolvedValue(response('first'));
+    await nav.reload();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(apply).toHaveBeenCalledTimes(1);
+    expect(window.location.pathname).toBe('/study/study001/first');
+});
+
 test('an unavailable chapter leaves the mounted chapter intact', async () => {
     const { nav, apply, error } = setup();
     fetchMock.mockResolvedValue({ ok: false, status: 404 } as Response);

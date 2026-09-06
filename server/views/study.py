@@ -46,7 +46,6 @@ from study.storage import (
     remove_study_member,
     rename_chapter,
     rename_study,
-    select_chapter,
     set_study_member_role,
     set_study_visibility,
     studies_for_owner,
@@ -412,6 +411,8 @@ async def _populate_study_chapter_context(
             "canClone": (not user.anon and not user.bot and can_clone_study(study, user.username)),
             "members": dict(study.members),
             "maxMembers": STUDY_MAX_MEMBERS,
+            "sharedChapter": study.current_chapter or chapter.id,
+            "sharedPath": study.current_path or "",
             "chapter": {
                 "id": chapter.id,
                 "name": chapter.name,
@@ -457,8 +458,6 @@ async def study_show(request: web.Request) -> ViewContext | web.Response:
     app_state = get_app_state(request.app)
     viewer = None if user.anon else user.username
     writable = can_write_study(study, viewer)
-    if writable:
-        await select_chapter(app_state, study, chapter)
     _study_context(context)
     context["view"] = "study"
     context["title"] = f"{study.name} • PyChess"

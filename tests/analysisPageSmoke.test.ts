@@ -222,6 +222,8 @@ describe('analysis page smoke coverage', () => {
                         canClone: true,
                         members: { tester: 'write', writer: 'write', reader: 'read' },
                         maxMembers: 30,
+                        sharedChapter: 'ChAp0001',
+                        sharedPath: '',
                         chapter: {
                             id: 'ChAp0001',
                             name: 'Main line',
@@ -309,6 +311,8 @@ describe('analysis page smoke coverage', () => {
             canClone: true,
             members: { owner: 'write' },
             maxMembers: 30,
+            sharedChapter: 'ChAp0001',
+            sharedPath: '',
             chapter: {
                 id: 'ChAp0001',
                 name: 'Shared line',
@@ -329,6 +333,8 @@ describe('analysis page smoke coverage', () => {
         const root = renderNodes(studyView(makeModel({ gameId: '', status: 0, study })));
 
         expect(root.querySelector('.study-side__readonly')?.textContent).toBe('Read only');
+        expect(root.querySelector('.study-mode--sync')?.textContent).toContain('SYNC');
+        expect(root.querySelector('.study-mode--write')).toBeNull();
         expect(root.querySelector('.study-side__add')).toBeNull();
         expect(root.querySelector('dialog#study-settings')).toBeNull();
         expect(root.querySelector('#study-tab-comments')).toBeNull();
@@ -361,6 +367,8 @@ describe('analysis page smoke coverage', () => {
             canClone: true,
             members: { owner: 'write', tester: 'write' },
             maxMembers: 30,
+            sharedChapter: 'ChAp0001',
+            sharedPath: '',
             chapter: {
                 id: 'ChAp0001',
                 name: 'First line',
@@ -409,6 +417,8 @@ describe('analysis page smoke coverage', () => {
             canClone: false,
             members: { owner: 'write' },
             maxMembers: 30,
+            sharedChapter: 'ChAp0001',
+            sharedPath: '',
             chapter: {
                 id: 'ChAp0001',
                 name: 'Shared line',

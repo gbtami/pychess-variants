@@ -45,6 +45,13 @@ export type StudyPageModel = {
     canClone: boolean;
     members: Record<string, 'read' | 'write'>;
     maxMembers: number;
+    sharedChapter: string;
+    sharedPath: string;
+    // Runtime collaboration mode. The server owns sharedChapter/sharedPath; these
+    // three fields are local browser state initialized by the Study client.
+    sticky?: boolean;
+    write?: boolean;
+    behind?: number;
     chapter: {
         id: string;
         name: string;

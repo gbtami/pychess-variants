@@ -24,12 +24,12 @@ export class StudyChapterNavigation {
         },
     ) {}
 
-    async go(chapterId: string, history: 'push' | 'pop' = 'push'): Promise<void> {
+    async go(chapterId: string, history: 'push' | 'pop' | 'replace' = 'push', forceReload = false): Promise<void> {
         const request = ++this.request;
         this.abort?.abort();
         this.abort = new AbortController();
         const signal = this.abort.signal;
-        if (chapterId === this.options.currentChapter()) {
+        if (!forceReload && chapterId === this.options.currentChapter()) {
             this.options.busy(false);
             return;
         }
@@ -54,6 +54,8 @@ export class StudyChapterNavigation {
             await this.options.apply(data, () => request === this.request);
             if (request !== this.request) return;
             if (history === 'push') window.history.pushState(null, '', `/study/${this.options.studyId}/${chapterId}`);
+            else if (history === 'replace')
+                window.history.replaceState(null, '', `/study/${this.options.studyId}/${chapterId}`);
         } catch (error) {
             if (request !== this.request) return;
             if (history === 'pop')
@@ -66,5 +68,9 @@ export class StudyChapterNavigation {
         } finally {
             if (request === this.request) this.options.busy(false);
         }
+    }
+
+    reload(): Promise<void> {
+        return this.go(this.options.currentChapter(), 'replace', true);
     }
 }

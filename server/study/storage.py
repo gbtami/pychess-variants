@@ -29,6 +29,7 @@ from study.models import (
     study_search_tokens,
     study_visibility,
 )
+from study.permissions import can_write_study
 
 
 class StudyStorageError(ValueError):
@@ -497,7 +498,11 @@ async def add_chapter_from_draft(
     now = datetime.now(UTC)
     await app_state.db.study.update_one(
         {"_id": study.id, "owner": study.owner},
-        {"$set": {"currentChapter": chapter.id, "updatedAt": now}, "$inc": {"revision": 1}},
+        {
+            "$set": {"currentChapter": chapter.id, "updatedAt": now},
+            "$unset": {"currentPath": ""},
+            "$inc": {"revision": 1},
+        },
     )
     return chapter
 
@@ -554,6 +559,7 @@ async def add_chapters_from_drafts(
             {"_id": study.id, "owner": study.owner},
             {
                 "$set": {"currentChapter": chapters[-1].id, "updatedAt": now},
+                "$unset": {"currentPath": ""},
                 "$inc": {"revision": 1},
             },
         )
@@ -598,7 +604,11 @@ async def add_chapter(
     now = datetime.now(UTC)
     await app_state.db.study.update_one(
         {"_id": study.id, "owner": study.owner},
-        {"$set": {"currentChapter": chapter.id, "updatedAt": now}, "$inc": {"revision": 1}},
+        {
+            "$set": {"currentChapter": chapter.id, "updatedAt": now},
+            "$unset": {"currentPath": ""},
+            "$inc": {"revision": 1},
+        },
     )
     return chapter
 
@@ -610,6 +620,46 @@ async def select_chapter(app_state: Any, study: Study, chapter: StudyChapter) ->
         {"_id": study.id, "owner": study.owner},
         {"$set": {"currentChapter": chapter.id}, "$inc": {"revision": 1}},
     )
+
+
+async def set_shared_position(
+    app_state: Any,
+    study_id: str,
+    username: str,
+    chapter_id: str,
+    path: str,
+) -> tuple[Study, bool]:
+    """Persist the authoritative Study chapter/path selected by a contributor.
+
+    Shared navigation is intentionally separate from chapter tree revisions: the
+    active position is ephemeral collaboration state, but it still lives in MongoDB
+    so late joiners and reconnecting clients can resume the same presentation.
+    """
+
+    study = await load_study(app_state, study_id)
+    if study is None:
+        raise StudyStorageError("Study not found")
+    if not can_write_study(study, username):
+        raise StudyStorageError("Study is read only")
+    chapter = await load_chapter(app_state, study_id, chapter_id)
+    if chapter is None:
+        raise StudyStorageError("Study chapter not found")
+    if path and chapter.root.node_at_path(path) is None:
+        raise StudyStorageError("Study path not found")
+
+    current_path = study.current_path or ""
+    if study.current_chapter == chapter_id and current_path == path:
+        return study, False
+
+    update: dict[str, object] = {"$set": {"currentChapter": chapter_id}}
+    if path:
+        cast_set = update["$set"]
+        assert isinstance(cast_set, dict)
+        cast_set["currentPath"] = path
+    else:
+        update["$unset"] = {"currentPath": ""}
+    await app_state.db.study.update_one({"_id": study_id}, update)
+    return replace(study, current_chapter=chapter_id, current_path=path or None), True
 
 
 async def rename_study(app_state: Any, study: Study, name: object) -> str:
@@ -687,9 +737,15 @@ async def delete_chapter(app_state: Any, study: Study, chapter: StudyChapter) ->
     else:
         next_chapter_id = study.current_chapter
     now = datetime.now(UTC)
+    update: dict[str, object] = {
+        "$set": {"currentChapter": next_chapter_id, "updatedAt": now},
+        "$inc": {"revision": 1},
+    }
+    if study.current_chapter == chapter.id or not study.current_chapter:
+        update["$unset"] = {"currentPath": ""}
     await app_state.db.study.update_one(
         {"_id": study.id, "owner": study.owner},
-        {"$set": {"currentChapter": next_chapter_id, "updatedAt": now}, "$inc": {"revision": 1}},
+        update,
     )
     return next_chapter_id
 

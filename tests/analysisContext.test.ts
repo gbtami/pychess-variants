@@ -87,6 +87,8 @@ describe('analysis context', () => {
                     canClone: true,
                     members: { tester: 'write' },
                     maxMembers: 30,
+                    sharedChapter: 'chapter1',
+                    sharedPath: '',
                     chapter: {
                         id: 'chapter1',
                         name: 'Chapter 1',

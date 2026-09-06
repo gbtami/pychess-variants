@@ -362,6 +362,114 @@ describe('Study analysis websocket synchronization', () => {
         expect(reload).not.toHaveBeenCalled();
     });
 
+    test('REC off keeps contributor edits local until recording is enabled', () => {
+        const ctrl = makeCtrl();
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            writable: true,
+            recording: false,
+            onReloadRequired: jest.fn(),
+            opIdFactory: () => 'RecordedOp',
+        });
+        extension.onSocketOpen();
+
+        extension.setDescription('local experiment');
+        expect(extension.isRecording).toBe(false);
+        expect(extension.pendingCount).toBe(0);
+        expect(ctrl.doSend).not.toHaveBeenCalled();
+
+        extension.setRecording(true);
+        extension.setDescription('recorded change');
+        expect(extension.isRecording).toBe(true);
+        expect(ctrl.doSend).toHaveBeenCalledWith(
+            expect.objectContaining({ type: 'study_set_description', description: 'recorded change' }),
+        );
+    });
+
+    test('shared path waits for an optimistic tree mutation acknowledgement', () => {
+        const ctrl = makeCtrl();
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            writable: true,
+            recording: true,
+            onReloadRequired: jest.fn(),
+            opIdFactory: () => 'LocalOp1',
+        });
+        const node = e4Node();
+        addStudyNodeToAnalysisTree(ctrl.analysisTree, '', node);
+        extension.onSocketOpen();
+        extension.onNodeAdded('', ctrl.analysisTree.root.children[0]);
+
+        expect(extension.sharePosition('chapter1', 'StudyNode1')).toBe(true);
+        expect(ctrl.doSend).toHaveBeenCalledTimes(1);
+
+        extension.onSocketMessage('study_add_node', {
+            type: 'study_add_node',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'LocalOp1',
+            revision: 1,
+            changed: true,
+            path: 'StudyNode1',
+            parentPath: '',
+            node,
+        });
+
+        expect(ctrl.doSend).toHaveBeenCalledTimes(2);
+        expect(ctrl.doSend).toHaveBeenLastCalledWith({
+            type: 'study_set_position',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            path: 'StudyNode1',
+        });
+    });
+
+    test('shared position messages are delivered independently of chapter revisions', () => {
+        const ctrl = makeCtrl();
+        const sharedPosition = jest.fn();
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 7,
+            onSharedPositionChanged: sharedPosition,
+            onReloadRequired: jest.fn(),
+        });
+
+        expect(
+            extension.onSocketMessage('study_position', {
+                type: 'study_position',
+                studyId: 'study001',
+                chapterId: 'chapter2',
+                path: 'StudyNode1',
+            }),
+        ).toBe(true);
+        expect(sharedPosition).toHaveBeenCalledWith('chapter2', 'StudyNode1');
+        expect(extension.revision).toBe(7);
+    });
+
+    test('shared-position reload errors are honored even for another chapter', () => {
+        const ctrl = makeCtrl();
+        const reload = jest.fn();
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            onReloadRequired: reload,
+        });
+
+        extension.onSocketMessage('study_reload', {
+            type: 'study_reload',
+            studyId: 'study001',
+            chapterId: 'chapter2',
+            reason: 'invalid_shared_position',
+        });
+        expect(reload).toHaveBeenCalledWith('invalid_shared_position');
+    });
+
     test('read-only viewers receive remote changes without sending local mutations', async () => {
         const ctrl = makeCtrl();
         const extension = new StudyAnalysisExtension(ctrl, {

@@ -16,6 +16,7 @@ from ws_structs import STUDY_TYPED_DECODERS, WsInboundStruct
 from study.models import Study
 from study.mutations import StudyMutationResult, StudyMutationService
 from study.permissions import can_view_study
+from study.storage import StudyStorageError, set_shared_position
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -141,6 +142,91 @@ async def _finish_mutation(
         await ws_send_json(ws, payload)
 
 
+async def _broadcast_shared_position(
+    app_state: PychessGlobalAppState,
+    ws: WebSocketResponse,
+    study_id: str,
+    chapter_id: str,
+    path: str,
+) -> None:
+    payload = {
+        "type": "study_position",
+        "studyId": study_id,
+        "chapterId": chapter_id,
+        "path": path,
+    }
+    room = app_state.study_sockets.get(study_id)
+    if room:
+        await ws_send_json_many(tuple(room), payload)
+    else:
+        await ws_send_json(ws, payload)
+
+
+async def _set_shared_position_message(
+    app_state: PychessGlobalAppState,
+    user: User,
+    ws: WebSocketResponse,
+    data: Mapping[str, object],
+    *,
+    study_id: str,
+) -> None:
+    chapter_id = data.get("chapterId")
+    path = data.get("path")
+    if (
+        data.get("studyId") != study_id
+        or not isinstance(chapter_id, str)
+        or not chapter_id
+        or not isinstance(path, str)
+        or len(path) > _MAX_PATH_LENGTH
+    ):
+        await _send_invalid_message(ws, data)
+        return
+    try:
+        _, changed = await set_shared_position(app_state, study_id, user.username, chapter_id, path)
+    except StudyStorageError:
+        await ws_send_json(
+            ws,
+            {
+                "type": "study_reload",
+                "studyId": study_id,
+                "chapterId": chapter_id,
+                "reason": "invalid_shared_position",
+            },
+        )
+        return
+    if changed:
+        await _broadcast_shared_position(app_state, ws, study_id, chapter_id, path)
+
+
+async def _repair_shared_position_after_delete(
+    app_state: PychessGlobalAppState,
+    ws: WebSocketResponse,
+    study_id: str,
+    chapter_id: str,
+    deleted_path: str,
+) -> None:
+    raw = await app_state.db.study.find_one({"_id": study_id})
+    if raw is None:
+        return
+    try:
+        study = Study.from_document(raw)
+    except (TypeError, ValueError):
+        return
+    shared_path = study.current_path or ""
+    if study.current_chapter != chapter_id or not shared_path:
+        return
+    if shared_path != deleted_path and not shared_path.startswith(f"{deleted_path}."):
+        return
+    repaired = deleted_path.rpartition(".")[0]
+    update: dict[str, object]
+    if repaired:
+        update = {"$set": {"currentPath": repaired}}
+    else:
+        update = {"$unset": {"currentPath": ""}}
+    await app_state.db.study.update_one({"_id": study_id}, update)
+    await _broadcast_shared_position(app_state, ws, study_id, chapter_id, repaired)
+
+
 async def process_message(
     app_state: PychessGlobalAppState,
     user: User,
@@ -171,11 +257,19 @@ async def _process_message_unlocked(
     service: StudyMutationService,
 ) -> None:
     data = _as_mapping(raw_data)
-    if data is None or not _valid_common_message(data, study_id):
-        await _send_invalid_message(ws, data or {})
+    if data is None:
+        await _send_invalid_message(ws, {})
         return
 
     message_type = data.get("type")
+    if message_type == "study_set_position":
+        await _set_shared_position_message(app_state, user, ws, data, study_id=study_id)
+        return
+
+    if not _valid_common_message(data, study_id):
+        await _send_invalid_message(ws, data)
+        return
+
     chapter_id = cast(str, data["chapterId"])
     expected_revision = cast(int, data["expectedRevision"])
 
@@ -310,6 +404,8 @@ async def _process_message_unlocked(
             expected_revision=expected_revision,
         )
         await _finish_mutation(app_state, ws, study_id, data, result, {"path": path})
+        if result.status == "ok" and result.changed:
+            await _repair_shared_position_after_delete(app_state, ws, study_id, chapter_id, path)
     elif message_type == "study_promote_variation":
         to_mainline = data.get("toMainline")
         if not isinstance(to_mainline, bool):

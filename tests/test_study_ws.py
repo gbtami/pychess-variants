@@ -20,6 +20,7 @@ from ws_structs import (
     StudyPromoteVariationIn,
     StudySetCommentIn,
     StudySetDescriptionIn,
+    StudySetPositionIn,
     StudySetShapesIn,
     StudySetTagsIn,
 )
@@ -587,6 +588,175 @@ class StudyWebsocketTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(chapter["root"]["Client0002"].get("o", 0), 0)
         self.assertEqual([msg["revision"] for msg in owner_ws.sent], [3, 4, 5])
         self.assertEqual(owner_ws.sent, writer_ws.sent)
+
+    async def test_writer_shared_position_is_broadcast_without_chapter_revision(self) -> None:
+        owner_ws = await self._connect(self.user)
+        writer_ws = await self._connect(self.writer)
+        owner_ws.sent.clear()
+        writer_ws.sent.clear()
+
+        await process_message(
+            cast(Any, self.app_state),
+            cast(Any, self.user),
+            cast(Any, owner_ws),
+            StudyAddNodeIn(
+                type="study_add_node",
+                studyId=STUDY_ID,
+                chapterId=CHAPTER_ID,
+                clientOpId="position-node",
+                expectedRevision=0,
+                parentPath="",
+                move="e2e4",
+                nodeId="Client0001",
+            ),
+            study_id=STUDY_ID,
+            service=self.service,
+        )
+        owner_ws.sent.clear()
+        writer_ws.sent.clear()
+
+        await process_message(
+            cast(Any, self.app_state),
+            cast(Any, self.writer),
+            cast(Any, writer_ws),
+            StudySetPositionIn(
+                type="study_set_position",
+                studyId=STUDY_ID,
+                chapterId=CHAPTER_ID,
+                path="Client0001",
+            ),
+            study_id=STUDY_ID,
+            service=self.service,
+        )
+
+        self.assertEqual(owner_ws.sent, writer_ws.sent)
+        self.assertEqual(
+            owner_ws.sent,
+            [
+                {
+                    "type": "study_position",
+                    "studyId": STUDY_ID,
+                    "chapterId": CHAPTER_ID,
+                    "path": "Client0001",
+                }
+            ],
+        )
+        stored_study = await self.db.study.find_one({"_id": STUDY_ID})
+        assert stored_study is not None
+        self.assertEqual(stored_study["currentChapter"], CHAPTER_ID)
+        self.assertEqual(stored_study["currentPath"], "Client0001")
+        stored_chapter = await self.db.study_chapter.find_one({"_id": CHAPTER_ID})
+        assert stored_chapter is not None
+        self.assertEqual(stored_chapter["revision"], 1)
+
+    async def test_read_member_cannot_change_shared_position(self) -> None:
+        owner_ws = await self._connect(self.user)
+        reader = FakeUser("reader")
+        reader_ws = await self._connect(reader)
+        await self.db.study.update_one(
+            {"_id": STUDY_ID},
+            {"$set": {"members.reader": "read"}},
+        )
+        owner_ws.sent.clear()
+        reader_ws.sent.clear()
+
+        await process_message(
+            cast(Any, self.app_state),
+            cast(Any, reader),
+            cast(Any, reader_ws),
+            StudySetPositionIn(
+                type="study_set_position",
+                studyId=STUDY_ID,
+                chapterId=CHAPTER_ID,
+                path="",
+            ),
+            study_id=STUDY_ID,
+            service=self.service,
+        )
+
+        self.assertEqual(owner_ws.sent, [])
+        self.assertEqual(reader_ws.sent[0]["type"], "study_reload")
+        self.assertEqual(reader_ws.sent[0]["reason"], "invalid_shared_position")
+        stored_study = await self.db.study.find_one({"_id": STUDY_ID})
+        assert stored_study is not None
+        self.assertNotIn("currentPath", stored_study)
+
+    async def test_deleting_shared_subtree_repairs_and_broadcasts_position(self) -> None:
+        owner_ws = await self._connect(self.user)
+        writer_ws = await self._connect(self.writer)
+        owner_ws.sent.clear()
+        writer_ws.sent.clear()
+
+        for message in (
+            StudyAddNodeIn(
+                type="study_add_node",
+                studyId=STUDY_ID,
+                chapterId=CHAPTER_ID,
+                clientOpId="repair-e4",
+                expectedRevision=0,
+                parentPath="",
+                move="e2e4",
+                nodeId="Client0001",
+            ),
+            StudyAddNodeIn(
+                type="study_add_node",
+                studyId=STUDY_ID,
+                chapterId=CHAPTER_ID,
+                clientOpId="repair-e5",
+                expectedRevision=1,
+                parentPath="Client0001",
+                move="e7e5",
+                nodeId="Client0002",
+            ),
+        ):
+            await process_message(
+                cast(Any, self.app_state),
+                cast(Any, self.user),
+                cast(Any, owner_ws),
+                message,
+                study_id=STUDY_ID,
+                service=self.service,
+            )
+        await process_message(
+            cast(Any, self.app_state),
+            cast(Any, self.user),
+            cast(Any, owner_ws),
+            StudySetPositionIn(
+                type="study_set_position",
+                studyId=STUDY_ID,
+                chapterId=CHAPTER_ID,
+                path="Client0001.Client0002",
+            ),
+            study_id=STUDY_ID,
+            service=self.service,
+        )
+        owner_ws.sent.clear()
+        writer_ws.sent.clear()
+
+        await process_message(
+            cast(Any, self.app_state),
+            cast(Any, self.writer),
+            cast(Any, writer_ws),
+            StudyDeleteNodeIn(
+                type="study_delete_node",
+                studyId=STUDY_ID,
+                chapterId=CHAPTER_ID,
+                clientOpId="repair-delete",
+                expectedRevision=2,
+                path="Client0001.Client0002",
+            ),
+            study_id=STUDY_ID,
+            service=self.service,
+        )
+
+        self.assertEqual(owner_ws.sent, writer_ws.sent)
+        self.assertEqual(
+            [message["type"] for message in owner_ws.sent], ["study_delete_node", "study_position"]
+        )
+        self.assertEqual(owner_ws.sent[1]["path"], "Client0001")
+        stored_study = await self.db.study.find_one({"_id": STUDY_ID})
+        assert stored_study is not None
+        self.assertEqual(stored_study["currentPath"], "Client0001")
 
     async def test_membership_broadcast_updates_room_and_revokes_private_access(self) -> None:
         owner_ws = await self._connect(self.user)

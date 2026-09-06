@@ -160,6 +160,13 @@ class StudySetTagsIn(StudyMutationIn):
     tags: dict[str, str]
 
 
+class StudySetPositionIn(WsInboundStruct):
+    type: Literal["study_set_position"]
+    studyId: str
+    chapterId: str
+    path: str
+
+
 STUDY_TYPED_DECODERS: dict[str, msgspec.json.Decoder] = {
     "study_add_node": msgspec.json.Decoder(type=StudyAddNodeIn),
     "study_delete_node": msgspec.json.Decoder(type=StudyDeleteNodeIn),
@@ -171,4 +178,5 @@ STUDY_TYPED_DECODERS: dict[str, msgspec.json.Decoder] = {
     "study_clear_annotations": msgspec.json.Decoder(type=StudyClearAnnotationsIn),
     "study_set_description": msgspec.json.Decoder(type=StudySetDescriptionIn),
     "study_set_tags": msgspec.json.Decoder(type=StudySetTagsIn),
+    "study_set_position": msgspec.json.Decoder(type=StudySetPositionIn),
 }

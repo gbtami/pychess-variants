@@ -11,7 +11,7 @@ from fairy import FairyBoard
 from mongomock_motor import AsyncMongoMockClient
 from pychess_global_app_state_utils import get_app_state
 from study.builder import StudyChapterBuilder
-from study.storage import create_study_from_draft, set_study_visibility
+from study.storage import add_chapter, create_study_from_draft, set_study_visibility
 
 from server import make_app
 
@@ -84,6 +84,37 @@ async def test_analysis_can_append_to_existing_owned_study(aiohttp_client) -> No
     assert chapters[1]["name"] == "Imported analysis"
     assert chapters[1]["orientation"] == "black"
     assert chapters[1]["tags"] == {"Black": "Bob", "White": "Alice"}
+
+
+@pytest.mark.asyncio
+async def test_browsing_chapter_does_not_change_shared_study_position(aiohttp_client) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    username = "study_position_owner"
+    await _insert_user(app_state, username)
+
+    first_draft = await StudyChapterBuilder(app_state, username).blank_or_fen(
+        variant="chess", name="First chapter"
+    )
+    study, first = await create_study_from_draft(app_state, username, first_draft)
+    second = await add_chapter(app_state, study, first, name="Second chapter")
+
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie(username)})
+    response = await client.get(
+        f"/study/{study.id}/{first.id}",
+        headers={"Accept": "application/json"},
+    )
+    assert response.status == 200
+    payload = await response.json()
+    assert payload["study"]["chapter"]["id"] == first.id
+    assert payload["study"]["sharedChapter"] == second.id
+    assert payload["study"]["sharedPath"] == ""
+
+    stored = await app_state.db.study.find_one({"_id": study.id})
+    assert stored is not None
+    assert stored["currentChapter"] == second.id
+    assert "currentPath" not in stored
 
 
 @pytest.mark.asyncio

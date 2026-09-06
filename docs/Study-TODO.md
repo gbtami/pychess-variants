@@ -1274,20 +1274,30 @@ Study sockets.
 
 Copy the Lichess concept explicitly:
 
-- [ ] `write`: contributor's analysis edits are recorded.
-- [ ] `sticky`: viewer follows the shared Study chapter/path.
-- [ ] Turning sticky off lets a viewer browse independently.
-- [ ] Turning write off lets a contributor experiment locally without modifying Study.
-- [ ] Remote shared-path changes while non-sticky increment a simple "behind" indication
+- [x] `write`: contributor's analysis edits are recorded.
+- [x] `sticky`: viewer follows the shared Study chapter/path.
+- [x] Turning sticky off lets a viewer browse independently.
+- [x] Turning write off lets a contributor experiment locally without modifying Study.
+- [x] Remote shared-path changes while non-sticky increment a simple "behind" indication
   rather than stealing the user's board.
-- [ ] Rejoining sticky mode reloads/jumps to authoritative shared position.
+- [x] Rejoining sticky mode reloads/jumps to authoritative shared position.
 
 ## 4D. Shared chapter/path
 
-- [ ] Study stores current shared chapter/path.
-- [ ] Authorized sticky navigation updates it.
-- [ ] Chapter changes and path changes are serialized with the other Study operations.
-- [ ] Non-sticky clients keep a local last path for each chapter.
+- [x] Study stores current shared chapter/path.
+- [x] Authorized sticky navigation updates it.
+- [x] Chapter changes and path changes are serialized with the other Study operations.
+- [x] Non-sticky clients keep a local last path for each chapter.
+
+Phase 4C/4D exposes the Lichess-style `SYNC` (`sticky`) and `REC` (`write`) controls. REC is a
+per-Study browser preference for contributors; turning it off keeps analysis edits local, and toggling
+it reloads the authoritative chapter so local experiments cannot later leak into recorded mutations.
+SYNC follows the Study's persisted `currentChapter`/`currentPath`; switching it off preserves local
+per-chapter paths and remote shared-position changes only increase the behind badge. Re-enabling SYNC
+reloads the authoritative chapter/path. Contributors publish `study_set_position` messages through the
+same per-Study websocket lock used by tree mutations, while read-only members may follow but cannot
+change the shared position. Deleting the subtree containing the shared path repairs it to the surviving
+parent and broadcasts the repaired position.
 
 # Phase 5 — optional high-value parity
 

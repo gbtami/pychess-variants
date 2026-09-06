@@ -32,6 +32,7 @@ import { renderStudyChapterPgn, type StudyPgnChapterData, type StudyPgnContext }
 const STUDY_SOCKET_TYPES = new Set([
     'study_user_connected',
     'study_members',
+    'study_position',
     'study_add_node',
     'study_delete_node',
     'study_promote_variation',
@@ -101,9 +102,12 @@ export interface StudySyncOptions {
     onAnnotationStateChanged?: (state: StudyAnnotationState) => void;
     onReloadRequired?: (reason: string) => void;
     onMembersChanged?: (members: Record<string, 'read' | 'write'>) => void;
+    onLocalPathChanged?: (path: string) => void;
+    onSharedPositionChanged?: (chapterId: string, path: string) => void;
     opIdFactory?: () => string;
     contextMenuActions?: AnalysisExtension['contextMenuActions'];
     writable?: boolean;
+    recording?: boolean;
 }
 
 function record(message: unknown): Record<string, unknown> | undefined {
@@ -213,6 +217,9 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     private readonly onAnnotationStateChanged?: (state: StudyAnnotationState) => void;
     private readonly opIdFactory: () => string;
     private writable: boolean;
+    private recording: boolean;
+    private suppressLocalPath = false;
+    private pendingSharedPosition?: { chapterId: string; path: string };
 
     constructor(
         private readonly ctrl: AnalysisController,
@@ -236,6 +243,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         this.contextMenuActions = options.contextMenuActions;
         this.opIdFactory = options.opIdFactory ?? newStudyNodeId;
         this.writable = options.writable ?? true;
+        this.recording = this.writable && (options.recording ?? true);
     }
 
     whenIdle(timeoutMs = 10000): Promise<void> {
@@ -263,6 +271,34 @@ export class StudyAnalysisExtension implements AnalysisExtension {
 
     get pendingCount(): number {
         return this.pending.length;
+    }
+
+    get isRecording(): boolean {
+        return this.recording;
+    }
+
+    setRecording(recording: boolean): void {
+        this.recording = this.writable && recording;
+        if (!this.recording) this.pendingSharedPosition = undefined;
+    }
+
+    sharePosition(chapterId: string, path: string): boolean {
+        if (!this.connected || !this.writable || !this.recording || this.reloadRequested || !chapterId) return false;
+        this.pendingSharedPosition = { chapterId, path };
+        this.pumpSharedPosition();
+        return true;
+    }
+
+    followSharedPath(path: string): boolean {
+        const tree = this.ctrl.analysisTree;
+        if (!tree || !nodeAtPath(tree, path)) return false;
+        this.suppressLocalPath = true;
+        try {
+            this.ctrl.activateTreePath(path, true, false);
+        } finally {
+            this.suppressLocalPath = false;
+        }
+        return true;
     }
 
     get annotationState(): StudyAnnotationState {
@@ -342,6 +378,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         this.openedOnce = true;
         this.reconnecting = false;
         this.pump();
+        this.pumpSharedPosition();
     }
 
     onSocketReconnect(): void {
@@ -353,9 +390,10 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         this.connected = false;
     }
 
-    onPathChanged(): void {
+    onPathChanged(path = this.ctrl.analysisPath ?? ''): void {
         this.restoreCurrentShapes();
         this.notifyAnnotationState();
+        if (!this.suppressLocalPath) this.options.onLocalPathChanged?.(path);
     }
 
     onShapesChanged(shapes: DrawShape[]): void {
@@ -481,6 +519,15 @@ export class StudyAnalysisExtension implements AnalysisExtension {
             return true;
         }
 
+        if (type === 'study_position') {
+            if (typeof data.chapterId !== 'string' || typeof data.path !== 'string') {
+                this.requestReload('invalid_shared_position');
+                return true;
+            }
+            this.options.onSharedPositionChanged?.(data.chapterId, data.path);
+            return true;
+        }
+
         if (type === 'study_members') {
             const members = asStudyMembers(data.members);
             if (!members) {
@@ -490,17 +537,21 @@ export class StudyAnalysisExtension implements AnalysisExtension {
             const nextWritable = members[this.ctrl.username] === 'write';
             const capabilityChanged = nextWritable !== this.writable;
             this.writable = nextWritable;
+            if (!this.writable) {
+                this.recording = false;
+                this.pendingSharedPosition = undefined;
+            }
             this.options.onMembersChanged?.(members);
             if (capabilityChanged) this.requestReload('write_access_changed');
             return true;
         }
 
-        if (data.chapterId !== this.options.chapterId) return true;
-
         if (type === 'study_error' || type === 'study_reload') {
             this.requestReload(typeof data.reason === 'string' ? data.reason : type);
             return true;
         }
+
+        if (data.chapterId !== this.options.chapterId) return true;
         if (!this.isAcceptedMutation(type, data)) {
             this.requestReload('invalid_mutation_ack');
             return true;
@@ -551,7 +602,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     }
 
     private enqueue(type: StudyMutationType, body: JSONObject): void {
-        if (!this.writable || this.reloadRequested) return;
+        if (!this.writable || !this.recording || this.reloadRequested) return;
         const clientOpId = this.opIdFactory();
         if (!clientOpId) {
             this.requestReload('invalid_client_operation_id');
@@ -564,7 +615,11 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     private pump(): void {
         if (!this.connected || this.reloadRequested) return;
         const pending = this.pending[0];
-        if (!pending || pending.sent) return;
+        if (!pending) {
+            this.pumpSharedPosition();
+            return;
+        }
+        if (pending.sent) return;
         pending.sent = true;
         this.ctrl.doSend({
             type: pending.type,
@@ -573,6 +628,26 @@ export class StudyAnalysisExtension implements AnalysisExtension {
             clientOpId: pending.clientOpId,
             expectedRevision: this.currentRevision,
             ...pending.body,
+        });
+    }
+
+    private pumpSharedPosition(): void {
+        if (
+            !this.connected ||
+            !this.writable ||
+            !this.recording ||
+            this.reloadRequested ||
+            this.pending.length ||
+            !this.pendingSharedPosition
+        )
+            return;
+        const position = this.pendingSharedPosition;
+        this.pendingSharedPosition = undefined;
+        this.ctrl.doSend({
+            type: 'study_set_position',
+            studyId: this.options.studyId,
+            chapterId: position.chapterId,
+            path: position.path,
         });
     }
 
