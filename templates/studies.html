@@ -1,8 +1,8 @@
 {% extends "template.html" %}
 {% block content %}
 <div id="main-wrap">
-    <main class="study-list-page box box-pad">
-        <div class="box__top study-list-top">
+    <main class="study-index box">
+        <div class="study-index__top">
             <h1>
                 {% if study_list_is_self %}
                 {% trans %}My studies{% endtrans %}
@@ -11,33 +11,66 @@
                 {% endif %}
             </h1>
             {% if study_list_can_create %}
-            <form class="study-create-form" method="post" action="/study">
-                <input type="text" name="name" maxlength="100" placeholder="{% trans %}Study name{% endtrans %}">
-                <input type="text" name="variant" value="chess" placeholder="{% trans %}Variant{% endtrans %}">
-                <input type="text" name="fen" placeholder="{% trans %}FEN (optional){% endtrans %}">
-                <input type="text" name="gameId" maxlength="12" placeholder="{% trans %}Game ID (optional){% endtrans %}">
-                <button class="button" type="submit">{% trans %}New study{% endtrans %}</button>
-            </form>
+            <details class="study-new">
+                <summary class="study-new__toggle">
+                    <span class="icon icon-plus-square" aria-hidden="true"></span>
+                    {% trans %}New study{% endtrans %}
+                </summary>
+                <form class="study-create-form" method="post" action="/study">
+                    <label class="study-create-form__wide">
+                        <span>{% trans %}Study name{% endtrans %}</span>
+                        <input type="text" name="name" maxlength="100" placeholder="{% trans %}Study name{% endtrans %}">
+                    </label>
+                    <label>
+                        <span>{% trans %}Variant{% endtrans %}</span>
+                        <input type="text" name="variant" value="chess" placeholder="{% trans %}Variant{% endtrans %}">
+                    </label>
+                    <label>
+                        <span>{% trans %}Game ID (optional){% endtrans %}</span>
+                        <input type="text" name="gameId" maxlength="12" placeholder="{% trans %}Game ID (optional){% endtrans %}">
+                    </label>
+                    <label class="study-create-form__wide">
+                        <span>{% trans %}FEN (optional){% endtrans %}</span>
+                        <input type="text" name="fen" placeholder="{% trans %}FEN (optional){% endtrans %}">
+                    </label>
+                    <button class="button study-create-form__submit" type="submit">
+                        <span class="icon icon-plus-square" aria-hidden="true"></span>
+                        {% trans %}Create study{% endtrans %}
+                    </button>
+                </form>
+            </details>
             {% endif %}
         </div>
         {% if studies %}
-        <div class="study-list">
+        <div class="studies study-list">
             {% for study in studies %}
-            <a class="study-list__item" href="/study/{{ study.id }}">
-                <strong>{{ study.name }}</strong>
-                <span class="study-list__meta">
-                    {% if study_list_show_visibility %}
-                    <small class="study-list__visibility">{{ study.visibility }}</small>
-                    {% endif %}
-                    <time datetime="{{ study.updated_at.isoformat() }}">{{ study.updated_at.strftime('%Y-%m-%d %H:%M') }}</time>
-                </span>
-            </a>
+            <article class="study-card">
+                <a class="study-card__link" href="/study/{{ study.id }}">
+                    <span class="study-card__icon icon icon-book" aria-hidden="true"></span>
+                    <span class="study-card__summary">
+                        <strong class="study-card__name">{{ study.name }}</strong>
+                        <span class="study-card__meta">
+                            {% if study_list_show_visibility %}
+                            <span class="study-card__visibility study-card__visibility--{{ study.visibility }}">{{ study.visibility }}</span>
+                            <span aria-hidden="true">•</span>
+                            {% endif %}
+                            <time datetime="{{ study.updated_at.isoformat() }}">{{ study.updated_at.strftime('%Y-%m-%d %H:%M') }}</time>
+                        </span>
+                    </span>
+                </a>
+            </article>
             {% endfor %}
         </div>
         {% elif study_list_is_self %}
-        <p class="study-empty">{% trans %}You do not have any studies yet.{% endtrans %}</p>
+        <div class="study-empty">
+            <span class="study-empty__icon icon icon-book" aria-hidden="true"></span>
+            <p>{% trans %}You do not have any studies yet.{% endtrans %}</p>
+        </div>
         {% else %}
-        <p class="study-empty">{{ study_list_owner }} {% trans %}has no public studies yet.{% endtrans %}</p>
+        <div class="study-empty">
+            <span class="study-empty__icon icon icon-book" aria-hidden="true"></span>
+            <p>{{ study_list_owner }} {% trans %}has no public studies yet.{% endtrans %}</p>
+        </div>
         {% endif %}
     </main>
 </div>
