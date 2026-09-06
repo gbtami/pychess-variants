@@ -213,14 +213,7 @@ export class AnalysisTreeController {
     }
 
     openTreeContextMenu(path: string, clientX: number, clientY: number) {
-        const container = document.getElementById('movelist');
-        if (!container) return;
-
-        const rect = container.getBoundingClientRect();
-        const x = clientX - rect.left + container.scrollLeft;
-        const y = clientY - rect.top + container.scrollTop;
-
-        this.treeContextMenu = { path, x, y };
+        this.treeContextMenu = { path, x: clientX, y: clientY };
         document.addEventListener('click', this.onTreeContextMenuDocumentClick, false);
         updateMovelist(this.ctrl, true, false);
     }

@@ -173,6 +173,19 @@ test('collapsed paths persist per game and can be expanded again', () => {
     expect(tree2.someTreeCollapsed(true)).toBe(false);
 });
 
+test('context menu keeps viewport coordinates and closes cleanly', () => {
+    const ctrl = stubCtrl(steps4());
+    const tree = new AnalysisTreeController(ctrl as any);
+    tree.initAnalysisTreeAtPly(1);
+    const path = tree.getTreeActivePath();
+
+    tree.openTreeContextMenu(path, 321, 456);
+    expect(tree.getTreeContextMenu()).toEqual({ path, x: 321, y: 456 });
+
+    tree.closeTreeContextMenu();
+    expect(tree.getTreeContextMenu()).toBeUndefined();
+});
+
 test('keyboard fork selection and right navigation use the extracted tree state', () => {
     const ctrl = stubCtrl(steps4());
     const tree = new AnalysisTreeController(ctrl as any);

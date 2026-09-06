@@ -747,16 +747,12 @@ function renderTreeContextMenu(ctrl: TreeCtrl): VNode | undefined {
             [h(`i.icon.${iconClass}`), h('span', text)],
         );
     const positionMenu = (el: HTMLElement) => {
-        const container = el.offsetParent as HTMLElement | null;
-        if (!container) return;
+        const margin = 4;
+        const maxLeft = Math.max(margin, window.innerWidth - el.offsetWidth - margin);
+        const maxTop = Math.max(margin, window.innerHeight - el.offsetHeight - margin);
 
-        const minLeft = container.scrollLeft + 4;
-        const maxLeft = container.scrollLeft + container.clientWidth - el.offsetWidth - 4;
-        const minTop = container.scrollTop + 4;
-        const maxTop = container.scrollTop + container.clientHeight - el.offsetHeight - 4;
-
-        el.style.left = `${Math.max(minLeft, Math.min(menu.x, maxLeft))}px`;
-        el.style.top = `${Math.max(minTop, Math.min(menu.y, maxTop))}px`;
+        el.style.left = `${Math.max(margin, Math.min(menu.x, maxLeft))}px`;
+        el.style.top = `${Math.max(margin, Math.min(menu.y, maxTop))}px`;
     };
 
     if (canPromote) {
