@@ -537,6 +537,7 @@ post_routes: tuple[RouteDef, ...] = (
     ("/study", study_view.study_create),
     ("/study/from-analysis", study_view.study_from_analysis),
     (r"/study/{studyId:\w{8}}/edit", study_view.study_edit),
+    (r"/study/{studyId:\w{8}}/clone", study_view.study_clone),
     (r"/study/{studyId:\w{8}}/delete", study_view.study_delete),
     (r"/study/{studyId:\w{8}}/chapter", study_view.study_chapter_create),
     (r"/study/{studyId:\w{8}}/import-pgn", study_view.study_import_pgn),

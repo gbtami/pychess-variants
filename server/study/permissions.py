@@ -17,6 +17,17 @@ def can_view_study(study: Study, username: str | None) -> bool:
     return username is not None and username in study.members
 
 
+def can_clone_study(study: Study, username: str | None) -> bool:
+    """Return whether a viewer may make a private copy of a Study.
+
+    Phase 3 keeps clone policy intentionally simple: any signed-in user who may
+    view the Study may clone it. Per-Study cloneability settings are deferred to
+    the later per-feature-permissions milestone.
+    """
+
+    return username is not None and can_view_study(study, username)
+
+
 def can_embed_study(study: Study) -> bool:
     """Return whether a Study may be rendered in a third-party iframe.
 

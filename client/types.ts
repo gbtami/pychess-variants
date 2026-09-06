@@ -41,6 +41,7 @@ export type StudyPageModel = {
     owner: string;
     visibility: 'private' | 'unlisted' | 'public';
     canWrite: boolean;
+    canClone: boolean;
     chapter: {
         id: string;
         name: string;

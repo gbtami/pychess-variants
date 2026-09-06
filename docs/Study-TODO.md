@@ -1201,7 +1201,11 @@ This is a deliberately separate milestone from collaboration.
 - [x] Add share link UI.
 - [x] Add chapter embed only after read-only permission behavior is solid.
 - [x] Add Study/chapter PGN download permission.
-- [ ] Add clone permission and cloning only after sharing rules are explicit.
+- [x] Add clone permission and cloning only after sharing rules are explicit.
+  Cloning currently follows a fixed Phase 3 policy: any signed-in non-BOT viewer who
+  can read a Study may clone it. The clone is always private, owned only by the cloner,
+  gets fresh Study/chapter ids and revisions, and records the source Study id. Configurable
+  per-Study clone permissions remain deferred to Phase 5.
 - [ ] Consider profile "Studies" listing and `/study/by/{username}`.
 - [ ] Add public search/discovery indexes only when public listing/search is implemented.
 

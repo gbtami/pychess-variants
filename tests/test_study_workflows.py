@@ -227,3 +227,86 @@ async def test_switching_to_private_disconnects_read_only_study_websockets(aioht
         with pytest.raises(aiohttp.WSServerHandshakeError) as exc_info:
             await viewer.ws_connect(client.make_url(f"/wsstudy/{study.id}"))
         assert exc_info.value.status == 404
+
+
+@pytest.mark.asyncio
+async def test_viewable_study_can_be_cloned_into_private_owned_copy(aiohttp_client) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    await _insert_user(app_state, "clone_owner")
+    await _insert_user(app_state, "clone_viewer")
+
+    draft = await StudyChapterBuilder(app_state, "clone_owner").blank_or_fen(
+        variant="chess", name="Source chapter"
+    )
+    study, chapter = await create_study_from_draft(
+        app_state, "clone_owner", draft, name="Clone source"
+    )
+    source_url = f"/study/{study.id}/{chapter.id}"
+    clone_url = f"/study/{study.id}/clone"
+
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie("clone_owner")})
+    response = await client.get(source_url, headers={"Accept": "application/json"})
+    assert response.status == 200
+    assert (await response.json())["study"]["canClone"] is True
+
+    client.session.cookie_jar.clear()
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie("clone_viewer")})
+    assert (await client.post(clone_url, allow_redirects=False)).status == 404
+
+    client.session.cookie_jar.clear()
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie("clone_owner")})
+    response = await client.post(
+        f"/study/{study.id}/edit",
+        data={"name": study.name, "visibility": "public"},
+        allow_redirects=False,
+    )
+    assert response.status == 302
+
+    client.session.cookie_jar.clear()
+    response = await client.get(source_url, headers={"Accept": "application/json"})
+    assert response.status == 200
+    assert (await response.json())["study"]["canClone"] is False
+    response = await client.post(clone_url, allow_redirects=False)
+    assert response.status == 302
+    assert response.headers["Location"] == "/login"
+
+    client.session.cookie_jar.clear()
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie("clone_viewer")})
+    response = await client.get(source_url, headers={"Accept": "application/json"})
+    assert response.status == 200
+    assert (await response.json())["study"]["canClone"] is True
+
+    response = await client.post(clone_url, allow_redirects=False)
+    assert response.status == 302
+    location = response.headers["Location"]
+    assert location.startswith("/study/")
+    assert location != source_url
+
+    cloned_study_id, cloned_chapter_id = location.removeprefix("/study/").split("/", 1)
+    cloned_doc = await app_state.db.study.find_one({"_id": cloned_study_id})
+    assert cloned_doc is not None
+    assert cloned_doc["owner"] == "clone_viewer"
+    assert cloned_doc["members"] == {"clone_viewer": "write"}
+    assert cloned_doc["visibility"] == "private"
+    assert cloned_doc["source"] == f"study {study.id}"
+    assert cloned_doc["currentChapter"] == cloned_chapter_id
+    assert cloned_doc["revision"] == 0
+
+    cloned_chapters = await app_state.db.study_chapter.find({"studyId": cloned_study_id}).to_list(
+        length=10
+    )
+    assert len(cloned_chapters) == 1
+    assert cloned_chapters[0]["_id"] == cloned_chapter_id
+    assert cloned_chapters[0]["_id"] != chapter.id
+    assert cloned_chapters[0]["owner"] == "clone_viewer"
+    assert cloned_chapters[0]["name"] == chapter.name
+    assert cloned_chapters[0]["root"] == chapter.root.to_document()
+
+    response = await client.get(location, headers={"Accept": "application/json"})
+    assert response.status == 200
+    clone_payload = (await response.json())["study"]
+    assert clone_payload["visibility"] == "private"
+    assert clone_payload["canWrite"] is True
+    assert clone_payload["canClone"] is True

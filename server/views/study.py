@@ -20,12 +20,13 @@ from study.builder import (
 )
 from study.constants import STUDY_MAX_CHAPTERS
 from study.models import Study, StudyChapter, study_visibility
-from study.permissions import can_embed_study, can_view_study, can_write_study
+from study.permissions import can_clone_study, can_embed_study, can_view_study, can_write_study
 from study.storage import (
     StudyStorageError,
     add_chapter_from_draft,
     add_chapters_from_drafts,
     chapter_previews,
+    clone_study,
     create_study_from_draft,
     delete_chapter,
     delete_study,
@@ -285,6 +286,7 @@ async def _populate_study_chapter_context(
             "owner": study.owner,
             "visibility": study.visibility,
             "canWrite": writable,
+            "canClone": (not user.anon and not user.bot and can_clone_study(study, user.username)),
             "chapter": {
                 "id": chapter.id,
                 "name": chapter.name,
@@ -560,6 +562,24 @@ async def study_import_pgn(request: web.Request) -> web.StreamResponse:
             "url": f"/study/{study.id}/{last.id}",
         }
     )
+
+
+async def study_clone(request: web.Request) -> web.StreamResponse:
+    user, _ = await get_user_context(request)
+    _require_owner_user(user)
+    app_state = get_app_state(request.app)
+    if app_state.db is None:
+        raise web.HTTPServiceUnavailable(text="Studies require database access.")
+
+    source = await load_study(app_state, request.match_info["studyId"])
+    if source is None or not can_clone_study(source, user.username):
+        raise web.HTTPNotFound()
+
+    try:
+        cloned, chapter = await clone_study(app_state, source, user.username)
+    except StudyStorageError as exc:
+        raise web.HTTPBadRequest(text=str(exc)) from exc
+    raise web.HTTPFound(f"/study/{cloned.id}/{chapter.id}")
 
 
 async def study_edit(request: web.Request) -> web.StreamResponse:

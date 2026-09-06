@@ -453,6 +453,15 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel): VNode {
         toolPanel('export', [
             studyShareLinks(study, model),
             h('div.study-export__actions', [
+                ...(study.canClone
+                    ? [
+                          h(
+                              'form.study-share__clone',
+                              { attrs: { method: 'post', action: `/study/${study.id}/clone` } },
+                              [h('button.button', { attrs: { type: 'submit' } }, _('Clone study'))],
+                          ),
+                      ]
+                    : []),
                 h('button.button.study-export__chapter', { attrs: { type: 'button' } }, _('Download chapter PGN')),
                 h('button.button.study-export__study', { attrs: { type: 'button' } }, _('Download study PGN')),
             ]),

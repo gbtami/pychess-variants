@@ -218,6 +218,7 @@ describe('analysis page smoke coverage', () => {
                         owner: 'tester',
                         visibility: 'private',
                         canWrite: true,
+                        canClone: true,
                         chapter: {
                             id: 'ChAp0001',
                             name: 'Main line',
@@ -295,6 +296,7 @@ describe('analysis page smoke coverage', () => {
             owner: 'owner',
             visibility: 'unlisted',
             canWrite: false,
+            canClone: true,
             chapter: {
                 id: 'ChAp0001',
                 name: 'Shared line',
@@ -330,6 +332,8 @@ describe('analysis page smoke coverage', () => {
             'http://127.0.0.1:8080/study/StUdY001/ChAp0001',
             '<iframe width="600" height="371" src="http://127.0.0.1:8080/study/embed/StUdY001/ChAp0001" frameborder="0"></iframe>',
         ]);
+        expect(root.querySelector<HTMLFormElement>('.study-share__clone')?.action).toContain('/study/StUdY001/clone');
+        expect(root.querySelector('.study-share__clone button')?.textContent).toBe('Clone study');
         expect(root.querySelector('.study-export__chapter')?.textContent).toBe('Download chapter PGN');
         expect(root.querySelector('.study-export__study')?.textContent).toBe('Download study PGN');
     });
@@ -341,6 +345,7 @@ describe('analysis page smoke coverage', () => {
             owner: 'owner',
             visibility: 'public',
             canWrite: true,
+            canClone: true,
             chapter: {
                 id: 'ChAp0001',
                 name: 'First line',
@@ -385,6 +390,7 @@ describe('analysis page smoke coverage', () => {
             owner: 'owner',
             visibility: 'unlisted',
             canWrite: false,
+            canClone: false,
             chapter: {
                 id: 'ChAp0001',
                 name: 'Shared line',

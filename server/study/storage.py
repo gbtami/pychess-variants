@@ -17,6 +17,7 @@ from study.constants import (
 from study.models import (
     Study,
     StudyChapter,
+    StudySource,
     StudyVisibility,
     make_chapter,
     make_study,
@@ -143,6 +144,78 @@ async def create_study_with_chapter(
         ),
         name=name,
     )
+
+
+async def clone_study(
+    app_state: Any,
+    source: Study,
+    owner: str,
+) -> tuple[Study, StudyChapter]:
+    """Clone every chapter into a new private Study owned by ``owner``.
+
+    The copy keeps Study/chapter content and settings, but receives fresh Study
+    and chapter ids, fresh timestamps, reset revisions, and no inherited members.
+    Like Lichess, the clone opens on its first chapter and records the source
+    Study id for provenance.
+    """
+
+    docs = (
+        await app_state.db.study_chapter.find({"studyId": source.id})
+        .sort("order", 1)
+        .to_list(length=STUDY_MAX_CHAPTERS + 1)
+    )
+    if not docs:
+        raise StudyStorageError("Study has no chapters to clone")
+    if len(docs) > STUDY_MAX_CHAPTERS:
+        raise StudyStorageError(f"A Study can have at most {STUDY_MAX_CHAPTERS} chapters")
+
+    now = datetime.now(UTC)
+    cloned = await make_study(
+        app_state.db.study,
+        owner=owner,
+        name=source.name,
+        source=StudySource("study", source.id),
+        now=now,
+    )
+    cloned = replace(cloned, settings=dict(source.settings))
+
+    chapters: list[StudyChapter] = []
+    for doc in docs:
+        original = StudyChapter.from_document(doc)
+        chapter = await make_chapter(
+            app_state.db.study_chapter,
+            study_id=cloned.id,
+            owner=owner,
+            variant=original.variant,
+            initial_fen=original.initial_fen,
+            orientation=original.orientation,
+            order=original.order,
+            name=original.name,
+            chess960=original.chess960,
+            variant_ini=original.variant_ini,
+            root=original.root,
+            description=original.description,
+            tags=original.tags,
+            now=now,
+        )
+        _ensure_chapter_size(chapter)
+        chapters.append(chapter)
+
+    cloned = replace(cloned, current_chapter=chapters[0].id)
+    chapter_ids = [chapter.id for chapter in chapters]
+    try:
+        await app_state.db.study_chapter.insert_many(
+            [chapter.to_document() for chapter in chapters]
+        )
+        await app_state.db.study.insert_one(cloned.to_document())
+    except Exception:
+        await app_state.db.study_chapter.delete_many(
+            {"_id": {"$in": chapter_ids}, "studyId": cloned.id}
+        )
+        await app_state.db.study.delete_one({"_id": cloned.id, "owner": owner})
+        raise
+
+    return cloned, chapters[0]
 
 
 async def add_chapter_from_draft(

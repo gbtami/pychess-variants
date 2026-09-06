@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from dataclasses import replace
 from types import SimpleNamespace
 from typing import Any, cast
 from unittest.mock import patch
@@ -12,7 +13,9 @@ from study.models import StudySource
 from study.storage import (
     StudyStorageError,
     add_chapter,
+    add_chapter_from_draft,
     chapter_previews,
+    clone_study,
     create_study_from_draft,
     create_study_with_chapter,
     delete_chapter,
@@ -84,6 +87,63 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
             await create_study_from_draft(cast(Any, self.app_state), "owner", draft)
         self.assertEqual(await self.db.study.count_documents({}), 0)
         self.assertEqual(await self.db.study_chapter.count_documents({}), 0)
+
+    async def test_clone_study_copies_content_with_fresh_private_ownership(self) -> None:
+        first_draft = StudyChapterDraft(
+            variant="chess",
+            initial_fen=FairyBoard.start_fen("chess"),
+            variant_ini="[snapshot:chess]",
+            name="Main line",
+            description="Source description",
+            tags={"Event": "Clone test"},
+        )
+        study, first = await create_study_from_draft(
+            cast(Any, self.app_state), "owner", first_draft, name="Opening ideas"
+        )
+        second_draft = StudyChapterDraft(
+            variant="chess",
+            initial_fen=FairyBoard.start_fen("chess"),
+            name="Second line",
+            orientation="black",
+            tags={"Chapter": "Two"},
+        )
+        second = await add_chapter_from_draft(cast(Any, self.app_state), study, second_draft)
+        source = replace(study, settings={"example": "preserved"})
+
+        cloned, cloned_first = await clone_study(cast(Any, self.app_state), source, "cloner")
+
+        self.assertNotEqual(cloned.id, study.id)
+        self.assertEqual(cloned.name, study.name)
+        self.assertEqual(cloned.owner, "cloner")
+        self.assertEqual(cloned.members, {"cloner": "write"})
+        self.assertEqual(cloned.visibility, "private")
+        self.assertEqual(cloned.source, StudySource("study", study.id))
+        self.assertEqual(cloned.settings, {"example": "preserved"})
+        self.assertEqual(cloned.revision, 0)
+        self.assertEqual(cloned.current_chapter, cloned_first.id)
+        self.assertNotEqual(cloned_first.id, first.id)
+
+        source_chapters = [first, second]
+        cloned_docs = (
+            await self.db.study_chapter.find({"studyId": cloned.id})
+            .sort("order", 1)
+            .to_list(length=10)
+        )
+        self.assertEqual(len(cloned_docs), 2)
+        self.assertTrue({doc["_id"] for doc in cloned_docs}.isdisjoint({first.id, second.id}))
+        for original, doc in zip(source_chapters, cloned_docs, strict=True):
+            self.assertEqual(doc["owner"], "cloner")
+            self.assertEqual(doc["studyId"], cloned.id)
+            self.assertEqual(doc["name"], original.name)
+            self.assertEqual(doc["order"], original.order)
+            self.assertEqual(doc["variant"], original.variant)
+            self.assertEqual(doc["initialFen"], original.initial_fen)
+            self.assertEqual(doc["orientation"], original.orientation)
+            self.assertEqual(doc.get("variantIni"), original.variant_ini)
+            self.assertEqual(doc.get("description", ""), original.description)
+            self.assertEqual(doc.get("tags", {}), dict(original.tags))
+            self.assertEqual(doc["root"], original.root.to_document())
+            self.assertEqual(doc["revision"], 0)
 
     async def test_chapter_crud_keeps_lightweight_ordered_previews(self) -> None:
         study, first = await create_study_with_chapter(cast(Any, self.app_state), "owner")
