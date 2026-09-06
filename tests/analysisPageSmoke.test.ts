@@ -247,8 +247,8 @@ describe('analysis page smoke coverage', () => {
                             },
                         },
                         chapters: [
-                            { id: 'ChAp0001', name: 'Main line', order: 1 },
-                            { id: 'ChAp0002', name: 'Sideline', order: 2 },
+                            { id: 'ChAp0001', name: 'Main line', order: 1, orientation: 'white' },
+                            { id: 'ChAp0002', name: 'Sideline', order: 2, orientation: 'black' },
                         ],
                     },
                 }),
@@ -297,6 +297,21 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('dialog#study-invite select[name="role"]')).toBeNull();
         expect(root.querySelector('input[name="fen"]')).not.toBeNull();
         expect(root.querySelector('input[name="gameId"]')).not.toBeNull();
+        const studySettings = root.querySelector<HTMLDialogElement>('#study-settings')!;
+        expect(studySettings.querySelector('#study-settings-form input[name="name"]')?.getAttribute('value')).toBe(
+            'Opening ideas',
+        );
+        expect(
+            studySettings.querySelector('.study-dialog__actions button[form="study-settings-form"]')?.textContent,
+        ).toBe('Save');
+        const secondChapterSettings = root.querySelector<HTMLDialogElement>('#chapter-settings-ChAp0002')!;
+        expect(secondChapterSettings.querySelector<HTMLSelectElement>('select[name="orientation"]')?.value).toBe(
+            'black',
+        );
+        expect(
+            secondChapterSettings.querySelector('.study-dialog__actions button[form="chapter-settings-form-ChAp0002"]')
+                ?.textContent,
+        ).toBe('Save chapter');
         expect(root.querySelector('under-board .study-underboard')).not.toBeNull();
         expect(root.querySelector('under-board .study-tool-tabs > .study-mode--sync')).not.toBeNull();
         expect(root.querySelector('under-board .study-tool-tabs > .study-mode--write')).not.toBeNull();
@@ -355,7 +370,7 @@ describe('analysis page smoke coverage', () => {
                 tags: { Event: 'Shared study' },
                 tree: { nodes: [] },
             },
-            chapters: [{ id: 'ChAp0001', name: 'Shared line', order: 1 }],
+            chapters: [{ id: 'ChAp0001', name: 'Shared line', order: 1, orientation: 'white' }],
         };
         const root = renderNodes(studyView(makeModel({ gameId: '', status: 0, study })));
 
@@ -413,8 +428,8 @@ describe('analysis page smoke coverage', () => {
                 tree: { nodes: [] },
             },
             chapters: [
-                { id: 'ChAp0001', name: 'First line', order: 1 },
-                { id: 'ChAp0002', name: 'Second line', order: 2 },
+                { id: 'ChAp0001', name: 'First line', order: 1, orientation: 'white' },
+                { id: 'ChAp0002', name: 'Second line', order: 2, orientation: 'black' },
             ],
         };
         const model = makeModel({ gameId: '', status: 0, study });
@@ -462,7 +477,7 @@ describe('analysis page smoke coverage', () => {
                 tags: {},
                 tree: { nodes: [] },
             },
-            chapters: [{ id: 'ChAp0001', name: 'Shared line', order: 1 }],
+            chapters: [{ id: 'ChAp0001', name: 'Shared line', order: 1, orientation: 'black' }],
         };
         const root = renderNodes(studyEmbedView(makeModel({ gameId: '', embed: true, status: 0, study })));
 

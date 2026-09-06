@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from dataclasses import replace
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, cast
 
 from bson import BSON
 from fairy import FairyBoard
@@ -20,6 +20,7 @@ from study.models import (
     Study,
     StudyChapter,
     StudyMemberRole,
+    StudyOrientation,
     StudySource,
     StudyVisibility,
     make_chapter,
@@ -325,10 +326,15 @@ async def load_chapter(app_state: Any, study_id: str, chapter_id: str) -> StudyC
 async def chapter_previews(app_state: Any, study_id: str) -> list[dict[str, object]]:
     cursor = app_state.db.study_chapter.find(
         {"studyId": study_id},
-        projection={"_id": 1, "name": 1, "order": 1},
+        projection={"_id": 1, "name": 1, "order": 1, "orientation": 1},
     ).sort("order", 1)
     return [
-        {"id": str(doc["_id"]), "name": str(doc["name"]), "order": int(doc["order"])}
+        {
+            "id": str(doc["_id"]),
+            "name": str(doc["name"]),
+            "order": int(doc["order"]),
+            "orientation": str(doc.get("orientation") or "white"),
+        }
         async for doc in cursor
     ]
 
@@ -696,17 +702,43 @@ async def set_study_visibility(
 
 
 async def rename_chapter(app_state: Any, chapter: StudyChapter, name: object) -> str:
-    clean = _clean_name(name, fallback=chapter.name, max_length=STUDY_CHAPTER_NAME_MAX_LENGTH)
+    clean, _ = await edit_chapter_metadata(
+        app_state,
+        chapter,
+        name=name,
+        orientation=chapter.orientation,
+    )
+    return clean
+
+
+async def edit_chapter_metadata(
+    app_state: Any,
+    chapter: StudyChapter,
+    *,
+    name: object,
+    orientation: object,
+) -> tuple[str, StudyOrientation]:
+    clean_name = _clean_name(name, fallback=chapter.name, max_length=STUDY_CHAPTER_NAME_MAX_LENGTH)
+    clean_orientation = str(orientation or chapter.orientation).lower()
+    if clean_orientation not in ("white", "black"):
+        raise StudyStorageError("Invalid Study chapter orientation")
+    typed_orientation = cast(StudyOrientation, clean_orientation)
     now = datetime.now(UTC)
     await app_state.db.study_chapter.update_one(
         {"_id": chapter.id, "studyId": chapter.study_id, "owner": chapter.owner},
-        {"$set": {"name": clean, "updatedAt": now}},
+        {
+            "$set": {
+                "name": clean_name,
+                "orientation": typed_orientation,
+                "updatedAt": now,
+            }
+        },
     )
     await app_state.db.study.update_one(
         {"_id": chapter.study_id, "owner": chapter.owner},
         {"$set": {"updatedAt": now}, "$inc": {"revision": 1}},
     )
-    return clean
+    return clean_name, typed_orientation
 
 
 async def delete_chapter(app_state: Any, study: Study, chapter: StudyChapter) -> str:

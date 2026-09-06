@@ -37,6 +37,7 @@ from study.storage import (
     create_study_from_draft,
     delete_chapter,
     delete_study,
+    edit_chapter_metadata,
     leave_study,
     load_chapter,
     load_owned_chapter,
@@ -44,7 +45,6 @@ from study.storage import (
     load_study,
     public_studies_page,
     remove_study_member,
-    rename_chapter,
     rename_study,
     set_study_member_role,
     set_study_visibility,
@@ -836,7 +836,15 @@ async def study_chapter_edit(request: web.Request) -> web.StreamResponse:
     data = await read_post_data(request)
     if data is None:
         raise web.HTTPNoContent()
-    await rename_chapter(get_app_state(request.app), chapter, data.get("name"))
+    try:
+        await edit_chapter_metadata(
+            get_app_state(request.app),
+            chapter,
+            name=data.get("name"),
+            orientation=data.get("orientation", chapter.orientation),
+        )
+    except StudyStorageError as exc:
+        raise web.HTTPBadRequest(text=str(exc)) from exc
     raise web.HTTPFound(f"/study/{study.id}/{chapter.id}")
 
 

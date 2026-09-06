@@ -33,6 +33,7 @@ export type StudyChapterPreview = {
     id: string;
     name: string;
     order: number;
+    orientation: 'white' | 'black';
 };
 
 export type StudyPageModel = {

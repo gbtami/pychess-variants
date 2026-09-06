@@ -1159,8 +1159,11 @@ panels, and tree comment rendering as references:
 - [x] Switch chapters in place, retaining the shared page shell and Study socket,
   waiting for pending annotation saves, remembering chapter positions, and supporting
   Back/Forward navigation and variant-specific board/engine cleanup.
-- [x] Study/chapter rename and deletion in focused dialogs; chapter creation uses
-  the existing grouped variant selector. Native dialogs support Escape and restore focus.
+- [x] Study/chapter metadata editing in centered Lichess-style dialogs: Study name/visibility,
+  chapter name/orientation, and destructive actions share the same form/action layout. Chapter
+  creation uses the existing grouped variant selector. Native dialogs support Escape and restore
+  focus. Controls that depend on later Study settings or lesson modes remain deferred instead of
+  appearing as non-functional parity placeholders.
 - [x] Underboard tabs for PGN tags, position comments, glyphs, chapter description,
   and chapter/Study PGN downloads; raw FEN/PGN is available inside the export panel.
 - [x] Comments appear next to their positions in the shared move tree, including root

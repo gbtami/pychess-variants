@@ -21,26 +21,14 @@ import { GLYPH_GROUPS, toggleGlyph } from '../analysis/glyphs';
 import { StudyCommentEditor } from './commentEditor';
 import { fetchStudyChapterExportData, renderStudyChapterPgn, renderStudyPgn, studyPgnFilename } from './studyPgn';
 
-function renameForm(action: string, value: string, label: string, maxLength: number): VNode {
-    return h('form.study-side__rename', { attrs: { method: 'post', action } }, [
-        h('input', {
-            attrs: {
-                type: 'text',
-                name: 'name',
-                value,
-                maxlength: String(maxLength),
-                autocomplete: 'off',
-                'aria-label': label,
-            },
-        }),
-        h('button.button', { attrs: { type: 'submit' } }, _('Rename')),
-    ]);
+function dialogField(label: string, control: VNode): VNode {
+    return h('label.study-dialog__field', [h('span', label), control]);
 }
 
-function studySettingsForm(study: StudyPageModel): VNode {
-    return h('form.study-side__rename', { attrs: { method: 'post', action: `/study/${study.id}/edit` } }, [
-        h('label', [
-            h('span', _('Study name')),
+function studySettingsForm(study: StudyPageModel, formId: string): VNode {
+    return h(`form#${formId}.study-dialog__form`, { attrs: { method: 'post', action: `/study/${study.id}/edit` } }, [
+        dialogField(
+            _('Name'),
             h('input', {
                 attrs: {
                     type: 'text',
@@ -50,12 +38,12 @@ function studySettingsForm(study: StudyPageModel): VNode {
                     autocomplete: 'off',
                 },
             }),
-        ]),
-        h('label', [
-            h('span', _('Visibility')),
+        ),
+        dialogField(
+            _('Visibility'),
             h(
                 'select',
-                { attrs: { name: 'visibility', 'aria-label': _('Visibility') } },
+                { attrs: { name: 'visibility' } },
                 [
                     ['private', _('Private')],
                     ['unlisted', _('Unlisted')],
@@ -64,8 +52,46 @@ function studySettingsForm(study: StudyPageModel): VNode {
                     h('option', { attrs: { value, selected: study.visibility === value } }, label),
                 ),
             ),
-        ]),
-        h('button.button', { attrs: { type: 'submit' } }, _('Save')),
+        ),
+    ]);
+}
+
+function chapterSettingsForm(
+    study: StudyPageModel,
+    chapter: StudyPageModel['chapters'][number],
+    formId: string,
+): VNode {
+    return h(
+        `form#${formId}.study-dialog__form`,
+        { attrs: { method: 'post', action: `/study/${study.id}/${chapter.id}/edit` } },
+        [
+            dialogField(
+                _('Name'),
+                h('input', {
+                    attrs: {
+                        type: 'text',
+                        name: 'name',
+                        value: chapter.name,
+                        maxlength: '80',
+                        autocomplete: 'off',
+                    },
+                }),
+            ),
+            dialogField(
+                _('Orientation'),
+                h('select', { attrs: { name: 'orientation' } }, [
+                    h('option', { attrs: { value: 'white', selected: chapter.orientation === 'white' } }, _('White')),
+                    h('option', { attrs: { value: 'black', selected: chapter.orientation === 'black' } }, _('Black')),
+                ]),
+            ),
+        ],
+    );
+}
+
+function dialogActions(saveFormId: string, saveLabel: string, destructive?: VNode): VNode {
+    return h('div.study-dialog__actions', [
+        destructive ?? h('span'),
+        h('button.button', { attrs: { type: 'submit', form: saveFormId } }, saveLabel),
     ]);
 }
 
@@ -103,7 +129,14 @@ function icon(name: string): VNode {
 }
 
 function openDialog(id: string): void {
-    document.querySelector<HTMLDialogElement>(`#${id}`)?.showModal();
+    const modal = document.querySelector<HTMLDialogElement>(`#${id}`);
+    if (!modal) return;
+    modal.showModal();
+    const input = modal.querySelector<HTMLInputElement>('input[type="text"]');
+    if (input) {
+        input.focus();
+        input.select();
+    }
 }
 
 function dialog(id: string, title: string, content: VNode[]): VNode {
@@ -114,7 +147,7 @@ function dialog(id: string, title: string, content: VNode[]): VNode {
             h('div.study-dialog__header', [
                 h(`h2#${id}-title`, title),
                 h(
-                    'button.study-icon-button',
+                    'button.study-icon-button.study-dialog__close',
                     {
                         attrs: { type: 'button', 'aria-label': _('Close') },
                         on: { click: event => (event.currentTarget as HTMLElement).closest('dialog')?.close() },
@@ -604,12 +637,16 @@ function studySide(study: StudyPageModel, model: PyChessModel): VNode {
         ...(study.isOwner
             ? [
                   dialog('study-settings', _('Edit study'), [
-                      studySettingsForm(study),
-                      deleteForm(
-                          `/study/${study.id}/delete`,
-                          _('Delete study'),
-                          _('Delete this study?'),
-                          'study-side__danger',
+                      studySettingsForm(study, 'study-settings-form'),
+                      dialogActions(
+                          'study-settings-form',
+                          _('Save'),
+                          deleteForm(
+                              `/study/${study.id}/delete`,
+                              _('Delete study'),
+                              _('Delete this study?'),
+                              'study-side__danger',
+                          ),
                       ),
                   ]),
               ]
@@ -618,16 +655,18 @@ function studySide(study: StudyPageModel, model: PyChessModel): VNode {
             ? [
                   ...study.chapters.map(item =>
                       dialog(`chapter-settings-${item.id}`, _('Edit chapter'), [
-                          renameForm(`/study/${study.id}/${item.id}/edit`, item.name, _('Chapter name'), 80),
-                          ...(study.chapters.length > 1
-                              ? [
-                                    deleteForm(
+                          chapterSettingsForm(study, item, `chapter-settings-form-${item.id}`),
+                          dialogActions(
+                              `chapter-settings-form-${item.id}`,
+                              _('Save chapter'),
+                              study.chapters.length > 1
+                                  ? deleteForm(
                                         `/study/${study.id}/${item.id}/delete`,
                                         _('Delete chapter'),
                                         _('Delete this chapter?'),
-                                    ),
-                                ]
-                              : []),
+                                    )
+                                  : undefined,
+                          ),
                       ]),
                   ),
                   dialog('study-new-chapter', _('Add a new chapter'), [

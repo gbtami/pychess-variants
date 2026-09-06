@@ -22,6 +22,7 @@ from study.storage import (
     create_study_with_chapter,
     delete_chapter,
     delete_study,
+    edit_chapter_metadata,
     leave_study,
     load_owned_chapter,
     load_owned_study,
@@ -227,13 +228,19 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(second.order, 2)
         self.assertEqual(third.order, 3)
         await rename_chapter(cast(Any, self.app_state), second, "  Sicilian  ")
+        await edit_chapter_metadata(
+            cast(Any, self.app_state),
+            third,
+            name="Third line",
+            orientation="black",
+        )
         previews = await chapter_previews(cast(Any, self.app_state), study.id)
         self.assertEqual(
             previews,
             [
-                {"id": first.id, "name": "Chapter 1", "order": 1},
-                {"id": second.id, "name": "Sicilian", "order": 2},
-                {"id": third.id, "name": "Third line", "order": 3},
+                {"id": first.id, "name": "Chapter 1", "order": 1, "orientation": "white"},
+                {"id": second.id, "name": "Sicilian", "order": 2, "orientation": "white"},
+                {"id": third.id, "name": "Third line", "order": 3, "orientation": "black"},
             ],
         )
 

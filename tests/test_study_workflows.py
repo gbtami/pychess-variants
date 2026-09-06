@@ -118,6 +118,40 @@ async def test_browsing_chapter_does_not_change_shared_study_position(aiohttp_cl
 
 
 @pytest.mark.asyncio
+async def test_edit_chapter_updates_name_and_orientation(aiohttp_client) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    username = "study_chapter_editor"
+    await _insert_user(app_state, username)
+    draft = await StudyChapterBuilder(app_state, username).blank_or_fen(
+        variant="chess", name="Original chapter"
+    )
+    study, chapter = await create_study_from_draft(app_state, username, draft)
+
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie(username)})
+    response = await client.post(
+        f"/study/{study.id}/{chapter.id}/edit",
+        data={"name": "Black repertoire", "orientation": "black"},
+        allow_redirects=False,
+    )
+    assert response.status == 302
+
+    stored = await app_state.db.study_chapter.find_one({"_id": chapter.id})
+    assert stored is not None
+    assert stored["name"] == "Black repertoire"
+    assert stored["orientation"] == "black"
+
+    page = await client.get(
+        f"/study/{study.id}/{chapter.id}", headers={"Accept": "application/json"}
+    )
+    assert page.status == 200
+    payload = await page.json()
+    assert payload["study"]["chapter"]["orientation"] == "black"
+    assert payload["study"]["chapters"][0]["orientation"] == "black"
+
+
+@pytest.mark.asyncio
 async def test_study_visibility_controls_page_export_and_write_access(aiohttp_client) -> None:
     app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
     client = await aiohttp_client(app)
