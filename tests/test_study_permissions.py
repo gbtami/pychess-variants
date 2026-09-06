@@ -5,7 +5,7 @@ from dataclasses import replace
 from datetime import UTC, datetime
 
 from study.models import Study
-from study.permissions import can_view_study, can_write_study
+from study.permissions import can_embed_study, can_view_study, can_write_study
 
 
 class StudyPermissionsTestCase(unittest.TestCase):
@@ -32,6 +32,11 @@ class StudyPermissionsTestCase(unittest.TestCase):
                 study = replace(self.study, visibility=visibility)
                 self.assertTrue(can_view_study(study, "other"))
                 self.assertTrue(can_view_study(study, None))
+
+    def test_only_non_private_studies_are_embeddable(self) -> None:
+        self.assertFalse(can_embed_study(self.study))
+        self.assertTrue(can_embed_study(replace(self.study, visibility="unlisted")))
+        self.assertTrue(can_embed_study(replace(self.study, visibility="public")))
 
     def test_view_permission_does_not_grant_write_permission(self) -> None:
         study = replace(self.study, visibility="public")

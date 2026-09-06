@@ -1199,13 +1199,18 @@ This is a deliberately separate milestone from collaboration.
 - [x] Public: eligible for public owner/profile/list pages.
 - [x] Ensure changing a Study to private immediately protects chapter routes/export/ws.
 - [x] Add share link UI.
-- [ ] Add chapter embed only after read-only permission behavior is solid.
+- [x] Add chapter embed only after read-only permission behavior is solid.
 - [x] Add Study/chapter PGN download permission.
 - [ ] Add clone permission and cloning only after sharing rules are explicit.
 - [ ] Consider profile "Studies" listing and `/study/by/{username}`.
 - [ ] Add public search/discovery indexes only when public listing/search is implemented.
 
 Do not couple visibility with editing rights. A public Study is not publicly editable.
+
+Chapter embeds now reuse the compact analysis embed shell and the persisted Study tree. Public and
+unlisted Studies can be embedded; private Studies deliberately cannot, even for their owner, so an
+external iframe never relies on authenticated cookies to reveal private Study content. Embeds are
+read-only, follow the same Study websocket revision stream, and link back to the full chapter.
 
 # Phase 4 — collaborators and realtime synchronization
 

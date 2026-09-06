@@ -99,6 +99,7 @@ async def test_study_visibility_controls_page_export_and_write_access(aiohttp_cl
     study, chapter = await create_study_from_draft(app_state, "chapter_owner", draft)
     url = f"/study/{study.id}/{chapter.id}"
     export_url = f"{url}/export-data"
+    embed_url = f"/study/embed/{study.id}/{chapter.id}"
 
     client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie("chapter_owner")})
     response = await client.get(url, headers={"Accept": "application/json"})
@@ -113,15 +114,20 @@ async def test_study_visibility_controls_page_export_and_write_access(aiohttp_cl
     assert data["board"]["steps"][0]["fen"] == chapter.initial_fen
     assert isinstance(data["cataloguedVariants"], list)
     assert (await client.get(export_url)).status == 200
+    # Embedding is a public/link-share surface, so private Studies remain
+    # non-embeddable even for their owner.
+    assert (await client.get(embed_url)).status == 404
     assert (
         await client.get(f"/study/{study.id}/missing1", headers={"Accept": "application/json"})
     ).status == 404
     assert (await client.get(f"/study/{study.id}/missing1/export-data")).status == 404
+    assert (await client.get(f"/study/embed/{study.id}/missing1")).status == 404
 
     client.session.cookie_jar.clear()
     client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie("chapter_intruder")})
     assert (await client.get(url, headers={"Accept": "application/json"})).status == 404
     assert (await client.get(export_url)).status == 404
+    assert (await client.get(embed_url)).status == 404
     client.session.cookie_jar.clear()
     assert (await client.get(url, headers={"Accept": "application/json"})).status == 404
 
@@ -140,6 +146,12 @@ async def test_study_visibility_controls_page_export_and_write_access(aiohttp_cl
     assert data["study"]["visibility"] == "unlisted"
     assert data["study"]["canWrite"] is False
     assert (await client.get(export_url)).status == 200
+    embed_response = await client.get(embed_url)
+    assert embed_response.status == 200
+    embed_html = await embed_response.text()
+    assert 'data-view="embed"' in embed_html
+    assert 'data-study="' in embed_html
+    assert f"/study/{study.id}/{chapter.id}" not in embed_html  # link is rendered client-side
 
     client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie("chapter_intruder")})
     response = await client.post(
@@ -161,6 +173,7 @@ async def test_study_visibility_controls_page_export_and_write_access(aiohttp_cl
     response = await client.get(url, headers={"Accept": "application/json"})
     assert response.status == 200
     assert (await response.json())["study"]["visibility"] == "public"
+    assert (await client.get(embed_url)).status == 200
 
     client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie("chapter_owner")})
     response = await client.post(
@@ -172,6 +185,7 @@ async def test_study_visibility_controls_page_export_and_write_access(aiohttp_cl
     client.session.cookie_jar.clear()
     assert (await client.get(url, headers={"Accept": "application/json"})).status == 404
     assert (await client.get(export_url)).status == 404
+    assert (await client.get(embed_url)).status == 404
 
 
 @pytest.mark.asyncio

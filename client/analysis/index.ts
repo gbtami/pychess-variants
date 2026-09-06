@@ -51,14 +51,13 @@ function analysisSide(model: PyChessModel, context: AnalysisContext) {
     ]);
 }
 
-export function embedView(model: PyChessModel): VNode[] {
+export function renderEmbedPage(model: PyChessModel, mountBoard: (vnode: VNode) => void, footer: VNode): VNode[] {
     const variant = VARIANTS[model.variant];
-    const chess960 = model.chess960 === 'True';
 
     return [
         h('div.embed-app', [
             h(`selection#mainboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, [
-                h('div.cg-wrap.' + variant.board.cg, { hook: { insert: vnode => runGround(vnode, model) } }),
+                h('div.cg-wrap.' + variant.board.cg, { hook: { insert: mountBoard } }),
             ]),
 
             h('div.pocket-top', [
@@ -80,22 +79,24 @@ export function embedView(model: PyChessModel): VNode[] {
                 ]),
             ]),
         ]),
-        h('div.footer', [
-            h(
-                'a.gamelink',
-                { attrs: { rel: 'noopener', target: '_blank', href: '/' + model['gameId'] } },
-                [
-                    variant.displayName(chess960),
-                    '•',
-                    model.wtitle,
-                    model.wplayer,
-                    'vs',
-                    model.btitle,
-                    model.bplayer,
-                ].join(' '),
-            ),
-        ]),
+        h('div.footer', [footer]),
     ];
+}
+
+export function embedView(model: PyChessModel): VNode[] {
+    const variant = VARIANTS[model.variant];
+    const chess960 = model.chess960 === 'True';
+    return renderEmbedPage(
+        model,
+        vnode => runGround(vnode, model),
+        h(
+            'a.gamelink',
+            { attrs: { rel: 'noopener', target: '_blank', href: '/' + model['gameId'] } },
+            [variant.displayName(chess960), '•', model.wtitle, model.wplayer, 'vs', model.btitle, model.bplayer].join(
+                ' ',
+            ),
+        ),
+    );
 }
 
 export function analysisUnderboard(

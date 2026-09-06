@@ -339,8 +339,10 @@ export class AnalysisController extends GameController {
             menuEl.style.display = 'block';
         }
         if (this.isAnalysisBoard) {
-            (document.querySelector('.analysis-tabs') as HTMLElement).style.display = 'none';
-            (document.querySelector('.pgn-container') as HTMLElement).style.display = 'block';
+            const analysisTabs = document.querySelector<HTMLElement>('.analysis-tabs');
+            const pgnContainer = document.querySelector<HTMLElement>('.pgn-container');
+            if (analysisTabs) analysisTabs.style.display = 'none';
+            if (pgnContainer) pgnContainer.style.display = 'block';
         }
 
         if (this.analysisExtension?.socket) {

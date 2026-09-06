@@ -41,7 +41,7 @@ jest.unstable_mockModule('../client/analysis/analysisSettings', () => ({
 
 const { analysisView, embedView, renderAnalysisPage } = await import('../client/analysis');
 const { puzzleView } = await import('../client/puzzle');
-const { studyView } = await import('../client/study/studyView');
+const { studyEmbedView, studyView } = await import('../client/study/studyView');
 const { roundView } = await import('../client/round');
 
 function makeModel(overrides: Partial<PyChessModel> = {}): PyChessModel {
@@ -273,6 +273,11 @@ describe('analysis page smoke coverage', () => {
         );
         expect(root.querySelector('.study-export__chapter')?.textContent).toBe('Download chapter PGN');
         expect(root.querySelector('.study-export__study')?.textContent).toBe('Download study PGN');
+        const privateEmbedInput = root.querySelector<HTMLInputElement>(
+            '.study-share__link:nth-child(3) .study-share__copy input',
+        )!;
+        expect(privateEmbedInput.disabled).toBe(true);
+        expect(privateEmbedInput.value).toBe('Private Studies cannot be embedded.');
         const comments = root.querySelector<HTMLButtonElement>('#study-tab-comments')!;
         comments.click();
         expect(root.querySelector<HTMLElement>('#study-panel-comments')!.hidden).toBe(false);
@@ -323,9 +328,45 @@ describe('analysis page smoke coverage', () => {
         expect(shareLinks).toEqual([
             'http://127.0.0.1:8080/study/StUdY001',
             'http://127.0.0.1:8080/study/StUdY001/ChAp0001',
+            '<iframe width="600" height="371" src="http://127.0.0.1:8080/study/embed/StUdY001/ChAp0001" frameborder="0"></iframe>',
         ]);
         expect(root.querySelector('.study-export__chapter')?.textContent).toBe('Download chapter PGN');
         expect(root.querySelector('.study-export__study')?.textContent).toBe('Download study PGN');
+    });
+
+    test('study embed reuses the lean analysis embed shell', () => {
+        const study: StudyPageModel = {
+            id: 'StUdY001',
+            name: 'Shared ideas',
+            owner: 'owner',
+            visibility: 'unlisted',
+            canWrite: false,
+            chapter: {
+                id: 'ChAp0001',
+                name: 'Shared line',
+                revision: 1,
+                order: 1,
+                orientation: 'black',
+                variant: 'chess',
+                chess960: false,
+                initialFen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+                variantIni: null,
+                createdAt: '2026-09-06T08:00:00+00:00',
+                description: '',
+                tags: {},
+                tree: { nodes: [] },
+            },
+            chapters: [{ id: 'ChAp0001', name: 'Shared line', order: 1 }],
+        };
+        const root = renderNodes(studyEmbedView(makeModel({ gameId: '', embed: true, status: 0, study })));
+
+        expect(root.querySelector('.embed-app')).not.toBeNull();
+        expect(root.querySelector('#movelist')).not.toBeNull();
+        expect(root.querySelector('.study-side')).toBeNull();
+        expect(root.querySelector('.study-underboard')).toBeNull();
+        const link = root.querySelector<HTMLAnchorElement>('.footer .gamelink')!;
+        expect(link.href).toContain('/study/StUdY001/ChAp0001');
+        expect(link.textContent).toBe('Shared ideas • Shared line');
     });
 
     test('embed view stays lean and does not render PGN tab content', () => {

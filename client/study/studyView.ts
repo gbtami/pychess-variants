@@ -2,7 +2,7 @@ import { h, toVNode, type VNode } from 'snabbdom';
 import ffishModule from 'ffish-es6';
 import ffishAliceModule from 'ffish-alice-es6';
 
-import { analysisUnderboard } from '../analysis';
+import { analysisUnderboard, renderEmbedPage } from '../analysis';
 import { alertDialog } from '../alertDialog';
 import { analysisContext } from '../analysis/analysisContext';
 import { AnalysisController } from '../analysis/analysisCtrl';
@@ -294,16 +294,30 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel): VNode {
     ];
     const studyUrl = `${model.home}/study/${study.id}`;
     const chapterUrl = `${model.home}/study/${study.id}/${study.chapter.id}`;
-    const shareLink = (label: string, url: string) =>
+    const embedUrl = `${model.home}/study/embed/${study.id}/${study.chapter.id}`;
+    const embedCode = `<iframe width="600" height="371" src="${embedUrl}" frameborder="0"></iframe>`;
+    const shareLink = (label: string, value: string, options: { disabled?: boolean; copyLabel?: string } = {}) =>
         h('label.study-share__link', [
             h('span', label),
             h('span.study-share__copy', [
-                h('input', { attrs: { type: 'text', value: url, readonly: true } }),
+                h('input', {
+                    attrs: {
+                        type: 'text',
+                        value,
+                        readonly: true,
+                        ...(options.disabled ? { disabled: true } : {}),
+                    },
+                }),
                 h(
                     'button.button.button-empty',
                     {
-                        attrs: { type: 'button', title: _('Copy link'), 'aria-label': _('Copy link') },
-                        on: { click: () => copyTextToClipboard(url) },
+                        attrs: {
+                            type: 'button',
+                            title: options.copyLabel ?? _('Copy link'),
+                            'aria-label': options.copyLabel ?? _('Copy link'),
+                            ...(options.disabled ? { disabled: true } : {}),
+                        },
+                        on: { click: () => copyTextToClipboard(value) },
                     },
                     [icon('clipboard')],
                 ),
@@ -413,6 +427,14 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel): VNode {
             h('div.study-share__links', [
                 shareLink(_('Study link'), studyUrl),
                 shareLink(_('Current chapter link'), chapterUrl),
+                shareLink(
+                    _('Embed this chapter'),
+                    study.visibility === 'private' ? _('Private Studies cannot be embedded.') : embedCode,
+                    {
+                        disabled: study.visibility === 'private',
+                        copyLabel: _('Copy embed code'),
+                    },
+                ),
                 ...(study.visibility === 'private'
                     ? [
                           h(
@@ -744,6 +766,56 @@ function runStudyGround(vnode: VNode, model: PyChessModel, study: StudyPageModel
             event.returnValue = '';
         }
     });
+}
+
+function runStudyEmbedGround(vnode: VNode, model: PyChessModel, study: StudyPageModel): void {
+    const ctrl = new AnalysisController(
+        vnode.elm as HTMLElement,
+        model,
+        analysisCtrl =>
+            new StudyAnalysisExtension(analysisCtrl, {
+                studyId: study.id,
+                chapterId: study.chapter.id,
+                revision: study.chapter.revision,
+                tree: study.chapter.tree,
+                orientation: study.chapter.orientation,
+                description: study.chapter.description,
+                tags: study.chapter.tags,
+                studyName: study.name,
+                chapterName: study.chapter.name,
+                chapterOrder: study.chapter.order,
+                owner: study.owner,
+                home: model.home,
+                variant: study.chapter.variant,
+                chess960: study.chapter.chess960,
+                initialFen: study.chapter.initialFen,
+                variantIni: study.chapter.variantIni ?? undefined,
+                createdAt: study.chapter.createdAt,
+                writable: false,
+            }),
+    );
+    window['onFSFline'] = ctrl.onFSFline;
+}
+
+export function studyEmbedView(model: PyChessModel): VNode[] {
+    const study = model.study;
+    if (!study) return [h('div.box.box-pad', _('Study data is unavailable.'))];
+
+    return renderEmbedPage(
+        model,
+        vnode => runStudyEmbedGround(vnode, model, study),
+        h(
+            'a.gamelink',
+            {
+                attrs: {
+                    rel: 'noopener',
+                    target: '_blank',
+                    href: `/study/${study.id}/${study.chapter.id}`,
+                },
+            },
+            `${study.name} • ${study.chapter.name}`,
+        ),
+    );
 }
 
 export function studyView(model: PyChessModel): VNode[] {

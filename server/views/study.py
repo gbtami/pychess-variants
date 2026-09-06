@@ -20,7 +20,7 @@ from study.builder import (
 )
 from study.constants import STUDY_MAX_CHAPTERS
 from study.models import Study, StudyChapter, study_visibility
-from study.permissions import can_view_study, can_write_study
+from study.permissions import can_embed_study, can_view_study, can_write_study
 from study.storage import (
     StudyStorageError,
     add_chapter_from_draft,
@@ -244,19 +244,15 @@ async def study_choices(request: web.Request) -> web.StreamResponse:
     )
 
 
-@aiohttp_jinja2.template("analysis.html")
-async def study_show(request: web.Request) -> ViewContext | web.Response:
-    user, context, study, chapter = await _viewable_study_and_chapter(request)
-    if request.match_info.get("chapterId") is None:
-        raise web.HTTPFound(f"/study/{study.id}/{chapter.id}")
-    app_state = get_app_state(request.app)
-    viewer = None if user.anon else user.username
-    writable = can_write_study(study, viewer)
-    if writable:
-        await select_chapter(app_state, study, chapter)
-    _study_context(context)
-    context["view"] = "study"
-    context["title"] = f"{study.name} • PyChess"
+async def _populate_study_chapter_context(
+    app_state: Any,
+    user: Any,
+    context: ViewContext,
+    study: Study,
+    chapter: StudyChapter,
+    *,
+    writable: bool,
+) -> None:
     context["variant"] = chapter.variant
     context["chess960"] = chapter.chess960
     context["fen"] = chapter.initial_fen
@@ -280,8 +276,8 @@ async def study_show(request: web.Request) -> ViewContext | web.Response:
     else:
         context["board"] = json_dumps(_study_board(chapter))
 
-    # Study page data contains only the current full tree plus lightweight chapter
-    # previews. Chapter navigation can request this snapshot without a page reload.
+    # The current full tree is paired with lightweight chapter previews. Both the
+    # normal Study page and the compact chapter embed consume this same snapshot.
     context["study_data"] = json_dumps(
         {
             "id": study.id,
@@ -325,6 +321,29 @@ async def study_show(request: web.Request) -> ViewContext | web.Response:
     elif chapter.variant not in ALL_VARIANTS:
         raise web.HTTPNotFound(text="Study variant is unavailable")
 
+
+@aiohttp_jinja2.template("analysis.html")
+async def study_show(request: web.Request) -> ViewContext | web.Response:
+    user, context, study, chapter = await _viewable_study_and_chapter(request)
+    if request.match_info.get("chapterId") is None:
+        raise web.HTTPFound(f"/study/{study.id}/{chapter.id}")
+    app_state = get_app_state(request.app)
+    viewer = None if user.anon else user.username
+    writable = can_write_study(study, viewer)
+    if writable:
+        await select_chapter(app_state, study, chapter)
+    _study_context(context)
+    context["view"] = "study"
+    context["title"] = f"{study.name} • PyChess"
+    await _populate_study_chapter_context(
+        app_state,
+        user,
+        context,
+        study,
+        chapter,
+        writable=writable,
+    )
+
     if request.headers.get("Accept") == "application/json":
         return web.json_response(
             {
@@ -333,6 +352,31 @@ async def study_show(request: web.Request) -> ViewContext | web.Response:
                 "cataloguedVariants": json.loads(str(context.get("catalogued_variants") or "[]")),
             }
         )
+    return context
+
+
+@aiohttp_jinja2.template("embed.html")
+async def study_embed(request: web.Request) -> ViewContext:
+    user, context, study, chapter = await _viewable_study_and_chapter(request)
+
+    # Embeds are deliberately a link-share surface. Like Lichess, private Studies
+    # remain non-embeddable even for their owner, so a third-party iframe never
+    # depends on authenticated cookies to reveal private Study content.
+    if not can_embed_study(study):
+        raise web.HTTPNotFound()
+
+    app_state = get_app_state(request.app)
+    context["view"] = "embed"
+    context["view_css"] = "embed.css"
+    context["title"] = f"{study.name}: {chapter.name} • PyChess"
+    await _populate_study_chapter_context(
+        app_state,
+        user,
+        context,
+        study,
+        chapter,
+        writable=False,
+    )
     return context
 
 

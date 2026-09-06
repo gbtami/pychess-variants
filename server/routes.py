@@ -292,6 +292,10 @@ get_routes: tuple[RouteDef, ...] = (
     (r"/analysis/{variant:[a-z0-9_-]+}/{fen}", analysis.analysis),
     ("/study", study_view.studies),
     ("/study/choices", study_view.study_choices),
+    (
+        r"/study/embed/{studyId:\w{8}}/{chapterId:\w{8}}",
+        study_view.study_embed,
+    ),
     (r"/study/{studyId:\w{8}}", study_view.study_show),
     (
         r"/study/{studyId:\w{8}}/{chapterId:\w{8}}/export-data",

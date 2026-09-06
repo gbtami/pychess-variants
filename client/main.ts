@@ -21,7 +21,7 @@ import { directChallengeView } from './directChallenge';
 import { renderGames } from './games';
 import { editorView } from '@/editor/editor';
 import { analysisView, embedView } from './analysis';
-import { studyView } from './study/studyView';
+import { studyEmbedView, studyView } from './study/studyView';
 import { puzzleView } from './puzzle';
 import { profileView } from './profile';
 import { tournamentView } from './tournament';
@@ -207,7 +207,7 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
                 return h('div#main-wrap', [h('main.round', roundView(model))]);
             }
         case 'embed':
-            return h('div', embedView(model));
+            return h('div', model.study ? studyEmbedView(model) : embedView(model));
         case 'analysis':
             if (twoBoards) {
                 return h('div#main-wrap.bug', bugAnalysisView(model));

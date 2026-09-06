@@ -341,6 +341,11 @@ class RequestProtectionTestCase(AioHTTPTestCase):
 
 
 class RequestProtectionStateTestCase(unittest.TestCase):
+    def test_study_embed_uses_game_view_rate_limit(self):
+        limit = RequestProtectionState().classify("/study/embed/StUdY001/ChAp0001")
+        self.assertIsNotNone(limit)
+        self.assertEqual("game_view", limit.name)
+
     def test_anonymous_profile_concurrency_is_bounded_and_released(self):
         state = RequestProtectionState()
         state._ANON_PROFILE_MAX_INFLIGHT = 1

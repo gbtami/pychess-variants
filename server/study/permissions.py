@@ -17,6 +17,16 @@ def can_view_study(study: Study, username: str | None) -> bool:
     return username is not None and username in study.members
 
 
+def can_embed_study(study: Study) -> bool:
+    """Return whether a Study may be rendered in a third-party iframe.
+
+    Embeds are a link-share surface rather than a member-authenticated view. Public
+    and unlisted Studies are embeddable; private Studies are not, even for members.
+    """
+
+    return study.visibility != "private"
+
+
 def can_write_study(study: Study, username: str | None) -> bool:
     """Phase-3 write policy: sharing never grants edit rights.
 
