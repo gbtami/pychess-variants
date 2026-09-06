@@ -1,6 +1,6 @@
 import { expect, test } from '@jest/globals';
 
-import { getVariantByKey, splitVariantKey } from '../client/variants';
+import { getVariantByKey, splitVariantKey, validVariant } from '../client/variants';
 
 test('splitVariantKey preserves chess960 variants', () => {
     expect(splitVariantKey('crazyhouse960')).toEqual({
@@ -19,4 +19,10 @@ test('getVariantByKey resolves base metadata for chess960 variants', () => {
 
 test('getVariantByKey falls back to chess for unknown variants', () => {
     expect(getVariantByKey('not-a-variant').name).toBe('chess');
+});
+
+test('validVariant accepts only own variant keys', () => {
+    expect(validVariant('chess')).toBe('chess');
+    expect(validVariant('constructor')).toBe('chess');
+    expect(validVariant('toString')).toBe('chess');
 });

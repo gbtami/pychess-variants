@@ -3078,7 +3078,7 @@ export function fogFen(currentFen: string): string {
 }
 
 export function validVariant(variant: string): string {
-    return VARIANTS[variant] ? variant : 'chess'; // Default to "chess" if invalid
+    return Object.keys(VARIANTS).find(key => key === variant) ?? 'chess';
 }
 
 export function splitVariantKey(variantKey: string): { base: string; chess960: boolean } {
