@@ -5,7 +5,7 @@ import { addOrSelectChild, createAnalysisTree, mainlinePathAtPly } from '../clie
 import { patch } from '../client/document';
 import { Step } from '../client/messages';
 import { updateMovelist } from '../client/movelist';
-import { PyChessModel } from '../client/types';
+import { PyChessModel, StudyPageModel } from '../client/types';
 
 jest.useFakeTimers();
 
@@ -216,6 +216,8 @@ describe('analysis page smoke coverage', () => {
                         id: 'StUdY001',
                         name: 'Opening ideas',
                         owner: 'tester',
+                        visibility: 'private',
+                        canWrite: true,
                         chapter: {
                             id: 'ChAp0001',
                             name: 'Main line',
@@ -279,6 +281,51 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('#study-tab-glyphs')?.getAttribute('aria-selected')).toBe('true');
         expect(document.activeElement).toBe(root.querySelector('#study-tab-glyphs'));
         expect(root.querySelector<HTMLElement>('#study-panel-comments')!.hidden).toBe(true);
+    });
+
+    test('read-only study view hides mutation controls while keeping sharing available', () => {
+        const study: StudyPageModel = {
+            id: 'StUdY001',
+            name: 'Shared ideas',
+            owner: 'owner',
+            visibility: 'unlisted',
+            canWrite: false,
+            chapter: {
+                id: 'ChAp0001',
+                name: 'Shared line',
+                revision: 1,
+                order: 1,
+                orientation: 'white',
+                variant: 'chess',
+                chess960: false,
+                initialFen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+                variantIni: null,
+                createdAt: '2026-09-06T08:00:00+00:00',
+                description: 'Shared description',
+                tags: { Event: 'Shared study' },
+                tree: { nodes: [] },
+            },
+            chapters: [{ id: 'ChAp0001', name: 'Shared line', order: 1 }],
+        };
+        const root = renderNodes(studyView(makeModel({ gameId: '', status: 0, study })));
+
+        expect(root.querySelector('.study-side__readonly')?.textContent).toBe('Read only');
+        expect(root.querySelector('.study-side__add')).toBeNull();
+        expect(root.querySelector('dialog#study-settings')).toBeNull();
+        expect(root.querySelector('#study-tab-comments')).toBeNull();
+        expect(root.querySelector('#study-tab-glyphs')).toBeNull();
+        expect(root.querySelector('.study-annotations__tags textarea')).toBeNull();
+        expect(root.querySelector('.study-annotations__description textarea')).toBeNull();
+        expect(root.querySelector('.study-description__readonly')?.textContent).toBe('Shared description');
+        const shareLinks = [...root.querySelectorAll<HTMLInputElement>('.study-share__copy input')].map(
+            input => input.value,
+        );
+        expect(shareLinks).toEqual([
+            'http://127.0.0.1:8080/study/StUdY001',
+            'http://127.0.0.1:8080/study/StUdY001/ChAp0001',
+        ]);
+        expect(root.querySelector('.study-export__chapter')?.textContent).toBe('Download chapter PGN');
+        expect(root.querySelector('.study-export__study')?.textContent).toBe('Download study PGN');
     });
 
     test('embed view stays lean and does not render PGN tab content', () => {

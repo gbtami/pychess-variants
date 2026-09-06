@@ -4,6 +4,7 @@ import json
 import time
 from datetime import UTC, datetime, timedelta
 
+import aiohttp
 import pytest
 import test_logger
 from fairy import FairyBoard
@@ -86,7 +87,7 @@ async def test_analysis_can_append_to_existing_owned_study(aiohttp_client) -> No
 
 
 @pytest.mark.asyncio
-async def test_chapter_navigation_returns_an_owner_only_json_snapshot(aiohttp_client) -> None:
+async def test_study_visibility_controls_page_export_and_write_access(aiohttp_client) -> None:
     app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
     client = await aiohttp_client(app)
     app_state = get_app_state(app)
@@ -97,6 +98,8 @@ async def test_chapter_navigation_returns_an_owner_only_json_snapshot(aiohttp_cl
     )
     study, chapter = await create_study_from_draft(app_state, "chapter_owner", draft)
     url = f"/study/{study.id}/{chapter.id}"
+    export_url = f"{url}/export-data"
+
     client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie("chapter_owner")})
     response = await client.get(url, headers={"Accept": "application/json"})
     assert response.status == 200
@@ -104,13 +107,109 @@ async def test_chapter_navigation_returns_an_owner_only_json_snapshot(aiohttp_cl
     assert data["study"]["chapter"]["id"] == chapter.id
     assert data["study"]["chapter"]["revision"] == chapter.revision
     assert data["study"]["chapter"]["tree"] == chapter.root.to_payload()
+    assert data["study"]["visibility"] == "private"
+    assert data["study"]["canWrite"] is True
     assert data["board"]["fen"] == chapter.initial_fen
     assert data["board"]["steps"][0]["fen"] == chapter.initial_fen
     assert isinstance(data["cataloguedVariants"], list)
-    response = await client.get(url)
-    assert response.status == 200
-    assert response.content_type == "text/html"
+    assert (await client.get(export_url)).status == 200
+    assert (
+        await client.get(f"/study/{study.id}/missing1", headers={"Accept": "application/json"})
+    ).status == 404
+    assert (await client.get(f"/study/{study.id}/missing1/export-data")).status == 404
+
     client.session.cookie_jar.clear()
     client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie("chapter_intruder")})
+    assert (await client.get(url, headers={"Accept": "application/json"})).status == 404
+    assert (await client.get(export_url)).status == 404
+    client.session.cookie_jar.clear()
+    assert (await client.get(url, headers={"Accept": "application/json"})).status == 404
+
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie("chapter_owner")})
+    response = await client.post(
+        f"/study/{study.id}/edit",
+        data={"name": study.name, "visibility": "unlisted"},
+        allow_redirects=False,
+    )
+    assert response.status == 302
+
+    client.session.cookie_jar.clear()
     response = await client.get(url, headers={"Accept": "application/json"})
+    assert response.status == 200
+    data = await response.json()
+    assert data["study"]["visibility"] == "unlisted"
+    assert data["study"]["canWrite"] is False
+    assert (await client.get(export_url)).status == 200
+
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie("chapter_intruder")})
+    response = await client.post(
+        f"/study/{study.id}/edit",
+        data={"name": "Hijacked", "visibility": "public"},
+        allow_redirects=False,
+    )
     assert response.status == 404
+
+    client.session.cookie_jar.clear()
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie("chapter_owner")})
+    response = await client.post(
+        f"/study/{study.id}/edit",
+        data={"name": study.name, "visibility": "public"},
+        allow_redirects=False,
+    )
+    assert response.status == 302
+    client.session.cookie_jar.clear()
+    response = await client.get(url, headers={"Accept": "application/json"})
+    assert response.status == 200
+    assert (await response.json())["study"]["visibility"] == "public"
+
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie("chapter_owner")})
+    response = await client.post(
+        f"/study/{study.id}/edit",
+        data={"name": study.name, "visibility": "private"},
+        allow_redirects=False,
+    )
+    assert response.status == 302
+    client.session.cookie_jar.clear()
+    assert (await client.get(url, headers={"Accept": "application/json"})).status == 404
+    assert (await client.get(export_url)).status == 404
+
+
+@pytest.mark.asyncio
+async def test_switching_to_private_disconnects_read_only_study_websockets(aiohttp_client) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    await _insert_user(app_state, "visibility_owner")
+    draft = await StudyChapterBuilder(app_state, "visibility_owner").blank_or_fen(variant="chess")
+    study, _ = await create_study_from_draft(app_state, "visibility_owner", draft)
+
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie("visibility_owner")})
+    response = await client.post(
+        f"/study/{study.id}/edit",
+        data={"name": study.name, "visibility": "unlisted"},
+        allow_redirects=False,
+    )
+    assert response.status == 302
+
+    async with aiohttp.ClientSession() as viewer:
+        ws = await viewer.ws_connect(client.make_url(f"/wsstudy/{study.id}"))
+        connected = await ws.receive_json()
+        assert connected == {"type": "study_user_connected", "studyId": study.id}
+        assert study.id in app_state.study_sockets
+        server_ws = next(iter(app_state.study_sockets[study.id]))
+        assert not server_ws.closed
+
+        response = await client.post(
+            f"/study/{study.id}/edit",
+            data={"name": study.name, "visibility": "private"},
+            allow_redirects=False,
+        )
+        assert response.status == 302
+        assert response.headers["Location"] == f"/study/{study.id}"
+        assert server_ws.closed
+        closed = await ws.receive(timeout=1)
+        assert closed.type in {aiohttp.WSMsgType.CLOSE, aiohttp.WSMsgType.CLOSED}
+
+        with pytest.raises(aiohttp.WSServerHandshakeError) as exc_info:
+            await viewer.ws_connect(client.make_url(f"/wsstudy/{study.id}"))
+        assert exc_info.value.status == 404

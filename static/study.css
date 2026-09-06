@@ -39,6 +39,12 @@
     min-height: 2.7rem;
 }
 .study-side__header h2 { margin: 0; padding: 0 .75rem; font-size: 1rem; color: var(--rusty); }
+.study-side__readonly, .study-side__visibility {
+    font-size: .8rem;
+    text-transform: capitalize;
+    opacity: .7;
+}
+.study-side__readonly { padding: 0 .75rem; }
 .study-chapters {
     background: var(--bg-color0);
     min-height: 9rem;
@@ -163,12 +169,30 @@
 .study-export__actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: .5rem; }
 .study-position-export .pgn-container { height: auto; max-height: 18rem; }
 .study-position-export #pgntext { overflow-wrap: anywhere; }
+.study-share__links { display: grid; gap: .7rem; margin-bottom: 1rem; }
+.study-share__link { display: grid; gap: .3rem; }
+.study-share__copy { display: flex; min-width: 0; }
+.study-share__copy input {
+    flex: 1;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: .55rem .65rem;
+    border: 1px solid var(--border-color);
+    border-radius: 3px 0 0 3px;
+    background: var(--bg-color2);
+    color: var(--font-color);
+    font: inherit;
+}
+.study-share__copy .button { border-radius: 0 3px 3px 0; }
+.study-share__private { margin: 0; opacity: .75; font-size: .9rem; }
+.study-description__readonly { white-space: pre-wrap; overflow-wrap: anywhere; }
 .study-dialog { width: min(440px, calc(100vw - 2rem)); max-height: 85vh; box-sizing: border-box; padding: 1.5rem; border: 0; border-radius: 6px; background: var(--bg-color0); color: var(--font-color); box-shadow: var(--base-shadow); }
 .study-dialog::backdrop { background: #0008; }
 .study-dialog__header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
 .study-dialog__header h2 { margin: 0; font-size: 1.4rem; }
 .study-dialog form { margin: 1rem 0 0; }
 .study-side__rename { display: grid; gap: .7rem; }
+.study-side__rename label { display: grid; gap: .35rem; }
 .study-side__new-chapter { display: grid; gap: 1rem; }
 .study-side__new-chapter label { display: grid; gap: .35rem; }
 

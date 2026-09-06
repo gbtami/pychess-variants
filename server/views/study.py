@@ -5,6 +5,7 @@ from collections.abc import Mapping
 from typing import Any, cast
 
 import aiohttp_jinja2
+import aiohttp_session
 from aiohttp import web
 from catalogued_variants import catalogued_variant_client_doc_for_name
 from fairy import BLACK, FairyBoard
@@ -18,7 +19,8 @@ from study.builder import (
     StudyOrientation,
 )
 from study.constants import STUDY_MAX_CHAPTERS
-from study.models import Study, StudyChapter
+from study.models import Study, StudyChapter, study_visibility
+from study.permissions import can_view_study, can_write_study
 from study.storage import (
     StudyStorageError,
     add_chapter_from_draft,
@@ -27,14 +29,18 @@ from study.storage import (
     create_study_from_draft,
     delete_chapter,
     delete_study,
+    load_chapter,
     load_owned_chapter,
     load_owned_study,
+    load_study,
     rename_chapter,
     rename_study,
     select_chapter,
+    set_study_visibility,
     studies_for_owner,
 )
 from study.variant import study_variant_client_doc, study_variant_context, study_variant_metadata
+from study.ws import close_study_sockets
 from typing_defs import ViewContext
 from variants import ALL_VARIANTS, is_catalogued_variant
 
@@ -67,14 +73,51 @@ async def _owned_study_and_chapter(
     if study is None:
         raise web.HTTPNotFound()
 
-    chapter_id = request.match_info.get("chapterId") or study.current_chapter
+    requested_chapter_id = request.match_info.get("chapterId")
+    chapter_id = requested_chapter_id or study.current_chapter
     chapter = None
     if chapter_id:
         chapter = await load_owned_chapter(app_state, study.id, chapter_id, user.username)
+    if requested_chapter_id and chapter is None:
+        raise web.HTTPNotFound()
     if chapter is None:
         doc = await app_state.db.study_chapter.find_one(
             {"studyId": study.id, "owner": user.username}, sort=[("order", 1)]
         )
+        if doc is None:
+            raise web.HTTPNotFound(text="Study has no chapters")
+        chapter = StudyChapter.from_document(doc)
+    return user, context, study, chapter
+
+
+async def _viewable_study_and_chapter(
+    request: web.Request,
+) -> tuple[Any, ViewContext, Study, StudyChapter]:
+    app_state = get_app_state(request.app)
+    if app_state.db is None:
+        raise web.HTTPServiceUnavailable(text="Studies require database access.")
+
+    study_id = request.match_info["studyId"]
+    study = await load_study(app_state, study_id)
+    if study is None:
+        raise web.HTTPNotFound()
+
+    # Authorize from the session before materializing an anonymous user. This keeps
+    # private Study probes as cheap as the websocket authorization path.
+    session = await aiohttp_session.get_session(request)
+    session_username = session.get("user_name")
+    viewer = session_username if isinstance(session_username, str) else None
+    if not can_view_study(study, viewer):
+        raise web.HTTPNotFound()
+
+    user, context = await get_user_context(request)
+    requested_chapter_id = request.match_info.get("chapterId")
+    chapter_id = requested_chapter_id or study.current_chapter
+    chapter = await load_chapter(app_state, study.id, chapter_id) if chapter_id else None
+    if requested_chapter_id and chapter is None:
+        raise web.HTTPNotFound()
+    if chapter is None:
+        doc = await app_state.db.study_chapter.find_one({"studyId": study.id}, sort=[("order", 1)])
         if doc is None:
             raise web.HTTPNotFound(text="Study has no chapters")
         chapter = StudyChapter.from_document(doc)
@@ -203,11 +246,14 @@ async def study_choices(request: web.Request) -> web.StreamResponse:
 
 @aiohttp_jinja2.template("analysis.html")
 async def study_show(request: web.Request) -> ViewContext | web.Response:
-    user, context, study, chapter = await _owned_study_and_chapter(request)
+    user, context, study, chapter = await _viewable_study_and_chapter(request)
     if request.match_info.get("chapterId") is None:
         raise web.HTTPFound(f"/study/{study.id}/{chapter.id}")
     app_state = get_app_state(request.app)
-    await select_chapter(app_state, study, chapter)
+    viewer = None if user.anon else user.username
+    writable = can_write_study(study, viewer)
+    if writable:
+        await select_chapter(app_state, study, chapter)
     _study_context(context)
     context["view"] = "study"
     context["title"] = f"{study.name} • PyChess"
@@ -241,6 +287,8 @@ async def study_show(request: web.Request) -> ViewContext | web.Response:
             "id": study.id,
             "name": study.name,
             "owner": study.owner,
+            "visibility": study.visibility,
+            "canWrite": writable,
             "chapter": {
                 "id": chapter.id,
                 "name": chapter.name,
@@ -289,20 +337,7 @@ async def study_show(request: web.Request) -> ViewContext | web.Response:
 
 
 async def study_chapter_export_data(request: web.Request) -> web.StreamResponse:
-    user, _ = await get_user_context(request)
-    _require_owner_user(user)
-    app_state = get_app_state(request.app)
-    if app_state.db is None:
-        raise web.HTTPServiceUnavailable(text="Studies require database access.")
-
-    study_id = request.match_info["studyId"]
-    chapter_id = request.match_info["chapterId"]
-    study = await load_owned_study(app_state, study_id, user.username)
-    if study is None:
-        raise web.HTTPNotFound()
-    chapter = await load_owned_chapter(app_state, study.id, chapter_id, user.username)
-    if chapter is None:
-        raise web.HTTPNotFound()
+    _, _, _, chapter = await _viewable_study_and_chapter(request)
     return web.json_response(_chapter_export_payload(chapter))
 
 
@@ -488,7 +523,15 @@ async def study_edit(request: web.Request) -> web.StreamResponse:
     data = await read_post_data(request)
     if data is None:
         raise web.HTTPNoContent()
-    await rename_study(get_app_state(request.app), study, data.get("name"))
+    try:
+        visibility = study_visibility(data.get("visibility", study.visibility))
+    except ValueError as exc:
+        raise web.HTTPBadRequest(text="Invalid Study visibility") from exc
+    app_state = get_app_state(request.app)
+    await rename_study(app_state, study, data.get("name"))
+    await set_study_visibility(app_state, study, visibility)
+    if visibility == "private" and study.visibility != "private":
+        await close_study_sockets(app_state, study.id)
     raise web.HTTPFound(f"/study/{study.id}")
 
 

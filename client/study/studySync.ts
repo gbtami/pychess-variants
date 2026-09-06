@@ -101,6 +101,7 @@ export interface StudySyncOptions {
     onReloadRequired?: (reason: string) => void;
     opIdFactory?: () => string;
     contextMenuActions?: AnalysisExtension['contextMenuActions'];
+    writable?: boolean;
 }
 
 function record(message: unknown): Record<string, unknown> | undefined {
@@ -198,6 +199,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     private readonly onReloadRequired: (reason: string) => void;
     private readonly onAnnotationStateChanged?: (state: StudyAnnotationState) => void;
     private readonly opIdFactory: () => string;
+    private readonly writable: boolean;
 
     constructor(
         private readonly ctrl: AnalysisController,
@@ -220,6 +222,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         this.onAnnotationStateChanged = options.onAnnotationStateChanged;
         this.contextMenuActions = options.contextMenuActions;
         this.opIdFactory = options.opIdFactory ?? newStudyNodeId;
+        this.writable = options.writable ?? true;
     }
 
     whenIdle(timeoutMs = 10000): Promise<void> {
@@ -517,7 +520,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     }
 
     private enqueue(type: StudyMutationType, body: JSONObject): void {
-        if (this.reloadRequested) return;
+        if (!this.writable || this.reloadRequested) return;
         const clientOpId = this.opIdFactory();
         if (!clientOpId) {
             this.requestReload('invalid_client_operation_id');

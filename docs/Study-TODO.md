@@ -1191,16 +1191,16 @@ Goal: other users can consume a Study safely before they can edit it.
 
 This is a deliberately separate milestone from collaboration.
 
-- [ ] Add visibility enum: private / unlisted / public.
-- [ ] Centralize `canViewStudy()` authorization server-side and use it for page, chapter,
+- [x] Add visibility enum: private / unlisted / public.
+- [x] Centralize `canViewStudy()` authorization server-side and use it for page, chapter,
   websocket, export and future APIs.
-- [ ] Private: only authorized members/owner.
-- [ ] Unlisted: anyone with the link may view, but do not list publicly.
-- [ ] Public: eligible for public owner/profile/list pages.
-- [ ] Ensure changing a Study to private immediately protects chapter routes/export/ws.
-- [ ] Add share link UI.
+- [x] Private: only authorized members/owner.
+- [x] Unlisted: anyone with the link may view, but do not list publicly.
+- [x] Public: eligible for public owner/profile/list pages.
+- [x] Ensure changing a Study to private immediately protects chapter routes/export/ws.
+- [x] Add share link UI.
 - [ ] Add chapter embed only after read-only permission behavior is solid.
-- [ ] Add Study/chapter PGN download permission.
+- [x] Add Study/chapter PGN download permission.
 - [ ] Add clone permission and cloning only after sharing rules are explicit.
 - [ ] Consider profile "Studies" listing and `/study/by/{username}`.
 - [ ] Add public search/discovery indexes only when public listing/search is implemented.

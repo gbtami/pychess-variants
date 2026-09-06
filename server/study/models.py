@@ -21,6 +21,12 @@ _SOURCE_KINDS = frozenset(("scratch", "game", "study", "import"))
 _ORIENTATIONS = frozenset(("white", "black"))
 
 
+def study_visibility(value: object) -> StudyVisibility:
+    if not isinstance(value, str) or value not in _VISIBILITIES:
+        raise ValueError(f"Unknown Study visibility: {value!r}")
+    return cast(StudyVisibility, value)
+
+
 def _utc(value: datetime) -> datetime:
     if value.tzinfo is None:
         return value.replace(tzinfo=UTC)
@@ -153,9 +159,7 @@ class Study:
         if members.get(owner) != "write":
             raise ValueError("Study owner must be a write member")
 
-        raw_visibility = doc.get("visibility", "private")
-        if not isinstance(raw_visibility, str) or raw_visibility not in _VISIBILITIES:
-            raise ValueError(f"Unknown Study visibility: {raw_visibility!r}")
+        raw_visibility = study_visibility(doc.get("visibility", "private"))
 
         raw_settings = doc.get("settings", {})
         if not isinstance(raw_settings, Mapping):
@@ -166,7 +170,7 @@ class Study:
             name=_required_str(doc, "name"),
             owner=owner,
             members=members,
-            visibility=cast(StudyVisibility, raw_visibility),
+            visibility=raw_visibility,
             source=StudySource.decode(doc.get("source", "scratch")),
             current_chapter=_optional_str(doc, "currentChapter"),
             current_path=_optional_str(doc, "currentPath"),

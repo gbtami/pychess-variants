@@ -14,6 +14,7 @@ from ws_structs import STUDY_TYPED_DECODERS, WsInboundStruct
 
 from study.models import Study
 from study.mutations import StudyMutationResult, StudyMutationService
+from study.permissions import can_view_study
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -373,6 +374,13 @@ async def finally_logic(
     user.update_online()
 
 
+async def close_study_sockets(app_state: PychessGlobalAppState, study_id: str) -> None:
+    """Close live Study sockets so a stricter visibility applies immediately."""
+
+    for ws in tuple(app_state.study_sockets.get(study_id, ())):
+        await ws.close()
+
+
 async def study_socket_handler(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     study_id = request.match_info["studyId"]
@@ -386,11 +394,9 @@ async def study_socket_handler(request: web.Request) -> web.StreamResponse:
         raise web.HTTPNotFound() from None
 
     session = await aiohttp_session.get_session(request)
-    # Phase 1 is intentionally owner-only. Check the authenticated session before
-    # get_user() so an unauthenticated probe cannot materialize a throwaway anon
-    # user just by attempting this private websocket.
     session_username = session.get("user_name")
-    if not isinstance(session_username, str) or session_username != study.owner:
+    viewer = session_username if isinstance(session_username, str) else None
+    if not can_view_study(study, viewer):
         raise web.HTTPNotFound()
     user = await get_user(session, request)
 

@@ -362,6 +362,38 @@ describe('Study analysis websocket synchronization', () => {
         expect(reload).not.toHaveBeenCalled();
     });
 
+    test('read-only viewers receive remote changes without sending local mutations', async () => {
+        const ctrl = makeCtrl();
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            description: 'initial',
+            writable: false,
+            onReloadRequired: jest.fn(),
+        });
+        extension.onSocketOpen();
+
+        extension.setDescription('local-only draft');
+        expect(ctrl.doSend).not.toHaveBeenCalled();
+        expect(extension.pendingCount).toBe(0);
+        await expect(extension.whenIdle()).resolves.toBeUndefined();
+
+        extension.onSocketMessage('study_set_description', {
+            type: 'study_set_description',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'RemoteDescription',
+            revision: 1,
+            changed: true,
+            description: 'owner update',
+        });
+
+        expect(extension.annotationState.description).toBe('owner update');
+        expect(extension.revision).toBe(1);
+        expect(ctrl.doSend).not.toHaveBeenCalled();
+    });
+
     test('applies a remote node incrementally and advances the revision', () => {
         const ctrl = makeCtrl();
         const reload = jest.fn();

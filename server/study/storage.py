@@ -14,7 +14,14 @@ from study.constants import (
     STUDY_MAX_CHAPTERS,
     STUDY_NAME_MAX_LENGTH,
 )
-from study.models import Study, StudyChapter, make_chapter, make_study
+from study.models import (
+    Study,
+    StudyChapter,
+    StudyVisibility,
+    make_chapter,
+    make_study,
+    study_visibility,
+)
 
 
 class StudyStorageError(ValueError):
@@ -47,6 +54,11 @@ async def load_owned_study(app_state: Any, study_id: str, owner: str) -> Study |
     return Study.from_document(doc) if doc is not None else None
 
 
+async def load_study(app_state: Any, study_id: str) -> Study | None:
+    doc = await app_state.db.study.find_one({"_id": study_id})
+    return Study.from_document(doc) if doc is not None else None
+
+
 async def load_owned_chapter(
     app_state: Any,
     study_id: str,
@@ -56,6 +68,11 @@ async def load_owned_chapter(
     doc = await app_state.db.study_chapter.find_one(
         {"_id": chapter_id, "studyId": study_id, "owner": owner}
     )
+    return StudyChapter.from_document(doc) if doc is not None else None
+
+
+async def load_chapter(app_state: Any, study_id: str, chapter_id: str) -> StudyChapter | None:
+    doc = await app_state.db.study_chapter.find_one({"_id": chapter_id, "studyId": study_id})
     return StudyChapter.from_document(doc) if doc is not None else None
 
 
@@ -284,6 +301,22 @@ async def rename_study(app_state: Any, study: Study, name: object) -> str:
     await app_state.db.study.update_one(
         {"_id": study.id, "owner": study.owner},
         {"$set": {"name": clean, "updatedAt": now}, "$inc": {"revision": 1}},
+    )
+    return clean
+
+
+async def set_study_visibility(
+    app_state: Any,
+    study: Study,
+    visibility: object,
+) -> StudyVisibility:
+    clean = study_visibility(visibility)
+    if clean == study.visibility:
+        return clean
+    now = datetime.now(UTC)
+    await app_state.db.study.update_one(
+        {"_id": study.id, "owner": study.owner},
+        {"$set": {"visibility": clean, "updatedAt": now}, "$inc": {"revision": 1}},
     )
     return clean
 

@@ -7,6 +7,7 @@ import { alertDialog } from '../alertDialog';
 import { analysisContext } from '../analysis/analysisContext';
 import { AnalysisController } from '../analysis/analysisCtrl';
 import { renderAnalysisPage } from '../analysis/analysisPage';
+import { copyTextToClipboard } from '../clipboard';
 import { downloadText, notifyChessgroundResize, patch } from '../document';
 import { _, ngettext } from '../i18n';
 import type { PyChessModel, StudyPageModel } from '../types';
@@ -33,6 +34,38 @@ function renameForm(action: string, value: string, label: string, maxLength: num
             },
         }),
         h('button.button', { attrs: { type: 'submit' } }, _('Rename')),
+    ]);
+}
+
+function studySettingsForm(study: StudyPageModel): VNode {
+    return h('form.study-side__rename', { attrs: { method: 'post', action: `/study/${study.id}/edit` } }, [
+        h('label', [
+            h('span', _('Study name')),
+            h('input', {
+                attrs: {
+                    type: 'text',
+                    name: 'name',
+                    value: study.name,
+                    maxlength: '100',
+                    autocomplete: 'off',
+                },
+            }),
+        ]),
+        h('label', [
+            h('span', _('Visibility')),
+            h(
+                'select',
+                { attrs: { name: 'visibility', 'aria-label': _('Visibility') } },
+                [
+                    ['private', _('Private')],
+                    ['unlisted', _('Unlisted')],
+                    ['public', _('Public')],
+                ].map(([value, label]) =>
+                    h('option', { attrs: { value, selected: study.visibility === value } }, label),
+                ),
+            ),
+        ]),
+        h('button.button', { attrs: { type: 'submit' } }, _('Save')),
     ]);
 }
 
@@ -85,17 +118,20 @@ function dialog(id: string, title: string, content: VNode[]): VNode {
 
 function studySide(study: StudyPageModel, model: PyChessModel): VNode {
     const chapter = study.chapter;
+    const canWrite = study.canWrite;
     return h('div.study-side', [
         h('div.study-side__header', [
             h('h2', ngettext('%1 chapter', '%1 chapters', study.chapters.length)),
-            h(
-                'button.study-icon-button',
-                {
-                    attrs: { type: 'button', title: _('Edit study'), 'aria-label': _('Edit study') },
-                    on: { click: () => openDialog('study-settings') },
-                },
-                [icon('bars')],
-            ),
+            canWrite
+                ? h(
+                      'button.study-icon-button',
+                      {
+                          attrs: { type: 'button', title: _('Edit study'), 'aria-label': _('Edit study') },
+                          on: { click: () => openDialog('study-settings') },
+                      },
+                      [icon('bars')],
+                  )
+                : h('span.study-side__readonly', _('Read only')),
         ]),
         h(
             'nav.study-chapters',
@@ -112,73 +148,96 @@ function studySide(study: StudyPageModel, model: PyChessModel): VNode {
                         },
                         [h('span.study-chapter__number', `${item.order}. `), h('span.study-chapter__name', item.name)],
                     ),
-                    h(
-                        'button.study-icon-button.study-chapter__edit',
-                        {
-                            attrs: {
-                                type: 'button',
-                                title: _('Edit chapter'),
-                                'aria-label': _('Edit chapter: %1', item.name),
-                            },
-                            on: { click: () => openDialog(`chapter-settings-${item.id}`) },
-                        },
-                        [icon('cog')],
-                    ),
+                    ...(canWrite
+                        ? [
+                              h(
+                                  'button.study-icon-button.study-chapter__edit',
+                                  {
+                                      attrs: {
+                                          type: 'button',
+                                          title: _('Edit chapter'),
+                                          'aria-label': _('Edit chapter: %1', item.name),
+                                      },
+                                      on: { click: () => openDialog(`chapter-settings-${item.id}`) },
+                                  },
+                                  [icon('cog')],
+                              ),
+                          ]
+                        : []),
                 ]),
             ),
         ),
-        h(
-            'button.study-side__add',
-            {
-                attrs: { type: 'button' },
-                on: { click: () => openDialog('study-new-chapter') },
-            },
-            [icon('plus-square'), _('Add a new chapter')],
-        ),
+        ...(canWrite
+            ? [
+                  h(
+                      'button.study-side__add',
+                      {
+                          attrs: { type: 'button' },
+                          on: { click: () => openDialog('study-new-chapter') },
+                      },
+                      [icon('plus-square'), _('Add a new chapter')],
+                  ),
+              ]
+            : []),
         h('div.study-side__metadata', [
             h('h3', study.name),
             h('a', { attrs: { href: `/@/${study.owner}` } }, study.owner),
-            h('a', { attrs: { href: '/study' } }, _('My studies')),
+            canWrite
+                ? h('a', { attrs: { href: '/study' } }, _('My studies'))
+                : h('span.study-side__visibility', study.visibility),
         ]),
-        dialog('study-settings', _('Edit study'), [
-            renameForm(`/study/${study.id}/edit`, study.name, _('Study name'), 100),
-            deleteForm(`/study/${study.id}/delete`, _('Delete study'), _('Delete this study?'), 'study-side__danger'),
-        ]),
-        ...study.chapters.map(item =>
-            dialog(`chapter-settings-${item.id}`, _('Edit chapter'), [
-                renameForm(`/study/${study.id}/${item.id}/edit`, item.name, _('Chapter name'), 80),
-                ...(study.chapters.length > 1
-                    ? [
-                          deleteForm(
-                              `/study/${study.id}/${item.id}/delete`,
-                              _('Delete chapter'),
-                              _('Delete this chapter?'),
-                          ),
-                      ]
-                    : []),
-            ]),
-        ),
-        dialog('study-new-chapter', _('Add a new chapter'), [
-            h('form.study-side__new-chapter', { attrs: { method: 'post', action: `/study/${study.id}/chapter` } }, [
-                chapterField('chapterName', _('Chapter name'), '', 80),
-                h('label', [
-                    h('span', _('Variant')),
-                    selectVariant(
-                        'variant',
-                        model.variant || 'chess',
-                        () => {},
-                        () => {},
-                        twoBoarsVariants,
-                    ),
-                ]),
-                model.chess960 === 'True'
-                    ? h('input', { attrs: { type: 'hidden', name: 'chess960', value: '1' } })
-                    : '',
-                chapterField('fen', _('FEN (optional)')),
-                chapterField('gameId', _('Game ID (optional)'), '', 12),
-                h('button.button', { attrs: { type: 'submit' } }, _('Create chapter')),
-            ]),
-        ]),
+        ...(canWrite
+            ? [
+                  dialog('study-settings', _('Edit study'), [
+                      studySettingsForm(study),
+                      deleteForm(
+                          `/study/${study.id}/delete`,
+                          _('Delete study'),
+                          _('Delete this study?'),
+                          'study-side__danger',
+                      ),
+                  ]),
+                  ...study.chapters.map(item =>
+                      dialog(`chapter-settings-${item.id}`, _('Edit chapter'), [
+                          renameForm(`/study/${study.id}/${item.id}/edit`, item.name, _('Chapter name'), 80),
+                          ...(study.chapters.length > 1
+                              ? [
+                                    deleteForm(
+                                        `/study/${study.id}/${item.id}/delete`,
+                                        _('Delete chapter'),
+                                        _('Delete this chapter?'),
+                                    ),
+                                ]
+                              : []),
+                      ]),
+                  ),
+                  dialog('study-new-chapter', _('Add a new chapter'), [
+                      h(
+                          'form.study-side__new-chapter',
+                          { attrs: { method: 'post', action: `/study/${study.id}/chapter` } },
+                          [
+                              chapterField('chapterName', _('Chapter name'), '', 80),
+                              h('label', [
+                                  h('span', _('Variant')),
+                                  selectVariant(
+                                      'variant',
+                                      model.variant || 'chess',
+                                      () => {},
+                                      () => {},
+                                      twoBoarsVariants,
+                                  ),
+                              ]),
+                              model.chess960 === 'True'
+                                  ? h('input', { attrs: { type: 'hidden', name: 'chess960', value: '1' } })
+                                  : '',
+                              chapterField('fen', _('FEN (optional)')),
+                              chapterField('gameId', _('Game ID (optional)'), '', 12),
+                              h('button.button', { attrs: { type: 'submit' } }, _('Create chapter')),
+                          ],
+                      ),
+                  ]),
+              ]
+            : []),
     ]);
 }
 
@@ -224,11 +283,32 @@ function toolPanel(tab: StudyTab, children: VNode[]): VNode {
 function studyUnderboard(study: StudyPageModel, model: PyChessModel): VNode {
     const tabs: [StudyTab, string, VNode | string][] = [
         ['tags', _('PGN tags'), h('i.study-tag-icon', { attrs: { 'aria-hidden': 'true' } })],
-        ['comments', _('Comment this position'), icon('comment-o')],
-        ['glyphs', _('Annotate with glyphs'), '!?'],
+        ...(study.canWrite
+            ? ([
+                  ['comments', _('Comment this position'), icon('comment-o')],
+                  ['glyphs', _('Annotate with glyphs'), '!?'],
+              ] as [StudyTab, string, VNode | string][])
+            : []),
         ['description', _('Chapter description'), icon('book')],
-        ['export', _('PGN export'), icon('download')],
+        ['export', _('Share & export'), icon('download')],
     ];
+    const studyUrl = `${model.home}/study/${study.id}`;
+    const chapterUrl = `${model.home}/study/${study.id}/${study.chapter.id}`;
+    const shareLink = (label: string, url: string) =>
+        h('label.study-share__link', [
+            h('span', label),
+            h('span.study-share__copy', [
+                h('input', { attrs: { type: 'text', value: url, readonly: true } }),
+                h(
+                    'button.button.button-empty',
+                    {
+                        attrs: { type: 'button', title: _('Copy link'), 'aria-label': _('Copy link') },
+                        on: { click: () => copyTextToClipboard(url) },
+                    },
+                    [icon('clipboard')],
+                ),
+            ]),
+        ]);
     return h('div.study-underboard', [
         h(
             'nav.study-tool-tabs',
@@ -275,47 +355,73 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel): VNode {
         toolPanel('tags', [
             h('h2.study-underboard__title', `${study.name}: ${study.chapter.name}`),
             h('table.study-tags'),
-            h('details.study-annotations__tags', [
-                h('summary', _('Edit PGN tags')),
-                h('textarea', {
-                    attrs: { rows: '6', 'aria-label': _('PGN tags'), placeholder: 'Event=\nSite=\nDate=' },
-                }),
-                h('button.button', { attrs: { type: 'button' } }, _('Save tags')),
-            ]),
+            ...(study.canWrite
+                ? [
+                      h('details.study-annotations__tags', [
+                          h('summary', _('Edit PGN tags')),
+                          h('textarea', {
+                              attrs: {
+                                  rows: '6',
+                                  'aria-label': _('PGN tags'),
+                                  placeholder: 'Event=\nSite=\nDate=',
+                              },
+                          }),
+                          h('button.button', { attrs: { type: 'button' } }, _('Save tags')),
+                      ]),
+                  ]
+                : []),
         ]),
-        toolPanel('comments', [h('div.study-annotations__comments')]),
-        toolPanel('glyphs', [
-            h(
-                'div.study-annotations__nags',
-                Object.entries(GLYPH_GROUPS).map(([group, glyphs]) =>
-                    h(
-                        `div.study-glyph-group.study-glyph-group--${group}`,
-                        glyphs.map(glyph =>
-                            h(
-                                'button.study-annotations__nag',
-                                {
-                                    attrs: {
-                                        type: 'button',
-                                        'data-nag': String(glyph.id),
-                                        'data-symbol': glyph.symbol,
-                                        'aria-pressed': 'false',
-                                    },
-                                },
-                                glyph.name(),
-                            ),
-                        ),
-                    ),
-                ),
-            ),
-        ]),
+        ...(study.canWrite
+            ? [
+                  toolPanel('comments', [h('div.study-annotations__comments')]),
+                  toolPanel('glyphs', [
+                      h(
+                          'div.study-annotations__nags',
+                          Object.entries(GLYPH_GROUPS).map(([group, glyphs]) =>
+                              h(
+                                  `div.study-glyph-group.study-glyph-group--${group}`,
+                                  glyphs.map(glyph =>
+                                      h(
+                                          'button.study-annotations__nag',
+                                          {
+                                              attrs: {
+                                                  type: 'button',
+                                                  'data-nag': String(glyph.id),
+                                                  'data-symbol': glyph.symbol,
+                                                  'aria-pressed': 'false',
+                                              },
+                                          },
+                                          glyph.name(),
+                                      ),
+                                  ),
+                              ),
+                          ),
+                      ),
+                  ]),
+              ]
+            : []),
         toolPanel('description', [
-            h('div.study-annotations__description', [
-                h('label', { attrs: { for: 'study-description' } }, _('Chapter description')),
-                h('textarea#study-description', { attrs: { maxlength: '10000', rows: '5' } }),
-                h('button.button', { attrs: { type: 'button' } }, _('Save description')),
-            ]),
+            study.canWrite
+                ? h('div.study-annotations__description', [
+                      h('label', { attrs: { for: 'study-description' } }, _('Chapter description')),
+                      h('textarea#study-description', { attrs: { maxlength: '10000', rows: '5' } }),
+                      h('button.button', { attrs: { type: 'button' } }, _('Save description')),
+                  ])
+                : h('p.study-description__readonly', study.chapter.description || _('No chapter description.')),
         ]),
         toolPanel('export', [
+            h('div.study-share__links', [
+                shareLink(_('Study link'), studyUrl),
+                shareLink(_('Current chapter link'), chapterUrl),
+                ...(study.visibility === 'private'
+                    ? [
+                          h(
+                              'p.study-share__private',
+                              _('This Study is private. Only authorized members can open these links.'),
+                          ),
+                      ]
+                    : []),
+            ]),
             h('div.study-export__actions', [
                 h('button.button.study-export__chapter', { attrs: { type: 'button' } }, _('Download chapter PGN')),
                 h('button.button.study-export__study', { attrs: { type: 'button' } }, _('Download study PGN')),
@@ -348,8 +454,8 @@ function parseTags(text: string): Record<string, string> {
     return tags;
 }
 
-function updateAnnotationPanel(state: StudyAnnotationState, editor: StudyCommentEditor): void {
-    editor.update(state.path, state.annotations.comments);
+function updateAnnotationPanel(state: StudyAnnotationState, editor?: StudyCommentEditor): void {
+    editor?.update(state.path, state.annotations.comments);
     document.querySelectorAll<HTMLButtonElement>('.study-annotations__nag').forEach(button => {
         const nag = Number(button.dataset.nag);
         button.classList.toggle('active', state.annotations.nags.includes(nag));
@@ -379,6 +485,8 @@ function updateAnnotationPanel(state: StudyAnnotationState, editor: StudyComment
 
     const description = document.querySelector<HTMLTextAreaElement>('.study-annotations__description textarea');
     if (description && document.activeElement !== description) description.value = state.description;
+    const readonlyDescription = document.querySelector<HTMLElement>('.study-description__readonly');
+    if (readonlyDescription) readonlyDescription.textContent = state.description || _('No chapter description.');
     const tags = document.querySelector<HTMLTextAreaElement>('.study-annotations__tags textarea');
     if (tags && document.activeElement !== tags) tags.value = tagsText(state.tags);
 }
@@ -472,10 +580,11 @@ function runStudyGround(vnode: VNode, model: PyChessModel, study: StudyPageModel
     const modules = new Map<boolean, Promise<PyChessModel['ffish']>>([
         [model.variant === 'alice', Promise.resolve(model.ffish)],
     ]);
-    const editor = new StudyCommentEditor(
-        document.querySelector<HTMLElement>('.study-annotations__comments')!,
-        (path, id, text) => extension.setComment(id, text, path),
-    );
+    const commentsElement = document.querySelector<HTMLElement>('.study-annotations__comments');
+    const editor =
+        study.canWrite && commentsElement
+            ? new StudyCommentEditor(commentsElement, (path, id, text) => extension.setComment(id, text, path))
+            : undefined;
     const socket = createWebsocket(
         `wsstudy/${study.id}`,
         () => extension.onSocketOpen(),
@@ -509,7 +618,8 @@ function runStudyGround(vnode: VNode, model: PyChessModel, study: StudyPageModel
                 variantIni: study.chapter.variantIni ?? undefined,
                 createdAt: study.chapter.createdAt,
                 onAnnotationStateChanged: state => updateAnnotationPanel(state, editor),
-                contextMenuActions: path => studyContextMenu(analysisCtrl, path),
+                contextMenuActions: study.canWrite ? path => studyContextMenu(analysisCtrl, path) : undefined,
+                writable: study.canWrite,
             });
             return extension;
         });
@@ -518,14 +628,14 @@ function runStudyGround(vnode: VNode, model: PyChessModel, study: StudyPageModel
         window['onFSFline'] = ctrl.onFSFline;
     };
     mount(vnode.elm as HTMLElement);
-    bindAnnotationPanel(() => extension);
+    if (study.canWrite) bindAnnotationPanel(() => extension);
     bindExportPanel(() => extension, study);
 
     const navigation = new StudyChapterNavigation({
         studyId: study.id,
         currentChapter: () => study.chapter.id,
         flush: () => {
-            editor.flush();
+            editor?.flush();
             return extension.whenIdle();
         },
         busy: busy => {
@@ -563,7 +673,7 @@ function runStudyGround(vnode: VNode, model: PyChessModel, study: StudyPageModel
             if (!isCurrent()) return;
             paths.set(study.chapter.id, ctrl.analysisPath);
             ctrl.destroy();
-            editor.reset();
+            editor?.reset();
             Object.assign(study, data.study);
             model = {
                 ...model,
@@ -628,7 +738,7 @@ function runStudyGround(vnode: VNode, model: PyChessModel, study: StudyPageModel
         if (prefix === 'study' && studyId === study.id && chapterId) void navigation.go(chapterId, 'pop');
     });
     window.addEventListener('beforeunload', event => {
-        editor.flush();
+        editor?.flush();
         if (extension.pendingCount > 0) {
             event.preventDefault();
             event.returnValue = '';
