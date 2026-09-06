@@ -40,8 +40,11 @@ export type StudyPageModel = {
     name: string;
     owner: string;
     visibility: 'private' | 'unlisted' | 'public';
+    isOwner: boolean;
     canWrite: boolean;
     canClone: boolean;
+    members: Record<string, 'read' | 'write'>;
+    maxMembers: number;
     chapter: {
         id: string;
         name: string;

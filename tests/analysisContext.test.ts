@@ -82,8 +82,11 @@ describe('analysis context', () => {
                     name: 'Study',
                     owner: 'tester',
                     visibility: 'private',
+                    isOwner: true,
                     canWrite: true,
                     canClone: true,
+                    members: { tester: 'write' },
+                    maxMembers: 30,
                     chapter: {
                         id: 'chapter1',
                         name: 'Chapter 1',

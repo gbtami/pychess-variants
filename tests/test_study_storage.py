@@ -14,6 +14,7 @@ from study.storage import (
     StudyStorageError,
     add_chapter,
     add_chapter_from_draft,
+    add_study_member,
     chapter_previews,
     clone_study,
     count_studies_for_owner_view,
@@ -21,11 +22,14 @@ from study.storage import (
     create_study_with_chapter,
     delete_chapter,
     delete_study,
+    leave_study,
     load_owned_chapter,
     load_owned_study,
+    remove_study_member,
     rename_chapter,
     rename_study,
     select_chapter,
+    set_study_member_role,
     set_study_visibility,
     studies_for_owner,
     studies_for_owner_view,
@@ -92,6 +96,37 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(
             await count_studies_for_owner_view(cast(Any, self.app_state), "owner", "other"), 1
         )
+
+    async def test_member_lifecycle_preserves_owner_and_enforces_cap(self) -> None:
+        study, _ = await create_study_with_chapter(cast(Any, self.app_state), "owner")
+
+        study = await add_study_member(
+            cast(Any, self.app_state), study.id, "owner", "writer", "write"
+        )
+        self.assertEqual(study.members, {"owner": "write", "writer": "write"})
+
+        study = await set_study_member_role(
+            cast(Any, self.app_state), study.id, "owner", "writer", "read"
+        )
+        self.assertEqual(study.members["writer"], "read")
+
+        with (
+            patch("study.storage.STUDY_MAX_MEMBERS", 2),
+            self.assertRaisesRegex(StudyStorageError, "at most 2 members"),
+        ):
+            await add_study_member(cast(Any, self.app_state), study.id, "owner", "third")
+
+        study = await remove_study_member(cast(Any, self.app_state), study.id, "owner", "writer")
+        self.assertEqual(study.members, {"owner": "write"})
+
+        study = await add_study_member(cast(Any, self.app_state), study.id, "owner", "reader")
+        study = await leave_study(cast(Any, self.app_state), study.id, "reader")
+        self.assertEqual(study.members, {"owner": "write"})
+
+        with self.assertRaisesRegex(StudyStorageError, "owner cannot"):
+            await leave_study(cast(Any, self.app_state), study.id, "owner")
+        with self.assertRaisesRegex(StudyStorageError, "Only the Study owner"):
+            await add_study_member(cast(Any, self.app_state), study.id, "reader", "other")
 
     async def test_create_from_draft_persists_source_tree_and_variant_snapshot(self) -> None:
         draft = StudyChapterDraft(

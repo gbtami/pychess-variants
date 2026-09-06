@@ -69,7 +69,13 @@ function studySettingsForm(study: StudyPageModel): VNode {
     ]);
 }
 
-function deleteForm(action: string, label: string, prompt: string, className?: string): VNode {
+function deleteForm(
+    action: string,
+    label: string,
+    prompt: string,
+    className?: string,
+    hiddenFields?: Record<string, string>,
+): VNode {
     return h(
         'form',
         {
@@ -81,7 +87,12 @@ function deleteForm(action: string, label: string, prompt: string, className?: s
                 },
             },
         },
-        [h('button.button.button-red', { attrs: { type: 'submit' } }, label)],
+        [
+            ...Object.entries(hiddenFields ?? {}).map(([name, value]) =>
+                h('input', { attrs: { type: 'hidden', name, value } }),
+            ),
+            h('button.button.button-red', { attrs: { type: 'submit' } }, label),
+        ],
     );
 }
 
@@ -116,22 +127,135 @@ function dialog(id: string, title: string, content: VNode[]): VNode {
     );
 }
 
+function studyMembersDialog(study: StudyPageModel, model: PyChessModel): VNode {
+    const members = Object.entries(study.members).sort(([a, aRole], [b, bRole]) => {
+        if (a === study.owner) return -1;
+        if (b === study.owner) return 1;
+        if (aRole !== bRole) return aRole === 'write' ? -1 : 1;
+        return a.localeCompare(b);
+    });
+    const myRole = model.username ? study.members[model.username] : undefined;
+    const roleLabel = (username: string, role: 'read' | 'write') =>
+        username === study.owner ? _('Owner') : role === 'write' ? _('Contributor') : _('Read only');
+
+    return dialog('study-members', _('Study members'), [
+        h(
+            'div.study-members__list',
+            members.map(([username, role]) =>
+                h('div.study-members__member', [
+                    h('div.study-members__identity', [
+                        h('a', { attrs: { href: `/@/${username}` } }, username),
+                        h('span', roleLabel(username, role)),
+                    ]),
+                    ...(study.isOwner && username !== study.owner
+                        ? [
+                              h(
+                                  'form.study-members__role',
+                                  { attrs: { method: 'post', action: `/study/${study.id}/member/role` } },
+                                  [
+                                      h('input', { attrs: { type: 'hidden', name: 'username', value: username } }),
+                                      h(
+                                          'select',
+                                          { attrs: { name: 'role', 'aria-label': _('Role for %1', username) } },
+                                          [
+                                              h(
+                                                  'option',
+                                                  { attrs: { value: 'read', selected: role === 'read' } },
+                                                  _('Read only'),
+                                              ),
+                                              h(
+                                                  'option',
+                                                  { attrs: { value: 'write', selected: role === 'write' } },
+                                                  _('Contributor'),
+                                              ),
+                                          ],
+                                      ),
+                                      h('button.button.button-thin', { attrs: { type: 'submit' } }, _('Save')),
+                                  ],
+                              ),
+                              deleteForm(
+                                  `/study/${study.id}/member/remove`,
+                                  _('Remove'),
+                                  _('Remove %1 from this Study?', username),
+                                  'study-members__remove',
+                                  { username },
+                              ),
+                          ]
+                        : []),
+                ]),
+            ),
+        ),
+        ...(study.isOwner && members.length < study.maxMembers
+            ? [
+                  h('form.study-members__add', { attrs: { method: 'post', action: `/study/${study.id}/member` } }, [
+                      h('h3', _('Add a member')),
+                      h('input', {
+                          attrs: {
+                              type: 'text',
+                              name: 'username',
+                              required: true,
+                              maxlength: '20',
+                              autocomplete: 'off',
+                              placeholder: _('Username'),
+                              'aria-label': _('Username'),
+                          },
+                      }),
+                      h('select', { attrs: { name: 'role', 'aria-label': _('Member role') } }, [
+                          h('option', { attrs: { value: 'read' } }, _('Read only')),
+                          h('option', { attrs: { value: 'write' } }, _('Contributor')),
+                      ]),
+                      h('button.button', { attrs: { type: 'submit' } }, _('Add member')),
+                  ]),
+                  h('p.study-members__limit', `${members.length} / ${study.maxMembers} ${_('members')}`),
+              ]
+            : []),
+        ...(!study.isOwner && myRole
+            ? [
+                  h(
+                      'form.study-members__leave',
+                      {
+                          attrs: { method: 'post', action: `/study/${study.id}/leave` },
+                          on: {
+                              submit: event => {
+                                  if (!window.confirm(_('Leave this Study?'))) event.preventDefault();
+                              },
+                          },
+                      },
+                      [h('button.button.button-red', { attrs: { type: 'submit' } }, _('Leave study'))],
+                  ),
+              ]
+            : []),
+    ]);
+}
+
 function studySide(study: StudyPageModel, model: PyChessModel): VNode {
     const chapter = study.chapter;
     const canWrite = study.canWrite;
     return h('div.study-side', [
         h('div.study-side__header', [
             h('h2', ngettext('%1 chapter', '%1 chapters', study.chapters.length)),
-            canWrite
-                ? h(
-                      'button.study-icon-button',
-                      {
-                          attrs: { type: 'button', title: _('Edit study'), 'aria-label': _('Edit study') },
-                          on: { click: () => openDialog('study-settings') },
-                      },
-                      [icon('bars')],
-                  )
-                : h('span.study-side__readonly', _('Read only')),
+            h('div.study-side__header-actions', [
+                h(
+                    'button.study-icon-button',
+                    {
+                        attrs: { type: 'button', title: _('Study members'), 'aria-label': _('Study members') },
+                        on: { click: () => openDialog('study-members') },
+                    },
+                    [icon('user')],
+                ),
+                ...(study.isOwner
+                    ? [
+                          h(
+                              'button.study-icon-button',
+                              {
+                                  attrs: { type: 'button', title: _('Edit study'), 'aria-label': _('Edit study') },
+                                  on: { click: () => openDialog('study-settings') },
+                              },
+                              [icon('bars')],
+                          ),
+                      ]
+                    : [h('span.study-side__readonly', canWrite ? _('Contributor') : _('Read only'))]),
+            ]),
         ]),
         h(
             'nav.study-chapters',
@@ -182,11 +306,11 @@ function studySide(study: StudyPageModel, model: PyChessModel): VNode {
         h('div.study-side__metadata', [
             h('h3', study.name),
             h('a', { attrs: { href: `/@/${study.owner}` } }, study.owner),
-            canWrite
+            study.isOwner
                 ? h('a', { attrs: { href: '/study' } }, _('My studies'))
                 : h('span.study-side__visibility', study.visibility),
         ]),
-        ...(canWrite
+        ...(study.isOwner
             ? [
                   dialog('study-settings', _('Edit study'), [
                       studySettingsForm(study),
@@ -197,6 +321,10 @@ function studySide(study: StudyPageModel, model: PyChessModel): VNode {
                           'study-side__danger',
                       ),
                   ]),
+              ]
+            : []),
+        ...(canWrite
+            ? [
                   ...study.chapters.map(item =>
                       dialog(`chapter-settings-${item.id}`, _('Edit chapter'), [
                           renameForm(`/study/${study.id}/${item.id}/edit`, item.name, _('Chapter name'), 80),
@@ -238,6 +366,7 @@ function studySide(study: StudyPageModel, model: PyChessModel): VNode {
                   ]),
               ]
             : []),
+        studyMembersDialog(study, model),
     ]);
 }
 

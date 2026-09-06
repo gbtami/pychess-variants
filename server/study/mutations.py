@@ -22,6 +22,7 @@ from study.annotations import (
 )
 from study.constants import STUDY_CHAPTER_MAX_BSON_BYTES, STUDY_MAX_NODES_PER_CHAPTER
 from study.models import Study, StudyChapter
+from study.permissions import can_write_study
 from study.tree import StudyTree, StudyTreeNode, is_study_node_id, new_study_node_id
 from study.variant import study_variant_context
 
@@ -94,13 +95,11 @@ class _VariantUnavailable(Exception):
 
 
 class StudyMutationService:
-    """Authoritative owner-only Study tree mutations.
+    """Authoritative Study tree mutations for owners and write contributors.
 
-    Phase 1 uses an optimistic compare-and-swap on the chapter revision. A mutation is
-    computed from one loaded chapter snapshot and persisted with `revision == expected`;
-    if another tab wins first, this service returns `reload` instead of merging stale
-    state. This keeps the owner-only MVP simple while preserving a safe path to a later
-    per-Study sequencer for collaboration.
+    Mutations remain optimistic compare-and-swap operations on the chapter revision.
+    Phase 4A broadens authorization to explicit write members; room-level ordering and
+    richer concurrent-merge behavior are layered on in Phase 4B.
     """
 
     def __init__(self, app_state: PychessGlobalAppState):
@@ -118,7 +117,7 @@ class StudyMutationService:
         expected_revision: int,
         node_id: str | None = None,
     ) -> StudyMutationResult:
-        loaded = await self._load_owner_context(study_id, chapter_id, username)
+        loaded = await self._load_write_context(study_id, chapter_id, username)
         if isinstance(loaded, StudyMutationResult):
             return loaded
         chapter = loaded.chapter
@@ -207,7 +206,7 @@ class StudyMutationService:
         path: str,
         expected_revision: int,
     ) -> StudyMutationResult:
-        loaded = await self._load_owner_context(study_id, chapter_id, username)
+        loaded = await self._load_write_context(study_id, chapter_id, username)
         if isinstance(loaded, StudyMutationResult):
             return loaded
         chapter = loaded.chapter
@@ -265,7 +264,7 @@ class StudyMutationService:
         to_mainline: bool,
         expected_revision: int,
     ) -> StudyMutationResult:
-        loaded = await self._load_owner_context(study_id, chapter_id, username)
+        loaded = await self._load_write_context(study_id, chapter_id, username)
         if isinstance(loaded, StudyMutationResult):
             return loaded
         chapter = loaded.chapter
@@ -342,7 +341,7 @@ class StudyMutationService:
         force: bool,
         expected_revision: int,
     ) -> StudyMutationResult:
-        loaded = await self._load_owner_context(study_id, chapter_id, username)
+        loaded = await self._load_write_context(study_id, chapter_id, username)
         if isinstance(loaded, StudyMutationResult):
             return loaded
         chapter = loaded.chapter
@@ -397,7 +396,7 @@ class StudyMutationService:
         shapes: object,
         expected_revision: int,
     ) -> StudyMutationResult:
-        loaded = await self._load_owner_context(study_id, chapter_id, username)
+        loaded = await self._load_write_context(study_id, chapter_id, username)
         if isinstance(loaded, StudyMutationResult):
             return loaded
         chapter = loaded.chapter
@@ -433,7 +432,7 @@ class StudyMutationService:
         text: object,
         expected_revision: int,
     ) -> StudyMutationResult:
-        loaded = await self._load_owner_context(study_id, chapter_id, username)
+        loaded = await self._load_write_context(study_id, chapter_id, username)
         if isinstance(loaded, StudyMutationResult):
             return loaded
         chapter = loaded.chapter
@@ -467,7 +466,7 @@ class StudyMutationService:
         nags: object,
         expected_revision: int,
     ) -> StudyMutationResult:
-        loaded = await self._load_owner_context(study_id, chapter_id, username)
+        loaded = await self._load_write_context(study_id, chapter_id, username)
         if isinstance(loaded, StudyMutationResult):
             return loaded
         chapter = loaded.chapter
@@ -496,7 +495,7 @@ class StudyMutationService:
         path: str,
         expected_revision: int,
     ) -> StudyMutationResult:
-        loaded = await self._load_owner_context(study_id, chapter_id, username)
+        loaded = await self._load_write_context(study_id, chapter_id, username)
         if isinstance(loaded, StudyMutationResult):
             return loaded
         chapter = loaded.chapter
@@ -517,7 +516,7 @@ class StudyMutationService:
         description: object,
         expected_revision: int,
     ) -> StudyMutationResult:
-        loaded = await self._load_owner_context(study_id, chapter_id, username)
+        loaded = await self._load_write_context(study_id, chapter_id, username)
         if isinstance(loaded, StudyMutationResult):
             return loaded
         chapter = loaded.chapter
@@ -562,7 +561,7 @@ class StudyMutationService:
         tags: object,
         expected_revision: int,
     ) -> StudyMutationResult:
-        loaded = await self._load_owner_context(study_id, chapter_id, username)
+        loaded = await self._load_write_context(study_id, chapter_id, username)
         if isinstance(loaded, StudyMutationResult):
             return loaded
         chapter = loaded.chapter
@@ -654,7 +653,7 @@ class StudyMutationService:
             annotations=annotations,
         )
 
-    async def _load_owner_context(
+    async def _load_write_context(
         self, study_id: str, chapter_id: str, username: str
     ) -> _MutationContext | StudyMutationResult:
         study_doc = await self.db.study.find_one({"_id": study_id})
@@ -665,7 +664,7 @@ class StudyMutationService:
         except (TypeError, ValueError):
             log.exception("Invalid Study document %s", study_id)
             return self._error(None, "invalid_study")
-        if study.owner != username:
+        if not can_write_study(study, username):
             return self._error(None, "forbidden")
 
         chapter_doc = await self.db.study_chapter.find_one({"_id": chapter_id, "studyId": study.id})

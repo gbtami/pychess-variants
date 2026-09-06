@@ -15,7 +15,7 @@ class StudyPermissionsTestCase(unittest.TestCase):
             id="study001",
             name="Opening ideas",
             owner="owner",
-            members={"owner": "write", "reader": "read"},
+            members={"owner": "write", "writer": "write", "reader": "read"},
             created_at=now,
             updated_at=now,
         )
@@ -48,9 +48,10 @@ class StudyPermissionsTestCase(unittest.TestCase):
         self.assertTrue(can_embed_study(replace(self.study, visibility="unlisted")))
         self.assertTrue(can_embed_study(replace(self.study, visibility="public")))
 
-    def test_view_permission_does_not_grant_write_permission(self) -> None:
+    def test_only_write_members_can_persist_changes(self) -> None:
         study = replace(self.study, visibility="public")
         self.assertTrue(can_write_study(study, "owner"))
+        self.assertTrue(can_write_study(study, "writer"))
         self.assertFalse(can_write_study(study, "reader"))
         self.assertFalse(can_write_study(study, "other"))
         self.assertFalse(can_write_study(study, None))

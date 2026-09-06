@@ -27,6 +27,12 @@ def study_visibility(value: object) -> StudyVisibility:
     return cast(StudyVisibility, value)
 
 
+def study_member_role(value: object) -> StudyMemberRole:
+    if not isinstance(value, str) or value not in _MEMBER_ROLES:
+        raise ValueError(f"Unknown Study member role: {value!r}")
+    return cast(StudyMemberRole, value)
+
+
 def _search_words(value: str) -> tuple[str, ...]:
     words: list[str] = []
     current: list[str] = []
@@ -163,6 +169,9 @@ class Study:
             "name": self.name,
             "owner": self.owner,
             "members": dict(self.members),
+            "writeMembers": sorted(
+                username for username, role in self.members.items() if role == "write"
+            ),
             "visibility": self.visibility,
             "source": self.source.encode(),
             "createdAt": _utc(self.created_at),

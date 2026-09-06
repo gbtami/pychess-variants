@@ -38,12 +38,16 @@ def can_embed_study(study: Study) -> bool:
     return study.visibility != "private"
 
 
-def can_write_study(study: Study, username: str | None) -> bool:
-    """Phase-3 write policy: sharing never grants edit rights.
+def is_study_owner(study: Study, username: str | None) -> bool:
+    return username is not None and username == study.owner
 
-    Contributor writes are deliberately deferred to Phase 4. The helper exists now so
-    page serialization can distinguish owner editing from read-only sharing without
-    deriving permission from visibility.
+
+def can_write_study(study: Study, username: str | None) -> bool:
+    """Return whether a Study member may persist analysis/chapter changes.
+
+    Visibility never grants write access. The owner is kept as a write member by the
+    model invariant; Phase 4 contributors receive the same persisted-analysis rights
+    through an explicit ``write`` member role.
     """
 
-    return username is not None and username == study.owner
+    return username is not None and study.members.get(username) == "write"

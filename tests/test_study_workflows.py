@@ -452,3 +452,101 @@ async def test_viewable_study_can_be_cloned_into_private_owned_copy(aiohttp_clie
     assert clone_payload["visibility"] == "private"
     assert clone_payload["canWrite"] is True
     assert clone_payload["canClone"] is True
+
+
+@pytest.mark.asyncio
+async def test_study_members_roles_and_contributor_write_access(aiohttp_client) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    for username in ("member_owner", "member_writer", "member_reader", "member_other"):
+        await _insert_user(app_state, username)
+
+    draft = await StudyChapterBuilder(app_state, "member_owner").blank_or_fen(variant="chess")
+    study, chapter = await create_study_from_draft(app_state, "member_owner", draft)
+    study_url = f"/study/{study.id}/{chapter.id}"
+
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie("member_owner")})
+    response = await client.post(
+        f"/study/{study.id}/member",
+        data={"username": "member_writer", "role": "write"},
+        allow_redirects=False,
+    )
+    assert response.status == 302
+    response = await client.post(
+        f"/study/{study.id}/member",
+        data={"username": "member_reader", "role": "read"},
+        allow_redirects=False,
+    )
+    assert response.status == 302
+
+    response = await client.get(study_url, headers={"Accept": "application/json"})
+    payload = (await response.json())["study"]
+    assert payload["isOwner"] is True
+    assert payload["members"] == {
+        "member_owner": "write",
+        "member_writer": "write",
+        "member_reader": "read",
+    }
+    assert payload["maxMembers"] >= 3
+
+    client.session.cookie_jar.clear()
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie("member_writer")})
+    response = await client.get(study_url, headers={"Accept": "application/json"})
+    payload = (await response.json())["study"]
+    assert payload["isOwner"] is False
+    assert payload["canWrite"] is True
+
+    response = await client.get("/study/choices", headers={"Accept": "application/json"})
+    assert response.status == 200
+    choices = (await response.json())["studies"]
+    assert {item["id"] for item in choices} == {study.id}
+
+    response = await client.post(
+        f"/study/{study.id}/chapter",
+        data={"chapterName": "Writer chapter", "variant": "chess"},
+        allow_redirects=False,
+    )
+    assert response.status == 302
+
+    response = await client.post(
+        f"/study/{study.id}/edit",
+        data={"name": "Nope", "visibility": "public"},
+        allow_redirects=False,
+    )
+    assert response.status == 404
+    response = await client.post(
+        f"/study/{study.id}/member",
+        data={"username": "member_other", "role": "read"},
+        allow_redirects=False,
+    )
+    assert response.status == 404
+
+    client.session.cookie_jar.clear()
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie("member_reader")})
+    response = await client.get(study_url, headers={"Accept": "application/json"})
+    assert (await response.json())["study"]["canWrite"] is False
+    response = await client.post(
+        f"/study/{study.id}/chapter",
+        data={"chapterName": "Denied", "variant": "chess"},
+        allow_redirects=False,
+    )
+    assert response.status == 403
+
+    response = await client.post(f"/study/{study.id}/leave", allow_redirects=False)
+    assert response.status == 302
+    assert (await client.get(study_url, headers={"Accept": "application/json"})).status == 404
+
+    client.session.cookie_jar.clear()
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie("member_owner")})
+    response = await client.post(
+        f"/study/{study.id}/member/role",
+        data={"username": "member_writer", "role": "read"},
+        allow_redirects=False,
+    )
+    assert response.status == 302
+
+    client.session.cookie_jar.clear()
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie("member_writer")})
+    response = await client.get(study_url, headers={"Accept": "application/json"})
+    assert (await response.json())["study"]["canWrite"] is False

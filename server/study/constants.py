@@ -24,6 +24,9 @@ def _positive_int_env(name: str, default: int) -> int:
 # have much larger FEN/tree payloads than orthodox chess.
 STUDY_MAX_CHAPTERS = _positive_int_env("STUDY_MAX_CHAPTERS", 64)
 STUDY_MAX_NODES_PER_CHAPTER = _positive_int_env("STUDY_MAX_NODES_PER_CHAPTER", 3_000)
+# Lichess currently caps Study membership at 30. Keep the same conservative
+# default but allow operators to lower/raise it without code changes.
+STUDY_MAX_MEMBERS = _positive_int_env("STUDY_MAX_MEMBERS", 30)
 STUDY_CHAPTER_MAX_BSON_BYTES = min(
     _positive_int_env("STUDY_CHAPTER_MAX_BSON_BYTES", 8 * 1024 * 1024),
     STUDY_CHAPTER_BSON_HARD_CEILING,

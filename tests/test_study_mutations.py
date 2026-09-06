@@ -64,6 +64,34 @@ class StudyMutationServiceTestCase(unittest.IsolatedAsyncioTestCase):
             expected_revision=revision,
         )
 
+    async def test_write_contributor_can_mutate_but_reader_cannot(self) -> None:
+        await self.db.study.update_one(
+            {"_id": STUDY_ID},
+            {"$set": {"members": {OWNER: "write", "writer": "write", "reader": "read"}}},
+        )
+
+        writer = await self.service.add_node(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username="writer",
+            parent_path="",
+            move="e2e4",
+            expected_revision=0,
+        )
+        self.assertEqual(writer.status, "ok")
+        self.assertTrue(writer.changed)
+
+        reader = await self.service.add_node(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username="reader",
+            parent_path="",
+            move="d2d4",
+            expected_revision=1,
+        )
+        self.assertEqual(reader.status, "error")
+        self.assertEqual(reader.reason, "forbidden")
+
     async def test_add_node_is_authoritative_and_deduplicates(self) -> None:
         added = await self._add("e2e4", 0)
         self.assertEqual(added.status, "ok")

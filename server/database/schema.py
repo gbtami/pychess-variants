@@ -257,9 +257,10 @@ INDEXES = (
         sparse=True,
         startup_policy=StartupPolicy.AFTER_STARTUP,
     ),
-    # Studies. Keep private/unlisted documents out of the public discovery
-    # indexes; their query shape always includes visibility=public.
+    # Studies. Owner/write-member indexes support personal contributor lookups.
+    # Keep private/unlisted documents out of the separate public-discovery indexes.
     _index("study", ("owner", 1), ("updatedAt", -1), name="owner_updatedAt"),
+    _index("study", ("writeMembers", 1), ("updatedAt", -1), name="writeMembers_updatedAt"),
     _index(
         "study",
         ("updatedAt", -1),

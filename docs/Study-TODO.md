@@ -1229,15 +1229,23 @@ than a rewrite.
 
 ## 4A. Members and roles
 
-- [ ] Owner role.
-- [ ] Contributor/write role.
-- [ ] Read-only member role.
-- [ ] Invite/add member.
-- [ ] Change role.
-- [ ] Remove/kick member.
-- [ ] Leave Study.
-- [ ] Member cap (Lichess uses 30; use a conservative configurable PyChess cap).
-- [ ] Server-side authorization for every mutation; never rely on hidden buttons.
+- [x] Owner role.
+- [x] Contributor/write role.
+- [x] Read-only member role.
+- [x] Invite/add member.
+- [x] Change role.
+- [x] Remove/kick member.
+- [x] Leave Study.
+- [x] Member cap (Lichess uses 30; use a conservative configurable PyChess cap).
+- [x] Server-side authorization for every mutation; never rely on hidden buttons.
+
+The Study owner remains the sole metadata/membership administrator. Explicit write members may
+persist tree/annotation edits, create/import/rename/delete chapters, and appear as Add-to-Study
+destinations; read members can view private Studies but cannot persist changes. Membership updates
+use the Study metadata revision as a bounded compare-and-swap, and a `writeMembers + updatedAt`
+index supports contributor destination lookup without scanning the Study collection. The configurable
+member cap defaults to 30. Membership changes currently close the Study room so clients reload their
+authoritative capabilities; Phase 4B replaces that coarse refresh with realtime room-state updates.
 
 ## 4B. Room synchronization
 

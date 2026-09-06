@@ -18,33 +18,45 @@ from study.builder import (
     StudyChapterDraft,
     StudyOrientation,
 )
-from study.constants import STUDY_MAX_CHAPTERS
+from study.constants import STUDY_MAX_CHAPTERS, STUDY_MAX_MEMBERS
 from study.models import Study, StudyChapter, study_visibility
-from study.permissions import can_clone_study, can_embed_study, can_view_study, can_write_study
+from study.permissions import (
+    can_clone_study,
+    can_embed_study,
+    can_view_study,
+    can_write_study,
+    is_study_owner,
+)
 from study.storage import (
     StudyStorageError,
     add_chapter_from_draft,
     add_chapters_from_drafts,
+    add_study_member,
     chapter_previews,
     clone_study,
     create_study_from_draft,
     delete_chapter,
     delete_study,
+    leave_study,
     load_chapter,
     load_owned_chapter,
     load_owned_study,
     load_study,
     public_studies_page,
+    remove_study_member,
     rename_chapter,
     rename_study,
     select_chapter,
+    set_study_member_role,
     set_study_visibility,
     studies_for_owner,
     studies_for_owner_view,
+    studies_writable_by,
 )
 from study.variant import study_variant_client_doc, study_variant_context, study_variant_metadata
 from study.ws import close_study_sockets
 from typing_defs import ViewContext
+from utils import USERNAME_PREFIX_RE
 from variants import ALL_VARIANTS, is_catalogued_variant
 
 from views import get_user_context
@@ -107,6 +119,34 @@ async def _owned_study_and_chapter(
         doc = await app_state.db.study_chapter.find_one(
             {"studyId": study.id, "owner": user.username}, sort=[("order", 1)]
         )
+        if doc is None:
+            raise web.HTTPNotFound(text="Study has no chapters")
+        chapter = StudyChapter.from_document(doc)
+    return user, context, study, chapter
+
+
+async def _writable_study_and_chapter(
+    request: web.Request,
+) -> tuple[Any, ViewContext, Study, StudyChapter]:
+    user, context = await get_user_context(request)
+    _require_owner_user(user)
+    app_state = get_app_state(request.app)
+    if app_state.db is None:
+        raise web.HTTPServiceUnavailable(text="Studies require database access.")
+
+    study = await load_study(app_state, request.match_info["studyId"])
+    if study is None or not can_view_study(study, user.username):
+        raise web.HTTPNotFound()
+    if not can_write_study(study, user.username):
+        raise web.HTTPForbidden(text="You cannot edit this Study.")
+
+    requested_chapter_id = request.match_info.get("chapterId")
+    chapter_id = requested_chapter_id or study.current_chapter
+    chapter = await load_chapter(app_state, study.id, chapter_id) if chapter_id else None
+    if requested_chapter_id and chapter is None:
+        raise web.HTTPNotFound()
+    if chapter is None:
+        doc = await app_state.db.study_chapter.find_one({"studyId": study.id}, sort=[("order", 1)])
         if doc is None:
             raise web.HTTPNotFound(text="Study has no chapters")
         chapter = StudyChapter.from_document(doc)
@@ -321,7 +361,7 @@ async def study_choices(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     if app_state.db is None:
         return web.json_response({"studies": [], "error": "db_unavailable"}, status=503)
-    studies = await studies_for_owner(app_state, user.username)
+    studies = await studies_writable_by(app_state, user.username)
     return web.json_response(
         {"studies": [{"id": study.id, "name": study.name} for study in studies]}
     )
@@ -367,8 +407,11 @@ async def _populate_study_chapter_context(
             "name": study.name,
             "owner": study.owner,
             "visibility": study.visibility,
+            "isOwner": is_study_owner(study, None if user.anon else user.username),
             "canWrite": writable,
             "canClone": (not user.anon and not user.bot and can_clone_study(study, user.username)),
+            "members": dict(study.members),
+            "maxMembers": STUDY_MAX_MEMBERS,
             "chapter": {
                 "id": chapter.id,
                 "name": chapter.name,
@@ -502,9 +545,11 @@ async def study_from_analysis(request: web.Request) -> web.StreamResponse:
         )
         destination_id = str(data.get("studyId") or "").strip()
         if destination_id:
-            study = await load_owned_study(app_state, destination_id, user.username)
-            if study is None:
+            study = await load_study(app_state, destination_id)
+            if study is None or not can_view_study(study, user.username):
                 return web.json_response({"ok": False, "error": "study_not_found"}, status=404)
+            if not can_write_study(study, user.username):
+                return web.json_response({"ok": False, "error": "forbidden"}, status=403)
             chapter = await add_chapter_from_draft(app_state, study, draft)
         else:
             study, chapter = await create_study_from_draft(
@@ -526,7 +571,7 @@ async def study_from_analysis(request: web.Request) -> web.StreamResponse:
 
 
 async def study_import_pgn(request: web.Request) -> web.StreamResponse:
-    user, _, study, _ = await _owned_study_and_chapter(request)
+    user, _, study, _ = await _writable_study_and_chapter(request)
     app_state = get_app_state(request.app)
     data = await read_json_data(request)
     if not isinstance(data, Mapping):
@@ -687,8 +732,84 @@ async def study_delete(request: web.Request) -> web.StreamResponse:
     raise web.HTTPFound("/study")
 
 
+async def _study_member_target(request: web.Request, data: Mapping[str, object]) -> str:
+    raw = str(data.get("username") or "").strip().lstrip("@")
+    if not USERNAME_PREFIX_RE.fullmatch(raw):
+        raise web.HTTPBadRequest(text="Invalid username")
+    app_state = get_app_state(request.app)
+    profile = await app_state.public_users.get_profile(raw)
+    if profile is None or not profile.enabled:
+        raise web.HTTPBadRequest(text="User not found")
+    if profile.bot:
+        raise web.HTTPBadRequest(text="BOT accounts cannot be Study members")
+    return profile.username
+
+
+async def study_member_add(request: web.Request) -> web.StreamResponse:
+    user, _, study, _ = await _owned_study_and_chapter(request)
+    data = await read_post_data(request)
+    if data is None:
+        raise web.HTTPNoContent()
+    target = await _study_member_target(request, data)
+    try:
+        await add_study_member(
+            get_app_state(request.app), study.id, user.username, target, data.get("role", "read")
+        )
+    except (StudyStorageError, ValueError) as exc:
+        raise web.HTTPBadRequest(text=str(exc)) from exc
+    await close_study_sockets(get_app_state(request.app), study.id)
+    raise web.HTTPFound(f"/study/{study.id}")
+
+
+async def study_member_role(request: web.Request) -> web.StreamResponse:
+    user, _, study, _ = await _owned_study_and_chapter(request)
+    data = await read_post_data(request)
+    if data is None:
+        raise web.HTTPNoContent()
+    target = str(data.get("username") or "").strip()
+    try:
+        await set_study_member_role(
+            get_app_state(request.app), study.id, user.username, target, data.get("role")
+        )
+    except (StudyStorageError, ValueError) as exc:
+        raise web.HTTPBadRequest(text=str(exc)) from exc
+    await close_study_sockets(get_app_state(request.app), study.id)
+    raise web.HTTPFound(f"/study/{study.id}")
+
+
+async def study_member_remove(request: web.Request) -> web.StreamResponse:
+    user, _, study, _ = await _owned_study_and_chapter(request)
+    data = await read_post_data(request)
+    if data is None:
+        raise web.HTTPNoContent()
+    target = str(data.get("username") or "").strip()
+    try:
+        await remove_study_member(get_app_state(request.app), study.id, user.username, target)
+    except StudyStorageError as exc:
+        raise web.HTTPBadRequest(text=str(exc)) from exc
+    await close_study_sockets(get_app_state(request.app), study.id)
+    raise web.HTTPFound(f"/study/{study.id}")
+
+
+async def study_leave(request: web.Request) -> web.StreamResponse:
+    user, _ = await get_user_context(request)
+    _require_owner_user(user)
+    app_state = get_app_state(request.app)
+    if app_state.db is None:
+        raise web.HTTPServiceUnavailable(text="Studies require database access.")
+    study = await load_study(app_state, request.match_info["studyId"])
+    if study is None or not can_view_study(study, user.username):
+        raise web.HTTPNotFound()
+    try:
+        await leave_study(app_state, study.id, user.username)
+    except StudyStorageError as exc:
+        raise web.HTTPBadRequest(text=str(exc)) from exc
+    await close_study_sockets(app_state, study.id)
+    raise web.HTTPFound("/study")
+
+
 async def study_chapter_create(request: web.Request) -> web.StreamResponse:
-    _, _, study, chapter = await _owned_study_and_chapter(request)
+    user, _, study, chapter = await _writable_study_and_chapter(request)
     data = await read_post_data(request)
     if data is None:
         raise web.HTTPNoContent()
@@ -697,7 +818,7 @@ async def study_chapter_create(request: web.Request) -> web.StreamResponse:
         # A source-aware form creates a fresh chapter. The old one-button request still
         # creates a blank chapter using the current chapter's variant as its default.
         draft = await _draft_from_form(
-            StudyChapterBuilder(app_state, study.owner),
+            StudyChapterBuilder(app_state, user.username),
             data,
             fallback_variant=chapter.variant,
             fallback_chess960=chapter.chess960,
@@ -709,7 +830,7 @@ async def study_chapter_create(request: web.Request) -> web.StreamResponse:
 
 
 async def study_chapter_edit(request: web.Request) -> web.StreamResponse:
-    _, _, study, chapter = await _owned_study_and_chapter(request)
+    _, _, study, chapter = await _writable_study_and_chapter(request)
     data = await read_post_data(request)
     if data is None:
         raise web.HTTPNoContent()
@@ -718,7 +839,7 @@ async def study_chapter_edit(request: web.Request) -> web.StreamResponse:
 
 
 async def study_chapter_delete(request: web.Request) -> web.StreamResponse:
-    _, _, study, chapter = await _owned_study_and_chapter(request)
+    _, _, study, chapter = await _writable_study_and_chapter(request)
     try:
         next_chapter = await delete_chapter(get_app_state(request.app), study, chapter)
     except StudyStorageError as exc:

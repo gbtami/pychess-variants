@@ -13,15 +13,18 @@ from study.constants import (
     STUDY_CHAPTER_MAX_BSON_BYTES,
     STUDY_CHAPTER_NAME_MAX_LENGTH,
     STUDY_MAX_CHAPTERS,
+    STUDY_MAX_MEMBERS,
     STUDY_NAME_MAX_LENGTH,
 )
 from study.models import (
     Study,
     StudyChapter,
+    StudyMemberRole,
     StudySource,
     StudyVisibility,
     make_chapter,
     make_study,
+    study_member_role,
     study_search_query_tokens,
     study_search_tokens,
     study_visibility,
@@ -146,6 +149,23 @@ async def count_studies_for_owner_view(app_state: Any, owner: str, viewer: str |
     return await app_state.db.study.count_documents(_owner_listing_filter(owner, viewer))
 
 
+async def studies_writable_by(
+    app_state: Any,
+    username: str,
+    *,
+    limit: int = 100,
+) -> list[Study]:
+    """Return Studies the user may write, including contributed Studies."""
+
+    docs = (
+        await app_state.db.study.find({"$or": [{"owner": username}, {"writeMembers": username}]})
+        .sort("updatedAt", -1)
+        .limit(limit)
+        .to_list(length=limit)
+    )
+    return [Study.from_document(doc) for doc in docs]
+
+
 async def load_owned_study(app_state: Any, study_id: str, owner: str) -> Study | None:
     doc = await app_state.db.study.find_one({"_id": study_id, "owner": owner})
     return Study.from_document(doc) if doc is not None else None
@@ -154,6 +174,134 @@ async def load_owned_study(app_state: Any, study_id: str, owner: str) -> Study |
 async def load_study(app_state: Any, study_id: str) -> Study | None:
     doc = await app_state.db.study.find_one({"_id": study_id})
     return Study.from_document(doc) if doc is not None else None
+
+
+async def _replace_study_members(
+    app_state: Any,
+    study: Study,
+    members: dict[str, StudyMemberRole],
+) -> Study | None:
+    """CAS one member-map update against the Study metadata revision.
+
+    Membership changes are rare, so replacing the bounded map keeps the Mongo shape
+    simple and lets the existing revision protect the cap/invariants from concurrent
+    owner requests without introducing a permanent in-memory lock per Study.
+    """
+
+    now = datetime.now(UTC)
+    result = await app_state.db.study.update_one(
+        {"_id": study.id, "revision": study.revision},
+        {
+            "$set": {
+                "members": members,
+                "writeMembers": sorted(
+                    username for username, role in members.items() if role == "write"
+                ),
+                "updatedAt": now,
+            },
+            "$inc": {"revision": 1},
+        },
+    )
+    if result.matched_count != 1:
+        return None
+    return replace(study, members=members, updated_at=now, revision=study.revision + 1)
+
+
+async def add_study_member(
+    app_state: Any,
+    study_id: str,
+    actor: str,
+    username: str,
+    role: object = "read",
+) -> Study:
+    clean_role = study_member_role(role)
+    for _ in range(4):
+        study = await load_study(app_state, study_id)
+        if study is None:
+            raise StudyStorageError("Study not found")
+        if study.owner != actor:
+            raise StudyStorageError("Only the Study owner can add members")
+        if username == study.owner:
+            raise StudyStorageError("The Study owner is already a member")
+        members = dict(study.members)
+        if username not in members and len(members) >= STUDY_MAX_MEMBERS:
+            raise StudyStorageError(f"A Study can have at most {STUDY_MAX_MEMBERS} members")
+        if members.get(username) == clean_role:
+            return study
+        members[username] = clean_role
+        updated = await _replace_study_members(app_state, study, members)
+        if updated is not None:
+            return updated
+    raise StudyStorageError("Study membership changed concurrently; please retry")
+
+
+async def set_study_member_role(
+    app_state: Any,
+    study_id: str,
+    actor: str,
+    username: str,
+    role: object,
+) -> Study:
+    clean_role = study_member_role(role)
+    for _ in range(4):
+        study = await load_study(app_state, study_id)
+        if study is None:
+            raise StudyStorageError("Study not found")
+        if study.owner != actor:
+            raise StudyStorageError("Only the Study owner can change member roles")
+        if username == study.owner:
+            raise StudyStorageError("The Study owner's role cannot be changed")
+        if username not in study.members:
+            raise StudyStorageError("Study member not found")
+        if study.members[username] == clean_role:
+            return study
+        members = dict(study.members)
+        members[username] = clean_role
+        updated = await _replace_study_members(app_state, study, members)
+        if updated is not None:
+            return updated
+    raise StudyStorageError("Study membership changed concurrently; please retry")
+
+
+async def remove_study_member(
+    app_state: Any,
+    study_id: str,
+    actor: str,
+    username: str,
+) -> Study:
+    for _ in range(4):
+        study = await load_study(app_state, study_id)
+        if study is None:
+            raise StudyStorageError("Study not found")
+        if study.owner != actor:
+            raise StudyStorageError("Only the Study owner can remove members")
+        if username == study.owner:
+            raise StudyStorageError("The Study owner cannot be removed")
+        if username not in study.members:
+            raise StudyStorageError("Study member not found")
+        members = dict(study.members)
+        del members[username]
+        updated = await _replace_study_members(app_state, study, members)
+        if updated is not None:
+            return updated
+    raise StudyStorageError("Study membership changed concurrently; please retry")
+
+
+async def leave_study(app_state: Any, study_id: str, username: str) -> Study:
+    for _ in range(4):
+        study = await load_study(app_state, study_id)
+        if study is None:
+            raise StudyStorageError("Study not found")
+        if username == study.owner:
+            raise StudyStorageError("The Study owner cannot leave the Study")
+        if username not in study.members:
+            raise StudyStorageError("You are not a member of this Study")
+        members = dict(study.members)
+        del members[username]
+        updated = await _replace_study_members(app_state, study, members)
+        if updated is not None:
+            return updated
+    raise StudyStorageError("Study membership changed concurrently; please retry")
 
 
 async def load_owned_chapter(
