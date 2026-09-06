@@ -220,6 +220,9 @@ describe('analysis page smoke coverage', () => {
                         isOwner: true,
                         canWrite: true,
                         canClone: true,
+                        canLike: true,
+                        liked: true,
+                        likes: 1,
                         members: { tester: 'write', writer: 'write', reader: 'read' },
                         maxMembers: 30,
                         sharedChapter: 'ChAp0001',
@@ -316,6 +319,8 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('under-board .study-tool-tabs > .study-mode--sync')).not.toBeNull();
         expect(root.querySelector('under-board .study-tool-tabs > .study-mode--write')).not.toBeNull();
         expect(root.querySelector('#study-tab-tags')?.getAttribute('aria-selected')).toBe('true');
+        expect(root.querySelector<HTMLButtonElement>('.study-like')?.getAttribute('aria-pressed')).toBe('true');
+        expect(root.querySelector('.study-like__count')?.textContent).toBe('1');
         expect(root.querySelector('.study-side .study-mode')).toBeNull();
         expect(root.querySelector('.study-annotations__comment-input')).not.toBeNull();
         expect(root.querySelectorAll('.study-annotations__nag')).toHaveLength(24);
@@ -351,6 +356,9 @@ describe('analysis page smoke coverage', () => {
             isOwner: false,
             canWrite: false,
             canClone: true,
+            canLike: true,
+            liked: false,
+            likes: 1,
             members: { owner: 'write' },
             maxMembers: 30,
             sharedChapter: 'ChAp0001',
@@ -408,6 +416,9 @@ describe('analysis page smoke coverage', () => {
             isOwner: false,
             canWrite: true,
             canClone: true,
+            canLike: true,
+            liked: false,
+            likes: 2,
             members: { owner: 'write', tester: 'write' },
             maxMembers: 30,
             sharedChapter: 'ChAp0001',
@@ -446,7 +457,7 @@ describe('analysis page smoke coverage', () => {
             'http://127.0.0.1:8080/study/StUdY001/ChAp0002',
             '<iframe width="600" height="371" src="http://127.0.0.1:8080/study/embed/StUdY001/ChAp0002" frameborder="0"></iframe>',
         ]);
-        expect(root.querySelector('.study-underboard__title')?.textContent).toBe('Shared ideas: Second line');
+        expect(root.querySelector('.study-underboard__name')?.textContent).toBe('Shared ideas: Second line');
     });
 
     test('study embed reuses the lean analysis embed shell', () => {
@@ -458,6 +469,9 @@ describe('analysis page smoke coverage', () => {
             isOwner: false,
             canWrite: false,
             canClone: false,
+            canLike: false,
+            liked: false,
+            likes: 1,
             members: { owner: 'write' },
             maxMembers: 30,
             sharedChapter: 'ChAp0001',

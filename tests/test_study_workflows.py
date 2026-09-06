@@ -788,3 +788,67 @@ async def test_study_members_roles_and_contributor_write_access(aiohttp_client) 
     client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie("member_writer")})
     response = await client.get(study_url, headers={"Accept": "application/json"})
     assert (await response.json())["study"]["canWrite"] is False
+
+
+@pytest.mark.asyncio
+async def test_study_likes_and_favorite_list(aiohttp_client) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    owner = "likes_owner"
+    fan = "likes_fan"
+    await _insert_user(app_state, owner)
+    await _insert_user(app_state, fan)
+
+    draft = await StudyChapterBuilder(app_state, owner).blank_or_fen(variant="chess")
+    study, chapter = await create_study_from_draft(app_state, owner, draft, name="Favorite Study")
+    await set_study_visibility(app_state, study, "public")
+    study_url = f"/study/{study.id}/{chapter.id}"
+
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie(owner)})
+    response = await client.get(study_url, headers={"Accept": "application/json"})
+    assert response.status == 200
+    payload = (await response.json())["study"]
+    assert payload["canLike"] is True
+    assert payload["liked"] is True
+    assert payload["likes"] == 1
+
+    # The owner's automatic initial like does not make their own Study appear in
+    # My favorite studies, matching Lichess's personal list semantics.
+    response = await client.get("/study/likes")
+    assert response.status == 200
+    assert "Favorite Study" not in await response.text()
+
+    client.session.cookie_jar.clear()
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie(fan)})
+    response = await client.get(study_url, headers={"Accept": "application/json"})
+    payload = (await response.json())["study"]
+    assert payload["canLike"] is True
+    assert payload["liked"] is False
+    assert payload["likes"] == 1
+
+    response = await client.post(f"/study/{study.id}/like", json={"liked": True})
+    assert response.status == 200
+    assert await response.json() == {"ok": True, "liked": True, "likes": 2}
+
+    # Setting the same state is idempotent.
+    response = await client.post(f"/study/{study.id}/like", json={"liked": True})
+    assert response.status == 200
+    assert await response.json() == {"ok": True, "liked": True, "likes": 2}
+
+    response = await client.get("/study/likes")
+    assert response.status == 200
+    html = await response.text()
+    assert "My favorite studies" in html
+    assert "Favorite Study" in html
+    assert ">2<" in html
+
+    response = await client.post(f"/study/{study.id}/like", json={"liked": False})
+    assert response.status == 200
+    assert await response.json() == {"ok": True, "liked": False, "likes": 1}
+    response = await client.get("/study/likes")
+    assert "Favorite Study" not in await response.text()
+
+    client.session.cookie_jar.clear()
+    response = await client.post(f"/study/{study.id}/like", json={"liked": True})
+    assert response.status == 403

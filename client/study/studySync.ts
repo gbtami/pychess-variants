@@ -32,6 +32,7 @@ import { renderStudyChapterPgn, type StudyPgnChapterData, type StudyPgnContext }
 const STUDY_SOCKET_TYPES = new Set([
     'study_user_connected',
     'study_members',
+    'study_likes',
     'study_position',
     'study_add_node',
     'study_delete_node',
@@ -102,6 +103,7 @@ export interface StudySyncOptions {
     onAnnotationStateChanged?: (state: StudyAnnotationState) => void;
     onReloadRequired?: (reason: string) => void;
     onMembersChanged?: (members: Record<string, 'read' | 'write'>) => void;
+    onLikesChanged?: (likes: number) => void;
     onLocalPathChanged?: (path: string) => void;
     onSharedPositionChanged?: (chapterId: string, path: string) => void;
     opIdFactory?: () => string;
@@ -525,6 +527,15 @@ export class StudyAnalysisExtension implements AnalysisExtension {
                 return true;
             }
             this.options.onSharedPositionChanged?.(data.chapterId, data.path);
+            return true;
+        }
+
+        if (type === 'study_likes') {
+            if (!Number.isInteger(data.likes) || (data.likes as number) < 0) {
+                this.requestReload('invalid_likes');
+                return true;
+            }
+            this.options.onLikesChanged?.(data.likes as number);
             return true;
         }
 
