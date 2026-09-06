@@ -256,6 +256,81 @@ async def test_profile_study_listing_only_exposes_public_studies(aiohttp_client)
 
 
 @pytest.mark.asyncio
+async def test_public_study_discovery_and_search_never_expose_link_only_studies(
+    aiohttp_client,
+) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    for username in ("discovery_alice", "discovery_bob", "private_owner"):
+        await _insert_user(app_state, username)
+
+    alice_builder = StudyChapterBuilder(app_state, "discovery_alice")
+    public, _ = await create_study_from_draft(
+        app_state,
+        "discovery_alice",
+        await alice_builder.blank_or_fen(variant="chess"),
+        name="Sicilian Defense Lab",
+    )
+    await set_study_visibility(app_state, public, "public")
+
+    bob_builder = StudyChapterBuilder(app_state, "discovery_bob")
+    unlisted, _ = await create_study_from_draft(
+        app_state,
+        "discovery_bob",
+        await bob_builder.blank_or_fen(variant="chess"),
+        name="Sicilian Secret",
+    )
+    await set_study_visibility(app_state, unlisted, "unlisted")
+
+    private_builder = StudyChapterBuilder(app_state, "private_owner")
+    private, _ = await create_study_from_draft(
+        app_state,
+        "private_owner",
+        await private_builder.blank_or_fen(variant="chess"),
+        name="Sicilian Private",
+    )
+
+    response = await client.get("/study/all")
+    assert response.status == 200
+    html = await response.text()
+    assert "Sicilian Defense Lab" in html
+    assert "discovery_alice" in html
+    assert "Sicilian Secret" not in html
+    assert "Sicilian Private" not in html
+
+    response = await client.get("/study/all?q=sic")
+    assert response.status == 200
+    html = await response.text()
+    assert "Sicilian Defense Lab" in html
+    assert "Sicilian Secret" not in html
+    assert "Sicilian Private" not in html
+
+    # Studies created by the earlier Phase 3 slices have no derived searchTokens.
+    # They remain discoverable through the safe legacy fallback.
+    await app_state.db.study.update_one({"_id": public.id}, {"$unset": {"searchTokens": ""}})
+    response = await client.get("/study/all?q=def")
+    assert response.status == 200
+    assert "Sicilian Defense Lab" in await response.text()
+
+    response = await client.get("/study/all?q=disc+ali")
+    assert response.status == 200
+    html = await response.text()
+    assert "Sicilian Defense Lab" in html
+
+    response = await client.get("/study/all?q=si")
+    assert response.status == 200
+    html = await response.text()
+    assert "Enter at least 3 characters" in html
+    assert "Sicilian Defense Lab" not in html
+
+    # Link access remains independent from discovery: unlisted is readable by URL
+    # while private remains protected.
+    assert (await client.get(f"/study/{unlisted.id}", allow_redirects=False)).status == 302
+    assert (await client.get(f"/study/{private.id}", allow_redirects=False)).status == 404
+
+
+@pytest.mark.asyncio
 async def test_switching_to_private_disconnects_read_only_study_websockets(aiohttp_client) -> None:
     app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
     client = await aiohttp_client(app)

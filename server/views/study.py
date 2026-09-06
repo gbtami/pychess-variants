@@ -34,6 +34,7 @@ from study.storage import (
     load_owned_chapter,
     load_owned_study,
     load_study,
+    public_studies_page,
     rename_chapter,
     rename_study,
     select_chapter,
@@ -59,6 +60,26 @@ def _require_owner_user(user: Any) -> None:
 def _study_context(context: ViewContext) -> None:
     context["view_css"] = "study.css"
     context["title"] = "Studies • PyChess"
+
+
+def _positive_page(value: str | None) -> int:
+    try:
+        return max(1, int(value or "1"))
+    except ValueError:
+        return 1
+
+
+def _study_list_page_href(request: web.Request, page: object) -> str:
+    if not isinstance(page, int):
+        return ""
+    query = dict(request.rel_url.query)
+    query["page"] = str(page)
+    return str(request.rel_url.with_query(query))
+
+
+def _populate_study_list_navigation(context: ViewContext, *, active: str) -> None:
+    context["study_list_navigation"] = True
+    context["study_list_active"] = active
 
 
 async def _owned_study_and_chapter(
@@ -216,6 +237,35 @@ async def studies(request: web.Request) -> ViewContext:
     context["study_list_is_self"] = True
     context["study_list_can_create"] = True
     context["study_list_show_visibility"] = True
+    context["study_list_show_owner"] = False
+    _populate_study_list_navigation(context, active="mine")
+    return context
+
+
+@aiohttp_jinja2.template("studies.html")
+async def studies_public(request: web.Request) -> ViewContext:
+    user, context = await get_user_context(request)
+    app_state = get_app_state(request.app)
+    if app_state.db is None:
+        raise web.HTTPServiceUnavailable(text="Studies require database access.")
+
+    _study_context(context)
+    context["title"] = "All studies • PyChess"
+    result = await public_studies_page(
+        app_state,
+        q=request.rel_url.query.get("q", ""),
+        page=_positive_page(request.rel_url.query.get("page")),
+    )
+    context["studies"] = result["studies"]
+    context["study_list_owner"] = ""
+    context["study_list_is_self"] = False
+    context["study_list_can_create"] = not user.anon and not user.bot
+    context["study_list_show_visibility"] = False
+    context["study_list_show_owner"] = True
+    context["study_public"] = result
+    context["study_public_prev_href"] = _study_list_page_href(request, result["prev_page"])
+    context["study_public_next_href"] = _study_list_page_href(request, result["next_page"])
+    _populate_study_list_navigation(context, active="all")
     return context
 
 
@@ -241,6 +291,8 @@ async def studies_by_owner(request: web.Request) -> ViewContext:
     context["study_list_is_self"] = is_self
     context["study_list_can_create"] = is_self and not user.bot
     context["study_list_show_visibility"] = is_self
+    context["study_list_show_owner"] = False
+    context["study_list_navigation"] = False
     return context
 
 

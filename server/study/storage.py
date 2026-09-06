@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from dataclasses import replace
 from datetime import UTC, datetime
 from typing import Any
@@ -21,12 +22,83 @@ from study.models import (
     StudyVisibility,
     make_chapter,
     make_study,
+    study_search_query_tokens,
+    study_search_tokens,
     study_visibility,
 )
 
 
 class StudyStorageError(ValueError):
     pass
+
+
+STUDY_PUBLIC_PAGE_SIZE = 16
+
+
+async def public_studies_page(app_state: Any, *, q: str = "", page: int = 1) -> dict[str, object]:
+    """Return one public Study discovery page, optionally filtered by indexed prefixes."""
+
+    clean_query = " ".join(str(q or "").split())[:80]
+    tokens = study_search_query_tokens(clean_query)
+    page = max(1, page)
+    query: dict[str, object] = {"visibility": "public"}
+    if tokens:
+        indexed_search: dict[str, object] = {
+            "searchTokens": tokens[0] if len(tokens) == 1 else {"$all": list(tokens)}
+        }
+        # Phase 3 predates the derived searchTokens field. Keep already-created
+        # public Studies searchable while new/renamed documents use the multikey
+        # index. User text is escaped before it reaches MongoDB's regex engine.
+        legacy_terms: list[dict[str, object]] = []
+        for token in tokens:
+            pattern = re.compile(re.escape(token), re.IGNORECASE)
+            legacy_terms.append(
+                {"$or": [{"name": {"$regex": pattern}}, {"owner": {"$regex": pattern}}]}
+            )
+        query["$or"] = [
+            indexed_search,
+            {
+                "$and": [
+                    {"searchTokens": {"$exists": False}},
+                    *legacy_terms,
+                ]
+            },
+        ]
+    elif clean_query:
+        # Match Lichess's minimum useful query length without turning one- or
+        # two-character searches into collection scans.
+        return {
+            "studies": [],
+            "q": clean_query,
+            "page": 1,
+            "pages": 1,
+            "total": 0,
+            "prev_page": None,
+            "next_page": None,
+            "query_too_short": True,
+        }
+
+    total = await app_state.db.study.count_documents(query)
+    pages = max(1, (total + STUDY_PUBLIC_PAGE_SIZE - 1) // STUDY_PUBLIC_PAGE_SIZE)
+    page = min(page, pages)
+    skip = (page - 1) * STUDY_PUBLIC_PAGE_SIZE
+    cursor = (
+        app_state.db.study.find(query)
+        .sort([("updatedAt", -1), ("_id", 1)])
+        .skip(skip)
+        .limit(STUDY_PUBLIC_PAGE_SIZE)
+    )
+    studies = [Study.from_document(doc) async for doc in cursor]
+    return {
+        "studies": studies,
+        "q": clean_query,
+        "page": page,
+        "pages": pages,
+        "total": total,
+        "prev_page": page - 1 if page > 1 else None,
+        "next_page": page + 1 if page < pages else None,
+        "query_too_short": False,
+    }
 
 
 def _clean_name(value: object, *, fallback: str, max_length: int) -> str:
@@ -397,7 +469,14 @@ async def rename_study(app_state: Any, study: Study, name: object) -> str:
     now = datetime.now(UTC)
     await app_state.db.study.update_one(
         {"_id": study.id, "owner": study.owner},
-        {"$set": {"name": clean, "updatedAt": now}, "$inc": {"revision": 1}},
+        {
+            "$set": {
+                "name": clean,
+                "searchTokens": list(study_search_tokens(clean, study.owner)),
+                "updatedAt": now,
+            },
+            "$inc": {"revision": 1},
+        },
     )
     return clean
 

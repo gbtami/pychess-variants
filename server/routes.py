@@ -291,6 +291,7 @@ get_routes: tuple[RouteDef, ...] = (
     (r"/analysis/{variant:[a-z0-9_-]+}", analysis.analysis),
     (r"/analysis/{variant:[a-z0-9_-]+}/{fen}", analysis.analysis),
     ("/study", study_view.studies),
+    ("/study/all", study_view.studies_public),
     ("/study/choices", study_view.study_choices),
     ("/study/by/{username}", study_view.studies_by_owner),
     (

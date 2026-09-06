@@ -11,7 +11,15 @@ from study.constants import (
     STUDY_MAX_CHAPTERS,
     STUDY_MAX_NODES_PER_CHAPTER,
 )
-from study.models import Study, StudyChapter, StudySource, make_chapter, make_study
+from study.models import (
+    Study,
+    StudyChapter,
+    StudySource,
+    make_chapter,
+    make_study,
+    study_search_query_tokens,
+    study_search_tokens,
+)
 from study.tree import StudyTree, StudyTreeNode
 
 
@@ -21,8 +29,15 @@ class StudySchemaTestCase(unittest.TestCase):
         self.assertIn("study_chapter", COLLECTIONS_BY_NAME)
 
         study_indexes = INDEXES_BY_COLLECTION["study"]
-        self.assertEqual(len(study_indexes), 1)
+        self.assertEqual(len(study_indexes), 3)
         self.assertEqual(study_indexes[0].key, (("owner", 1), ("updatedAt", -1)))
+        self.assertEqual(study_indexes[1].key, (("updatedAt", -1), ("_id", 1)))
+        self.assertEqual(study_indexes[1].partial_filter, {"visibility": "public"})
+        self.assertEqual(
+            study_indexes[2].key,
+            (("searchTokens", 1), ("updatedAt", -1), ("_id", 1)),
+        )
+        self.assertEqual(study_indexes[2].partial_filter, {"visibility": "public"})
 
         chapter_indexes = INDEXES_BY_COLLECTION["study_chapter"]
         self.assertEqual(len(chapter_indexes), 1)
@@ -33,6 +48,22 @@ class StudySchemaTestCase(unittest.TestCase):
         self.assertGreater(STUDY_MAX_NODES_PER_CHAPTER, 0)
         self.assertGreater(STUDY_CHAPTER_MAX_BSON_BYTES, 0)
         self.assertLess(STUDY_CHAPTER_MAX_BSON_BYTES, MONGO_MAX_DOCUMENT_BYTES)
+
+
+class StudySearchTokenTestCase(unittest.TestCase):
+    def test_search_tokens_cover_name_and_owner_word_prefixes(self) -> None:
+        tokens = study_search_tokens("Sicilian Defense Lab", "gbtami_google")
+        self.assertIn("sic", tokens)
+        self.assertIn("sicilian", tokens)
+        self.assertIn("def", tokens)
+        self.assertIn("gbtami", tokens)
+        self.assertIn("google", tokens)
+        self.assertNotIn("si", tokens)
+
+    def test_query_tokens_are_casefolded_deduplicated_and_bounded(self) -> None:
+        self.assertEqual(study_search_query_tokens(" SIC sic DEF "), ("sic", "def"))
+        self.assertEqual(study_search_query_tokens("ab"), ())
+        self.assertEqual(len(study_search_query_tokens("x" * 80)[0]), 32)
 
 
 class StudyModelTestCase(unittest.IsolatedAsyncioTestCase):
@@ -46,6 +77,7 @@ class StudyModelTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(study.members, {"gbtami": "write"})
         self.assertEqual(study.visibility, "private")
         self.assertEqual(study.source, StudySource())
+        self.assertIn("gbt", study.to_document()["searchTokens"])
 
         restored = Study.from_document(study.to_document())
         self.assertEqual(restored, study)

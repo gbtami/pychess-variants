@@ -27,6 +27,40 @@ def study_visibility(value: object) -> StudyVisibility:
     return cast(StudyVisibility, value)
 
 
+def _search_words(value: str) -> tuple[str, ...]:
+    words: list[str] = []
+    current: list[str] = []
+    for char in value.casefold():
+        if char.isalnum():
+            current.append(char)
+        elif current:
+            words.append("".join(current))
+            current.clear()
+    if current:
+        words.append("".join(current))
+    return tuple(words)
+
+
+def study_search_tokens(name: str, owner: str) -> tuple[str, ...]:
+    """Return bounded, language-neutral word-prefix tokens for public Study search."""
+
+    tokens: set[str] = set()
+    for word in (*_search_words(name), *_search_words(owner)):
+        if len(word) < 3:
+            continue
+        # Study names are short, but cap token expansion so a single long word
+        # cannot create an unnecessarily large multikey index entry set.
+        for length in range(3, min(len(word), 32) + 1):
+            tokens.add(word[:length])
+    return tuple(sorted(tokens))
+
+
+def study_search_query_tokens(value: str) -> tuple[str, ...]:
+    """Normalize a user query to the same searchable word-prefix vocabulary."""
+
+    return tuple(dict.fromkeys(word[:32] for word in _search_words(value) if len(word) >= 3))
+
+
 def _utc(value: datetime) -> datetime:
     if value.tzinfo is None:
         return value.replace(tzinfo=UTC)
@@ -134,6 +168,7 @@ class Study:
             "createdAt": _utc(self.created_at),
             "updatedAt": _utc(self.updated_at),
             "revision": self.revision,
+            "searchTokens": list(study_search_tokens(self.name, self.owner)),
         }
         if self.current_chapter is not None:
             doc["currentChapter"] = self.current_chapter

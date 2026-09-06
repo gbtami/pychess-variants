@@ -257,9 +257,24 @@ INDEXES = (
         sparse=True,
         startup_policy=StartupPolicy.AFTER_STARTUP,
     ),
-    # Studies. The owner/updatedAt index serves both self and public per-owner
-    # listings; global public discovery/search indexes remain deferred.
+    # Studies. Keep private/unlisted documents out of the public discovery
+    # indexes; their query shape always includes visibility=public.
     _index("study", ("owner", 1), ("updatedAt", -1), name="owner_updatedAt"),
+    _index(
+        "study",
+        ("updatedAt", -1),
+        ("_id", 1),
+        name="public_updatedAt",
+        partial_filter={"visibility": "public"},
+    ),
+    _index(
+        "study",
+        ("searchTokens", 1),
+        ("updatedAt", -1),
+        ("_id", 1),
+        name="public_searchTokens_updatedAt",
+        partial_filter={"visibility": "public"},
+    ),
     _index("study_chapter", ("studyId", 1), ("order", 1), name="studyId_order"),
     # Notifications, inboxes, teams, forums, and moderation.
     _index("notify", ("notifies", 1)),

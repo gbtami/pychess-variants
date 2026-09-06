@@ -1209,7 +1209,9 @@ This is a deliberately separate milestone from collaboration.
 - [x] Add profile "Studies" count/link and `/study/by/{username}` owner listings.
   Owner views include all of their Studies; other viewers see public Studies only, so
   unlisted Studies remain link-only and private Studies never leak through profile pages.
-- [ ] Add public search/discovery indexes only when public listing/search is implemented.
+- [x] Add public search/discovery indexes with the public `/study/all` listing and
+  indexed name/owner word-prefix search. Public discovery is paginated by recent updates;
+  richer ordering, contributed lists, topics, and favorites remain Phase 5 work.
 
 Do not couple visibility with editing rights. A public Study is not publicly editable.
 
@@ -1273,8 +1275,8 @@ Add these based on actual PyChess usage rather than parity for its own sake.
 ## Likely high value
 
 - [ ] Clone Study.
-- [ ] Better Study lists: mine, contributed, public.
-- [ ] Search by Study name/owner.
+- [ ] Better Study lists: contributed Studies plus richer filtering/ordering of mine/public.
+- [ ] Richer Study search beyond the Phase 3 public name/owner prefix search.
 - [ ] Chapter search.
 - [ ] Likes/favorites.
 - [ ] Topics/tags for discovery.
