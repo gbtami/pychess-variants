@@ -11,7 +11,12 @@ from fairy import FairyBoard
 from mongomock_motor import AsyncMongoMockClient
 from pychess_global_app_state_utils import get_app_state
 from study.builder import StudyChapterBuilder
-from study.storage import add_chapter, create_study_from_draft, set_study_visibility
+from study.storage import (
+    add_chapter,
+    add_study_member,
+    create_study_from_draft,
+    set_study_visibility,
+)
 
 from server import make_app
 
@@ -318,6 +323,89 @@ async def test_profile_study_listing_only_exposes_public_studies(aiohttp_client)
 
     response = await client.get("/study/by/no_such_study_owner")
     assert response.status == 404
+
+
+@pytest.mark.asyncio
+async def test_personal_study_lists_include_contributions_filters_and_ordering(
+    aiohttp_client,
+) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    owner = "study_list_owner"
+    collaborator_owner = "study_list_collaborator"
+    await _insert_user(app_state, owner)
+    await _insert_user(app_state, collaborator_owner)
+
+    builder = StudyChapterBuilder(app_state, owner)
+    _private, _ = await create_study_from_draft(
+        app_state, owner, await builder.blank_or_fen(variant="chess"), name="Zulu private"
+    )
+    unlisted, _ = await create_study_from_draft(
+        app_state, owner, await builder.blank_or_fen(variant="chess"), name="Mike unlisted"
+    )
+    public, _ = await create_study_from_draft(
+        app_state, owner, await builder.blank_or_fen(variant="chess"), name="Alpha public"
+    )
+    await set_study_visibility(app_state, unlisted, "unlisted")
+    await set_study_visibility(app_state, public, "public")
+
+    contributed, _ = await create_study_from_draft(
+        app_state,
+        collaborator_owner,
+        await StudyChapterBuilder(app_state, collaborator_owner).blank_or_fen(variant="chess"),
+        name="Contributor lab",
+    )
+    await add_study_member(app_state, contributed.id, collaborator_owner, owner, "write")
+    read_only, _ = await create_study_from_draft(
+        app_state,
+        collaborator_owner,
+        await StudyChapterBuilder(app_state, collaborator_owner).blank_or_fen(variant="chess"),
+        name="Read-only lab",
+    )
+    await add_study_member(app_state, read_only.id, collaborator_owner, owner, "read")
+
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie(owner)})
+
+    response = await client.get("/study?order=alphabetical")
+    assert response.status == 200
+    html = await response.text()
+    assert html.index("Alpha public") < html.index("Mike unlisted") < html.index("Zulu private")
+    assert "Contributor lab" not in html
+    assert "Studies I contribute to" in html
+    assert "My public studies" in html
+    assert "My private studies" in html
+    assert "Alphabetical" in html
+
+    response = await client.get("/study/member")
+    assert response.status == 200
+    html = await response.text()
+    assert "Contributor lab" in html
+    assert "Read-only lab" in html
+    assert collaborator_owner in html
+    assert "Alpha public" not in html
+
+    response = await client.get("/study/public")
+    assert response.status == 200
+    html = await response.text()
+    assert "Alpha public" in html
+    assert "Mike unlisted" not in html
+    assert "Zulu private" not in html
+
+    response = await client.get("/study/private")
+    assert response.status == 200
+    html = await response.text()
+    assert "Mike unlisted" in html
+    assert "Zulu private" in html
+    assert "Alpha public" not in html
+
+    response = await client.get("/study?order=not-an-order")
+    assert response.status == 200
+    html = await response.text()
+    assert "Recently updated" in html
+
+    client.session.cookie_jar.clear()
+    assert (await client.get("/study/member", allow_redirects=False)).status == 302
 
 
 @pytest.mark.asyncio

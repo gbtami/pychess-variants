@@ -28,17 +28,29 @@ class StudySchemaTestCase(unittest.TestCase):
         self.assertIn("study", COLLECTIONS_BY_NAME)
         self.assertIn("study_chapter", COLLECTIONS_BY_NAME)
 
-        study_indexes = INDEXES_BY_COLLECTION["study"]
-        self.assertEqual(len(study_indexes), 4)
-        self.assertEqual(study_indexes[0].key, (("owner", 1), ("updatedAt", -1)))
-        self.assertEqual(study_indexes[1].key, (("writeMembers", 1), ("updatedAt", -1)))
-        self.assertEqual(study_indexes[2].key, (("updatedAt", -1), ("_id", 1)))
-        self.assertEqual(study_indexes[2].partial_filter, {"visibility": "public"})
+        study_indexes = {index.name: index for index in INDEXES_BY_COLLECTION["study"]}
+        self.assertEqual(study_indexes["owner_updatedAt"].key, (("owner", 1), ("updatedAt", -1)))
         self.assertEqual(
-            study_indexes[3].key,
+            study_indexes["writeMembers_updatedAt"].key,
+            (("writeMembers", 1), ("updatedAt", -1)),
+        )
+        self.assertEqual(
+            study_indexes["memberIds_updatedAt"].key,
+            (("memberIds", 1), ("updatedAt", -1)),
+        )
+        self.assertEqual(
+            study_indexes["public_updatedAt"].key,
+            (("updatedAt", -1), ("_id", 1)),
+        )
+        self.assertEqual(study_indexes["public_updatedAt"].partial_filter, {"visibility": "public"})
+        self.assertEqual(
+            study_indexes["public_searchTokens_updatedAt"].key,
             (("searchTokens", 1), ("updatedAt", -1), ("_id", 1)),
         )
-        self.assertEqual(study_indexes[3].partial_filter, {"visibility": "public"})
+        self.assertEqual(
+            study_indexes["public_searchTokens_updatedAt"].partial_filter,
+            {"visibility": "public"},
+        )
 
         chapter_indexes = INDEXES_BY_COLLECTION["study_chapter"]
         self.assertEqual(len(chapter_indexes), 1)
@@ -79,6 +91,7 @@ class StudyModelTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(study.visibility, "private")
         self.assertEqual(study.source, StudySource())
         self.assertIn("gbt", study.to_document()["searchTokens"])
+        self.assertEqual(study.to_document()["memberIds"], ["gbtami"])
         self.assertEqual(study.to_document()["writeMembers"], ["gbtami"])
 
         restored = Study.from_document(study.to_document())

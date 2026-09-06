@@ -1308,8 +1308,14 @@ Add these based on actual PyChess usage rather than parity for its own sake.
 
 ## Likely high value
 
-- [ ] Clone Study.
-- [ ] Better Study lists: contributed Studies plus richer filtering/ordering of mine/public.
+- [x] Clone Study. Implemented in Phase 3 once sharing rules were explicit.
+- [x] Better Study lists: contributed Studies plus richer filtering/ordering of mine/public.
+  The Study index now mirrors the useful part of Lichess's personal navigation with All studies,
+  My studies, Studies I contribute to, My public studies, and My private studies (private +
+  unlisted). The contributed list includes every non-owner membership, including read-only access,
+  backed by a bounded `memberIds` index. All paged lists support recently-updated, newest, oldest,
+  and alphabetical ordering. Public name/owner prefix search remains the intentionally smaller Phase 3
+  search surface.
 - [ ] Richer Study search beyond the Phase 3 public name/owner prefix search.
 - [ ] Chapter search.
 - [ ] Likes/favorites.

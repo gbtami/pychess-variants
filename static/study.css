@@ -2,41 +2,57 @@
 
 /* Adapted from lila ui/analyse/css/study: chapter list, tool tabs, and
    underboard panels. Use PyChess theme tokens and variant board geometry. */
-/* The Study index follows lila's study-card hierarchy without exposing
-   discovery/search controls before PyChess actually implements those routes. */
-.study-index {
+/* The Study index follows lila's Study list hierarchy while adapting the
+   navigation and controls to PyChess's existing page-menu shell. */
+.study-index-page {
     grid-area: main;
-    width: 100%;
-    max-width: 1000px;
+    width: min(100%, 1180px);
     margin: 1.25rem auto 3rem;
-    overflow: hidden;
 }
-.study-index__nav {
+.study-index-page.page-menu {
+    grid-template-columns: 13.5rem minmax(0, 1fr);
+    align-items: start;
+}
+.study-index__menu {
+    grid-area: side;
     display: flex;
-    gap: 0;
-    border-bottom: 1px solid var(--border-color);
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 3px 0 0 3px;
     background: var(--bg-color2);
 }
-.study-index__nav a {
+.study-index__menu a {
     position: relative;
-    padding: .85rem 1.25rem;
+    padding: .85rem 1rem;
     color: color-mix(in srgb, var(--font-color) 72%, transparent);
     text-decoration: none;
 }
-.study-index__nav a:hover,
-.study-index__nav a:focus-visible {
+.study-index__menu a:hover,
+.study-index__menu a:focus-visible {
     color: var(--link-color-blue);
     background: color-mix(in srgb, var(--link-color-blue) 7%, var(--bg-color2));
 }
-.study-index__nav a.active {
+.study-index__menu a.active {
     color: var(--font-color);
+    background: color-mix(in srgb, var(--link-color-blue) 11%, var(--bg-color2));
 }
-.study-index__nav a.active::after {
+.study-index__menu a.active::before {
     content: '';
     position: absolute;
-    inset: auto .8rem -1px;
-    height: 3px;
+    inset: 0 auto 0 0;
+    width: 3px;
     background: var(--link-color-blue);
+}
+.study-index {
+    grid-area: content;
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    overflow: hidden;
+}
+.study-index-page.page-menu .study-index {
+    max-width: none;
+    border-radius: 0 3px 3px 3px;
 }
 .study-index__top {
     display: flex;
@@ -54,6 +70,62 @@
     line-height: 1.15;
 }
 .study-index__top h1 a { white-space: normal; }
+.study-list-order {
+    position: relative;
+    flex: 0 0 auto;
+}
+.study-list-order > summary {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    min-height: 2.8rem;
+    box-sizing: border-box;
+    list-style: none;
+    white-space: nowrap;
+    cursor: pointer;
+}
+.study-list-order > summary::-webkit-details-marker { display: none; }
+.study-list-order > summary::after {
+    content: '▾';
+    margin-inline-start: .2rem;
+    font-size: .8em;
+}
+.study-list-order[open] > summary::after { content: '▴'; }
+.study-list-order__menu {
+    position: absolute;
+    z-index: 20;
+    top: calc(100% + .3rem);
+    right: 0;
+    display: grid;
+    min-width: 13rem;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    background: var(--bg-color0);
+    box-shadow: var(--base-shadow);
+}
+.study-list-order__menu a {
+    padding: .65rem .8rem;
+    color: var(--font-color);
+    text-decoration: none;
+    white-space: nowrap;
+}
+.study-list-order__menu a:hover,
+.study-list-order__menu a:focus-visible,
+.study-list-order__menu a.current {
+    background: color-mix(in srgb, var(--link-color-blue) 10%, var(--bg-color0));
+    color: var(--link-color-blue);
+}
+.study-list-order__menu a.current::before {
+    content: '✓';
+    display: inline-block;
+    width: 1.2rem;
+}
+.study-list-order__menu a:not(.current)::before {
+    content: '';
+    display: inline-block;
+    width: 1.2rem;
+}
 .study-new {
     flex: 0 0 auto;
     margin-inline-start: auto;
@@ -576,11 +648,19 @@
     .study-app > .sidebar-first { margin-bottom: .8rem; }
     .study-app .movelist-block { flex: auto; height: 12rem; max-height: 35vh; }
     .study-tool-tabs button[role='tab'] { min-height: 2.75rem; }
-    .study-index { margin-top: .75rem; }
-    .study-index__nav a { flex: 1; text-align: center; padding-inline: .75rem; }
+    .study-index-page { margin-top: .75rem; }
+    .study-index-page.page-menu { display: block; }
+    .study-index__menu { flex-direction: row; overflow-x: auto; border-radius: 3px 3px 0 0; scrollbar-width: none; }
+    .study-index__menu::-webkit-scrollbar { display: none; }
+    .study-index__menu a { flex: 0 0 auto; padding: .8rem .75rem; white-space: nowrap; }
+    .study-index__menu a.active::before { inset: auto 0 0; width: auto; height: 3px; }
+    .study-index-page.page-menu .study-index { border-radius: 0 0 3px 3px; }
     .study-index__top { padding: 1.25rem 1rem 1rem; }
-    .study-index__top h1 { font-size: 1.65rem; }
-    .study-new { width: 100%; margin-inline-start: 0; }
+    .study-index__top h1 { flex-basis: 100%; font-size: 1.65rem; }
+    .study-list-order { flex: 1 1 auto; }
+    .study-list-order > summary { width: 100%; justify-content: center; }
+    .study-list-order__menu { right: auto; left: 0; width: min(100%, 18rem); }
+    .study-new { flex: 1 1 auto; margin-inline-start: 0; }
     .study-new__toggle { width: 100%; }
     .study-new[open] .study-new__toggle { margin-inline-start: 0; }
     .study-create-form { grid-template-columns: 1fr; }

@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from dataclasses import replace
 from datetime import UTC, datetime
-from typing import Any, cast
+from typing import Any, Literal, cast
 
 from bson import BSON
 from fairy import FairyBoard
@@ -37,15 +37,112 @@ class StudyStorageError(ValueError):
     pass
 
 
-STUDY_PUBLIC_PAGE_SIZE = 16
+STUDY_LIST_PAGE_SIZE = 16
+StudyListOrder = Literal["updated", "newest", "oldest", "alphabetical"]
+_STUDY_LIST_ORDERS = frozenset(("updated", "newest", "oldest", "alphabetical"))
 
 
-async def public_studies_page(app_state: Any, *, q: str = "", page: int = 1) -> dict[str, object]:
+def study_list_order(value: object) -> StudyListOrder:
+    order = str(value or "updated")
+    if order not in _STUDY_LIST_ORDERS:
+        return "updated"
+    return cast(StudyListOrder, order)
+
+
+def _study_list_sort(order: StudyListOrder) -> list[tuple[str, int]]:
+    if order == "newest":
+        return [("createdAt", -1), ("_id", -1)]
+    if order == "oldest":
+        return [("createdAt", 1), ("_id", 1)]
+    if order == "alphabetical":
+        return [("name", 1), ("_id", 1)]
+    return [("updatedAt", -1), ("_id", 1)]
+
+
+async def _studies_page(
+    app_state: Any,
+    query: dict[str, object],
+    *,
+    order: StudyListOrder = "updated",
+    page: int = 1,
+) -> dict[str, object]:
+    page = max(1, page)
+    total = await app_state.db.study.count_documents(query)
+    pages = max(1, (total + STUDY_LIST_PAGE_SIZE - 1) // STUDY_LIST_PAGE_SIZE)
+    page = min(page, pages)
+    skip = (page - 1) * STUDY_LIST_PAGE_SIZE
+    cursor = (
+        app_state.db.study.find(query)
+        .sort(_study_list_sort(order))
+        .skip(skip)
+        .limit(STUDY_LIST_PAGE_SIZE)
+    )
+    studies = [Study.from_document(doc) async for doc in cursor]
+    return {
+        "studies": studies,
+        "order": order,
+        "page": page,
+        "pages": pages,
+        "total": total,
+        "prev_page": page - 1 if page > 1 else None,
+        "next_page": page + 1 if page < pages else None,
+    }
+
+
+async def owner_studies_page(
+    app_state: Any,
+    owner: str,
+    *,
+    visibility: StudyVisibility | Literal["private-or-unlisted"] | None = None,
+    order: StudyListOrder = "updated",
+    page: int = 1,
+) -> dict[str, object]:
+    query: dict[str, object] = {"owner": owner}
+    if visibility == "private-or-unlisted":
+        query["visibility"] = {"$in": ["private", "unlisted"]}
+    elif visibility is not None:
+        query["visibility"] = visibility
+    return await _studies_page(app_state, query, order=order, page=page)
+
+
+async def contributed_studies_page(
+    app_state: Any,
+    username: str,
+    *,
+    order: StudyListOrder = "updated",
+    page: int = 1,
+) -> dict[str, object]:
+    # memberIds is a bounded indexed array maintained with the member map.
+    # Like Lichess's member list, this includes read-only memberships as well
+    # as contributors; excluding owned Studies avoids duplicating My studies.
+    return await _studies_page(
+        app_state,
+        {
+            "owner": {"$ne": username},
+            "$or": [
+                {"memberIds": username},
+                {
+                    "memberIds": {"$exists": False},
+                    f"members.{username}": {"$exists": True},
+                },
+            ],
+        },
+        order=order,
+        page=page,
+    )
+
+
+async def public_studies_page(
+    app_state: Any,
+    *,
+    q: str = "",
+    order: StudyListOrder = "updated",
+    page: int = 1,
+) -> dict[str, object]:
     """Return one public Study discovery page, optionally filtered by indexed prefixes."""
 
     clean_query = " ".join(str(q or "").split())[:80]
     tokens = study_search_query_tokens(clean_query)
-    page = max(1, page)
     query: dict[str, object] = {"visibility": "public"}
     if tokens:
         indexed_search: dict[str, object] = {
@@ -75,6 +172,7 @@ async def public_studies_page(app_state: Any, *, q: str = "", page: int = 1) -> 
         return {
             "studies": [],
             "q": clean_query,
+            "order": order,
             "page": 1,
             "pages": 1,
             "total": 0,
@@ -83,27 +181,10 @@ async def public_studies_page(app_state: Any, *, q: str = "", page: int = 1) -> 
             "query_too_short": True,
         }
 
-    total = await app_state.db.study.count_documents(query)
-    pages = max(1, (total + STUDY_PUBLIC_PAGE_SIZE - 1) // STUDY_PUBLIC_PAGE_SIZE)
-    page = min(page, pages)
-    skip = (page - 1) * STUDY_PUBLIC_PAGE_SIZE
-    cursor = (
-        app_state.db.study.find(query)
-        .sort([("updatedAt", -1), ("_id", 1)])
-        .skip(skip)
-        .limit(STUDY_PUBLIC_PAGE_SIZE)
-    )
-    studies = [Study.from_document(doc) async for doc in cursor]
-    return {
-        "studies": studies,
-        "q": clean_query,
-        "page": page,
-        "pages": pages,
-        "total": total,
-        "prev_page": page - 1 if page > 1 else None,
-        "next_page": page + 1 if page < pages else None,
-        "query_too_short": False,
-    }
+    result = await _studies_page(app_state, query, order=order, page=page)
+    result["q"] = clean_query
+    result["query_too_short"] = False
+    return result
 
 
 def _clean_name(value: object, *, fallback: str, max_length: int) -> str:
@@ -196,6 +277,7 @@ async def _replace_study_members(
         {
             "$set": {
                 "members": members,
+                "memberIds": sorted(members),
                 "writeMembers": sorted(
                     username for username, role in members.items() if role == "write"
                 ),

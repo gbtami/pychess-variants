@@ -169,6 +169,7 @@ class Study:
             "name": self.name,
             "owner": self.owner,
             "members": dict(self.members),
+            "memberIds": sorted(self.members),
             "writeMembers": sorted(
                 username for username, role in self.members.items() if role == "write"
             ),

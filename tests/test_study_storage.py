@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import unittest
 from dataclasses import replace
+from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 from typing import Any, cast
 from unittest.mock import patch
@@ -17,6 +18,7 @@ from study.storage import (
     add_study_member,
     chapter_previews,
     clone_study,
+    contributed_studies_page,
     count_studies_for_owner_view,
     create_study_from_draft,
     create_study_with_chapter,
@@ -26,6 +28,7 @@ from study.storage import (
     leave_study,
     load_owned_chapter,
     load_owned_study,
+    owner_studies_page,
     remove_study_member,
     rename_chapter,
     rename_study,
@@ -96,6 +99,94 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
         )
         self.assertEqual(
             await count_studies_for_owner_view(cast(Any, self.app_state), "owner", "other"), 1
+        )
+
+    async def test_personal_list_pages_filter_contributions_and_order(self) -> None:
+        private, _ = await create_study_with_chapter(
+            cast(Any, self.app_state), "owner", name="Zulu private"
+        )
+        unlisted, _ = await create_study_with_chapter(
+            cast(Any, self.app_state), "owner", name="Mike unlisted"
+        )
+        public, _ = await create_study_with_chapter(
+            cast(Any, self.app_state), "owner", name="Alpha public"
+        )
+        await set_study_visibility(cast(Any, self.app_state), unlisted, "unlisted")
+        await set_study_visibility(cast(Any, self.app_state), public, "public")
+
+        contributed, _ = await create_study_with_chapter(
+            cast(Any, self.app_state), "other", name="Contributor lab"
+        )
+        await add_study_member(cast(Any, self.app_state), contributed.id, "other", "owner", "write")
+        read_only, _ = await create_study_with_chapter(
+            cast(Any, self.app_state), "reader_owner", name="Read-only lab"
+        )
+        await add_study_member(
+            cast(Any, self.app_state), read_only.id, "reader_owner", "owner", "read"
+        )
+
+        mine = await owner_studies_page(cast(Any, self.app_state), "owner", order="alphabetical")
+        self.assertEqual(
+            [study.name for study in mine["studies"]],
+            ["Alpha public", "Mike unlisted", "Zulu private"],
+        )
+
+        base = datetime(2026, 1, 1, tzinfo=UTC)
+        await self.db.study.update_one(
+            {"_id": private.id},
+            {"$set": {"createdAt": base, "updatedAt": base + timedelta(days=3)}},
+        )
+        await self.db.study.update_one(
+            {"_id": unlisted.id},
+            {
+                "$set": {
+                    "createdAt": base + timedelta(days=1),
+                    "updatedAt": base + timedelta(days=1),
+                }
+            },
+        )
+        await self.db.study.update_one(
+            {"_id": public.id},
+            {
+                "$set": {
+                    "createdAt": base + timedelta(days=2),
+                    "updatedAt": base + timedelta(days=2),
+                }
+            },
+        )
+        newest = await owner_studies_page(cast(Any, self.app_state), "owner", order="newest")
+        oldest = await owner_studies_page(cast(Any, self.app_state), "owner", order="oldest")
+        updated = await owner_studies_page(cast(Any, self.app_state), "owner", order="updated")
+        self.assertEqual(
+            [study.id for study in newest["studies"]],
+            [public.id, unlisted.id, private.id],
+        )
+        self.assertEqual(
+            [study.id for study in oldest["studies"]],
+            [private.id, unlisted.id, public.id],
+        )
+        self.assertEqual(
+            [study.id for study in updated["studies"]],
+            [private.id, public.id, unlisted.id],
+        )
+
+        public_only = await owner_studies_page(
+            cast(Any, self.app_state), "owner", visibility="public"
+        )
+        self.assertEqual([study.id for study in public_only["studies"]], [public.id])
+
+        private_like = await owner_studies_page(
+            cast(Any, self.app_state), "owner", visibility="private-or-unlisted"
+        )
+        self.assertEqual(
+            {study.id for study in private_like["studies"]},
+            {private.id, unlisted.id},
+        )
+
+        contributed_page = await contributed_studies_page(cast(Any, self.app_state), "owner")
+        self.assertEqual(
+            {study.id for study in contributed_page["studies"]},
+            {contributed.id, read_only.id},
         )
 
     async def test_member_lifecycle_preserves_owner_and_enforces_cap(self) -> None:

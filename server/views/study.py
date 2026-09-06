@@ -34,6 +34,7 @@ from study.storage import (
     add_study_member,
     chapter_previews,
     clone_study,
+    contributed_studies_page,
     create_study_from_draft,
     delete_chapter,
     delete_study,
@@ -43,14 +44,15 @@ from study.storage import (
     load_owned_chapter,
     load_owned_study,
     load_study,
+    owner_studies_page,
     public_studies_page,
     remove_study_member,
     rename_study,
     set_study_member_role,
     set_study_visibility,
-    studies_for_owner,
     studies_for_owner_view,
     studies_writable_by,
+    study_list_order,
 )
 from study.variant import study_variant_client_doc, study_variant_context, study_variant_metadata
 from study.ws import broadcast_study_members, close_study_sockets
@@ -80,17 +82,59 @@ def _positive_page(value: str | None) -> int:
         return 1
 
 
-def _study_list_page_href(request: web.Request, page: object) -> str:
-    if not isinstance(page, int):
-        return ""
+_STUDY_ORDER_LABELS = {
+    "updated": "Recently updated",
+    "newest": "Date added (newest)",
+    "oldest": "Date added (oldest)",
+    "alphabetical": "Alphabetical",
+}
+
+
+def _study_list_query_href(
+    request: web.Request, *, order: str | None = None, page: object = None
+) -> str:
     query = dict(request.rel_url.query)
-    query["page"] = str(page)
+    if order is not None:
+        query["order"] = order
+        query.pop("page", None)
+    if isinstance(page, int):
+        query["page"] = str(page)
+    elif page is not None:
+        query.pop("page", None)
     return str(request.rel_url.with_query(query))
 
 
 def _populate_study_list_navigation(context: ViewContext, *, active: str) -> None:
     context["study_list_navigation"] = True
     context["study_list_active"] = active
+
+
+def _populate_study_page(
+    context: ViewContext,
+    request: web.Request,
+    result: Mapping[str, object],
+    *,
+    active: str,
+) -> None:
+    order = study_list_order(result.get("order"))
+    context["studies"] = result["studies"]
+    context["study_page"] = result
+    context["study_list_order"] = order
+    context["study_list_order_label"] = _STUDY_ORDER_LABELS[order]
+    context["study_order_hrefs"] = {
+        key: _study_list_query_href(request, order=key) for key in _STUDY_ORDER_LABELS
+    }
+    context["study_prev_href"] = (
+        _study_list_query_href(request, page=result.get("prev_page"))
+        if isinstance(result.get("prev_page"), int)
+        else ""
+    )
+    context["study_next_href"] = (
+        _study_list_query_href(request, page=result.get("next_page"))
+        if isinstance(result.get("next_page"), int)
+        else ""
+    )
+    _populate_study_list_navigation(context, active=active)
 
 
 async def _owned_study_and_chapter(
@@ -270,14 +314,101 @@ async def studies(request: web.Request) -> ViewContext:
     app_state = get_app_state(request.app)
     if app_state.db is None:
         raise web.HTTPServiceUnavailable(text="Studies require database access.")
+
     _study_context(context)
-    context["studies"] = await studies_for_owner(app_state, user.username)
+    order = study_list_order(request.rel_url.query.get("order"))
+    result = await owner_studies_page(
+        app_state,
+        user.username,
+        order=order,
+        page=_positive_page(request.rel_url.query.get("page")),
+    )
     context["study_list_owner"] = user.username
     context["study_list_is_self"] = True
     context["study_list_can_create"] = True
     context["study_list_show_visibility"] = True
     context["study_list_show_owner"] = False
-    _populate_study_list_navigation(context, active="mine")
+    _populate_study_page(context, request, result, active="mine")
+    return context
+
+
+@aiohttp_jinja2.template("studies.html")
+async def studies_contributed(request: web.Request) -> ViewContext:
+    user, context = await get_user_context(request)
+    _require_owner_user(user)
+    app_state = get_app_state(request.app)
+    if app_state.db is None:
+        raise web.HTTPServiceUnavailable(text="Studies require database access.")
+
+    _study_context(context)
+    context["title"] = "Studies I contribute to • PyChess"
+    order = study_list_order(request.rel_url.query.get("order"))
+    result = await contributed_studies_page(
+        app_state,
+        user.username,
+        order=order,
+        page=_positive_page(request.rel_url.query.get("page")),
+    )
+    context["study_list_owner"] = user.username
+    context["study_list_is_self"] = False
+    context["study_list_can_create"] = True
+    context["study_list_show_visibility"] = True
+    context["study_list_show_owner"] = True
+    _populate_study_page(context, request, result, active="member")
+    return context
+
+
+@aiohttp_jinja2.template("studies.html")
+async def studies_mine_public(request: web.Request) -> ViewContext:
+    user, context = await get_user_context(request)
+    _require_owner_user(user)
+    app_state = get_app_state(request.app)
+    if app_state.db is None:
+        raise web.HTTPServiceUnavailable(text="Studies require database access.")
+
+    _study_context(context)
+    context["title"] = "My public studies • PyChess"
+    order = study_list_order(request.rel_url.query.get("order"))
+    result = await owner_studies_page(
+        app_state,
+        user.username,
+        visibility="public",
+        order=order,
+        page=_positive_page(request.rel_url.query.get("page")),
+    )
+    context["study_list_owner"] = user.username
+    context["study_list_is_self"] = True
+    context["study_list_can_create"] = True
+    context["study_list_show_visibility"] = False
+    context["study_list_show_owner"] = False
+    _populate_study_page(context, request, result, active="mine-public")
+    return context
+
+
+@aiohttp_jinja2.template("studies.html")
+async def studies_mine_private(request: web.Request) -> ViewContext:
+    user, context = await get_user_context(request)
+    _require_owner_user(user)
+    app_state = get_app_state(request.app)
+    if app_state.db is None:
+        raise web.HTTPServiceUnavailable(text="Studies require database access.")
+
+    _study_context(context)
+    context["title"] = "My private studies • PyChess"
+    order = study_list_order(request.rel_url.query.get("order"))
+    result = await owner_studies_page(
+        app_state,
+        user.username,
+        visibility="private-or-unlisted",
+        order=order,
+        page=_positive_page(request.rel_url.query.get("page")),
+    )
+    context["study_list_owner"] = user.username
+    context["study_list_is_self"] = True
+    context["study_list_can_create"] = True
+    context["study_list_show_visibility"] = True
+    context["study_list_show_owner"] = False
+    _populate_study_page(context, request, result, active="mine-private")
     return context
 
 
@@ -290,21 +421,20 @@ async def studies_public(request: web.Request) -> ViewContext:
 
     _study_context(context)
     context["title"] = "All studies • PyChess"
+    order = study_list_order(request.rel_url.query.get("order"))
     result = await public_studies_page(
         app_state,
         q=request.rel_url.query.get("q", ""),
+        order=order,
         page=_positive_page(request.rel_url.query.get("page")),
     )
-    context["studies"] = result["studies"]
     context["study_list_owner"] = ""
     context["study_list_is_self"] = False
     context["study_list_can_create"] = not user.anon and not user.bot
     context["study_list_show_visibility"] = False
     context["study_list_show_owner"] = True
     context["study_public"] = result
-    context["study_public_prev_href"] = _study_list_page_href(request, result["prev_page"])
-    context["study_public_next_href"] = _study_list_page_href(request, result["next_page"])
-    _populate_study_list_navigation(context, active="all")
+    _populate_study_page(context, request, result, active="all")
     return context
 
 

@@ -257,15 +257,40 @@ INDEXES = (
         sparse=True,
         startup_policy=StartupPolicy.AFTER_STARTUP,
     ),
-    # Studies. Owner/write-member indexes support personal contributor lookups.
+    # Studies. Owner/member/write-member indexes support personal list and contributor lookups.
     # Keep private/unlisted documents out of the separate public-discovery indexes.
     _index("study", ("owner", 1), ("updatedAt", -1), name="owner_updatedAt"),
+    _index("study", ("owner", 1), ("createdAt", 1), ("_id", 1), name="owner_createdAt"),
+    _index("study", ("owner", 1), ("name", 1), ("_id", 1), name="owner_name"),
     _index("study", ("writeMembers", 1), ("updatedAt", -1), name="writeMembers_updatedAt"),
+    _index("study", ("memberIds", 1), ("updatedAt", -1), name="memberIds_updatedAt"),
+    _index(
+        "study",
+        ("memberIds", 1),
+        ("createdAt", 1),
+        ("_id", 1),
+        name="memberIds_createdAt",
+    ),
+    _index("study", ("memberIds", 1), ("name", 1), ("_id", 1), name="memberIds_name"),
     _index(
         "study",
         ("updatedAt", -1),
         ("_id", 1),
         name="public_updatedAt",
+        partial_filter={"visibility": "public"},
+    ),
+    _index(
+        "study",
+        ("createdAt", 1),
+        ("_id", 1),
+        name="public_createdAt",
+        partial_filter={"visibility": "public"},
+    ),
+    _index(
+        "study",
+        ("name", 1),
+        ("_id", 1),
+        name="public_name",
         partial_filter={"visibility": "public"},
     ),
     _index(
