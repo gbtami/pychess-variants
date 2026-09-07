@@ -299,16 +299,7 @@ INDEXES = (
         ("searchTokens", 1),
         ("updatedAt", -1),
         ("_id", 1),
-        name="public_searchTokens_updatedAt",
-        partial_filter={"visibility": "public"},
-    ),
-    _index(
-        "study",
-        ("searchTokens", 1),
-        ("updatedAt", -1),
-        ("_id", 1),
         name="searchTokens_updatedAt",
-        startup_policy=StartupPolicy.AFTER_STARTUP,
     ),
     _index("study_chapter", ("studyId", 1), ("order", 1), name="studyId_order"),
     # Notifications, inboxes, teams, forums, and moderation.
@@ -429,6 +420,20 @@ INDEXES = (
 
 
 LEGACY_OPTIONAL_INDEXES = (_index("lobbychat", ("user", 1)),)
+
+# Exact historical definitions that can be removed safely before auditing the
+# current schema. Study search now uses one full index for both public and
+# member-visible searches, so the former public-only partial index is obsolete.
+OBSOLETE_INDEXES = (
+    _index(
+        "study",
+        ("searchTokens", 1),
+        ("updatedAt", -1),
+        ("_id", 1),
+        name="public_searchTokens_updatedAt",
+        partial_filter={"visibility": "public"},
+    ),
+)
 
 ALL_KNOWN_COLLECTIONS = COLLECTIONS + LEGACY_OPTIONAL_COLLECTIONS
 ALL_KNOWN_INDEXES = INDEXES + LEGACY_OPTIONAL_INDEXES

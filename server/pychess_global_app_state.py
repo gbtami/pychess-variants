@@ -406,9 +406,11 @@ class PychessGlobalAppState:
                 )
                 db_collections = schema_result.initial_collections
                 log.info(
-                    "[startup] MongoDB schema mode=%s collections_created=%s indexes_created=%s",
+                    "[startup] MongoDB schema mode=%s collections_created=%s "
+                    "indexes_dropped=%s indexes_created=%s",
                     schema_result.mode.value,
                     len(schema_result.created_collections),
+                    len(schema_result.dropped_indexes),
                     len(schema_result.created_indexes),
                 )
 

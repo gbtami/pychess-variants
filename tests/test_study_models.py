@@ -4,7 +4,7 @@ import string
 import unittest
 from datetime import UTC, datetime
 
-from database.schema import COLLECTIONS_BY_NAME, INDEXES_BY_COLLECTION
+from database.schema import COLLECTIONS_BY_NAME, INDEXES_BY_COLLECTION, OBSOLETE_INDEXES
 from study.constants import (
     MONGO_MAX_DOCUMENT_BYTES,
     STUDY_CHAPTER_MAX_BSON_BYTES,
@@ -48,17 +48,16 @@ class StudySchemaTestCase(unittest.TestCase):
             (("updatedAt", -1), ("_id", 1)),
         )
         self.assertEqual(study_indexes["public_updatedAt"].partial_filter, {"visibility": "public"})
-        self.assertEqual(
-            study_indexes["public_searchTokens_updatedAt"].key,
-            (("searchTokens", 1), ("updatedAt", -1), ("_id", 1)),
-        )
-        self.assertEqual(
-            study_indexes["public_searchTokens_updatedAt"].partial_filter,
-            {"visibility": "public"},
-        )
+        self.assertNotIn("public_searchTokens_updatedAt", study_indexes)
         self.assertEqual(
             study_indexes["searchTokens_updatedAt"].key,
             (("searchTokens", 1), ("updatedAt", -1), ("_id", 1)),
+        )
+        self.assertIsNone(study_indexes["searchTokens_updatedAt"].partial_filter)
+        obsolete_indexes = {index.name: index for index in OBSOLETE_INDEXES}
+        self.assertEqual(
+            obsolete_indexes["public_searchTokens_updatedAt"].partial_filter,
+            {"visibility": "public"},
         )
 
         chapter_indexes = INDEXES_BY_COLLECTION["study_chapter"]
