@@ -52,7 +52,9 @@
                     </span>
                 </td>
                 <td>
-                    <span>{% trans count=tourney.nb_players %}{{ count }} player{% pluralize %}{{ count }} players{% endtrans %}</span>
+                    <span class="nb-players" title="{% trans count=tourney.nb_players %}{{ count }} player{% pluralize %}{{ count }} players{% endtrans %}">
+                        <i class="icon icon-online" aria-hidden="true"></i>{{ tourney.nb_players }}
+                    </span>
                 </td>
             </tr>
             {% endfor %}
