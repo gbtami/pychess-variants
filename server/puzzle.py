@@ -14,12 +14,10 @@ from const import (
 from fairy import FairyBoard
 from glicko2.glicko2 import MU, PHI, SIGMA, Rating, gl2
 from json_utils import json_response
-from preferences import effective_game_category, effective_theme
+from preferences import effective_game_category
 from pychess_global_app_state_utils import get_app_state
 from pymongo.errors import DuplicateKeyError
-from request_protection import enforce_new_anonymous_identity_limit
 from request_utils import read_post_data
-from typedefs import REQUEST_NEW_SESSION_KEY
 from variants import VARIANTS
 
 log = logging.getLogger(__name__)
@@ -119,20 +117,9 @@ async def _get_puzzle_session_user(request):
 
     # The puzzle page itself is stateless, but completing or voting on a
     # puzzle is an anonymous action that needs a stable browser identity.
-    from user import User
+    from user import mint_guest_user
 
-    enforce_new_anonymous_identity_limit(request)
-    user = User(
-        app_state,
-        anon=not app_state.anon_as_test_users,
-        theme=effective_theme(session, None),
-        game_category=effective_game_category(session, None),
-    )
-    app_state.users[user.username] = user
-    session["user_name"] = user.username
-    request[REQUEST_NEW_SESSION_KEY] = True
-    log.info("+++ New puzzle guest user %s connected.", user.username)
-    return user
+    return await mint_guest_user(app_state, request, session, arriving_at="puzzle")
 
 
 async def get_puzzle(request, puzzleId):

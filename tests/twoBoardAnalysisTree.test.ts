@@ -1,31 +1,22 @@
-import { beforeAll, beforeEach, expect, jest, test } from '@jest/globals';
+import { beforeEach, expect, jest, test } from '@jest/globals';
 
 import { Step } from '../client/messages';
+import { AnalysisTreeController } from '../client/two-board/analysis/analysisTree';
 
-// analysisTree.ts calls updateMovelist/scrollToActiveMove for re-render side effects;
-// those are movelist/DOM concerns, not tree logic, so stub them out for pure unit tests.
+// analysisTree.ts asks the controller's move list to re-render; those are movelist/DOM
+// concerns, not tree logic, so the stub ctrl carries a fake view.
+//
+// NO MODULE MOCK ANY MORE. This file used `jest.unstable_mockModule` to intercept
+// `updateMovelist`/`scrollToActiveMove`, which forced the controller to be imported lazily in
+// `beforeAll`. Since 2026-09-07 the tree reaches the move list through `ctrl.movelistView`
+// instead of importing it, so the dependency arrives with the stub ctrl and a plain object
+// does the job — which is also why the import above can be static again.
 const updateMovelistMock = jest.fn();
 const scrollToActiveMoveMock = jest.fn();
-jest.unstable_mockModule('../client/two-board/common/movelist', () => ({
-    updateMovelist: updateMovelistMock,
-    scrollToActiveMove: scrollToActiveMoveMock,
-}));
-
-let AnalysisTreeController: typeof import('../client/two-board/analysis/analysisTree').AnalysisTreeController;
-
-beforeAll(async () => {
-    ({ AnalysisTreeController } = await import('../client/two-board/analysis/analysisTree'));
-});
 
 // distinct fen/move per san so addOrSelectChild's "reuse existing child" dedup
 // (matched on move/fen/moveB/fenB) never conflates two different test moves
-function makeStep(
-    boardName: 'a' | 'b',
-    turnColor: 'white' | 'black',
-    san: string,
-    plyA: number,
-    plyB: number,
-): Step {
+function makeStep(boardName: 'a' | 'b', turnColor: 'white' | 'black', san: string, plyA: number, plyB: number): Step {
     return {
         fen: `fen-${san || 'start'}`,
         fenB: `fenB-${san || 'start'}`,
@@ -43,9 +34,8 @@ function makeStep(
 function stubCtrl(steps: Step[]) {
     return {
         steps,
-        plyVari: 0,
-        ply: 0,
         gameId: 'abcd1234',
+        movelistView: { render: updateMovelistMock, scrollToActiveMove: scrollToActiveMoveMock },
         variant: { name: 'bughouse' },
         recordedMainlinePly: undefined as number | undefined,
         goPly: jest.fn(),
@@ -90,7 +80,10 @@ test('initAnalysisTreeAtPly builds the tree and activates the mainline path at t
 
     expect(tree.hasAnalysisTree()).toBe(true);
     expect(tree.getTreeCurrentNode()?.ply).toBe(2);
-    expect(ctrl.goPly).toHaveBeenCalledWith(2, 0);
+    // ONE ARGUMENT. `plyVari` was dropped from the two-board `goPly` on 2026-09-07: the variation
+    // index is a single-board concept and every two-board call site had always passed 0, so the
+    // round page ignored it and the analysis page tested it against a constant.
+    expect(ctrl.goPly).toHaveBeenCalledWith(2);
 });
 
 test('getTreeNodeForPly finds nodes both on and off the active path', () => {

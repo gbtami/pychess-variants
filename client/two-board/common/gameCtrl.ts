@@ -99,23 +99,7 @@ export class GameControllerBughouse extends GameController {
         // increase partner's pocket count
         // important only during gap before we receive board message from server and reset whole FEN (see also onUserDrop)
         if (meta.captured) {
-            const role = meta.captured.promoted ? 'p-piece' : meta.captured.role;
-            const pocketPartner = this.partnerCC.chessground.state.boardState.pockets![meta.captured.color];
-            if (!pocketPartner.has(role)) {
-                pocketPartner.set(role, 0);
-            }
-            pocketPartner.set(role, pocketPartner.get(role)! + 1);
-            // update fen of partner board:
-            const partnerFenFromFFish = this.partnerCC.ffishBoard.fen();
-            // we updated pocket model, so now chessground returns correct new fen with updated pockets:
-            const partnerFenFromCG = this.partnerCC.chessground.getFen();
-            const partnerFenFromCGPocketsPart = partnerFenFromCG.match(/\[.*\]/)![0]; // how the pocket should look like
-            // todo: don't remember if there was any reason for not just using the fen from chessground directly instead
-            //       of replacing the pockets in the ffish fen
-            const partnerFenFromFFishNewPockets = partnerFenFromFFish.replace(/\[.*\]/, partnerFenFromCGPocketsPart);
-            this.partnerCC.setState(partnerFenFromFFishNewPockets, this.partnerCC.turnColor, this.partnerCC.lastmove);
-            this.partnerCC.chessground.state.dom.redraw();
-        } else {
+            this.feedPartnerPocket(meta.captured);
         }
         this.processInput(moved, orig, dest, meta);
         this.preaction = false;
@@ -142,6 +126,76 @@ export class GameControllerBughouse extends GameController {
         this.isCheck = this.ffishBoard.isCheck();
         this.setDests();
     };
+
+    /** HAND A CAPTURED PIECE TO THE PARTNER'S POCKET, locally.
+     *
+     *  Only ever right during the gap before the server's board message resets the whole FEN — the
+     *  note this was extracted from says so, and it is still true. There are now TWO such gaps: the
+     *  ordinary one between a move and its confirmation, and the one a disconnect holds open, which
+     *  `roundCtrl.replayPendingMove()` closes by replaying the move on top of a snapshot.
+     *
+     *  A PROMOTED PIECE GOES BACK AS A PAWN, which is what `promoted` is asked for. */
+    feedPartnerPocket = (captured: cg.Piece) => {
+        const role = captured.promoted ? 'p-piece' : captured.role;
+        const pocketPartner = this.partnerCC.chessground.state.boardState.pockets![captured.color];
+        if (!pocketPartner.has(role)) {
+            pocketPartner.set(role, 0);
+        }
+        pocketPartner.set(role, pocketPartner.get(role)! + 1);
+        // update fen of partner board:
+        const partnerFenFromFFish = this.partnerCC.ffishBoard.fen();
+        // we updated pocket model, so now chessground returns correct new fen with updated pockets:
+        const partnerFenFromCG = this.partnerCC.chessground.getFen();
+        const partnerFenFromCGPocketsPart = partnerFenFromCG.match(/\[.*\]/)![0]; // how the pocket should look like
+        // todo: don't remember if there was any reason for not just using the fen from chessground directly instead
+        //       of replacing the pockets in the ffish fen
+        const partnerFenFromFFishNewPockets = partnerFenFromFFish.replace(/\[.*\]/, partnerFenFromCGPocketsPart);
+        this.partnerCC.setState(partnerFenFromFFishNewPockets, this.partnerCC.turnColor, this.partnerCC.lastmove);
+        this.partnerCC.chessground.state.dom.redraw();
+    };
+
+    /* A REASON TO REFUSE MOVES THAT IS NOT ABOUT THE POSITION.
+     *
+     * `setDests()` in the base class answers "what does the variant allow here", computed from the
+     * position alone. A bughouse board sometimes has to refuse a move for a reason the position
+     * cannot express: that a move of ours is outstanding and a second one would race it — branch
+     * 1.2.3 of the reconnect tree.
+     *
+     * OVERRIDDEN HERE RATHER THAN ADDED TO THE BASE, because it is a bughouse concept. Every
+     * single-board game and the analysis page keep exactly the `setDests()` they had.
+     *
+     * ASKED, NOT STORED. A copy of the answer kept on this object would be a third place the same
+     * fact lives — beside the records the reconnect controller holds and the map chessground holds
+     * — and every one of those needs a moment where somebody remembers to update it. That is the
+     * exact shape of the bug this replaces: the gate used to be applied by BLANKING the map after
+     * the fact, at one of the four places that write it, and the other three recomputed it and
+     * silently gave the board back. A predicate has no such moment — it is evaluated when the
+     * answer is needed, so it cannot be stale.
+     *
+     * The mirror of `snapshot(history, playableNow)`, where the controller borrows a board it does
+     * not have. Here a board borrows a controller it does not have. Defaults to allowing
+     * everything, so a board nobody wires behaves exactly as before.
+     *
+     * A PROTOTYPE METHOD, NOT A CLASS FIELD, AND THE DIFFERENCE IS LOAD-BEARING. `GameController`'s
+     * constructor calls `this.setDests()`, which dispatches to the override below — and a subclass
+     * class field is not initialised until `super()` RETURNS, so a field here would still be
+     * `undefined` at that call and every board would die building itself. A prototype method exists
+     * before any constructor body runs. `roundCtrl` still assigns over it; that makes an own
+     * property which shadows this, which is exactly what is wanted. */
+    movesAllowed(): boolean {
+        return true;
+    }
+
+    /** Asked BEFORE the legal moves are generated: a board that is refusing moves has nothing to
+     *  ask the engine, and computing an answer we are about to discard invites somebody to use it
+     *  later. */
+    setDests() {
+        if (!this.movesAllowed()) {
+            this.chessground.set({ movable: { dests: new Map() } });
+            return;
+        }
+        super.setDests();
+    }
 
     pushMove = (move: string) => {
         this.ffishBoard.push(move);

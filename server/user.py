@@ -35,7 +35,11 @@ from glicko2.glicko2 import MU, Rating, gl2, sparse_perf_map
 from json_utils import json_response
 from newid import id8
 from notify import notify
-from user_stats import normalize_user_count
+from preferences import effective_game_category, effective_theme
+from pymongo.errors import DuplicateKeyError
+from request_protection import enforce_new_anonymous_identity_limit
+from typedefs import REQUEST_NEW_SESSION_KEY
+from user_stats import DEFAULT_USER_COUNT, normalize_user_count
 from websocket_utils import ws_send_json_many
 
 if TYPE_CHECKING:
@@ -472,6 +476,55 @@ class User:
         self.chat_timeout_until = _as_required_utc(timeout_until)
         return self.chat_timeout_until
 
+    async def persist_test_identity(self) -> None:
+        """Give a `-a` mode guest a database document, so its name outlives the process.
+
+        THIS IS PARITY, NOT A NEW CAPABILITY. Registered users survive a restart for exactly one
+        reason: `Users.get()` queries `db.user` and finds a document. Test users did not, because
+        `db.user` held no `Test-...` record at all, so every restart handed each browser a new name
+        and no browser could reclaim the seat it held — seats are keyed by username.
+
+        Nothing about cookie trust changes. A name asserted only by a session cookie still does not
+        become a user: `_load_registered_user()` finds no document and returns `NONE_USER`. What is
+        different is that the document now exists, so the identity is verified against the database
+        exactly as a registered user's is.
+
+        Guarded by `is_test_user()`, which is False in production whatever the name, so a real
+        account carrying the prefix is never touched and a production database is never written to.
+
+        `ct` is deliberately NOT written here. The first-visit category modal should still appear
+        once; `set_game_category()` writes `ct` when the guest answers it, and that write — which
+        until now matched no document and did nothing — finally lands, so the answer survives the
+        next restart.
+        """
+        if not self.app_state.is_test_user(self.username):
+            return
+        if self.app_state.db is None:
+            return
+
+        try:
+            await self.app_state.db.user.insert_one(
+                {
+                    "_id": self.username,
+                    "title": self.title,
+                    "perfs": {},
+                    "pperfs": {},
+                    "count": dict(DEFAULT_USER_COUNT),
+                    "enabled": True,
+                    "shadowban": False,
+                    "createdAt": datetime.now(UTC),
+                }
+            )
+        except DuplicateKeyError:
+            # A name this server minted already exists in the database, from an earlier run whose
+            # document outlived it. Reusing it is correct: the point of the document is that the
+            # identity is the same one. `_generate_test_username()` only checks the in-memory
+            # store, so after a restart this is reachable rather than exotic.
+            log.info("Test user %s already has a document; reusing it.", self.username)
+        except Exception:
+            # A guest must still be able to play if the write fails; it only loses the restart.
+            log.exception("Could not persist test user %s", self.username)
+
     async def set_rating(self, variant: str, chess960: bool, rating: Rating) -> None:
         if self.anon:
             return
@@ -876,6 +929,45 @@ class User:
         self.category_variant_list = CATEGORY_VARIANT_LISTS[normalized]
         self.category_variant_set = CATEGORY_VARIANT_SETS[normalized]
         self.category_variant_codes = CATEGORY_VARIANT_CODES[normalized]
+
+
+async def mint_guest_user(
+    app_state: PychessGlobalAppState,
+    request: web.Request,
+    session: aiohttp_session.Session,
+    *,
+    arriving_at: str,
+) -> User:
+    """Materialize the browser's guest identity, wherever it first lands.
+
+    ONE FUNCTION BECAUSE IT IS ONE RULE. A guest is created lazily, at whichever entry point the
+    browser reaches first — a page render, a websocket connection, or the puzzle page — so there
+    are three CALLERS by nature. There is no earlier common point: anonymous page rendering is
+    deliberately stateless, and materializing an identity for every request that never needs one is
+    what that statelessness exists to avoid.
+
+    What there is no reason for is three COPIES of the five lines. They drifted apart once already:
+    when test users gained a database document, the puzzle page was missed, so a browser whose first
+    landing was `/puzzle` got the one identity that still evaporated on restart.
+
+    `arriving_at` names the entry point for the log line, which is the only thing that differed
+    between the three.
+    """
+    enforce_new_anonymous_identity_limit(request)
+    user = User(
+        app_state,
+        anon=not app_state.anon_as_test_users,
+        theme=effective_theme(session, None),
+        game_category=effective_game_category(session, None),
+    )
+    app_state.users[user.username] = user
+    # A -a test user gets a database document so its name survives a restart; a no-op for anonymous
+    # users and in production. See User.persist_test_identity().
+    await user.persist_test_identity()
+    session["user_name"] = user.username
+    request[REQUEST_NEW_SESSION_KEY] = True
+    log.info("+++ New %s guest user %s connected.", arriving_at, user.username)
+    return user
 
 
 async def set_theme(request: web.Request) -> web.StreamResponse:

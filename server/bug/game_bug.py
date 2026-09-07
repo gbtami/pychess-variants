@@ -11,7 +11,6 @@ from const import (
     CASUAL,
     DRAW,
     IMPORTED,
-    INVALIDMOVE,
     LOSERS,
     MATE,
     MAX_CHAT_LINES,
@@ -29,6 +28,11 @@ from variants import GRANDS, get_server_variant
 from bug.game_bug_clocks import GameBugClocks
 
 log = logging.getLogger(__name__)
+
+# A backlog this deep means the database is not keeping up and the one-ply loss window is widening.
+MOVE_PERSIST_QUEUE_WARN_DEPTH = 3
+# How long save_game() waits for queued plies before writing the authoritative arrays anyway.
+MOVE_PERSIST_DRAIN_TIMEOUT = 5.0
 
 MAX_HIGH_SCORE = 10
 MAX_PLY = 2 * 600
@@ -64,6 +68,11 @@ class GameBug:
 
         self.saved = False
 
+        # Per-ply persistence: one producer under `move_lock`, one consumer, so writes land in
+        # order. See `_queue_move_persist()`.
+        self._persist_queue: asyncio.Queue = asyncio.Queue()
+        self._persist_task: asyncio.Task | None = None
+
         self.variant = variant
         self.initial_fen = initial_fen
         self.wplayerA = wplayerA
@@ -77,6 +86,14 @@ class GameBug:
         self.inc = inc
         self.level = level if level is not None else 0
         self.tournamentId = tournamentId
+        # Always None: a bughouse game is never a round-robin arrangement. Declared anyway
+        # because this class duck-types the common game interface rather than inheriting it,
+        # and the SHARED Clock reads this attribute — `first_move_timeout_reason()` in
+        # clock.py, which decides whether an unstarted game is aborted or flagged. Missing, it
+        # raised AttributeError inside `Clock.countdown()`, killing the clock task: the server
+        # then never timed the game out at all, and the only thing that ended it was a client
+        # sending its own `flag`. Same reason `simulId` below is declared.
+        self.tournamentArrangementId: str | None = None
         self.simulId: str | None = None
         self.chess960 = chess960
         self.create = create
@@ -232,10 +249,48 @@ class GameBug:
         cur_player = cur_player_a if board == "a" else cur_player_b
 
         if self.status <= STARTED:
+            # NOTHING CHANGES UNTIL THE MOVE IS KNOWN GOOD.
+            #
+            # This used to be decided further down, by whichever engine call happened to throw
+            # first — and by then the clocks had been stopped, `last_move_clocks` overwritten with
+            # numbers the refusing client sent, an extra entry appended to `ply_clocks`, and a
+            # captured piece possibly already dropped into the partner's pocket. Measured on a
+            # fresh game: ONE refused move left `ply_clocks` holding three entries for a board with
+            # one move and one step, the opponent's stored clock replaced by the sender's value,
+            # and that board's stopwatch stopped and never restarted.
+            #
+            # It did not matter while a refused move ended the game — the damage died with it.
+            # `bughouse-reject-invalid-move-without-ending` made the game CONTINUE, which turned a
+            # one-off into state that persists and can be repeated at will. The guard is the other
+            # half of that change, not a separate improvement.
+            #
+            # `legal_moves_no_history()` rather than `legal_moves()`: its own comment says it
+            # exists for exactly this case, because bughouse cannot recreate a board's history
+            # (pieces arrive from the other board) and the history-based generator would be wrong
+            # here. It answers in the same UCI form clients send.
+            if move not in self.boards[board].legal_moves_no_history():
+                log.warning(
+                    "Game %s refusing %s on board %s: not legal in this position",
+                    self.id,
+                    move,
+                    board,
+                )
+                raise ValueError("%s is not legal in this position" % move)
+
             self.gameClocks.update_clocks(board, clocks, clocks_b)
             try:
+                # COMPUTED before the push, because it reads the pre-move position; APPLIED after
+                # it, because it writes to the OTHER board and `push()` can only roll back its own.
+                # Applying it first meant a failure anywhere below left a piece in the partner's
+                # pocket for a move that never happened, which nothing would ever take back.
                 last_move_captured_role = self.boards[board].piece_to_partner(move)
-                # Add the captured piece to the partner pocked
+
+                san = self.boards[board].get_san(move)
+                self.lastmove = move
+                self.lastmovePerBoardAndUser[board][cur_player.username] = move
+                self.boards[board].push(move)
+
+                # Past the last thing that can fail, so the two boards cannot disagree.
                 if last_move_captured_role is not None:
                     partner_board = "a" if board == "b" else "b"
                     log.debug("lastMoveCapturedRole: %s", last_move_captured_role)
@@ -245,11 +300,6 @@ class GameBug:
                     self.boards[partner_board].fen = POCKET_PATTERN.sub(
                         r"[\1%s]" % last_move_captured_role, self.boards[partner_board].fen
                     )
-
-                san = self.boards[board].get_san(move)
-                self.lastmove = move
-                self.lastmovePerBoardAndUser[board][cur_player.username] = move
-                self.boards[board].push(move)
 
                 self.has_legal_moveA = self.boards["a"].has_legal_move()
                 self.has_legal_moveB = self.boards["b"].has_legal_move()
@@ -283,19 +333,151 @@ class GameBug:
                     }
                 )
 
+                # Queue the ply BEFORE the end-of-game branch: a mating move is still a ply, and
+                # `save_game()` drains this queue before it writes the final arrays.
+                self._queue_move_persist(board, move)
+
                 if self.status > STARTED:
                     await self.save_game()
                 self.gameClocks.restart(board)
             except Exception:
+                # THIS SHOULD NO LONGER HAPPEN, and that is the point of the guard above.
+                #
+                # It used to be where an illegal move was noticed — by whichever engine call threw
+                # first — so it fired routinely, with a stack trace, for the ordinary case of a
+                # client sending a move for a position it had already left. An ERROR that happens
+                # in normal operation teaches everyone to ignore it.
+                #
+                # Now illegality is refused before anything is touched, so reaching here means
+                # something is genuinely wrong: a malformed FEN, a position without the pocket
+                # brackets the substitution above assumes (see the todo), or an engine that failed
+                # on a move we had just certified as legal. All of those are worth a stack trace.
+                #
+                # It has never protected any state and does not now: `push()` rolls back its own
+                # board, everything before it is read-only, and the pocket write is placed after
+                # the push so a failure cannot leave the two boards disagreeing. Logging and
+                # re-raising is the whole job — the re-raise is what lets `utils_bug.play_move()`
+                # resync the sender in ONE place rather than two.
                 log.exception("ERROR: Exception in game %s play_move() %s", self.id, move)
-                result = "1-0" if self.boards[board].color == BLACK else "0-1"
-                self.update_status(INVALIDMOVE, result)
-                await self.save_game()
+                raise
+
+    def _queue_move_persist(self, board: str, move: str) -> None:
+        """Queue this ply's database write, built from the ply's own values.
+
+        THE PAYLOAD IS BUILT NOW, SYNCHRONOUSLY, not when the write runs. By the time the worker
+        reaches it the game may be several plies further on, and a payload that read `self.boards`
+        at that point would persist the wrong position under this ply's index.
+
+        Ordering is structural rather than defended: `play_move()` runs under `game.move_lock`
+        (`wsr.py`), so there is exactly one producer, and exactly one consumer drains the queue.
+        `m` is decoded positionally on load, so two plies applied out of order do not merely arrive
+        late — they decode to a different game.
+        """
+        if self.app_state.db is None:
+            return
+
+        step = self.steps[-1]
+        # `m` holds one entry per move while `steps` also holds the initial position at index 0,
+        # so the move just appended is `m[len(steps) - 2]`.
+        move_index = len(self.steps) - 2
+
+        encoded = self.encode_method(grand2zero(move) if self.variant in GRANDS else move)
+
+        push_data = {
+            "m": encoded,
+            "o": 0 if board == "a" else 1,
+            "ts": step["ts"],
+            # One entry per array per ply, so all four stay index-aligned with `m` the way
+            # `save_game()` writes them whole. DEPRECATED CONTENT, and knowingly so: only the
+            # mover's own entry is authoritative (see `GameBugClocks.update_clocks`). It is
+            # persisted in the existing shape so every reader — the analysis page, the movelist,
+            # `load_game_bug_from_doc` — keeps working unchanged.
+            "cw": step["clocks"][WHITE],
+            "cb": step["clocks"][BLACK],
+            "cwB": step["clocksB"][WHITE],
+            "cbB": step["clocksB"][BLACK],
+        }
+        set_data = {"f": self.fen, "s": self.status}
+
+        # Compare-and-set, in the spirit of the one-board `Game.save_move()`: apply only to an
+        # unfinished game that does not already hold this ply and does hold the one before it.
+        # A duplicate or out-of-order write then becomes a no-op instead of a corruption.
+        persist_filter: dict = {
+            "_id": self.id,
+            "s": {"$lte": STARTED},
+            f"m.{move_index}": {"$exists": False},
+        }
+        if move_index > 0:
+            persist_filter[f"m.{move_index - 1}"] = {"$exists": True}
+
+        write = (move_index, move, persist_filter, set_data, push_data)
+
+        if self._persist_task is None:
+            self._persist_task = asyncio.create_task(
+                self._drain_move_persist_queue(), name="bug-persist-%s" % self.id
+            )
+        self._persist_queue.put_nowait(write)
+
+        # BOUND THE LOSS WINDOW. One ply in flight is the accepted risk; a slow database must not
+        # quietly turn that into many. Beyond a small depth the queue stops being a buffer and
+        # becomes a backlog, so say so.
+        depth = self._persist_queue.qsize()
+        if depth > MOVE_PERSIST_QUEUE_WARN_DEPTH:
+            log.warning(
+                "Game %s move persistence is %s plies behind; the database is not keeping up",
+                self.id,
+                depth,
+            )
+
+    async def _drain_move_persist_queue(self) -> None:
+        """One consumer, so the writes land in the order they were produced."""
+        while True:
+            write = await self._persist_queue.get()
+            try:
+                if write is None:
+                    return
+                move_index, move, persist_filter, set_data, push_data = write
+                result = await self.app_state.db.game.update_one(
+                    persist_filter, {"$set": set_data, "$push": push_data}
+                )
+                if result.modified_count != 1:
+                    # Not fatal: the filter is what makes a replayed or duplicated write harmless,
+                    # so a miss usually means the ply is already recorded. Worth a line, because
+                    # the other way to miss is a document that has moved on without us.
+                    log.info(
+                        "Game %s ply %s (%s) was not persisted; already present or superseded",
+                        self.id,
+                        move_index,
+                        move,
+                    )
+            except Exception:
+                log.exception("Failed to persist ply for game %s", self.id)
+            finally:
+                self._persist_queue.task_done()
+
+    async def _finish_move_persistence(self) -> None:
+        """Let every queued ply land before the end-of-game write overwrites the arrays."""
+        if self._persist_task is None:
+            return
+        try:
+            await asyncio.wait_for(self._persist_queue.join(), timeout=MOVE_PERSIST_DRAIN_TIMEOUT)
+        except TimeoutError:
+            log.warning("Game %s move persistence did not drain before save_game()", self.id)
+
+        self._persist_queue.put_nowait(None)
+        task, self._persist_task = self._persist_task, None
+        try:
+            await asyncio.wait_for(task, timeout=MOVE_PERSIST_DRAIN_TIMEOUT)
+        except TimeoutError:
+            task.cancel()
 
     async def save_game(self):
         if self.saved:
             return
         self.saved = True
+
+        # Before the authoritative arrays are written whole, so the last ply cannot race the close.
+        await self._finish_move_persistence()
 
         if self.rated == IMPORTED:
             log.exception("Save IMPORTED game %s ???", self.id)
@@ -343,7 +525,11 @@ class GameBug:
                 ],
                 "o": [0 if x["boardName"] == "a" else 1 for x in self.steps[1:]],
                 "c": self.construct_chat_list(),
-                "ts": [x["ts"] for x in self.steps],
+                # `.get`, not `[...]`: a game rebuilt from a document written before per-ply
+                # persistence has no `ts` array to rebuild its steps from, and one missing
+                # timestamp must not cost the whole ending. See the matching note in
+                # `load_game_bug_from_doc()`.
+                "ts": [x.get("ts", 0) for x in self.steps],
                 "cw": self.gameClocks.get_ply_clocks_for_board_and_color("a", WHITE),
                 "cb": self.gameClocks.get_ply_clocks_for_board_and_color("a", BLACK),
                 "cwB": self.gameClocks.get_ply_clocks_for_board_and_color("b", WHITE),

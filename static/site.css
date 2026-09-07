@@ -1461,6 +1461,14 @@ button.back {
   line-height: var(--site-header-height);
   font-size: 17px;
 }
+/* A username is one word however it is spelled. The line breaker disagrees: a hyphen or a
+   dash inside a name is a break opportunity, so `Test-CannonRookKnigh` wrapped in the header
+   and the tail dropped onto a second line the header has no room for — the header's height is
+   `--site-header-height` and its line-height matches, so the second line is simply clipped.
+   Names are not prose and there is nothing to gain from breaking one. */
+#username .user-link {
+  white-space: nowrap;
+}
 .site-buttons > div > button:hover {
   color: var(--blue-hover);
 }

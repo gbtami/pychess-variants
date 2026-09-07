@@ -7,7 +7,7 @@ import { Variant, VARIANTS } from '../variants';
 import { boardSettings } from '@/boardSettings';
 import { ChessgroundController } from '@/cgCtrl';
 import { GameControllerBughouse } from './common/gameCtrl';
-import { createMovelistButtons, MovelistView } from './common/movelist';
+import { MovelistView } from './common/movelist';
 import { GameInfoView } from './common/gameInfo';
 import { Seat } from './common/seat';
 import { SeatConfiguration, twoBoardSeats } from './common/seatConfiguration';
@@ -32,7 +32,20 @@ export abstract class TwoBoardController {
     readonly home: string;
 
     steps: Step[];
-    ply: number;
+
+    /* NO READER'S CURSOR HERE. It is `MovelistView`'s private field — read with
+     * `movelistView.ply()`, moved with `movelistView.showPly()` / `selectMove()` / `setCursor()`.
+     *
+     * It lived here until 2026-09-07, public, with a comment asking callers to assign it only
+     * through `setCursor()`. Two things went wrong that being private prevents. The analysis
+     * controller wrote it directly, using it as a scratch variable to carry "where should the tree
+     * open" from one end of `onMsgBoard()` to the other — a value that is not a cursor. And it
+     * started life `undefined` despite its `number` type, because the round page read
+     * `ply === undefined` to mean "no board message yet": a second meaning stacked on a field that
+     * already had one. Both are gone.
+     *
+     * `plyA`/`plyB` DO belong here: they are the two boards' move counts, stamped onto every step
+     * by `stampStepPlys`, and have nothing to do with what the reader is looking at. */
     plyA: number = 0;
     plyB: number = 0;
 
@@ -40,7 +53,27 @@ export abstract class TwoBoardController {
     settings: boolean;
 
     abstract sendMove: (b: GameControllerBughouse, move: string) => void;
-    abstract goPly: (ply: number, plyVari?: number) => void;
+    /* "GO TO PLY N" IS ONE OPERATION AND IT BELONGS TO THE MOVE LIST, which is the only thing
+     * that changes the selection — a click in the list, an arrow key, a click on a chat message,
+     * a node in the analysis tree. Both pages' `goPly` are now one line delegating to
+     * `movelistView.showPly()`, which owns the cursor and the stepped-forward test, and calls back
+     * into `renderPly` for the part only the page knows: WHICH boards to repaint, with what
+     * playability, and what else to drive (the engine, the clocks, the PGN on analysis).
+     *
+     * `goPly` survives as the name every caller already uses, and because the shared move list
+     * must be able to say "show this ply" without knowing which page it is on. */
+    abstract goPly: (ply: number) => void;
+
+    /** Repaint the boards for a ply. Page-specific; called only by `movelistView.showPly()`.
+     *  `steppedForward` is the move list's answer to "did we advance exactly one ply", which is
+     *  what decides whether a move sound plays — it needs the cursor's OLD value, so the caller
+     *  works it out rather than each page re-deriving it.
+     *
+     *  NO `plyVari`. The variation index is a single-board concept: in `client/movelist.ts` a
+     *  reader can select a move inside a variation and it is passed through. Nothing in the
+     *  two-board code has ever passed anything but 0 — every call site said `goPly(ply, 0)` — so
+     *  it was a parameter the round page ignored and the analysis page tested against a constant. */
+    abstract renderPly: (ply: number, steppedForward: boolean) => void;
 
     // Default flip/switch: just re-orient/re-position the two boards. RoundControllerBughouse
     // overrides both to additionally move its player-bar/clock DOM around, calling
@@ -85,8 +118,8 @@ export abstract class TwoBoardController {
         this.boardA.parent = this;
         this.boardB.parent = this;
 
-        createMovelistButtons(this);
         this.movelistView = movelistView;
+        this.movelistView.createButtons(this);
 
         // not retained: the panel is rendered once from this controller's state and
         // never updated again, so nothing needs a reference to it afterwards
@@ -162,6 +195,31 @@ export function switchBoardElements() {
 export function redrawBoards(ctrl: TwoBoardController) {
     ctrl.boardA.chessground.redrawAll();
     ctrl.boardB.chessground.redrawAll();
+}
+
+/**
+ * Forget both boards' memoised rects, so the next read measures the page as it now is.
+ *
+ * chessgroundx maps every click through a memoised `getBoundingClientRect()` and refreshes it on
+ * exactly two signals: its own `ResizeObserver`, which fires when a board CHANGES SIZE, and
+ * `window.resize` / `scroll`, which clear the memo. A board that MOVES without resizing sends
+ * neither — and this layout moves boards for reasons of its own: zooming the other column
+ * narrows the first grid track, a username takes a line of its own and pushes the board down
+ * inside its stack, a tools part drops into a zone and the rows shift. Measured on a live game:
+ * board B sitting at y=80.7 against a memo saying 100.3, a 19.6px error on a 20.7px square, and a
+ * right-click one square below the top edge produced no shape at all because the pixel mapped
+ * outside the board chessground believed in.
+ *
+ * CLEARING, NOT RE-MEASURING, and that is what makes this safe. It writes nothing, touches no
+ * element and cannot wake an observer, so it starts no cascade — where `updateBounds()` sets the
+ * container's size and could. It also needs no ordering: the rect is recomputed at the next READ,
+ * which is the click, by which time the arrangement has certainly settled. An attempt to measure
+ * on the next frame instead had to guess when the placement passes were done, and could memoise
+ * the very geometry it was trying to replace.
+ */
+export function clearBoardBounds(ctrl: TwoBoardController): void {
+    ctrl.boardA.chessground.state.dom.bounds.clear();
+    ctrl.boardB.chessground.state.dom.bounds.clear();
 }
 
 export function switchBoards(ctrl: TwoBoardController) {

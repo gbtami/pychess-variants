@@ -25,13 +25,14 @@ Use `pychess-testing` after code changes. The required baseline is:
 
 | Change scope | Required checks |
 | --- | --- |
-| TypeScript, CSS, or static UI only | `yarn typecheck`, `yarn test`; skip Python gates |
+| TypeScript, CSS, or static UI only | `yarn lint`, `yarn typecheck`, `yarn md`, `yarn test`; skip Python gates |
 | Python or server code | `uv run ruff format --target-version py313 .`, `uv run ruff check .`, `uv run pyrefly check`, plus targeted Python tests |
 | Mixed frontend and server | Both frontend and Python checks |
 | Rendered/browser behavior | Add relevant browser or Playwright verification |
 
 - Run targeted Python tests by default. Reserve the full suite for broad or cross-cutting changes, explicit requests, or when targeted coverage is insufficient.
 - Full Python CI includes both `python -m unittest discover -s tests` and the pytest-only Simul suite `python -m pytest tests/test_simul.py`; unittest discovery does not collect those Simul tests.
+- Full Node CI is `yarn lint`, `yarn typecheck`, `yarn dev`, `yarn md`, `yarn test` — run all of them. `yarn lint` is `oxlint --deny-warnings`, so ONE warning anywhere under `client/` or `tests/` fails the build; it has caught a file that typecheck, jest and the Python gates were all happy with.
 - In the ChatGPT Python 3.13 sandbox, run full unittest coverage as two deterministic shards with `tests/run_unittest_shard.py 1 2` and `tests/run_unittest_shard.py 2 2`; the 45-second command ceiling is close enough to monolithic discovery that interpreter shutdown can exceed it. GitHub CI may keep the normal monolithic discovery command.
 - Run tournament tests only when tournament code changed, shared code can affect tournaments, or the task explicitly requires tournament coverage.
 - Run Python commands through `uv run` unless the project virtualenv is already active.

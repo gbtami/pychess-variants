@@ -92,6 +92,56 @@ class GameBugClocks:
     def restart(self, board):
         self.stopwatches[board].restart(self.last_move_clocks[board][self.game.boards[board].color])
 
+    def restore_after_load(self, last_move_ts, loaded_at_ns):
+        """Restart both boards' stopwatches from persisted state, charging the downtime.
+
+        `monotonic()` starts afresh in a new process, so the gap between the last move and this
+        load cannot be read from it — it has to come from wall-clock timestamps, which is what the
+        `ts` array in the document is for. This mirrors `Game.restore_realtime_clock_after_load()`
+        on the one-board path; the only difference is that bughouse has TWO turns running at once,
+        so the gap is measured per board.
+
+        `last_move_ts` maps a board to the epoch-ns of the last move ON THAT BOARD, or is missing
+        for a board nobody has moved on yet — in which case the turn started when the game did,
+        because both boards' white clocks run from the first second.
+
+        WHO PAYS FOR THE DOWNTIME: the side to move, exactly as on the one-board path. Their clock
+        was running when the server went down and it does not stop because the process did.
+
+        THE RESULT IS DELIBERATELY NOT CLAMPED AT ZERO. A negative value is how the clock task and
+        a reconnecting client's flag claim learn that the turn expired while the server was down;
+        clamping would silently hand the player their time back.
+
+        THE DOWNTIME IS FOLDED INTO `last_move_clocks`, NOT JUST HANDED TO THE STOPWATCH. Restoring
+        only the stopwatch looked right and did nothing visible: every client reads its clocks from
+        `get_clocks_for_board_msg()`, which recomputes them from `last_move_clocks` minus the
+        elapsed time since `last_server_clock` and never consults the stopwatch at all. Measured on
+        `o7bSAD9B` before this: a 28s outage was charged to nobody, and all four windows resumed as
+        though the server had never stopped. After folding, the one number both readers share
+        carries the charge, so the stopwatch that flags and the message that renders agree.
+
+        The entry therefore stops meaning strictly "as of that seat's last move" and becomes "as of
+        the last time this seat's clock was known to start running", which is what both readers
+        actually want — the restore is simply another such moment.
+        """
+        for board in ("a", "b"):
+            turn_started_at_ns = last_move_ts.get(board)
+            if turn_started_at_ns is None:
+                turn_started_at_ns = int(self.game.date.timestamp() * 1_000_000_000)
+
+            downtime_ms = max(0, round((loaded_at_ns - turn_started_at_ns) / 1_000_000))
+            cur_color = self.game.boards[board].color
+            self.last_move_clocks[board][cur_color] -= downtime_ms
+
+        # Open the new monotonic epoch only after the wall-clock gap above has been charged,
+        # so the elapsed time is not counted twice — once here and again as "time since load".
+        now = monotonic()
+        self.last_server_clock = now
+        self.last_server_clockB = now
+
+        for board in ("a", "b"):
+            self.restart(board)
+
     def last_move_clock(self):
         return max(self.last_server_clock, self.last_server_clockB)
 

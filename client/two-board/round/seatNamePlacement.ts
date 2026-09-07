@@ -28,6 +28,9 @@
 
 const APP = '.round-app.bug';
 
+/** A stack is a strip, eight board rows and a strip — the same ten `squareUnit.ts` divides by. */
+const ROWS_PER_STACK = 10;
+
 /**
  * Each seat, the class that says its name is on its own line, and its board.
  *
@@ -85,6 +88,24 @@ function squareOf(app: HTMLElement, boardSelector: string): number {
  * the round app itself for the viewer's own board.
  */
 function spaceFor(app: HTMLElement, seat: HTMLElement): number {
+    /* THE BOARD'S OWN ALLOWANCE FIRST, where the stylesheet publishes one.
+       -------------------------------------------------------------------------------------
+       The column is shared and the two boards are no longer the same size in it: the right
+       board can be capped by WIDTH, so it sits in a column taller than anything it may use.
+       Measured at 799x550 — right square 39.34 against the left's 54.67 — the partner stack
+       came to 453px in a 547px column, and this function handed back the column's 547. The
+       name took the line those 94px seemed to buy, at full zoom, beside a left board keeping
+       its name inline. The room was never the board's to spend.
+       `--bug-stack-allow` is that board's square at full zoom, so ten of them is the tallest
+       stack it can draw: at full zoom the answer is exactly its own height and no line is
+       affordable; below full zoom the difference is real height and the line is free again,
+       which is the behaviour this module was written for.
+       Portrait publishes none — its stacks are sized from WIDTH — and falls through to the
+       measurements below, unchanged. */
+    const stack = seat.closest<HTMLElement>('.bug-own-stack, .bug-partner-stack');
+    const allow = stack ? parseFloat(getComputedStyle(stack).getPropertyValue('--bug-stack-allow')) : NaN;
+    if (Number.isFinite(allow) && allow > 0) return allow * ROWS_PER_STACK;
+
     // WHERE THE PAGE IS FLATTENED, BOTH STACKS SHARE ONE REGION and neither is in a column that
     // can be measured. `.bug-right-column` is still their ancestor but it is `display: contents`
     // there — no box, `clientHeight` reads 0 — so the partner seat was told it had no room at
@@ -184,14 +205,22 @@ let observer: ResizeObserver | undefined;
  * the current stack — which is taller precisely because the line was granted — and the
  * two states overturned each other about twelve times a second. See `lineCost`.
  */
-export function trackSeatNamePlacement(): void {
+export function trackSeatNamePlacement(onSettled?: () => void): void {
     const app = document.querySelector<HTMLElement>(APP);
     if (!app) return;
 
-    place(app);
+    // `onSettled` runs after every pass, because a name taking or losing its own line changes the
+    // strip's height and so MOVES the board inside its stack without resizing it — the one kind of
+    // change chessgroundx is never told about. See `clearBoardBounds`.
+    const pass = () => {
+        place(app);
+        onSettled?.();
+    };
+
+    pass();
 
     observer?.disconnect();
-    observer = new ResizeObserver(() => place(app));
+    observer = new ResizeObserver(pass);
     observer.observe(app);
     for (const selector of ['.bug-right-column', '#mainboard cg-board', '#bugboard cg-board']) {
         const el = app.querySelector<HTMLElement>(selector);

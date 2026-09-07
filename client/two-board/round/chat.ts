@@ -2,7 +2,7 @@ import { h } from 'snabbdom';
 
 import { patch } from '@/document';
 import { RoundControllerBughouse } from '@/two-board/round/roundCtrl';
-import { formatChatMessageTime, getLocalMoveNum, selectMove } from '@/two-board/common/movelist';
+import { formatChatMessageTime, getLocalMoveNum } from '@/two-board/common/movelist';
 import { StepChat } from '@/messages';
 import { displayUsername, isAnonUsername } from '@/user';
 import { linkifyNodes } from '@/linkify';
@@ -103,7 +103,9 @@ export function chatMessageBug(ply: number, ctrl: RoundControllerBughouse, x: St
 
 export function onchatclick(ply: number | undefined, ctrl?: RoundControllerBughouse) {
     if (ply && ctrl) {
-        ctrl.goPly(ply);
-        selectMove(ctrl, ply);
+        // ONE CALL. This used to run `goPly()` and then `selectMove()`, which runs it again — the
+        // boards were repainted twice for one click. That is what a navigation split across two
+        // places invites: a caller does the part it knows about, then the whole thing, to be sure.
+        ctrl.movelistView.selectMove(ctrl, ply);
     }
 }

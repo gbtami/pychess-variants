@@ -61,7 +61,9 @@ export class AnalysisClockView {
  * Reconstruction covers the recorded mainline only. Inside an analysis variation there are no
  * recorded clocks at all, so those steps keep the current behaviour: whatever the step carries. */
 export function renderClocks(ctrl: AnalysisController) {
-    const lastStep = ctrl.tree.hasAnalysisTree() ? ctrl.tree.getTreeCurrentNode()?.step : ctrl.steps[ctrl.ply];
+    const lastStep = ctrl.tree.hasAnalysisTree()
+        ? ctrl.tree.getTreeCurrentNode()?.step
+        : ctrl.steps[ctrl.movelistView.ply()];
     if (!lastStep) return;
 
     // Identity lookup rather than a ply number: inside a variation the node's step is not one of

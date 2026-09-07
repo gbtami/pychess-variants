@@ -10,6 +10,11 @@ import { RoundSeatView, RoundSeatViews } from './roundSeatView';
 import { trackSquareUnit } from '../squareUnit';
 import { boardZoom } from '@/boardSettings';
 import { TabbedPanels } from '../common/tabs';
+import { registerStandingTab } from '../common/toolsPlacement';
+
+// The partner board's position in the tab list below. Named because two places need it and a
+// tab's index is also its id.
+const PARTNER_BOARD_TAB = 3;
 import { ChatPresetsView } from './chatPresets';
 import { twoBoardSeats } from '../common/seatConfiguration';
 import { _ } from '../../i18n';
@@ -136,9 +141,42 @@ export function roundView(model: PyChessModel): VNode[] {
                 parts: [{ content: [h('div.movelist-block', [movelistView.placeholder(), h('div#move-controls')])] }],
             },
             { label: _('Info'), parts: [{ content: [gameInfoView.placeholder()] }] },
+            /* THE PARTNER'S BOARD IS A TAB, AND IT IS DETACHED FROM THE FIRST FRAME.
+               Detached it is absent from the strip and always drawn, which is the board in every
+               home but one — so declaring it here changes nothing on screen today. What it buys is
+               the LAST RESORT: on a viewport with no room for the tools anywhere, the strip claims
+               the board's column and the board takes its turn there as a tab. That is one call to
+               `setDetached`, with no element created, moved or destroyed, which matters because the
+               home is chosen from the viewport and flips while a window is being dragged.
+               `display: block` because a stack is block flow — strip, board, strip — and the
+               widget's default of `flex` would relayout it every time it was shown. */
+            {
+                label: _('Partner board'),
+                detached: true,
+                parts: [
+                    {
+                        panelClass: 'bug-partner-stack',
+                        display: 'block',
+                        content: [
+                            seatViews.b[0].view(pocketB0),
+                            h(
+                                `selection#bugboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`,
+                                [
+                                    h('div.cg-wrap.' + variant.board.cg, {
+                                        hook: { insert: vnode => (bugboardVNode = vnode) },
+                                    }),
+                                ],
+                            ),
+                            seatViews.b[1].view(pocketB1),
+                        ],
+                    },
+                ],
+            },
         ],
         _('Round tabs'),
     );
+    // The strip may claim it; until then it is simply the board, drawn where it always was.
+    registerStandingTab(roundTabs, PARTNER_BOARD_TAB);
 
     return [
         // left in place but empty: the game-info placeholder it used to hold is
@@ -229,18 +267,10 @@ export function roundView(model: PyChessModel): VNode[] {
                     // size together — and three siblings cannot be floated as one
                     // thing, so the group has to exist for the board to be the
                     // fixed shape the parts arrange themselves around.
-                    h('div.bug-partner-stack', [
-                        seatViews.b[0].view(pocketB0),
-                        h(
-                            `selection#bugboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`,
-                            [
-                                h('div.cg-wrap.' + variant.board.cg, {
-                                    hook: { insert: vnode => (bugboardVNode = vnode) /*runGround(vnode, model)*/ },
-                                }),
-                            ],
-                        ),
-                        seatViews.b[1].view(pocketB1),
-                    ]),
+                    // The stack IS the panel — `panelClass` put `.bug-partner-stack` on the
+                    // wrapper rather than inside it, so nothing gained a level and the grid area
+                    // it has always occupied is still declared on the same element.
+                    roundTabs.panel(PARTNER_BOARD_TAB, 0),
                     // The parts. Grouped only so that portrait has something to
                     // place: there the tools are one block in their own grid area,
                     // and free-standing parts auto-placed into the partner board's

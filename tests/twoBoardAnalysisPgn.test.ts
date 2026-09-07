@@ -46,8 +46,14 @@ function model(): PyChessModel {
 
 // steps: root + 5 moves alternating boards; ply 3 has only san (no sanSAN) to pin the fallback
 function steps(): Step[] {
-    const mk = (boardName: 'a' | 'b', turnColor: 'white' | 'black', plyA: number, plyB: number, san: string, sanSAN?: string) =>
-        ({ fen: START_FEN, boardName, turnColor, check: false, plyA, plyB, san, sanSAN }) as unknown as Step;
+    const mk = (
+        boardName: 'a' | 'b',
+        turnColor: 'white' | 'black',
+        plyA: number,
+        plyB: number,
+        san: string,
+        sanSAN?: string,
+    ) => ({ fen: START_FEN, boardName, turnColor, check: false, plyA, plyB, san, sanSAN }) as unknown as Step;
     return [
         { fen: START_FEN, check: false, turnColor: 'white', plyA: 0, plyB: 0 } as unknown as Step,
         mk('a', 'black', 1, 0, 'e4', 'e4'),
@@ -64,7 +70,7 @@ function stubCtrl(treeOverrides: object = {}, overrides: object = {}) {
         boardA: { home: 'https://pychess.org' },
         variant: { name: 'bughouse' },
         steps: steps(),
-        ply: 5,
+        movelistView: { ply: () => 5 },
         tree: {
             hasAnalysisTree: () => false,
             analysisTree: undefined,
@@ -94,7 +100,7 @@ test('legacy mainline path: header tags, per-board move counters, sanSAN ?? san 
 });
 
 test('legacy mainline path respects the current ply', () => {
-    expect(getPgn(stubCtrl({}, { ply: 2 }))).toBe(HEADER + '\n1A.e4 1B.d4 *\n');
+    expect(getPgn(stubCtrl({}, { movelistView: { ply: () => 2 } }))).toBe(HEADER + '\n1A.e4 1B.d4 *\n');
 });
 
 test('tree path composes the header with the tree move-text renderer', () => {

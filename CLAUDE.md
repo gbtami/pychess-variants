@@ -33,15 +33,23 @@ uv run server/server.py -a        # anon users behave as logged-in test users (f
 ### Lint / Typecheck / Test
 Scope your checks to what changed: client-only changes need only the frontend commands; any Python/server change needs the Python gates too, run before considering the work done.
 
+**RUN WHAT CI RUNS.** The list below is the CI gate set, not a subset of it. A gate that only CI
+runs is a gate that fails after you push: `yarn lint` uses `oxlint --deny-warnings`, so a single
+warning anywhere under `client/` or `tests/` fails the whole build, and it caught a file that every
+other check was happy with.
+
 ```bash
-# Frontend
+# Frontend — all four, in this order (.github/workflows/nodejs.yml)
+yarn lint                         # oxlint --deny-warnings: a WARNING fails the build
 yarn typecheck
+yarn md                           # compiles the markdown docs; breaks on bad docs
 yarn test                         # jest
 
-# Python — run all three for any server/Python change, even small edits
+# Python — all of these for any server/Python change, even small edits (.github/workflows/ci.yml)
 uv run ruff format --target-version py313 .
 uv run ruff check .
 uv run pyrefly check
+env PYTHONPATH=server uv run python -m pytest tests/test_simul.py    # CI runs this separately
 
 # Python tests
 env PYTHONPATH=server uv run python -m unittest discover -s tests

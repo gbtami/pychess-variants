@@ -50,8 +50,10 @@ class Users(UserDict[str, User]):
     def _in_registered_cache(self, user: User) -> bool:
         """Whether this user is subject to the registered-user cache TTL.
 
-        Test users are excluded alongside anons: they exist only in memory, so
-        evicting one destroys an identity that no db lookup can restore.
+        Test users are excluded alongside anons. They now HAVE a database document
+        (see User.persist_test_identity()), so eviction would be recoverable rather
+        than fatal, but keeping a `-a` guest resident costs nothing and avoids
+        reloading the identity a harness is actively driving.
         """
         if user.anon or user.bot or reserved(user.username):
             return False

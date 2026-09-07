@@ -4,18 +4,19 @@ import logging
 import random
 from collections.abc import Mapping
 from datetime import UTC
+from time import time_ns
 from typing import TYPE_CHECKING
 
 from compress import C2R, R2C
 from const import (
     CASUAL,
-    INVALIDMOVE,
     MATE,
     POCKET_PATTERN,
     RATED,
     STARTED,
 )
 from convert import zero2grand
+from fairy import BLACK, WHITE
 from glicko2.glicko2 import gl2
 from newid import new_id
 from pychess_global_app_state import PychessGlobalAppState
@@ -134,7 +135,16 @@ async def load_game_bug_from_doc(
     if variant in GRANDS:
         mlist = [*map(zero2grand, mlist)]
 
-    if mlist or (game.tournamentId is not None and doc["s"] > STARTED):
+    # `doc["s"] > STARTED` GOVERNS BOTH SIDES, as it does on the one-board path (`utils.py`). The
+    # brackets used to sit the other way round, so a non-empty move list ALONE marked the game
+    # saved. That was harmless only because bughouse never persisted moves mid-game: `doc["m"]` was
+    # always `[]` for a game in progress, so the first clause was never true for one.
+    #
+    # Per-ply persistence makes it true for every restored game, and `save_game()` opens with
+    # `if self.saved: return` — so a game that came back from a restart would silently refuse to
+    # write its own ending: no result, no ratings, no final clock arrays. Found by asking what else
+    # changes meaning once `m` is non-empty mid-game, not by seeing it happen.
+    if (mlist or game.tournamentId is not None) and doc["s"] > STARTED:
         game.saved = True
 
     if "a" in doc:
@@ -153,6 +163,16 @@ async def load_game_bug_from_doc(
     # Read-side fix by choice: the stored documents are left exactly as they are, so every game ever
     # played stays readable and starts being read correctly. See the change
     # `bughouse-clock-record-investigation`.
+    #
+    # Defaulted BEFORE the lookups, not inside them. The loop below reads these arrays
+    # unconditionally, so a document without clock history — anything created before per-ply
+    # persistence, or an in-progress game whose writer never ran — used to raise NameError here and
+    # be swallowed by the loop's `except`, which is a game that silently loads with no moves.
+    clocktimes_w = [base_clock_time]
+    clocktimes_b = [base_clock_time]
+    clocktimes_wB = [base_clock_time]
+    clocktimes_bB = [base_clock_time]
+
     if "cw" in doc:
         clocktimes_w = doc["cw"] if len(doc["cw"]) > 0 else [base_clock_time]
         clocktimes_b = doc["cb"] if len(doc["cb"]) > 0 else [base_clock_time]
@@ -160,6 +180,19 @@ async def load_game_bug_from_doc(
     if "cwB" in doc:
         clocktimes_wB = doc["cwB"] if len(doc["cwB"]) > 0 else [base_clock_time]
         clocktimes_bB = doc["cbB"] if len(doc["cbB"]) > 0 else [base_clock_time]
+
+    # The live clock state, rebuilt as the plies are replayed. `last_move_clocks[board][colour]` is
+    # the remaining time for that seat as of its own last move, and it is the ONLY clock value the
+    # server treats as authoritative — the per-ply arrays hold four numbers of which three are the
+    # mover's stale view of seats it does not own. Taking each seat's own last entry therefore
+    # reconstructs exactly the four numbers the running game held.
+    restored_last_move_clocks = {
+        "a": list(game.gameClocks.last_move_clocks["a"]),
+        "b": list(game.gameClocks.last_move_clocks["b"]),
+    }
+    # Epoch-ns of the last move on each board, which is when that board's current turn began.
+    restored_last_move_ts: dict[str, int] = {}
+    doc_ts = doc.get("ts") or []
 
     board_ply = {"a": 0, "b": 0}
     last_move, last_move_b = "", ""
@@ -244,6 +277,24 @@ async def load_game_bug_from_doc(
                 else None,
             ]
 
+            # Record this seat's own clock, which is the authoritative entry for this ply. The
+            # mover is white on a board's 1st, 3rd, 5th... move, so the parity of that board's
+            # counter — read BEFORE it is incremented below — gives the colour that just moved.
+            mover_color = WHITE if board_ply[board_name] % 2 == 0 else BLACK
+            mover_clocks = step["clocks"] if board_name == "a" else step["clocksB"]
+            if mover_clocks[mover_color] is not None:
+                restored_last_move_clocks[board_name][mover_color] = mover_clocks[mover_color]
+            if ply + 1 < len(doc_ts):
+                restored_last_move_ts[board_name] = doc_ts[ply + 1]
+
+            # REBUILT STEPS MUST CARRY `ts`, because `save_game()` reads `x["ts"]` for every step
+            # when it writes the game's ending. A restored game whose steps lacked it died with
+            # `KeyError: 'ts'` inside `game_ended()`, so the result never reached the document.
+            # Unreachable until now: a restored in-progress game used to be marked `saved`, so
+            # `save_game()` returned before it could get here. Defaulted to 0 rather than omitted,
+            # for documents written before `ts` was persisted per ply.
+            step["ts"] = doc_ts[ply + 1] if ply + 1 < len(doc_ts) else 0
+
             board_ply[board_name] += 1
 
             game.steps.append(step)
@@ -281,6 +332,15 @@ async def load_game_bug_from_doc(
     game.level = level if level is not None else 0
     game.result = C2R[doc["r"]]
     if game.status <= STARTED:
+        # Hand the rebuilt clock state back to the game and start both boards ticking, charging
+        # each side to move for the wall-clock time that passed while the server was down. Done
+        # here rather than at the caller so that EVERY load path gets it — the startup restore of
+        # active games and an on-demand load from a game URL alike. Must come after `game.date` is
+        # read above, which is the fallback turn start for a board nobody has moved on.
+        game.gameClocks.last_move_clocks["a"] = restored_last_move_clocks["a"]
+        game.gameClocks.last_move_clocks["b"] = restored_last_move_clocks["b"]
+        game.gameClocks.restore_after_load(restored_last_move_ts, time_ns())
+
         for player in game.non_bot_players:
             player.game_in_progress = game.id
     else:
@@ -459,6 +519,17 @@ async def insert_game_to_db_bughouse(game: GameBug, app_state: PychessGlobalAppS
         "i": game.inc,
         # "bp": game.byoyomi_period,
         "m": [],
+        # SEEDED SO THE PER-PLY WRITER CAN JUST $push. `o` is index-for-index with `m`; the four
+        # clock arrays and `ts` each carry one extra leading entry for the initial position, which
+        # is the offset `load_game_bug_from_doc()` relies on when it reads `clocktimes[ply + 1]`.
+        # Written from the same sources `save_game()` uses, so an in-progress document has the
+        # exact shape a finished one does.
+        "o": [],
+        "ts": [x["ts"] for x in game.steps],
+        "cw": game.gameClocks.get_ply_clocks_for_board_and_color("a", WHITE),
+        "cb": game.gameClocks.get_ply_clocks_for_board_and_color("a", BLACK),
+        "cwB": game.gameClocks.get_ply_clocks_for_board_and_color("b", WHITE),
+        "cbB": game.gameClocks.get_ply_clocks_for_board_and_color("b", BLACK),
         "d": game.date,
         "f": game.initial_fen,
         "s": game.status,
@@ -563,7 +634,6 @@ async def play_move(
         board,
     )
     gameId = game.id
-    invalid_move = False
     # log.info("%s move %s %s %s - %s" % (user.username, move, gameId, game.wplayer.username, game.bplayer.username))
 
     # Playing on answers any offer this player's move speaks to — their team's pending
@@ -580,27 +650,40 @@ async def play_move(
             else:
                 log.debug("move already played - probably resent twice after multiple reconnects")
                 return
-        except SystemError:
-            invalid_move = True
-            log.exception(
-                "Game %s aborted because invalid move %s by %s !!!",
+        # BARE `Exception`, NOT `SystemError`. `GameBug.play_move()` re-raises whatever the engine
+        # threw, and that is a `ValueError` for an unparseable move with a `SystemError` chained
+        # behind it — catching only the latter let a live illegal move fall through to the caller
+        # while every automated test passed.
+        except Exception:  # noqa: BLE001 - the engine's refusals are not one exception type
+            # A MOVE THE ENGINE REFUSES NO LONGER ENDS THE GAME. It ends the disagreement instead:
+            # the sender is handed the position as the server holds it, and their client resets to
+            # it, which is what stops a second impossible move following the first.
+            #
+            # Ending the game was a heavy answer to a light problem. A player whose move is refused
+            # is a player whose picture of the position is stale — after a reconnection, after a
+            # move that crossed with someone else's, after a page that came back holding a move it
+            # had not sent. None of that is cheating and none of it is worth a loss.
+            #
+            # WHAT THIS GIVES UP: nothing now costs anything to a client that sends refused moves in
+            # a loop, where before the first one stopped the game. The client is expected to drop a
+            # waiting move it can see is not playable in the position it has just been given; a
+            # client that does not is merely noisy.
+            #
+            # Only the sender is told. Nobody else's picture changed — the move was not played.
+            log.warning(
+                "Game %s refused invalid move %s by %s; resyncing that client",
                 gameId,
                 move,
                 user.username,
             )
-            game.status = INVALIDMOVE
-            game.result = (
-                "0-1"
-                if user.username == game.wplayer.username or user.username == game.bplayerB.username
-                else "1-0"
-            )  # if team1 sent the invalid move 0-1 team2 wins
+            await user.send_game_message(gameId, game.get_board(full=True))
+            return
     else:
         # never play moves in finished games!
         return
 
-    if not invalid_move:
-        board_response = game.get_board()
-        await round_broadcast(game, board_response, full=True, channels=app_state.game_channels)
+    board_response = game.get_board()
+    await round_broadcast(game, board_response, full=True, channels=app_state.game_channels)
 
     if game.status > STARTED:
         response = {

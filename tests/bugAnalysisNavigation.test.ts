@@ -10,7 +10,7 @@ import {
 } from '../client/analysis/analysisTree';
 import { patch } from '../client/document';
 import { Step } from '../client/messages';
-import { MovelistView, updateMovelist } from '../client/two-board/common/movelist';
+import { MovelistView } from '../client/two-board/common/movelist';
 
 function makeStep(
     fen: string,
@@ -94,8 +94,6 @@ describe('bughouse analysis mainline navigation', () => {
             steps,
             status: -1,
             result: '*',
-            ply: 2,
-            plyVari: 0,
             movelistView,
             tree: stubTree(tree, {
                 getTreeActivePath: () => tree.root.children[0].children[0].path,
@@ -106,7 +104,7 @@ describe('bughouse analysis mainline navigation', () => {
             b1: { variant: { name: 'bughouse' } },
         } as any;
 
-        updateMovelist(ctrl, true, false, false);
+        movelistView.render(ctrl, true, false, false);
 
         const mainlineMove = document.querySelector('move-bug[ply="2"]') as HTMLElement | null;
         expect(mainlineMove).not.toBeNull();
@@ -139,8 +137,6 @@ describe('bughouse analysis mainline navigation', () => {
             steps,
             status: -1,
             result: '*',
-            ply: 2,
-            plyVari: 0,
             movelistView,
             tree: stubTree(tree, {
                 getTreeActivePath: () => tree.root.children[0].children[0].path,
@@ -149,7 +145,7 @@ describe('bughouse analysis mainline navigation', () => {
             b1: { variant: { name: 'bughouse' } },
         } as any;
 
-        updateMovelist(ctrl, true, false, false);
+        movelistView.render(ctrl, true, false, false);
 
         const selectedMove = document.querySelector('vari-move.selected') as HTMLElement | null;
         expect(selectedMove).not.toBeNull();
@@ -177,8 +173,6 @@ describe('bughouse analysis mainline navigation', () => {
             steps,
             status: -1,
             result: '*',
-            ply: 3,
-            plyVari: 0,
             movelistView,
             tree: stubTree(tree, {
                 getTreeActivePath: () => tree.root.children[0].children[0].children[0].path,
@@ -186,13 +180,13 @@ describe('bughouse analysis mainline navigation', () => {
                     const node = nodeAtPath(tree, path);
                     if (!node) return;
                     node.collapsed = !node.collapsed;
-                    updateMovelist(ctrl as any, true, false, false);
+                    movelistView.render(ctrl as any, true, false, false);
                 },
             }),
             b1: { variant: { name: 'bughouse' } },
         } as any;
 
-        updateMovelist(ctrl, true, false, false);
+        movelistView.render(ctrl, true, false, false);
 
         const disclosureMove = document.querySelector('move-bug[ply="2"]') as HTMLElement | null;
         expect(disclosureMove?.textContent).toContain('B1');
@@ -230,8 +224,6 @@ describe('bughouse analysis mainline navigation', () => {
             steps,
             status: -1,
             result: '*',
-            ply: 3,
-            plyVari: 0,
             movelistView,
             tree: stubTree(tree, {
                 getTreeActivePath: () => tree.root.children[0].children[0].children[0].path,
@@ -250,7 +242,7 @@ describe('bughouse analysis mainline navigation', () => {
             b1: { variant: { name: 'bughouse' } },
         } as any;
 
-        updateMovelist(ctrl, true, false, false);
+        movelistView.render(ctrl, true, false, false);
 
         const labels = Array.from(document.querySelectorAll('.tree-context-menu button span')).map(
             el => el.textContent,
@@ -295,8 +287,6 @@ describe('bughouse analysis mainline navigation', () => {
             steps,
             status: -1,
             result: '*',
-            ply: 3,
-            plyVari: 0,
             movelistView,
             tree: stubTree(tree, {
                 getTreeActivePath: () => tree.root.children[0].children[0].children[0].path,
@@ -315,7 +305,7 @@ describe('bughouse analysis mainline navigation', () => {
             b1: { variant: { name: 'bughouse' } },
         } as any;
 
-        updateMovelist(ctrl, true, false, false);
+        movelistView.render(ctrl, true, false, false);
 
         const labels = Array.from(document.querySelectorAll('.tree-context-menu button span')).map(
             el => el.textContent,
@@ -359,8 +349,6 @@ describe('bughouse analysis mainline navigation', () => {
             steps,
             status: 1,
             result: '*',
-            ply: 3,
-            plyVari: 0,
             recordedMainlinePly: 3,
             movelistView,
             tree: stubTree(tree, {
@@ -370,7 +358,7 @@ describe('bughouse analysis mainline navigation', () => {
             b1: { variant: { name: 'bughouse' } },
         } as any;
 
-        updateMovelist(ctrl, true, false, false);
+        movelistView.render(ctrl, true, false, false);
 
         expect(document.querySelector('move-bug.recorded')).not.toBeNull();
         expect(document.querySelector('vari-move.selected')).not.toBeNull();
@@ -400,8 +388,6 @@ describe('bughouse analysis mainline navigation', () => {
             steps,
             status: -1,
             result: '*',
-            ply: 3,
-            plyVari: 0,
             movelistView,
             tree: stubTree(tree, {
                 getTreeActivePath: () => b1Path,
@@ -409,7 +395,7 @@ describe('bughouse analysis mainline navigation', () => {
             b1: { variant: { name: 'bughouse' } },
         } as any;
 
-        updateMovelist(ctrl, true, false, false);
+        movelistView.render(ctrl, true, false, false);
 
         expect(document.querySelector('move-bug[ply="2"]')).toBeNull();
         expect(document.querySelector('vari-move[ply="2"]')?.textContent).toContain('B1');

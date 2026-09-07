@@ -39,7 +39,7 @@ function mainlineMoveText(ctrl: AnalysisControllerBughouse): string {
     let plyA: number = 0;
     let plyB: number = 0;
 
-    for (let ply = 1; ply <= ctrl.ply; ply++) {
+    for (let ply = 1; ply <= ctrl.movelistView.ply(); ply++) {
         const step = ctrl.steps[ply];
         if (step.boardName === 'a') plyA++;
         else plyB++;
