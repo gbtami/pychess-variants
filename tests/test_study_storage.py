@@ -5,7 +5,7 @@ from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 from typing import Any, cast
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 
 from fairy import FairyBoard
 from mongomock_motor import AsyncMongoMockClient
@@ -292,6 +292,28 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
         )
         with self.assertRaisesRegex(StudyStorageError, "cannot edit"):
             await set_study_topics(cast(Any, self.app_state), private.id, "reader", ["Should fail"])
+
+    async def test_topic_aggregations_support_async_pymongo_aggregate(self) -> None:
+        public, _ = await create_study_with_chapter(
+            cast(Any, self.app_state), "owner", name="Public repertoire"
+        )
+        await set_study_visibility(cast(Any, self.app_state), public, "public")
+        await set_study_topics(
+            cast(Any, self.app_state), public.id, "owner", ["King pawn", "Endgame"]
+        )
+
+        aggregate = AsyncMock(side_effect=self.db.study.aggregate)
+        app_state = SimpleNamespace(db=SimpleNamespace(study=SimpleNamespace(aggregate=aggregate)))
+        self.assertEqual(
+            await popular_study_topics(cast(Any, app_state)),
+            ["Endgame", "King pawn"],
+        )
+        self.assertEqual(
+            await autocomplete_study_topics(cast(Any, app_state), "ki", viewer=None),
+            ["King pawn"],
+        )
+
+        self.assertEqual(aggregate.await_count, 2)
 
     async def test_create_from_draft_persists_source_tree_and_variant_snapshot(self) -> None:
         draft = StudyChapterDraft(

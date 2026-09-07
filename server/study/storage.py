@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 from dataclasses import replace
 from datetime import UTC, datetime
+from inspect import isawaitable
 from typing import Any, Literal, cast
 
 from bson import BSON
@@ -226,7 +227,9 @@ async def autocomplete_study_topics(
         {"$sort": {"count": -1, "_id": 1}},
         {"$limit": limit * 2},
     ]
-    docs = await app_state.db.study.aggregate(pipeline).to_list(length=limit * 2)
+    cursor_or_awaitable = app_state.db.study.aggregate(pipeline)
+    cursor = await cursor_or_awaitable if isawaitable(cursor_or_awaitable) else cursor_or_awaitable
+    docs = await cursor.to_list(length=limit * 2)
     for doc in docs:
         topic = doc.get("_id")
         if isinstance(topic, str) and topic not in suggestions:
@@ -246,7 +249,9 @@ async def popular_study_topics(app_state: Any, *, limit: int = 50) -> list[str]:
         {"$sort": {"count": -1, "_id": 1}},
         {"$limit": max(1, limit)},
     ]
-    docs = await app_state.db.study.aggregate(pipeline).to_list(length=max(1, limit))
+    cursor_or_awaitable = app_state.db.study.aggregate(pipeline)
+    cursor = await cursor_or_awaitable if isawaitable(cursor_or_awaitable) else cursor_or_awaitable
+    docs = await cursor.to_list(length=max(1, limit))
     return [str(doc["_id"]) for doc in docs if isinstance(doc.get("_id"), str)]
 
 
