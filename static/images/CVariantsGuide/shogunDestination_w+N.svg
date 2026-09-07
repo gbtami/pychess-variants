@@ -13,7 +13,13 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg"><defs
-     id="defs"><g
+     id="defs"><linearGradient
+       id="selected"
+       inkscape:swatch="solid"
+       inkscape:label="selected"><stop
+         style="stop-color:#14551e;stop-opacity:0.50196081;"
+         offset="0"
+         id="stop1" /></linearGradient><g
        id="to"
        width="100"
        height="100"><circle
@@ -166,7 +172,7 @@
            id="a2" /></g></g></g><g
      inkscape:groupmode="layer"
      id="dest"
-     style="display:inline"><use
+     style="fill:url(#selected)"><use
        xlink:href="#0"
        id="center"
        x="400"
