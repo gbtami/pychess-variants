@@ -959,7 +959,92 @@
     display: grid;
     gap: .8rem;
 }
-.study-topics__form textarea { min-height: 11rem; }
+.study-topic-editor {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .4rem;
+    min-height: 3.1rem;
+    padding: .45rem;
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    background: var(--bg-color0);
+    cursor: text;
+}
+.study-topic-editor:focus-within { outline: 2px solid var(--link-color-blue); outline-offset: -1px; }
+.study-topic-editor__selected { display: contents; }
+.study-topic-editor__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .25rem;
+    max-width: 100%;
+    padding: .26rem .35rem .26rem .55rem;
+    border-radius: 3px;
+    background: color-mix(in srgb, var(--link-color-blue) 16%, var(--bg-color0));
+    unicode-bidi: plaintext;
+}
+.study-topic-editor__chip > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.study-topic-editor__remove {
+    display: inline-grid;
+    place-items: center;
+    width: 1.35rem;
+    height: 1.35rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: inherit;
+    font-size: 1.15rem;
+    line-height: 1;
+    cursor: pointer;
+    opacity: .65;
+}
+.study-topic-editor__remove:hover, .study-topic-editor__remove:focus-visible {
+    background: color-mix(in srgb, var(--font-color) 12%, transparent);
+    opacity: 1;
+}
+.study-dialog .study-topic-editor__input {
+    flex: 1 1 9rem;
+    width: auto;
+    min-width: 7rem;
+    padding: .32rem .25rem;
+    border: 0;
+    outline: 0;
+    background: transparent;
+}
+.study-dialog .study-topic-editor__input:focus { outline: 0; }
+.study-topic-editor__input:disabled { cursor: not-allowed; opacity: .55; }
+.study-topic-editor__suggestions {
+    position: absolute;
+    z-index: 3;
+    top: calc(100% + .2rem);
+    left: 0;
+    right: 0;
+    max-height: 13rem;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    background: var(--bg-color0);
+    box-shadow: var(--base-shadow);
+}
+.study-topic-editor__suggestions[hidden] { display: none; }
+.study-topic-editor__suggestion {
+    display: block;
+    width: 100%;
+    padding: .55rem .7rem;
+    border: 0;
+    background: transparent;
+    color: var(--font-color);
+    text-align: left;
+    cursor: pointer;
+}
+.study-topic-editor__suggestion:hover, .study-topic-editor__suggestion:focus-visible {
+    background: var(--bg-color2);
+    color: var(--link-color-blue);
+}
+.study-topic-editor__feedback { min-height: 1.2em; font-size: .86rem; }
+.study-topic-editor__feedback.is-error { color: var(--bad); }
 .study-topics__form-actions {
     display: flex;
     align-items: center;
@@ -970,11 +1055,13 @@
     font-size: .82rem;
     opacity: .65;
 }
+.study-topic-editor__limits { display: flex; flex-direction: column; gap: .15rem; }
 
 @media (max-width: 520px) {
     .study-dialog { width: calc(100vw - 1rem); max-height: calc(100vh - 1rem); padding: 1.4rem 1.2rem; }
     .study-dialog__header h2 { font-size: 1.7rem; }
     .study-dialog__actions { align-items: stretch; }
     .study-dialog form.study-invite__form { display: grid; }
+    .study-topic-editor__limits { align-items: flex-start; }
     .study-dialog .study-invite__form .button { width: 100%; }
 }

@@ -18,7 +18,13 @@ from study.builder import (
     StudyChapterDraft,
     StudyOrientation,
 )
-from study.constants import STUDY_MAX_CHAPTERS, STUDY_MAX_MEMBERS, STUDY_MAX_TOPICS
+from study.constants import (
+    STUDY_MAX_CHAPTERS,
+    STUDY_MAX_MEMBERS,
+    STUDY_MAX_TOPICS,
+    STUDY_TOPIC_MAX_LENGTH,
+    STUDY_TOPIC_MIN_LENGTH,
+)
 from study.models import Study, StudyChapter, study_topic, study_visibility
 from study.permissions import (
     can_clone_study,
@@ -32,6 +38,7 @@ from study.storage import (
     add_chapter_from_draft,
     add_chapters_from_drafts,
     add_study_member,
+    autocomplete_study_topics,
     chapter_previews,
     clone_study,
     contributed_studies_page,
@@ -576,6 +583,20 @@ async def studies_search(request: web.Request) -> ViewContext:
     return context
 
 
+async def study_topic_autocomplete(request: web.Request) -> web.StreamResponse:
+    user, _ = await get_user_context(request)
+    app_state = get_app_state(request.app)
+    if app_state.db is None:
+        return web.json_response([])
+    term = request.rel_url.query.get("term", "")
+    suggestions = await autocomplete_study_topics(
+        app_state,
+        term,
+        viewer=None if user.anon else user.username,
+    )
+    return web.json_response(suggestions)
+
+
 @aiohttp_jinja2.template("studies.html")
 async def studies_topics(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
@@ -707,6 +728,8 @@ async def _populate_study_chapter_context(
             "likes": study.likes,
             "topics": list(study.topics),
             "maxTopics": STUDY_MAX_TOPICS,
+            "topicMinLength": STUDY_TOPIC_MIN_LENGTH,
+            "topicMaxLength": STUDY_TOPIC_MAX_LENGTH,
             "members": dict(study.members),
             "maxMembers": STUDY_MAX_MEMBERS,
             "sharedChapter": study.current_chapter or chapter.id,
@@ -1060,7 +1083,10 @@ async def study_topics_update(request: web.Request) -> web.StreamResponse:
             data["topics"],
         )
     except StudyStorageError as exc:
-        return web.json_response({"ok": False, "error": str(exc)}, status=400)
+        return web.json_response(
+            {"ok": False, "error": "invalid_topics", "message": str(exc)},
+            status=400,
+        )
     if changed:
         await broadcast_study_topics(app_state, updated.id, updated.topics)
     return web.json_response({"ok": True, "topics": list(updated.topics)})

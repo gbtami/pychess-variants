@@ -90,6 +90,8 @@ describe('analysis context', () => {
                     likes: 1,
                     topics: [],
                     maxTopics: 30,
+                    topicMinLength: 2,
+                    topicMaxLength: 50,
                     members: { tester: 'write' },
                     maxMembers: 30,
                     sharedChapter: 'chapter1',

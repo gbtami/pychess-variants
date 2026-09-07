@@ -225,6 +225,8 @@ describe('analysis page smoke coverage', () => {
                         likes: 1,
                         topics: ['Opening', 'King pawn'],
                         maxTopics: 30,
+                        topicMinLength: 2,
+                        topicMaxLength: 50,
                         members: { tester: 'write', writer: 'write', reader: 'read' },
                         maxMembers: 30,
                         sharedChapter: 'ChAp0001',
@@ -331,9 +333,21 @@ describe('analysis page smoke coverage', () => {
             '/study/topic/Opening',
         );
         expect(root.querySelector('.study-topics__manage')?.textContent).toBe('Manage topics');
-        expect(root.querySelector<HTMLTextAreaElement>('#study-topics textarea[name="topics"]')?.value).toBe(
-            'Opening\nKing pawn',
-        );
+        expect(root.querySelector('#study-topics textarea[name="topics"]')).toBeNull();
+        expect(
+            [...root.querySelectorAll<HTMLElement>('#study-topics [data-topic-value]')].map(
+                topic => topic.dataset.topicValue,
+            ),
+        ).toEqual(['Opening', 'King pawn']);
+        expect(root.querySelector('#study-topics [data-topic-count]')?.textContent).toBe('2/30 topics');
+        const topicInput = root.querySelector<HTMLInputElement>('#study-topics .study-topic-editor__input')!;
+        expect(root.querySelector('#study-topics [data-topic-length]')?.textContent).toBe('0/50 characters');
+        topicInput.value = 'x'.repeat(60);
+        topicInput.dispatchEvent(new Event('input', { bubbles: true }));
+        expect(Array.from(topicInput.value)).toHaveLength(50);
+        expect(root.querySelector('#study-topics [data-topic-feedback]')?.textContent).toContain('50');
+        topicInput.value = '';
+        topicInput.dispatchEvent(new Event('input', { bubbles: true }));
         expect(root.querySelector('.study-side .study-mode')).toBeNull();
         expect(root.querySelector('.study-annotations__comment-input')).not.toBeNull();
         expect(root.querySelectorAll('.study-annotations__nag')).toHaveLength(24);
@@ -374,6 +388,8 @@ describe('analysis page smoke coverage', () => {
             likes: 1,
             topics: [],
             maxTopics: 30,
+            topicMinLength: 2,
+            topicMaxLength: 50,
             members: { owner: 'write' },
             maxMembers: 30,
             sharedChapter: 'ChAp0001',
@@ -436,6 +452,8 @@ describe('analysis page smoke coverage', () => {
             likes: 2,
             topics: [],
             maxTopics: 30,
+            topicMinLength: 2,
+            topicMaxLength: 50,
             members: { owner: 'write', tester: 'write' },
             maxMembers: 30,
             sharedChapter: 'ChAp0001',
@@ -491,6 +509,8 @@ describe('analysis page smoke coverage', () => {
             likes: 1,
             topics: [],
             maxTopics: 30,
+            topicMinLength: 2,
+            topicMaxLength: 50,
             members: { owner: 'write' },
             maxMembers: 30,
             sharedChapter: 'ChAp0001',

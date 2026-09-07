@@ -862,6 +862,10 @@ async def test_study_topics_can_be_managed_and_discovered(aiohttp_client) -> Non
     assert response.status == 200
     assert await response.json() == {"ok": True, "topics": ["King pawn", "Endgame"]}
 
+    response = await client.get("/study/topic/autocomplete?term=ki")
+    assert response.status == 200
+    assert await response.json() == ["King pawn"]
+
     response = await client.get(
         f"/study/{study.id}/{chapter.id}", headers={"Accept": "application/json"}
     )
@@ -890,7 +894,15 @@ async def test_study_topics_can_be_managed_and_discovered(aiohttp_client) -> Non
     client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie(owner)})
     response = await client.post(f"/study/{study.id}/topics", json={"topics": ["x"]})
     assert response.status == 400
-    assert "2-50" in (await response.json())["error"]
+    payload = await response.json()
+    assert payload["error"] == "invalid_topics"
+    assert "2-50" in payload["message"]
+
+    response = await client.post(f"/study/{study.id}/topics", json={"topics": ["x" * 51]})
+    assert response.status == 400
+    payload = await response.json()
+    assert payload["error"] == "invalid_topics"
+    assert "2-50" in payload["message"]
 
 
 @pytest.mark.asyncio

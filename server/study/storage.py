@@ -16,6 +16,8 @@ from study.constants import (
     STUDY_MAX_MEMBERS,
     STUDY_MAX_TOPICS,
     STUDY_NAME_MAX_LENGTH,
+    STUDY_TOPIC_MAX_LENGTH,
+    STUDY_TOPIC_MIN_LENGTH,
 )
 from study.models import (
     Study,
@@ -185,6 +187,53 @@ async def topic_studies_page(
         order=order,
         page=page,
     )
+
+
+async def autocomplete_study_topics(
+    app_state: Any,
+    term: str,
+    *,
+    viewer: str | None,
+    limit: int = 10,
+) -> list[str]:
+    """Suggest Study topics by prefix, preferring the viewer's own topics.
+
+    This mirrors lichess' Study topic autocomplete behavior: personal topics come
+    first, then public topics fill the remaining slots. Private/unlisted topics
+    are never suggested to unrelated users.
+    """
+
+    clean = " ".join(str(term).split())
+    if len(clean) < STUDY_TOPIC_MIN_LENGTH or len(clean) > STUDY_TOPIC_MAX_LENGTH:
+        return []
+    limit = max(1, min(limit, 20))
+    folded = clean.casefold()
+    suggestions: list[str] = []
+
+    if viewer:
+        for topic in await member_study_topics(app_state, viewer, limit=100):
+            if topic.casefold().startswith(folded) and topic not in suggestions:
+                suggestions.append(topic)
+                if len(suggestions) >= limit:
+                    return suggestions
+
+    regex = {"$regex": f"^{re.escape(clean)}", "$options": "i"}
+    pipeline = [
+        {"$match": {"visibility": "public", "topics": regex}},
+        {"$unwind": "$topics"},
+        {"$match": {"topics": regex}},
+        {"$group": {"_id": "$topics", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1, "_id": 1}},
+        {"$limit": limit * 2},
+    ]
+    docs = await app_state.db.study.aggregate(pipeline).to_list(length=limit * 2)
+    for doc in docs:
+        topic = doc.get("_id")
+        if isinstance(topic, str) and topic not in suggestions:
+            suggestions.append(topic)
+            if len(suggestions) >= limit:
+                break
+    return suggestions
 
 
 async def popular_study_topics(app_state: Any, *, limit: int = 50) -> list[str]:

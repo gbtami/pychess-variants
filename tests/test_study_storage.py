@@ -16,6 +16,7 @@ from study.storage import (
     add_chapter,
     add_chapter_from_draft,
     add_study_member,
+    autocomplete_study_topics,
     chapter_previews,
     clone_study,
     contributed_studies_page,
@@ -268,6 +269,22 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(
             set(await member_study_topics(cast(Any, self.app_state), "owner")),
             {"King pawn", "Endgame", "Secret prep"},
+        )
+        self.assertEqual(
+            await autocomplete_study_topics(cast(Any, self.app_state), "ki", viewer=None),
+            ["King pawn"],
+        )
+        self.assertEqual(
+            await autocomplete_study_topics(cast(Any, self.app_state), "se", viewer="owner"),
+            ["Secret prep"],
+        )
+        self.assertEqual(
+            await autocomplete_study_topics(cast(Any, self.app_state), "se", viewer=None),
+            [],
+        )
+        self.assertEqual(
+            await autocomplete_study_topics(cast(Any, self.app_state), "x" * 51, viewer="owner"),
+            [],
         )
 
         private = await add_study_member(

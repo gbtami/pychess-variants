@@ -228,7 +228,7 @@ function studyTopicsView(study: StudyPageModel): VNode {
                       'button.study-topics__manage',
                       {
                           attrs: { type: 'button' },
-                          on: { click: () => openDialog('study-topics') },
+                          on: { click: () => openStudyTopicsDialog(study) },
                       },
                       _('Manage topics'),
                   ),
@@ -242,28 +242,240 @@ function updateStudyTopicsView(study: StudyPageModel): void {
         .querySelectorAll<HTMLElement>('[data-study-topics]')
         .forEach(element => patch(toVNode(element), studyTopicsView(study)));
     const modal = document.querySelector<HTMLDialogElement>('#study-topics');
-    const textarea = modal?.querySelector<HTMLTextAreaElement>('textarea[name="topics"]');
-    if (textarea && !modal?.open) textarea.value = study.topics.join('\n');
+    if (modal && !modal.open) syncStudyTopicEditor(study);
 }
 
-function parseStudyTopics(value: string): string[] {
-    const topics: string[] = [];
-    for (const raw of value.split(/[\n,]+/)) {
-        const topic = raw.trim().replace(/\s+/g, ' ');
-        if (topic && !topics.includes(topic)) topics.push(topic);
+function canonicalStudyTopic(value: string): string {
+    return value.trim().replace(/\s+/g, ' ');
+}
+
+function studyTopicLength(value: string): number {
+    return Array.from(value).length;
+}
+
+function studyTopicEditorTopics(editor: HTMLElement): string[] {
+    return [...editor.querySelectorAll<HTMLElement>('[data-topic-value]')]
+        .map(element => element.dataset.topicValue ?? '')
+        .filter(Boolean);
+}
+
+function studyTopicEditorFeedback(editor: HTMLElement, message = '', invalid = false): void {
+    const feedback = editor.closest('form')?.querySelector<HTMLElement>('[data-topic-feedback]');
+    const input = editor.querySelector<HTMLInputElement>('.study-topic-editor__input');
+    if (feedback) {
+        feedback.textContent = message;
+        feedback.classList.toggle('is-error', invalid);
     }
-    return topics;
+    if (input) input.setAttribute('aria-invalid', invalid ? 'true' : 'false');
+}
+
+function updateStudyTopicEditorMeta(study: StudyPageModel, editor: HTMLElement): void {
+    const topics = studyTopicEditorTopics(editor);
+    const input = editor.querySelector<HTMLInputElement>('.study-topic-editor__input');
+    const count = editor.closest('form')?.querySelector<HTMLElement>('[data-topic-count]');
+    const length = editor.closest('form')?.querySelector<HTMLElement>('[data-topic-length]');
+    if (count) count.textContent = `${topics.length}/${study.maxTopics} ${_('topics')}`;
+    if (length && input)
+        length.textContent = `${studyTopicLength(input.value)}/${study.topicMaxLength} ${_('characters')}`;
+    if (input) {
+        input.disabled = topics.length >= study.maxTopics;
+        if (input.disabled) input.placeholder = _('Maximum number of topics reached');
+        else input.placeholder = _('Add a topic…');
+    }
+}
+
+function renderStudyTopicEditorChips(study: StudyPageModel, editor: HTMLElement, topics: string[]): void {
+    const selected = editor.querySelector<HTMLElement>('.study-topic-editor__selected');
+    if (!selected) return;
+    selected.replaceChildren();
+    for (const topic of topics) {
+        const chip = document.createElement('span');
+        chip.className = 'study-topic-editor__chip';
+        chip.dataset.topicValue = topic;
+        const label = document.createElement('span');
+        label.textContent = topic;
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'study-topic-editor__remove';
+        remove.setAttribute('aria-label', _('Remove %1', topic));
+        remove.textContent = '×';
+        remove.addEventListener('click', () => {
+            chip.remove();
+            studyTopicEditorFeedback(editor);
+            updateStudyTopicEditorMeta(study, editor);
+            editor.querySelector<HTMLInputElement>('.study-topic-editor__input')?.focus();
+        });
+        chip.append(label, remove);
+        selected.append(chip);
+    }
+    updateStudyTopicEditorMeta(study, editor);
+}
+
+function clearStudyTopicSuggestions(editor: HTMLElement): void {
+    const suggestions = editor.querySelector<HTMLElement>('.study-topic-editor__suggestions');
+    const input = editor.querySelector<HTMLInputElement>('.study-topic-editor__input');
+    if (!suggestions) return;
+    suggestions.replaceChildren();
+    suggestions.hidden = true;
+    input?.setAttribute('aria-expanded', 'false');
+}
+
+function validateStudyTopic(study: StudyPageModel, topic: string): string | null {
+    const length = studyTopicLength(topic);
+    if (length < study.topicMinLength) return _('Topics must have at least %1 characters.', study.topicMinLength);
+    if (length > study.topicMaxLength) return _('Topics can have at most %1 characters.', study.topicMaxLength);
+    return null;
+}
+
+function addStudyTopic(study: StudyPageModel, editor: HTMLElement, raw: string): boolean {
+    const topic = canonicalStudyTopic(raw);
+    if (!topic) return true;
+    const error = validateStudyTopic(study, topic);
+    if (error) {
+        studyTopicEditorFeedback(editor, error, true);
+        return false;
+    }
+    const topics = studyTopicEditorTopics(editor);
+    if (topics.includes(topic)) {
+        studyTopicEditorFeedback(editor, _('This topic is already added.'), true);
+        return false;
+    }
+    if (topics.length >= study.maxTopics) {
+        studyTopicEditorFeedback(editor, _('A study can have at most %1 topics.', study.maxTopics), true);
+        return false;
+    }
+    renderStudyTopicEditorChips(study, editor, [...topics, topic]);
+    const input = editor.querySelector<HTMLInputElement>('.study-topic-editor__input');
+    if (input) input.value = '';
+    studyTopicEditorFeedback(editor);
+    clearStudyTopicSuggestions(editor);
+    updateStudyTopicEditorMeta(study, editor);
+    return true;
+}
+
+type StudyTopicEditorRequest = { timer?: number; abort?: AbortController };
+const studyTopicEditorRequests = new WeakMap<HTMLElement, StudyTopicEditorRequest>();
+
+function renderStudyTopicSuggestions(study: StudyPageModel, editor: HTMLElement, topics: string[]): void {
+    const suggestions = editor.querySelector<HTMLElement>('.study-topic-editor__suggestions');
+    if (!suggestions) return;
+    const selected = new Set(studyTopicEditorTopics(editor));
+    const usable = topics.filter(topic => !selected.has(topic));
+    suggestions.replaceChildren();
+    if (!usable.length) {
+        suggestions.hidden = true;
+        return;
+    }
+    for (const topic of usable) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'study-topic-editor__suggestion';
+        button.setAttribute('role', 'option');
+        button.textContent = topic;
+        button.addEventListener('mousedown', event => event.preventDefault());
+        button.addEventListener('click', () => {
+            if (addStudyTopic(study, editor, topic))
+                editor.querySelector<HTMLInputElement>('.study-topic-editor__input')?.focus();
+        });
+        suggestions.append(button);
+    }
+    suggestions.hidden = false;
+    editor.querySelector<HTMLInputElement>('.study-topic-editor__input')?.setAttribute('aria-expanded', 'true');
+}
+
+function requestStudyTopicSuggestions(study: StudyPageModel, editor: HTMLElement, term: string): void {
+    const state = studyTopicEditorRequests.get(editor) ?? {};
+    if (state.timer !== undefined) window.clearTimeout(state.timer);
+    state.abort?.abort();
+    clearStudyTopicSuggestions(editor);
+    if (studyTopicLength(term) < study.topicMinLength) {
+        studyTopicEditorRequests.set(editor, state);
+        return;
+    }
+    state.timer = window.setTimeout(() => {
+        const abort = new AbortController();
+        state.abort = abort;
+        void fetch(`/study/topic/autocomplete?term=${encodeURIComponent(term)}`, { signal: abort.signal })
+            .then(response => (response.ok ? response.json() : []))
+            .then(payload => {
+                if (Array.isArray(payload) && payload.every(topic => typeof topic === 'string'))
+                    renderStudyTopicSuggestions(study, editor, payload as string[]);
+            })
+            .catch(error => {
+                if (!(error instanceof DOMException && error.name === 'AbortError')) clearStudyTopicSuggestions(editor);
+            });
+    }, 150);
+    studyTopicEditorRequests.set(editor, state);
+}
+
+function initializeStudyTopicEditor(study: StudyPageModel, editor: HTMLElement): void {
+    const input = editor.querySelector<HTMLInputElement>('.study-topic-editor__input');
+    if (!input || editor.dataset.initialized === 'true') return;
+    editor.dataset.initialized = 'true';
+    renderStudyTopicEditorChips(study, editor, study.topics);
+
+    input.addEventListener('input', () => {
+        const chars = Array.from(input.value);
+        if (chars.length > study.topicMaxLength) {
+            input.value = chars.slice(0, study.topicMaxLength).join('');
+            studyTopicEditorFeedback(editor, _('Topics can have at most %1 characters.', study.topicMaxLength), true);
+        } else studyTopicEditorFeedback(editor);
+        updateStudyTopicEditorMeta(study, editor);
+        requestStudyTopicSuggestions(study, editor, canonicalStudyTopic(input.value));
+    });
+
+    input.addEventListener('keydown', event => {
+        if (event.key === 'Enter' || event.key === ',') {
+            event.preventDefault();
+            addStudyTopic(study, editor, input.value);
+        } else if (event.key === 'Backspace' && !input.value) {
+            const chips = editor.querySelectorAll<HTMLElement>('[data-topic-value]');
+            chips
+                .item(chips.length - 1)
+                ?.querySelector<HTMLButtonElement>('button')
+                ?.click();
+        } else if (event.key === 'Escape') clearStudyTopicSuggestions(editor);
+    });
+
+    input.addEventListener('paste', event => {
+        const text = event.clipboardData?.getData('text') ?? '';
+        if (!/[\n,]/.test(text)) return;
+        event.preventDefault();
+        for (const raw of text.split(/[\n,]+/)) {
+            if (!addStudyTopic(study, editor, raw)) break;
+        }
+    });
+}
+
+function syncStudyTopicEditor(study: StudyPageModel): void {
+    const editor = document.querySelector<HTMLElement>('#study-topics .study-topic-editor');
+    if (!editor) return;
+    renderStudyTopicEditorChips(study, editor, study.topics);
+    const input = editor.querySelector<HTMLInputElement>('.study-topic-editor__input');
+    if (input) input.value = '';
+    studyTopicEditorFeedback(editor);
+    clearStudyTopicSuggestions(editor);
+    updateStudyTopicEditorMeta(study, editor);
+}
+
+function openStudyTopicsDialog(study: StudyPageModel): void {
+    const modal = document.querySelector<HTMLDialogElement>('#study-topics');
+    if (!modal) return;
+    syncStudyTopicEditor(study);
+    modal.showModal();
+    modal.querySelector<HTMLInputElement>('.study-topic-editor__input')?.focus();
 }
 
 async function saveStudyTopics(study: StudyPageModel, form: HTMLFormElement): Promise<void> {
-    const textarea = form.querySelector<HTMLTextAreaElement>('textarea[name="topics"]');
+    const editor = form.querySelector<HTMLElement>('.study-topic-editor');
+    const input = editor?.querySelector<HTMLInputElement>('.study-topic-editor__input');
     const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
-    if (!textarea || !button) return;
-    const topics = parseStudyTopics(textarea.value);
-    if (topics.length > study.maxTopics) {
-        void alertDialog({ text: _('A study can have at most %1 topics.', study.maxTopics) });
+    if (!editor || !input || !button) return;
+    if (input.value.trim() && !addStudyTopic(study, editor, input.value)) {
+        input.focus();
         return;
     }
+    const topics = studyTopicEditorTopics(editor);
     button.disabled = true;
     try {
         const response = await fetch(`/study/${study.id}/topics`, {
@@ -271,18 +483,31 @@ async function saveStudyTopics(study: StudyPageModel, form: HTMLFormElement): Pr
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ topics }),
         });
-        if (!response.ok) throw new Error((await response.text()).trim() || response.statusText);
-        const payload = (await response.json()) as { topics?: unknown };
+        const payload = (await response.json().catch(() => ({}))) as {
+            topics?: unknown;
+            error?: unknown;
+            message?: unknown;
+        };
+        if (!response.ok)
+            throw new Error(
+                typeof payload.message === 'string'
+                    ? payload.message
+                    : typeof payload.error === 'string'
+                      ? payload.error
+                      : response.statusText,
+            );
         if (!Array.isArray(payload.topics) || !payload.topics.every(topic => typeof topic === 'string'))
             throw new Error(_('Invalid Study topics response'));
         study.topics = payload.topics as string[];
-        textarea.value = study.topics.join('\n');
         updateStudyTopicsView(study);
         form.closest<HTMLDialogElement>('dialog')?.close();
     } catch (error) {
-        void alertDialog({
-            text: _('Could not update Study topics: %1', error instanceof Error ? error.message : String(error)),
-        });
+        studyTopicEditorFeedback(
+            editor,
+            _('Could not update Study topics: %1', error instanceof Error ? error.message : String(error)),
+            true,
+        );
+        input.focus();
     } finally {
         button.disabled = false;
     }
@@ -290,8 +515,8 @@ async function saveStudyTopics(study: StudyPageModel, form: HTMLFormElement): Pr
 
 function studyTopicsDialog(study: StudyPageModel): VNode {
     return dialog('study-topics', _('Topics'), [
-        h('p.study-topics__help', [
-            _('Add topics to help people discover this study. Enter one topic per line or separate them with commas.'),
+        h('p#study-topics-help.study-topics__help', [
+            _('Add topics to help people discover this study. Type a topic and press Enter or comma.'),
         ]),
         h(
             'form.study-topics__form',
@@ -305,20 +530,47 @@ function studyTopicsDialog(study: StudyPageModel): VNode {
             },
             [
                 h(
-                    'textarea',
+                    'div.study-topic-editor',
                     {
-                        attrs: {
-                            name: 'topics',
-                            rows: '8',
-                            maxlength: String(study.maxTopics * 52),
-                            placeholder: `${_('Opening')}\n${_('Endgame')}`,
-                            'aria-label': _('Study topics'),
+                        hook: {
+                            insert: vnode => initializeStudyTopicEditor(study, vnode.elm as HTMLElement),
+                        },
+                        on: {
+                            click: event => {
+                                if ((event.target as HTMLElement).closest('button')) return;
+                                (event.currentTarget as HTMLElement)
+                                    .querySelector<HTMLInputElement>('.study-topic-editor__input')
+                                    ?.focus();
+                            },
                         },
                     },
-                    study.topics.join('\n'),
+                    [
+                        h('div.study-topic-editor__selected', { attrs: { role: 'list' } }),
+                        h('input.study-topic-editor__input', {
+                            attrs: {
+                                type: 'text',
+                                autocomplete: 'off',
+                                maxlength: String(study.topicMaxLength),
+                                'aria-label': _('Add Study topic'),
+                                'aria-describedby': 'study-topics-help study-topics-feedback',
+                                'aria-autocomplete': 'list',
+                                'aria-controls': 'study-topic-suggestions',
+                                'aria-expanded': 'false',
+                            },
+                        }),
+                        h('div#study-topic-suggestions.study-topic-editor__suggestions', {
+                            attrs: { role: 'listbox', hidden: 'true' },
+                        }),
+                    ],
                 ),
+                h('div#study-topics-feedback.study-topic-editor__feedback', {
+                    attrs: { 'data-topic-feedback': '', 'aria-live': 'polite' },
+                }),
                 h('div.study-topics__form-actions', [
-                    h('span', ngettext('%1 topic maximum', '%1 topics maximum', study.maxTopics)),
+                    h('span.study-topic-editor__limits', [
+                        h('span', { attrs: { 'data-topic-count': '' } }),
+                        h('span', { attrs: { 'data-topic-length': '' } }),
+                    ]),
                     h('button.button', { attrs: { type: 'submit' } }, _('Save')),
                 ]),
             ],
