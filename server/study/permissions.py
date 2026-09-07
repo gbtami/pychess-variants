@@ -1,6 +1,11 @@
 from __future__ import annotations
 
-from study.models import Study
+from typing import Final
+
+from study.models import Study, StudyUserSelection, study_user_selection
+
+STUDY_FEATURE_DEFAULT: Final[StudyUserSelection] = "everyone"
+STUDY_FEATURE_KEYS: Final[tuple[str, ...]] = ("computer", "explorer", "cloneable", "shareable")
 
 
 def can_view_study(study: Study, username: str | None) -> bool:
@@ -17,22 +22,76 @@ def can_view_study(study: Study, username: str | None) -> bool:
     return username is not None and username in study.members
 
 
-def can_clone_study(study: Study, username: str | None) -> bool:
-    """Return whether a viewer may make a private copy of a Study.
+def study_feature_selection(study: Study, feature: str) -> StudyUserSelection:
+    """Return one Lichess-compatible per-feature audience selection.
 
-    Phase 3 keeps clone policy intentionally simple: any signed-in user who may
-    view the Study may clone it. Per-Study cloneability settings are deferred to
-    the later per-feature-permissions milestone.
+    Existing Study documents predate Phase 5 settings, so a missing value preserves
+    the old behavior: everyone who can view the Study may use the feature. A malformed
+    known value fails closed instead of accidentally widening access.
     """
 
-    return username is not None and can_view_study(study, username)
+    if feature not in study.settings:
+        return STUDY_FEATURE_DEFAULT
+    try:
+        return study_user_selection(study.settings[feature])
+    except ValueError:
+        return "nobody"
+
+
+def study_selection_allows(
+    selection: StudyUserSelection,
+    study: Study,
+    username: str | None,
+) -> bool:
+    """Evaluate a Study feature audience against owner/member roles."""
+
+    if selection == "nobody":
+        return False
+    if selection == "everyone":
+        return True
+    if username is None:
+        return False
+    if selection == "owner":
+        return username == study.owner
+    if selection == "contributor":
+        return study.members.get(username) == "write"
+    return username in study.members
+
+
+def can_use_study_feature(study: Study, username: str | None, feature: str) -> bool:
+    return can_view_study(study, username) and study_selection_allows(
+        study_feature_selection(study, feature), study, username
+    )
+
+
+def can_use_study_computer(study: Study, username: str | None) -> bool:
+    return can_use_study_feature(study, username, "computer")
+
+
+def can_use_study_explorer(study: Study, username: str | None) -> bool:
+    # PyChess has no opening-explorer UI yet. Keeping the permission primitive now
+    # means a future explorer can plug into Study without another settings migration.
+    return can_use_study_feature(study, username, "explorer")
+
+
+def can_clone_study(study: Study, username: str | None) -> bool:
+    """Return whether a signed-in viewer may make a private copy of a Study."""
+
+    return username is not None and can_use_study_feature(study, username, "cloneable")
+
+
+def can_share_study(study: Study, username: str | None) -> bool:
+    """Return whether this viewer may use Study share/export surfaces."""
+
+    return can_use_study_feature(study, username, "shareable")
 
 
 def can_embed_study(study: Study) -> bool:
     """Return whether a Study may be rendered in a third-party iframe.
 
-    Embeds are a link-share surface rather than a member-authenticated view. Public
-    and unlisted Studies are embeddable; private Studies are not, even for members.
+    Lichess treats embedding as a property of Study visibility rather than the
+    per-viewer ``shareable`` setting. The share setting controls whether a viewer
+    sees/uses the share-export tools; a non-private Study remains embeddable.
     """
 
     return study.visibility != "private"

@@ -677,7 +677,8 @@ export class EngineSettings extends BooleanSettings {
                 this,
                 'engine-enabled',
                 '',
-                this.ctrl.isLocalAnalysisBlockedByAntiCheat() ||
+                !this.ctrl.analysisContext.capabilities.localAnalysisAllowed ||
+                    this.ctrl.isLocalAnalysisBlockedByAntiCheat() ||
                     !this.ctrl.localEngine ||
                     !this.ctrl.isEngineReady ||
                     !this.ctrl.variantSupportedByFSF,

@@ -534,6 +534,24 @@ async def broadcast_study_topics(
     )
 
 
+async def broadcast_study_reload(
+    app_state: PychessGlobalAppState, study_id: str, *, reason: str
+) -> None:
+    """Ask every connected Study client to refresh capability-sensitive page data."""
+
+    room = app_state.study_sockets.get(study_id)
+    if not room:
+        return
+    await ws_send_json_many(
+        tuple(room),
+        {
+            "type": "study_reload",
+            "studyId": study_id,
+            "reason": reason,
+        },
+    )
+
+
 async def broadcast_study_members(app_state: PychessGlobalAppState, study: Study) -> None:
     """Broadcast membership/capability changes without tearing down the whole room.
 

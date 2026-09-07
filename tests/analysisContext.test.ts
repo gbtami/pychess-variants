@@ -124,6 +124,21 @@ describe('analysis context', () => {
         expect(context.capabilities.engineTools).toBe(true);
     });
 
+    test('study computer permission can disable local engine analysis', () => {
+        const context = analysisContext(
+            model({
+                gameId: '',
+                study: {
+                    features: { computer: false, explorer: true },
+                } as PyChessModel['study'],
+            }),
+        );
+
+        expect(context.mode).toBe('study');
+        expect(context.capabilities.localAnalysisAllowed).toBe(false);
+        expect(context.capabilities.engineTools).toBe(true);
+    });
+
     test('all negative game statuses use the ongoing capability set', () => {
         for (const status of [-1, -2]) {
             const context = analysisContext(model({ status }));

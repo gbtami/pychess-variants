@@ -29,6 +29,8 @@ export interface SimulGame {
     result: string;
 }
 
+export type StudyFeatureSelection = 'nobody' | 'owner' | 'contributor' | 'member' | 'everyone';
+
 export type StudyChapterPreview = {
     id: string;
     name: string;
@@ -44,6 +46,18 @@ export type StudyPageModel = {
     isOwner: boolean;
     canWrite: boolean;
     canClone: boolean;
+    canShare?: boolean;
+    canEmbed?: boolean;
+    features?: {
+        computer: boolean;
+        explorer: boolean;
+    };
+    settings?: {
+        computer: StudyFeatureSelection;
+        explorer: StudyFeatureSelection;
+        cloneable: StudyFeatureSelection;
+        shareable: StudyFeatureSelection;
+    };
     canLike: boolean;
     liked: boolean;
     likes: number;

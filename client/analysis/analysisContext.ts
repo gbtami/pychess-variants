@@ -31,6 +31,7 @@ export function analysisContext(model: PyChessModel): AnalysisContext {
     const embed = model.embed;
     const puzzle = model.puzzle !== '';
     const study = model.study != null;
+    const studyComputerAllowed = model.study?.features?.computer ?? true;
     const analysisBoard = model.gameId === '' && !puzzle;
     const ongoing = model.status <= -1;
 
@@ -55,7 +56,7 @@ export function analysisContext(model: PyChessModel): AnalysisContext {
             // AnalysisController. Phase 0B centralizes the answers without changing
             // behavior; later modes such as Study can extend this vocabulary cleanly.
             resizableCharts: !embed,
-            localAnalysisAllowed: !ongoing,
+            localAnalysisAllowed: !ongoing && studyComputerAllowed,
             editableTree: !ongoing && !embed,
             gamePanels: !analysisBoard && !embed && !ongoing,
             roundChat: !analysisBoard && !embed && !puzzle && !ongoing,

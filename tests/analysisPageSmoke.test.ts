@@ -311,6 +311,10 @@ describe('analysis page smoke coverage', () => {
         expect(
             studySettings.querySelector('.study-dialog__actions button[form="study-settings-form"]')?.textContent,
         ).toBe('Save');
+        expect(studySettings.querySelector<HTMLSelectElement>('select[name="computer"]')?.value).toBe('everyone');
+        expect(studySettings.querySelector<HTMLSelectElement>('select[name="cloneable"]')?.value).toBe('everyone');
+        expect(studySettings.querySelector<HTMLSelectElement>('select[name="shareable"]')?.value).toBe('everyone');
+        expect(studySettings.querySelector<HTMLInputElement>('input[name="explorer"]')?.value).toBe('everyone');
         const secondChapterSettings = root.querySelector<HTMLDialogElement>('#chapter-settings-ChAp0002')!;
         expect(secondChapterSettings.querySelector<HTMLSelectElement>('select[name="orientation"]')?.value).toBe(
             'black',
@@ -436,6 +440,61 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('.study-share__clone button')?.textContent).toBe('Clone study');
         expect(root.querySelector('.study-export__chapter')?.textContent).toBe('Download chapter PGN');
         expect(root.querySelector('.study-export__study')?.textContent).toBe('Download study PGN');
+    });
+
+    test('study sharing permission hides share and export tools', () => {
+        const study: StudyPageModel = {
+            id: 'StUdY001',
+            name: 'Restricted ideas',
+            owner: 'owner',
+            visibility: 'public',
+            isOwner: false,
+            canWrite: false,
+            canClone: false,
+            canShare: false,
+            canEmbed: false,
+            features: { computer: false, explorer: false },
+            settings: {
+                computer: 'owner',
+                explorer: 'owner',
+                cloneable: 'owner',
+                shareable: 'owner',
+            },
+            canLike: true,
+            liked: false,
+            likes: 0,
+            topics: [],
+            maxTopics: 30,
+            topicMinLength: 2,
+            topicMaxLength: 50,
+            members: { owner: 'write' },
+            maxMembers: 30,
+            sharedChapter: 'ChAp0001',
+            sharedPath: '',
+            chapter: {
+                id: 'ChAp0001',
+                name: 'Shared line',
+                revision: 1,
+                order: 1,
+                orientation: 'white',
+                variant: 'chess',
+                chess960: false,
+                initialFen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+                variantIni: null,
+                createdAt: '2026-09-06T08:00:00+00:00',
+                description: '',
+                tags: {},
+                tree: { nodes: [] },
+            },
+            chapters: [{ id: 'ChAp0001', name: 'Shared line', order: 1, orientation: 'white' }],
+        };
+        const root = renderNodes(studyView(makeModel({ gameId: '', status: 0, study })));
+
+        expect(root.querySelector('#study-tab-export')).toBeNull();
+        expect(root.querySelector('#study-panel-export')).toBeNull();
+        expect(root.querySelector('.study-share__copy')).toBeNull();
+        expect(root.querySelector('.study-export__chapter')).toBeNull();
+        expect(root.querySelector('.study-export__study')).toBeNull();
     });
 
     test('switching Study chapters refreshes share and embed links', () => {

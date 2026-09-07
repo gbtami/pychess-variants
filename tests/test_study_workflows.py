@@ -261,6 +261,122 @@ async def test_study_visibility_controls_page_export_and_write_access(aiohttp_cl
 
 
 @pytest.mark.asyncio
+async def test_study_feature_permissions_gate_engine_clone_and_share(aiohttp_client) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    for username in ("feature_owner", "feature_writer", "feature_reader", "feature_other"):
+        await _insert_user(app_state, username)
+
+    draft = await StudyChapterBuilder(app_state, "feature_owner").blank_or_fen(variant="chess")
+    study, chapter = await create_study_from_draft(app_state, "feature_owner", draft)
+    await add_study_member(app_state, study.id, "feature_owner", "feature_writer", "write")
+    await add_study_member(app_state, study.id, "feature_owner", "feature_reader", "read")
+
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie("feature_owner")})
+    response = await client.post(
+        f"/study/{study.id}/edit",
+        data={
+            "name": study.name,
+            "visibility": "public",
+            "computer": "contributor",
+            "explorer": "nobody",
+            "cloneable": "member",
+            "shareable": "owner",
+        },
+        allow_redirects=False,
+    )
+    assert response.status == 302
+
+    stored = await app_state.db.study.find_one({"_id": study.id})
+    assert stored is not None
+    assert stored["settings"] == {
+        "computer": "contributor",
+        "explorer": "nobody",
+        "cloneable": "member",
+        "shareable": "owner",
+    }
+
+    url = f"/study/{study.id}/{chapter.id}"
+    export_url = f"{url}/export-data"
+    embed_url = f"/study/embed/{study.id}/{chapter.id}"
+
+    async def payload_for(username: str | None) -> dict[str, object]:
+        client.session.cookie_jar.clear()
+        if username is not None:
+            client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie(username)})
+        response = await client.get(url, headers={"Accept": "application/json"})
+        assert response.status == 200
+        return (await response.json())["study"]
+
+    owner = await payload_for("feature_owner")
+    assert owner["features"] == {"computer": True, "explorer": False}
+    assert owner["canClone"] is True
+    assert owner["canShare"] is True
+    assert owner["canEmbed"] is True
+    assert owner["settings"] == stored["settings"]
+    assert (await client.get(export_url)).status == 200
+
+    writer = await payload_for("feature_writer")
+    assert writer["features"] == {"computer": True, "explorer": False}
+    assert writer["canClone"] is True
+    assert writer["canShare"] is False
+    assert (await client.get(export_url)).status == 404
+
+    reader = await payload_for("feature_reader")
+    assert reader["features"] == {"computer": False, "explorer": False}
+    assert reader["canClone"] is True
+    assert reader["canShare"] is False
+
+    other = await payload_for("feature_other")
+    assert other["features"] == {"computer": False, "explorer": False}
+    assert other["canClone"] is False
+    assert other["canShare"] is False
+
+    anonymous = await payload_for(None)
+    assert anonymous["features"] == {"computer": False, "explorer": False}
+    assert anonymous["canClone"] is False
+    assert anonymous["canShare"] is False
+    assert (await client.get(export_url)).status == 404
+    assert (await client.get(embed_url)).status == 200
+
+
+@pytest.mark.asyncio
+async def test_invalid_study_feature_permission_does_not_partially_edit_study(
+    aiohttp_client,
+) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    await _insert_user(app_state, "feature_validation_owner")
+
+    draft = await StudyChapterBuilder(app_state, "feature_validation_owner").blank_or_fen(
+        variant="chess"
+    )
+    study, _ = await create_study_from_draft(app_state, "feature_validation_owner", draft)
+    client.session.cookie_jar.update_cookies(
+        {"AIOHTTP_SESSION": _login_cookie("feature_validation_owner")}
+    )
+
+    response = await client.post(
+        f"/study/{study.id}/edit",
+        data={
+            "name": "Should not stick",
+            "visibility": "public",
+            "computer": "invalid",
+        },
+        allow_redirects=False,
+    )
+    assert response.status == 400
+
+    stored = await app_state.db.study.find_one({"_id": study.id})
+    assert stored is not None
+    assert stored["name"] == study.name
+    assert stored["visibility"] == study.visibility
+    assert stored.get("settings", {}) == dict(study.settings)
+
+
+@pytest.mark.asyncio
 async def test_profile_study_listing_only_exposes_public_studies(aiohttp_client) -> None:
     app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
     client = await aiohttp_client(app)

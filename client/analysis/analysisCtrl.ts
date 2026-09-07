@@ -618,7 +618,12 @@ export class AnalysisController extends GameController {
 
         const engineToggle = document.getElementById('engine-enabled') as HTMLInputElement | null;
         if (engineToggle !== null) {
-            engineToggle.disabled = blocked || !this.localEngine || !this.isEngineReady || !this.variantSupportedByFSF;
+            engineToggle.disabled =
+                !this.analysisContext.capabilities.localAnalysisAllowed ||
+                blocked ||
+                !this.localEngine ||
+                !this.isEngineReady ||
+                !this.variantSupportedByFSF;
         }
     }
 

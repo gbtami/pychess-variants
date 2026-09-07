@@ -10,7 +10,7 @@ import { renderAnalysisPage } from '../analysis/analysisPage';
 import { copyTextToClipboard } from '../clipboard';
 import { downloadText, notifyChessgroundResize, patch } from '../document';
 import { _, ngettext } from '../i18n';
-import type { PyChessModel, StudyPageModel } from '../types';
+import type { PyChessModel, StudyFeatureSelection, StudyPageModel } from '../types';
 import { selectVariant, twoBoarsVariants, loadCataloguedVariantsFromJson, variantConfigIni } from '../variants';
 import { variantsIni } from '../variantsIni';
 import { createWebsocket } from '../socket/webSocketUtils';
@@ -23,6 +23,46 @@ import { fetchStudyChapterExportData, renderStudyChapterPgn, renderStudyPgn, stu
 
 function dialogField(label: string, control: VNode): VNode {
     return h('label.study-dialog__field', [h('span', label), control]);
+}
+
+function studySetting(
+    study: StudyPageModel,
+    key: 'computer' | 'explorer' | 'cloneable' | 'shareable',
+): StudyFeatureSelection {
+    return study.settings?.[key] ?? 'everyone';
+}
+
+function studyCanShare(study: StudyPageModel): boolean {
+    return study.canShare !== false;
+}
+
+function studyCanEmbed(study: StudyPageModel): boolean {
+    return study.canEmbed ?? study.visibility !== 'private';
+}
+
+const studyPermissionChoices: [StudyFeatureSelection, string][] = [
+    ['nobody', _('Nobody')],
+    ['owner', _('Only me')],
+    ['contributor', _('Contributors')],
+    ['member', _('Members')],
+    ['everyone', _('Everyone')],
+];
+
+function studyPermissionField(
+    name: 'computer' | 'cloneable' | 'shareable',
+    label: string,
+    selected: StudyFeatureSelection,
+): VNode {
+    return dialogField(
+        label,
+        h(
+            'select',
+            { attrs: { name } },
+            studyPermissionChoices.map(([value, text]) =>
+                h('option', { attrs: { value, selected: selected === value } }, text),
+            ),
+        ),
+    );
 }
 
 function studySettingsForm(study: StudyPageModel, formId: string): VNode {
@@ -53,6 +93,12 @@ function studySettingsForm(study: StudyPageModel, formId: string): VNode {
                 ),
             ),
         ),
+        studyPermissionField('computer', _('Computer analysis'), studySetting(study, 'computer')),
+        studyPermissionField('cloneable', _('Allow cloning'), studySetting(study, 'cloneable')),
+        studyPermissionField('shareable', _('Share & export'), studySetting(study, 'shareable')),
+        // PyChess does not have an opening explorer yet. Preserve the compatible
+        // Lichess setting in the document without exposing a non-functional control.
+        h('input', { attrs: { type: 'hidden', name: 'explorer', value: studySetting(study, 'explorer') } }),
     ]);
 }
 
@@ -1226,9 +1272,13 @@ function studyShareLinks(study: StudyPageModel, model: PyChessModel): VNode {
         shareLink(_('Current chapter link'), chapterUrl),
         shareLink(
             _('Embed this chapter'),
-            study.visibility === 'private' ? _('Private Studies cannot be embedded.') : embedCode,
+            studyCanEmbed(study)
+                ? embedCode
+                : study.visibility === 'private'
+                  ? _('Private Studies cannot be embedded.')
+                  : _('Embedding is disabled by the Study sharing settings.'),
             {
-                disabled: study.visibility === 'private',
+                disabled: !studyCanEmbed(study),
                 copyLabel: _('Copy embed code'),
             },
         ),
@@ -1256,7 +1306,9 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions
               ] as [StudyTab, string, VNode | string][])
             : []),
         ['description', _('Chapter description'), icon('book')],
-        ['export', _('Share & export'), icon('download')],
+        ...(studyCanShare(study)
+            ? ([['export', _('Share & export'), icon('download')]] as [StudyTab, string, VNode][])
+            : []),
     ];
     return h('div.study-underboard', [
         h('nav.study-tool-tabs', { attrs: { role: 'tablist', 'aria-label': _('Study tools') } }, [
@@ -1358,26 +1410,38 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions
                   ])
                 : h('p.study-description__readonly', study.chapter.description || _('No chapter description.')),
         ]),
-        toolPanel('export', [
-            studyShareLinks(study, model),
-            h('div.study-export__actions', [
-                ...(study.canClone
-                    ? [
+        ...(studyCanShare(study)
+            ? [
+                  toolPanel('export', [
+                      studyShareLinks(study, model),
+                      h('div.study-export__actions', [
+                          ...(study.canClone
+                              ? [
+                                    h(
+                                        'form.study-share__clone',
+                                        { attrs: { method: 'post', action: `/study/${study.id}/clone` } },
+                                        [h('button.button', { attrs: { type: 'submit' } }, _('Clone study'))],
+                                    ),
+                                ]
+                              : []),
                           h(
-                              'form.study-share__clone',
-                              { attrs: { method: 'post', action: `/study/${study.id}/clone` } },
-                              [h('button.button', { attrs: { type: 'submit' } }, _('Clone study'))],
+                              'button.button.study-export__chapter',
+                              { attrs: { type: 'button' } },
+                              _('Download chapter PGN'),
                           ),
-                      ]
-                    : []),
-                h('button.button.study-export__chapter', { attrs: { type: 'button' } }, _('Download chapter PGN')),
-                h('button.button.study-export__study', { attrs: { type: 'button' } }, _('Download study PGN')),
-            ]),
-            h('details.study-position-export', [
-                h('summary', _('FEN & PGN')),
-                ...analysisUnderboard(model, analysisContext(model), false),
-            ]),
-        ]),
+                          h(
+                              'button.button.study-export__study',
+                              { attrs: { type: 'button' } },
+                              _('Download study PGN'),
+                          ),
+                      ]),
+                      h('details.study-position-export', [
+                          h('summary', _('FEN & PGN')),
+                          ...analysisUnderboard(model, analysisContext(model), false),
+                      ]),
+                  ]),
+              ]
+            : []),
     ]);
 }
 

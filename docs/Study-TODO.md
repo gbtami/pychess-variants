@@ -1339,7 +1339,14 @@ Add these based on actual PyChess usage rather than parity for its own sake.
   personal topic shortcuts from accessible Studies instead of adding Lichess's separate
   per-user topic-preference collection in this first slice.
 - [ ] Chapter previews / multiboard overview.
-- [ ] Per-feature permissions (local engine, explorer, clone, export/share).
+- [x] Per-feature permissions (local engine, explorer, clone, export/share).
+  Study settings now use the Lichess audience levels Nobody / Owner / Contributor / Member / Everyone.
+  Computer analysis, cloning, and share/export are enforced per viewer on both the Study JSON/UI and
+  server endpoints. As on Lichess, embedding remains controlled by Study visibility rather than the
+  per-viewer share setting. Existing Studies default to Everyone to preserve their pre-Phase-5 behavior.
+  PyChess has no opening-explorer feature yet, so the compatible
+  explorer permission is persisted/evaluated but intentionally not shown as a non-functional setting.
+  Capability-setting changes broadcast a reload to connected Study clients so revocation applies live.
 - [ ] Server/Fishnet analysis request for a chapter.
 
 ## Lesson/training modes

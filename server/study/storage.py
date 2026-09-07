@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Mapping
 from dataclasses import replace
 from datetime import UTC, datetime
 from inspect import isawaitable
@@ -33,9 +34,10 @@ from study.models import (
     study_search_query_tokens,
     study_search_tokens,
     study_topics,
+    study_user_selection,
     study_visibility,
 )
-from study.permissions import can_write_study
+from study.permissions import STUDY_FEATURE_KEYS, can_write_study
 
 
 class StudyStorageError(ValueError):
@@ -1163,6 +1165,34 @@ async def set_study_visibility(
         {"$set": {"visibility": clean, "updatedAt": now}, "$inc": {"revision": 1}},
     )
     return clean
+
+
+async def set_study_feature_settings(
+    app_state: Any,
+    study: Study,
+    values: Mapping[str, object],
+) -> dict[str, object]:
+    """Persist the known per-feature audience settings while preserving extensions."""
+
+    settings = dict(study.settings)
+    for feature in STUDY_FEATURE_KEYS:
+        if feature in values:
+            try:
+                settings[feature] = study_user_selection(values[feature])
+            except ValueError as exc:
+                raise StudyStorageError(f"Invalid Study {feature} permission") from exc
+
+    if settings == dict(study.settings):
+        return settings
+
+    now = datetime.now(UTC)
+    result = await app_state.db.study.update_one(
+        {"_id": study.id, "owner": study.owner},
+        {"$set": {"settings": settings, "updatedAt": now}, "$inc": {"revision": 1}},
+    )
+    if result.matched_count != 1:
+        raise StudyStorageError("Study disappeared while updating permissions")
+    return settings
 
 
 async def rename_chapter(app_state: Any, chapter: StudyChapter, name: object) -> str:

@@ -20,11 +20,13 @@ StudyVisibility = Literal["private", "unlisted", "public"]
 StudyMemberRole = Literal["read", "write"]
 StudySourceKind = Literal["scratch", "game", "study", "import"]
 StudyOrientation = Literal["white", "black"]
+StudyUserSelection = Literal["nobody", "owner", "contributor", "member", "everyone"]
 
 _VISIBILITIES = frozenset(("private", "unlisted", "public"))
 _MEMBER_ROLES = frozenset(("read", "write"))
 _SOURCE_KINDS = frozenset(("scratch", "game", "study", "import"))
 _ORIENTATIONS = frozenset(("white", "black"))
+_USER_SELECTIONS = frozenset(("nobody", "owner", "contributor", "member", "everyone"))
 
 
 def study_visibility(value: object) -> StudyVisibility:
@@ -37,6 +39,12 @@ def study_member_role(value: object) -> StudyMemberRole:
     if not isinstance(value, str) or value not in _MEMBER_ROLES:
         raise ValueError(f"Unknown Study member role: {value!r}")
     return cast(StudyMemberRole, value)
+
+
+def study_user_selection(value: object) -> StudyUserSelection:
+    if not isinstance(value, str) or value not in _USER_SELECTIONS:
+        raise ValueError(f"Unknown Study user selection: {value!r}")
+    return cast(StudyUserSelection, value)
 
 
 def study_topic(value: object) -> str:

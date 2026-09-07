@@ -29,9 +29,13 @@ from study.models import Study, StudyChapter, study_topic, study_visibility
 from study.permissions import (
     can_clone_study,
     can_embed_study,
+    can_share_study,
+    can_use_study_computer,
+    can_use_study_explorer,
     can_view_study,
     can_write_study,
     is_study_owner,
+    study_feature_selection,
 )
 from study.storage import (
     StudyStorageError,
@@ -58,6 +62,7 @@ from study.storage import (
     public_studies_page,
     remove_study_member,
     rename_study,
+    set_study_feature_settings,
     set_study_like,
     set_study_member_role,
     set_study_topics,
@@ -72,6 +77,7 @@ from study.variant import study_variant_client_doc, study_variant_context, study
 from study.ws import (
     broadcast_study_likes,
     broadcast_study_members,
+    broadcast_study_reload,
     broadcast_study_topics,
     close_study_sockets,
 )
@@ -714,6 +720,7 @@ async def _populate_study_chapter_context(
 
     # The current full tree is paired with lightweight chapter previews. Both the
     # normal Study page and the compact chapter embed consume this same snapshot.
+    viewer = None if user.anon else user.username
     context["study_data"] = json_dumps(
         {
             "id": study.id,
@@ -723,6 +730,18 @@ async def _populate_study_chapter_context(
             "isOwner": is_study_owner(study, None if user.anon else user.username),
             "canWrite": writable,
             "canClone": (not user.anon and not user.bot and can_clone_study(study, user.username)),
+            "canShare": can_share_study(study, viewer),
+            "canEmbed": can_embed_study(study),
+            "features": {
+                "computer": can_use_study_computer(study, viewer),
+                "explorer": can_use_study_explorer(study, viewer),
+            },
+            "settings": {
+                "computer": study_feature_selection(study, "computer"),
+                "explorer": study_feature_selection(study, "explorer"),
+                "cloneable": study_feature_selection(study, "cloneable"),
+                "shareable": study_feature_selection(study, "shareable"),
+            },
             "canLike": not user.anon and not user.bot,
             "liked": study.is_liked_by(None if user.anon else user.username),
             "likes": study.likes,
@@ -828,7 +847,10 @@ async def study_embed(request: web.Request) -> ViewContext:
 
 
 async def study_chapter_export_data(request: web.Request) -> web.StreamResponse:
-    _, _, _, chapter = await _viewable_study_and_chapter(request)
+    user, _, study, chapter = await _viewable_study_and_chapter(request)
+    viewer = None if user.anon else user.username
+    if not can_share_study(study, viewer):
+        raise web.HTTPNotFound()
     return web.json_response(_chapter_export_payload(chapter))
 
 
@@ -1102,8 +1124,15 @@ async def study_edit(request: web.Request) -> web.StreamResponse:
     except ValueError as exc:
         raise web.HTTPBadRequest(text="Invalid Study visibility") from exc
     app_state = get_app_state(request.app)
+    try:
+        settings = await set_study_feature_settings(app_state, study, data)
+    except StudyStorageError as exc:
+        raise web.HTTPBadRequest(text=str(exc)) from exc
+    settings_changed = settings != dict(study.settings)
     await rename_study(app_state, study, data.get("name"))
     await set_study_visibility(app_state, study, visibility)
+    if settings_changed:
+        await broadcast_study_reload(app_state, study.id, reason="feature_permissions_changed")
     if visibility == "private" and study.visibility != "private":
         await close_study_sockets(app_state, study.id)
     raise web.HTTPFound(f"/study/{study.id}")
