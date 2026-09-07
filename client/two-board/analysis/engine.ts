@@ -501,7 +501,7 @@ export class EngineController {
         this.depthReached[boardInAnalysis.boardName] = depth;
         const msg: MsgAnalysis = {
             type: 'local-analysis',
-            ply: this.ctrl.ply,
+            ply: this.ctrl.movelistView.ply(),
             color: boardInAnalysis.turnColor.slice(0, 1),
             ceval: { d: depth, multipv: multiPv, p: moves, s: score, k: knps },
         };

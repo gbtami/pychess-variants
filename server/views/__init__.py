@@ -41,11 +41,9 @@ from pymongo.errors import (
     ServerSelectionTimeoutError,
     WaitQueueTimeoutError,
 )
-from request_protection import enforce_new_anonymous_identity_limit
 from settings import ADMINS, SIMULING
-from typedefs import REQUEST_NEW_SESSION_KEY
 from typing_defs import UserDocument, ViewContext
-from user import User
+from user import User, mint_guest_user
 from utils import corr_games, load_game_from_doc
 from variants import ALL_VARIANTS
 
@@ -159,17 +157,7 @@ async def get_user_context(request: web.Request) -> tuple[User, ViewContext]:
                 session.invalidate()
                 raise web.HTTPFound("/login")
 
-            enforce_new_anonymous_identity_limit(request)
-            user = User(
-                app_state,
-                anon=not app_state.anon_as_test_users,
-                theme=effective_theme(session, None),
-                game_category=effective_game_category(session, None),
-            )
-            log.info("+++ New guest user %s connected.", user.username)
-            app_state.users[user.username] = user
-            session["user_name"] = user.username
-            request[REQUEST_NEW_SESSION_KEY] = True
+            user = await mint_guest_user(app_state, request, session, arriving_at="page")
 
     theme = effective_theme(session, user)
     game_category = effective_game_category(session, user)

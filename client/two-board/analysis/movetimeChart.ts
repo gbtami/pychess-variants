@@ -4,7 +4,6 @@ import type { Chart, Options } from 'highcharts';
 
 import * as cg from 'chessgroundx/types';
 
-import { selectMainlineMove } from '../common/movelist';
 import { Step } from '../../messages';
 import AnalysisControllerBughouse from '@/two-board/analysis/analysisCtrl';
 import { clockTimeAt } from '../common/seatConfiguration';
@@ -29,15 +28,18 @@ export interface MovePoint {
 }
 
 // Owns the #chart-movetime container, built ctrl-free so analysis.ts can embed
-// it directly. `visible` bakes in the same isAnalysisBoard-derived initial
-// display style analysis.ts applied inline before. Highcharts owns its own
-// internal DOM subtree once mounted (it isn't a snabbdom-patched widget), so
-// this only hands it a real element reference instead of a string id.
+// it directly. Highcharts owns its own internal DOM subtree once mounted (it
+// isn't a snabbdom-patched widget), so this only hands it a real element
+// reference instead of a string id.
+//
+// It used to take a `visible` flag, hiding the container on the blank analysis
+// board. That page has no Move times tab at all now, so the container is simply
+// not mounted there and every mount that remains is a visible one.
 export class MovetimeChartView {
     private vnode: VNode;
 
-    constructor(visible: boolean) {
-        this.vnode = h('div#chart-movetime', visible ? { style: { display: 'block' } } : {});
+    constructor() {
+        this.vnode = h('div#chart-movetime', { style: { display: 'block' } });
     }
 
     placeholder(): VNode {
@@ -401,7 +403,7 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
             click: function (event: any) {
                 if (event.point) {
                     event.point.select();
-                    selectMainlineMove(ctrl, event.point.x);
+                    ctrl.movelistView.selectMainlineMove(ctrl, event.point.x);
                 }
             },
         },
@@ -463,7 +465,7 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
                     click: function (event) {
                         if (event.point) {
                             event.point.select();
-                            selectMainlineMove(ctrl, event.point.x);
+                            ctrl.movelistView.selectMainlineMove(ctrl, event.point.x);
                         }
                     },
                 },

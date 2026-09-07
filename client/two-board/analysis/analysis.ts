@@ -9,6 +9,7 @@ import { BugBoardName, PyChessModel } from '../../types';
 import AnalysisControllerBughouse from './analysisCtrl';
 import { gauge } from '@/analysis';
 import { TabbedPanels, TabPanelDef } from '../common/tabs';
+import { registerStandingTab } from '../common/toolsPlacement';
 import { trackSquareUnit } from '../squareUnit';
 import { boardZoom } from '@/boardSettings';
 import { ownBoardName } from '../common/boardRoles';
@@ -20,35 +21,34 @@ import { AnalysisClockView } from './analysisClock';
 import { AnalysisSeatView } from './analysisSeatView';
 import { MovetimeChartView } from './movetimeChart';
 
-function leftSide(model: PyChessModel, gameInfoView: GameInfoView) {
-    if (model['gameId'] !== '') {
-        return [gameInfoView.placeholder(), h('div#roundchat')];
-    } else {
-        const setVariant = (isInput: boolean) => {
-            let e;
-            e = document.getElementById('variant') as HTMLSelectElement;
-            const variant = e.options[e.selectedIndex].value;
-            if (isInput) {
-                window.location.assign('/analysis/' + validVariant(variant));
-            }
-        };
+/** The blank analysis board's variant picker, the content of its VARIANT tab.
+ *
+ * Only that build has one: a real game's variant is the game's, and its tools column carries
+ * Info and Chat where this one carries this. What used to be one `leftSide()` answering both
+ * cases is two declarations at the tab list now, so neither branch has to ask which page it
+ * is on. */
+function variantSelector(model: PyChessModel): VNode {
+    const setVariant = (isInput: boolean) => {
+        const e = document.getElementById('variant') as HTMLSelectElement;
+        const variant = e.options[e.selectedIndex].value;
+        if (isInput) {
+            window.location.assign('/analysis/' + validVariant(variant));
+        }
+    };
 
-        const vVariant = model.variant || 'chess';
-
-        return h('div.container', [
-            h('div', [
-                h('label', { attrs: { for: 'variant' } }, _('Variant')),
-                selectVariant(
-                    'variant',
-                    vVariant,
-                    () => setVariant(true),
-                    () => setVariant(false),
-                    [],
-                    model.gameCategory,
-                ),
-            ]),
-        ]);
-    }
+    return h('div.container', [
+        h('div', [
+            h('label', { attrs: { for: 'variant' } }, _('Variant')),
+            selectVariant(
+                'variant',
+                model.variant || 'chess',
+                () => setVariant(true),
+                () => setVariant(false),
+                [],
+                model.gameCategory,
+            ),
+        ]),
+    ]);
 }
 
 function createBoards(
@@ -135,7 +135,7 @@ export function analysisView(model: PyChessModel): VNode[] {
     const pgnView = new PgnView();
     const clockView = new AnalysisClockView();
     const seatView = new AnalysisSeatView();
-    const movetimeChartView = new MovetimeChartView(!isAnalysisBoard);
+    const movetimeChartView = new MovetimeChartView();
 
     /* THE TOOLS COLUMN, as a tabbed panel beside the boards.
        Three tabs, and the grouping is the decision worth stating:
@@ -182,23 +182,44 @@ export function analysisView(model: PyChessModel): VNode[] {
                     },
                 ],
             },
-            /* Only a real game has these. The blank analysis board (`/analysis/<variant>`,
-               no gameId) has no game info and no chat — what it has instead is a variant
-               selector, which stays in `.bug-game-info` below. Building empty tabs for it
-               would give it two tabs that say nothing. */
+            /* The two builds differ here, and each gets the tabs its page actually has.
+               A real game has game info and chat; the blank analysis board
+               (`/analysis/<variant>`, no gameId) has neither — what it has is the variant
+               selector, and VARIANT is its tab.
+
+               It is a tab because the tools column is where everything that is not a board
+               lives, and the selector was the last thing outside it. Sitting in the app's
+               grid instead, it had no area of its own: the templates here name
+               `ownstack stack zoneTools1/2 zoneA zoneB` and nothing else, so `gameinfo`
+               and `uleft` were UNKNOWN names and grid put each in an implicit track of its
+               own. On a real game both elements are empty and those tracks measure 0px,
+               which is why this went unseen; on the blank board the selector gave one of
+               them a size and it took 261.6px of column and 82.7px of row away from the
+               tracks the boards are sized against. The boards then overlapped. */
             ...(isAnalysisBoard
-                ? []
+                ? [{ label: _('Variant'), parts: [{ content: [variantSelector(model)] }] }]
                 : [
                       { label: _('Info'), parts: [{ content: [gameInfoView.placeholder()] }] },
                       { label: _('Chat'), parts: [{ content: [h('div#roundchat')] }] },
                   ]),
-        /* Both of these came from the panel that used to sit under the boards. `chart-container`
-           and `fenpgn-panel` keep their classes: the chart's is what analysis.css sizes, and the
-           pgn one mirrors that file's `#panel-4` rule for the single-board page. */
-        {
-            label: _('Move times'),
-            parts: [{ panelClass: 'chart-container', content: [movetimeChartView.placeholder()] }],
-        },
+        /* MOVE TIMES IS A GAME'S TAB, not this page's. The blank board has no recorded game
+           behind it — it is somewhere to explore lines — so there are no move times to chart
+           and the tab would open on an empty box. `movetimeChart()` agrees already: the
+           controller only calls it for a board message carrying more than one step, which the
+           blank board never receives. The tab and the chart element it mounts now come and go
+           together, on the one flag.
+
+           `chart-container` and `fenpgn-panel` keep their classes: the chart's is what
+           analysis.css sizes, and the pgn one mirrors that file's `#panel-4` rule for the
+           single-board page. */
+        ...(isAnalysisBoard
+            ? []
+            : [
+                  {
+                      label: _('Move times'),
+                      parts: [{ panelClass: 'chart-container', content: [movetimeChartView.placeholder()] }],
+                  },
+              ]),
         {
             label: _('FEN & PGN'),
             parts: [
@@ -218,7 +239,17 @@ export function analysisView(model: PyChessModel): VNode[] {
             ],
         },
     ];
-    const toolsTabs = new TabbedPanels('analysis-tools', toolPanels, _('Analysis tools'));
+
+    /* A CLOCK IS A GAME'S, like Move times above. The blank board has no game behind it, so
+       there are no clock values to show and the four slots rendered as empty discs around the
+       boards. `renderClocks()` was never going to fill them: it reads `clocks`/`clocksB` off the
+       current step, and neither the seeded start step nor a step this page builds while
+       exploring carries either — so on this build the slots stay as they are mounted, forever.
+       Not mounting them is the same statement, made once here. */
+    const clockSlots = (top: () => VNode, bottom: () => VNode) =>
+        isAnalysisBoard ? { top: [], bottom: [] } : { top: [top()], bottom: [bottom()] };
+    const mainClocks = clockSlots(() => clockView.topPlaceholder(), () => clockView.bottomPlaceholder());
+    const bugClocks = clockSlots(() => clockView.bugTopPlaceholder(), () => clockView.bugBottomPlaceholder());
 
     /* Built once and placed by `ownBoard` below, rather than written twice inline. Each
        board element keeps its IDENTITY id — #mainboard is board A whoever plays on it —
@@ -226,21 +257,21 @@ export function analysisView(model: PyChessModel): VNode[] {
     const mainboardSel = h(
         `selection#mainboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`,
         [
-            clockView.topPlaceholder(),
+            ...mainClocks.top,
             h('div.cg-wrap.' + variant.board.cg, {
                 hook: { insert: vnode => (mainboardVNode = vnode) },
             }),
-            clockView.bottomPlaceholder(),
+            ...mainClocks.bottom,
         ],
     );
     const bugboardSel = h(
         `selection#bugboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`,
         [
-            clockView.bugTopPlaceholder(),
+            ...bugClocks.top,
             h('div.cg-wrap.' + variant.board.cg, {
                 hook: { insert: vnode => (bugboardVNode = vnode) },
             }),
-            clockView.bugBottomPlaceholder(),
+            ...bugClocks.bottom,
         ],
     );
     const gaugeOwn = gauge(variant.colors);
@@ -282,6 +313,38 @@ export function analysisView(model: PyChessModel): VNode[] {
     const strip = (position: 0 | 1, role: 'own' | 'partner', board: BugBoardName, pocketVNode: VNode) =>
         h(`div.seat-strip${position}.${role}-seat`, [pocketVNode, seatView.placeholder(board, position)]);
 
+    /* THE PARTNER'S BOARD IS A TAB, AND IT IS DETACHED FROM THE FIRST FRAME — the same statement
+       the round page makes, in the same words, because it is the same board in the same predicament.
+       Detached it is absent from the strip and always drawn, which is every home but the last
+       resort; there the tools have nowhere left to go and take the board's own column, and the
+       board takes its turn in it as a tab.
+       THE GAUGE AND THE LABEL COME WITH IT. They are part of the stack, not neighbours of it — the
+       gauge is a term in this page's width formula, the 0.31 of `8.31` squares — so a home that
+       hides the board must hide them too, or they are left beside whatever replaced it.
+       Declared HERE rather than beside the other tabs above because a tab holds its content, and
+       this content is the board: `strip`, the board selections and the gauge do not exist until
+       this point in the view. The widget is therefore constructed here too. */
+    toolPanels.push({
+        label: _('Partner board'),
+        detached: true,
+        parts: [
+            {
+                panelClass: 'bug-partner-stack',
+                display: 'block',
+                content: [
+                    strip(0, 'partner', partnerBoard, ownBoard === 'a' ? pocketB0 : pocketA0),
+                    ownBoard === 'a' ? bugboardSel : mainboardSel,
+                    strip(1, 'partner', partnerBoard, ownBoard === 'a' ? pocketB1 : pocketA1),
+                    gaugePartnerEl,
+                    boardLabel(partnerBoard),
+                ],
+            },
+        ],
+    });
+    const PARTNER_BOARD_TAB = toolPanels.length - 1;
+    const toolsTabs = new TabbedPanels('analysis-tools', toolPanels, _('Analysis tools'));
+    registerStandingTab(toolsTabs, PARTNER_BOARD_TAB);
+
     return [
         h(
             'div.analysis-app.bug',
@@ -308,11 +371,12 @@ export function analysisView(model: PyChessModel): VNode[] {
                 },
             },
             [
-                /* The blank analysis board's variant selector. For a real game this element
-                   is gone: its two occupants, the game info and the chat, are tabs of the
-                   tools panel now. `leftSide()` still answers both cases, so the selector is
-                   not duplicated here. */
-                ...(isAnalysisBoard ? [h('div.bug-game-info', leftSide(model, gameInfoView))] : []),
+                /* NOTHING BUT THE STACKS AND THE TOOLS IS A CHILD OF THIS GRID. The blank
+                   board's variant selector used to be, wrapped in `.bug-game-info`, and it
+                   is a tab of the tools panel now — see the tab declarations above for what
+                   that wrapper cost. Anything added here in future needs an area in EVERY
+                   template below, or it lands in an implicit track and silently steals the
+                   boards' space. */
                 /* TWO STACKS, mirroring the round page. Each is pocket / board / pocket in
                    block flow — the same ten rows the round page's square unit is computed
                    over, which measurement confirmed this page already has: the analysis
@@ -352,17 +416,20 @@ export function analysisView(model: PyChessModel): VNode[] {
                    exactly as before. Each mode dissolves the container it does not want — the
                    same trick, and the same wording, as the round page. */
                 h('div.bug-right-column', [
-                    h('div.bug-partner-stack', [
-                        strip(0, 'partner', partnerBoard, ownBoard === 'a' ? pocketB0 : pocketA0),
-                        ownBoard === 'a' ? bugboardSel : mainboardSel,
-                        strip(1, 'partner', partnerBoard, ownBoard === 'a' ? pocketB1 : pocketA1),
-                        gaugePartnerEl,
-                        boardLabel(partnerBoard),
-                    ]),
+                    // The stack IS the panel — `panelClass` put `.bug-partner-stack` on the wrapper
+                    // rather than inside it, so nothing gained a level and the grid area it has
+                    // always occupied is still declared on the same element.
+                    toolsTabs.panel(PARTNER_BOARD_TAB, 0),
                     // Derived from the declarations above, so a tab can be added or made
                     // conditional without a second list to keep in step. Every tab here has
                     // exactly one part.
-                    h('div.bug-parts', [...toolPanels.map((_p, t) => toolsTabs.panel(t, 0)), toolsTabs.tabList()]),
+                    // Every tab but the board's: that one is mounted above, in the column, which is
+                    // the whole point of a detached tab — the widget says whether a part is shown,
+                    // never where.
+                    h('div.bug-parts', [
+                        ...toolPanels.slice(0, PARTNER_BOARD_TAB).map((_p, t) => toolsTabs.panel(t, 0)),
+                        toolsTabs.tabList(),
+                    ]),
                 ]),
                 h('under-left#spectators'),
             ],

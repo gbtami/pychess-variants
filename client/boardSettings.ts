@@ -18,7 +18,7 @@ import { BoardName, PyChessModel } from './types';
 import { BOARD_FAMILIES, cwdaArmyClassNames, isCataloguedVariant, PIECE_FAMILIES, Variant, VARIANTS } from './variants';
 import { renderResized, updateBounds } from 'chessgroundx/render';
 import { setSquareColors } from './boardColors';
-import { setBoardZoom } from './two-board/squareUnit';
+import { clampZoom, minZoomPercent, setBoardZoom } from './two-board/squareUnit';
 
 export interface BoardController {
     readonly chessground: Api;
@@ -350,7 +350,11 @@ class BoardSettings {
         if (variant && variant.boardFamily === family) {
             const suffix = boardName ? '-' + boardName : '';
             const zoomSettings = this.getSettings('Zoom', family as string, boardName) as ZoomSettings;
-            const zoom = zoomSettings.value;
+            // A bughouse board has a floor, and it is a SIZE rather than a percentage — see
+            // `minZoomPercent()`. Clamped here rather than on the stored value: the setting is
+            // the user's standing preference, and a window they resize should not silently
+            // rewrite it. What is clamped is what this window draws with.
+            const zoom = boardName ? clampZoom(boardName, zoomSettings.value) : zoomSettings.value;
             const el = document.querySelector('.cg-wrap') as HTMLElement;
             if (el) {
                 document.body.style.setProperty('--zoom' + suffix, `${zoom}`);
@@ -660,10 +664,26 @@ class ZoomSettings extends NumberSettings {
             // stale box however soon it runs. The variable written just above is
             // therefore already in effect by the time it is measured, and the timer
             // only delayed the redraw by 100ms and made the ordering unprovable.
-            const ctrl = this.boardSettings.zoomedBoard(this.boardName);
-            if (ctrl) {
-                updateBounds(ctrl.chessground.state);
-                renderResized(ctrl.chessground.state);
+            // BOTH COLUMNS, NOT JUST THE ONE THAT MOVED — but they need different things.
+            //
+            // The zoomed board changed SIZE, so it is re-measured and redrawn as before. The OTHER
+            // board moved without changing size: the app's first track is
+            // `calc(var(--bug-tall-sq-a) * 8)`, so a narrower left board shifts the right one
+            // sideways. Nothing tells chessgroundx about a board that merely moves, and every
+            // click on it then maps through the rect it had before this slider was touched.
+            //
+            // Clearing its memo is enough, and is deliberately less than re-measuring: it writes
+            // nothing, so it cannot wake the observers that would move the boards again, and the
+            // rect is recomputed at the next read rather than at a moment we would have to guess.
+            for (const boardName of ['a', 'b'] as const) {
+                const board = this.boardSettings.zoomedBoard(boardName);
+                if (!board) continue;
+                if (boardName === this.boardName) {
+                    updateBounds(board.chessground.state);
+                    renderResized(board.chessground.state);
+                } else {
+                    board.chessground.state.dom.bounds.clear();
+                }
             }
         }
     }
@@ -671,7 +691,17 @@ class ZoomSettings extends NumberSettings {
     view(): VNode {
         return h(
             'div.labelled',
-            slider(this, 'zoom' + this.boardName, 0, 100, this.boardFamily.includes('shogi') ? 1 : 1.15625, _('Zoom')),
+            // The handle stops where the layout does: a bughouse column may not be taken below
+            // the smallest stack the left board's square allows, and the two columns reach that
+            // size at different percentages.
+            slider(
+                this,
+                'zoom' + this.boardName,
+                this.boardName ? minZoomPercent(this.boardName) : 0,
+                100,
+                this.boardFamily.includes('shogi') ? 1 : 1.15625,
+                _('Zoom'),
+            ),
         );
     }
 }

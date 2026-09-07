@@ -113,8 +113,33 @@ export abstract class ChessgroundController implements BoardController {
             const startResize = (start: MouchEvent) => {
                 start.preventDefault();
 
-                const zoomSettings = boardSettings.getSettings('Zoom', this.variant.boardFamily, this.boardName);
-                const sliderEl = document.getElementById('zoom' + this.boardName) as HTMLInputElement;
+                // THE COLUMN THE BOARD IS IN, NOT THE BOARD'S OWN NAME.
+                //
+                // On a two-board page `boardName` is the board's IDENTITY — 'a' is `#mainboard`,
+                // 'b' is `#bugboard` — while every zoom setting is keyed by the COLUMN: 'a' is the
+                // viewer's own stack and 'b' the partner's, which is why `zoomedBoard()` in
+                // boardSettings.ts looks up which board sits in the column it was asked about.
+                //
+                // The two coincide for a player whose own board is board A, and disagree for one
+                // whose own board is board B — where this handle drove the OTHER column. Measured
+                // on a seat holding `#bugboard`: dragging the own board's handle wrote `zoom-b`,
+                // which sizes the partner's column, so the own board did not move at all and the
+                // partner's shrank to its floor.
+                const column: BoardName = this.boardName
+                    ? el.closest('.own-board') !== null
+                        ? 'a'
+                        : 'b'
+                    : this.boardName;
+
+                const zoomSettings = boardSettings.getSettings('Zoom', this.variant.boardFamily, column);
+                const sliderEl = document.getElementById('zoom' + column) as HTMLInputElement;
+
+                // The green "being dragged" look belongs to THIS handle. `site.css` hangs it off
+                // `body.resizing`, which matches every handle on the page — invisible on a
+                // one-board page and wrong on a two-board one, where both corners lit up whichever
+                // was grabbed. The body class stays: it also suppresses text selection, which does
+                // have to be page-wide.
+                el.classList.add('resizing');
 
                 const mousemoveEvent = start.type === 'touchstart' ? 'touchmove' : 'mousemove',
                     mouseupEvent = start.type === 'touchstart' ? 'touchend' : 'mouseup',
@@ -143,6 +168,7 @@ export abstract class ChessgroundController implements BoardController {
                     () => {
                         document.removeEventListener(mousemoveEvent, resize);
                         document.body.classList.remove('resizing');
+                        el.classList.remove('resizing');
                     },
                     { once: true },
                 );

@@ -57,11 +57,19 @@ import { h, VNode } from 'snabbdom';
 export interface TabPartDef {
     panelClass?: string; // extra class on this part's panel, e.g. 'chart-container'
     content: VNode[];
+    /** The `display` this part takes when it is shown. Defaults to `flex`.
+     *
+     * Stated because the widget has to write a value: the page stylesheet hides an unselected
+     * panel, so showing one again cannot simply clear the inline style. A part whose box is not a
+     * flex container — a board stack is a block — says so here rather than being bent into one. */
+    display?: string;
 }
 
 export interface TabPanelDef {
     label: string;
     parts: TabPartDef[];
+    /** Detached at construction: see `setDetached`. */
+    detached?: boolean;
 }
 
 export class TabbedPanels {
@@ -70,10 +78,25 @@ export class TabbedPanels {
     private readonly panelVnodes: VNode[][];
     private readonly tabVnodes: VNode[];
     private readonly tabListVnode: VNode;
+    private readonly labels: string[];
+    private readonly displays: string[][];
+    private readonly tabId: (t: number) => string;
+    // Mutable: a page detaches and attaches as its arrangement changes.
+    private readonly detached: boolean[];
+    private onSelect: (() => void) | null = null;
 
     constructor(id: string, panels: TabPanelDef[], ariaLabel: string) {
         const tabId = (t: number) => `${id}-tab-${t}`;
         const panelId = (t: number, p: number) => `${id}-panel-${t}-${p}`;
+        this.tabId = tabId;
+        this.labels = panels.map(panel => panel.label);
+        this.displays = panels.map(panel => panel.parts.map(part => part.display ?? 'flex'));
+        this.detached = panels.map(panel => panel.detached === true);
+
+        // The tab that starts selected: the first ATTACHED one. A detached tab is not in the
+        // strip, so it cannot be what the strip is showing — and if tab 0 is the detached one,
+        // selecting it would leave the strip with nothing selected and every attached part hidden.
+        const first = this.detached.findIndex(d => !d);
 
         this.panelVnodes = panels.map((panel, t) =>
             panel.parts.map((part, p) =>
@@ -82,13 +105,17 @@ export class TabbedPanels {
                     {
                         attrs: {
                             id: panelId(t, p),
-                            role: 'tabpanel',
                             tabindex: String(t),
-                            'aria-labelledby': tabId(t),
+                            ...this.roleAttrs(t),
                         },
-                        // tab 0 is the default; every other tab's parts rely on the
-                        // page stylesheet's `display: none` for [role=tabpanel]
-                        style: t === 0 ? { display: 'flex' } : {},
+                        // A detached part is always shown. Among the attached, the first is the
+                        // default and the rest rely on the page stylesheet's `display: none` for
+                        // [role=tabpanel] — which is also why a detached part, no longer carrying
+                        // that role, needs its display stated rather than left to the sheet.
+                        style:
+                            this.detached[t] || t === first
+                                ? { display: this.displays[t][p] }
+                                : {},
                     },
                     part.content,
                 ),
@@ -101,12 +128,18 @@ export class TabbedPanels {
                 {
                     attrs: {
                         role: 'tab',
-                        'aria-selected': t === 0 ? 'true' : 'false',
+                        'aria-selected': t === first ? 'true' : 'false',
                         // an id-reference LIST: a tab controls every one of its parts
                         'aria-controls': panel.parts.map((_part, p) => panelId(t, p)).join(' '),
                         id: tabId(t),
                         tabindex: String(t),
                     },
+                    // A DETACHED TAB IS HIDDEN, NOT OMITTED. Rendering the strip as a shorter list
+                    // would renumber every tab after it, and an id is generated from a tab's index
+                    // — so `aria-controls`, `aria-labelledby` and every reference a page holds
+                    // would move under it. `display: none` also takes the tab out of the
+                    // accessibility tree, so the strip offers exactly the attached tabs.
+                    style: this.detached[t] ? { display: 'none' } : {},
                     on: { click: () => this.select(t) },
                 },
                 panel.label,
@@ -118,6 +151,16 @@ export class TabbedPanels {
             { attrs: { id: `${id}-tablist`, role: 'tablist', 'aria-label': ariaLabel } },
             this.tabVnodes,
         );
+    }
+
+    /* A DETACHED PART IS NOT A TABPANEL. Its tab is not rendered, so `role="tabpanel"` and an
+       `aria-labelledby` pointing at it would both be false — the reference would dangle. It is a
+       region named by the same label the tab would have carried, and becomes a tabpanel again the
+       moment the tab is attached. */
+    private roleAttrs(t: number): Record<string, string> {
+        return this.detached[t]
+            ? { role: 'region', 'aria-label': this.labels[t] }
+            : { role: 'tabpanel', 'aria-labelledby': this.tabId(t) };
     }
 
     // The mountable parts. Both accessors return vnodes built in the constructor
@@ -136,14 +179,84 @@ export class TabbedPanels {
         return this.panelVnodes[tabIndex][partIndex];
     }
 
+    /** Detaches or attaches one tab, at any time after construction.
+     *
+     * DETACHED means: absent from the strip, always displayed, and not governed by which tab is
+     * selected. It is how a page says "I have somewhere permanent to put this" — and attaching
+     * again is how it says the room has gone. Where a part is MOUNTED never changes; this module
+     * contributes no container and moves nothing. Detachment governs only the strip.
+     *
+     * Returns early when nothing changes, and that is semantics rather than an optimisation:
+     * attaching SELECTS, and a page that recomputes its arrangement on every resize would
+     * otherwise re-select this tab on every frame and take the choice away from the reader. Only a
+     * transition may move the selection. */
+    setDetached(tabIndex: number, detached: boolean): void {
+        if (this.detached[tabIndex] === detached) return;
+        this.detached[tabIndex] = detached;
+
+        const tab = this.tabVnodes[tabIndex].elm as HTMLElement | undefined;
+        if (tab !== undefined) tab.style.display = detached ? 'none' : '';
+
+        const attrs = this.roleAttrs(tabIndex);
+        this.panelVnodes[tabIndex].forEach(panel => {
+            const el = panel.elm as HTMLElement | undefined;
+            if (el === undefined) return;
+            el.removeAttribute(detached ? 'aria-labelledby' : 'aria-label');
+            for (const [name, value] of Object.entries(attrs)) el.setAttribute(name, value);
+        });
+
+        if (!detached) {
+            // ATTACHING SELECTS IT, so the part already on screen stays on screen: the arrangement
+            // flips and the reader sees nothing move.
+            this.select(tabIndex);
+            return;
+        }
+
+        // Its parts go on being shown; what has to move is the SELECTION, if this tab held it —
+        // otherwise the strip is left with every attached part hidden and no tab marked.
+        this.showParts(tabIndex);
+        if (this.selectedIndex() !== tabIndex) return;
+        const next = this.detached.findIndex(d => !d);
+        if (next >= 0) this.select(next);
+    }
+
+    /** Runs after any selection change.
+     *
+     * Showing a panel MOVES whatever is in it without resizing it, and a page that caches an
+     * element's position — chessground's bounds memo does — has to be told. A tab click is the one
+     * way a part can move that no layout pass sees: nothing resizes, so no observer fires. */
+    setOnSelect(fn: () => void): void {
+        this.onSelect = fn;
+    }
+
+    private selectedIndex(): number {
+        return this.tabVnodes.findIndex(
+            tab => (tab.elm as HTMLElement | undefined)?.getAttribute('aria-selected') === 'true',
+        );
+    }
+
+    private showParts(tabIndex: number): void {
+        this.panelVnodes[tabIndex].forEach((panel, p) => {
+            const el = panel.elm as HTMLElement | undefined;
+            if (el !== undefined) el.style.display = this.displays[tabIndex][p];
+        });
+    }
+
     // Runs only after the page's patch, so every .elm exists.
     private select(index: number): void {
         this.tabVnodes.forEach((tab, t) =>
             (tab.elm as HTMLElement).setAttribute('aria-selected', t === index ? 'true' : 'false'),
         );
-        // every part of every tab, wherever each one happens to be mounted
-        this.panelVnodes.forEach((parts, t) =>
-            parts.forEach(panel => ((panel.elm as HTMLElement).style.display = t === index ? 'flex' : 'none')),
-        );
+        // every part of every tab, wherever each one happens to be mounted — EXCEPT a detached
+        // tab's, which selection does not govern. Hiding "everything but the selected one" is the
+        // one line that has to know about detachment.
+        this.panelVnodes.forEach((parts, t) => {
+            if (this.detached[t]) return;
+            parts.forEach(
+                (panel, p) =>
+                    ((panel.elm as HTMLElement).style.display = t === index ? this.displays[t][p] : 'none'),
+            );
+        });
+        this.onSelect?.();
     }
 }

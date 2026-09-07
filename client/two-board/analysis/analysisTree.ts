@@ -1,6 +1,5 @@
 import * as Mousetrap from 'mousetrap';
 
-import { updateMovelist, scrollToActiveMove } from '../common/movelist';
 import { copyTextToClipboard } from '../../clipboard';
 import { Step } from '../../messages';
 import { renderBughouseLinePgnMoveText } from './analysisTreeTwoBoards';
@@ -192,14 +191,14 @@ export class AnalysisTreeController {
 
         this.treeContextMenu = { path, x, y };
         document.addEventListener('click', this.onTreeContextMenuDocumentClick, false);
-        updateMovelist(this.ctrl, true, false);
+        this.ctrl.movelistView.render(this.ctrl, true, false);
     }
 
     closeTreeContextMenu() {
         if (!this.treeContextMenu) return;
         this.treeContextMenu = undefined;
         document.removeEventListener('click', this.onTreeContextMenuDocumentClick, false);
-        updateMovelist(this.ctrl, true, false);
+        this.ctrl.movelistView.render(this.ctrl, true, false);
     }
 
     copyTreeLinePgn(path: string) {
@@ -225,12 +224,12 @@ export class AnalysisTreeController {
             const mainChildPath = node.children[0]?.path;
             if (this.analysisPath !== path && mainChildPath && !this.analysisPath.startsWith(mainChildPath)) {
                 this.analysisPath = path;
-                this.ctrl.goPly(node.ply, 0);
+                this.ctrl.goPly(node.ply);
             }
         }
         this.revealTreePath(this.analysisPath);
         this.saveTreeCollapsedPaths();
-        updateMovelist(this.ctrl, true, false);
+        this.ctrl.movelistView.render(this.ctrl, true, false);
     }
 
     collapseAllTree() {
@@ -238,7 +237,7 @@ export class AnalysisTreeController {
         setCollapsedFrom(this.analysisTree, '', true);
         this.saveTreeCollapsedPaths();
         this.closeTreeContextMenu();
-        updateMovelist(this.ctrl, true, false);
+        this.ctrl.movelistView.render(this.ctrl, true, false);
     }
 
     expandAllTree() {
@@ -246,14 +245,14 @@ export class AnalysisTreeController {
         setCollapsedFrom(this.analysisTree, '', false);
         this.saveTreeCollapsedPaths();
         this.closeTreeContextMenu();
-        updateMovelist(this.ctrl, true, false);
+        this.ctrl.movelistView.render(this.ctrl, true, false);
     }
 
     promoteTreeVariation(path: string, toMainline: boolean) {
         if (!this.analysisTree) return;
         promoteNodePath(this.analysisTree, path, toMainline);
         this.closeTreeContextMenu();
-        updateMovelist(this.ctrl, true, false);
+        this.ctrl.movelistView.render(this.ctrl, true, false);
     }
 
     forceTreeVariation(path: string, force: boolean) {
@@ -296,7 +295,7 @@ export class AnalysisTreeController {
 
         const delta = which === 'next' ? 1 : -1;
         this.treeForkIndex = (node.children.length + this.treeForkIndex + delta) % node.children.length;
-        updateMovelist(this.ctrl, true, false);
+        this.ctrl.movelistView.render(this.ctrl, true, false);
         return true;
     }
 
@@ -327,12 +326,11 @@ export class AnalysisTreeController {
         this.treeContextMenu = undefined;
         document.removeEventListener('click', this.onTreeContextMenuDocumentClick, false);
         this.analysisPath = path;
-        this.ctrl.plyVari = 0;
-        this.ctrl.goPly(node.ply, 0);
+        this.ctrl.goPly(node.ply);
 
         if (redrawMovelist) {
-            updateMovelist(this.ctrl, true, false);
-            scrollToActiveMove();
+            this.ctrl.movelistView.render(this.ctrl, true, false);
+            this.ctrl.movelistView.scrollToActiveMove();
         }
     }
 

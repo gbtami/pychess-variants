@@ -15,8 +15,6 @@ from aiohttp.web_ws import WebSocketResponse
 from const import NONE_USER
 from preferences import (
     apply_anonymous_session_preferences,
-    effective_game_category,
-    effective_theme,
 )
 
 if TYPE_CHECKING:
@@ -24,8 +22,6 @@ if TYPE_CHECKING:
     from user import User
 
 from pychess_global_app_state_utils import get_app_state
-from request_protection import enforce_new_anonymous_identity_limit
-from typedefs import REQUEST_NEW_SESSION_KEY
 
 log = logging.getLogger(__name__)
 
@@ -84,20 +80,12 @@ async def get_user(session: aiohttp_session.Session, request: web.Request) -> Us
 
         # Anonymous page rendering is stateless. Materialize the browser's
         # persistent identity only when it actually opens a websocket.
-        from user import User
+        # Deferred, because `user` imports this module — the cycle that is also why the old copy
+        # of these lines lived here rather than being shared.
+        from user import mint_guest_user
 
-        enforce_new_anonymous_identity_limit(request)
-        user = User(
-            app_state,
-            anon=not app_state.anon_as_test_users,
-            theme=effective_theme(session, None),
-            game_category=effective_game_category(session, None),
-        )
-        app_state.users[user.username] = user
-        session["user_name"] = user.username
-        request[REQUEST_NEW_SESSION_KEY] = True
+        user = await mint_guest_user(app_state, request, session, arriving_at="websocket")
         request[_WS_SESSION_CHANGED_KEY] = True
-        log.info("+++ New websocket guest user %s connected.", user.username)
         return user
 
     user = await app_state.users.get(session_user)

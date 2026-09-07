@@ -1,7 +1,6 @@
 import { WebsocketHeartbeatJs } from '../../socket/socket';
 import { createWebsocket } from '@/socket/webSocketUtils';
 import { JSONObject } from '../../types';
-import { loadPendingMoves } from './pendingMoves';
 import type { RoundControllerBughouse } from '../round/roundCtrl';
 
 // Owns the round page's websocket connection: creating/reconnecting it and
@@ -16,7 +15,7 @@ export class RoundControllerBughouseSocket {
 
         const onOpen = () => {
             try {
-                const msgMovesAfterReconnect = loadPendingMoves(ctrl.gameId);
+                const msgMovesAfterReconnect = ctrl.reconnect.socketOpened();
                 console.log('resending unsent move messages ', msgMovesAfterReconnect);
                 this.doSend(msgMovesAfterReconnect);
             } catch (e) {

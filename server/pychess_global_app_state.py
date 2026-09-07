@@ -525,15 +525,10 @@ class PychessGlobalAppState:
 
                 self.games[game_id] = game
                 if not corr:
-                    if isinstance(game, Game):
-                        # load_game_from_doc() already restored the stopwatch
-                        # from the persisted position and wall-clock downtime.
-                        pass
-                    else:
-                        if TYPE_CHECKING:
-                            assert isinstance(game, GameBug)
-                        game.gameClocks.restart("a")
-                        game.gameClocks.restart("b")
+                    # Both game types now restore their own clocks at load time, from the persisted
+                    # position and the wall-clock downtime. Restarting them again here would reset
+                    # each board to its last-move value and hand back the time the server was down.
+                    pass
 
                 if game.bot_game:
                     if TYPE_CHECKING:
