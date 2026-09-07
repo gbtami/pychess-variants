@@ -171,7 +171,7 @@ async def import_game_bpgn(request):
     game_id = await new_id(None if app_state.db is None else app_state.db.game)
     existing = await app_state.db.game.find_one({"_id": {"$eq": game_id}})
     if existing:
-        message = "Failed to create game. Game ID %s allready in mongodb." % game_id
+        message = "Failed to create game. Game ID %s already in mongodb." % game_id
         log.exception(message)
         return json_response({"error": message})
 
