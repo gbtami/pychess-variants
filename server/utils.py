@@ -1372,6 +1372,12 @@ def pgn(doc):
             for ind, move in enumerate(mlist)
         )
     )
+    if not get_server_variant(variant, chess960).two_boards and any(
+        row and row.get("advice") for row in doc.get("a", [])
+    ):
+        from game_analysis import annotated_game_moves
+
+        moves = annotated_game_moves(mlist, fen, doc["a"])
     no_setup = fen == STANDARD_FEN and not chess960
     # Use lichess format for crazyhouse games to support easy import
     setup_fen = fen if variant != "crazyhouse" else fen.replace("[]", "")

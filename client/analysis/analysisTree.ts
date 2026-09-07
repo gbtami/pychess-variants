@@ -31,8 +31,7 @@ export interface AnalysisTreeNode {
     forceVariation?: boolean;
     // Present only for nodes that still sit on the original persisted game mainline.
     mainlinePly?: number;
-    // Persisted analysis-document metadata. Ordinary analysis leaves this undefined;
-    // Study uses it for root/node drawings, comments and NAGs.
+    // Study annotations and server-generated game analysis comments/NAGs.
     annotations?: AnalysisAnnotations;
     // Persisted server evaluation attached to a Study tree node. This is separate
     // from step.ceval, which can also hold transient local-engine analysis.
@@ -114,7 +113,42 @@ export function createAnalysisTree(steps: Step[], nodeIdFactory?: () => string):
         parent = child;
     }
 
+    for (let ply = 1; ply < steps.length; ply++) {
+        mergeServerAdvice(tree, ply, steps[ply].analysis);
+    }
     return tree;
+}
+
+// Apply only explicitly supplied advice. Legacy eval/PV rows remain unchanged.
+export function mergeServerAdvice(tree: AnalysisTree, ply: number, evaluation?: Ceval): boolean {
+    const advice = evaluation?.advice;
+    if (!advice) return false;
+    const node = Array.from(tree.byPath.values()).find(candidate => candidate.mainlinePly === ply);
+    if (!node) return false;
+    const annotations = node.annotations ?? { shapes: [], comments: [], nags: [] };
+    const commentId = `server-analysis-${ply}`;
+    node.annotations = {
+        shapes: annotations.shapes,
+        comments: [
+            ...annotations.comments.filter(comment => comment.id !== commentId),
+            { id: commentId, author: 'PyChess', text: advice.comment },
+        ],
+        nags: annotations.nags.includes(advice.nag) ? annotations.nags : [...annotations.nags, advice.nag],
+    };
+    let path = parentPath(node.path);
+    for (const step of advice.variation) {
+        path = addOrSelectChild(tree, path, { ...step }, false);
+    }
+    return true;
+}
+
+export function renderNodeAnnotations(node: AnalysisTreeNode): string {
+    const annotations = node.annotations;
+    if (!annotations) return '';
+    return [
+        ...annotations.nags.map(nag => `$${nag}`),
+        ...annotations.comments.map(comment => `{${comment.text.replace(/\\/g, '\\\\').replace(/}/g, '\\}')}}`),
+    ].join(' ');
 }
 
 function createChild(
@@ -460,11 +494,9 @@ function renderPgnSequence(
         branchSiblings.forEach(sideline => {
             tokens.push(`(${renderPgnSequence([sideline], rootTurnColor, true, false, getSan, getSuffix).join(' ')})`);
         });
-        branchSiblings = [];
-
-        current.children.slice(1).forEach(sideline => {
-            tokens.push(`(${renderPgnSequence([sideline], rootTurnColor, true, false, getSan, getSuffix).join(' ')})`);
-        });
+        // Emit these alternatives after the move they replace, on the next
+        // iteration. Emitting them here attaches them one ply too early in PGN.
+        branchSiblings = current.children.slice(1);
 
         current = current.children[0];
         isFirst = false;

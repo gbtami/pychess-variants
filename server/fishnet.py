@@ -38,6 +38,7 @@ if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 import logging
 
+from game_analysis import enrich_game_analysis
 from json_utils import json_response
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_json_data
@@ -995,60 +996,53 @@ async def fishnet_analysis(request: web.Request) -> web.Response:
     # the server's reconstructed steps so that current deployed workers remain
     # compatible and malformed/stale responses cannot index past game.steps.
     analysis_rows = analysis_rows[:step_count]
+    responses: list[dict[str, object]] = []
     length = len(analysis_rows)
     for j, analysis in enumerate(reversed(analysis_rows)):
         i = length - j - 1
         if analysis is None:
             continue
 
-        # `existing` may already hold a partial record (created on an earlier,
-        # partial progress report from fairyfishnet with prev=None at the time,
-        # so "p" could not yet be evaluated). We must keep re-entering this
-        # branch on later reports so a PV that becomes decidable once its
-        # neighbour ply arrives can still be added — the old code's
-        # `if "analysis" not in game.steps[i]:` gate closed this permanently
-        # after the first report, which is the bug this restructure fixes.
-        existing: AnalysisStep | None = game.steps[i].get("analysis")
-        created = existing is None
-
-        if created:
-            step_analysis: AnalysisStep = {"s": analysis["score"]}
-            if "depth" in analysis:
-                step_analysis["d"] = analysis["depth"]
-            game.steps[i]["analysis"] = step_analysis
-        else:
-            step_analysis = existing
-
+        # Revisit partial rows when their neighbour arrives. Advice must not be
+        # lost merely because this position's evaluation arrived first.
+        existing = game.steps[i].get("analysis")
+        step_analysis: AnalysisStep = dict(existing) if existing is not None else {}
+        step_analysis["s"] = analysis["score"]
+        if "depth" in analysis:
+            step_analysis["d"] = analysis["depth"]
         prev = analysis_rows[i - 1] if i > 0 else None
         turn_color = game.steps[i].get("turnColor")
-
-        added_pv = False
-        if "p" not in step_analysis and _should_save_analysis_pv(analysis, prev, turn_color, i):
-            step_analysis["p"] = analysis["pv"]
-            added_pv = True
-
-        # Nothing new to tell the client: this step already existed before this
-        # report AND nothing changed on it during this pass. Re-sending would be
-        # a redundant duplicate "analysis" message for a step the client already has.
-        if not created and not added_pv:
+        if game.server_variant.two_boards:
+            if "p" not in step_analysis and _should_save_analysis_pv(analysis, prev, turn_color, i):
+                step_analysis["p"] = analysis["pv"]
+        else:
+            enrich_game_analysis(game, i, prev, analysis, step_analysis)
+        if step_analysis == existing:
             continue
-
-        ply = str(i)
+        game.steps[i]["analysis"] = step_analysis
         response = {
             "type": "analysis",
-            "ply": ply,
-            "color": "w" if i % 2 == 0 else "b",
-            # step_analysis IS game.steps[i]["analysis"] (same dict object in both
-            # branches above), so this reflects any "p" just added.
+            "ply": str(i),
+            "color": "w" if turn_color == "white" else "b",
             "ceval": step_analysis,
         }
+        responses.append(response)
+
+    if (
+        responses
+        and not game.server_variant.two_boards
+        and any(step.get("analysis", {}).get("advice") for step in game.steps)
+    ):
+        responses[-1]["pgn"] = game.pgn
+    for response in responses:
         await app_state.users[username].send_game_message(gameId, response)
 
     # remove completed work
     if len(analysis_rows) == step_count and all(analysis_rows):
         del app_state.fishnet_works[work_id]
         await clear_catalogued_variant_ai_failures(app_state, str(work.get("variant") or ""))
-        new_data = {"a": [step["analysis"] for step in game.steps]}
+        game.analysis = [step["analysis"] for step in game.steps]
+        new_data = {"a": game.analysis}
         await app_state.db.game.find_one_and_update({"_id": game.id}, {"$set": new_data})
 
     return web.Response(status=204)

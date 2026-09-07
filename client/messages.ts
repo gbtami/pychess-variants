@@ -109,6 +109,9 @@ export interface Ceval {
     p?: string;
     s: { cp?: number; mate?: number };
     k?: number;
+    // Server-generated move advice. Its variation starts BEFORE the played move;
+    // p remains the PV from the evaluated position.
+    advice?: { nag: number; comment: string; variation: Step[] };
 }
 
 export interface MsgSpectators {

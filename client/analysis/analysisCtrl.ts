@@ -39,7 +39,7 @@ import { PvHoverPreview } from './pvHoverPreview';
 import { alertDialog } from '../alertDialog';
 import { confirmDialog } from '../confirmDialog';
 import { animatePassMove } from '../passMove';
-import { renderFullTreePgnMoveText } from './analysisTree';
+import { mergeServerAdvice, renderFullTreePgnMoveText, renderNodeAnnotations } from './analysisTree';
 import { AnalysisTreeController } from './analysisTreeCtrl';
 import { analysisContext, type AnalysisContext } from './analysisContext';
 import type { AnalysisExtension, AnalysisExtensionFactory } from './analysisExtension';
@@ -902,10 +902,10 @@ export class AnalysisController extends GameController {
 
         if (msg.steps.length > 1) {
             this.steps = [];
-            msg.steps.forEach((step, ply) => {
+            msg.steps.forEach(step => {
                 if (step.analysis !== undefined) {
                     step.ceval = step.analysis;
-                    const scoreStr = this.buildScoreStr(ply % 2 === 0 ? 'w' : 'b', step.analysis);
+                    const scoreStr = this.buildScoreStr(step.turnColor === 'white' ? 'w' : 'b', step.analysis);
                     step.scoreStr = scoreStr;
                 }
                 this.steps.push(step);
@@ -1662,7 +1662,9 @@ export class AnalysisController extends GameController {
             }
 
         if (this.hasAnalysisTree()) {
-            moves.push(renderFullTreePgnMoveText(this.analysisTree!, node => node.step.sanSAN ?? ''));
+            moves.push(
+                renderFullTreePgnMoveText(this.analysisTree!, node => node.step.sanSAN ?? '', renderNodeAnnotations),
+            );
         }
 
         if (sanSANneeded || this.hasAnalysisTree()) {
@@ -1808,6 +1810,7 @@ export class AnalysisController extends GameController {
 
         // Server side analysis message
         if (msg.type === 'analysis') {
+            this.steps[msg.ply].analysis = msg.ceval;
             this.steps[msg.ply]['ceval'] = msg.ceval;
             this.steps[msg.ply]['scoreStr'] = scoreStr;
 
@@ -1818,6 +1821,13 @@ export class AnalysisController extends GameController {
             ) {
                 const element = document.getElementById('loader-wrapper') as HTMLElement;
                 element.style.display = 'none';
+            }
+            if (this.analysisTree && mergeServerAdvice(this.analysisTree, Number(msg.ply), msg.ceval)) {
+                updateMovelist(this, true, false);
+            }
+            if (msg.pgn !== undefined) {
+                this.pgn = msg.pgn;
+                this.renderFENAndPGN(this.pgn);
             }
             this.drawServerEval(msg.ply, scoreStr);
         } else {

@@ -2,17 +2,24 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import math
 import random
 import string
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Literal
 
+from analysis_advice import (
+    ANALYSIS_COMMENT_AUTHOR,
+    MoveAdvice,
+    advice_for_move,
+    analysis_pv,
+    analysis_score,
+    prepare_analysis_line,
+)
 from bson import BSON
 from catalogued_variants import catalogued_variant_allows_fishnet, replace_variant_section_name
 from const import ANALYSIS
-from fairy.fairy_board import NOTATION_SAN, WHITE, FairyBoard
+from fairy.fairy_board import FairyBoard
 from typing_defs import AnalysisStep, FishnetAnalysisItem, FishnetWork
 from websocket_utils import ws_send_json_many
 
@@ -36,12 +43,6 @@ if TYPE_CHECKING:
 STUDY_ANALYSIS_MIN_MOVES = 5
 STUDY_ANALYSIS_COOLDOWN = timedelta(minutes=5)
 STUDY_ANALYSIS_NODES = 500_000
-STUDY_ANALYSIS_PV_MAX_PLIES = 12
-STUDY_ANALYSIS_COMMENT_AUTHOR = "PyChess"
-
-_NAG_INACCURACY = 6
-_NAG_MISTAKE = 2
-_NAG_BLUNDER = 4
 
 StudyAnalysisRequestStatus = Literal[
     "started",
@@ -335,11 +336,11 @@ def _merge_analysis_rows(
             node = mainline[i - 1]
             previous_node = mainline[i - 2]
             previous_row = bounded[i - 1]
-            pv = _analysis_pv(previous_row, node.move)
+            pv = analysis_pv(previous_row, node.move)
             advice = (
-                _advice_for_move(
-                    _analysis_score(previous_row),
-                    _analysis_score(analysis),
+                advice_for_move(
+                    analysis_score(previous_row),
+                    analysis_score(analysis),
                     previous_side_to_move=previous_node.turn_color,
                     current_side_to_move=node.turn_color,
                 )
@@ -354,132 +355,13 @@ def _merge_analysis_rows(
     return tuple(merged), complete
 
 
-@dataclass(frozen=True, slots=True)
-class _StudyAdvice:
-    name: str
-    nag: int
-    description: str
-
-
-def _analysis_score(row: FishnetAnalysisItem | None) -> dict[str, int] | None:
-    if row is None:
-        return None
-    raw = row.get("score")
-    if not isinstance(raw, dict):
-        return None
-    score: dict[str, int] = {}
-    for key in ("cp", "mate"):
-        value = raw.get(key)
-        if isinstance(value, int) and not isinstance(value, bool):
-            score[key] = value
-    return score or None
-
-
-def _invert_score(score: dict[str, int]) -> dict[str, int]:
-    return {key: -value for key, value in score.items()}
-
-
-def _white_pov_score(score: dict[str, int], side_to_move: str) -> dict[str, int]:
-    # Fairyfishnet returns the UCI score from the side-to-move point of view. Study
-    # tree evaluations follow PyChess's existing raw-score convention, but advice
-    # needs a stable point of view so consecutive positions can be compared.
-    return score if side_to_move == "white" else _invert_score(score)
-
-
-def _winning_chances_from_cp(cp: int) -> float:
-    cp = max(-1000, min(1000, cp))
-    return 2 / (1 + math.exp(-0.00368208 * cp)) - 1
-
-
-def _advice_for_move(
-    previous_score: dict[str, int] | None,
-    current_score: dict[str, int] | None,
-    *,
-    previous_side_to_move: str,
-    current_side_to_move: str,
-) -> _StudyAdvice | None:
-    """Mirror lila.tree.Advice for one played move.
-
-    Lila compares White-oriented evaluations, then interprets the change from the
-    mover's point of view. The first move intentionally has no advice because lila's
-    synthetic Info.start has no evaluation; its variation is therefore dropped too.
-    """
-
-    if previous_score is None or current_score is None:
-        return None
-
-    previous_white = _white_pov_score(previous_score, previous_side_to_move)
-    current_white = _white_pov_score(current_score, current_side_to_move)
-    mover_is_white = previous_side_to_move == "white"
-
-    previous_cp = previous_white.get("cp")
-    current_cp = current_white.get("cp")
-    if previous_cp is not None and current_cp is not None:
-        delta = _winning_chances_from_cp(current_cp) - _winning_chances_from_cp(previous_cp)
-        loss = -delta if mover_is_white else delta
-        if loss >= 0.3:
-            return _StudyAdvice("Blunder", _NAG_BLUNDER, "Blunder")
-        if loss >= 0.2:
-            return _StudyAdvice("Mistake", _NAG_MISTAKE, "Mistake")
-        if loss >= 0.1:
-            return _StudyAdvice("Inaccuracy", _NAG_INACCURACY, "Inaccuracy")
-        return None
-
-    previous_pov = previous_white if mover_is_white else _invert_score(previous_white)
-    current_pov = current_white if mover_is_white else _invert_score(current_white)
-    previous_mate = previous_pov.get("mate")
-    current_mate = current_pov.get("mate")
-
-    mate_created = (
-        previous_pov.get("cp") is not None and current_mate is not None and current_mate < 0
-    )
-    mate_lost = (
-        previous_mate is not None
-        and previous_mate > 0
-        and (current_pov.get("cp") is not None or (current_mate is not None and current_mate < 0))
-    )
-    if mate_created:
-        previous_pov_cp = previous_pov.get("cp", 0)
-        if previous_pov_cp < -999:
-            judgment = _StudyAdvice("Inaccuracy", _NAG_INACCURACY, "Checkmate is now unavoidable")
-        elif previous_pov_cp < -700:
-            judgment = _StudyAdvice("Mistake", _NAG_MISTAKE, "Checkmate is now unavoidable")
-        else:
-            judgment = _StudyAdvice("Blunder", _NAG_BLUNDER, "Checkmate is now unavoidable")
-        return judgment
-    if mate_lost:
-        current_pov_cp = current_pov.get("cp", 0)
-        if current_pov_cp > 999:
-            judgment = _StudyAdvice("Inaccuracy", _NAG_INACCURACY, "Lost forced checkmate sequence")
-        elif current_pov_cp > 700:
-            judgment = _StudyAdvice("Mistake", _NAG_MISTAKE, "Lost forced checkmate sequence")
-        else:
-            judgment = _StudyAdvice("Blunder", _NAG_BLUNDER, "Lost forced checkmate sequence")
-        return judgment
-    return None
-
-
-def _analysis_pv(row: FishnetAnalysisItem | None, played_move: str) -> list[str]:
-    if row is None:
-        return []
-    raw_pv = row.get("pv")
-    if not isinstance(raw_pv, str):
-        return []
-    pv = raw_pv.split()
-    if not pv or pv[0] == played_move:
-        return []
-    return pv[:STUDY_ANALYSIS_PV_MAX_PLIES]
-
-
 def _has_generated_analysis_comment(node: StudyTreeNode) -> bool:
-    return any(
-        comment.author == STUDY_ANALYSIS_COMMENT_AUTHOR for comment in node.annotations.comments
-    )
+    return any(comment.author == ANALYSIS_COMMENT_AUTHOR for comment in node.annotations.comments)
 
 
 def _merge_advice_annotations(
     node: StudyTreeNode,
-    advice: _StudyAdvice,
+    advice: MoveAdvice,
     best_san: str | None,
 ) -> StudyTreeNode:
     annotations = node.annotations
@@ -490,14 +372,11 @@ def _merge_advice_annotations(
         not _has_generated_analysis_comment(node)
         and len(comments) < STUDY_MAX_COMMENTS_PER_POSITION
     ):
-        text = f"{advice.description}."
-        if best_san:
-            text += f" {best_san} was best."
         comments.append(
             StudyComment(
                 id=new_study_node_id(comment.id for comment in comments),
-                author=STUDY_ANALYSIS_COMMENT_AUTHOR,
-                text=text,
+                author=ANALYSIS_COMMENT_AUTHOR,
+                text=advice.comment(best_san),
             )
         )
 
@@ -577,40 +456,13 @@ def _merge_analysis_line(
         legal_moves_need_history=legal_moves_need_history,
     )
 
-    prepared: list[tuple[str, str, str, bool, str, str]] = []
-    for move in pv:
-        if move not in board.legal_moves():
-            log.info(
-                "Ignoring invalid Study Fishnet PV move %s for %s/%s",
-                move,
-                chapter.study_id,
-                chapter.id,
-            )
-            return None
-        san = board.get_san(move)
-        san_san = board.sf.get_san(
-            board.variant,
-            board.fen,
-            move,
-            board.chess960,
-            NOTATION_SAN,
-        )
-        board.push(move)
-        prepared.append(
-            (
-                move,
-                board.fen,
-                "white" if board.color == WHITE else "black",
-                board.is_checked(),
-                san,
-                san_san,
-            )
-        )
+    prepared = prepare_analysis_line(board, pv)
 
     # Verify the already-existing prefix first. Once a move is missing, every
     # descendant below the new random id will necessarily be new as well.
     parent_id = mainline[parent_ply - 1].id if parent_ply else None
-    for move, fen, _turn_color, _check, _san, _san_san in prepared:
+    for step in prepared:
+        move, fen = step["move"], step["fen"]
         sibling_ids = children.get(parent_id, [])
         existing = next(
             (nodes[node_id] for node_id in sibling_ids if nodes[node_id].move == move),
@@ -629,7 +481,8 @@ def _merge_analysis_line(
         parent_id = existing.id
 
     parent_id = mainline[parent_ply - 1].id if parent_ply else None
-    for move, fen, turn_color, check, san, san_san in prepared:
+    for step in prepared:
+        move, fen = step["move"], step["fen"]
         sibling_ids = children.setdefault(parent_id, [])
         existing = next(
             (nodes[node_id] for node_id in sibling_ids if nodes[node_id].move == move),
@@ -648,17 +501,17 @@ def _merge_analysis_line(
             order=len(sibling_ids),
             move=move,
             fen=fen,
-            turn_color=turn_color,
-            check=check,
-            san=san,
-            san_san=san_san,
+            turn_color=step["turnColor"],
+            check=step["check"],
+            san=step["san"],
+            san_san=step["sanSAN"],
         )
         nodes[node_id] = node
         sibling_ids.append(node_id)
         children.setdefault(node_id, [])
         parent_id = node_id
 
-    return prepared[0][4] if prepared else None
+    return prepared[0]["san"] if prepared else None
 
 
 def _merge_analysis_into_tree(
@@ -683,7 +536,7 @@ def _merge_analysis_into_tree(
     try:
         with study_variant_context(app_state, chapter.variant, chapter.variant_ini) as options:
             for ply, mainline_node in enumerate(mainline, start=1):
-                current_score = _analysis_score(rows[ply] if ply < len(rows) else None)
+                current_score = analysis_score(rows[ply] if ply < len(rows) else None)
                 previous_row = rows[ply - 1] if ply - 1 < len(rows) else None
                 current = nodes[mainline_node.id]
                 previous_side_to_move = mainline[ply - 2].turn_color if ply >= 2 else None
@@ -692,11 +545,11 @@ def _merge_analysis_into_tree(
                 # advice. Its first move has no advice because Info.start has no eval,
                 # and UciToSan drops all other non-meaningful variations before the
                 # Study merger sees them.
-                pv = _analysis_pv(previous_row, mainline_node.move)
-                advice: _StudyAdvice | None = None
+                pv = analysis_pv(previous_row, mainline_node.move)
+                advice: MoveAdvice | None = None
                 if pv and previous_side_to_move is not None:
-                    advice = _advice_for_move(
-                        _analysis_score(previous_row),
+                    advice = advice_for_move(
+                        analysis_score(previous_row),
                         current_score,
                         previous_side_to_move=previous_side_to_move,
                         current_side_to_move=current.turn_color,

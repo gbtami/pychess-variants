@@ -147,10 +147,26 @@ class RatingDiffs(TypedDict):
     wrdiff: int | str
 
 
+class AnalysisVariationStep(TypedDict):
+    move: str
+    fen: str
+    turnColor: str
+    check: bool
+    san: str
+    sanSAN: str
+
+
+class AnalysisAdvice(TypedDict):
+    nag: int
+    comment: str
+    variation: list[AnalysisVariationStep]
+
+
 class AnalysisStep(TypedDict, total=False):
     s: object
     d: int
     p: str
+    advice: AnalysisAdvice
 
 
 class GameRatingDoc(TypedDict):

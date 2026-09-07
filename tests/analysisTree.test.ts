@@ -113,7 +113,7 @@ describe('analysis tree basics', () => {
         addOrSelectChild(tree, c5Path, makeStep('v4 b - - 0 1', 'g1f3', 'black', 'Nf3'), false);
 
         expect(renderFullTreePgnMoveText(tree, node => node.step.sanSAN ?? '')).toBe(
-            '1. e4 (1. d4 d5) (1... c5 2. Nf3) e5 2. Nf3',
+            '1. e4 (1. d4 d5) e5 (1... c5 2. Nf3) 2. Nf3',
         );
     });
 

@@ -1607,6 +1607,14 @@ class Game:
                 for ind, move in enumerate(mlist)
             )
         )
+        if not self.server_variant.two_boards and any(
+            step.get("analysis", {}).get("advice") for step in self.steps
+        ):
+            from game_analysis import annotated_game_moves
+
+            moves = annotated_game_moves(
+                mlist, self.board.initial_fen, [step.get("analysis") for step in self.steps]
+            )
         no_setup = self.board.initial_fen == FairyBoard.start_fen("chess") and not self.chess960
         # Use lichess format for crazyhouse games to support easy import
         setup_fen = (

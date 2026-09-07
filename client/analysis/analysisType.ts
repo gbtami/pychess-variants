@@ -15,5 +15,6 @@ export interface MsgAnalysis {
     type: string;
     ply: number;
     ceval: Ceval;
+    pgn?: string;
     color: string;
 }
