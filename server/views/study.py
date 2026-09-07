@@ -18,8 +18,8 @@ from study.builder import (
     StudyChapterDraft,
     StudyOrientation,
 )
-from study.constants import STUDY_MAX_CHAPTERS, STUDY_MAX_MEMBERS
-from study.models import Study, StudyChapter, study_visibility
+from study.constants import STUDY_MAX_CHAPTERS, STUDY_MAX_MEMBERS, STUDY_MAX_TOPICS
+from study.models import Study, StudyChapter, study_topic, study_visibility
 from study.permissions import (
     can_clone_study,
     can_embed_study,
@@ -45,20 +45,29 @@ from study.storage import (
     load_owned_chapter,
     load_owned_study,
     load_study,
+    member_study_topics,
     owner_studies_page,
+    popular_study_topics,
     public_studies_page,
     remove_study_member,
     rename_study,
     set_study_like,
     set_study_member_role,
+    set_study_topics,
     set_study_visibility,
     studies_for_owner_view,
     studies_writable_by,
     study_list_order,
     study_search_page,
+    topic_studies_page,
 )
 from study.variant import study_variant_client_doc, study_variant_context, study_variant_metadata
-from study.ws import broadcast_study_likes, broadcast_study_members, close_study_sockets
+from study.ws import (
+    broadcast_study_likes,
+    broadcast_study_members,
+    broadcast_study_topics,
+    close_study_sockets,
+)
 from typing_defs import ViewContext
 from utils import USERNAME_PREFIX_RE
 from variants import ALL_VARIANTS, is_catalogued_variant
@@ -110,6 +119,14 @@ def _study_list_query_href(
 def _populate_study_list_navigation(context: ViewContext, *, active: str) -> None:
     context["study_list_navigation"] = True
     context["study_list_active"] = active
+
+
+async def _populate_study_navigation_topics(
+    context: ViewContext,
+    app_state: Any,
+    username: str | None,
+) -> None:
+    context["study_nav_topics"] = await member_study_topics(app_state, username) if username else []
 
 
 def _populate_study_search_form(
@@ -343,6 +360,7 @@ async def studies(request: web.Request) -> ViewContext:
     context["study_list_show_owner"] = False
     _populate_study_search_form(context, f"owner:{user.username} ")
     _populate_study_page(context, request, result, active="mine")
+    await _populate_study_navigation_topics(context, app_state, user.username)
     return context
 
 
@@ -370,6 +388,7 @@ async def studies_contributed(request: web.Request) -> ViewContext:
     context["study_list_show_owner"] = True
     _populate_study_search_form(context, f"member:{user.username} ")
     _populate_study_page(context, request, result, active="member")
+    await _populate_study_navigation_topics(context, app_state, user.username)
     return context
 
 
@@ -397,6 +416,7 @@ async def studies_liked(request: web.Request) -> ViewContext:
     context["study_list_show_owner"] = True
     _populate_study_search_form(context)
     _populate_study_page(context, request, result, active="likes")
+    await _populate_study_navigation_topics(context, app_state, user.username)
     return context
 
 
@@ -425,6 +445,7 @@ async def studies_mine_public(request: web.Request) -> ViewContext:
     context["study_list_show_owner"] = False
     _populate_study_search_form(context, f"owner:{user.username} ")
     _populate_study_page(context, request, result, active="mine-public")
+    await _populate_study_navigation_topics(context, app_state, user.username)
     return context
 
 
@@ -453,6 +474,7 @@ async def studies_mine_private(request: web.Request) -> ViewContext:
     context["study_list_show_owner"] = False
     _populate_study_search_form(context, f"owner:{user.username} ")
     _populate_study_page(context, request, result, active="mine-private")
+    await _populate_study_navigation_topics(context, app_state, user.username)
     return context
 
 
@@ -484,6 +506,9 @@ async def studies_public(request: web.Request) -> ViewContext:
         clear_href=f"/study/all?order={order}",
     )
     _populate_study_page(context, request, result, active="all")
+    await _populate_study_navigation_topics(
+        context, app_state, None if user.anon else user.username
+    )
     return context
 
 
@@ -545,6 +570,61 @@ async def studies_search(request: web.Request) -> ViewContext:
         clear_href=f"/study/all?order={order}",
     )
     _populate_study_page(context, request, result, active="search")
+    await _populate_study_navigation_topics(
+        context, app_state, None if user.anon else user.username
+    )
+    return context
+
+
+@aiohttp_jinja2.template("studies.html")
+async def studies_topics(request: web.Request) -> ViewContext:
+    user, context = await get_user_context(request)
+    app_state = get_app_state(request.app)
+    if app_state.db is None:
+        raise web.HTTPServiceUnavailable(text="Studies require database access.")
+
+    _study_context(context)
+    context["title"] = "Study topics • PyChess"
+    context["study_list_can_create"] = not user.anon and not user.bot
+    context["study_topics_index"] = True
+    context["study_popular_topics"] = await popular_study_topics(app_state)
+    _populate_study_list_navigation(context, active="topics")
+    await _populate_study_navigation_topics(
+        context, app_state, None if user.anon else user.username
+    )
+    return context
+
+
+@aiohttp_jinja2.template("studies.html")
+async def studies_by_topic(request: web.Request) -> ViewContext:
+    user, context = await get_user_context(request)
+    app_state = get_app_state(request.app)
+    if app_state.db is None:
+        raise web.HTTPServiceUnavailable(text="Studies require database access.")
+
+    try:
+        topic = study_topic(request.match_info["topic"])
+    except ValueError as exc:
+        raise web.HTTPNotFound() from exc
+    viewer = None if user.anon else user.username
+    order = study_list_order(request.rel_url.query.get("order"))
+    result = await topic_studies_page(
+        app_state,
+        topic,
+        viewer=viewer,
+        order=order,
+        page=_positive_page(request.rel_url.query.get("page")),
+    )
+    _study_context(context)
+    context["title"] = f"{topic} • Study topics • PyChess"
+    context["study_list_owner"] = ""
+    context["study_list_is_self"] = False
+    context["study_list_can_create"] = not user.anon and not user.bot
+    context["study_list_show_visibility"] = not user.anon
+    context["study_list_show_owner"] = True
+    context["study_topic"] = topic
+    _populate_study_page(context, request, result, active="topic")
+    await _populate_study_navigation_topics(context, app_state, viewer)
     return context
 
 
@@ -625,6 +705,8 @@ async def _populate_study_chapter_context(
             "canLike": not user.anon and not user.bot,
             "liked": study.is_liked_by(None if user.anon else user.username),
             "likes": study.likes,
+            "topics": list(study.topics),
+            "maxTopics": STUDY_MAX_TOPICS,
             "members": dict(study.members),
             "maxMembers": STUDY_MAX_MEMBERS,
             "sharedChapter": study.current_chapter or chapter.id,
@@ -951,6 +1033,37 @@ async def study_like(request: web.Request) -> web.StreamResponse:
             {"studyId": study.id, "name": study.name},
         )
     return web.json_response({"ok": True, "liked": liked, "likes": likes})
+
+
+async def study_topics_update(request: web.Request) -> web.StreamResponse:
+    user, _ = await get_user_context(request)
+    if user.anon or user.bot:
+        return web.json_response({"ok": False, "error": "forbidden"}, status=403)
+
+    app_state = get_app_state(request.app)
+    if app_state.db is None:
+        return web.json_response({"ok": False, "error": "db_unavailable"}, status=503)
+    study = await load_study(app_state, request.match_info["studyId"])
+    if study is None or not can_view_study(study, user.username):
+        return web.json_response({"ok": False, "error": "not_found"}, status=404)
+    if not can_write_study(study, user.username):
+        return web.json_response({"ok": False, "error": "forbidden"}, status=403)
+
+    data = await read_json_data(request)
+    if not isinstance(data, Mapping) or not isinstance(data.get("topics"), list):
+        return web.json_response({"ok": False, "error": "invalid_topics"}, status=400)
+    try:
+        updated, changed = await set_study_topics(
+            app_state,
+            study.id,
+            user.username,
+            data["topics"],
+        )
+    except StudyStorageError as exc:
+        return web.json_response({"ok": False, "error": str(exc)}, status=400)
+    if changed:
+        await broadcast_study_topics(app_state, updated.id, updated.topics)
+    return web.json_response({"ok": True, "topics": list(updated.topics)})
 
 
 async def study_edit(request: web.Request) -> web.StreamResponse:

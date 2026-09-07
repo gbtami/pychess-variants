@@ -12,11 +12,38 @@
             <a class="{% if study_list_active == 'mine-private' %}active{% endif %}" href="{{ home }}/study/private">{% trans %}My private studies{% endtrans %}</a>
             <a class="{% if study_list_active == 'likes' %}active{% endif %}" href="{{ home }}/study/likes">{% trans %}My favorite studies{% endtrans %}</a>
             {% endif %}
+            <a class="{% if study_list_active in ('topics', 'topic') %}active{% endif %}" href="{{ home }}/study/topic">{% trans %}Topics{% endtrans %}</a>
+            {% for topic in study_nav_topics|default([]) %}
+            <a class="study-index__topic-link{% if study_list_active == 'topic' and study_topic == topic %} active{% endif %}" href="{{ home }}/study/topic/{{ topic | urlencode }}">{{ topic }}</a>
+            {% endfor %}
         </nav>
         {% endif %}
         <section class="study-index{% if study_list_navigation %} page-menu__content{% endif %} box">
+            {% if study_topics_index %}
+            <div class="study-topics-index">
+                <h1>{% trans %}Topics{% endtrans %}</h1>
+                {% if study_nav_topics %}
+                <h2>{% trans %}Your topics{% endtrans %}</h2>
+                <div class="study-topic-list">
+                    {% for topic in study_nav_topics %}
+                    <a href="{{ home }}/study/topic/{{ topic | urlencode }}">{{ topic }}</a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                <h2>{% trans %}Popular topics{% endtrans %}</h2>
+                {% if study_popular_topics %}
+                <div class="study-topic-list study-topic-list--popular">
+                    {% for topic in study_popular_topics %}
+                    <a href="{{ home }}/study/topic/{{ topic | urlencode }}">{{ topic }}</a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="study-topics-index__empty">{% trans %}No public Study topics yet.{% endtrans %}</p>
+                {% endif %}
+            </div>
+            {% else %}
             <div class="study-index__top">
-                <h1 class="study-index__title">
+                <h1 class="study-index__title{% if study_list_active == 'topic' %} study-index__title--topic{% endif %}">
                     {% if study_list_active == 'search' %}
                     {% trans %}Search studies{% endtrans %}
                     {% elif study_list_active == 'all' %}
@@ -29,6 +56,8 @@
                     {% trans %}My private studies{% endtrans %}
                     {% elif study_list_active == 'likes' %}
                     {% trans %}My favorite studies{% endtrans %}
+                    {% elif study_list_active == 'topic' %}
+                    {{ study_topic }}
                     {% elif study_list_is_self %}
                     {% trans %}My studies{% endtrans %}
                     {% else %}
@@ -92,6 +121,13 @@
                 </details>
                 {% endif %}
             </div>
+            {% if study_nav_topics and not anon and study_list_active != 'topic' %}
+            <div class="study-topic-list study-topic-list--shortcuts">
+                {% for topic in study_nav_topics %}
+                <a href="{{ home }}/study/topic/{{ topic | urlencode }}">{{ topic }}</a>
+                {% endfor %}
+            </div>
+            {% endif %}
             {% if study_search is defined %}
             {% if study_search.query_too_short %}
             <p class="study-search__hint">{% trans %}Enter at least 3 characters to search studies.{% endtrans %}</p>
@@ -186,6 +222,7 @@
                 <span>{% trans page=study_page.page, pages=study_page.pages %}Page {{ page }} / {{ pages }}{% endtrans %}</span>
                 {% if study_next_href %}<a class="button" href="{{ study_next_href }}">{% trans %}Next{% endtrans %}</a>{% endif %}
             </nav>
+            {% endif %}
             {% endif %}
         </section>
     </main>

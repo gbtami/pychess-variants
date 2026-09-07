@@ -33,6 +33,7 @@ const STUDY_SOCKET_TYPES = new Set([
     'study_user_connected',
     'study_members',
     'study_likes',
+    'study_topics',
     'study_position',
     'study_add_node',
     'study_delete_node',
@@ -104,6 +105,7 @@ export interface StudySyncOptions {
     onReloadRequired?: (reason: string) => void;
     onMembersChanged?: (members: Record<string, 'read' | 'write'>) => void;
     onLikesChanged?: (likes: number) => void;
+    onTopicsChanged?: (topics: string[]) => void;
     onLocalPathChanged?: (path: string) => void;
     onSharedPositionChanged?: (chapterId: string, path: string) => void;
     opIdFactory?: () => string;
@@ -124,6 +126,16 @@ function asStringRecord(value: unknown): Record<string, string> | undefined {
     for (const [key, entry] of Object.entries(data)) {
         if (typeof entry !== 'string') return undefined;
         result[key] = entry;
+    }
+    return result;
+}
+
+function asStringArray(value: unknown): string[] | undefined {
+    if (!Array.isArray(value)) return undefined;
+    const result: string[] = [];
+    for (const entry of value) {
+        if (typeof entry !== 'string' || !entry) return undefined;
+        result.push(entry);
     }
     return result;
 }
@@ -536,6 +548,16 @@ export class StudyAnalysisExtension implements AnalysisExtension {
                 return true;
             }
             this.options.onLikesChanged?.(data.likes as number);
+            return true;
+        }
+
+        if (type === 'study_topics') {
+            const topics = asStringArray(data.topics);
+            if (!topics) {
+                this.requestReload('invalid_topics');
+                return true;
+            }
+            this.options.onTopicsChanged?.(topics);
             return true;
         }
 

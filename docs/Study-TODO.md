@@ -1329,7 +1329,15 @@ Add these based on actual PyChess usage rather than parity for its own sake.
   favorites remain visible only while membership still grants access). Like counts are broadcast to
   connected Study viewers without a reload. New likes of public Studies also propagate to the liker's
   followers in the main-page timeline, matching Lichess; unlike/idempotent likes and non-public Studies do not.
-- [ ] Topics/tags for discovery.
+- [x] Topics/tags for discovery.
+  Studies now carry up to 30 Lichess-compatible discovery topics. Contributors can manage
+  them from the Study metadata panel, topic changes broadcast live to connected viewers,
+  and topics participate in richer Study search. `/study/topic` shows public popular topics
+  plus shortcuts derived from the signed-in user's owned/member Studies, while
+  `/study/topic/<topic>` lists Studies with that topic subject to the normal
+  public/unlisted/private visibility rules. Cloning preserves Study topics. PyChess derives
+  personal topic shortcuts from accessible Studies instead of adding Lichess's separate
+  per-user topic-preference collection in this first slice.
 - [ ] Chapter previews / multiboard overview.
 - [ ] Per-feature permissions (local engine, explorer, clone, export/share).
 - [ ] Server/Fishnet analysis request for a chapter.

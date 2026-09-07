@@ -14,6 +14,7 @@ from study.constants import (
     STUDY_CHAPTER_NAME_MAX_LENGTH,
     STUDY_MAX_CHAPTERS,
     STUDY_MAX_MEMBERS,
+    STUDY_MAX_TOPICS,
     STUDY_NAME_MAX_LENGTH,
 )
 from study.models import (
@@ -28,6 +29,7 @@ from study.models import (
     study_member_role,
     study_search_query_tokens,
     study_search_tokens,
+    study_topics,
     study_visibility,
 )
 from study.permissions import can_write_study
@@ -167,6 +169,67 @@ async def favorite_studies_page(
     )
 
 
+async def topic_studies_page(
+    app_state: Any,
+    topic: str,
+    *,
+    viewer: str | None,
+    order: StudyListOrder = "updated",
+    page: int = 1,
+) -> dict[str, object]:
+    """Return Studies with one exact topic that are discoverable to ``viewer``."""
+
+    return await _studies_page(
+        app_state,
+        {"$and": [{"topics": topic}, _study_search_access_query(viewer)]},
+        order=order,
+        page=page,
+    )
+
+
+async def popular_study_topics(app_state: Any, *, limit: int = 50) -> list[str]:
+    """Return the most-used public Study topics without leaking private metadata."""
+
+    pipeline = [
+        {"$match": {"visibility": "public", "topics": {"$exists": True, "$ne": []}}},
+        {"$unwind": "$topics"},
+        {"$group": {"_id": "$topics", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1, "_id": 1}},
+        {"$limit": max(1, limit)},
+    ]
+    docs = await app_state.db.study.aggregate(pipeline).to_list(length=max(1, limit))
+    return [str(doc["_id"]) for doc in docs if isinstance(doc.get("_id"), str)]
+
+
+async def member_study_topics(app_state: Any, username: str, *, limit: int = 12) -> list[str]:
+    """Return recent distinct topics from Studies the user owns or belongs to.
+
+    Lichess stores a separate personal topic-shortcut list. PyChess derives the
+    shortcuts from the user's accessible Studies instead, which keeps the first
+    topic implementation small while preserving the same useful navigation.
+    """
+
+    cursor = (
+        app_state.db.study.find(
+            {"$or": [{"owner": username}, _member_query(username)]},
+            projection={"topics": 1, "updatedAt": 1},
+        )
+        .sort("updatedAt", -1)
+        .limit(100)
+    )
+    topics: list[str] = []
+    async for doc in cursor:
+        raw_topics = doc.get("topics")
+        if not isinstance(raw_topics, list):
+            continue
+        for raw_topic in raw_topics:
+            if isinstance(raw_topic, str) and raw_topic not in topics:
+                topics.append(raw_topic)
+                if len(topics) >= limit:
+                    return topics
+    return topics
+
+
 def _study_search_parts(value: object) -> tuple[str, tuple[str, ...], str | None, str | None, bool]:
     clean_query = " ".join(str(value or "").split())[:_STUDY_SEARCH_QUERY_MAX_LENGTH]
     owner: str | None = None
@@ -274,7 +337,7 @@ async def refresh_study_search_tokens(app_state: Any, study_id: str) -> None:
     """Rebuild the bounded denormalized search vocabulary for one Study."""
 
     study_doc = await app_state.db.study.find_one(
-        {"_id": study_id}, projection={"name": 1, "owner": 1}
+        {"_id": study_id}, projection={"name": 1, "owner": 1, "topics": 1}
     )
     if study_doc is None:
         return
@@ -308,6 +371,7 @@ async def refresh_study_search_tokens(app_state: Any, study_id: str) -> None:
     tokens = study_search_tokens(
         str(study_doc.get("name") or ""),
         str(study_doc.get("owner") or ""),
+        *(str(topic) for topic in study_doc.get("topics", []) if isinstance(topic, str)),
         *metadata,
         *descriptions,
     )
@@ -466,6 +530,56 @@ async def set_study_like(
     likes = len(likers)
     await app_state.db.study.update_one({"_id": study.id}, {"$set": {"likes": likes}})
     return username in likers, likes, bool(result.modified_count)
+
+
+async def set_study_topics(
+    app_state: Any,
+    study_id: str,
+    actor: str,
+    topics: object,
+) -> tuple[Study, bool]:
+    """Replace one Study's discovery topics with optimistic metadata revision safety."""
+
+    try:
+        clean_topics = study_topics(topics)
+    except (TypeError, ValueError) as exc:
+        raise StudyStorageError(str(exc)) from exc
+    if len(clean_topics) > STUDY_MAX_TOPICS:
+        raise StudyStorageError(f"A Study can have at most {STUDY_MAX_TOPICS} topics")
+
+    for _ in range(4):
+        study = await load_study(app_state, study_id)
+        if study is None:
+            raise StudyStorageError("Study not found")
+        if not can_write_study(study, actor):
+            raise StudyStorageError("You cannot edit this Study")
+        if study.topics == clean_topics:
+            return study, False
+
+        now = datetime.now(UTC)
+        update: dict[str, object] = {
+            "$set": {"updatedAt": now},
+            "$inc": {"revision": 1},
+        }
+        if clean_topics:
+            cast(dict[str, object], update["$set"])["topics"] = list(clean_topics)
+        else:
+            update["$unset"] = {"topics": ""}
+        result = await app_state.db.study.update_one(
+            {"_id": study.id, "revision": study.revision},
+            update,
+        )
+        if result.matched_count == 1:
+            updated = replace(
+                study,
+                topics=clean_topics,
+                updated_at=now,
+                revision=study.revision + 1,
+            )
+            await refresh_study_search_tokens(app_state, study.id)
+            return updated, True
+
+    raise StudyStorageError("Study topics changed concurrently; please retry")
 
 
 async def _replace_study_members(
@@ -720,7 +834,7 @@ async def clone_study(
         source=StudySource("study", source.id),
         now=now,
     )
-    cloned = replace(cloned, settings=dict(source.settings))
+    cloned = replace(cloned, settings=dict(source.settings), topics=source.topics)
 
     chapters: list[StudyChapter] = []
     for doc in docs:

@@ -555,6 +555,38 @@ describe('Study analysis websocket synchronization', () => {
         expect(reload).not.toHaveBeenCalled();
     });
 
+    test('updates Study topics from room broadcasts', () => {
+        const topicsChanged = jest.fn();
+        const reload = jest.fn();
+        const extension = new StudyAnalysisExtension(makeCtrl(), {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            onTopicsChanged: topicsChanged,
+            onReloadRequired: reload,
+        });
+
+        expect(
+            extension.onSocketMessage('study_topics', {
+                type: 'study_topics',
+                studyId: 'study001',
+                topics: ['King pawn', 'Endgame'],
+            }),
+        ).toBe(true);
+
+        expect(topicsChanged).toHaveBeenCalledWith(['King pawn', 'Endgame']);
+        expect(reload).not.toHaveBeenCalled();
+
+        expect(
+            extension.onSocketMessage('study_topics', {
+                type: 'study_topics',
+                studyId: 'study001',
+                topics: ['valid', 7],
+            }),
+        ).toBe(true);
+        expect(reload).toHaveBeenCalledWith('invalid_topics');
+    });
+
     test('applies a remote node incrementally and advances the revision', () => {
         const ctrl = makeCtrl();
         const reload = jest.fn();

@@ -313,9 +313,9 @@ async def test_profile_study_listing_only_exposes_public_studies(aiohttp_client)
     assert "Public repertoire" in html
     assert "Private repertoire" in html
     assert "Link repertoire" in html
-    assert ">public<" in html
-    assert ">private<" in html
-    assert ">unlisted<" in html
+    assert "study-card__visibility--public" not in html
+    assert "study-card__visibility--private" in html
+    assert "study-card__visibility--unlisted" in html
 
     response = await client.get(f"/@/{owner}")
     assert response.status == 200
@@ -835,6 +835,62 @@ async def test_new_public_study_like_is_published_to_followers_only_once(aiohttp
     response = await client.post(f"/study/{study.id}/like", json={"liked": True})
     assert response.status == 200
     assert len(await app_state.timeline.entries_for(follower)) == 1
+
+
+@pytest.mark.asyncio
+async def test_study_topics_can_be_managed_and_discovered(aiohttp_client) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    owner = "topics_owner"
+    writer = "topics_writer"
+    reader = "topics_reader"
+    for username in (owner, writer, reader):
+        await _insert_user(app_state, username)
+
+    draft = await StudyChapterBuilder(app_state, owner).blank_or_fen(variant="chess")
+    study, chapter = await create_study_from_draft(app_state, owner, draft, name="Topic repertoire")
+    await set_study_visibility(app_state, study, "public")
+    study = await add_study_member(app_state, study.id, owner, writer, "write")
+    await add_study_member(app_state, study.id, owner, reader, "read")
+
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie(writer)})
+    response = await client.post(
+        f"/study/{study.id}/topics",
+        json={"topics": ["  King   pawn ", "Endgame", "King pawn"]},
+    )
+    assert response.status == 200
+    assert await response.json() == {"ok": True, "topics": ["King pawn", "Endgame"]}
+
+    response = await client.get(
+        f"/study/{study.id}/{chapter.id}", headers={"Accept": "application/json"}
+    )
+    assert response.status == 200
+    assert (await response.json())["study"]["topics"] == ["King pawn", "Endgame"]
+
+    client.session.cookie_jar.clear()
+    response = await client.get("/study/topic/King%20pawn")
+    assert response.status == 200
+    html = await response.text()
+    assert "King pawn" in html
+    assert "Topic repertoire" in html
+
+    response = await client.get("/study/topic")
+    assert response.status == 200
+    html = await response.text()
+    assert "Popular topics" in html
+    assert "King pawn" in html
+    assert "Endgame" in html
+
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie(reader)})
+    response = await client.post(f"/study/{study.id}/topics", json={"topics": ["Denied"]})
+    assert response.status == 403
+
+    client.session.cookie_jar.clear()
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie(owner)})
+    response = await client.post(f"/study/{study.id}/topics", json={"topics": ["x"]})
+    assert response.status == 400
+    assert "2-50" in (await response.json())["error"]
 
 
 @pytest.mark.asyncio

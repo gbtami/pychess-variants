@@ -215,15 +215,124 @@ async function toggleStudyLike(study: StudyPageModel): Promise<void> {
     }
 }
 
+function studyTopicHref(topic: string): string {
+    return `/study/topic/${encodeURIComponent(topic)}`;
+}
+
+function studyTopicsView(study: StudyPageModel): VNode {
+    return h('div.study-topics', { attrs: { 'data-study-topics': '' } }, [
+        ...study.topics.map(topic => h('a.study-topic', { attrs: { href: studyTopicHref(topic) } }, topic)),
+        ...(study.canWrite
+            ? [
+                  h(
+                      'button.study-topics__manage',
+                      {
+                          attrs: { type: 'button' },
+                          on: { click: () => openDialog('study-topics') },
+                      },
+                      _('Manage topics'),
+                  ),
+              ]
+            : []),
+    ]);
+}
+
+function updateStudyTopicsView(study: StudyPageModel): void {
+    document
+        .querySelectorAll<HTMLElement>('[data-study-topics]')
+        .forEach(element => patch(toVNode(element), studyTopicsView(study)));
+    const modal = document.querySelector<HTMLDialogElement>('#study-topics');
+    const textarea = modal?.querySelector<HTMLTextAreaElement>('textarea[name="topics"]');
+    if (textarea && !modal?.open) textarea.value = study.topics.join('\n');
+}
+
+function parseStudyTopics(value: string): string[] {
+    const topics: string[] = [];
+    for (const raw of value.split(/[\n,]+/)) {
+        const topic = raw.trim().replace(/\s+/g, ' ');
+        if (topic && !topics.includes(topic)) topics.push(topic);
+    }
+    return topics;
+}
+
+async function saveStudyTopics(study: StudyPageModel, form: HTMLFormElement): Promise<void> {
+    const textarea = form.querySelector<HTMLTextAreaElement>('textarea[name="topics"]');
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    if (!textarea || !button) return;
+    const topics = parseStudyTopics(textarea.value);
+    if (topics.length > study.maxTopics) {
+        void alertDialog({ text: _('A study can have at most %1 topics.', study.maxTopics) });
+        return;
+    }
+    button.disabled = true;
+    try {
+        const response = await fetch(`/study/${study.id}/topics`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ topics }),
+        });
+        if (!response.ok) throw new Error((await response.text()).trim() || response.statusText);
+        const payload = (await response.json()) as { topics?: unknown };
+        if (!Array.isArray(payload.topics) || !payload.topics.every(topic => typeof topic === 'string'))
+            throw new Error(_('Invalid Study topics response'));
+        study.topics = payload.topics as string[];
+        textarea.value = study.topics.join('\n');
+        updateStudyTopicsView(study);
+        form.closest<HTMLDialogElement>('dialog')?.close();
+    } catch (error) {
+        void alertDialog({
+            text: _('Could not update Study topics: %1', error instanceof Error ? error.message : String(error)),
+        });
+    } finally {
+        button.disabled = false;
+    }
+}
+
+function studyTopicsDialog(study: StudyPageModel): VNode {
+    return dialog('study-topics', _('Topics'), [
+        h('p.study-topics__help', [
+            _('Add topics to help people discover this study. Enter one topic per line or separate them with commas.'),
+        ]),
+        h(
+            'form.study-topics__form',
+            {
+                on: {
+                    submit: event => {
+                        event.preventDefault();
+                        void saveStudyTopics(study, event.currentTarget as HTMLFormElement);
+                    },
+                },
+            },
+            [
+                h(
+                    'textarea',
+                    {
+                        attrs: {
+                            name: 'topics',
+                            rows: '8',
+                            maxlength: String(study.maxTopics * 52),
+                            placeholder: `${_('Opening')}\n${_('Endgame')}`,
+                            'aria-label': _('Study topics'),
+                        },
+                    },
+                    study.topics.join('\n'),
+                ),
+                h('div.study-topics__form-actions', [
+                    h('span', ngettext('%1 topic maximum', '%1 topics maximum', study.maxTopics)),
+                    h('button.button', { attrs: { type: 'submit' } }, _('Save')),
+                ]),
+            ],
+        ),
+    ]);
+}
+
 function openDialog(id: string): void {
     const modal = document.querySelector<HTMLDialogElement>(`#${id}`);
     if (!modal) return;
     modal.showModal();
-    const input = modal.querySelector<HTMLInputElement>('input[type="text"]');
-    if (input) {
-        input.focus();
-        input.select();
-    }
+    const input = modal.querySelector<HTMLInputElement | HTMLTextAreaElement>('input[type="text"], textarea');
+    input?.focus();
+    if (input instanceof HTMLInputElement) input.select();
 }
 
 function dialog(id: string, title: string, content: VNode[]): VNode {
@@ -740,6 +849,7 @@ function studySide(study: StudyPageModel, model: PyChessModel): VNode {
             : []),
         ...(canWrite
             ? [
+                  studyTopicsDialog(study),
                   ...study.chapters.map(item =>
                       dialog(`chapter-settings-${item.id}`, _('Edit chapter'), [
                           chapterSettingsForm(study, item, `chapter-settings-form-${item.id}`),
@@ -940,6 +1050,7 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions
         ]),
         toolPanel('tags', [
             studyMetadataTitle(study),
+            studyTopicsView(study),
             h('table.study-tags'),
             ...(study.canWrite
                 ? [
@@ -1245,6 +1356,10 @@ function runStudyGround(
                 onLikesChanged: likes => {
                     study.likes = likes;
                     updateStudyLikeControl(study);
+                },
+                onTopicsChanged: topics => {
+                    study.topics = [...topics];
+                    updateStudyTopicsView(study);
                 },
                 contextMenuActions: study.canWrite ? path => studyContextMenu(analysisCtrl, path) : undefined,
                 writable: study.canWrite,

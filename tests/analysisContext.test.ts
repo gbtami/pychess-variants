@@ -88,6 +88,8 @@ describe('analysis context', () => {
                     canLike: true,
                     liked: true,
                     likes: 1,
+                    topics: [],
+                    maxTopics: 30,
                     members: { tester: 'write' },
                     maxMembers: 30,
                     sharedChapter: 'chapter1',

@@ -34,6 +34,11 @@ STUDY_CHAPTER_MAX_BSON_BYTES = min(
 
 STUDY_NAME_MAX_LENGTH = 100
 STUDY_CHAPTER_NAME_MAX_LENGTH = 80
+# Match Lichess's Study-topic constraints. Topics are Study-level discovery
+# metadata, distinct from chapter PGN tags.
+STUDY_MAX_TOPICS = 30
+STUDY_TOPIC_MIN_LENGTH = 2
+STUDY_TOPIC_MAX_LENGTH = 50
 # Keep the denormalized Study discovery index bounded even when a Study has
 # many chapters with long descriptions and PGN tag values.
 STUDY_SEARCH_MAX_TOKENS = 4_096

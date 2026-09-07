@@ -223,6 +223,8 @@ describe('analysis page smoke coverage', () => {
                         canLike: true,
                         liked: true,
                         likes: 1,
+                        topics: ['Opening', 'King pawn'],
+                        maxTopics: 30,
                         members: { tester: 'write', writer: 'write', reader: 'read' },
                         maxMembers: 30,
                         sharedChapter: 'ChAp0001',
@@ -321,6 +323,17 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('#study-tab-tags')?.getAttribute('aria-selected')).toBe('true');
         expect(root.querySelector<HTMLButtonElement>('.study-like')?.getAttribute('aria-pressed')).toBe('true');
         expect(root.querySelector('.study-like__count')?.textContent).toBe('1');
+        expect([...root.querySelectorAll<HTMLAnchorElement>('.study-topic')].map(topic => topic.textContent)).toEqual([
+            'Opening',
+            'King pawn',
+        ]);
+        expect(root.querySelector<HTMLAnchorElement>('.study-topic')?.getAttribute('href')).toBe(
+            '/study/topic/Opening',
+        );
+        expect(root.querySelector('.study-topics__manage')?.textContent).toBe('Manage topics');
+        expect(root.querySelector<HTMLTextAreaElement>('#study-topics textarea[name="topics"]')?.value).toBe(
+            'Opening\nKing pawn',
+        );
         expect(root.querySelector('.study-side .study-mode')).toBeNull();
         expect(root.querySelector('.study-annotations__comment-input')).not.toBeNull();
         expect(root.querySelectorAll('.study-annotations__nag')).toHaveLength(24);
@@ -359,6 +372,8 @@ describe('analysis page smoke coverage', () => {
             canLike: true,
             liked: false,
             likes: 1,
+            topics: [],
+            maxTopics: 30,
             members: { owner: 'write' },
             maxMembers: 30,
             sharedChapter: 'ChAp0001',
@@ -419,6 +434,8 @@ describe('analysis page smoke coverage', () => {
             canLike: true,
             liked: false,
             likes: 2,
+            topics: [],
+            maxTopics: 30,
             members: { owner: 'write', tester: 'write' },
             maxMembers: 30,
             sharedChapter: 'ChAp0001',
@@ -472,6 +489,8 @@ describe('analysis page smoke coverage', () => {
             canLike: false,
             liked: false,
             likes: 1,
+            topics: [],
+            maxTopics: 30,
             members: { owner: 'write' },
             maxMembers: 30,
             sharedChapter: 'ChAp0001',

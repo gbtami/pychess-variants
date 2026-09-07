@@ -10,7 +10,9 @@ from study.constants import (
     STUDY_CHAPTER_MAX_BSON_BYTES,
     STUDY_MAX_CHAPTERS,
     STUDY_MAX_NODES_PER_CHAPTER,
+    STUDY_MAX_TOPICS,
     STUDY_SEARCH_MAX_TOKENS,
+    STUDY_TOPIC_MAX_LENGTH,
 )
 from study.models import (
     Study,
@@ -20,6 +22,7 @@ from study.models import (
     make_study,
     study_search_query_tokens,
     study_search_tokens,
+    study_topics,
 )
 from study.tree import StudyTree, StudyTreeNode
 
@@ -54,6 +57,10 @@ class StudySchemaTestCase(unittest.TestCase):
             (("searchTokens", 1), ("updatedAt", -1), ("_id", 1)),
         )
         self.assertIsNone(study_indexes["searchTokens_updatedAt"].partial_filter)
+        self.assertEqual(
+            study_indexes["topics_updatedAt"].key,
+            (("topics", 1), ("updatedAt", -1), ("_id", 1)),
+        )
         obsolete_indexes = {index.name: index for index in OBSOLETE_INDEXES}
         self.assertEqual(
             obsolete_indexes["public_searchTokens_updatedAt"].partial_filter,
@@ -126,9 +133,37 @@ class StudyModelTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(study.is_liked_by("gbtami"))
         self.assertEqual(study.to_document()["likers"], ["gbtami"])
         self.assertEqual(study.to_document()["likes"], 1)
+        self.assertEqual(study.topics, ())
+        self.assertNotIn("topics", study.to_document())
 
         restored = Study.from_document(study.to_document())
         self.assertEqual(restored, study)
+
+    async def test_study_topics_are_canonical_bounded_and_round_trip(self) -> None:
+        now = datetime(2026, 9, 7, 8, 0, tzinfo=UTC)
+        study = Study(
+            id="study001",
+            name="Topic study",
+            owner="owner",
+            members={"owner": "write"},
+            created_at=now,
+            updated_at=now,
+            topics=("King pawn", "Endgame"),
+        )
+        doc = study.to_document()
+        self.assertEqual(doc["topics"], ["King pawn", "Endgame"])
+        self.assertIn("king", doc["searchTokens"])
+        self.assertEqual(Study.from_document(doc), study)
+
+        self.assertEqual(
+            study_topics(["  King   pawn ", "Endgame", "King pawn"]), ("King pawn", "Endgame")
+        )
+        with self.assertRaisesRegex(ValueError, "2-50"):
+            study_topics(["x"])
+        with self.assertRaisesRegex(ValueError, "2-50"):
+            study_topics(["x" * (STUDY_TOPIC_MAX_LENGTH + 1)])
+        with self.assertRaisesRegex(ValueError, "at most"):
+            study_topics([f"topic {index}" for index in range(STUDY_MAX_TOPICS + 1)])
 
     async def test_make_and_round_trip_variant_chapter(self) -> None:
         now = datetime(2026, 9, 4, 12, 0, tzinfo=UTC)

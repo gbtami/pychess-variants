@@ -297,6 +297,8 @@ get_routes: tuple[RouteDef, ...] = (
     ("/study/public", study_view.studies_mine_public),
     ("/study/private", study_view.studies_mine_private),
     ("/study/search", study_view.studies_search),
+    ("/study/topic", study_view.studies_topics),
+    (r"/study/topic/{topic:.+}", study_view.studies_by_topic),
     ("/study/choices", study_view.study_choices),
     ("/study/by/{username}", study_view.studies_by_owner),
     (
@@ -546,6 +548,7 @@ post_routes: tuple[RouteDef, ...] = (
     (r"/study/{studyId:\w{8}}/edit", study_view.study_edit),
     (r"/study/{studyId:\w{8}}/clone", study_view.study_clone),
     (r"/study/{studyId:\w{8}}/like", study_view.study_like),
+    (r"/study/{studyId:\w{8}}/topics", study_view.study_topics_update),
     (r"/study/{studyId:\w{8}}/delete", study_view.study_delete),
     (r"/study/{studyId:\w{8}}/member", study_view.study_member_add),
     (r"/study/{studyId:\w{8}}/member/role", study_view.study_member_role),

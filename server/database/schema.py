@@ -301,6 +301,13 @@ INDEXES = (
         ("_id", 1),
         name="searchTokens_updatedAt",
     ),
+    _index(
+        "study",
+        ("topics", 1),
+        ("updatedAt", -1),
+        ("_id", 1),
+        name="topics_updatedAt",
+    ),
     _index("study_chapter", ("studyId", 1), ("order", 1), name="studyId_order"),
     # Notifications, inboxes, teams, forums, and moderation.
     _index("notify", ("notifies", 1)),

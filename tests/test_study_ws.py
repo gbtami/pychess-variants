@@ -13,7 +13,13 @@ from mongomock_motor import AsyncMongoMockClient
 from study.models import Study, StudyChapter
 from study.mutations import StudyMutationService
 from study.tree import StudyTree
-from study.ws import broadcast_study_members, finally_logic, init_ws, process_message
+from study.ws import (
+    broadcast_study_members,
+    broadcast_study_topics,
+    finally_logic,
+    init_ws,
+    process_message,
+)
 from ws_structs import (
     StudyAddNodeIn,
     StudyDeleteNodeIn,
@@ -91,6 +97,21 @@ class StudyWebsocketTestCase(unittest.IsolatedAsyncioTestCase):
         self.service = StudyMutationService(cast(Any, self.app_state), allow_stale_revision=True)
         self.user = FakeUser(OWNER)
         self.writer = FakeUser(WRITER)
+
+    async def test_broadcast_study_topics_reaches_the_whole_room(self) -> None:
+        first = FakeWebSocket()
+        second = FakeWebSocket()
+        self.app_state.study_sockets[STUDY_ID] = {first, second}
+
+        await broadcast_study_topics(cast(Any, self.app_state), STUDY_ID, ("King pawn", "Endgame"))
+
+        expected = {
+            "type": "study_topics",
+            "studyId": STUDY_ID,
+            "topics": ["King pawn", "Endgame"],
+        }
+        self.assertEqual(first.sent, [expected])
+        self.assertEqual(second.sent, [expected])
 
     async def _connect(self, user: FakeUser | None = None) -> FakeWebSocket:
         ws = FakeWebSocket()

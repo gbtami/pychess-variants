@@ -47,6 +47,8 @@ export type StudyPageModel = {
     canLike: boolean;
     liked: boolean;
     likes: number;
+    topics: string[];
+    maxTopics: number;
     members: Record<string, 'read' | 'write'>;
     maxMembers: number;
     sharedChapter: string;

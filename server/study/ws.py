@@ -516,6 +516,24 @@ async def broadcast_study_likes(
     )
 
 
+async def broadcast_study_topics(
+    app_state: PychessGlobalAppState, study_id: str, topics: tuple[str, ...]
+) -> None:
+    """Broadcast Study-level discovery topics to connected viewers."""
+
+    room = app_state.study_sockets.get(study_id)
+    if not room:
+        return
+    await ws_send_json_many(
+        tuple(room),
+        {
+            "type": "study_topics",
+            "studyId": study_id,
+            "topics": list(topics),
+        },
+    )
+
+
 async def broadcast_study_members(app_state: PychessGlobalAppState, study: Study) -> None:
     """Broadcast membership/capability changes without tearing down the whole room.
 

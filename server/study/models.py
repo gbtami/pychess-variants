@@ -8,7 +8,12 @@ from typing import Any, Literal, cast
 from newid import new_id
 
 from study.annotations import canonical_description, canonical_tags
-from study.constants import STUDY_SEARCH_MAX_TOKENS
+from study.constants import (
+    STUDY_MAX_TOPICS,
+    STUDY_SEARCH_MAX_TOKENS,
+    STUDY_TOPIC_MAX_LENGTH,
+    STUDY_TOPIC_MIN_LENGTH,
+)
 from study.tree import StudyTree
 
 StudyVisibility = Literal["private", "unlisted", "public"]
@@ -32,6 +37,32 @@ def study_member_role(value: object) -> StudyMemberRole:
     if not isinstance(value, str) or value not in _MEMBER_ROLES:
         raise ValueError(f"Unknown Study member role: {value!r}")
     return cast(StudyMemberRole, value)
+
+
+def study_topic(value: object) -> str:
+    if not isinstance(value, str):
+        raise TypeError("Study topic must be a string")
+    clean = " ".join(value.split())
+    if not STUDY_TOPIC_MIN_LENGTH <= len(clean) <= STUDY_TOPIC_MAX_LENGTH:
+        raise ValueError(
+            f"Study topics must be {STUDY_TOPIC_MIN_LENGTH}-{STUDY_TOPIC_MAX_LENGTH} characters"
+        )
+    return clean
+
+
+def study_topics(value: object) -> tuple[str, ...]:
+    if value is None:
+        return ()
+    if not isinstance(value, (list, tuple)):
+        raise TypeError("Study topics must be a list")
+    topics: list[str] = []
+    for raw_topic in value:
+        topic = study_topic(raw_topic)
+        if topic not in topics:
+            topics.append(topic)
+        if len(topics) > STUDY_MAX_TOPICS:
+            raise ValueError(f"A Study can have at most {STUDY_MAX_TOPICS} topics")
+    return tuple(topics)
 
 
 def _search_words(value: str) -> tuple[str, ...]:
@@ -166,6 +197,7 @@ class Study:
     settings: Mapping[str, object] = field(default_factory=dict)
     revision: int = 0
     likers: tuple[str, ...] = ()
+    topics: tuple[str, ...] = ()
 
     @property
     def likes(self) -> int:
@@ -185,6 +217,9 @@ class Study:
             self.likers
         ):
             raise ValueError("Study likers must be unique non-empty usernames")
+        canonical_topics = study_topics(self.topics)
+        if canonical_topics != self.topics:
+            raise ValueError("Study topics must be canonical and unique")
 
         doc: dict[str, object] = {
             "_id": self.id,
@@ -202,7 +237,7 @@ class Study:
             "revision": self.revision,
             "likers": list(self.likers),
             "likes": self.likes,
-            "searchTokens": list(study_search_tokens(self.name, self.owner)),
+            "searchTokens": list(study_search_tokens(self.name, self.owner, *self.topics)),
         }
         if self.current_chapter is not None:
             doc["currentChapter"] = self.current_chapter
@@ -210,6 +245,8 @@ class Study:
             doc["currentPath"] = self.current_path
         if self.settings:
             doc["settings"] = dict(self.settings)
+        if self.topics:
+            doc["topics"] = list(self.topics)
         return doc
 
     @classmethod
@@ -246,6 +283,8 @@ class Study:
         else:
             raise TypeError("Study document field 'likers' must be a list")
 
+        raw_topics = study_topics(doc.get("topics", []))
+
         return cls(
             id=_required_str(doc, "_id"),
             name=_required_str(doc, "name"),
@@ -260,6 +299,7 @@ class Study:
             updated_at=_required_datetime(doc, "updatedAt"),
             revision=_nonnegative_int(doc, "revision", default=0),
             likers=likers,
+            topics=raw_topics,
         )
 
 

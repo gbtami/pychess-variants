@@ -28,15 +28,20 @@ from study.storage import (
     leave_study,
     load_owned_chapter,
     load_owned_study,
+    member_study_topics,
     owner_studies_page,
+    popular_study_topics,
     remove_study_member,
     rename_chapter,
     rename_study,
     select_chapter,
     set_study_member_role,
+    set_study_topics,
     set_study_visibility,
     studies_for_owner,
     studies_for_owner_view,
+    study_search_page,
+    topic_studies_page,
 )
 
 
@@ -220,6 +225,57 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
         with self.assertRaisesRegex(StudyStorageError, "Only the Study owner"):
             await add_study_member(cast(Any, self.app_state), study.id, "reader", "other")
 
+    async def test_topics_support_discovery_search_and_contributor_updates(self) -> None:
+        public, _ = await create_study_with_chapter(
+            cast(Any, self.app_state), "owner", name="Public repertoire"
+        )
+        await set_study_visibility(cast(Any, self.app_state), public, "public")
+        updated, changed = await set_study_topics(
+            cast(Any, self.app_state), public.id, "owner", ["King pawn", "Endgame"]
+        )
+        self.assertTrue(changed)
+        self.assertEqual(updated.topics, ("King pawn", "Endgame"))
+
+        public_topic = await topic_studies_page(cast(Any, self.app_state), "King pawn", viewer=None)
+        self.assertEqual([study.id for study in public_topic["studies"]], [public.id])
+        self.assertEqual(
+            await popular_study_topics(cast(Any, self.app_state)),
+            ["Endgame", "King pawn"],
+        )
+        search = await study_search_page(cast(Any, self.app_state), q="king pawn", viewer=None)
+        self.assertEqual([study.id for study in search["studies"]], [public.id])
+
+        private, _ = await create_study_with_chapter(
+            cast(Any, self.app_state), "other", name="Private preparation"
+        )
+        private = await add_study_member(
+            cast(Any, self.app_state), private.id, "other", "owner", "write"
+        )
+        private, changed = await set_study_topics(
+            cast(Any, self.app_state), private.id, "owner", ["Secret prep"]
+        )
+        self.assertTrue(changed)
+        self.assertEqual(
+            (await topic_studies_page(cast(Any, self.app_state), "Secret prep", viewer=None))[
+                "studies"
+            ],
+            [],
+        )
+        member_topic = await topic_studies_page(
+            cast(Any, self.app_state), "Secret prep", viewer="owner"
+        )
+        self.assertEqual([study.id for study in member_topic["studies"]], [private.id])
+        self.assertEqual(
+            set(await member_study_topics(cast(Any, self.app_state), "owner")),
+            {"King pawn", "Endgame", "Secret prep"},
+        )
+
+        private = await add_study_member(
+            cast(Any, self.app_state), private.id, "other", "reader", "read"
+        )
+        with self.assertRaisesRegex(StudyStorageError, "cannot edit"):
+            await set_study_topics(cast(Any, self.app_state), private.id, "reader", ["Should fail"])
+
     async def test_create_from_draft_persists_source_tree_and_variant_snapshot(self) -> None:
         draft = StudyChapterDraft(
             variant="chess",
@@ -274,7 +330,11 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
             tags={"Chapter": "Two"},
         )
         second = await add_chapter_from_draft(cast(Any, self.app_state), study, second_draft)
-        source = replace(study, settings={"example": "preserved"})
+        source = replace(
+            study,
+            settings={"example": "preserved"},
+            topics=("Opening", "King pawn"),
+        )
 
         cloned, cloned_first = await clone_study(cast(Any, self.app_state), source, "cloner")
 
@@ -285,6 +345,7 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(cloned.visibility, "private")
         self.assertEqual(cloned.source, StudySource("study", study.id))
         self.assertEqual(cloned.settings, {"example": "preserved"})
+        self.assertEqual(cloned.topics, ("Opening", "King pawn"))
         self.assertEqual(cloned.revision, 0)
         self.assertEqual(cloned.current_chapter, cloned_first.id)
         self.assertNotEqual(cloned_first.id, first.id)
