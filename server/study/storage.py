@@ -1250,6 +1250,9 @@ async def delete_chapter(app_state: Any, study: Study, chapter: StudyChapter) ->
     await app_state.db.study_chapter.delete_one(
         {"_id": chapter.id, "studyId": study.id, "owner": study.owner}
     )
+    from study.analysis import drop_study_analysis_work
+
+    drop_study_analysis_work(app_state, study.id, chapter.id)
     deleted_index = next(index for index, doc in enumerate(docs) if str(doc["_id"]) == chapter.id)
     remaining = [doc for doc in docs if str(doc["_id"]) != chapter.id]
     for order, doc in enumerate(remaining, start=1):
@@ -1279,5 +1282,8 @@ async def delete_chapter(app_state: Any, study: Study, chapter: StudyChapter) ->
 
 
 async def delete_study(app_state: Any, study: Study) -> None:
+    from study.analysis import drop_study_analysis_works_for_study
+
+    drop_study_analysis_works_for_study(app_state, study.id)
     await app_state.db.study_chapter.delete_many({"studyId": study.id, "owner": study.owner})
     await app_state.db.study.delete_one({"_id": study.id, "owner": study.owner})

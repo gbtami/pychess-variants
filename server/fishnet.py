@@ -115,7 +115,19 @@ def _cache_fishnet_variants_payload(
         or fishnet_variants_payload_cache_bytes(app_state)
         > FISHNET_VARIANTS_PAYLOAD_CACHE_MAX_BYTES
     ):
-        cache.pop(next(iter(cache)))
+        pinned = {
+            str(work.get("variantsSha256"))
+            for work in getattr(app_state, "fishnet_works", {}).values()
+            if work.get("variantsSha256")
+        }
+        # The payload currently being cached may be attached to a work item only
+        # after this function returns. Protect it as well so an immutable Study
+        # snapshot cannot disappear between queueing and the worker's rules fetch.
+        pinned.add(sha256)
+        evict = next((key for key in cache if key not in pinned), None)
+        if evict is None:
+            break
+        cache.pop(evict)
     return payload
 
 
@@ -243,8 +255,36 @@ def fishnet_variants_payload(
     return _cache_fishnet_variants_payload(app_state, payload)
 
 
+def fishnet_variants_payload_from_ini(
+    app_state: PychessGlobalAppState, variant_name: str, variants_ini: str
+) -> dict[str, str]:
+    """Cache an immutable rules payload for work pinned to a Study snapshot.
+
+    Historical Study variants run under a content-hashed alias. Include any custom
+    base definitions that the current server can resolve, then keep this exact text
+    addressable by hash for the lifetime of the queued/reissued Fishnet job.
+    """
+
+    base_name = extract_variant_base_name(variants_ini).strip()
+    base_chain = _fishnet_custom_ini_chain(app_state, base_name) if base_name else []
+    parts = [*base_chain, variants_ini.strip() + "\n"]
+    exact_ini = "\n".join(part.strip() for part in parts if part.strip()) + "\n"
+    payload = {
+        "variantsIni": exact_ini,
+        "variantsSha256": hashlib.sha256(exact_ini.encode("utf-8")).hexdigest(),
+        "variantsScope": variant_name,
+    }
+    return _cache_fishnet_variants_payload(app_state, payload)
+
+
 def _attach_variants_hash(app_state: PychessGlobalAppState, work: FishnetWork) -> None:
     variant_name = str(work.get("variant") or "")
+    pinned_sha256 = work.get("variantsSha256")
+    pinned_scope = work.get("variantsScope")
+    if pinned_sha256 and pinned_scope == variant_name:
+        cached = _fishnet_variants_payload_cache(app_state).get(pinned_sha256)
+        if cached is not None and cached.get("variantsScope") == variant_name:
+            return
     work.pop("variantsSha256", None)
     work.pop("variantsScope", None)
     payload = fishnet_variants_payload(app_state, variant_name)
@@ -262,6 +302,8 @@ def _variant_allows_cached_fishnet_payload(
     catalogued_docs = getattr(app_state, "catalogued_variants", {})
     if variant_name in catalogued_docs:
         return catalogued_variant_allows_fishnet(app_state, variant_name)
+    if re.fullmatch(r"studysnap_[0-9a-f]{12}", variant_name):
+        return True
     return variant_name in _site_fishnet_ini_sections()
 
 
@@ -429,6 +471,7 @@ def drop_stale_analysis_work(app_state: PychessGlobalAppState, *, now: float | N
         work_id
         for work_id, work in tuple(app_state.fishnet_works.items())
         if work["work"]["type"] == "analysis"
+        and not work.get("study_id")
         and now - work.get("time", now) > ANALYSIS_WORK_TIME_OUT
     ]
     for work_id in stale_ids:
@@ -499,7 +542,7 @@ def has_available_fishnet_worker(
 
 def has_pending_analysis_work_for_game(app_state: PychessGlobalAppState, game_id: str) -> bool:
     return any(
-        work["work"]["type"] == "analysis" and work["game_id"] == game_id
+        work["work"]["type"] == "analysis" and work.get("game_id") == game_id
         for work in app_state.fishnet_works.values()
     )
 
@@ -633,6 +676,10 @@ async def _drop_terminal_work_failure(
     if work["work"]["type"] == "move":
         await _adjudicate_failing_move_work(app_state, work_id, work, failure_reason)
     else:
+        if work.get("study_id"):
+            from study.analysis import fail_study_server_analysis
+
+            await fail_study_server_analysis(app_state, work, reason=failure_reason)
         log.warning(
             "Dropping analysis work %s after repeated fishnet failures "
             "(reason=%s, aborts=%s, engine_failures=%s, stale_reissues=%s)",
@@ -742,29 +789,40 @@ async def get_work(
                     work_id,
                     "request",
                     "analysis",
-                    work["moves"].count(" ") + 1,
+                    len(work["moves"].split()),
                 )
             )
 
-            # delete previous analysis
-            gameId = work["game_id"]
-            game = await load_game(app_state, gameId)
-            if game is None:
-                app_state.fishnet_works.pop(work_id, None)
-                continue
+            if work.get("study_id"):
+                from study.analysis import study_analysis_work_is_current
 
-            for step in game.steps:
-                if "analysis" in step:
-                    del step["analysis"]
+                if not await study_analysis_work_is_current(app_state, work):
+                    app_state.fishnet_works.pop(work_id, None)
+                    continue
+            else:
+                # Game analysis starts from a clean in-memory analysis array. Study
+                # analysis is persisted separately and can resume after partial reports.
+                game_id = work.get("game_id")
+                if not game_id:
+                    app_state.fishnet_works.pop(work_id, None)
+                    continue
+                game = await load_game(app_state, game_id)
+                if game is None:
+                    app_state.fishnet_works.pop(work_id, None)
+                    continue
 
-            if "username" in work:
-                response = {
-                    "type": "roundchat",
-                    "user": "",
-                    "room": "spectator",
-                    "message": "Work for fishnet sent...",
-                }
-                await app_state.users[work["username"]].send_game_message(work["game_id"], response)
+                for step in game.steps:
+                    if "analysis" in step:
+                        del step["analysis"]
+
+                if "username" in work:
+                    response = {
+                        "type": "roundchat",
+                        "user": "",
+                        "room": "spectator",
+                        "message": "Work for fishnet sent...",
+                    }
+                    await app_state.users[work["username"]].send_game_message(game_id, response)
         else:
             fm[worker].append(
                 "%s %s %s %s for level %s"
@@ -785,6 +843,12 @@ async def get_work(
     # (in case when worker grabbed it from queue but not responded after timeout)
     now = monotonic()
     for work_id, work_item in tuple(app_state.fishnet_works.items()):
+        if work_item.get("study_id"):
+            from study.analysis import study_analysis_work_is_current
+
+            if not await study_analysis_work_is_current(app_state, work_item):
+                app_state.fishnet_works.pop(work_id, None)
+                continue
         if not _work_variant_allows_fishnet(app_state, work_item):
             log.warning(
                 "Dropping stale fishnet work %s because AI is temporarily disabled for variant %s",
@@ -894,7 +958,17 @@ async def fishnet_analysis(request: web.Request) -> web.Response:
     work: FishnetWork = app_state.fishnet_works[work_id]
     app_state.fishnet_monitor[worker].append("%s %s %s" % (datetime.now(UTC), work_id, "analysis"))
 
-    gameId = work["game_id"]
+    if work.get("study_id"):
+        from study.analysis import merge_study_server_analysis
+
+        await merge_study_server_analysis(app_state, work_id, work, data["analysis"])
+        return web.Response(status=204)
+
+    game_id = work.get("game_id")
+    if not game_id:
+        app_state.fishnet_works.pop(work_id, None)
+        return web.Response(status=204)
+    gameId = game_id
     game = await load_game(app_state, gameId)
     if game is None:
         app_state.fishnet_works.pop(work_id, None)

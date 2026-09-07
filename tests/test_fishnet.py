@@ -164,6 +164,77 @@ class FishnetTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn("work123", app_state.fishnet_works)
         self.assertEqual(app_state.fishnet_queue.qsize(), 0)
 
+    async def test_get_work_serves_study_analysis_without_loading_game(self):
+        work = {
+            "work": {"type": "analysis", "id": "studywork"},
+            "study_id": "study001",
+            "chapter_id": "chapter1",
+            "study_path": "Node000001",
+            "position": "startpos",
+            "variant": "chess",
+            "chess960": False,
+            "moves": "e2e4",
+            "nnue": True,
+        }
+        queue = asyncio.PriorityQueue()
+        queue.put_nowait((fishnet.ANALYSIS, "studywork"))
+        app_state = SimpleNamespace(
+            fishnet_monitor=defaultdict(list, {"worker1": []}),
+            fishnet_queue=queue,
+            fishnet_works={"studywork": work},
+            fishnet_variant_payloads={},
+            catalogued_variants={},
+        )
+
+        with (
+            patch.dict(fishnet.FISHNET_KEYS, {"k": "worker1"}, clear=True),
+            patch(
+                "study.analysis.study_analysis_work_is_current",
+                AsyncMock(return_value=True),
+            ),
+            patch("fishnet.load_game", AsyncMock()) as load_game,
+        ):
+            response = await fishnet.get_work(app_state, {"fishnet": {"apikey": "k"}})
+
+        self.assertEqual(response.status, 202)
+        self.assertEqual(json.loads(response.text)["study_id"], "study001")
+        load_game.assert_not_awaited()
+
+    async def test_fishnet_analysis_routes_study_progress_to_study_merger(self):
+        work = {
+            "work": {"type": "analysis", "id": "studywork"},
+            "study_id": "study001",
+            "chapter_id": "chapter1",
+            "study_path": "Node000001",
+            "position": "startpos",
+            "variant": "chess",
+            "chess960": False,
+            "moves": "e2e4",
+            "nnue": True,
+        }
+        app_state = SimpleNamespace(
+            fishnet_works={"studywork": work},
+            fishnet_monitor=defaultdict(list, {"worker1": []}),
+            fishnet_worker_last_seen={},
+        )
+        request = cast(web.Request, AsyncMock())
+        request.match_info = {"workId": "studywork"}
+        request.app = {pychess_global_app_state_key: app_state}
+        request.rel_url = SimpleNamespace(path="/fishnet/analysis/studywork")
+        request.remote = "10.1.1.1"
+        rows = [{"score": {"cp": 12}, "depth": 15}]
+        request.json = AsyncMock(return_value={"fishnet": {"apikey": "k"}, "analysis": rows})
+
+        merger = AsyncMock()
+        with (
+            patch.dict(fishnet.FISHNET_KEYS, {"k": "worker1"}, clear=True),
+            patch("study.analysis.merge_study_server_analysis", merger),
+        ):
+            response = await fishnet.fishnet_analysis(request)
+
+        self.assertEqual(response.status, 204)
+        merger.assert_awaited_once_with(app_state, "studywork", work, rows)
+
     async def test_fishnet_move_play_move_exception_requeues_without_deleting_work(self):
         work = {
             "work": {"type": "move", "id": "work123", "level": 1},
@@ -829,6 +900,71 @@ class FishnetAnalysisPvRegressionTestCase(unittest.IsolatedAsyncioTestCase):
 
 
 class FishnetVariantsEndpointTestCase(unittest.IsolatedAsyncioTestCase):
+    def test_variants_payload_cache_keeps_rules_pinned_by_pending_study_work(self):
+        first = {
+            "variantsIni": "a" * 10,
+            "variantsSha256": "a" * 64,
+            "variantsScope": "studysnap_aaaaaaaaaaaa",
+        }
+        second = {
+            "variantsIni": "b" * 10,
+            "variantsSha256": "b" * 64,
+            "variantsScope": "studysnap_bbbbbbbbbbbb",
+        }
+        app_state = SimpleNamespace(
+            fishnet_variant_payloads={},
+            fishnet_works={
+                "studywork": {
+                    "work": {"type": "analysis", "id": "studywork"},
+                    "variantsSha256": first["variantsSha256"],
+                }
+            },
+        )
+
+        with patch.object(fishnet, "FISHNET_VARIANTS_PAYLOAD_CACHE_MAX_BYTES", 15):
+            fishnet._cache_fishnet_variants_payload(app_state, first)
+            fishnet._cache_fishnet_variants_payload(app_state, second)
+
+        self.assertEqual(
+            set(app_state.fishnet_variant_payloads),
+            {first["variantsSha256"], second["variantsSha256"]},
+        )
+        self.assertGreater(fishnet.fishnet_variants_payload_cache_bytes(app_state), 15)
+
+    def test_exact_study_snapshot_payload_survives_attach(self):
+        app_state = SimpleNamespace(
+            fishnet_variant_payloads={}, fishnet_works={}, catalogued_variants={}
+        )
+        alias = "studysnap_0123456789ab"
+        payload = fishnet.fishnet_variants_payload_from_ini(
+            app_state,
+            alias,
+            f"[{alias}:chess]\ncustomPiece1 = a:KN\n",
+        )
+        work = {
+            "work": {"type": "analysis", "id": "studywork"},
+            "study_id": "study001",
+            "chapter_id": "chapter1",
+            "study_path": "StudyNode1",
+            "position": "startpos",
+            "variant": alias,
+            "chess960": False,
+            "moves": "e2e4",
+            "nnue": True,
+            "variantsSha256": payload["variantsSha256"],
+            "variantsScope": alias,
+        }
+        app_state.fishnet_works["studywork"] = work
+
+        fishnet._attach_variants_hash(app_state, work)
+
+        self.assertEqual(work["variantsSha256"], payload["variantsSha256"])
+        self.assertEqual(work["variantsScope"], alias)
+        self.assertEqual(
+            app_state.fishnet_variant_payloads[payload["variantsSha256"]]["variantsIni"],
+            f"[{alias}:chess]\ncustomPiece1 = a:KN\n",
+        )
+
     def test_variants_payload_cache_has_byte_budget(self):
         app_state = SimpleNamespace(fishnet_variant_payloads={})
         first = {

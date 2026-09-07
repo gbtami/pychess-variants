@@ -1347,7 +1347,17 @@ Add these based on actual PyChess usage rather than parity for its own sake.
   PyChess has no opening-explorer feature yet, so the compatible
   explorer permission is persisted/evaluated but intentionally not shown as a non-functional setting.
   Capability-setting changes broadcast a reload to connected Study clients so revocation applies live.
-- [ ] Server/Fishnet analysis request for a chapter.
+- [x] Server/Fishnet analysis request for a chapter.
+  Contributors can request a Lichess-style server analysis of the preferred mainline once it has at
+  least five moves. Requests use the existing Fishnet analysis queue with a five-minute repeat guard,
+  persist partial/completed evaluations on the chapter, and stream progress live to connected Study
+  clients. The Study Server analysis tab reuses the normal evaluation chart and shows pending, failure,
+  and retry states. Mainline changes invalidate stale analysis and cancel queued work. Historical
+  catalogued-variant chapters run under their immutable Study snapshot alias and pin the corresponding
+  `variants.ini` Fishnet payload so a worker cannot silently analyse the current live rules instead.
+  Pending work itself remains in-memory like other Fishnet jobs; after a server restart, persisted
+  incomplete analysis is shown but marked non-pending and can be requested again after the normal
+  five-minute cooldown.
 
 ## Lesson/training modes
 

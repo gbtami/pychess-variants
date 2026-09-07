@@ -267,6 +267,28 @@ class StudyTree:
             )
         )
 
+    def preferred_mainline(self) -> tuple[StudyTreeNode, ...]:
+        """Return the editable Study mainline using the same rule as the client.
+
+        The first ordered child is the preferred continuation unless that child is
+        explicitly forced to remain a variation. This mirrors
+        client/study/studyTree.ts::refreshStudyMainline().
+        """
+
+        nodes: list[StudyTreeNode] = []
+        parent_id: str | None = None
+        while True:
+            children = self.children_of(parent_id)
+            if not children or children[0].force_variation:
+                return tuple(nodes)
+            node = children[0]
+            nodes.append(node)
+            parent_id = node.id
+
+    def preferred_mainline_path(self) -> str:
+        line = self.preferred_mainline()
+        return ".".join(node.id for node in line)
+
     def path_for_node(self, node_id: str) -> str:
         if node_id not in self.nodes:
             raise KeyError(node_id)

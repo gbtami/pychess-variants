@@ -1784,7 +1784,7 @@ export class AnalysisController extends GameController {
         if (msg.check) sound.check();
     }
 
-    private buildScoreStr = (color: string, analysis: Ceval) => {
+    buildScoreStr = (color: string, analysis: Ceval) => {
         const score = analysis['s'];
         let scoreStr = '';
         let ceval: number;

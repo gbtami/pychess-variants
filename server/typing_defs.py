@@ -333,7 +333,10 @@ class FishnetWorkInfo(TypedDict):
 
 class FishnetWork(TypedDict):
     work: FishnetWorkInfo
-    game_id: str
+    game_id: NotRequired[str]
+    study_id: NotRequired[str]
+    chapter_id: NotRequired[str]
+    study_path: NotRequired[str]
     position: str
     variant: str
     chess960: bool

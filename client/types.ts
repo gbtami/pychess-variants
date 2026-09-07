@@ -31,6 +31,14 @@ export interface SimulGame {
 
 export type StudyFeatureSelection = 'nobody' | 'owner' | 'contributor' | 'member' | 'everyone';
 
+export type StudyServerEval = {
+    path: string;
+    done: boolean;
+    pending?: boolean;
+    requestedAt: string;
+    analysis: Array<{ s: { cp?: number; mate?: number }; d?: number; p?: string } | null>;
+};
+
 export type StudyChapterPreview = {
     id: string;
     name: string;
@@ -78,6 +86,7 @@ export type StudyPageModel = {
     sideTab?: 'chapters' | 'members';
     memberConfig?: string;
     likePending?: boolean;
+    serverAnalysisError?: string;
     chapter: {
         id: string;
         name: string;
@@ -91,6 +100,7 @@ export type StudyPageModel = {
         createdAt: string;
         description: string;
         tags: Record<string, string>;
+        serverEval: StudyServerEval | null;
         tree: import('./study/studyTree').StudyTreeDto;
     };
     chapters: StudyChapterPreview[];

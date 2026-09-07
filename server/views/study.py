@@ -12,6 +12,7 @@ from fairy import BLACK, FairyBoard
 from json_utils import json_dumps
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_json_data, read_post_data
+from study.analysis import has_pending_study_analysis
 from study.builder import (
     StudyChapterBuilder,
     StudyChapterBuildError,
@@ -766,6 +767,13 @@ async def _populate_study_chapter_context(
                 "createdAt": chapter.created_at.isoformat(),
                 "description": chapter.description,
                 "tags": dict(chapter.tags),
+                "serverEval": (
+                    chapter.server_eval.to_payload(
+                        pending=has_pending_study_analysis(app_state, study.id, chapter.id)
+                    )
+                    if chapter.server_eval is not None
+                    else None
+                ),
                 "tree": chapter.root.to_payload(),
             },
             "chapters": await chapter_previews(app_state, study.id),

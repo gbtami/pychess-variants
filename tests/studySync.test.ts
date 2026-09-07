@@ -47,6 +47,9 @@ function makeCtrl() {
         steps: [tree.root.step],
         recordedMainlinePly: undefined,
         doSend: jest.fn(),
+        buildScoreStr: jest.fn((_color: string, ceval: any) =>
+            ceval.s.cp !== undefined ? String(ceval.s.cp) : `#${ceval.s.mate}`,
+        ),
         username: 'owner',
         chessground: { setShapes: jest.fn() },
     };
@@ -80,6 +83,74 @@ describe('Study analysis websocket synchronization', () => {
         expect(ctrl.oppcolor).toBe('white');
         expect(extension.treeStorageKey).toBe('study:study001:chapter1');
         expect(updateMovelistMock).toHaveBeenCalled();
+    });
+
+    test('applies persisted and live Study server analysis to the preferred mainline', () => {
+        const ctrl = makeCtrl();
+        ctrl.tree = { loadAnalysisTree: jest.fn((tree: unknown) => (ctrl.analysisTree = tree)) };
+        const changed = jest.fn();
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            tree: { nodes: [e4Node()] },
+            serverEval: {
+                path: 'StudyNode1',
+                done: false,
+                requestedAt: '2026-09-07T12:00:00+00:00',
+                analysis: [
+                    { s: { cp: 10 }, d: 14 },
+                    { s: { cp: 25 }, d: 14 },
+                ],
+            },
+            onServerEvalChanged: changed,
+            onReloadRequired: jest.fn(),
+        });
+
+        extension.onInitialBoardLoaded();
+        expect(ctrl.steps[0].ceval).toEqual({ s: { cp: 10 }, d: 14 });
+        expect(ctrl.steps[1].ceval).toEqual({ s: { cp: 25 }, d: 14 });
+
+        expect(
+            extension.onSocketMessage('study_analysis_progress', {
+                type: 'study_analysis_progress',
+                studyId: 'study001',
+                chapterId: 'chapter1',
+                serverEval: {
+                    path: 'StudyNode1',
+                    done: true,
+                    requestedAt: '2026-09-07T12:00:00+00:00',
+                    analysis: [
+                        { s: { cp: 12 }, d: 18 },
+                        { s: { mate: 3 }, d: 18, p: 'e7e5' },
+                    ],
+                },
+            }),
+        ).toBe(true);
+        expect(ctrl.steps[0].ceval).toEqual({ s: { cp: 12 }, d: 18 });
+        expect(ctrl.steps[1].ceval).toEqual({ s: { mate: 3 }, d: 18, p: 'e7e5' });
+        expect(changed).toHaveBeenCalledWith(expect.objectContaining({ done: true }));
+    });
+
+    test('requests Study server analysis only for a connected writable client', () => {
+        const ctrl = makeCtrl();
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            writable: true,
+            onReloadRequired: jest.fn(),
+        });
+
+        extension.requestServerAnalysis();
+        expect(ctrl.doSend).not.toHaveBeenCalled();
+        extension.onSocketOpen();
+        extension.requestServerAnalysis();
+        expect(ctrl.doSend).toHaveBeenLastCalledWith({
+            type: 'study_request_analysis',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+        });
     });
 
     test('restores persisted shapes on initial load and path navigation', () => {

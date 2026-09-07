@@ -266,6 +266,57 @@ async def _process_message_unlocked(
         await _set_shared_position_message(app_state, user, ws, data, study_id=study_id)
         return
 
+    if message_type == "study_request_analysis":
+        chapter_id = data.get("chapterId")
+        if data.get("studyId") != study_id or not isinstance(chapter_id, str) or not chapter_id:
+            await _send_invalid_message(ws, data)
+            return
+        from study.analysis import request_study_server_analysis
+
+        result = await request_study_server_analysis(
+            app_state,
+            study_id=study_id,
+            chapter_id=chapter_id,
+            username=user.username,
+        )
+        if result.status == "started":
+            return
+        if result.status == "already_requested" and not result.pending:
+            await ws_send_json(
+                ws,
+                {
+                    "type": "study_analysis_unavailable",
+                    "studyId": study_id,
+                    "chapterId": chapter_id,
+                    "reason": result.status,
+                },
+            )
+            return
+        if result.server_eval is not None and result.status in {
+            "already_requested",
+            "already_done",
+        }:
+            await ws_send_json(
+                ws,
+                {
+                    "type": "study_analysis_progress",
+                    "studyId": study_id,
+                    "chapterId": chapter_id,
+                    "serverEval": result.server_eval.to_payload(pending=result.pending),
+                },
+            )
+            return
+        await ws_send_json(
+            ws,
+            {
+                "type": "study_analysis_unavailable",
+                "studyId": study_id,
+                "chapterId": chapter_id,
+                "reason": result.status,
+            },
+        )
+        return
+
     if not _valid_common_message(data, study_id):
         await _send_invalid_message(ws, data)
         return

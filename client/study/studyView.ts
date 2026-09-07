@@ -5,6 +5,7 @@ import ffishAliceModule from 'ffish-alice-es6';
 import { analysisUnderboard, renderEmbedPage } from '../analysis';
 import { alertDialog } from '../alertDialog';
 import { analysisContext } from '../analysis/analysisContext';
+import { analysisChart } from '../analysis/analysisChart';
 import { AnalysisController } from '../analysis/analysisCtrl';
 import { renderAnalysisPage } from '../analysis/analysisPage';
 import { copyTextToClipboard } from '../clipboard';
@@ -735,6 +736,8 @@ function studyInviteDialog(study: StudyPageModel): VNode {
 type StudyModeActions = {
     toggleSticky: () => void;
     toggleWrite: () => void;
+    requestServerAnalysis: () => void;
+    showServerAnalysis: () => void;
 };
 
 function studyRecordingKey(studyId: string): string {
@@ -1204,7 +1207,7 @@ function chapterField(name: string, label: string, value = '', maxLength?: numbe
     ]);
 }
 
-type StudyTab = 'tags' | 'comments' | 'glyphs' | 'description' | 'export';
+type StudyTab = 'tags' | 'comments' | 'glyphs' | 'description' | 'serverEval' | 'export';
 
 function selectStudyTab(tab: string, focus = false): void {
     document.querySelectorAll<HTMLButtonElement>('[data-study-tab]').forEach(button => {
@@ -1232,6 +1235,82 @@ function toolPanel(tab: StudyTab, children: VNode[]): VNode {
         },
         children,
     );
+}
+
+function studyPreferredMainlineLength(study: StudyPageModel): number {
+    let parentId: string | null = null;
+    let length = 0;
+    while (true) {
+        const children = study.chapter.tree.nodes
+            .filter(node => node.parentId === parentId)
+            .sort((a, b) => a.order - b.order);
+        const next = children[0];
+        if (!next || next.forceVariation) return length;
+        length += 1;
+        parentId = next.id;
+    }
+}
+
+function studyServerAnalysisError(reason: string | undefined): string | undefined {
+    if (!reason) return undefined;
+    if (reason === 'fishnet_unavailable') return _('No Fishnet worker is available right now.');
+    if (reason === 'variant_unavailable') return _('This chapter variant cannot be analysed on the server.');
+    if (reason === 'too_short') return _('The chapter is too short to be analysed.');
+    if (reason === 'forbidden') return _('Only contributors can request analysis.');
+    if (reason === 'fishnet_failed') return _('Server analysis failed. You can request it again.');
+    if (reason === 'already_requested') return _('Server analysis was requested recently. Try again in a few minutes.');
+    if (reason === 'not_found') return _('The chapter is no longer available.');
+    return _('Server analysis is unavailable right now.');
+}
+
+function studyServerEvalContent(study: StudyPageModel, modeActions: StudyModeActions): VNode {
+    const serverEval = study.chapter.serverEval;
+    const hasAnalysis = Boolean(serverEval?.analysis.some(step => step !== null));
+    const error = studyServerAnalysisError(study.serverAnalysisError);
+    const content: VNode[] = [];
+    if (error) content.push(h('p.study-server-eval__error', error));
+
+    if (hasAnalysis) content.push(h('div#study-server-analysis-chart.study-server-eval__chart'));
+
+    if (serverEval && !serverEval.done && serverEval.pending) {
+        content.push(
+            h('div.study-server-eval__progress', [
+                h('span.study-server-eval__spinner', { attrs: { 'aria-hidden': 'true' } }),
+                h('span', hasAnalysis ? _('Server analysis in progress…') : _('Server analysis requested…')),
+            ]),
+        );
+        return h('div.study-server-eval__content', content);
+    }
+
+    if (serverEval?.done && hasAnalysis) return h('div.study-server-eval__content', content);
+
+    if (studyPreferredMainlineLength(study) < 5) {
+        content.push(h('p', _('The chapter is too short to be analysed.')));
+    } else if (!study.canWrite) {
+        content.push(h('p', _('Only contributors can request analysis.')));
+    } else {
+        content.push(
+            h('p', [
+                _('Get a full computer analysis of the chapter.'),
+                h('br'),
+                _('Make sure the chapter is complete before requesting it.'),
+            ]),
+            h(
+                'button.button.study-server-eval__request',
+                { attrs: { type: 'button' }, on: { click: () => modeActions.requestServerAnalysis() } },
+                [icon('bar-chart'), h('span', _('Request computer analysis'))],
+            ),
+        );
+    }
+    return h('div.study-server-eval__content', content);
+}
+
+function updateStudyServerEvalContent(study: StudyPageModel, modeActions?: StudyModeActions): void {
+    const content = document.querySelector<HTMLElement>('.study-server-eval__content');
+    if (!content || !modeActions) return;
+    patch(toVNode(content), studyServerEvalContent(study, modeActions));
+    const panel = document.getElementById('study-panel-serverEval');
+    if (panel && !panel.hidden) requestAnimationFrame(() => modeActions.showServerAnalysis());
 }
 
 function studyShareLinks(study: StudyPageModel, model: PyChessModel): VNode {
@@ -1288,12 +1367,17 @@ function studyShareLinks(study: StudyPageModel, model: PyChessModel): VNode {
     ]);
 }
 
-export function updateStudyUnderboardChapter(study: StudyPageModel, model: PyChessModel): void {
+export function updateStudyUnderboardChapter(
+    study: StudyPageModel,
+    model: PyChessModel,
+    modeActions?: StudyModeActions,
+): void {
     const title = document.querySelector<HTMLElement>('.study-underboard__title');
     if (title) patch(toVNode(title), studyMetadataTitle(study));
 
     const shareLinks = document.querySelector<HTMLElement>('.study-share__links');
     if (shareLinks) patch(toVNode(shareLinks), studyShareLinks(study, model));
+    updateStudyServerEvalContent(study, modeActions);
 }
 
 function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions: StudyModeActions): VNode {
@@ -1306,6 +1390,7 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions
               ] as [StudyTab, string, VNode | string][])
             : []),
         ['description', _('Chapter description'), icon('book')],
+        ['serverEval', _('Server analysis'), icon('bar-chart')],
         ...(studyCanShare(study)
             ? ([['export', _('Share & export'), icon('download')]] as [StudyTab, string, VNode][])
             : []),
@@ -1328,7 +1413,10 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions
                             'data-study-tab': tab,
                         },
                         on: {
-                            click: () => selectStudyTab(tab),
+                            click: () => {
+                                selectStudyTab(tab);
+                                if (tab === 'serverEval') modeActions.showServerAnalysis();
+                            },
                             keydown: event => {
                                 const index = tabs.findIndex(([key]) => key === tab);
                                 let next: number;
@@ -1340,6 +1428,7 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions
                                 event.preventDefault();
                                 event.stopPropagation();
                                 selectStudyTab(tabs[next][0], true);
+                                if (tabs[next][0] === 'serverEval') modeActions.showServerAnalysis();
                             },
                         },
                     },
@@ -1410,6 +1499,7 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions
                   ])
                 : h('p.study-description__readonly', study.chapter.description || _('No chapter description.')),
         ]),
+        toolPanel('serverEval', [studyServerEvalContent(study, modeActions)]),
         ...(studyCanShare(study)
             ? [
                   toolPanel('export', [
@@ -1593,6 +1683,7 @@ function runStudyGround(
 ): void {
     let extension!: StudyAnalysisExtension;
     let ctrl!: AnalysisController;
+    let serverAnalysisChart: ReturnType<typeof analysisChart> | undefined;
     let navigation: StudyChapterNavigation | undefined;
     const paths = new Map<string, string>();
     const modules = new Map<boolean, Promise<PyChessModel['ffish']>>([
@@ -1635,7 +1726,17 @@ function runStudyGround(
                 initialFen: study.chapter.initialFen,
                 variantIni: study.chapter.variantIni ?? undefined,
                 createdAt: study.chapter.createdAt,
+                serverEval: study.chapter.serverEval,
                 onAnnotationStateChanged: state => updateAnnotationPanel(state, editor),
+                onServerEvalChanged: serverEval => {
+                    study.chapter.serverEval = serverEval ?? null;
+                    study.serverAnalysisError = undefined;
+                    updateStudyServerEvalContent(study, modeActions);
+                },
+                onServerAnalysisUnavailable: reason => {
+                    study.serverAnalysisError = reason;
+                    updateStudyServerEvalContent(study, modeActions);
+                },
                 onLocalPathChanged: path => {
                     if (!study.sticky) return;
                     if (study.canWrite && study.write) extension.sharePosition(study.chapter.id, path);
@@ -1683,7 +1784,21 @@ function runStudyGround(
             });
             return extension;
         });
+        modeActions.requestServerAnalysis = () => {
+            study.serverAnalysisError = undefined;
+            updateStudyServerEvalContent(study, modeActions);
+            extension.requestServerAnalysis();
+        };
+        modeActions.showServerAnalysis = () => {
+            serverAnalysisChart?.destroy();
+            serverAnalysisChart = undefined;
+            const chart = document.getElementById('study-server-analysis-chart');
+            if (!chart || !study.chapter.serverEval?.analysis.some(step => step !== null)) return;
+            serverAnalysisChart = analysisChart(ctrl, 'study-server-analysis-chart');
+        };
         if (socket.ws.readyState === WebSocket.OPEN) extension.onSocketOpen();
+        const serverPanel = document.getElementById('study-panel-serverEval');
+        if (serverPanel && !serverPanel.hidden) modeActions.showServerAnalysis();
         updateAnnotationPanel(extension.annotationState, editor);
         window['onFSFline'] = ctrl.onFSFline;
     };
@@ -1732,9 +1847,12 @@ function runStudyGround(
             await ctrl.whenEngineConfigured();
             if (!isCurrent()) return;
             paths.set(study.chapter.id, ctrl.analysisPath);
+            serverAnalysisChart?.destroy();
+            serverAnalysisChart = undefined;
             ctrl.destroy();
             editor?.reset();
             Object.assign(study, data.study);
+            study.serverAnalysisError = undefined;
             model = {
                 ...model,
                 study,
@@ -1746,7 +1864,7 @@ function runStudyGround(
                 fen: study.chapter.initialFen,
                 ply: 0,
             };
-            updateStudyUnderboardChapter(study, model);
+            updateStudyUnderboardChapter(study, model, modeActions);
             loadCataloguedVariantsFromJson(JSON.stringify(data.cataloguedVariants));
             ffish.loadVariantConfig(variantConfigIni(variantsIni, model.variant));
             document.body.dataset.variant = model.variant;
@@ -1905,7 +2023,12 @@ export function studyView(model: PyChessModel): VNode[] {
     if (!study) return [h('div.box.box-pad', _('Study data is unavailable.'))];
 
     initializeStudyModes(study);
-    const modeActions: StudyModeActions = { toggleSticky: () => {}, toggleWrite: () => {} };
+    const modeActions: StudyModeActions = {
+        toggleSticky: () => {},
+        toggleWrite: () => {},
+        requestServerAnalysis: () => {},
+        showServerAnalysis: () => {},
+    };
     const side = studySide(study, model);
     const page = renderAnalysisPage(model, {
         side,

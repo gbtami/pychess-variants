@@ -11,8 +11,9 @@ import {
     type AnalysisTreeNode,
 } from '../analysis/analysisTree';
 import type { AnalysisController } from '../analysis/analysisCtrl';
+import type { Ceval } from '../messages';
 import type { AnalysisExtension, AnalysisExtensionFactory } from '../analysis/analysisExtension';
-import type { JSONObject } from '../types';
+import type { JSONObject, StudyServerEval } from '../types';
 import {
     mergeStudyNodeIntoAnalysisTree,
     analysisAnnotationsFromStudy,
@@ -35,6 +36,8 @@ const STUDY_SOCKET_TYPES = new Set([
     'study_likes',
     'study_topics',
     'study_position',
+    'study_analysis_progress',
+    'study_analysis_unavailable',
     'study_add_node',
     'study_delete_node',
     'study_promote_variation',
@@ -101,6 +104,7 @@ export interface StudySyncOptions {
     initialFen?: string;
     variantIni?: string;
     createdAt?: string;
+    serverEval?: StudyServerEval | null;
     onAnnotationStateChanged?: (state: StudyAnnotationState) => void;
     onReloadRequired?: (reason: string) => void;
     onMembersChanged?: (members: Record<string, 'read' | 'write'>) => void;
@@ -108,6 +112,8 @@ export interface StudySyncOptions {
     onTopicsChanged?: (topics: string[]) => void;
     onLocalPathChanged?: (path: string) => void;
     onSharedPositionChanged?: (chapterId: string, path: string) => void;
+    onServerEvalChanged?: (serverEval: StudyServerEval | undefined) => void;
+    onServerAnalysisUnavailable?: (reason: string) => void;
     opIdFactory?: () => string;
     contextMenuActions?: AnalysisExtension['contextMenuActions'];
     writable?: boolean;
@@ -149,6 +155,44 @@ function asStudyMembers(value: unknown): Record<string, 'read' | 'write'> | unde
         result[username] = role;
     }
     return result;
+}
+
+function asStudyServerEval(value: unknown): StudyServerEval | undefined {
+    const data = record(value);
+    if (!data || typeof data.path !== 'string' || typeof data.done !== 'boolean') return undefined;
+    if (data.pending !== undefined && typeof data.pending !== 'boolean') return undefined;
+    if (typeof data.requestedAt !== 'string' || !Array.isArray(data.analysis)) return undefined;
+    const analysis: StudyServerEval['analysis'] = [];
+    for (const raw of data.analysis) {
+        if (raw === null) {
+            analysis.push(null);
+            continue;
+        }
+        const step = record(raw);
+        const score = record(step?.s);
+        if (!step || !score) return undefined;
+        if (score.cp !== undefined && (typeof score.cp !== 'number' || !Number.isFinite(score.cp))) return undefined;
+        if (score.mate !== undefined && (typeof score.mate !== 'number' || !Number.isFinite(score.mate)))
+            return undefined;
+        if (score.cp === undefined && score.mate === undefined) return undefined;
+        if (step.d !== undefined && (!Number.isInteger(step.d) || (step.d as number) < 0)) return undefined;
+        if (step.p !== undefined && typeof step.p !== 'string') return undefined;
+        analysis.push({
+            s: {
+                ...(score.cp !== undefined ? { cp: score.cp as number } : {}),
+                ...(score.mate !== undefined ? { mate: score.mate as number } : {}),
+            },
+            ...(step.d !== undefined ? { d: step.d as number } : {}),
+            ...(step.p !== undefined ? { p: step.p as string } : {}),
+        });
+    }
+    return {
+        path: data.path,
+        done: data.done,
+        ...(data.pending !== undefined ? { pending: data.pending } : {}),
+        requestedAt: data.requestedAt,
+        analysis,
+    };
 }
 
 function asStudyTreeNode(value: unknown): StudyTreeNodeDto | undefined {
@@ -226,6 +270,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     private initialTreeLoaded = false;
     private description: string;
     private tags: Record<string, string>;
+    private serverEval?: StudyServerEval;
     private readonly pending: PendingMutation[] = [];
     private readonly onReloadRequired: (reason: string) => void;
     private readonly onAnnotationStateChanged?: (state: StudyAnnotationState) => void;
@@ -246,6 +291,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         this.currentRevision = options.revision;
         this.description = options.description ?? '';
         this.tags = { ...options.tags };
+        this.serverEval = options.serverEval ?? undefined;
         if (options.orientation) {
             ctrl.mycolor = options.orientation;
             ctrl.oppcolor = options.orientation === 'white' ? 'black' : 'white';
@@ -374,6 +420,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
             this.ctrl.tree.loadAnalysisTree(tree);
             this.initialTreeLoaded = true;
             this.refreshPreferredMainline();
+            this.applyServerEval();
             this.restoreCurrentShapes();
             this.notifyAnnotationState();
             updateMovelist(this.ctrl, true, false);
@@ -483,6 +530,15 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         this.enqueue('study_set_tags', { tags });
     }
 
+    requestServerAnalysis(): void {
+        if (!this.connected || !this.writable) return;
+        this.ctrl.doSend({
+            type: 'study_request_analysis',
+            studyId: this.options.studyId,
+            chapterId: this.options.chapterId,
+        });
+    }
+
     onNodeAdded(parentPath: string, node: AnalysisTreeNode): void {
         if (!node.step.move || !isStudyNodeId(node.id)) {
             this.requestReload('invalid_local_node');
@@ -530,6 +586,34 @@ export class StudyAnalysisExtension implements AnalysisExtension {
 
         if (data.studyId !== this.options.studyId) {
             this.requestReload('wrong_study');
+            return true;
+        }
+
+        if (type === 'study_analysis_progress') {
+            if (data.chapterId !== this.options.chapterId) return true;
+            const serverEval = asStudyServerEval(data.serverEval);
+            if (!serverEval) {
+                this.requestReload('invalid_server_analysis');
+                return true;
+            }
+            this.serverEval = serverEval;
+            this.applyServerEval();
+            this.options.onServerEvalChanged?.(serverEval);
+            return true;
+        }
+
+        if (type === 'study_analysis_unavailable') {
+            if (data.chapterId !== this.options.chapterId) return true;
+            if (typeof data.reason !== 'string') {
+                this.requestReload('invalid_server_analysis_status');
+                return true;
+            }
+            if (data.reason === 'fishnet_failed') {
+                this.serverEval = undefined;
+                this.clearServerEval();
+                this.options.onServerEvalChanged?.(undefined);
+            }
+            this.options.onServerAnalysisUnavailable?.(data.reason);
             return true;
         }
 
@@ -892,6 +976,48 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         // A Study line is an editable preferred line, not the immutable recorded
         // mainline of a finished game. Tree node metadata remains authoritative.
         this.ctrl.recordedMainlinePly = undefined;
+        if (this.serverEval && this.currentMainlinePath() !== this.serverEval.path) {
+            this.serverEval = undefined;
+            this.clearServerEval();
+            this.options.onServerEvalChanged?.(undefined);
+        }
+    }
+
+    private currentMainlinePath(): string {
+        const tree = this.ctrl.analysisTree;
+        if (!tree) return '';
+        let node = tree.root;
+        while (node.children[0] && !node.children[0].forceVariation) node = node.children[0];
+        return node.path;
+    }
+
+    private clearServerEval(): void {
+        for (const step of this.ctrl.steps) {
+            step.analysis = undefined;
+            step.ceval = undefined;
+            step.scoreStr = undefined;
+        }
+        updateMovelist(this.ctrl, true, false);
+    }
+
+    private applyServerEval(): void {
+        const serverEval = this.serverEval;
+        if (!serverEval || this.currentMainlinePath() !== serverEval.path) return;
+        this.clearServerEval();
+        for (let ply = 0; ply < Math.min(this.ctrl.steps.length, serverEval.analysis.length); ply++) {
+            const stored = serverEval.analysis[ply];
+            if (!stored) continue;
+            const ceval: Ceval = {
+                s: stored.s,
+                d: stored.d ?? 0,
+                ...(stored.p ? { p: stored.p } : {}),
+            };
+            const step = this.ctrl.steps[ply];
+            step.analysis = ceval;
+            step.ceval = ceval;
+            step.scoreStr = this.ctrl.buildScoreStr(step.turnColor === 'black' ? 'b' : 'w', ceval);
+        }
+        updateMovelist(this.ctrl, true, false);
     }
 
     private requestReload(reason: string): void {

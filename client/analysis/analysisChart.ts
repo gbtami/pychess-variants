@@ -7,7 +7,7 @@ import { AnalysisController } from './analysisCtrl';
 import { Step } from '../messages';
 import { analysisChartZone } from '../variantColor';
 
-export function analysisChart(ctrl: AnalysisController) {
+export function analysisChart(ctrl: AnalysisController, container = 'chart-analysis') {
     const firstSide = analysisChartZone(ctrl.variant.colors.first);
     const secondSide = analysisChartZone(ctrl.variant.colors.second);
     const scores = ctrl.steps.map((step: Step, ply: number) => {
@@ -30,7 +30,7 @@ export function analysisChart(ctrl: AnalysisController) {
             return null;
         }
     });
-    ctrl.analysisChart = Highcharts.chart('chart-analysis', {
+    const chart = Highcharts.chart(container, {
         chart: { type: 'area', spacing: [3, 0, 3, 0], animation: false, backgroundColor: undefined },
         credits: { enabled: false },
         legend: { enabled: false },
@@ -116,4 +116,6 @@ export function analysisChart(ctrl: AnalysisController) {
         },
         series: [{ data: scores } as Highcharts.SeriesColumnOptions],
     });
+    if (container === 'chart-analysis') ctrl.analysisChart = chart;
+    return chart;
 }

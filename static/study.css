@@ -581,6 +581,13 @@
 }
 .study-tool-panel { padding: .8rem; background: var(--bg-color0); border-radius: 0 0 4px 4px; }
 .study-tool-panel[hidden] { display: none; }
+.study-server-eval__content { min-height: 5.5rem; }
+.study-server-eval__chart { width: 100%; min-height: 180px; }
+.study-server-eval__progress { display: flex; align-items: center; gap: .6rem; padding: .75rem 0; opacity: .8; }
+.study-server-eval__spinner { width: 1rem; height: 1rem; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: study-server-eval-spin .8s linear infinite; }
+.study-server-eval__request { display: inline-flex; align-items: center; gap: .45rem; }
+.study-server-eval__error { font-weight: bold; }
+@keyframes study-server-eval-spin { to { transform: rotate(360deg); } }
 .study-underboard__title { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin: 0 0 .7rem; font-size: 1.2rem; overflow-wrap: anywhere; }
 .study-underboard__name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .study-topics {
