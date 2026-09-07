@@ -40,10 +40,16 @@ function wasmThreadsSupported(): boolean {
     if (!(memory.buffer instanceof SharedArrayBuffer)) return false;
 
     try {
-        window.postMessage(memory, '*');
         memory.grow(8);
     } catch {
         return false;
+    }
+
+    try {
+        window.postMessage(memory, '*');
+    } catch {
+        // iPadOS can reject cloning shared WebAssembly.Memory via postMessage
+        // even when Fairy-Stockfish workers run correctly.
     }
 
     return true;
