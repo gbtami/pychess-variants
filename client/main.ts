@@ -31,6 +31,7 @@ import { initSimulForm } from './simul/simulForm';
 import { calendarView } from './calendar';
 import { pasteView, recordImportFfishError } from './paste';
 import { myVariantsView } from './myVariants';
+import { initAnalysisEngine } from './fairyStockfish';
 import { statsView } from './stats';
 import { volumeSettings, soundThemeSettings } from './sound';
 import { notifyChessgroundResize, patch } from './document';
@@ -284,6 +285,14 @@ function start() {
             }
         }
 
+        const renderView = () => {
+            patch(placeholder, view(el, model));
+            // The controller must be mounted before the engine emits its startup handshake.
+            if (['analysis', 'puzzle', 'study'].includes(dataView)) {
+                void initAnalysisEngine().catch(error => console.warn(error));
+            }
+        };
+
         if (['round', 'analysis', 'study', 'puzzle', 'editor', 'tv', 'embed', 'paste'].includes(dataView)) {
             console.time('load ffish');
             const variantIni =
@@ -298,7 +307,7 @@ function start() {
                     console.timeEnd('load ffish_alice');
                     loadedModule.loadVariantConfig(variantIni);
                     model.ffish = loadedModule;
-                    patch(placeholder, view(el, model));
+                    renderView();
                 });
             } else {
                 const loadModule = ffishModule(
@@ -308,11 +317,11 @@ function start() {
                     console.timeEnd('load ffish');
                     loadedModule.loadVariantConfig(variantIni);
                     model.ffish = loadedModule;
-                    patch(placeholder, view(el, model));
+                    renderView();
                 });
             }
         } else {
-            patch(placeholder, view(el, model));
+            renderView();
             if (dataView === 'profile' || dataView === 'level8win') initProfileActionOverflow();
             if (dataView === 'game-search') initGameSearch(model);
         }

@@ -25,28 +25,25 @@ let engineQueue: Promise<void> = Promise.resolve();
 let originalPrompt: typeof window.prompt | null = null;
 
 function wasmThreadsSupported(): boolean {
+    // Adapted from lichess ui/lib/src/device.ts (features and sharedMemoryTest).
+    // https://github.com/lichess-org/lila/blob/39deb036f366f06b3149024728b5039846856455/ui/lib/src/device.ts
     const source = Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00);
     if (typeof WebAssembly !== 'object' || typeof WebAssembly.validate !== 'function') return false;
     if (!WebAssembly.validate(source)) return false;
+    // Avoid WebKit crash: https://bugs.webkit.org/show_bug.cgi?id=303387
+    if (navigator.userAgent.toLowerCase().includes('version/26.2')) return false;
     if (typeof SharedArrayBuffer !== 'function') return false;
     if (typeof Atomics !== 'object') return false;
 
-    let memory: WebAssembly.Memory;
     try {
-        memory = new WebAssembly.Memory({ shared: true, initial: 8, maximum: 16 });
+        const memory = new WebAssembly.Memory({ shared: true, initial: 1, maximum: 2 });
+        if (!(memory.buffer instanceof SharedArrayBuffer)) return false;
+        // WebKit can send Memory to workers while rejecting it in window.postMessage.
+        window.postMessage(memory.buffer, '*');
+        return true;
     } catch {
         return false;
     }
-    if (!(memory.buffer instanceof SharedArrayBuffer)) return false;
-
-    try {
-        window.postMessage(memory, '*');
-        memory.grow(8);
-    } catch {
-        return false;
-    }
-
-    return true;
 }
 
 function loadStockfishScript(): Promise<void> {
@@ -91,10 +88,10 @@ function loadStockfishScript(): Promise<void> {
 
 async function ensureFsfEngine(): Promise<FairyStockfishEngine> {
     if (window.fsf) return window.fsf as FairyStockfishEngine;
+    if (stockfishEnginePromise) return stockfishEnginePromise;
     if (!wasmThreadsSupported()) {
         throw new Error(_('Fairy-Stockfish WASM is not supported by this browser.'));
     }
-    if (stockfishEnginePromise) return stockfishEnginePromise;
 
     stockfishEnginePromise = (async () => {
         await loadStockfishScript();
@@ -110,6 +107,12 @@ async function ensureFsfEngine(): Promise<FairyStockfishEngine> {
     });
 
     return stockfishEnginePromise;
+}
+
+export async function initAnalysisEngine(): Promise<void> {
+    const fsf = await ensureFsfEngine();
+    // Study chapter navigation replaces the controller without reloading the engine.
+    fsf.addMessageListener(line => window.onFSFline?.(line));
 }
 
 function installPromptQueue(lines: string[]): void {
