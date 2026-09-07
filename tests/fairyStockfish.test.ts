@@ -1,4 +1,4 @@
-import { beforeEach, expect, jest, test } from '@jest/globals';
+import { afterEach, beforeEach, expect, jest, test } from '@jest/globals';
 
 type Listener = (line: string) => void;
 
@@ -64,6 +64,85 @@ beforeEach(() => {
     jest.resetModules();
     delete (window as typeof window & { fsf?: unknown }).fsf;
     delete (window as typeof window & { Stockfish?: unknown }).Stockfish;
+    delete window.onFSFline;
+});
+
+afterEach(() => jest.restoreAllMocks());
+
+test('analysis and rule validation share startup when only Memory objects cannot be posted', async () => {
+    const engine = new MockFairyStockfishEngine();
+    const factory = jest.fn(async () => engine);
+    window.Stockfish = factory;
+    const postMessage = jest.spyOn(window, 'postMessage').mockImplementation(message => {
+        if (message instanceof WebAssembly.Memory) throw new DOMException('Cannot clone', 'DataCloneError');
+    });
+    const { initAnalysisEngine, checkRulesWithFsfWasm } = await import('../client/fairyStockfish');
+
+    await Promise.all([initAnalysisEngine(), checkRulesWithFsfWasm('[custom:chess]\n')]);
+
+    expect(factory).toHaveBeenCalledTimes(1);
+    expect(postMessage).toHaveBeenCalledTimes(1);
+    expect(postMessage.mock.calls[0][0]).toBeInstanceOf(SharedArrayBuffer);
+    expect(window.fsf).toBe(engine);
+    expect(engine.checkedInputs).toHaveLength(1);
+});
+
+test('analysis output follows the current Study chapter controller', async () => {
+    const engine = new MockFairyStockfishEngine();
+    window.fsf = engine;
+    const firstChapter = jest.fn();
+    const nextChapter = jest.fn();
+    window.onFSFline = firstChapter;
+    const { initAnalysisEngine } = await import('../client/fairyStockfish');
+    await initAnalysisEngine();
+
+    engine.postMessage('isready');
+    window.onFSFline = nextChapter;
+    engine.postMessage('isready');
+
+    expect(firstChapter).toHaveBeenCalledTimes(1);
+    expect(nextChapter).toHaveBeenCalledWith('readyok');
+});
+
+test.each(['analysis', 'rules'])('%s still rejects browsers that cannot post shared buffers', async mode => {
+    const factory = jest.fn(async () => new MockFairyStockfishEngine());
+    window.Stockfish = factory;
+    jest.spyOn(window, 'postMessage').mockImplementation(() => {
+        throw new DOMException('Cannot clone', 'DataCloneError');
+    });
+    const { initAnalysisEngine, checkRulesWithFsfWasm } = await import('../client/fairyStockfish');
+
+    await expect(
+        mode === 'analysis' ? initAnalysisEngine() : checkRulesWithFsfWasm('[custom:chess]\n'),
+    ).rejects.toThrow('not supported');
+    expect(factory).not.toHaveBeenCalled();
+});
+
+test('Safari 26.2 is rejected before attempting the shared-memory operation that can crash WebKit', async () => {
+    jest.spyOn(navigator, 'userAgent', 'get').mockReturnValue('Version/26.2 Safari/605.1.15');
+    const memory = jest.spyOn(WebAssembly, 'Memory');
+    const { initAnalysisEngine } = await import('../client/fairyStockfish');
+
+    await expect(initAnalysisEngine()).rejects.toThrow('not supported');
+    expect(memory).not.toHaveBeenCalled();
+});
+
+test('shared-memory allocation failure is reported as unsupported', async () => {
+    jest.spyOn(WebAssembly, 'Memory').mockImplementation(() => {
+        throw new RangeError('Shared memory unavailable');
+    });
+    const { initAnalysisEngine } = await import('../client/fairyStockfish');
+
+    await expect(initAnalysisEngine()).rejects.toThrow('not supported');
+});
+
+test('invalid WebAssembly support is rejected before memory allocation', async () => {
+    jest.spyOn(WebAssembly, 'validate').mockReturnValue(false);
+    const memory = jest.spyOn(WebAssembly, 'Memory');
+    const { initAnalysisEngine } = await import('../client/fairyStockfish');
+
+    await expect(initAnalysisEngine()).rejects.toThrow('not supported');
+    expect(memory).not.toHaveBeenCalled();
 });
 
 test('surfaces invalid option diagnostics from Fairy-Stockfish check', async () => {
