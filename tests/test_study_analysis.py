@@ -167,6 +167,107 @@ class StudyServerAnalysisTestCase(unittest.IsolatedAsyncioTestCase):
         repeated = await self._request()
         self.assertEqual(repeated.status, "already_done")
 
+    async def test_analysis_merges_lila_style_evals_advice_and_best_lines(self) -> None:
+        _, revision = await self._add_line(["e2e4", "e7e5", "g1f3", "b8c6", "f1b5"])
+        chapter = await self._chapter()
+        mainline = chapter.root.preferred_mainline()
+        e4_path = mainline[0].id
+        e5_path = f"{mainline[0].id}.{mainline[1].id}"
+
+        # Pre-existing human variations are reused rather than duplicated when the
+        # Fishnet best line starts with the same move, just like lila's addChild.
+        c5 = await self.service.add_node(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            parent_path=e4_path,
+            move="c7c5",
+            expected_revision=revision,
+        )
+        self.assertEqual(c5.status, "ok")
+        assert c5.node is not None
+        assert c5.revision is not None
+        existing_c5_id = c5.node.id
+
+        human_comment = await self.service.set_comment(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            path=e5_path,
+            comment_id="HumanNote1",
+            text="Human note",
+            expected_revision=c5.revision,
+        )
+        self.assertEqual(human_comment.status, "ok")
+
+        started = await self._request()
+        self.assertEqual(started.status, "started")
+        work_id, work = next(iter(self.app_state.fishnet_works.items()))
+
+        # Fairyfishnet rows evaluate positions, not moves. Scores here are raw UCI
+        # side-to-move scores. After 1.e4, -0.40 therefore means White +0.40;
+        # after 1...e5, +4.00 means White +4.00, making ...e5 a blunder for Black.
+        partial = [
+            {"score": {"cp": 50}, "depth": 18, "pv": "d2d4 d7d5 c2c4"},
+            {"score": {"cp": -40}, "depth": 18, "pv": "c7c5 g1f3 d7d6"},
+            {"score": {"cp": 400}, "depth": 18, "pv": "f1c4 b8c6"},
+            {"score": {"cp": -380}, "depth": 18, "pv": "b8c6 f1b5"},
+            {"score": {"cp": 390}, "depth": 18, "pv": "f1b5 a7a6"},
+            None,
+        ]
+        await merge_study_server_analysis(cast(Any, self.app_state), work_id, work, partial)
+
+        chapter = await self._chapter()
+        mainline = chapter.root.preferred_mainline()
+        self.assertEqual(mainline[0].eval_score, {"cp": -40})
+        self.assertEqual(mainline[1].eval_score, {"cp": 400})
+        self.assertEqual(mainline[2].eval_score, {"cp": -380})
+
+        e5 = mainline[1]
+        self.assertIn(4, e5.annotations.nags)
+        self.assertTrue(any(comment.text == "Human note" for comment in e5.annotations.comments))
+        generated = [comment for comment in e5.annotations.comments if comment.author == "PyChess"]
+        self.assertEqual(len(generated), 1)
+        self.assertEqual(generated[0].text, "Blunder. c5 was best.")
+        self.assertNotIn(4, mainline[0].annotations.nags)
+
+        # Lila drops best-line variations that do not carry advice. The root PV
+        # therefore does not become a first-move alternative, and the small eval
+        # loss after 2.Nf3 does not add the differing 2.Bc4 engine line either.
+        root_moves = chapter.root.children_of(None)
+        self.assertEqual([node.move for node in root_moves], ["e2e4"])
+        e5_children = chapter.root.children_of(mainline[1].id)
+        self.assertNotIn("f1c4", [node.move for node in e5_children])
+
+        e4_children = chapter.root.children_of(mainline[0].id)
+        self.assertEqual([node.move for node in e4_children], ["e7e5", "c7c5"])
+        self.assertEqual(e4_children[1].id, existing_c5_id)
+        c5_children = chapter.root.children_of(existing_c5_id)
+        self.assertEqual([node.move for node in c5_children], ["g1f3"])
+        self.assertEqual(c5_children[0].san, "Nf3")
+
+        assert chapter.server_eval is not None
+        self.assertNotIn("p", chapter.server_eval.analysis[1] or {})
+        self.assertEqual((chapter.server_eval.analysis[2] or {}).get("p"), "c7c5 g1f3 d7d6")
+        self.assertNotIn("p", chapter.server_eval.analysis[3] or {})
+
+        # Partial reports can overlap. Re-merging the same Fishnet rows must not
+        # duplicate engine comments, NAGs, or PV branches.
+        node_count = chapter.root.count()
+        await merge_study_server_analysis(cast(Any, self.app_state), work_id, work, partial)
+        chapter = await self._chapter()
+        self.assertEqual(chapter.root.count(), node_count)
+        e5 = chapter.root.preferred_mainline()[1]
+        self.assertEqual(
+            sum(comment.author == "PyChess" for comment in e5.annotations.comments),
+            1,
+        )
+        self.assertEqual(e5.annotations.nags.count(4), 1)
+        self.assertEqual(
+            sum(node.move == "c7c5" for node in chapter.root.children_of(mainline[0].id)),
+            1,
+        )
+
     async def test_interrupted_request_can_be_retried_after_cooldown(self) -> None:
         await self._add_line(["e2e4", "e7e5", "g1f3", "b8c6", "f1b5"])
         requested_at = datetime(2026, 9, 7, 12, 0, tzinfo=UTC)

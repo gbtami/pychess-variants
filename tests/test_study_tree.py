@@ -30,6 +30,7 @@ def make_node(
     check: bool = False,
     force_variation: bool = False,
     annotations: StudyAnnotations | None = None,
+    eval_score: dict[str, int] | None = None,
 ) -> StudyTreeNode:
     return StudyTreeNode(
         id=node_id,
@@ -43,6 +44,7 @@ def make_node(
         san_san="e4",
         force_variation=force_variation,
         annotations=annotations or StudyAnnotations(),
+        eval_score=eval_score,
     )
 
 
@@ -86,17 +88,19 @@ class StudyTreeTestCase(unittest.TestCase):
             nags=(2,),
         )
         tree = StudyTree(
-            {ROOT_A: make_node(ROOT_A, annotations=node_annotations)},
+            {ROOT_A: make_node(ROOT_A, annotations=node_annotations, eval_score={"cp": 42})},
             root_annotations=root_annotations,
         )
 
         doc = tree.to_document()
         self.assertEqual(doc[STUDY_TREE_ROOT_KEY]["a"]["n"], [1, 3])  # type: ignore[index]
         self.assertIn("a", doc[ROOT_A])  # type: ignore[operator]
+        self.assertEqual(doc[ROOT_A]["e"], {"cp": 42})  # type: ignore[index]
         self.assertEqual(StudyTree.from_document(doc), tree)
 
         payload = tree.to_payload()
         self.assertEqual(payload["rootAnnotations"]["nags"], [1, 3])  # type: ignore[index]
+        self.assertEqual(payload["nodes"][0]["eval"], {"cp": 42})  # type: ignore[index]
         self.assertEqual(StudyTree.from_payload(payload), tree)
 
     def test_payload_round_trip_and_stable_path_resolution(self) -> None:
@@ -115,6 +119,12 @@ class StudyTreeTestCase(unittest.TestCase):
         self.assertEqual(restored.path_for_node(DEEP_A), path)
         self.assertEqual(restored.node_at_path(path), restored.nodes[DEEP_A])
         self.assertIsNone(restored.node_at_path(f"{ROOT_B}.{CHILD_A}"))
+
+    def test_rejects_malformed_node_eval(self) -> None:
+        payload = make_node(ROOT_A).to_payload()
+        payload["eval"] = {"cp": "bad"}
+        with self.assertRaises(TypeError):
+            StudyTreeNode.from_payload(payload)
 
     def test_rejects_duplicate_sibling_order(self) -> None:
         with self.assertRaisesRegex(ValueError, "duplicate order"):

@@ -1357,7 +1357,11 @@ Add these based on actual PyChess usage rather than parity for its own sake.
   `variants.ini` Fishnet payload so a worker cannot silently analyse the current live rules instead.
   Pending work itself remains in-memory like other Fishnet jobs; after a server restart, persisted
   incomplete analysis is shown but marked non-pending and can be requested again after the normal
-  five-minute cooldown.
+  five-minute cooldown. As on Lichess, Fishnet results are also merged into the Study tree: analyzed
+  mainline nodes keep their server evaluation, inaccuracy/mistake/blunder moves receive the generated
+  `?!` / `?` / `??` NAG and a `PyChess` advice comment, and the significant pre-move best line is
+  inserted as a normal variation (up to the effective Lichess/Fishnet 12-ply cap). Existing human
+  variations are reused by move rather than duplicated, and human comments/annotations are preserved.
 
 ## Lesson/training modes
 

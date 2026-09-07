@@ -55,6 +55,24 @@ def _nonnegative_int(doc: Mapping[str, object], key: str, *, default: int = 0, c
     return value
 
 
+def _canonical_eval_score(value: object, *, context: str) -> dict[str, int] | None:
+    if value is None:
+        return None
+    if not isinstance(value, Mapping):
+        raise TypeError(f"{context} must be a mapping or null")
+    score: dict[str, int] = {}
+    for key in ("cp", "mate"):
+        raw = value.get(key)
+        if raw is None:
+            continue
+        if isinstance(raw, bool) or not isinstance(raw, int):
+            raise TypeError(f"{context} field {key!r} must be an integer")
+        score[key] = raw
+    if not score:
+        raise ValueError(f"{context} requires cp or mate")
+    return score
+
+
 @dataclass(frozen=True, slots=True)
 class StudyTreeNode:
     id: str
@@ -68,6 +86,7 @@ class StudyTreeNode:
     san_san: str | None = None
     force_variation: bool = False
     annotations: StudyAnnotations = field(default_factory=StudyAnnotations)
+    eval_score: Mapping[str, int] | None = None
 
     def __post_init__(self) -> None:
         if not is_study_node_id(self.id):
@@ -84,6 +103,11 @@ class StudyTreeNode:
             raise ValueError("Study node FEN must be non-empty")
         if self.turn_color not in _TURN_COLORS:
             raise ValueError(f"Invalid Study node turn color: {self.turn_color!r}")
+        object.__setattr__(
+            self,
+            "eval_score",
+            _canonical_eval_score(self.eval_score, context="Study node eval"),
+        )
 
     def to_document(self) -> dict[str, object]:
         doc: dict[str, object] = {
@@ -104,6 +128,8 @@ class StudyTreeNode:
             doc["v"] = True
         if not self.annotations.empty:
             doc["a"] = self.annotations.to_document()
+        if self.eval_score is not None:
+            doc["e"] = dict(self.eval_score)
         return doc
 
     @classmethod
@@ -147,6 +173,7 @@ class StudyTreeNode:
             san_san=_optional_str(doc, "ss", context=context),
             force_variation=raw_force,
             annotations=StudyAnnotations.from_document(raw_annotations),
+            eval_score=_canonical_eval_score(doc.get("e"), context=f"{context} field 'e'"),
         )
 
     def to_payload(self) -> dict[str, object]:
@@ -167,6 +194,8 @@ class StudyTreeNode:
             payload["forceVariation"] = True
         if not self.annotations.empty:
             payload["annotations"] = self.annotations.to_payload()
+        if self.eval_score is not None:
+            payload["eval"] = dict(self.eval_score)
         return payload
 
     @classmethod
@@ -200,6 +229,9 @@ class StudyTreeNode:
             san_san=_optional_str(payload, "sanSAN", context=context),
             force_variation=raw_force,
             annotations=StudyAnnotations.from_payload(raw_annotations),
+            eval_score=_canonical_eval_score(
+                payload.get("eval"), context=f"{context} field 'eval'"
+            ),
         )
 
 

@@ -1,6 +1,6 @@
 import type { DrawShape } from 'chessgroundx/draw';
 
-import { Step } from '../messages';
+import type { Ceval, Step } from '../messages';
 
 const ROOT_PATH = '';
 const PATH_SEPARATOR = '.';
@@ -34,6 +34,9 @@ export interface AnalysisTreeNode {
     // Persisted analysis-document metadata. Ordinary analysis leaves this undefined;
     // Study uses it for root/node drawings, comments and NAGs.
     annotations?: AnalysisAnnotations;
+    // Persisted server evaluation attached to a Study tree node. This is separate
+    // from step.ceval, which can also hold transient local-engine analysis.
+    eval?: Ceval;
 }
 
 export interface AnalysisTree {

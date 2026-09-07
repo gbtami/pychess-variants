@@ -116,6 +116,31 @@ describe('Study analysis websocket synchronization', () => {
                 type: 'study_analysis_progress',
                 studyId: 'study001',
                 chapterId: 'chapter1',
+                tree: {
+                    nodes: [
+                        {
+                            ...e4Node(),
+                            eval: { mate: 3 },
+                            annotations: {
+                                shapes: [],
+                                comments: [{ id: 'EngineNote', author: 'PyChess', text: 'Blunder. d4 was best.' }],
+                                nags: [4],
+                            },
+                        },
+                        {
+                            id: 'StudyNode2',
+                            parentId: null,
+                            order: 1,
+                            move: 'd2d4',
+                            fen: 'd4 b - - 0 1',
+                            turnColor: 'black',
+                            check: false,
+                            san: 'd4',
+                            sanSAN: 'd4',
+                            eval: { cp: -18 },
+                        },
+                    ],
+                },
                 serverEval: {
                     path: 'StudyNode1',
                     done: true,
@@ -129,6 +154,10 @@ describe('Study analysis websocket synchronization', () => {
         ).toBe(true);
         expect(ctrl.steps[0].ceval).toEqual({ s: { cp: 12 }, d: 18 });
         expect(ctrl.steps[1].ceval).toEqual({ s: { mate: 3 }, d: 18, p: 'e7e5' });
+        expect(ctrl.analysisTree.root.children.map((node: any) => node.step.move)).toEqual(['e2e4', 'd2d4']);
+        expect(ctrl.analysisTree.root.children[0].annotations?.nags).toEqual([4]);
+        expect(ctrl.analysisTree.root.children[1].step.ceval).toEqual({ s: { cp: -18 }, d: 0 });
+        expect(ctrl.analysisTree.root.children[1].step.scoreStr).toBe('-18');
         expect(changed).toHaveBeenCalledWith(expect.objectContaining({ done: true }));
     });
 

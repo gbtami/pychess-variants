@@ -16,6 +16,7 @@ import type { AnalysisExtension, AnalysisExtensionFactory } from '../analysis/an
 import type { JSONObject, StudyServerEval } from '../types';
 import {
     mergeStudyNodeIntoAnalysisTree,
+    mergeStudyTreeIntoAnalysisTree,
     analysisAnnotationsFromStudy,
     analysisTreeFromStudy,
     isStudyNodeId,
@@ -209,6 +210,19 @@ function asStudyTreeNode(value: unknown): StudyTreeNodeDto | undefined {
     if (node.sanSAN !== undefined && typeof node.sanSAN !== 'string') return undefined;
     if (node.forceVariation !== undefined && typeof node.forceVariation !== 'boolean') return undefined;
 
+    let evalScore: StudyTreeNodeDto['eval'];
+    if (node.eval !== undefined) {
+        const rawEval = record(node.eval);
+        if (!rawEval) return undefined;
+        if (rawEval.cp !== undefined && !Number.isInteger(rawEval.cp)) return undefined;
+        if (rawEval.mate !== undefined && !Number.isInteger(rawEval.mate)) return undefined;
+        if (rawEval.cp === undefined && rawEval.mate === undefined) return undefined;
+        evalScore = {
+            ...(rawEval.cp !== undefined ? { cp: rawEval.cp as number } : {}),
+            ...(rawEval.mate !== undefined ? { mate: rawEval.mate as number } : {}),
+        };
+    }
+
     let annotations: StudyAnnotationsDto | undefined;
     if (node.annotations !== undefined) {
         try {
@@ -230,7 +244,31 @@ function asStudyTreeNode(value: unknown): StudyTreeNodeDto | undefined {
         sanSAN: node.sanSAN as string | undefined,
         forceVariation: node.forceVariation as boolean | undefined,
         annotations,
+        eval: evalScore,
     };
+}
+
+function asStudyTree(value: unknown): StudyTreeDto | undefined {
+    const tree = record(value);
+    if (!tree || !Array.isArray(tree.nodes)) return undefined;
+    const nodes: StudyTreeNodeDto[] = [];
+    const ids = new Set<string>();
+    for (const rawNode of tree.nodes) {
+        const node = asStudyTreeNode(rawNode);
+        if (!node || ids.has(node.id)) return undefined;
+        ids.add(node.id);
+        nodes.push(node);
+    }
+
+    let rootAnnotations: StudyAnnotationsDto | undefined;
+    if (tree.rootAnnotations !== undefined) {
+        try {
+            rootAnnotations = parseStudyAnnotations(tree.rootAnnotations);
+        } catch {
+            return undefined;
+        }
+    }
+    return rootAnnotations ? { nodes, rootAnnotations } : { nodes };
 }
 
 function emptyAnnotations(): StudyAnnotationsDto {
@@ -592,12 +630,24 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         if (type === 'study_analysis_progress') {
             if (data.chapterId !== this.options.chapterId) return true;
             const serverEval = asStudyServerEval(data.serverEval);
-            if (!serverEval) {
+            const studyTree = data.tree === undefined ? undefined : asStudyTree(data.tree);
+            if (!serverEval || (data.tree !== undefined && !studyTree)) {
                 this.requestReload('invalid_server_analysis');
                 return true;
             }
+            if (studyTree && this.initialTreeLoaded) {
+                const tree = this.ctrl.analysisTree;
+                if (!tree || !mergeStudyTreeIntoAnalysisTree(tree, studyTree)) {
+                    this.requestReload('invalid_server_analysis_tree');
+                    return true;
+                }
+                this.refreshPreferredMainline();
+            } else if (studyTree) {
+                this.options.tree = studyTree;
+            }
             this.serverEval = serverEval;
             this.applyServerEval();
+            this.ctrl.refreshPgnView?.();
             this.options.onServerEvalChanged?.(serverEval);
             return true;
         }
@@ -980,6 +1030,11 @@ export class StudyAnalysisExtension implements AnalysisExtension {
             this.serverEval = undefined;
             this.clearServerEval();
             this.options.onServerEvalChanged?.(undefined);
+        } else {
+            // Canonical node replacements rebuild Step objects. Re-apply persisted
+            // Study evals (and any still-valid live server-analysis overlay) so an
+            // unrelated annotation/tree acknowledgement cannot make evals disappear.
+            this.applyServerEval();
         }
     }
 
@@ -991,19 +1046,31 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         return node.path;
     }
 
+    private applyTreeEvals(): void {
+        const tree = this.ctrl.analysisTree;
+        if (!tree) return;
+        for (const node of tree.byPath.values()) {
+            if (!node.eval) continue;
+            node.step.analysis = node.eval;
+            node.step.ceval = node.eval;
+            node.step.scoreStr = this.ctrl.buildScoreStr(node.step.turnColor === 'black' ? 'b' : 'w', node.eval);
+        }
+    }
+
     private clearServerEval(): void {
         for (const step of this.ctrl.steps) {
             step.analysis = undefined;
             step.ceval = undefined;
             step.scoreStr = undefined;
         }
+        this.applyTreeEvals();
         updateMovelist(this.ctrl, true, false);
     }
 
     private applyServerEval(): void {
+        this.clearServerEval();
         const serverEval = this.serverEval;
         if (!serverEval || this.currentMainlinePath() !== serverEval.path) return;
-        this.clearServerEval();
         for (let ply = 0; ply < Math.min(this.ctrl.steps.length, serverEval.analysis.length); ply++) {
             const stored = serverEval.analysis[ply];
             if (!stored) continue;
