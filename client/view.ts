@@ -199,9 +199,9 @@ function possibleNnueFile(fileName: string, variant: string) {
     return possible;
 }
 
-export function setAriaTabClick(setting: string) {
+export function setAriaTabClick(setting: string, root: ParentNode = document) {
     // Add a click event handler to each tab
-    const tabs = document.querySelectorAll('[role="tab"]');
+    const tabs = root.querySelectorAll('[role="tab"]');
     tabs!.forEach(tab => {
         tab.addEventListener('click', () => changeTabs(setting, tab));
     });

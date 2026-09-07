@@ -5,12 +5,22 @@ import { addOrSelectChild, createAnalysisTree, mainlinePathAtPly } from '../clie
 import { patch } from '../client/document';
 import { Step } from '../client/messages';
 import { updateMovelist } from '../client/movelist';
-import { PyChessModel } from '../client/types';
+import { PyChessModel, StudyPageModel } from '../client/types';
 
 jest.useFakeTimers();
 
 jest.unstable_mockModule('../client/analysis/analysisCtrl', () => ({
-    AnalysisController: class AnalysisController {},
+    AnalysisController: class AnalysisController {
+        analysisPath = '';
+        analysisTree = undefined;
+        chessground = { setShapes: jest.fn() };
+        username = 'tester';
+        onFSFline = jest.fn();
+
+        constructor(_el: HTMLElement, _model: PyChessModel, extensionFactory?: (ctrl: unknown) => unknown) {
+            extensionFactory?.(this);
+        }
+    },
 }));
 jest.unstable_mockModule('../client/puzzleCtrl', () => ({
     PuzzleController: class PuzzleController {},
@@ -29,8 +39,9 @@ jest.unstable_mockModule('../client/analysis/analysisSettings', () => ({
     },
 }));
 
-const { analysisView, embedView } = await import('../client/analysis');
+const { analysisView, embedView, renderAnalysisPage } = await import('../client/analysis');
 const { puzzleView } = await import('../client/puzzle');
+const { studyEmbedView, studyView, updateStudyUnderboardChapter } = await import('../client/study/studyView');
 const { roundView } = await import('../client/round');
 
 function makeModel(overrides: Partial<PyChessModel> = {}): PyChessModel {
@@ -144,6 +155,7 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('#movelist')).not.toBeNull();
         expect(root.querySelector('#move-controls')).not.toBeNull();
         expect(root.querySelector('#pgntext')).not.toBeNull();
+        expect([...root.querySelectorAll('button')].some(button => button.textContent === 'Add to Study')).toBe(true);
         expect(root.querySelectorAll('[role="tab"]').length).toBeGreaterThan(0);
     });
 
@@ -154,6 +166,381 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('#movelist')).not.toBeNull();
         expect(root.querySelector('#move-controls')).not.toBeNull();
         expect(root.querySelector('#pgntext')).not.toBeNull();
+        expect([...root.querySelectorAll('button')].some(button => button.textContent === 'Add to Study')).toBe(true);
+    });
+
+    test('ongoing and anonymous analysis do not offer Add to Study', () => {
+        const ongoing = renderNodes(analysisView(makeModel({ gameId: 'cPeP5Di1', status: -1 })));
+        expect([...ongoing.querySelectorAll('button')].some(button => button.textContent === 'Add to Study')).toBe(
+            false,
+        );
+
+        document.body.innerHTML = '';
+        const anonymous = renderNodes(analysisView(makeModel({ gameId: '', status: 1, anon: 'True' })));
+        expect([...anonymous.querySelectorAll('button')].some(button => button.textContent === 'Add to Study')).toBe(
+            false,
+        );
+    });
+
+    test('reusable analysis shell composes page-specific side and under-board content', () => {
+        const mountBoard = jest.fn();
+        const model = makeModel({ gameId: '', status: 1 });
+        const root = renderNodes(
+            renderAnalysisPage(model, {
+                side: h('div.study-side', 'Study chapters'),
+                underboard: h('div.study-underboard', 'Study notes'),
+                mountBoard,
+                ongoing: false,
+            }),
+        );
+
+        expect(mountBoard).toHaveBeenCalledTimes(1);
+        expect(mountBoard.mock.calls[0][1]).toBe(model);
+        expect(root.querySelector('.study-side')).not.toBeNull();
+        expect(root.querySelector('.study-underboard')).not.toBeNull();
+        expect(root.querySelector('#mainboard')).not.toBeNull();
+        expect(root.querySelector('#movelist')).not.toBeNull();
+        expect(root.querySelector('#move-controls')).not.toBeNull();
+        expect(root.querySelector('.analysis-settings')).not.toBeNull();
+        expect(root.querySelector('#pgntext')).toBeNull();
+        expect(root.querySelector('#roundchat')).toBeNull();
+    });
+
+    test('study view composes the analysis shell with chapter navigation', () => {
+        const root = renderNodes(
+            studyView(
+                makeModel({
+                    gameId: '',
+                    status: 0,
+                    study: {
+                        id: 'StUdY001',
+                        name: 'Opening ideas',
+                        owner: 'tester',
+                        visibility: 'private',
+                        isOwner: true,
+                        canWrite: true,
+                        canClone: true,
+                        canLike: true,
+                        liked: true,
+                        likes: 1,
+                        topics: ['Opening', 'King pawn'],
+                        maxTopics: 30,
+                        topicMinLength: 2,
+                        topicMaxLength: 50,
+                        members: { tester: 'write', writer: 'write', reader: 'read' },
+                        maxMembers: 30,
+                        sharedChapter: 'ChAp0001',
+                        sharedPath: '',
+                        chapter: {
+                            id: 'ChAp0001',
+                            name: 'Main line',
+                            revision: 3,
+                            order: 1,
+                            orientation: 'white',
+                            variant: 'chess',
+                            chess960: false,
+                            initialFen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+                            variantIni: null,
+                            createdAt: '2026-09-05T08:00:00+00:00',
+                            description: 'Chapter description',
+                            tags: { Event: 'Test event', Site: 'PyChess' },
+                            tree: {
+                                rootAnnotations: {
+                                    shapes: [],
+                                    comments: [{ id: 'Comment001', author: 'tester', text: 'Root note' }],
+                                    nags: [1],
+                                },
+                                nodes: [],
+                            },
+                        },
+                        chapters: [
+                            { id: 'ChAp0001', name: 'Main line', order: 1, orientation: 'white' },
+                            { id: 'ChAp0002', name: 'Sideline', order: 2, orientation: 'black' },
+                        ],
+                    },
+                }),
+            ),
+        );
+
+        expect(root.querySelector('.study-side')).not.toBeNull();
+        expect(root.querySelector('#study-side-tab-chapters')?.getAttribute('aria-selected')).toBe('true');
+        expect(root.querySelector('#study-side-tab-members')?.getAttribute('aria-selected')).toBe('false');
+        expect(root.querySelectorAll('.study-chapter__row')).toHaveLength(2);
+        expect(root.querySelector('.study-chapter__row.active a')?.getAttribute('href')).toBe(
+            '/study/StUdY001/ChAp0001',
+        );
+        expect(root.querySelector<HTMLElement>('#study-side-panel-members')!.hidden).toBe(true);
+        const membersTab = root.querySelector<HTMLButtonElement>('#study-side-tab-members')!;
+        membersTab.click();
+        expect(membersTab.getAttribute('aria-selected')).toBe('true');
+        expect(root.querySelector<HTMLElement>('#study-side-panel-chapters')!.hidden).toBe(true);
+        expect(root.querySelector<HTMLElement>('#study-side-panel-members')!.hidden).toBe(false);
+        expect(root.querySelectorAll('.study-members-side__member')).toHaveLength(3);
+        expect(root.querySelector('.study-members-side__add')?.textContent).toContain('Add members');
+        membersTab.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
+        expect(root.querySelector('#study-side-tab-chapters')?.getAttribute('aria-selected')).toBe('true');
+        expect(document.activeElement).toBe(root.querySelector('#study-side-tab-chapters'));
+        expect(root.querySelector('#mainboard')).not.toBeNull();
+        expect(root.querySelector('#movelist')).not.toBeNull();
+        expect(root.querySelector('#pgntext')).not.toBeNull();
+        expect(root.querySelector('#roundchat')).toBeNull();
+        expect([...root.querySelectorAll('button')].some(button => button.textContent === 'Add to Study')).toBe(false);
+        expect(root.querySelector('dialog#study-new-chapter .study-side__new-chapter')).not.toBeNull();
+        expect(root.querySelector('dialog#study-members')).toBeNull();
+        const writerRow = root.querySelector<HTMLElement>('[data-study-member="writer"]')!;
+        const writerConfigButton = writerRow.querySelector<HTMLButtonElement>('[data-study-member-config-button]')!;
+        const writerConfig = root.querySelector<HTMLElement>('[data-study-member-config="writer"]')!;
+        expect(writerConfig.hidden).toBe(true);
+        writerConfigButton.click();
+        expect(writerRow.classList.contains('editing')).toBe(true);
+        expect(writerConfig.hidden).toBe(false);
+        expect(writerConfig.querySelector<HTMLInputElement>('input[type="checkbox"]')?.checked).toBe(true);
+        expect(writerConfig.querySelector('.study-members-side__kick')?.textContent).toContain('KICK');
+        expect(writerConfigButton.getAttribute('aria-expanded')).toBe('true');
+        writerConfigButton.click();
+        expect(writerConfig.hidden).toBe(true);
+        expect(writerConfigButton.getAttribute('aria-expanded')).toBe('false');
+        expect(root.querySelector('dialog#study-invite .study-invite__form')).not.toBeNull();
+        expect(root.querySelector('dialog#study-invite select[name="role"]')).toBeNull();
+        expect(root.querySelector('input[name="fen"]')).not.toBeNull();
+        expect(root.querySelector('input[name="gameId"]')).not.toBeNull();
+        const studySettings = root.querySelector<HTMLDialogElement>('#study-settings')!;
+        expect(studySettings.querySelector('#study-settings-form input[name="name"]')?.getAttribute('value')).toBe(
+            'Opening ideas',
+        );
+        expect(
+            studySettings.querySelector('.study-dialog__actions button[form="study-settings-form"]')?.textContent,
+        ).toBe('Save');
+        const secondChapterSettings = root.querySelector<HTMLDialogElement>('#chapter-settings-ChAp0002')!;
+        expect(secondChapterSettings.querySelector<HTMLSelectElement>('select[name="orientation"]')?.value).toBe(
+            'black',
+        );
+        expect(
+            secondChapterSettings.querySelector('.study-dialog__actions button[form="chapter-settings-form-ChAp0002"]')
+                ?.textContent,
+        ).toBe('Save chapter');
+        expect(root.querySelector('under-board .study-underboard')).not.toBeNull();
+        expect(root.querySelector('under-board .study-tool-tabs > .study-mode--sync')).not.toBeNull();
+        expect(root.querySelector('under-board .study-tool-tabs > .study-mode--write')).not.toBeNull();
+        expect(root.querySelector('#study-tab-tags')?.getAttribute('aria-selected')).toBe('true');
+        expect(root.querySelector<HTMLButtonElement>('.study-like')?.getAttribute('aria-pressed')).toBe('true');
+        expect(root.querySelector('.study-like__count')?.textContent).toBe('1');
+        expect([...root.querySelectorAll<HTMLAnchorElement>('.study-topic')].map(topic => topic.textContent)).toEqual([
+            'Opening',
+            'King pawn',
+        ]);
+        expect(root.querySelector<HTMLAnchorElement>('.study-topic')?.getAttribute('href')).toBe(
+            '/study/topic/Opening',
+        );
+        expect(root.querySelector('.study-topics__manage')?.textContent).toBe('Manage topics');
+        expect(root.querySelector('#study-topics textarea[name="topics"]')).toBeNull();
+        expect(
+            [...root.querySelectorAll<HTMLElement>('#study-topics [data-topic-value]')].map(
+                topic => topic.dataset.topicValue,
+            ),
+        ).toEqual(['Opening', 'King pawn']);
+        expect(root.querySelector('#study-topics [data-topic-count]')?.textContent).toBe('2/30 topics');
+        const topicInput = root.querySelector<HTMLInputElement>('#study-topics .study-topic-editor__input')!;
+        expect(root.querySelector('#study-topics [data-topic-length]')?.textContent).toBe('0/50 characters');
+        topicInput.value = 'x'.repeat(60);
+        topicInput.dispatchEvent(new Event('input', { bubbles: true }));
+        expect(Array.from(topicInput.value)).toHaveLength(50);
+        expect(root.querySelector('#study-topics [data-topic-feedback]')?.textContent).toContain('50');
+        topicInput.value = '';
+        topicInput.dispatchEvent(new Event('input', { bubbles: true }));
+        expect(root.querySelector('.study-side .study-mode')).toBeNull();
+        expect(root.querySelector('.study-annotations__comment-input')).not.toBeNull();
+        expect(root.querySelectorAll('.study-annotations__nag')).toHaveLength(24);
+        expect((root.querySelector('.study-annotations__description textarea') as HTMLTextAreaElement).value).toBe(
+            'Chapter description',
+        );
+        expect((root.querySelector('.study-annotations__tags textarea') as HTMLTextAreaElement).value).toBe(
+            'Event=Test event\nSite=PyChess',
+        );
+        expect(root.querySelector('.study-export__chapter')?.textContent).toBe('Download chapter PGN');
+        expect(root.querySelector('.study-export__study')?.textContent).toBe('Download study PGN');
+        const privateEmbedInput = root.querySelector<HTMLInputElement>(
+            '.study-share__link:nth-child(3) .study-share__copy input',
+        )!;
+        expect(privateEmbedInput.disabled).toBe(true);
+        expect(privateEmbedInput.value).toBe('Private Studies cannot be embedded.');
+        const comments = root.querySelector<HTMLButtonElement>('#study-tab-comments')!;
+        comments.click();
+        expect(root.querySelector<HTMLElement>('#study-panel-comments')!.hidden).toBe(false);
+        expect(root.querySelector<HTMLElement>('#study-panel-tags')!.hidden).toBe(true);
+        comments.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+        expect(root.querySelector('#study-tab-glyphs')?.getAttribute('aria-selected')).toBe('true');
+        expect(document.activeElement).toBe(root.querySelector('#study-tab-glyphs'));
+        expect(root.querySelector<HTMLElement>('#study-panel-comments')!.hidden).toBe(true);
+    });
+
+    test('read-only study view hides mutation controls while keeping sharing available', () => {
+        const study: StudyPageModel = {
+            id: 'StUdY001',
+            name: 'Shared ideas',
+            owner: 'owner',
+            visibility: 'unlisted',
+            isOwner: false,
+            canWrite: false,
+            canClone: true,
+            canLike: true,
+            liked: false,
+            likes: 1,
+            topics: [],
+            maxTopics: 30,
+            topicMinLength: 2,
+            topicMaxLength: 50,
+            members: { owner: 'write' },
+            maxMembers: 30,
+            sharedChapter: 'ChAp0001',
+            sharedPath: '',
+            chapter: {
+                id: 'ChAp0001',
+                name: 'Shared line',
+                revision: 1,
+                order: 1,
+                orientation: 'white',
+                variant: 'chess',
+                chess960: false,
+                initialFen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+                variantIni: null,
+                createdAt: '2026-09-06T08:00:00+00:00',
+                description: 'Shared description',
+                tags: { Event: 'Shared study' },
+                tree: { nodes: [] },
+            },
+            chapters: [{ id: 'ChAp0001', name: 'Shared line', order: 1, orientation: 'white' }],
+        };
+        const root = renderNodes(studyView(makeModel({ gameId: '', status: 0, study })));
+
+        expect(root.querySelector('.study-side__readonly')?.textContent).toBe('Read only');
+        expect(root.querySelector('under-board .study-tool-tabs > .study-mode--sync')?.textContent).toContain('SYNC');
+        expect(root.querySelector('.study-mode--write')).toBeNull();
+        expect(root.querySelector('.study-side .study-mode')).toBeNull();
+        expect(root.querySelector('.study-side__add')).toBeNull();
+        expect(root.querySelector('dialog#study-settings')).toBeNull();
+        expect(root.querySelector('#study-tab-comments')).toBeNull();
+        expect(root.querySelector('#study-tab-glyphs')).toBeNull();
+        expect(root.querySelector('.study-annotations__tags textarea')).toBeNull();
+        expect(root.querySelector('.study-annotations__description textarea')).toBeNull();
+        expect(root.querySelector('.study-description__readonly')?.textContent).toBe('Shared description');
+        const shareLinks = [...root.querySelectorAll<HTMLInputElement>('.study-share__copy input')].map(
+            input => input.value,
+        );
+        expect(shareLinks).toEqual([
+            'http://127.0.0.1:8080/study/StUdY001',
+            'http://127.0.0.1:8080/study/StUdY001/ChAp0001',
+            '<iframe width="600" height="371" src="http://127.0.0.1:8080/study/embed/StUdY001/ChAp0001" frameborder="0"></iframe>',
+        ]);
+        expect(root.querySelector<HTMLFormElement>('.study-share__clone')?.action).toContain('/study/StUdY001/clone');
+        expect(root.querySelector('.study-share__clone button')?.textContent).toBe('Clone study');
+        expect(root.querySelector('.study-export__chapter')?.textContent).toBe('Download chapter PGN');
+        expect(root.querySelector('.study-export__study')?.textContent).toBe('Download study PGN');
+    });
+
+    test('switching Study chapters refreshes share and embed links', () => {
+        const study: StudyPageModel = {
+            id: 'StUdY001',
+            name: 'Shared ideas',
+            owner: 'owner',
+            visibility: 'public',
+            isOwner: false,
+            canWrite: true,
+            canClone: true,
+            canLike: true,
+            liked: false,
+            likes: 2,
+            topics: [],
+            maxTopics: 30,
+            topicMinLength: 2,
+            topicMaxLength: 50,
+            members: { owner: 'write', tester: 'write' },
+            maxMembers: 30,
+            sharedChapter: 'ChAp0001',
+            sharedPath: '',
+            chapter: {
+                id: 'ChAp0001',
+                name: 'First line',
+                revision: 1,
+                order: 1,
+                orientation: 'white',
+                variant: 'chess',
+                chess960: false,
+                initialFen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+                variantIni: null,
+                createdAt: '2026-09-06T08:00:00+00:00',
+                description: '',
+                tags: {},
+                tree: { nodes: [] },
+            },
+            chapters: [
+                { id: 'ChAp0001', name: 'First line', order: 1, orientation: 'white' },
+                { id: 'ChAp0002', name: 'Second line', order: 2, orientation: 'black' },
+            ],
+        };
+        const model = makeModel({ gameId: '', status: 0, study });
+        const root = renderNodes(studyView(model));
+
+        study.chapter = { ...study.chapter, id: 'ChAp0002', name: 'Second line', order: 2 };
+        updateStudyUnderboardChapter(study, model);
+
+        const shareLinks = [...root.querySelectorAll<HTMLInputElement>('.study-share__copy input')].map(
+            input => input.value,
+        );
+        expect(shareLinks).toEqual([
+            'http://127.0.0.1:8080/study/StUdY001',
+            'http://127.0.0.1:8080/study/StUdY001/ChAp0002',
+            '<iframe width="600" height="371" src="http://127.0.0.1:8080/study/embed/StUdY001/ChAp0002" frameborder="0"></iframe>',
+        ]);
+        expect(root.querySelector('.study-underboard__name')?.textContent).toBe('Shared ideas: Second line');
+    });
+
+    test('study embed reuses the lean analysis embed shell', () => {
+        const study: StudyPageModel = {
+            id: 'StUdY001',
+            name: 'Shared ideas',
+            owner: 'owner',
+            visibility: 'unlisted',
+            isOwner: false,
+            canWrite: false,
+            canClone: false,
+            canLike: false,
+            liked: false,
+            likes: 1,
+            topics: [],
+            maxTopics: 30,
+            topicMinLength: 2,
+            topicMaxLength: 50,
+            members: { owner: 'write' },
+            maxMembers: 30,
+            sharedChapter: 'ChAp0001',
+            sharedPath: '',
+            chapter: {
+                id: 'ChAp0001',
+                name: 'Shared line',
+                revision: 1,
+                order: 1,
+                orientation: 'black',
+                variant: 'chess',
+                chess960: false,
+                initialFen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+                variantIni: null,
+                createdAt: '2026-09-06T08:00:00+00:00',
+                description: '',
+                tags: {},
+                tree: { nodes: [] },
+            },
+            chapters: [{ id: 'ChAp0001', name: 'Shared line', order: 1, orientation: 'black' }],
+        };
+        const root = renderNodes(studyEmbedView(makeModel({ gameId: '', embed: true, status: 0, study })));
+
+        expect(root.querySelector('.embed-app')).not.toBeNull();
+        expect(root.querySelector('#movelist')).not.toBeNull();
+        expect(root.querySelector('.study-side')).toBeNull();
+        expect(root.querySelector('.study-underboard')).toBeNull();
+        const link = root.querySelector<HTMLAnchorElement>('.footer .gamelink')!;
+        expect(link.href).toContain('/study/StUdY001/ChAp0001');
+        expect(link.textContent).toBe('Shared ideas • Shared line');
     });
 
     test('embed view stays lean and does not render PGN tab content', () => {
@@ -248,6 +635,63 @@ describe('analysis tree movelist gating', () => {
         const movelist = document.getElementById('movelist')!;
         expect(movelist.classList.contains('analysis-tree')).toBe(true);
         expect(movelist.classList.contains('tview2-column')).toBe(true);
+    });
+
+    test('study comments interrupt move pairs and keep imported text inert', () => {
+        document.body.innerHTML = '<div id="movelist"></div>';
+        const steps = [
+            makeStep('start w - - 0 1', undefined, 'white'),
+            makeStep('s1 b - - 0 1', 'e2e4', 'black', 'e4'),
+            makeStep('s2 w - - 0 1', 'e7e5', 'white', 'e5'),
+        ];
+        const tree = createAnalysisTree(steps);
+        tree.root.annotations = {
+            shapes: [],
+            nags: [],
+            comments: [{ id: 'rootnote', author: 'tester', text: 'Start here' }],
+        };
+        tree.root.children[0].annotations = {
+            shapes: [],
+            nags: [],
+            comments: [{ id: 'movenote', author: 'tester', text: '<img src=x onerror=alert(1)>' }],
+        };
+        const ctrl = {
+            steps,
+            status: 0,
+            result: '*',
+            ply: 2,
+            plyVari: 0,
+            vmovelist: document.getElementById('movelist'),
+            variant: { name: 'chess' },
+            analysisContext: { capabilities: { gamePanels: false } },
+            fog: false,
+            mycolor: 'white',
+            spectator: true,
+            analysisTree: tree,
+            hasAnalysisTree: () => true,
+            isTreeInlineNotation: () => false,
+            getTreeActivePath: () => '',
+            activateTreePath: () => undefined,
+        } as any;
+        updateMovelist(ctrl, true, false);
+        const list = document.getElementById('movelist')!;
+        expect(list.querySelectorAll('interrupt .tree-comment')).toHaveLength(2);
+        expect(list.querySelector('img')).toBeNull();
+        expect(list.querySelector('.result, .status')).toBeNull();
+        expect([...list.children].map(el => el.tagName.toLowerCase())).toEqual([
+            'interrupt',
+            'index',
+            'move',
+            'move',
+            'interrupt',
+            'index',
+            'move',
+            'move',
+        ]);
+        ctrl.isTreeInlineNotation = () => true;
+        updateMovelist(ctrl, true, false);
+        expect(document.querySelectorAll('#movelist .tree-comment')).toHaveLength(2);
+        expect(document.querySelectorAll('#movelist move:not(.empty)')).toHaveLength(2);
     });
 
     test('legacy controllers keep the old movelist structure', () => {
@@ -420,7 +864,7 @@ describe('analysis tree movelist gating', () => {
         expect(disclosureMove?.textContent).not.toContain('Ba4');
     });
 
-    test('tree nodes expose selected-line state and split SAN glyph suffixes', () => {
+    test('tree nodes expose selected-line state, SAN suffixes and persisted NAG glyphs', () => {
         document.body.innerHTML = '<div id="movelist"></div>';
 
         const steps: Step[] = [
@@ -431,6 +875,7 @@ describe('analysis tree movelist gating', () => {
         ];
         const tree = createAnalysisTree(steps);
         const e4Path = mainlinePathAtPly(tree, 1);
+        tree.root.children[0].children[0].annotations = { shapes: [], comments: [], nags: [3, 7] };
         addOrSelectChild(tree, e4Path, makeStep('v1 w - - 0 1', 'c7c5', 'white', 'c5?!'), false);
 
         const ctrl = {
@@ -462,6 +907,10 @@ describe('analysis tree movelist gating', () => {
         expect(firstMove?.classList.contains('currentline')).toBe(true);
         expect(firstMove?.querySelector('san')?.textContent).toBe('e4');
         expect(firstMove?.querySelector('glyph.good')?.textContent).toBe('!');
+
+        const secondMove = document.querySelector('#movelist move[data-path="01.02"]') as HTMLElement | null;
+        expect(secondMove?.querySelector('glyph.brilliant')?.textContent).toBe('!!');
+        expect([...secondMove!.querySelectorAll('glyph')].some(glyph => glyph.textContent === '□')).toBe(true);
 
         const sidelineMove = document.querySelector('#movelist move[data-path="01.04"]') as HTMLElement | null;
         expect(sidelineMove?.classList.contains('sideline')).toBe(true);

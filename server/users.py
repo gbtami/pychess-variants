@@ -195,6 +195,7 @@ class Users(UserDict[str, User]):
             or user.lobby_sockets
             or user.tournament_sockets
             or user.simul_sockets
+            or user.study_sockets
             or user.notify_channels
             or user.inbox_channels
             or user.challenge_channels

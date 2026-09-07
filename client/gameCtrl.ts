@@ -349,6 +349,14 @@ export abstract class GameController extends ChessgroundController implements Ch
         this.refreshAliceBoards();
     }
 
+    override destroy(): void {
+        this.closeKeyboardHelp();
+        document.removeEventListener('keydown', this.onGameKeyboardHelpKeyDown, true);
+        Mousetrap.unbind(['left', 'right', 'up', 'down', 'enter', 'f', '?', 's']);
+        this.aliceSplitBoard?.destroy();
+        super.destroy();
+    }
+
     skipGating() {
         this.gating.skipGating();
     }

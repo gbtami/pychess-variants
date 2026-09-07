@@ -143,6 +143,7 @@ from report_api import (
 from robots import robots
 from server_metrics import metrics_handler
 from simul.wss import simul_socket_handler
+from study.ws import study_socket_handler
 from system_messages_api import system_message_send
 from timeline import timeline_api, timeline_unsubscribe
 from tournament.tournament_calendar import tournament_calendar
@@ -232,6 +233,9 @@ from views import (
 from views import (
     simul as simul_view,
 )
+from views import (
+    study as study_view,
+)
 from views import team as team_view
 from wsl import lobby_socket_handler
 from wsr import round_socket_handler
@@ -286,6 +290,28 @@ get_routes: tuple[RouteDef, ...] = (
     (r"/corranalysis/{gameId:\w{8}}", analysis.analysis),
     (r"/analysis/{variant:[a-z0-9_-]+}", analysis.analysis),
     (r"/analysis/{variant:[a-z0-9_-]+}/{fen}", analysis.analysis),
+    ("/study", study_view.studies),
+    ("/study/all", study_view.studies_public),
+    ("/study/member", study_view.studies_contributed),
+    ("/study/likes", study_view.studies_liked),
+    ("/study/public", study_view.studies_mine_public),
+    ("/study/private", study_view.studies_mine_private),
+    ("/study/search", study_view.studies_search),
+    ("/study/topic", study_view.studies_topics),
+    ("/study/topic/autocomplete", study_view.study_topic_autocomplete),
+    (r"/study/topic/{topic:.+}", study_view.studies_by_topic),
+    ("/study/choices", study_view.study_choices),
+    ("/study/by/{username}", study_view.studies_by_owner),
+    (
+        r"/study/embed/{studyId:\w{8}}/{chapterId:\w{8}}",
+        study_view.study_embed,
+    ),
+    (r"/study/{studyId:\w{8}}", study_view.study_show),
+    (
+        r"/study/{studyId:\w{8}}/{chapterId:\w{8}}/export-data",
+        study_view.study_chapter_export_data,
+    ),
+    (r"/study/{studyId:\w{8}}/{chapterId:\w{8}}", study_view.study_show),
     ("/seek/{variant}", lobby.lobby),
     (r"/editor/{variant:[a-z0-9_-]+}", editor.editor),
     (r"/editor/{variant:[a-z0-9_-]+}/{fen}", editor.editor),
@@ -386,6 +412,7 @@ get_routes: tuple[RouteDef, ...] = (
     ("/video/{videoId}", video.video),
     ("/wsl", lobby_socket_handler),
     ("/wsr/{gameId}", round_socket_handler),
+    ("/wsstudy/{studyId}", study_socket_handler),
     ("/wst", tournament_socket_handler),
     ("/wss", simul_socket_handler),
     ("/api/account", account),
@@ -517,6 +544,21 @@ post_routes: tuple[RouteDef, ...] = (
     ("/simul", simul_view.simuls),
     ("/simuls/simul", simul_view.simuls),
     (r"/simul/{simulId:\w{8}}/edit", simul_view.update_simul),
+    ("/study", study_view.study_create),
+    ("/study/from-analysis", study_view.study_from_analysis),
+    (r"/study/{studyId:\w{8}}/edit", study_view.study_edit),
+    (r"/study/{studyId:\w{8}}/clone", study_view.study_clone),
+    (r"/study/{studyId:\w{8}}/like", study_view.study_like),
+    (r"/study/{studyId:\w{8}}/topics", study_view.study_topics_update),
+    (r"/study/{studyId:\w{8}}/delete", study_view.study_delete),
+    (r"/study/{studyId:\w{8}}/member", study_view.study_member_add),
+    (r"/study/{studyId:\w{8}}/member/role", study_view.study_member_role),
+    (r"/study/{studyId:\w{8}}/member/remove", study_view.study_member_remove),
+    (r"/study/{studyId:\w{8}}/leave", study_view.study_leave),
+    (r"/study/{studyId:\w{8}}/chapter", study_view.study_chapter_create),
+    (r"/study/{studyId:\w{8}}/import-pgn", study_view.study_import_pgn),
+    (r"/study/{studyId:\w{8}}/{chapterId:\w{8}}/edit", study_view.study_chapter_edit),
+    (r"/study/{studyId:\w{8}}/{chapterId:\w{8}}/delete", study_view.study_chapter_delete),
     ("/team/new", team_view.team_create),
     ("/team/{teamId}/edit", team_view.team_update),
     ("/team/{teamId}/leaders/add", team_view.team_leader_add),

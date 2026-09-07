@@ -29,6 +29,59 @@ export interface SimulGame {
     result: string;
 }
 
+export type StudyChapterPreview = {
+    id: string;
+    name: string;
+    order: number;
+    orientation: 'white' | 'black';
+};
+
+export type StudyPageModel = {
+    id: string;
+    name: string;
+    owner: string;
+    visibility: 'private' | 'unlisted' | 'public';
+    isOwner: boolean;
+    canWrite: boolean;
+    canClone: boolean;
+    canLike: boolean;
+    liked: boolean;
+    likes: number;
+    topics: string[];
+    maxTopics: number;
+    topicMinLength: number;
+    topicMaxLength: number;
+    members: Record<string, 'read' | 'write'>;
+    maxMembers: number;
+    sharedChapter: string;
+    sharedPath: string;
+    // Runtime collaboration mode. The server owns sharedChapter/sharedPath; these
+    // three fields are local browser state initialized by the Study client.
+    sticky?: boolean;
+    write?: boolean;
+    behind?: number;
+    // Local sidebar UI state, kept across in-place chapter and member refreshes.
+    sideTab?: 'chapters' | 'members';
+    memberConfig?: string;
+    likePending?: boolean;
+    chapter: {
+        id: string;
+        name: string;
+        revision: number;
+        order: number;
+        orientation: 'white' | 'black';
+        variant: string;
+        chess960: boolean;
+        initialFen: string;
+        variantIni: string | null;
+        createdAt: string;
+        description: string;
+        tags: Record<string, string>;
+        tree: import('./study/studyTree').StudyTreeDto;
+    };
+    chapters: StudyChapterPreview[];
+};
+
 export type PyChessModel = {
     ffish: FairyStockfish;
     username: string;
@@ -91,6 +144,7 @@ export type PyChessModel = {
     assetURL: string;
     nnueDownloadRoot: string;
     puzzle: string;
+    study: StudyPageModel | null;
 
     wplayerB: string;
     wtitleB: string;

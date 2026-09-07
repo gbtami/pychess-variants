@@ -11,11 +11,15 @@ from database.indexes import (
     IndexCreationResult,
     audit_indexes,
     create_missing_indexes,
+    index_key,
+    index_options_match,
+    load_indexes,
 )
 from database.schema import (
     COLLECTIONS,
     INDEXES,
     LEGACY_OPTIONAL_INDEXES,
+    OBSOLETE_INDEXES,
     CollectionSpec,
     IndexSpec,
     StartupPolicy,
@@ -33,6 +37,7 @@ class StartupSchemaResult:
     mode: StartupMode
     initial_collections: frozenset[str]
     created_collections: tuple[str, ...]
+    dropped_indexes: tuple[str, ...]
     created_indexes: tuple[IndexCreationResult, ...]
 
 
@@ -52,6 +57,34 @@ async def ensure_indexes(db: Any, specs: Sequence[IndexSpec]) -> tuple[IndexCrea
     if conflict_message:
         raise RuntimeError(f"Conflicting MongoDB indexes: {conflict_message}")
     return tuple(await create_missing_indexes(db, checks))
+
+
+async def drop_obsolete_indexes(db: Any, specs: Sequence[IndexSpec]) -> tuple[str, ...]:
+    """Drop only obsolete indexes whose stored definition still matches exactly."""
+    if not specs:
+        return ()
+
+    actual_by_collection: dict[str, list[dict[str, Any]]] = {}
+    dropped: list[str] = []
+    for spec in specs:
+        if spec.collection not in actual_by_collection:
+            actual_by_collection[spec.collection] = await load_indexes(db[spec.collection])
+        named = next(
+            (
+                index_doc
+                for index_doc in actual_by_collection[spec.collection]
+                if index_doc.get("name") == spec.name
+            ),
+            None,
+        )
+        if named is None:
+            continue
+        if index_key(named) != spec.key or not index_options_match(spec, named):
+            continue
+        await db[spec.collection].drop_index(spec.name)
+        dropped.append(f"{spec.collection}.{spec.name}")
+
+    return tuple(dropped)
 
 
 async def _create_collection(db: Any, spec: CollectionSpec) -> None:
@@ -84,6 +117,8 @@ async def prepare_database_schema(db: Any, *, local_development: bool) -> Startu
         actual_collections.add(spec.name)
         created_collections.append(spec.name)
 
+    dropped_indexes = await drop_obsolete_indexes(db, OBSOLETE_INDEXES)
+
     created_names = set(created_collections)
     if mode in (StartupMode.FRESH, StartupMode.LOCAL):
         startup_specs = list(INDEXES)
@@ -102,6 +137,7 @@ async def prepare_database_schema(db: Any, *, local_development: bool) -> Startu
         mode=mode,
         initial_collections=initial_collections,
         created_collections=tuple(created_collections),
+        dropped_indexes=dropped_indexes,
         created_indexes=created_indexes,
     )
 

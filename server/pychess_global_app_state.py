@@ -228,6 +228,14 @@ class PychessGlobalAppState:
             self.chat_flood = ChatFlood()
             # one dict per tournament! {tournamentId: {user.username: user.tournament_sockets, ...}, ...}
             self.tourneysockets: dict[str, dict[str, set[WebSocketResponse | None]]] = {}
+            # Study rooms are created lazily when the first browser opens /wsstudy/<id>
+            # and removed as soon as their last websocket leaves. No Study is preloaded.
+            self.study_sockets: dict[str, set[WebSocketResponse]] = {}
+            # Serialize mutations for one active Study room while allowing unrelated
+            # Studies to progress independently. Locks are created lazily and evicted
+            # with the last room socket.
+            self.study_mutation_locks: dict[str, asyncio.Lock] = {}
+            self.study_socket_users: dict[str, dict[WebSocketResponse, str]] = {}
             self.background_tasks: set[asyncio.Task[Any]] = set()
             self.game_remove_tasks: dict[str, asyncio.Task[None]] = {}
             self.tournament_remove_tasks: dict[str, asyncio.Task[None]] = {}
@@ -398,9 +406,11 @@ class PychessGlobalAppState:
                 )
                 db_collections = schema_result.initial_collections
                 log.info(
-                    "[startup] MongoDB schema mode=%s collections_created=%s indexes_created=%s",
+                    "[startup] MongoDB schema mode=%s collections_created=%s "
+                    "indexes_dropped=%s indexes_created=%s",
                     schema_result.mode.value,
                     len(schema_result.created_collections),
+                    len(schema_result.dropped_indexes),
                     len(schema_result.created_indexes),
                 )
 
@@ -1297,6 +1307,11 @@ class PychessGlobalAppState:
                         if ws is None:
                             continue
                         await ws.close()
+
+        # Study rooms are lazy, so only currently open browser tabs need closing.
+        for ws_set in tuple(self.study_sockets.values()):
+            for ws in tuple(ws_set):
+                await ws.close()
 
         log.debug("--- Cancel running tasks---")
         for task in asyncio.all_tasks():

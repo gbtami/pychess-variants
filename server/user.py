@@ -213,6 +213,7 @@ class User:
             str, set[WebSocketResponse | None]
         ] = {}  # {tournamentId: set()}
         self.simul_sockets: dict[str, set[WebSocketResponse]] = {}  # {simulId: set()}
+        self.study_sockets: dict[str, set[WebSocketResponse]] = {}  # {studyId: set()}
 
         self.notify_channels: set[Queue[str]] = set()
         self.inbox_channels: set[Queue[str]] = set()
@@ -435,6 +436,7 @@ class User:
             or len(self.challenge_channels) > 0
             or len(self.tournament_sockets) > 0
             or len(self.simul_sockets) > 0
+            or len(self.study_sockets) > 0
         )
         if self.online:
             self.ever_connected = True

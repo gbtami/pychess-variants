@@ -672,3 +672,42 @@ SimulInboundMessage = (
     | SimulApprovePlayerRequest
     | SimulDenyPlayerRequest
 )
+
+
+class StudyMutationMessage(TypedDict):
+    studyId: str
+    chapterId: str
+    clientOpId: str
+    expectedRevision: int
+
+
+class StudyAddNodeMessage(StudyMutationMessage):
+    type: Literal["study_add_node"]
+    parentPath: str
+    move: str
+    nodeId: str
+
+
+class StudyDeleteNodeMessage(StudyMutationMessage):
+    type: Literal["study_delete_node"]
+    path: str
+
+
+class StudyPromoteVariationMessage(StudyMutationMessage):
+    type: Literal["study_promote_variation"]
+    path: str
+    toMainline: bool
+
+
+class StudyForceVariationMessage(StudyMutationMessage):
+    type: Literal["study_force_variation"]
+    path: str
+    force: bool
+
+
+StudyInboundMessage: TypeAlias = (
+    StudyAddNodeMessage
+    | StudyDeleteNodeMessage
+    | StudyPromoteVariationMessage
+    | StudyForceVariationMessage
+)

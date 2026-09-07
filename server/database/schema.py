@@ -121,6 +121,8 @@ COLLECTIONS = (
     CollectionSpec("simul_chat"),
     CollectionSpec("stats"),
     CollectionSpec("stats_humans"),
+    CollectionSpec("study"),
+    CollectionSpec("study_chapter"),
     CollectionSpec("team"),
     CollectionSpec("team_member"),
     CollectionSpec("team_request"),
@@ -255,6 +257,58 @@ INDEXES = (
         sparse=True,
         startup_policy=StartupPolicy.AFTER_STARTUP,
     ),
+    # Studies. Owner/member/write-member indexes support personal list and contributor lookups.
+    # Keep private/unlisted documents out of the separate public-discovery indexes.
+    _index("study", ("owner", 1), ("updatedAt", -1), name="owner_updatedAt"),
+    _index("study", ("owner", 1), ("createdAt", 1), ("_id", 1), name="owner_createdAt"),
+    _index("study", ("owner", 1), ("name", 1), ("_id", 1), name="owner_name"),
+    _index("study", ("writeMembers", 1), ("updatedAt", -1), name="writeMembers_updatedAt"),
+    _index("study", ("memberIds", 1), ("updatedAt", -1), name="memberIds_updatedAt"),
+    _index(
+        "study",
+        ("memberIds", 1),
+        ("createdAt", 1),
+        ("_id", 1),
+        name="memberIds_createdAt",
+    ),
+    _index("study", ("memberIds", 1), ("name", 1), ("_id", 1), name="memberIds_name"),
+    _index("study", ("likers", 1), ("updatedAt", -1), name="likers_updatedAt"),
+    _index(
+        "study",
+        ("updatedAt", -1),
+        ("_id", 1),
+        name="public_updatedAt",
+        partial_filter={"visibility": "public"},
+    ),
+    _index(
+        "study",
+        ("createdAt", 1),
+        ("_id", 1),
+        name="public_createdAt",
+        partial_filter={"visibility": "public"},
+    ),
+    _index(
+        "study",
+        ("name", 1),
+        ("_id", 1),
+        name="public_name",
+        partial_filter={"visibility": "public"},
+    ),
+    _index(
+        "study",
+        ("searchTokens", 1),
+        ("updatedAt", -1),
+        ("_id", 1),
+        name="searchTokens_updatedAt",
+    ),
+    _index(
+        "study",
+        ("topics", 1),
+        ("updatedAt", -1),
+        ("_id", 1),
+        name="topics_updatedAt",
+    ),
+    _index("study_chapter", ("studyId", 1), ("order", 1), name="studyId_order"),
     # Notifications, inboxes, teams, forums, and moderation.
     _index("notify", ("notifies", 1)),
     _index("notify", ("expireAt", 1), expire_after_seconds=0),
@@ -373,6 +427,20 @@ INDEXES = (
 
 
 LEGACY_OPTIONAL_INDEXES = (_index("lobbychat", ("user", 1)),)
+
+# Exact historical definitions that can be removed safely before auditing the
+# current schema. Study search now uses one full index for both public and
+# member-visible searches, so the former public-only partial index is obsolete.
+OBSOLETE_INDEXES = (
+    _index(
+        "study",
+        ("searchTokens", 1),
+        ("updatedAt", -1),
+        ("_id", 1),
+        name="public_searchTokens_updatedAt",
+        partial_filter={"visibility": "public"},
+    ),
+)
 
 ALL_KNOWN_COLLECTIONS = COLLECTIONS + LEGACY_OPTIONAL_COLLECTIONS
 ALL_KNOWN_INDEXES = INDEXES + LEGACY_OPTIONAL_INDEXES
