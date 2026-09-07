@@ -272,7 +272,6 @@ INDEXES = (
         name="memberIds_createdAt",
     ),
     _index("study", ("memberIds", 1), ("name", 1), ("_id", 1), name="memberIds_name"),
-    _index("study", ("likers", 1), ("updatedAt", -1), name="likers_updatedAt"),
     _index(
         "study",
         ("updatedAt", -1),

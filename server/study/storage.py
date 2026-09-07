@@ -134,39 +134,6 @@ async def contributed_studies_page(
     )
 
 
-async def favorite_studies_page(
-    app_state: Any,
-    username: str,
-    *,
-    order: StudyListOrder = "updated",
-    page: int = 1,
-) -> dict[str, object]:
-    """Return Studies explicitly liked by ``username`` and still accessible.
-
-    Lichess excludes owned Studies from this list because every new Study starts
-    with the owner's like. Public and unlisted Studies remain link-accessible; a
-    private favorite is listed only while the user is still a member.
-    """
-
-    return await _studies_page(
-        app_state,
-        {
-            "$and": [
-                {"owner": {"$ne": username}},
-                {"likers": username},
-                {
-                    "$or": [
-                        {"visibility": {"$in": ["public", "unlisted"]}},
-                        _member_query(username),
-                    ]
-                },
-            ]
-        },
-        order=order,
-        page=page,
-    )
-
-
 def _study_search_parts(value: object) -> tuple[str, tuple[str, ...], str | None, str | None, bool]:
     clean_query = " ".join(str(value or "").split())[:_STUDY_SEARCH_QUERY_MAX_LENGTH]
     owner: str | None = None
@@ -442,30 +409,6 @@ async def load_owned_study(app_state: Any, study_id: str, owner: str) -> Study |
 async def load_study(app_state: Any, study_id: str) -> Study | None:
     doc = await app_state.db.study.find_one({"_id": study_id})
     return Study.from_document(doc) if doc is not None else None
-
-
-async def set_study_like(
-    app_state: Any,
-    study: Study,
-    username: str,
-    liked: bool,
-) -> tuple[bool, int]:
-    """Idempotently set one user's Study like and return the canonical state."""
-
-    update = {"$addToSet": {"likers": username}} if liked else {"$pull": {"likers": username}}
-    await app_state.db.study.update_one({"_id": study.id}, update)
-    doc = await app_state.db.study.find_one({"_id": study.id}, projection={"likers": 1})
-    if doc is None:
-        raise StudyStorageError("Study not found")
-    raw_likers = doc.get("likers")
-    likers = (
-        tuple(dict.fromkeys(item for item in raw_likers if isinstance(item, str) and item))
-        if isinstance(raw_likers, list)
-        else ()
-    )
-    likes = len(likers)
-    await app_state.db.study.update_one({"_id": study.id}, {"$set": {"likes": likes}})
-    return username in likers, likes
 
 
 async def _replace_study_members(

@@ -40,10 +40,6 @@ class StudySchemaTestCase(unittest.TestCase):
             (("memberIds", 1), ("updatedAt", -1)),
         )
         self.assertEqual(
-            study_indexes["likers_updatedAt"].key,
-            (("likers", 1), ("updatedAt", -1)),
-        )
-        self.assertEqual(
             study_indexes["public_updatedAt"].key,
             (("updatedAt", -1), ("_id", 1)),
         )
@@ -122,11 +118,6 @@ class StudyModelTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertIn("gbt", study.to_document()["searchTokens"])
         self.assertEqual(study.to_document()["memberIds"], ["gbtami"])
         self.assertEqual(study.to_document()["writeMembers"], ["gbtami"])
-        self.assertEqual(study.likers, ("gbtami",))
-        self.assertEqual(study.likes, 1)
-        self.assertTrue(study.is_liked_by("gbtami"))
-        self.assertEqual(study.to_document()["likers"], ["gbtami"])
-        self.assertEqual(study.to_document()["likes"], 1)
 
         restored = Study.from_document(study.to_document())
         self.assertEqual(restored, study)

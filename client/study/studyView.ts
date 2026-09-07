@@ -128,93 +128,6 @@ function icon(name: string): VNode {
     return h(`i.icon.icon-${name}`, { attrs: { 'aria-hidden': 'true' } });
 }
 
-function studyLikeControl(study: StudyPageModel): VNode {
-    const label = study.liked ? _('Unlike') : _('Like');
-    const content = [icon('heart'), h('span.study-like__count', String(study.likes))];
-    if (!study.canLike)
-        return h(
-            'span.study-like.study-like--readonly',
-            {
-                class: { liked: study.liked },
-                attrs: {
-                    title: ngettext('%1 like', '%1 likes', study.likes),
-                    'data-study-like': '',
-                },
-            },
-            content,
-        );
-    return h(
-        'button.study-like',
-        {
-            class: { liked: study.liked },
-            attrs: {
-                type: 'button',
-                title: label,
-                'aria-label': label,
-                'aria-pressed': study.liked ? 'true' : 'false',
-                'data-study-like': '',
-            },
-            props: { disabled: Boolean(study.likePending) },
-            on: { click: () => void toggleStudyLike(study) },
-        },
-        content,
-    );
-}
-
-function studyMetadataTitle(study: StudyPageModel): VNode {
-    return h('h2.study-underboard__title', [
-        h('span.study-underboard__name', `${study.name}: ${study.chapter.name}`),
-        studyLikeControl(study),
-    ]);
-}
-
-function updateStudyLikeControl(study: StudyPageModel): void {
-    const label = study.liked ? _('Unlike') : _('Like');
-    document.querySelectorAll<HTMLElement>('[data-study-like]').forEach(element => {
-        element.classList.toggle('liked', study.liked);
-        const count = element.querySelector<HTMLElement>('.study-like__count');
-        if (count) count.textContent = String(study.likes);
-        if (element instanceof HTMLButtonElement) {
-            element.title = label;
-            element.setAttribute('aria-label', label);
-            element.setAttribute('aria-pressed', study.liked ? 'true' : 'false');
-            element.disabled = Boolean(study.likePending);
-        } else element.title = ngettext('%1 like', '%1 likes', study.likes);
-    });
-}
-
-async function toggleStudyLike(study: StudyPageModel): Promise<void> {
-    if (!study.canLike || study.likePending) return;
-    const previousLiked = study.liked;
-    const previousLikes = study.likes;
-    study.likePending = true;
-    study.liked = !previousLiked;
-    study.likes = Math.max(0, previousLikes + (study.liked ? 1 : -1));
-    updateStudyLikeControl(study);
-    try {
-        const response = await fetch(`/study/${study.id}/like`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ liked: study.liked }),
-        });
-        if (!response.ok) throw new Error((await response.text()).trim() || response.statusText);
-        const payload = (await response.json()) as { liked?: unknown; likes?: unknown };
-        if (typeof payload.liked !== 'boolean' || !Number.isInteger(payload.likes) || (payload.likes as number) < 0)
-            throw new Error(_('Invalid Study like response'));
-        study.liked = payload.liked;
-        study.likes = payload.likes as number;
-    } catch (error) {
-        study.liked = previousLiked;
-        study.likes = previousLikes;
-        void alertDialog({
-            text: _('Could not update Study like: %1', error instanceof Error ? error.message : String(error)),
-        });
-    } finally {
-        study.likePending = false;
-        updateStudyLikeControl(study);
-    }
-}
-
 function openDialog(id: string): void {
     const modal = document.querySelector<HTMLDialogElement>(`#${id}`);
     if (!modal) return;
@@ -878,7 +791,7 @@ function studyShareLinks(study: StudyPageModel, model: PyChessModel): VNode {
 
 export function updateStudyUnderboardChapter(study: StudyPageModel, model: PyChessModel): void {
     const title = document.querySelector<HTMLElement>('.study-underboard__title');
-    if (title) patch(toVNode(title), studyMetadataTitle(study));
+    if (title) patch(toVNode(title), h('h2.study-underboard__title', `${study.name}: ${study.chapter.name}`));
 
     const shareLinks = document.querySelector<HTMLElement>('.study-share__links');
     if (shareLinks) patch(toVNode(shareLinks), studyShareLinks(study, model));
@@ -939,7 +852,7 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions
             ),
         ]),
         toolPanel('tags', [
-            studyMetadataTitle(study),
+            h('h2.study-underboard__title', `${study.name}: ${study.chapter.name}`),
             h('table.study-tags'),
             ...(study.canWrite
                 ? [
@@ -1241,10 +1154,6 @@ function runStudyGround(
                     sideVNode = patch(sideVNode, studySide(study, model));
                     refreshStudyModeButtons(study);
                     if (study.canWrite !== previousCanWrite) window.location.reload();
-                },
-                onLikesChanged: likes => {
-                    study.likes = likes;
-                    updateStudyLikeControl(study);
                 },
                 contextMenuActions: study.canWrite ? path => studyContextMenu(analysisCtrl, path) : undefined,
                 writable: study.canWrite,

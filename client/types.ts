@@ -44,9 +44,6 @@ export type StudyPageModel = {
     isOwner: boolean;
     canWrite: boolean;
     canClone: boolean;
-    canLike: boolean;
-    liked: boolean;
-    likes: number;
     members: Record<string, 'read' | 'write'>;
     maxMembers: number;
     sharedChapter: string;
@@ -59,7 +56,6 @@ export type StudyPageModel = {
     // Local sidebar UI state, kept across in-place chapter and member refreshes.
     sideTab?: 'chapters' | 'members';
     memberConfig?: string;
-    likePending?: boolean;
     chapter: {
         id: string;
         name: string;

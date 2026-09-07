@@ -1322,12 +1322,7 @@ Add these based on actual PyChess usage rather than parity for its own sake.
   Studies plus the signed-in viewer's own/member Studies, while unlisted Studies remain undiscoverable to
   non-members and private Studies remain hidden. Chapter-local search remains a separate TODO below.
 - [ ] Chapter search.
-- [x] Likes/favorites.
-  New Studies start with the owner like, matching Lichess. Signed-in non-BOT viewers can like/unlike
-  any Study they can view; the live Study page and Study cards show the current count/state, and
-  `My favorite studies` lists accessible non-owned favorites (including unlisted links, while private
-  favorites remain visible only while membership still grants access). Like counts are broadcast to
-  connected Study viewers without a reload.
+- [ ] Likes/favorites.
 - [ ] Topics/tags for discovery.
 - [ ] Chapter previews / multiboard overview.
 - [ ] Per-feature permissions (local engine, explorer, clone, export/share).

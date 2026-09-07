@@ -498,24 +498,6 @@ async def finally_logic(
     user.update_online()
 
 
-async def broadcast_study_likes(
-    app_state: PychessGlobalAppState, study_id: str, likes: int
-) -> None:
-    """Broadcast the current Study like count to connected viewers."""
-
-    room = app_state.study_sockets.get(study_id)
-    if not room:
-        return
-    await ws_send_json_many(
-        tuple(room),
-        {
-            "type": "study_likes",
-            "studyId": study_id,
-            "likes": max(0, likes),
-        },
-    )
-
-
 async def broadcast_study_members(app_state: PychessGlobalAppState, study: Study) -> None:
     """Broadcast membership/capability changes without tearing down the whole room.
 

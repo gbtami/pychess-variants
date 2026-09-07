@@ -10,7 +10,6 @@
             <a class="{% if study_list_active == 'member' %}active{% endif %}" href="{{ home }}/study/member">{% trans %}Studies I contribute to{% endtrans %}</a>
             <a class="{% if study_list_active == 'mine-public' %}active{% endif %}" href="{{ home }}/study/public">{% trans %}My public studies{% endtrans %}</a>
             <a class="{% if study_list_active == 'mine-private' %}active{% endif %}" href="{{ home }}/study/private">{% trans %}My private studies{% endtrans %}</a>
-            <a class="{% if study_list_active == 'likes' %}active{% endif %}" href="{{ home }}/study/likes">{% trans %}My favorite studies{% endtrans %}</a>
             {% endif %}
         </nav>
         {% endif %}
@@ -27,8 +26,6 @@
                     {% trans %}My public studies{% endtrans %}
                     {% elif study_list_active == 'mine-private' %}
                     {% trans %}My private studies{% endtrans %}
-                    {% elif study_list_active == 'likes' %}
-                    {% trans %}My favorite studies{% endtrans %}
                     {% elif study_list_is_self %}
                     {% trans %}My studies{% endtrans %}
                     {% else %}
@@ -129,11 +126,6 @@
                                 <span class="study-card__visibility study-card__visibility--{{ study.visibility }}">{{ study.visibility }}</span>
                                 <span aria-hidden="true">•</span>
                                 {% endif %}
-                                <span class="study-card__likes{% if not anon and study.is_liked_by(username) %} liked{% endif %}" title="{% trans count=study.likes %}{{ count }} like{% pluralize %}{{ count }} likes{% endtrans %}">
-                                    <span class="icon icon-heart" aria-hidden="true"></span>
-                                    <span>{{ study.likes }}</span>
-                                </span>
-                                <span aria-hidden="true">•</span>
                                 <time datetime="{{ study.updated_at.isoformat() }}">{{ study.updated_at.strftime('%Y-%m-%d %H:%M') }}</time>
                             </span>
                         </span>
@@ -169,11 +161,6 @@
             <div class="study-empty">
                 <span class="study-empty__icon icon icon-book" aria-hidden="true"></span>
                 <p>{% trans %}You do not have any private studies yet.{% endtrans %}</p>
-            </div>
-            {% elif study_list_active == 'likes' %}
-            <div class="study-empty">
-                <span class="study-empty__icon icon icon-heart" aria-hidden="true"></span>
-                <p>{% trans %}You do not have any favorite studies yet.{% endtrans %}</p>
             </div>
             {% elif study_list_is_self %}
             <div class="study-empty">
