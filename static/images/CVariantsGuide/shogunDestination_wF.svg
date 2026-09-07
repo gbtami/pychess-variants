@@ -13,7 +13,14 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg"><defs
-     id="defs"><g
+     id="defs"><linearGradient
+       id="selected"
+       inkscape:swatch="solid"
+       inkscape:label="selected"><stop
+         style="stop-color:#14551e;stop-opacity:0.50196081;"
+         offset="0"
+         id="stop1" /></linearGradient>
+         <g
        id="to"
        width="100"
        height="100"><circle
@@ -35,9 +42,9 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      showguides="true"
-     inkscape:zoom="0.22686496"
-     inkscape:cx="619.31115"
-     inkscape:cy="238.02706"
+     inkscape:zoom="0.61727437"
+     inkscape:cx="72.091119"
+     inkscape:cy="-97.201509"
      inkscape:window-width="1016"
      inkscape:window-height="747"
      inkscape:window-x="43"
@@ -55,7 +62,7 @@
        x="0" /></g><g
      inkscape:groupmode="layer"
      id="fields"
-     style="display:inline;fill:#f0d9b5"><g
+     style="fill:#f0d9b5"><g
        id="light"
        style="fill:#f0d9b5"><g
          transform="translate(700,100)"
@@ -166,39 +173,43 @@
            id="a2" /></g></g></g><g
      inkscape:groupmode="layer"
      id="dest"
-     style="display:inline"><use
+     style="fill:url(#selected)"><use
        xlink:href="#0"
        id="center"
        x="400"
        y="400"
-       style="display:inline" /><g
+        /><g
        id="g52"
        inkscape:label="ferz"
-       style="display:inline"><use
+       ><use
          xlink:href="#to"
          x="300"
          y="300"
          id="use45"
-         inkscape:label="NW" /><use
+         inkscape:label="NW"
+          /><use
          xlink:href="#to"
          x="500"
          y="300"
          id="use47"
-         inkscape:label="NE" /><use
+         inkscape:label="NE"
+          /><use
          xlink:href="#to"
          x="300"
          y="500"
          id="use50"
-         inkscape:label="SW" /><use
+         inkscape:label="SW"
+          /><use
          xlink:href="#to"
          x="500"
          y="500"
          id="use52"
-         inkscape:label="SE" /></g><g
+         inkscape:label="SE"
+          /></g><g
        id="g44"
        transform="translate(297.40634,161.38329)"
        inkscape:label="pieces"
-       style="display:inline"><image
+       ><image
          preserveAspectRatio="none"
          inkscape:svg-dpi="96"
          width="100"
@@ -207,5 +218,5 @@
          id="image1-55"
          x="102.59366"
          y="238.61671"
-         style="display:inline"
+         
          inkscape:label="wF" /></g></g></svg>
