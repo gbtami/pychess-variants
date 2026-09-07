@@ -532,6 +532,29 @@ describe('Study analysis websocket synchronization', () => {
         expect(ctrl.doSend).not.toHaveBeenCalled();
     });
 
+    test('updates the Study like count from room broadcasts', () => {
+        const likesChanged = jest.fn();
+        const reload = jest.fn();
+        const extension = new StudyAnalysisExtension(makeCtrl(), {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            onLikesChanged: likesChanged,
+            onReloadRequired: reload,
+        });
+
+        expect(
+            extension.onSocketMessage('study_likes', {
+                type: 'study_likes',
+                studyId: 'study001',
+                likes: 7,
+            }),
+        ).toBe(true);
+
+        expect(likesChanged).toHaveBeenCalledWith(7);
+        expect(reload).not.toHaveBeenCalled();
+    });
+
     test('applies a remote node incrementally and advances the revision', () => {
         const ctrl = makeCtrl();
         const reload = jest.fn();

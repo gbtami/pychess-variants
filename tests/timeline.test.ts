@@ -21,6 +21,12 @@ const entries: TimelineEntry[] = [
         data: { actor: 'carol', profile: 'alice', title: 'A liked post', slug: 'liked-post', postId: 'liked123' },
         date: new Date(Date.now() - 180_000).toISOString(),
     },
+    {
+        id: 'four',
+        type: 'study-like',
+        data: { actor: 'dave', studyId: 'study123', name: 'A liked study' },
+        date: new Date(Date.now() - 240_000).toISOString(),
+    },
 ];
 
 test('renders timeline activity links and relative dates', () => {
@@ -31,11 +37,13 @@ test('renders timeline activity links and relative dates', () => {
     expect(document.body.textContent).toContain('alice posted in forum Interesting variants');
     expect(document.body.textContent).toContain('bob published My new variant');
     expect(document.body.textContent).toContain('carol likes A liked post');
+    expect(document.body.textContent).toContain('dave likes A liked study');
     expect(document.querySelector('a[href="/forum/redirect/post/post1234"]')).not.toBeNull();
     expect(document.querySelector('a[href="/blogs/@/bob/my-new-variant/blog1234"]')).not.toBeNull();
     expect(document.querySelector('a[href="/blogs/@/alice/liked-post/liked123"]')).not.toBeNull();
+    expect(document.querySelector('a[href="/study/study123"]')).not.toBeNull();
     expect(document.querySelector('a[href="/@/alice"] .icon-patron-wing')).not.toBeNull();
-    expect(document.querySelectorAll('info-date')).toHaveLength(3);
+    expect(document.querySelectorAll('info-date')).toHaveLength(4);
 });
 
 test('shows a sign-in prompt instead of private activity to anonymous visitors', () => {
@@ -88,4 +96,3 @@ test('renders team creation and join activity with team links and icons', () => 
     expect(document.querySelectorAll('a[href="/team/variant-fans"]')).toHaveLength(2);
     expect(document.querySelectorAll('.timeline-team-icon')).toHaveLength(2);
 });
-

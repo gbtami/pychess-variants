@@ -13,6 +13,7 @@ export type TimelineEventType =
     | 'ublog-post-like'
     | 'simul-create'
     | 'simul-join'
+    | 'study-like'
     | 'team-create'
     | 'team-join'
     | 'tournament-join';
@@ -45,14 +46,10 @@ function actorLink(entry: TimelineEntry): VNode {
 
 function teamLink(entry: TimelineEntry): VNode {
     const teamId = entry.data.teamId || '';
-    return h(
-        'a.timeline-team-link',
-        { attrs: { href: `/team/${encodeURIComponent(teamId)}` } },
-        [
-            h('span.timeline-team-icon', { attrs: { 'aria-hidden': 'true' } }),
-            entry.data.name || _('Team'),
-        ],
-    );
+    return h('a.timeline-team-link', { attrs: { href: `/team/${encodeURIComponent(teamId)}` } }, [
+        h('span.timeline-team-icon', { attrs: { 'aria-hidden': 'true' } }),
+        entry.data.name || _('Team'),
+    ]);
 }
 
 function activity(entry: TimelineEntry): Array<VNode | string> | null {
@@ -121,6 +118,16 @@ function activity(entry: TimelineEntry): Array<VNode | string> | null {
                     'a',
                     { attrs: { href: `/simul/${encodeURIComponent(entry.data.simulId || '')}` } },
                     entry.data.name || _('Simultaneous exhibition'),
+                ),
+            ];
+        case 'study-like':
+            return [
+                actorLink(entry),
+                ` ${_('likes')} `,
+                h(
+                    'a',
+                    { attrs: { href: `/study/${encodeURIComponent(entry.data.studyId || '')}` } },
+                    entry.data.name || _('Study'),
                 ),
             ];
         case 'team-create':

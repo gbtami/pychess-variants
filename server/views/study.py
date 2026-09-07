@@ -39,6 +39,7 @@ from study.storage import (
     delete_chapter,
     delete_study,
     edit_chapter_metadata,
+    favorite_studies_page,
     leave_study,
     load_chapter,
     load_owned_chapter,
@@ -48,6 +49,7 @@ from study.storage import (
     public_studies_page,
     remove_study_member,
     rename_study,
+    set_study_like,
     set_study_member_role,
     set_study_visibility,
     studies_for_owner_view,
@@ -56,7 +58,7 @@ from study.storage import (
     study_search_page,
 )
 from study.variant import study_variant_client_doc, study_variant_context, study_variant_metadata
-from study.ws import broadcast_study_members, close_study_sockets
+from study.ws import broadcast_study_likes, broadcast_study_members, close_study_sockets
 from typing_defs import ViewContext
 from utils import USERNAME_PREFIX_RE
 from variants import ALL_VARIANTS, is_catalogued_variant
@@ -372,6 +374,33 @@ async def studies_contributed(request: web.Request) -> ViewContext:
 
 
 @aiohttp_jinja2.template("studies.html")
+async def studies_liked(request: web.Request) -> ViewContext:
+    user, context = await get_user_context(request)
+    _require_owner_user(user)
+    app_state = get_app_state(request.app)
+    if app_state.db is None:
+        raise web.HTTPServiceUnavailable(text="Studies require database access.")
+
+    _study_context(context)
+    context["title"] = "My favorite studies • PyChess"
+    order = study_list_order(request.rel_url.query.get("order"))
+    result = await favorite_studies_page(
+        app_state,
+        user.username,
+        order=order,
+        page=_positive_page(request.rel_url.query.get("page")),
+    )
+    context["study_list_owner"] = user.username
+    context["study_list_is_self"] = False
+    context["study_list_can_create"] = True
+    context["study_list_show_visibility"] = True
+    context["study_list_show_owner"] = True
+    _populate_study_search_form(context)
+    _populate_study_page(context, request, result, active="likes")
+    return context
+
+
+@aiohttp_jinja2.template("studies.html")
 async def studies_mine_public(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
     _require_owner_user(user)
@@ -593,6 +622,9 @@ async def _populate_study_chapter_context(
             "isOwner": is_study_owner(study, None if user.anon else user.username),
             "canWrite": writable,
             "canClone": (not user.anon and not user.bot and can_clone_study(study, user.username)),
+            "canLike": not user.anon and not user.bot,
+            "liked": study.is_liked_by(None if user.anon else user.username),
+            "likes": study.likes,
             "members": dict(study.members),
             "maxMembers": STUDY_MAX_MEMBERS,
             "sharedChapter": study.current_chapter or chapter.id,
@@ -890,6 +922,35 @@ async def study_clone(request: web.Request) -> web.StreamResponse:
     except StudyStorageError as exc:
         raise web.HTTPBadRequest(text=str(exc)) from exc
     raise web.HTTPFound(f"/study/{cloned.id}/{chapter.id}")
+
+
+async def study_like(request: web.Request) -> web.StreamResponse:
+    user, _ = await get_user_context(request)
+    if user.anon or user.bot:
+        return web.json_response({"ok": False, "error": "forbidden"}, status=403)
+
+    app_state = get_app_state(request.app)
+    if app_state.db is None:
+        return web.json_response({"ok": False, "error": "db_unavailable"}, status=503)
+    study = await load_study(app_state, request.match_info["studyId"])
+    if study is None or not can_view_study(study, user.username):
+        return web.json_response({"ok": False, "error": "not_found"}, status=404)
+
+    data = await read_json_data(request)
+    if data is None:
+        raise web.HTTPNoContent()
+    if not isinstance(data, Mapping) or not isinstance(data.get("liked"), bool):
+        return web.json_response({"ok": False, "error": "invalid_like"}, status=400)
+
+    liked, likes, changed = await set_study_like(app_state, study, user.username, data["liked"])
+    await broadcast_study_likes(app_state, study.id, likes)
+    if changed and liked and study.visibility == "public":
+        await app_state.timeline.publish(
+            "study-like",
+            user,
+            {"studyId": study.id, "name": study.name},
+        )
+    return web.json_response({"ok": True, "liked": liked, "likes": likes})
 
 
 async def study_edit(request: web.Request) -> web.StreamResponse:

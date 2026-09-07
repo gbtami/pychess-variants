@@ -165,6 +165,14 @@ class Study:
     current_path: str | None = None
     settings: Mapping[str, object] = field(default_factory=dict)
     revision: int = 0
+    likers: tuple[str, ...] = ()
+
+    @property
+    def likes(self) -> int:
+        return len(self.likers)
+
+    def is_liked_by(self, username: str | None) -> bool:
+        return bool(username) and username in self.likers
 
     def to_document(self) -> dict[str, object]:
         if self.owner not in self.members or self.members[self.owner] != "write":
@@ -173,6 +181,10 @@ class Study:
             raise ValueError(f"Unknown Study visibility: {self.visibility!r}")
         if self.revision < 0:
             raise ValueError("Study revision must be non-negative")
+        if any(not username for username in self.likers) or len(set(self.likers)) != len(
+            self.likers
+        ):
+            raise ValueError("Study likers must be unique non-empty usernames")
 
         doc: dict[str, object] = {
             "_id": self.id,
@@ -188,6 +200,8 @@ class Study:
             "createdAt": _utc(self.created_at),
             "updatedAt": _utc(self.updated_at),
             "revision": self.revision,
+            "likers": list(self.likers),
+            "likes": self.likes,
             "searchTokens": list(study_search_tokens(self.name, self.owner)),
         }
         if self.current_chapter is not None:
@@ -220,6 +234,18 @@ class Study:
         if not isinstance(raw_settings, Mapping):
             raise TypeError("Study document field 'settings' must be a mapping")
 
+        raw_likers = doc.get("likers", [])
+        if isinstance(raw_likers, list):
+            likers_list: list[str] = []
+            for username in raw_likers:
+                if not isinstance(username, str) or not username:
+                    raise ValueError("Study liker usernames must be non-empty strings")
+                if username not in likers_list:
+                    likers_list.append(username)
+            likers = tuple(likers_list)
+        else:
+            raise TypeError("Study document field 'likers' must be a list")
+
         return cls(
             id=_required_str(doc, "_id"),
             name=_required_str(doc, "name"),
@@ -233,6 +259,7 @@ class Study:
             created_at=_required_datetime(doc, "createdAt"),
             updated_at=_required_datetime(doc, "updatedAt"),
             revision=_nonnegative_int(doc, "revision", default=0),
+            likers=likers,
         )
 
 
@@ -340,6 +367,7 @@ async def make_study(
         source=source or StudySource(),
         created_at=created_at,
         updated_at=created_at,
+        likers=(owner,),
     )
 
 

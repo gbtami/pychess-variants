@@ -8,6 +8,7 @@ from datetime import UTC, datetime, timedelta
 import aiohttp
 import pytest
 import test_logger
+from const import FOLLOW
 from fairy import FairyBoard
 from mongomock_motor import AsyncMongoMockClient
 from pychess_global_app_state_utils import get_app_state
@@ -788,3 +789,113 @@ async def test_study_members_roles_and_contributor_write_access(aiohttp_client) 
     client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie("member_writer")})
     response = await client.get(study_url, headers={"Accept": "application/json"})
     assert (await response.json())["study"]["canWrite"] is False
+
+
+@pytest.mark.asyncio
+async def test_new_public_study_like_is_published_to_followers_only_once(aiohttp_client) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    owner = "timeline_study_owner"
+    fan = "timeline_study_fan"
+    follower = "timeline_study_follower"
+    for username in (owner, fan, follower):
+        await _insert_user(app_state, username)
+
+    draft = await StudyChapterBuilder(app_state, owner).blank_or_fen(variant="chess")
+    study, _ = await create_study_from_draft(app_state, owner, draft, name="Timeline Study")
+    await set_study_visibility(app_state, study, "public")
+    await app_state.db.relation.insert_one(
+        {"_id": f"{follower}/{fan}", "u1": follower, "u2": fan, "r": FOLLOW}
+    )
+
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie(fan)})
+    response = await client.post(f"/study/{study.id}/like", json={"liked": True})
+    assert response.status == 200
+
+    entries = await app_state.timeline.entries_for(follower)
+    assert len(entries) == 1
+    assert entries[0]["type"] == "study-like"
+    assert entries[0]["data"] == {
+        "actor": fan,
+        "studyId": study.id,
+        "name": "Timeline Study",
+    }
+
+    # Re-sending the same state and unliking do not create duplicate activity.
+    response = await client.post(f"/study/{study.id}/like", json={"liked": True})
+    assert response.status == 200
+    response = await client.post(f"/study/{study.id}/like", json={"liked": False})
+    assert response.status == 200
+    assert len(await app_state.timeline.entries_for(follower)) == 1
+
+    # Lichess only propagates likes of public Studies; unlisted/private Study
+    # links must not become discoverable through followers' timelines.
+    await set_study_visibility(app_state, study, "unlisted")
+    response = await client.post(f"/study/{study.id}/like", json={"liked": True})
+    assert response.status == 200
+    assert len(await app_state.timeline.entries_for(follower)) == 1
+
+
+@pytest.mark.asyncio
+async def test_study_likes_and_favorite_list(aiohttp_client) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    owner = "likes_owner"
+    fan = "likes_fan"
+    await _insert_user(app_state, owner)
+    await _insert_user(app_state, fan)
+
+    draft = await StudyChapterBuilder(app_state, owner).blank_or_fen(variant="chess")
+    study, chapter = await create_study_from_draft(app_state, owner, draft, name="Favorite Study")
+    await set_study_visibility(app_state, study, "public")
+    study_url = f"/study/{study.id}/{chapter.id}"
+
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie(owner)})
+    response = await client.get(study_url, headers={"Accept": "application/json"})
+    assert response.status == 200
+    payload = (await response.json())["study"]
+    assert payload["canLike"] is True
+    assert payload["liked"] is True
+    assert payload["likes"] == 1
+
+    # The owner's automatic initial like does not make their own Study appear in
+    # My favorite studies, matching Lichess's personal list semantics.
+    response = await client.get("/study/likes")
+    assert response.status == 200
+    assert "Favorite Study" not in await response.text()
+
+    client.session.cookie_jar.clear()
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie(fan)})
+    response = await client.get(study_url, headers={"Accept": "application/json"})
+    payload = (await response.json())["study"]
+    assert payload["canLike"] is True
+    assert payload["liked"] is False
+    assert payload["likes"] == 1
+
+    response = await client.post(f"/study/{study.id}/like", json={"liked": True})
+    assert response.status == 200
+    assert await response.json() == {"ok": True, "liked": True, "likes": 2}
+
+    # Setting the same state is idempotent.
+    response = await client.post(f"/study/{study.id}/like", json={"liked": True})
+    assert response.status == 200
+    assert await response.json() == {"ok": True, "liked": True, "likes": 2}
+
+    response = await client.get("/study/likes")
+    assert response.status == 200
+    html = await response.text()
+    assert "My favorite studies" in html
+    assert "Favorite Study" in html
+    assert ">2<" in html
+
+    response = await client.post(f"/study/{study.id}/like", json={"liked": False})
+    assert response.status == 200
+    assert await response.json() == {"ok": True, "liked": False, "likes": 1}
+    response = await client.get("/study/likes")
+    assert "Favorite Study" not in await response.text()
+
+    client.session.cookie_jar.clear()
+    response = await client.post(f"/study/{study.id}/like", json={"liked": True})
+    assert response.status == 403
