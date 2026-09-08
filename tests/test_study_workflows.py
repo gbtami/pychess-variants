@@ -45,6 +45,58 @@ def _login_cookie(username: str) -> str:
 
 
 @pytest.mark.asyncio
+async def test_study_create_modal_starts_with_default_chess_chapter(aiohttp_client) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    username = "study_create_owner"
+    await _insert_user(app_state, username)
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie(username)})
+
+    response = await client.get("/study")
+    assert response.status == 200
+    html = await response.text()
+    assert "data-study-new-open" in html
+    assert 'id="study-new-dialog"' in html
+    assert 'id="study-create-form"' in html
+    assert 'name="variant"' not in html
+    assert 'name="gameId"' not in html
+    assert 'name="fen"' not in html
+
+    response = await client.post(
+        "/study",
+        data={
+            "name": "Modal Study",
+            "visibility": "unlisted",
+            "computer": "member",
+            "explorer": "owner",
+            "cloneable": "contributor",
+            "shareable": "nobody",
+            # Study creation intentionally ignores chapter-specific input.
+            "variant": "atomic",
+            "fen": "not-a-fen",
+            "gameId": "ignored",
+        },
+        allow_redirects=False,
+    )
+    assert response.status == 302
+
+    study_doc = await app_state.db.study.find_one({"owner": username, "name": "Modal Study"})
+    assert study_doc is not None
+    assert study_doc["visibility"] == "unlisted"
+    assert study_doc["settings"] == {
+        "computer": "member",
+        "explorer": "owner",
+        "cloneable": "contributor",
+        "shareable": "nobody",
+    }
+    chapter_doc = await app_state.db.study_chapter.find_one({"studyId": study_doc["_id"]})
+    assert chapter_doc is not None
+    assert chapter_doc["variant"] == "chess"
+    assert chapter_doc["initialFen"] == FairyBoard.start_fen("chess")
+
+
+@pytest.mark.asyncio
 async def test_analysis_can_append_to_existing_owned_study(aiohttp_client) -> None:
     app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
     client = await aiohttp_client(app)

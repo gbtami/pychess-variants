@@ -494,6 +494,8 @@ async def make_study(
     *,
     owner: str,
     name: str | None = None,
+    visibility: StudyVisibility = "private",
+    settings: Mapping[str, object] | None = None,
     source: StudySource | None = None,
     now: datetime | None = None,
 ) -> Study:
@@ -503,7 +505,8 @@ async def make_study(
         name=name or f"{owner}'s Study",
         owner=owner,
         members={owner: "write"},
-        visibility="private",
+        visibility=visibility,
+        settings={} if settings is None else dict(settings),
         source=source or StudySource(),
         created_at=created_at,
         updated_at=created_at,

@@ -27,7 +27,13 @@ from study.constants import (
     STUDY_TOPIC_MAX_LENGTH,
     STUDY_TOPIC_MIN_LENGTH,
 )
-from study.models import Study, StudyChapter, study_topic, study_visibility
+from study.models import (
+    Study,
+    StudyChapter,
+    study_topic,
+    study_user_selection,
+    study_visibility,
+)
 from study.permissions import (
     can_clone_study,
     can_embed_study,
@@ -51,6 +57,7 @@ from study.storage import (
     clone_study,
     contributed_studies_page,
     create_study_from_draft,
+    create_study_with_chapter,
     delete_chapter,
     delete_study,
     edit_chapter_metadata,
@@ -674,12 +681,20 @@ async def study_create(request: web.Request) -> web.StreamResponse:
     if data is None:
         raise web.HTTPNoContent()
     try:
-        draft = await _draft_from_form(StudyChapterBuilder(app_state, user.username), data)
-        study, chapter = await create_study_from_draft(
-            app_state, user.username, draft, name=data.get("name")
-        )
-    except StudyChapterBuildError as exc:
-        raise web.HTTPBadRequest(text=str(exc)) from exc
+        visibility = study_visibility(data.get("visibility", "private"))
+        settings = {
+            feature: study_user_selection(data.get(feature, "everyone"))
+            for feature in ("computer", "explorer", "cloneable", "shareable")
+        }
+    except ValueError as exc:
+        raise web.HTTPBadRequest(text="Invalid Study settings") from exc
+    study, chapter = await create_study_with_chapter(
+        app_state,
+        user.username,
+        name=data.get("name"),
+        visibility=visibility,
+        settings=settings,
+    )
     raise web.HTTPFound(f"/study/{study.id}/{chapter.id}")
 
 

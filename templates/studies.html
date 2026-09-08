@@ -92,33 +92,9 @@
                 </details>
                 {% endif %}
                 {% if study_list_can_create %}
-                <details class="study-new">
-                    <summary class="study-new__toggle" title="{% trans %}Create study{% endtrans %}" aria-label="{% trans %}Create study{% endtrans %}">
-                        <span class="icon icon-plus-square" aria-hidden="true"></span>
-                    </summary>
-                    <form class="study-create-form" method="post" action="/study">
-                        <label class="study-create-form__wide">
-                            <span>{% trans %}Study name{% endtrans %}</span>
-                            <input type="text" name="name" maxlength="100" placeholder="{% trans %}Study name{% endtrans %}">
-                        </label>
-                        <label>
-                            <span>{% trans %}Variant{% endtrans %}</span>
-                            <input type="text" name="variant" value="chess" placeholder="{% trans %}Variant{% endtrans %}">
-                        </label>
-                        <label>
-                            <span>{% trans %}Game ID (optional){% endtrans %}</span>
-                            <input type="text" name="gameId" maxlength="12" placeholder="{% trans %}Game ID (optional){% endtrans %}">
-                        </label>
-                        <label class="study-create-form__wide">
-                            <span>{% trans %}FEN (optional){% endtrans %}</span>
-                            <input type="text" name="fen" placeholder="{% trans %}FEN (optional){% endtrans %}">
-                        </label>
-                        <button class="button study-create-form__submit" type="submit">
-                            <span class="icon icon-plus-square" aria-hidden="true"></span>
-                            {% trans %}Create study{% endtrans %}
-                        </button>
-                    </form>
-                </details>
+                <button class="study-new__toggle" type="button" data-study-new-open title="{% trans %}Create study{% endtrans %}" aria-label="{% trans %}Create study{% endtrans %}" aria-haspopup="dialog" aria-controls="study-new-dialog">
+                    <span class="icon icon-plus-square" aria-hidden="true"></span>
+                </button>
                 {% endif %}
             </div>
             {% if study_nav_topics and not anon and study_list_active != 'topic' %}
@@ -242,4 +218,65 @@
         </section>
     </main>
 </div>
+{% if study_list_can_create %}
+<dialog id="study-new-dialog" class="study-dialog study-new-dialog" aria-labelledby="study-new-dialog-title">
+    <div class="study-dialog__header">
+        <h2 id="study-new-dialog-title">{% trans %}Create study{% endtrans %}</h2>
+        <button class="study-dialog__close" type="button" data-study-new-close aria-label="{% trans %}Close{% endtrans %}">×</button>
+    </div>
+    <form id="study-create-form" class="study-dialog__form study-create-form" method="post" action="/study">
+        <label class="study-dialog__field">
+            <span>{% trans %}Name{% endtrans %}</span>
+            <input type="text" name="name" value="{{ username }}'s Study" maxlength="100" autocomplete="off">
+        </label>
+        <div class="study-dialog__split">
+            <label class="study-dialog__field">
+                <span>{% trans %}Visibility{% endtrans %}</span>
+                <select name="visibility">
+                    <option value="private" selected>{% trans %}Private{% endtrans %}</option>
+                    <option value="unlisted">{% trans %}Unlisted{% endtrans %}</option>
+                    <option value="public">{% trans %}Public{% endtrans %}</option>
+                </select>
+            </label>
+            <label class="study-dialog__field">
+                <span>{% trans %}Computer analysis{% endtrans %}</span>
+                <select name="computer">
+                    <option value="nobody">{% trans %}Nobody{% endtrans %}</option>
+                    <option value="owner">{% trans %}Only me{% endtrans %}</option>
+                    <option value="contributor">{% trans %}Contributors{% endtrans %}</option>
+                    <option value="member">{% trans %}Members{% endtrans %}</option>
+                    <option value="everyone" selected>{% trans %}Everyone{% endtrans %}</option>
+                </select>
+            </label>
+        </div>
+        <div class="study-dialog__split">
+            <label class="study-dialog__field">
+                <span>{% trans %}Allow cloning{% endtrans %}</span>
+                <select name="cloneable">
+                    <option value="nobody">{% trans %}Nobody{% endtrans %}</option>
+                    <option value="owner">{% trans %}Only me{% endtrans %}</option>
+                    <option value="contributor">{% trans %}Contributors{% endtrans %}</option>
+                    <option value="member">{% trans %}Members{% endtrans %}</option>
+                    <option value="everyone" selected>{% trans %}Everyone{% endtrans %}</option>
+                </select>
+            </label>
+            <label class="study-dialog__field">
+                <span>{% trans %}Share & export{% endtrans %}</span>
+                <select name="shareable">
+                    <option value="nobody">{% trans %}Nobody{% endtrans %}</option>
+                    <option value="owner">{% trans %}Only me{% endtrans %}</option>
+                    <option value="contributor">{% trans %}Contributors{% endtrans %}</option>
+                    <option value="member">{% trans %}Members{% endtrans %}</option>
+                    <option value="everyone" selected>{% trans %}Everyone{% endtrans %}</option>
+                </select>
+            </label>
+        </div>
+        <input type="hidden" name="explorer" value="everyone">
+    </form>
+    <div class="study-dialog__actions">
+        <button class="study-new-dialog__cancel" type="button" data-study-new-close>{% trans %}Cancel{% endtrans %}</button>
+        <button class="button" type="submit" form="study-create-form">{% trans %}Start{% endtrans %}</button>
+    </div>
+</dialog>
+{% endif %}
 {% endblock %}

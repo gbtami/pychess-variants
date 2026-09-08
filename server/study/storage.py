@@ -845,11 +845,15 @@ async def create_study_from_draft(
     draft: StudyChapterDraft,
     *,
     name: str | None = None,
+    visibility: StudyVisibility = "private",
+    settings: Mapping[str, object] | None = None,
 ) -> tuple[Study, StudyChapter]:
     study = await make_study(
         app_state.db.study,
         owner=owner,
         name=_clean_name(name, fallback=f"{owner}'s Study", max_length=STUDY_NAME_MAX_LENGTH),
+        visibility=visibility,
+        settings=settings,
         source=draft.source,
     )
     chapter = await make_chapter(
@@ -887,6 +891,8 @@ async def create_study_with_chapter(
     owner: str,
     *,
     name: str | None = None,
+    visibility: StudyVisibility = "private",
+    settings: Mapping[str, object] | None = None,
 ) -> tuple[Study, StudyChapter]:
     return await create_study_from_draft(
         app_state,
@@ -896,6 +902,8 @@ async def create_study_with_chapter(
             initial_fen=FairyBoard.start_fen("chess"),
         ),
         name=name,
+        visibility=visibility,
+        settings=settings,
     )
 
 

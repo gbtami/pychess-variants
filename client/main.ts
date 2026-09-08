@@ -22,6 +22,7 @@ import { renderGames } from './games';
 import { editorView } from '@/editor/editor';
 import { analysisView, embedView } from './analysis';
 import { studyEmbedView, studyView } from './study/studyView';
+import { initStudyIndex } from './study/studyIndex';
 import { puzzleView } from './puzzle';
 import { profileView } from './profile';
 import { tournamentView } from './tournament';
@@ -412,6 +413,7 @@ function start() {
     maybeShowGameCategoryIntro();
     initCommunityVariantFavorites();
     initVariantAuthors();
+    initStudyIndex();
 
     patch(document.getElementById('zen-button') as HTMLElement, zenButtonView());
 }

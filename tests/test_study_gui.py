@@ -121,8 +121,9 @@ class TestStudyGUI:
             context, page = await self._page_for_user(browser, base_url, username)
             try:
                 await page.goto(f"{base_url}/study")
-                await page.locator('.study-create-form input[name="name"]').fill("Acceptance Study")
-                await page.get_by_role("button", name="New study").click()
+                await page.locator("[data-study-new-open]").click()
+                await page.locator('#study-new-dialog input[name="name"]').fill("Acceptance Study")
+                await page.locator('#study-new-dialog button[type="submit"]').click()
                 await page.wait_for_url(
                     re.compile(rf"{re.escape(base_url)}/study/\w{{8}}/\w{{8}}$")
                 )
@@ -291,8 +292,9 @@ class TestStudyGUI:
             anon_page = await anon_context.new_page()
             try:
                 await page_a.goto(f"{base_url}/study")
-                await page_a.locator('.study-create-form input[name="name"]').fill("Synced Study")
-                await page_a.get_by_role("button", name="New study").click()
+                await page_a.locator("[data-study-new-open]").click()
+                await page_a.locator('#study-new-dialog input[name="name"]').fill("Synced Study")
+                await page_a.locator('#study-new-dialog button[type="submit"]').click()
                 study_id, chapter_id = self._study_ids_from_url(page_a.url)
                 study_url = f"{base_url}/study/{study_id}/{chapter_id}"
                 await page_b.goto(study_url)
