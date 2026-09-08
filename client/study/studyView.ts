@@ -1540,8 +1540,15 @@ function studyPlayerIdentity(study: StudyPageModel, color: 'white' | 'black'): V
     const username = studyTag(study, prefix) ?? '?';
     const title = studyTag(study, `${prefix}Title`);
     const rating = studyTag(study, `${prefix}Elo`);
-    const shownRating = rating && /^\d+$/.test(rating) ? rating : undefined;
+    const shownRating = rating && /^\d+\??$/.test(rating) ? rating : undefined;
+    // Like lila's playerBars, show each player's share of the final result.
+    const gameResult = studyTag(study, 'Result');
+    const score =
+        gameResult && /^(1-0|0-1|1\/2-1\/2|½-½)$/.test(gameResult)
+            ? gameResult.split('-')[color === 'white' ? 0 : 1].replace('1/2', '½')
+            : undefined;
     return h('div.left', [
+        ...(score ? [h(`${score === '1' ? 'good' : score === '0' ? 'bad' : 'span'}.result`, score)] : []),
         h('span.info', [
             ...(title ? [h('player-title', title)] : []),
             userLink(username, displayUsername(username), { className: 'name' }),

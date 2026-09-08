@@ -92,6 +92,19 @@ test('builds the persisted mainline and activates the requested ply', () => {
     expect(ctrl.goPly).toHaveBeenCalledWith(2, 0);
 });
 
+test('tree navigation requests scrolling to the newly selected move', () => {
+    const ctrl = stubCtrl(steps4());
+    const tree = new AnalysisTreeController(ctrl as any);
+    tree.initAnalysisTreeAtPly(0);
+    updateMovelistMock.mockClear();
+
+    tree.activateTreeMainlinePly(3);
+
+    expect(ctrl.goPly).toHaveBeenLastCalledWith(3, 0);
+    // The default activate=true keeps the selected move visible.
+    expect(updateMovelistMock).toHaveBeenLastCalledWith(ctrl);
+});
+
 test('records nested variations without extending persisted steps', () => {
     const ctrl = stubCtrl(steps4());
     const tree = new AnalysisTreeController(ctrl as any);

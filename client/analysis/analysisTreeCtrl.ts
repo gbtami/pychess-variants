@@ -365,7 +365,7 @@ export class AnalysisTreeController {
         this.ctrl.plyVari = 0;
         this.ctrl.goPly(node.ply, 0);
 
-        if (redrawMovelist) updateMovelist(this.ctrl, true, false);
+        if (redrawMovelist) updateMovelist(this.ctrl);
     }
 
     recordMove(step: Step): { childPath: string; extendedMainline: boolean } | undefined {

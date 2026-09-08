@@ -170,16 +170,26 @@ function activatePly(ctrl: GameController) {
     if (elPly) elPly.classList.add('active');
 }
 
+function movelistScrollContainer(movelist: HTMLElement): HTMLElement {
+    const block = movelist.closest<HTMLElement>('.movelist-block');
+    return movelist.scrollHeight > movelist.clientHeight || !block ? movelist : block;
+}
+
 function scrollToPly(ctrl: GameController) {
     const movelistEl = document.getElementById('movelist') as HTMLElement;
+    const scrollEl = movelistScrollContainer(movelistEl);
     const plyEl = movelistEl.querySelector('move.active') as HTMLElement | null;
 
-    let st: number | undefined = undefined;
-
-    if (ctrl.ply === 0) st = 0;
-    else if (plyEl) st = plyEl.offsetTop - movelistEl.offsetHeight / 2 + plyEl.offsetHeight / 2;
-
-    if (st !== undefined) movelistEl.scrollTop = st;
+    if (ctrl.ply === 0) scrollEl.scrollTop = 0;
+    else if (plyEl) {
+        // Adapted from lila's treeView autoScroll: viewport rectangles also
+        // handle variation moves whose offset parent is a nested tree line.
+        const move = plyEl.getBoundingClientRect();
+        const view = scrollEl.getBoundingClientRect();
+        const visibleTop = Math.max(view.top, 0);
+        const visibleHeight = Math.max(0, Math.min(view.bottom, window.innerHeight) - visibleTop);
+        scrollEl.scrollTop += move.top - visibleTop - (visibleHeight - move.height) / 2;
+    }
 }
 
 export function isTheoreticalMove(ply: number, status: number, recordedMainlinePly: number | undefined) {
@@ -820,6 +830,7 @@ export function updateMovelist(ctrl: GameController, full = true, activate = tru
         }
         if (contextMenu) moves.push(contextMenu);
         const container = document.getElementById('movelist') as HTMLElement;
+        const scrollTop = movelistScrollContainer(container).scrollTop;
         if (full) {
             while (container.lastChild) {
                 container.removeChild(container.lastChild);
@@ -841,6 +852,7 @@ export function updateMovelist(ctrl: GameController, full = true, activate = tru
             ),
         );
         if (activate) scrollToPly(ctrl);
+        else movelistScrollContainer(ctrl.vmovelist.elm as HTMLElement).scrollTop = scrollTop;
         return;
     }
 

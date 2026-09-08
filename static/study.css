@@ -748,6 +748,10 @@
 .study-desc-form textarea:focus { outline: 2px solid var(--link-color-blue); outline-offset: -1px; }
 
 /* Site-game Study chapters mirror Lichess player bars around the board. */
+@media (min-width: 800px) {
+    /* Lila reserves header space when player bars extend above the board. */
+    #main-wrap:has(> .study-app.has-players) { --site-header-margin: 1.6rem; }
+}
 .study-app.has-players #mainboard cg-board { border-radius: 0; }
 .study__player {
     position: absolute;
@@ -766,6 +770,7 @@
 .study__player-top { top: -1.6rem; border-radius: 4px 4px 0 0; }
 .study__player-bot { top: var(--cg-height, 100%); border-radius: 0 0 4px 4px; }
 .study__player .left { flex: 1 1 100%; display: flex; min-width: 0; overflow: hidden; }
+.study__player .result { flex: 0 0 auto; margin-inline-start: .8em; padding-inline-end: .8em; border-inline-end: 1px solid var(--border-color); }
 .study__player .info { display: flex; align-items: center; min-width: 0; margin-inline-start: 10px; overflow: hidden; }
 .study__player player-title { flex: 0 0 auto; }
 .study__player .name { flex: 1 1 auto; min-width: 0; margin-inline-start: .5ch; overflow: hidden; text-overflow: ellipsis; color: var(--font-color); }
