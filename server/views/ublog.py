@@ -9,7 +9,7 @@ from urllib.parse import quote, urlsplit, urlunsplit
 
 import aiohttp_jinja2
 from aiohttp import ClientSession, ClientTimeout, web
-from forum.storage import recompute_categ_summary, topic_by_tree
+from forum.storage import recompute_categ_summary, refresh_post_author_count, topic_by_tree
 from newid import new_id
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
@@ -145,8 +145,6 @@ async def _discuss_topic_url(app_state: Any, post: dict[str, Any]) -> str:
         }
         await app_state.db.forum_topic.insert_one(topic_doc)
         await app_state.db.forum_post.insert_one(discuss_post_doc)
-        from forum.storage import refresh_post_author_count
-
         await refresh_post_author_count(app_state, discuss_post_doc)
         await recompute_categ_summary(app_state, UBLOG_DISCUSS_CATEG_ID)
 

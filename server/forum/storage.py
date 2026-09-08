@@ -4,8 +4,8 @@ from datetime import UTC, datetime
 
 from newid import new_id
 from notify import notify_by_username
-from pymongo.errors import DuplicateKeyError
 from profile_counts import refresh_user_counter
+from pymongo.errors import DuplicateKeyError
 from team import get_team
 
 from forum.access import (

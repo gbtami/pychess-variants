@@ -1,0 +1,36 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+<main class="tournaments box box-pad">
+    <div class="box-top">
+        <h1><a href="{{ home }}/@/{{ profile | urlencode }}">{{ profile }}</a> • {% trans %}Tournaments{% endtrans %}</h1>
+        <p><strong>{{ '%g' | format(profile_tournament_points) }}</strong> {% trans %}Tournament points{% endtrans %}</p>
+    </div>
+    <table class="slist">
+        <thead><tr>
+            <th>{% trans %}Tournament{% endtrans %}</th>
+            <th>{% trans %}Date{% endtrans %}</th>
+            <th>{% trans %}Points{% endtrans %}</th>
+        </tr></thead>
+        <tbody>
+        {% for entry in profile_tournament_entries %}
+            <tr>
+                <td class="header"><a href="{{ home }}/tournament/{{ entry.id }}"><span class="name">{{ entry.name }}</span></a></td>
+                <td><info-date timestamp="{{ entry.date }}"></info-date></td>
+                <td>{{ '%g' | format(entry.points) }}</td>
+            </tr>
+        {% else %}
+            <tr><td colspan="3">{% trans %}No tournaments yet.{% endtrans %}</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% if profile_tournament_prev or profile_tournament_next %}
+    <nav aria-label="{% trans %}Pagination{% endtrans %}">
+        {% if profile_tournament_prev %}<a href="{{ profile_tournament_prev }}">‹ {% trans %}Previous{% endtrans %}</a>{% endif %}
+        {% if profile_tournament_next %}<a href="{{ profile_tournament_next }}">{% trans %}Next{% endtrans %} ›</a>{% endif %}
+    </nav>
+    {% endif %}
+</main>
+</div>
+{% endblock %}
+{% block js %}<script src="{{ js }}"></script>{% endblock %}

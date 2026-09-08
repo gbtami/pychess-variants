@@ -567,6 +567,8 @@ async def account_delete_post(request: web.Request) -> web.StreamResponse:
                 "gdprErasedAt": now,
                 "closeType": "deleted",
                 "count": dict(DEFAULT_USER_COUNT),
+                "forumPosts": 0,
+                "tournamentPoints": 0,
                 "perfs": {},
                 "pperfs": {},
             },
@@ -576,6 +578,8 @@ async def account_delete_post(request: web.Request) -> web.StreamResponse:
     await _scrub_delete_owned_data(app_state, user, now)
     _clear_public_user_cache(app_state, user.username)
 
+    user.forum_posts = 0
+    user.tournament_points = 0
     user.enabled = False
     user.title = ""
     user.oauth_id = ""

@@ -5,8 +5,8 @@ from urllib.parse import quote, urlencode
 
 from aiohttp import web
 from const import GAME_CATEGORY_ALL, normalize_game_category
-from pychess_global_app_state_utils import get_app_state
 from profile_counts import public_forum_posts_query
+from pychess_global_app_state_utils import get_app_state
 from team import (
     TEAM_FORUM_ACCESS_EVERYONE,
     TEAM_FORUM_ACCESS_LEADERS,

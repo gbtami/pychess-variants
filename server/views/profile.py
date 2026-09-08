@@ -1,10 +1,11 @@
-from urllib.parse import urlsplit
+from urllib.parse import quote, urlsplit
 
 import aiohttp_jinja2
 from aiohttp import web
 from const import DASH, IMPORTED, RATED, SYSTEM_USER, T_FINISHED, TROPHIES
 from custom_trophy_owners import CUSTOM_TROPHY_OWNERS
 from glicko2.glicko2 import PROVISIONAL_PHI
+from profile_counts import HISTORY_PAGE_SIZE, aggregate_results, completed_tournament_results
 from pychess_global_app_state_utils import get_app_state
 from settings import ADMINS, SIMULING
 from study.storage import count_studies_for_owner_view
@@ -253,4 +254,51 @@ async def profile(request: web.Request) -> ViewContext:
             )
         context["ublog_posts"] = ublog_posts
 
+    return context
+
+
+@aiohttp_jinja2.template("profile_tournaments.html")
+async def tournament_history(request: web.Request) -> ViewContext:
+    _user, context = await get_user_context(request)
+    app_state = get_app_state(request.app)
+    profile_id = request.match_info["profileId"]
+    profile_user = await app_state.public_users.get_profile(profile_id)
+    if profile_user is None or not profile_user.enabled:
+        raise web.HTTPNotFound()
+
+    try:
+        page = max(1, int(request.query.get("page", "1")))
+    except ValueError:
+        page = 1
+    entries = []
+    if app_state.db is not None:
+        entries = await aggregate_results(
+            app_state.db,
+            completed_tournament_results(profile_user.username)
+            + [
+                {"$sort": {"tournament.startsAt": -1, "tid": -1}},
+                {"$skip": (page - 1) * HISTORY_PAGE_SIZE},
+                {"$limit": HISTORY_PAGE_SIZE + 1},
+                {
+                    "$project": {
+                        "_id": 0,
+                        "id": "$tid",
+                        "name": "$tournament.name",
+                        "date": "$tournament.startsAt",
+                        "points": 1,
+                    }
+                },
+            ],
+        )
+    base_url = f"/@/{quote(profile_user.username, safe='')}/tournaments"
+    context["title"] = f"{profile_user.username} • Tournament points"
+    context["view"] = "tournaments"
+    context["view_css"] = "tournaments.css"
+    context["profile"] = profile_user.username
+    context["profile_tournament_points"] = profile_user.tournament_points
+    context["profile_tournament_entries"] = entries[:HISTORY_PAGE_SIZE]
+    context["profile_tournament_prev"] = f"{base_url}?page={page - 1}" if page > 1 else ""
+    context["profile_tournament_next"] = (
+        f"{base_url}?page={page + 1}" if len(entries) > HISTORY_PAGE_SIZE else ""
+    )
     return context

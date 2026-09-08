@@ -173,7 +173,7 @@ class User:
         swiss_ban_game_id: str | None = None,
         patron: bool = False,
         chat_timeout_until: datetime | None = None,
-        tournament_points: int | float = 0,
+        tournament_points: float = 0,
         forum_posts: int = 0,
     ) -> None:
         self.app_state: PychessGlobalAppState = app_state

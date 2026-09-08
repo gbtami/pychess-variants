@@ -638,6 +638,9 @@ class ViewContext(TypedDict, total=False):
     profile_teams: Sequence[Mapping[str, object]]
     profile_simul_count: int
     profile_tournament_points: int | float
+    profile_tournament_entries: list[dict[str, object]]
+    profile_tournament_prev: str
+    profile_tournament_next: str
     profile_forum_posts: int
     profile_title: str
     profile_patron: bool
@@ -893,6 +896,7 @@ class TournamentDoc(TypedDict):
 
 
 class TournamentUpdateData(TypedDict, total=False):
+    profilePointsPending: bool
     name: str
     password: str
     d: str
