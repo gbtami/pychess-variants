@@ -23,4 +23,3 @@ reconnectingEventSource('/api/header/subscribe', data => {
     }
 });
 
-export {};
