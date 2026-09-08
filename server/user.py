@@ -175,6 +175,7 @@ class User:
         chat_timeout_until: datetime | None = None,
         tournament_points: float = 0,
         forum_posts: int = 0,
+        variant_count: int = 0,
     ) -> None:
         self.app_state: PychessGlobalAppState = app_state
         self.bot: bool = bot
@@ -267,6 +268,7 @@ class User:
         self.count = normalize_user_count(count)
         self.tournament_points = tournament_points
         self.forum_posts = forum_posts
+        self.variant_count = variant_count
         self.tournament_game_effect_ids: set[str] = set()
 
         self.enabled: bool = enabled

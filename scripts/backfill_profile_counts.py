@@ -36,7 +36,7 @@ async def main() -> None:
         async for user in db.user.find(query, {"_id": 1}).sort("_id", 1):
             username = user["_id"]
             values = {}
-            for counter in ("forumPosts", "tournamentPoints"):
+            for counter in ("forumPosts", "tournamentPoints", "variantCount"):
                 if args.apply:
                     doc = await refresh_counter(db, username, counter)
                     values[counter] = doc[counter] if doc else None

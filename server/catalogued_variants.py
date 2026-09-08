@@ -3670,6 +3670,14 @@ async def _catalogued_variant_slot_count_for_user(app_state: Any, username: str)
     )
 
 
+async def _refresh_catalogued_variant_profile_count(app_state: Any, username: str) -> None:
+    if not username or _catalogued_variant_user_collection(app_state) is None:
+        return
+    from profile_counts import refresh_user_counter
+
+    await refresh_user_counter(app_state, username, "variantCount")
+
+
 async def _ensure_catalogued_variant_quota(app_state: Any, username: str) -> None:
     if _is_admin_username(username):
         return
@@ -4648,6 +4656,7 @@ async def upload_catalogued_variant(request: web.Request) -> web.Response:
         raise web.HTTPConflict(text="A catalogued variant with this name already exists.") from exc
 
     register_catalogued_variant_doc(app_state, doc, load_config=False)
+    await _refresh_catalogued_variant_profile_count(app_state, username)
     return json_response({"ok": True, "variant": _client_doc(doc, game_count=0)})
 
 
@@ -5265,6 +5274,9 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
         if updated is None:
             raise web.HTTPNotFound(text="Catalogued variant not found after update.")
         register_catalogued_variant_doc(app_state, updated, load_config=False)
+        await _refresh_catalogued_variant_profile_count(
+            app_state, str(updated.get("author") or existing.get("author") or "")
+        )
         count = await _game_count(app_state, old_name)
         return json_response(
             {"ok": True, "oldName": old_name, "variant": _client_doc(updated, game_count=count)}
@@ -5404,6 +5416,9 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
     register_catalogued_variant_doc(app_state, updated, load_config=False)
     if new_name != old_name:
         await _migrate_catalogued_variant_tournaments(app_state, old_name, new_name, updated)
+    await _refresh_catalogued_variant_profile_count(
+        app_state, str(updated.get("author") or existing.get("author") or "")
+    )
     count = await _game_count(app_state, new_name)
     return json_response(
         {"ok": True, "oldName": old_name, "variant": _client_doc(updated, game_count=count)}
@@ -5435,6 +5450,7 @@ async def delete_catalogued_variant(request: web.Request) -> web.Response:
     await _remove_catalogued_variant_seeks(app_state, name)
     app_state.catalogued_variants.pop(name, None)
     unregister_catalogued_server_variant(name)
+    await _refresh_catalogued_variant_profile_count(app_state, str(doc.get("author") or ""))
     return json_response({"ok": True, "deleted": name})
 
 
@@ -5449,6 +5465,7 @@ async def archive_catalogued_variant(request: web.Request) -> web.Response:
     await _remove_catalogued_variant_seeks(app_state, name)
     app_state.catalogued_variants.pop(name, None)
     unregister_catalogued_server_variant(name)
+    await _refresh_catalogued_variant_profile_count(app_state, str(doc.get("author") or ""))
     return json_response({"ok": True, "archived": name})
 
 
@@ -5467,6 +5484,7 @@ async def restore_catalogued_variant(request: web.Request) -> web.Response:
         {"$set": {"archived": False, "enabled": True, "updatedAt": now}},
     )
     register_catalogued_variant_doc(app_state, restored, load_config=True)
+    await _refresh_catalogued_variant_profile_count(app_state, str(doc.get("author") or ""))
     count = await _game_count(app_state, name)
     return json_response({"ok": True, "variant": _client_doc(restored, game_count=count)})
 
@@ -5536,4 +5554,5 @@ async def clone_catalogued_variant(request: web.Request) -> web.Response:
         raise web.HTTPConflict(text="A catalogued variant with this name already exists.") from exc
 
     register_catalogued_variant_doc(app_state, cloned, load_config=False)
+    await _refresh_catalogued_variant_profile_count(app_state, username)
     return json_response({"ok": True, "variant": _client_doc(cloned, game_count=0)})

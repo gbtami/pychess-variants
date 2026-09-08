@@ -7,7 +7,7 @@ from const import ARENA, T_ARCHIVED, T_FINISHED
 from pymongo import ReturnDocument
 from variants import ServerVariants
 
-Counter = Literal["forumPosts", "tournamentPoints"]
+Counter = Literal["forumPosts", "tournamentPoints", "variantCount"]
 HISTORY_PAGE_SIZE = 25
 
 
@@ -17,6 +17,18 @@ def public_forum_posts_query(username: str) -> dict[str, Any]:
         "user": username,
         "categId": {"$not": {"$regex": "^team-"}},
         "erasedAt": None,
+    }
+
+
+def public_catalogued_variants_query(username: str) -> dict[str, Any]:
+    # Keep this in sync with the public community catalogue query. Profile
+    # counters must never reveal private, unlisted, disabled, or archived
+    # user-defined variants.
+    return {
+        "author": username,
+        "enabled": {"$ne": False},
+        "archived": {"$ne": True},
+        "visibility": "public",
     }
 
 
@@ -76,6 +88,10 @@ async def aggregate_results(db: Any, pipeline: list[dict[str, Any]]) -> list[dic
 async def calculate_counter(db: Any, username: str, counter: Counter) -> int | float:
     if counter == "forumPosts":
         return await db.forum_post.count_documents(public_forum_posts_query(username))
+    if counter == "variantCount":
+        return await db.catalogued_variant.count_documents(
+            public_catalogued_variants_query(username)
+        )
     rows = await aggregate_results(
         db,
         completed_tournament_results(username)
@@ -118,8 +134,10 @@ async def refresh_user_counter(app_state: Any, username: str, counter: Counter) 
     if user is not None:
         if counter == "forumPosts":
             user.forum_posts = int(updated[counter])
-        else:
+        elif counter == "tournamentPoints":
             user.tournament_points = updated[counter]
+        else:
+            user.variant_count = int(updated[counter])
     app_state.public_users.invalidate(username)
 
 

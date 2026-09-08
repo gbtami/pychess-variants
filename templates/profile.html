@@ -48,6 +48,9 @@
                 {% if profile_study_count %}
                 <a class="nm-item" href="{{ home }}/study/by/{{ profile | urlencode }}"><strong>{{ profile_study_count }}</strong> {% trans %}Studies{% endtrans %}</a>
                 {% endif %}
+                {% if profile_title != "BOT" %}
+                <a class="nm-item" href="{{ home }}/variants/community?author={{ profile | urlencode }}"><strong>{{ profile_variant_count }}</strong> {% trans %}Variants{% endtrans %}</a>
+                {% endif %}
                 {% endif %}
                 {% if profile_forum_posts %}
                 <a class="nm-item" href="{{ home }}/forum/search?text={{ ('user:' ~ profile) | urlencode }}"><strong>{{ profile_forum_posts }}</strong> {% trans %}Forum posts{% endtrans %}</a>
@@ -86,10 +89,6 @@
 
             {% if (can_challenge) and (not anon) and (profile != username) %}
             <a class="icon icon-crossedswords" href="/@/{{ profile }}/challenge" title="{% trans %}Challenge to a game{% endtrans %}">{% trans %}Challenge{% endtrans %}</a>
-            {% endif %}
-
-            {% if (not anon) and (profile_title != "BOT") %}
-            <a class="icon icon-list" href="{{ home }}/variants/community?author={{ profile | urlencode }}" title="{% trans %}Variants{% endtrans %}">{% trans %}Variants{% endtrans %}</a>
             {% endif %}
 
             {% if (not anon) and (profile != username) and (profile_title != "BOT") and (can_message) %}

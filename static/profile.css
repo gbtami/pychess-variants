@@ -51,16 +51,16 @@ div.versus vs-swords {
 }
 .player-social {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     align-items: center;
+    gap: 1vw;
     background: var(--bg-color2);
     justify-content: space-between;
 }
 /* Adapted from lila's ui/user/css/_number-menu.scss. */
 .profile-number-menu {
     display: flex;
-    flex: 1 1 auto;
-    flex-wrap: wrap;
+    overflow-x: auto;
     margin: 0 0 0.2em 1em;
 }
 .profile-number-menu .nm-item {
@@ -118,10 +118,10 @@ div.versus vs-swords {
 }
 .profile-actions {
     display: flex;
-    flex: 1 1 16em;
+    flex: 1 0 auto;
     justify-content: flex-end;
     min-width: 0;
-    padding: 1em;
+    margin: 0 1em 0 0.3em;
 }
 .profile-actions:not(:has(a)) {
     display: none;

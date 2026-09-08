@@ -47,6 +47,7 @@ class UserDocument(TypedDict, total=False):
     count: UserCount
     tournamentPoints: int | float
     forumPosts: int
+    variantCount: int
     swissBanUntil: datetime
     swissBanHours: int
     swissBanGameId: str
@@ -642,6 +643,7 @@ class ViewContext(TypedDict, total=False):
     profile_tournament_prev: str
     profile_tournament_next: str
     profile_forum_posts: int
+    profile_variant_count: int
     profile_title: str
     profile_patron: bool
     profile_online: bool
