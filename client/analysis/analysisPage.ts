@@ -12,6 +12,8 @@ export type AnalysisPageParts = {
     underboard: VNode | VNode[];
     mountBoard: (vnode: VNode, model: PyChessModel) => void;
     ongoing: boolean;
+    boardTop?: VNode;
+    boardBottom?: VNode;
 };
 
 /**
@@ -30,11 +32,11 @@ export function renderAnalysisPage(model: PyChessModel, parts: AnalysisPageParts
         h('div.analysis-app', [
             h('aside.sidebar-first', parts.side),
             h(`selection#mainboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, [
-                h('div#anal-clock-top'),
+                parts.boardTop ?? h('div#anal-clock-top'),
                 h('div.cg-wrap.' + variant.board.cg, {
                     hook: { insert: vnode => parts.mountBoard(vnode, model) },
                 }),
-                h('div#anal-clock-bottom'),
+                parts.boardBottom ?? h('div#anal-clock-bottom'),
             ]),
             isOngoingGame ? '' : gauge(variant.colors),
             h('div.pocket-top', [

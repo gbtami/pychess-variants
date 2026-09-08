@@ -115,6 +115,7 @@ export interface StudySyncOptions {
     onSharedPositionChanged?: (chapterId: string, path: string) => void;
     onServerEvalChanged?: (serverEval: StudyServerEval | undefined) => void;
     onServerAnalysisUnavailable?: (reason: string) => void;
+    onOrientationChanged?: (orientation: 'white' | 'black') => void;
     opIdFactory?: () => string;
     contextMenuActions?: AnalysisExtension['contextMenuActions'];
     writable?: boolean;
@@ -209,6 +210,16 @@ function asStudyTreeNode(value: unknown): StudyTreeNodeDto | undefined {
     if (node.san !== undefined && typeof node.san !== 'string') return undefined;
     if (node.sanSAN !== undefined && typeof node.sanSAN !== 'string') return undefined;
     if (node.forceVariation !== undefined && typeof node.forceVariation !== 'boolean') return undefined;
+    let clocks: StudyTreeNodeDto['clocks'];
+    if (node.clocks !== undefined) {
+        if (
+            !Array.isArray(node.clocks) ||
+            node.clocks.length !== 2 ||
+            node.clocks.some(value => typeof value !== 'number' || !Number.isFinite(value) || value < 0)
+        )
+            return undefined;
+        clocks = [node.clocks[0] as number, node.clocks[1] as number];
+    }
 
     let evalScore: StudyTreeNodeDto['eval'];
     if (node.eval !== undefined) {
@@ -243,6 +254,7 @@ function asStudyTreeNode(value: unknown): StudyTreeNodeDto | undefined {
         san: node.san as string | undefined,
         sanSAN: node.sanSAN as string | undefined,
         forceVariation: node.forceVariation as boolean | undefined,
+        clocks,
         annotations,
         eval: evalScore,
     };
@@ -432,7 +444,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
             chess960: this.options.chess960 ?? false,
             initialFen,
             orientation,
-            description: this.description,
+            description: this.description === '-' ? '' : this.description,
             tags: { ...this.tags },
             tree,
             ...(this.options.variantIni ? { variantIni: this.options.variantIni } : {}),
@@ -444,6 +456,10 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         const study = this.pgnStudy;
         const chapter = this.pgnChapter;
         return study && chapter ? renderStudyChapterPgn(study, chapter) : undefined;
+    }
+
+    onOrientationChanged(): void {
+        this.options.onOrientationChanged?.(this.ctrl.chessground.state.orientation);
     }
 
     onInitialBoardLoaded(): void {

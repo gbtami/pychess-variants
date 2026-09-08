@@ -177,7 +177,12 @@ class StudyMutationService:
         nodes = dict(chapter.root.nodes)
         nodes[node.id] = node
         candidate = self._candidate_chapter(
-            chapter, StudyTree(nodes, root_annotations=chapter.root.root_annotations)
+            chapter,
+            StudyTree(
+                nodes,
+                root_annotations=chapter.root.root_annotations,
+                root_clocks=chapter.root.root_clocks,
+            ),
         )
         size_error = self._size_error(candidate)
         if size_error is not None:
@@ -239,7 +244,12 @@ class StudyMutationService:
                 changed_nodes[sibling.id] = replacement
 
         candidate = self._candidate_chapter(
-            chapter, StudyTree(nodes, root_annotations=chapter.root.root_annotations)
+            chapter,
+            StudyTree(
+                nodes,
+                root_annotations=chapter.root.root_annotations,
+                root_clocks=chapter.root.root_clocks,
+            ),
         )
         result = await self._commit(
             chapter,
@@ -318,7 +328,12 @@ class StudyMutationService:
             )
 
         candidate = self._candidate_chapter(
-            chapter, StudyTree(nodes, root_annotations=chapter.root.root_annotations)
+            chapter,
+            StudyTree(
+                nodes,
+                root_annotations=chapter.root.root_annotations,
+                root_clocks=chapter.root.root_clocks,
+            ),
         )
         size_error = self._size_error(candidate)
         if size_error is not None:
@@ -373,7 +388,12 @@ class StudyMutationService:
             )
 
         candidate = self._candidate_chapter(
-            chapter, StudyTree(nodes, root_annotations=chapter.root.root_annotations)
+            chapter,
+            StudyTree(
+                nodes,
+                root_annotations=chapter.root.root_annotations,
+                root_clocks=chapter.root.root_clocks,
+            ),
         )
         size_error = self._size_error(candidate)
         if size_error is not None:
@@ -629,10 +649,18 @@ class StudyMutationService:
             if target is None:
                 return self._reload(chapter.revision, "invalid_path")
             nodes[target.id] = replace(target, annotations=annotations)
-            root = StudyTree(nodes, root_annotations=chapter.root.root_annotations)
+            root = StudyTree(
+                nodes,
+                root_annotations=chapter.root.root_annotations,
+                root_clocks=chapter.root.root_clocks,
+            )
             annotation_field = f"root.{target.id}.a"
         else:
-            root = StudyTree(nodes, root_annotations=annotations)
+            root = StudyTree(
+                nodes,
+                root_annotations=annotations,
+                root_clocks=chapter.root.root_clocks,
+            )
             annotation_field = "root._.a"
 
         candidate = self._candidate_chapter(chapter, root)

@@ -108,6 +108,8 @@ class Users(UserDict[str, User]):
             perfs=doc.get("perfs"),
             pperfs=doc.get("pperfs"),
             count=doc.get("count"),
+            tournament_points=doc.get("tournamentPoints", 0),
+            forum_posts=doc.get("forumPosts", 0),
             enabled=doc.get("enabled", True),
             shadowban=doc.get("shadowban", False),
             patron=doc.get("patron", False),

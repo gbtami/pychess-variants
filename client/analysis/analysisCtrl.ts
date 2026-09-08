@@ -762,6 +762,7 @@ export class AnalysisController extends GameController {
         if (this.hasPockets) {
             setPocketRowCssVars(this);
         }
+        this.analysisExtension?.onOrientationChanged?.();
     }
 
     private drawAnalysisChart = (withRequest: boolean) => {

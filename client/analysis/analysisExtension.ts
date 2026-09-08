@@ -19,6 +19,7 @@ export interface AnalysisExtension {
     getPgn?(): string | undefined;
     contextMenuActions?(path: string): VNode[];
     onInitialBoardLoaded?(): void;
+    onOrientationChanged?(): void;
     canActivatePath?(path: string): boolean;
     onPathChanged?(path: string, previousPath: string): void;
     onShapesChanged?(shapes: DrawShape[]): void;

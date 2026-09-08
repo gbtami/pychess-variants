@@ -5,6 +5,7 @@ from datetime import UTC, datetime
 from newid import new_id
 from notify import notify_by_username
 from pymongo.errors import DuplicateKeyError
+from profile_counts import refresh_user_counter
 from team import get_team
 
 from forum.access import (
@@ -15,6 +16,20 @@ from forum.access import (
 )
 from forum.constants import DEFAULT_FORUM_CATEGS, FORUM_POST_PER_PAGE, KEY_TO_REACTION
 from forum.utils import extract_mentions, post_page_for_index
+
+
+async def refresh_post_author_count(app_state, post) -> None:
+    if not str(post.get("categId", "")).startswith("team-"):
+        await refresh_user_counter(app_state, str(post.get("user", "")), "forumPosts")
+
+
+async def delete_posts_with_counts(app_state, query) -> None:
+    authors = await app_state.db.forum_post.distinct(
+        "user", {**query, "categId": {"$not": {"$regex": "^team-"}}}
+    )
+    await app_state.db.forum_post.delete_many(query)
+    for author in authors:
+        await refresh_user_counter(app_state, author, "forumPosts")
 
 
 async def ensure_categs(app_state) -> None:

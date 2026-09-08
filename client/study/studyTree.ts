@@ -44,11 +44,13 @@ export interface StudyTreeNodeDto {
     forceVariation?: boolean;
     annotations?: StudyAnnotationsDto;
     eval?: StudyEvalDto;
+    clocks?: [number, number];
 }
 
 export interface StudyTreeDto {
     nodes: StudyTreeNodeDto[];
     rootAnnotations?: StudyAnnotationsDto;
+    rootClocks?: [number, number];
 }
 
 export function isStudyNodeId(value: unknown): value is string {
@@ -194,6 +196,14 @@ function validateDtoNode(node: StudyTreeNodeDto): void {
     if (node.turnColor !== 'white' && node.turnColor !== 'black') throw new Error('Invalid Study node turn color');
     if (node.annotations !== undefined) parseStudyAnnotations(node.annotations);
     if (node.eval !== undefined) cevalFromStudyEval(node.eval);
+    if (node.clocks !== undefined) {
+        if (
+            !Array.isArray(node.clocks) ||
+            node.clocks.length !== 2 ||
+            node.clocks.some(clock => typeof clock !== 'number' || !Number.isFinite(clock) || clock < 0)
+        )
+            throw new Error('Invalid Study node clocks');
+    }
 }
 
 function parentKey(parentId: string | null): string {
@@ -201,6 +211,16 @@ function parentKey(parentId: string | null): string {
 }
 
 export function analysisTreeFromStudy(rootStep: Step, dto: StudyTreeDto): AnalysisTree {
+    if (dto.rootClocks !== undefined) {
+        if (
+            !Array.isArray(dto.rootClocks) ||
+            dto.rootClocks.length !== 2 ||
+            dto.rootClocks.some(clock => typeof clock !== 'number' || !Number.isFinite(clock) || clock < 0)
+        )
+            throw new Error('Invalid Study root clocks');
+        rootStep = { ...rootStep, clocks: [...dto.rootClocks] as [number, number] };
+    }
+
     const dtoById = new Map<string, StudyTreeNodeDto>();
     const children = new Map<string, StudyTreeNodeDto[]>();
 
@@ -263,6 +283,7 @@ export function analysisTreeFromStudy(rootStep: Step, dto: StudyTreeDto): Analys
                     turnColor: dtoNode.turnColor,
                     san: dtoNode.san,
                     sanSAN: dtoNode.sanSAN,
+                    clocks: dtoNode.clocks,
                 },
                 children: [],
                 forceVariation: dtoNode.forceVariation,
@@ -296,6 +317,7 @@ function allocateStableId(preferred: string, used: Set<string>): string {
 export function studyTreeFromAnalysisTree(tree: AnalysisTree): StudyTreeDto {
     const nodes: StudyTreeNodeDto[] = [];
     const rootAnnotations = studyAnnotationsFromAnalysis(tree.root.annotations);
+    const rootClocks = tree.root.step.clocks ? ([...tree.root.step.clocks] as [number, number]) : undefined;
     const used = new Set<string>();
     const queue: Array<{ parent: AnalysisTreeNode; stableParentId: string | null }> = [
         { parent: tree.root, stableParentId: null },
@@ -317,6 +339,7 @@ export function studyTreeFromAnalysisTree(tree: AnalysisTree): StudyTreeDto {
             };
             if (child.step.san !== undefined) node.san = child.step.san;
             if (child.step.sanSAN !== undefined) node.sanSAN = child.step.sanSAN;
+            if (child.step.clocks !== undefined) node.clocks = [...child.step.clocks] as [number, number];
             if (child.forceVariation) node.forceVariation = true;
             const annotations = studyAnnotationsFromAnalysis(child.annotations);
             if (annotations) node.annotations = annotations;
@@ -327,7 +350,11 @@ export function studyTreeFromAnalysisTree(tree: AnalysisTree): StudyTreeDto {
         });
     }
 
-    return rootAnnotations ? { nodes, rootAnnotations } : { nodes };
+    return {
+        nodes,
+        ...(rootAnnotations ? { rootAnnotations } : {}),
+        ...(rootClocks ? { rootClocks } : {}),
+    };
 }
 
 export function addStudyNodeToAnalysisTree(
@@ -360,6 +387,7 @@ export function addStudyNodeToAnalysisTree(
             turnColor: dtoNode.turnColor,
             san: dtoNode.san,
             sanSAN: dtoNode.sanSAN,
+            clocks: dtoNode.clocks,
         },
         children: [],
         forceVariation: dtoNode.forceVariation,
@@ -405,6 +433,7 @@ export function mergeStudyNodeIntoAnalysisTree(
             turnColor: dtoNode.turnColor,
             san: dtoNode.san,
             sanSAN: dtoNode.sanSAN,
+            clocks: dtoNode.clocks,
         };
         existing.forceVariation = dtoNode.forceVariation;
         existing.annotations = analysisAnnotationsFromStudy(dtoNode.annotations);
@@ -424,6 +453,7 @@ export function mergeStudyNodeIntoAnalysisTree(
             turnColor: dtoNode.turnColor,
             san: dtoNode.san,
             sanSAN: dtoNode.sanSAN,
+            clocks: dtoNode.clocks,
         },
         children: [],
         forceVariation: dtoNode.forceVariation,
@@ -436,6 +466,15 @@ export function mergeStudyNodeIntoAnalysisTree(
 }
 
 export function mergeStudyTreeIntoAnalysisTree(tree: AnalysisTree, dto: StudyTreeDto): boolean {
+    if (dto.rootClocks !== undefined) {
+        if (
+            !Array.isArray(dto.rootClocks) ||
+            dto.rootClocks.length !== 2 ||
+            dto.rootClocks.some(clock => typeof clock !== 'number' || !Number.isFinite(clock) || clock < 0)
+        )
+            return false;
+        tree.root.step = { ...tree.root.step, clocks: [...dto.rootClocks] as [number, number] };
+    }
     const serverPathById = new Map<string, string>();
     const seen = new Set<string>();
     for (const dtoNode of dto.nodes) {

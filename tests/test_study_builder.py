@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from datetime import UTC, datetime
 from types import SimpleNamespace
 from typing import Any, cast
 from unittest.mock import AsyncMock, patch
@@ -179,17 +180,26 @@ class StudyChapterBuilderTestCase(unittest.IsolatedAsyncioTestCase):
             variant="chess",
             chess960=False,
             initial_fen=FairyBoard.start_fen("chess"),
-            wplayer=SimpleNamespace(username="White"),
-            bplayer=SimpleNamespace(username="Black"),
+            date=datetime(2026, 9, 7, tzinfo=UTC),
+            result="1-0",
+            wrating=2107,
+            brating=2224,
+            wplayer=SimpleNamespace(username="White", title="FM"),
+            bplayer=SimpleNamespace(username="Black", title=""),
             get_board=lambda full=True: {
                 "steps": [
-                    {"fen": FairyBoard.start_fen("chess"), "turnColor": "white"},
+                    {
+                        "fen": FairyBoard.start_fen("chess"),
+                        "turnColor": "white",
+                        "clocks": [300000, 300000],
+                    },
                     {
                         "move": "e2e4",
                         "fen": "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
                         "turnColor": "black",
                         "check": False,
                         "san": "e4",
+                        "clocks": [298000, 300000],
                     },
                 ]
             },
@@ -200,7 +210,16 @@ class StudyChapterBuilderTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(draft.source.kind, "game")
         self.assertEqual(draft.source.source_id, "game0001")
         self.assertEqual(draft.root.count(), 1)
+        self.assertEqual(draft.root.root_clocks, (300000, 300000))
         self.assertEqual(draft.root.children_of(None)[0].move, "e2e4")
+        self.assertEqual(draft.root.children_of(None)[0].clocks, (298000, 300000))
+        self.assertEqual(draft.tags["WhiteElo"], "2107")
+        self.assertEqual(draft.tags["BlackElo"], "2224")
+        self.assertEqual(draft.tags["WhiteTitle"], "FM")
+
+    def test_rejects_nonfinite_saved_game_clock(self) -> None:
+        with self.assertRaisesRegex(StudyChapterBuildError, "invalid clock data"):
+            self.builder._step_clocks({"clocks": [float("nan"), 300000]})
 
     async def test_rejects_two_board_game(self) -> None:
         await self.db.game.insert_one({"_id": "game0002"})

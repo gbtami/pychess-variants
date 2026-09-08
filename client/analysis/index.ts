@@ -233,6 +233,8 @@ function studyTagsFromAnalysis(model: PyChessModel, ctrl: AnalysisController): R
         WhiteElo: model.wrating || '?',
         BlackElo: model.brating || '?',
     };
+    if (model.wtitle) tags.WhiteTitle = model.wtitle;
+    if (model.btitle) tags.BlackTitle = model.btitle;
     if (date) tags.Date = date;
     return tags;
 }

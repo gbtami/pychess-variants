@@ -173,6 +173,8 @@ class User:
         swiss_ban_game_id: str | None = None,
         patron: bool = False,
         chat_timeout_until: datetime | None = None,
+        tournament_points: int | float = 0,
+        forum_posts: int = 0,
     ) -> None:
         self.app_state: PychessGlobalAppState = app_state
         self.bot: bool = bot
@@ -263,6 +265,8 @@ class User:
         self.perfs = sparse_perf_map(RATED_VARIANTS, perfs)
         self.pperfs = sparse_perf_map(RATED_VARIANTS, pperfs)
         self.count = normalize_user_count(count)
+        self.tournament_points = tournament_points
+        self.forum_posts = forum_posts
         self.tournament_game_effect_ids: set[str] = set()
 
         self.enabled: bool = enabled

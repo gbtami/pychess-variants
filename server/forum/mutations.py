@@ -28,10 +28,12 @@ from forum.constants import (
 )
 from forum.permissions import can_moderate
 from forum.storage import (
+    delete_posts_with_counts,
     forum_categ_by_id,
     notify_mentions,
     recompute_categ_summary,
     recompute_topic_summary,
+    refresh_post_author_count,
     serialize_reactions,
     topic_by_tree,
 )
@@ -128,6 +130,7 @@ async def forum_topic_create(request: web.Request) -> web.Response:
 
     await app_state.db.forum_topic.insert_one(topic_doc)
     await app_state.db.forum_post.insert_one(post_doc)
+    await refresh_post_author_count(app_state, post_doc)
     await recompute_categ_summary(app_state, categ_id)
     await notify_mentions(
         app_state,
@@ -210,6 +213,7 @@ async def forum_post_create(request: web.Request) -> web.Response:
         "editCount": 0,
     }
     await app_state.db.forum_post.insert_one(post_doc)
+    await refresh_post_author_count(app_state, post_doc)
     await app_state.db.forum_topic.update_one(
         {"_id": topic["_id"]},
         {
@@ -328,14 +332,14 @@ async def forum_post_delete(request: web.Request) -> web.Response:
 
     topic = await app_state.db.forum_topic.find_one({"_id": post.get("topicId")})
     if topic is None:
-        await app_state.db.forum_post.delete_one({"_id": post_id})
+        await delete_posts_with_counts(app_state, {"_id": post_id})
         await recompute_categ_summary(app_state, str(post.get("categId")))
         return json_response({"ok": True})
 
     if is_owner:
         topic_posts = await app_state.db.forum_post.count_documents({"topicId": topic["_id"]})
         if topic_posts <= 1:
-            await app_state.db.forum_post.delete_many({"topicId": topic["_id"]})
+            await delete_posts_with_counts(app_state, {"topicId": topic["_id"]})
             await app_state.db.forum_topic.delete_one({"_id": topic["_id"]})
             await recompute_categ_summary(app_state, str(topic.get("categId")))
             return json_response({"ok": True, "deletedTopic": True})
@@ -351,6 +355,7 @@ async def forum_post_delete(request: web.Request) -> web.Response:
                 "$unset": {"reactions": "", "updatedAt": ""},
             },
         )
+        await refresh_post_author_count(app_state, post)
         await recompute_topic_summary(app_state, str(topic["_id"]))
         await recompute_categ_summary(app_state, str(topic.get("categId")))
         return json_response({"ok": True, "erased": True})
@@ -361,12 +366,12 @@ async def forum_post_delete(request: web.Request) -> web.Response:
         projection={"_id": 1},
     )
     if first_post and first_post.get("_id") == post_id:
-        await app_state.db.forum_post.delete_many({"topicId": topic["_id"]})
+        await delete_posts_with_counts(app_state, {"topicId": topic["_id"]})
         await app_state.db.forum_topic.delete_one({"_id": topic["_id"]})
         await recompute_categ_summary(app_state, str(topic.get("categId")))
         return json_response({"ok": True, "deletedTopic": True})
 
-    await app_state.db.forum_post.delete_one({"_id": post_id})
+    await delete_posts_with_counts(app_state, {"_id": post_id})
     await recompute_topic_summary(app_state, str(topic["_id"]))
     await recompute_categ_summary(app_state, str(topic.get("categId")))
     return json_response({"ok": True})

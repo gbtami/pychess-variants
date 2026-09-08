@@ -36,6 +36,27 @@
             </div>
         </div>
         <div class="player-social">
+            {% if profile_system or profile_study_count or (profile_title != "BOT") %}
+            <div class="profile-number-menu">
+                {% if not profile_system %}
+                {% if profile_title != "BOT" %}
+                <a class="nm-item" href="{{ home }}/@/{{ profile | urlencode }}/tournaments"><strong>{{ '%g' | format(profile_tournament_points) }}</strong> {% trans %}Tournament points{% endtrans %}</a>
+                {% endif %}
+                {% if (not anon) and (profile_title != "BOT") and profile_simul_count %}
+                <a class="nm-item" href="{{ home }}/@/{{ profile }}/simuls" title="{% trans %}Hosted simuls{% endtrans %}"><strong>{{ profile_simul_count }}</strong> {% trans %}Simuls{% endtrans %}</a>
+                {% endif %}
+                {% if profile_study_count %}
+                <a class="nm-item" href="{{ home }}/study/by/{{ profile | urlencode }}"><strong>{{ profile_study_count }}</strong> {% trans %}Studies{% endtrans %}</a>
+                {% endif %}
+                {% endif %}
+                {% if profile_forum_posts %}
+                <a class="nm-item" href="{{ home }}/forum/search?text={{ ('user:' ~ profile) | urlencode }}"><strong>{{ profile_forum_posts }}</strong> {% trans %}Forum posts{% endtrans %}</a>
+                {% endif %}
+                {% if profile_system or ((not anon) and (profile_title != "BOT")) %}
+                <a class="nm-item" href="/blogs/@/{{ profile }}"><strong>{{ ublog_post_count }}</strong> {% trans %}Blog posts{% endtrans %}</a>
+                {% endif %}
+            </div>
+            {% endif %}
             <div class="profile-actions">
                 <div class="btn-rack profile-actions__rack">
 
@@ -47,7 +68,6 @@
                 <a id="follow"></a>
             {% endif %}
             {% endif %}
-            <a class="icon icon-bubble-convo" href="/blogs/@/{{ profile }}" title="User blogs">Blogs</a>
             {% else %}
             <a class="icon icon-tv" href="/@/{{ profile }}/tv" title="{% trans %}Watch games{% endtrans %}">{% trans %}Watch{% endtrans %}</a>
 
@@ -68,15 +88,8 @@
             <a class="icon icon-crossedswords" href="/@/{{ profile }}/challenge" title="{% trans %}Challenge to a game{% endtrans %}">{% trans %}Challenge{% endtrans %}</a>
             {% endif %}
 
-            {% if profile_study_count %}
-            <a class="icon icon-book" href="{{ home }}/study/by/{{ profile | urlencode }}" title="{% trans %}Studies{% endtrans %}">{% trans %}Studies{% endtrans %} ({{ profile_study_count }})</a>
-            {% endif %}
             {% if (not anon) and (profile_title != "BOT") %}
-            <a class="icon icon-bubble-convo" href="/blogs/@/{{ profile }}" title="User blogs">Blogs</a>
             <a class="icon icon-list" href="{{ home }}/variants/community?author={{ profile | urlencode }}" title="{% trans %}Variants{% endtrans %}">{% trans %}Variants{% endtrans %}</a>
-            {% if profile_simul_count %}
-            <a class="icon icon-trophy" href="{{ home }}/@/{{ profile }}/simuls" title="{% trans %}Hosted simuls{% endtrans %}">{% trans %}Simuls{% endtrans %} ({{ profile_simul_count }})</a>
-            {% endif %}
             {% endif %}
 
             {% if (not anon) and (profile != username) and (profile_title != "BOT") and (can_message) %}

@@ -53,6 +53,23 @@ describe('Study tree persistence adapter', () => {
         expect(restored.root.children[1].mainlinePly).toBeUndefined();
     });
 
+    test('round-trips root and move clocks through the generic analysis tree', () => {
+        const rootStep = {
+            ...makeStep('start w - - 0 1', undefined, 'white'),
+            clocks: [300000, 300000] as [number, number],
+        };
+        const e4 = { ...makeStep('e4 b - - 0 1', 'e2e4', 'black', 'e4'), clocks: [298000, 300000] as [number, number] };
+        const tree = createAnalysisTree([rootStep, e4]);
+
+        const dto = studyTreeFromAnalysisTree(tree);
+        expect(dto.rootClocks).toEqual([300000, 300000]);
+        expect(dto.nodes[0].clocks).toEqual([298000, 300000]);
+
+        const restored = analysisTreeFromStudy(makeStep('start w - - 0 1', undefined, 'white'), dto);
+        expect(restored.root.step.clocks).toEqual([300000, 300000]);
+        expect(restored.root.children[0].step.clocks).toEqual([298000, 300000]);
+    });
+
     test('round-trips root and node annotations through the generic analysis tree', () => {
         const rootStep = makeStep('start w - - 0 1', undefined, 'white');
         const dto: StudyTreeDto = {

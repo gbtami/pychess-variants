@@ -44,6 +44,7 @@ export type StudyChapterPreview = {
     name: string;
     order: number;
     orientation: 'white' | 'black';
+    descriptionPinned?: boolean;
 };
 
 export type StudyPageModel = {
@@ -87,6 +88,7 @@ export type StudyPageModel = {
     memberConfig?: string;
     likePending?: boolean;
     serverAnalysisError?: string;
+    chapterDescriptionEditing?: boolean;
     chapter: {
         id: string;
         name: string;
@@ -98,6 +100,7 @@ export type StudyPageModel = {
         initialFen: string;
         variantIni: string | null;
         createdAt: string;
+        source?: { kind: 'scratch' | 'game' | 'study' | 'import'; id?: string | null };
         description: string;
         tags: Record<string, string>;
         serverEval: StudyServerEval | null;

@@ -45,6 +45,8 @@ from study.storage import (
     add_study_member,
     autocomplete_study_topics,
     chapter_previews,
+    clear_chapter_annotations,
+    clear_chapter_variations,
     clone_study,
     contributed_studies_page,
     create_study_from_draft,
@@ -341,7 +343,7 @@ def _chapter_export_payload(chapter: StudyChapter) -> dict[str, object]:
         "chess960": chapter.chess960,
         "initialFen": chapter.initial_fen,
         "orientation": chapter.orientation,
-        "description": chapter.description,
+        "description": "" if chapter.description == "-" else chapter.description,
         "tags": dict(chapter.tags),
         "createdAt": chapter.created_at.isoformat(),
         "tree": chapter.root.to_payload(),
@@ -765,6 +767,36 @@ async def _populate_study_chapter_context(
                 "initialFen": chapter.initial_fen,
                 "variantIni": chapter.variant_ini,
                 "createdAt": chapter.created_at.isoformat(),
+                "source": {
+                    "kind": (
+                        study.source.kind
+                        if chapter.source.kind == "scratch"
+                        and chapter.order == 1
+                        and study.source.kind != "scratch"
+                        else chapter.source.kind
+                    ),
+                    **(
+                        {
+                            "id": (
+                                study.source.source_id
+                                if chapter.source.kind == "scratch"
+                                and chapter.order == 1
+                                and study.source.kind != "scratch"
+                                else chapter.source.source_id
+                            )
+                        }
+                        if (
+                            (chapter.source.kind != "scratch" and chapter.source.source_id)
+                            or (
+                                chapter.source.kind == "scratch"
+                                and chapter.order == 1
+                                and study.source.kind != "scratch"
+                                and study.source.source_id
+                            )
+                        )
+                        else {}
+                    ),
+                },
                 "description": chapter.description,
                 "tags": dict(chapter.tags),
                 "serverEval": (
@@ -1263,9 +1295,34 @@ async def study_chapter_edit(request: web.Request) -> web.StreamResponse:
             chapter,
             name=data.get("name"),
             orientation=data.get("orientation", chapter.orientation),
+            pinned_description=data.get("description") if "description" in data else None,
         )
     except StudyStorageError as exc:
         raise web.HTTPBadRequest(text=str(exc)) from exc
+    raise web.HTTPFound(f"/study/{study.id}/{chapter.id}")
+
+
+async def study_chapter_clear_annotations(request: web.Request) -> web.StreamResponse:
+    _, _, study, chapter = await _writable_study_and_chapter(request)
+    app_state = get_app_state(request.app)
+    try:
+        changed = await clear_chapter_annotations(app_state, study, chapter)
+    except StudyStorageError as exc:
+        raise web.HTTPBadRequest(text=str(exc)) from exc
+    if changed:
+        await broadcast_study_reload(app_state, study.id, reason="chapter_annotations_cleared")
+    raise web.HTTPFound(f"/study/{study.id}/{chapter.id}")
+
+
+async def study_chapter_clear_variations(request: web.Request) -> web.StreamResponse:
+    _, _, study, chapter = await _writable_study_and_chapter(request)
+    app_state = get_app_state(request.app)
+    try:
+        changed = await clear_chapter_variations(app_state, study, chapter)
+    except StudyStorageError as exc:
+        raise web.HTTPBadRequest(text=str(exc)) from exc
+    if changed:
+        await broadcast_study_reload(app_state, study.id, reason="chapter_variations_cleared")
     raise web.HTTPFound(f"/study/{study.id}/{chapter.id}")
 
 

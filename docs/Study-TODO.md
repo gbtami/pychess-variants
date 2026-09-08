@@ -1151,8 +1151,9 @@ validation on the server. Chapter-cap and ownership checks remain server-authori
 
 ## UI/UX checkpoint before Phase 3
 
-Implemented 2026-09-05, using the local lila Study view, chapter list, underboard
-panels, and tree comment rendering as references:
+Implemented 2026-09-05 and refined for closer Lichess parity on 2026-09-08, using the
+local lila Study view, chapter list, underboard panels, player bars, chapter-edit form,
+and tree comment rendering as references:
 
 - [x] Compact chapter sidebar with current-chapter highlighting, chapter settings,
   and an Add a new chapter action.
@@ -1160,12 +1161,19 @@ panels, and tree comment rendering as references:
   waiting for pending annotation saves, remembering chapter positions, and supporting
   Back/Forward navigation and variant-specific board/engine cleanup.
 - [x] Study/chapter metadata editing in centered Lichess-style dialogs: Study name/visibility,
-  chapter name/orientation, and destructive actions share the same form/action layout. Chapter
-  creation uses the existing grouped variant selector. Native dialogs support Escape and restore
-  focus. Controls that depend on later Study settings or lesson modes remain deferred instead of
-  appearing as non-functional parity placeholders.
-- [x] Underboard tabs for PGN tags, position comments, glyphs, chapter description,
-  and chapter/Study PGN downloads; raw FEN/PGN is available inside the export panel.
+  chapter name/orientation, pinned-chapter-comment placement, and destructive actions share the
+  same form/action layout. The chapter dialog also mirrors Lichess's Analysis mode field while
+  exposing only the currently supported Normal analysis mode. Chapter creation uses the existing
+  grouped variant selector. Native dialogs support Escape and restore focus.
+- [x] Lichess-style Clear annotations and Clear variations chapter actions, with recursive
+  chapter semantics and server-analysis invalidation where Lichess does it.
+- [x] Underboard tabs for PGN tags, position comments, glyphs, server analysis, and
+  chapter/Study PGN downloads; raw FEN/PGN is available inside the export panel. Chapter
+  descriptions are no longer a tool tab: they use Lichess's pinned chapter-comment DOM and
+  empty `-` sentinel directly under the board, with contributor edit/delete controls.
+- [x] Chapters sourced from a played PyChess game retain source metadata, player/title/rating
+  tags, and root/per-ply clock snapshots. They render orientation-aware Lichess-style player
+  bars above and below the board while reusing the normal analysis clock renderer.
 - [x] Comments appear next to their positions in the shared move tree, including root
   and variation comments. Editing a comment updates the existing comment.
 - [x] Simple comment textareas save automatically; clearing text deletes the comment.

@@ -163,6 +163,7 @@ INDEXES = (
     _index("tournament", ("teamId", 1)),
     _index("tournament", ("createdBy", 1)),
     _index("tournament", ("winner", 1)),
+    _index("tournament", ("profilePointsPending", 1), sparse=True),
     _index("tournament_player", ("tid", 1)),
     _index("tournament_player", ("uid", 1)),
     _index("tournament_pairing", ("tid", 1)),

@@ -411,7 +411,7 @@ async def test_profile_study_listing_only_exposes_public_studies(aiohttp_client)
     profile_html = await response.text()
     assert f"/study/by/{owner}" in profile_html
     assert "Studies" in profile_html
-    assert "(1)" in profile_html
+    assert "<strong>1</strong> Studies</a>" in profile_html
 
     client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie(viewer)})
     response = await client.get(f"/@/{owner}")
@@ -419,7 +419,7 @@ async def test_profile_study_listing_only_exposes_public_studies(aiohttp_client)
     profile_html = await response.text()
     assert f"/study/by/{owner}" in profile_html
     assert "Studies" in profile_html
-    assert "(1)" in profile_html
+    assert "<strong>1</strong> Studies</a>" in profile_html
 
     client.session.cookie_jar.clear()
     client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie(owner)})
@@ -437,7 +437,7 @@ async def test_profile_study_listing_only_exposes_public_studies(aiohttp_client)
     assert response.status == 200
     profile_html = await response.text()
     assert f"/study/by/{owner}" in profile_html
-    assert "(3)" in profile_html
+    assert "<strong>3</strong> Studies</a>" in profile_html
 
     response = await client.get("/study/by/no_such_study_owner")
     assert response.status == 404

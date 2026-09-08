@@ -558,6 +558,14 @@ post_routes: tuple[RouteDef, ...] = (
     (r"/study/{studyId:\w{8}}/chapter", study_view.study_chapter_create),
     (r"/study/{studyId:\w{8}}/import-pgn", study_view.study_import_pgn),
     (r"/study/{studyId:\w{8}}/{chapterId:\w{8}}/edit", study_view.study_chapter_edit),
+    (
+        r"/study/{studyId:\w{8}}/{chapterId:\w{8}}/clear-annotations",
+        study_view.study_chapter_clear_annotations,
+    ),
+    (
+        r"/study/{studyId:\w{8}}/{chapterId:\w{8}}/clear-variations",
+        study_view.study_chapter_clear_variations,
+    ),
     (r"/study/{studyId:\w{8}}/{chapterId:\w{8}}/delete", study_view.study_chapter_delete),
     ("/team/new", team_view.team_create),
     ("/team/{teamId}/edit", team_view.team_update),

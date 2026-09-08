@@ -145,6 +145,9 @@ async def _discuss_topic_url(app_state: Any, post: dict[str, Any]) -> str:
         }
         await app_state.db.forum_topic.insert_one(topic_doc)
         await app_state.db.forum_post.insert_one(discuss_post_doc)
+        from forum.storage import refresh_post_author_count
+
+        await refresh_post_author_count(app_state, discuss_post_doc)
         await recompute_categ_summary(app_state, UBLOG_DISCUSS_CATEG_ID)
 
     safe_categ = quote(UBLOG_DISCUSS_CATEG_ID, safe="")

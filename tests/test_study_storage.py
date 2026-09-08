@@ -9,6 +9,7 @@ from unittest.mock import AsyncMock, patch
 
 from fairy import FairyBoard
 from mongomock_motor import AsyncMongoMockClient
+from study.annotations import StudyAnnotations, StudyComment
 from study.builder import StudyChapterDraft
 from study.models import StudySource
 from study.storage import (
@@ -18,6 +19,8 @@ from study.storage import (
     add_study_member,
     autocomplete_study_topics,
     chapter_previews,
+    clear_chapter_annotations,
+    clear_chapter_variations,
     clone_study,
     contributed_studies_page,
     count_studies_for_owner_view,
@@ -44,6 +47,7 @@ from study.storage import (
     study_search_page,
     topic_studies_page,
 )
+from study.tree import StudyTree, StudyTreeNode
 
 
 class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
@@ -329,11 +333,13 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(study.source, StudySource("game", "game0001"))
         self.assertEqual(chapter.name, "Imported")
         self.assertEqual(chapter.variant_ini, "[snapshot:chess]")
+        self.assertEqual(chapter.source, StudySource("game", "game0001"))
         loaded = await load_owned_chapter(cast(Any, self.app_state), study.id, chapter.id, "owner")
         assert loaded is not None
         self.assertEqual(loaded.id, chapter.id)
         self.assertEqual(loaded.name, chapter.name)
         self.assertEqual(loaded.variant_ini, chapter.variant_ini)
+        self.assertEqual(loaded.source, StudySource("game", "game0001"))
         self.assertEqual(loaded.root, chapter.root)
 
     async def test_create_from_draft_enforces_chapter_bson_limit(self) -> None:
@@ -408,6 +414,7 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(doc.get("variantIni"), original.variant_ini)
             self.assertEqual(doc.get("description", ""), original.description)
             self.assertEqual(doc.get("tags", {}), dict(original.tags))
+            self.assertEqual(doc.get("source", "scratch"), original.source.encode())
             self.assertEqual(doc["root"], original.root.to_document())
             self.assertEqual(doc["revision"], 0)
 
@@ -424,14 +431,33 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
             third,
             name="Third line",
             orientation="black",
+            pinned_description="1",
         )
         previews = await chapter_previews(cast(Any, self.app_state), study.id)
         self.assertEqual(
             previews,
             [
-                {"id": first.id, "name": "Chapter 1", "order": 1, "orientation": "white"},
-                {"id": second.id, "name": "Sicilian", "order": 2, "orientation": "white"},
-                {"id": third.id, "name": "Third line", "order": 3, "orientation": "black"},
+                {
+                    "id": first.id,
+                    "name": "Chapter 1",
+                    "order": 1,
+                    "orientation": "white",
+                    "descriptionPinned": False,
+                },
+                {
+                    "id": second.id,
+                    "name": "Sicilian",
+                    "order": 2,
+                    "orientation": "white",
+                    "descriptionPinned": False,
+                },
+                {
+                    "id": third.id,
+                    "name": "Third line",
+                    "order": 3,
+                    "orientation": "black",
+                    "descriptionPinned": True,
+                },
             ],
         )
 
@@ -441,6 +467,87 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
         previews = await chapter_previews(cast(Any, self.app_state), study.id)
         self.assertEqual([item["order"] for item in previews], [1, 2])
         self.assertEqual([item["id"] for item in previews], [first.id, third.id])
+
+    async def test_clear_chapter_annotations_clears_every_position(self) -> None:
+        study, chapter = await create_study_with_chapter(cast(Any, self.app_state), "owner")
+        main = StudyTreeNode(
+            id="MainNode01",
+            parent_id=None,
+            order=0,
+            move="e2e4",
+            fen="fen-1",
+            turn_color="black",
+            annotations=StudyAnnotations(nags=(1,)),
+            clocks=(298000, 300000),
+        )
+        tree = StudyTree(
+            {main.id: main},
+            root_annotations=StudyAnnotations(
+                comments=(StudyComment("Comment001", "owner", "Root note"),)
+            ),
+            root_clocks=(300000, 300000),
+        )
+        chapter = replace(chapter, root=tree)
+        await self.db.study_chapter.update_one(
+            {"_id": chapter.id}, {"$set": {"root": tree.to_document()}}
+        )
+
+        changed = await clear_chapter_annotations(cast(Any, self.app_state), study, chapter)
+
+        self.assertTrue(changed)
+        loaded = await load_owned_chapter(cast(Any, self.app_state), study.id, chapter.id, "owner")
+        assert loaded is not None
+        self.assertTrue(loaded.root.root_annotations.empty)
+        self.assertTrue(all(node.annotations.empty for node in loaded.root.nodes.values()))
+        self.assertEqual(loaded.root.root_clocks, (300000, 300000))
+        self.assertEqual(loaded.root.nodes[main.id].clocks, (298000, 300000))
+
+    async def test_clear_chapter_variations_keeps_first_child_recursively(self) -> None:
+        study, chapter = await create_study_with_chapter(cast(Any, self.app_state), "owner")
+        main = StudyTreeNode(
+            id="MainNode01", parent_id=None, order=0, move="e2e4", fen="fen-1", turn_color="black"
+        )
+        root_variation = StudyTreeNode(
+            id="RootVar001", parent_id=None, order=1, move="d2d4", fen="fen-2", turn_color="black"
+        )
+        continuation = StudyTreeNode(
+            id="MainNode02",
+            parent_id=main.id,
+            order=0,
+            move="e7e5",
+            fen="fen-3",
+            turn_color="white",
+        )
+        side = StudyTreeNode(
+            id="SideNode01",
+            parent_id=main.id,
+            order=1,
+            move="c7c5",
+            fen="fen-4",
+            turn_color="white",
+        )
+        tree = StudyTree(
+            {node.id: node for node in (main, root_variation, continuation, side)},
+            root_clocks=(300000, 300000),
+        )
+        chapter = replace(chapter, root=tree)
+        variation_path = f"{main.id}.{side.id}"
+        study = replace(study, current_path=variation_path)
+        await self.db.study_chapter.update_one(
+            {"_id": chapter.id}, {"$set": {"root": tree.to_document()}}
+        )
+        await self.db.study.update_one({"_id": study.id}, {"$set": {"currentPath": variation_path}})
+
+        changed = await clear_chapter_variations(cast(Any, self.app_state), study, chapter)
+
+        self.assertTrue(changed)
+        loaded = await load_owned_chapter(cast(Any, self.app_state), study.id, chapter.id, "owner")
+        assert loaded is not None
+        self.assertEqual(set(loaded.root.nodes), {main.id, continuation.id})
+        self.assertEqual(loaded.root.root_clocks, (300000, 300000))
+        study_doc = await self.db.study.find_one({"_id": study.id})
+        assert study_doc is not None
+        self.assertEqual(study_doc.get("currentPath"), main.id)
 
     async def test_select_and_delete_current_chapter_prefers_adjacent(self) -> None:
         study, first = await create_study_with_chapter(cast(Any, self.app_state), "owner")

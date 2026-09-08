@@ -319,10 +319,22 @@ describe('analysis page smoke coverage', () => {
         expect(secondChapterSettings.querySelector<HTMLSelectElement>('select[name="orientation"]')?.value).toBe(
             'black',
         );
+        expect(secondChapterSettings.querySelector<HTMLSelectElement>('select[name="mode"]')?.disabled).toBe(true);
+        expect(secondChapterSettings.querySelector<HTMLSelectElement>('select[name="description"]')?.value).toBe('');
         expect(
             secondChapterSettings.querySelector('.study-dialog__actions button[form="chapter-settings-form-ChAp0002"]')
                 ?.textContent,
         ).toBe('Save chapter');
+        expect(
+            secondChapterSettings.querySelector<HTMLFormElement>(
+                'form[action="/study/StUdY001/ChAp0002/clear-annotations"]',
+            )?.textContent,
+        ).toBe('Clear annotations');
+        expect(
+            secondChapterSettings.querySelector<HTMLFormElement>(
+                'form[action="/study/StUdY001/ChAp0002/clear-variations"]',
+            )?.textContent,
+        ).toBe('Clear variations');
         expect(root.querySelector('under-board .study-underboard')).not.toBeNull();
         expect(root.querySelector('under-board .study-tool-tabs > .study-mode--sync')).not.toBeNull();
         expect(root.querySelector('under-board .study-tool-tabs > .study-mode--write')).not.toBeNull();
@@ -355,9 +367,11 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('.study-side .study-mode')).toBeNull();
         expect(root.querySelector('.study-annotations__comment-input')).not.toBeNull();
         expect(root.querySelectorAll('.study-annotations__nag')).toHaveLength(24);
-        expect((root.querySelector('.study-annotations__description textarea') as HTMLTextAreaElement).value).toBe(
-            'Chapter description',
-        );
+        expect(root.querySelector('.study-desc.chapter-desc .text')?.textContent).toBe('Chapter description');
+        expect(root.querySelector('#study-tab-description')).toBeNull();
+        expect(
+            root.querySelector<HTMLSelectElement>('#chapter-settings-ChAp0001 select[name="description"]')?.value,
+        ).toBe('1');
         expect((root.querySelector('.study-annotations__tags textarea') as HTMLTextAreaElement).value).toBe(
             'Event=Test event\nSite=PyChess',
         );
@@ -376,6 +390,70 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('#study-tab-glyphs')?.getAttribute('aria-selected')).toBe('true');
         expect(document.activeElement).toBe(root.querySelector('#study-tab-glyphs'));
         expect(root.querySelector<HTMLElement>('#study-panel-comments')!.hidden).toBe(true);
+    });
+
+    test('game-source Study chapters render Lichess-style player bars and clocks', () => {
+        const study: StudyPageModel = {
+            id: 'StUdY001',
+            name: 'Game study',
+            owner: 'tester',
+            visibility: 'private',
+            isOwner: true,
+            canWrite: true,
+            canClone: true,
+            canLike: true,
+            liked: true,
+            likes: 1,
+            topics: [],
+            maxTopics: 30,
+            topicMinLength: 2,
+            topicMaxLength: 50,
+            members: { tester: 'write' },
+            maxMembers: 30,
+            sharedChapter: 'ChAp0001',
+            sharedPath: '',
+            chapter: {
+                id: 'ChAp0001',
+                name: 'Played game',
+                revision: 1,
+                order: 1,
+                orientation: 'white',
+                variant: 'chess',
+                chess960: false,
+                initialFen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+                variantIni: null,
+                createdAt: '2026-09-07T08:00:00+00:00',
+                source: { kind: 'game', id: 'game0001' },
+                description: '',
+                tags: {
+                    White: 'Alice',
+                    Black: 'Bob',
+                    WhiteElo: '2107',
+                    BlackElo: '2224',
+                    WhiteTitle: 'FM',
+                },
+                tree: { nodes: [], rootClocks: [300000, 300000] },
+            },
+            chapters: [{ id: 'ChAp0001', name: 'Played game', order: 1, orientation: 'white' }],
+        };
+        const model = makeModel({ gameId: '', status: 0, study });
+        const root = renderNodes(studyView(model));
+
+        expect(root.querySelector('.study-app')?.classList.contains('has-players')).toBe(true);
+        expect(root.querySelector('.study__player-top .name')?.textContent).toBe('Bob');
+        expect(root.querySelector('.study__player-top .elo')?.textContent).toBe('2224');
+        expect(root.querySelector('.study__player-bot player-title')?.textContent).toBe('FM');
+        expect(root.querySelector('.study__player-bot .name')?.textContent).toBe('Alice');
+        expect(root.querySelector('.study__player-bot .elo')?.textContent).toBe('2107');
+        expect(root.querySelector('#anal-clock-top')).not.toBeNull();
+        expect(root.querySelector('#anal-clock-bottom')).not.toBeNull();
+
+        study.chapter.description = 'Pinned after render';
+        updateStudyUnderboardChapter(study, model);
+        expect(
+            root.querySelector<HTMLSelectElement>('#chapter-settings-ChAp0001 select[name="description"]')?.value,
+        ).toBe('1');
+        expect(study.chapters[0].descriptionPinned).toBe(true);
     });
 
     test('read-only study view hides mutation controls while keeping sharing available', () => {
@@ -426,8 +504,9 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('#study-tab-comments')).toBeNull();
         expect(root.querySelector('#study-tab-glyphs')).toBeNull();
         expect(root.querySelector('.study-annotations__tags textarea')).toBeNull();
-        expect(root.querySelector('.study-annotations__description textarea')).toBeNull();
-        expect(root.querySelector('.study-description__readonly')?.textContent).toBe('Shared description');
+        expect(root.querySelector('#study-tab-description')).toBeNull();
+        expect(root.querySelector('.study-desc.chapter-desc .text')?.textContent).toBe('Shared description');
+        expect(root.querySelector('.study-desc.chapter-desc .contrib')).toBeNull();
         const shareLinks = [...root.querySelectorAll<HTMLInputElement>('.study-share__copy input')].map(
             input => input.value,
         );

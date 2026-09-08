@@ -6,6 +6,7 @@ from urllib.parse import quote, urlencode
 from aiohttp import web
 from const import GAME_CATEGORY_ALL, normalize_game_category
 from pychess_global_app_state_utils import get_app_state
+from profile_counts import public_forum_posts_query
 from team import (
     TEAM_FORUM_ACCESS_EVERYONE,
     TEAM_FORUM_ACCESS_LEADERS,
@@ -292,6 +293,11 @@ async def forum_search(request: web.Request) -> web.Response:
         "text": {"$regex": escape_regex(text), "$options": "i"},
         "categId": {"$not": {"$regex": "^team-"}},
     }
+    if text.startswith("user:"):
+        author, _, terms = text.removeprefix("user:").partition(" ")
+        query = public_forum_posts_query(author)
+        if terms.strip():
+            query["text"] = {"$regex": escape_regex(terms.strip()), "$options": "i"}
     total = await app_state.db.forum_post.count_documents(query)
     nb_pages = page_count(total, FORUM_SEARCH_PER_PAGE)
     page = normalize_page(request.rel_url.query.get("page"), nb_pages)

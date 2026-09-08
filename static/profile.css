@@ -51,8 +51,35 @@ div.versus vs-swords {
 }
 .player-social {
     display: flex;
+    flex-wrap: wrap;
+    align-items: center;
     background: var(--bg-color2);
-    justify-content: flex-end;
+    justify-content: space-between;
+}
+/* Adapted from lila's ui/user/css/_number-menu.scss. */
+.profile-number-menu {
+    display: flex;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    margin: 0 0 0.2em 1em;
+}
+.profile-number-menu .nm-item {
+    flex: 1 1 auto;
+    padding: 0.5em 5px;
+    color: var(--font-color);
+    text-align: center;
+    line-height: 1.4em;
+    white-space: normal;
+    font-size: 0.9em;
+}
+.profile-number-menu .nm-item:hover,
+.profile-number-menu .nm-item:focus-visible {
+    color: var(--link-hover);
+}
+.profile-number-menu strong {
+    display: block;
+    font-weight: normal;
+    font-size: 1.1em;
 }
 
 .player-teams {
@@ -91,10 +118,13 @@ div.versus vs-swords {
 }
 .profile-actions {
     display: flex;
+    flex: 1 1 16em;
     justify-content: flex-end;
-    width: 100%;
     min-width: 0;
     padding: 1em;
+}
+.profile-actions:not(:has(a)) {
+    display: none;
 }
 player-title {
   white-space: normal;

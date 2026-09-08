@@ -78,6 +78,7 @@ from lobby_spotlights import broadcast_lobby_spotlights
 from settings import URI
 from spectators import spectators
 from user import User
+from profile_counts import refresh_tournament_points
 from utils import insert_game_to_db
 from variants import get_server_variant, is_catalogued_variant
 
@@ -2682,6 +2683,8 @@ class Tournament(ABC):
             "rounds": self.rounds,
             "cr": self.current_round,
         }
+        if self.status in (T_FINISHED, T_ARCHIVED):
+            new_data["profilePointsPending"] = True
         if self.system == RR:
             new_data["rrJoiningClosed"] = self.rr_joining_closed
             new_data["rrPendingPlayers"] = sorted(self.rr_pending_players)
@@ -2712,6 +2715,8 @@ class Tournament(ABC):
             self.app_state.shield_owners[variant_name] = winner
 
         if self.status in (T_FINISHED, T_ARCHIVED):
+            if doc_after is not None:
+                await refresh_tournament_points(self.app_state, self.id)
             await refresh_lobby_tournament_winners_cache(self.app_state)
 
     def print_leaderboard(self) -> None:

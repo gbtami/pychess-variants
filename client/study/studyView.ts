@@ -15,6 +15,7 @@ import type { PyChessModel, StudyFeatureSelection, StudyPageModel } from '../typ
 import { selectVariant, twoBoarsVariants, loadCataloguedVariantsFromJson, variantConfigIni } from '../variants';
 import { variantsIni } from '../variantsIni';
 import { createWebsocket } from '../socket/webSocketUtils';
+import { displayUsername, userLink } from '../user';
 import { StudyChapterNavigation } from './chapterNavigation';
 import { analysisTreeFromStudy } from './studyTree';
 import { StudyAnalysisExtension, type StudyAnnotationState } from './studySync';
@@ -108,6 +109,8 @@ function chapterSettingsForm(
     chapter: StudyPageModel['chapters'][number],
     formId: string,
 ): VNode {
+    const descriptionPinned =
+        chapter.descriptionPinned ?? (chapter.id === study.chapter.id && Boolean(study.chapter.description));
     return h(
         `form#${formId}.study-dialog__form`,
         { attrs: { method: 'post', action: `/study/${study.id}/${chapter.id}/edit` } },
@@ -124,11 +127,34 @@ function chapterSettingsForm(
                     },
                 }),
             ),
+            h('div.study-dialog__split', [
+                dialogField(
+                    _('Orientation'),
+                    h('select', { attrs: { name: 'orientation' } }, [
+                        h(
+                            'option',
+                            { attrs: { value: 'white', selected: chapter.orientation === 'white' } },
+                            _('White'),
+                        ),
+                        h(
+                            'option',
+                            { attrs: { value: 'black', selected: chapter.orientation === 'black' } },
+                            _('Black'),
+                        ),
+                    ]),
+                ),
+                dialogField(
+                    _('Analysis mode'),
+                    h('select', { attrs: { name: 'mode', disabled: true } }, [
+                        h('option', { attrs: { value: 'normal', selected: true } }, _('Normal analysis')),
+                    ]),
+                ),
+            ]),
             dialogField(
-                _('Orientation'),
-                h('select', { attrs: { name: 'orientation' } }, [
-                    h('option', { attrs: { value: 'white', selected: chapter.orientation === 'white' } }, _('White')),
-                    h('option', { attrs: { value: 'black', selected: chapter.orientation === 'black' } }, _('Black')),
+                _('Pinned chapter comment'),
+                h('select', { attrs: { name: 'description' } }, [
+                    h('option', { attrs: { value: '', selected: !descriptionPinned } }, _('No pinned comment')),
+                    h('option', { attrs: { value: '1', selected: descriptionPinned } }, _('Right under the board')),
                 ]),
             ),
         ],
@@ -738,6 +764,7 @@ type StudyModeActions = {
     toggleWrite: () => void;
     requestServerAnalysis: () => void;
     showServerAnalysis: () => void;
+    setDescription: (description: string) => void;
 };
 
 function studyRecordingKey(studyId: string): string {
@@ -1154,6 +1181,18 @@ function studySide(study: StudyPageModel, model: PyChessModel): VNode {
                   ...study.chapters.map(item =>
                       dialog(`chapter-settings-${item.id}`, _('Edit chapter'), [
                           chapterSettingsForm(study, item, `chapter-settings-form-${item.id}`),
+                          h('div.study-dialog__secondary-actions', [
+                              deleteForm(
+                                  `/study/${study.id}/${item.id}/clear-annotations`,
+                                  _('Clear annotations'),
+                                  _('Clear all comments in this chapter?'),
+                              ),
+                              deleteForm(
+                                  `/study/${study.id}/${item.id}/clear-variations`,
+                                  _('Clear variations'),
+                                  _('Clear variations?'),
+                              ),
+                          ]),
                           dialogActions(
                               `chapter-settings-form-${item.id}`,
                               _('Save chapter'),
@@ -1207,7 +1246,7 @@ function chapterField(name: string, label: string, value = '', maxLength?: numbe
     ]);
 }
 
-type StudyTab = 'tags' | 'comments' | 'glyphs' | 'description' | 'serverEval' | 'export';
+type StudyTab = 'tags' | 'comments' | 'glyphs' | 'serverEval' | 'export';
 
 function selectStudyTab(tab: string, focus = false): void {
     document.querySelectorAll<HTMLButtonElement>('[data-study-tab]').forEach(button => {
@@ -1367,6 +1406,185 @@ function studyShareLinks(study: StudyPageModel, model: PyChessModel): VNode {
     ]);
 }
 
+const EMPTY_PINNED_CHAPTER_COMMENT = '-';
+
+function pinnedChapterCommentTitle(): string {
+    return _('Pinned chapter comment');
+}
+
+function studyPinnedChapterComment(study: StudyPageModel, modeActions: StudyModeActions): VNode {
+    const description = study.chapter.description;
+    const editing = Boolean(study.chapterDescriptionEditing);
+    const empty = description === EMPTY_PINNED_CHAPTER_COMMENT;
+    let content: VNode | undefined;
+
+    if (editing && study.canWrite) {
+        content = h('div.study-desc-form', [
+            h('div.title', [
+                h('span', pinnedChapterCommentTitle()),
+                h(
+                    'button.button.button-empty.button-green',
+                    {
+                        attrs: { type: 'button', title: _('Save and close'), 'aria-label': _('Save and close') },
+                        on: {
+                            click: () => {
+                                study.chapterDescriptionEditing = false;
+                                redrawStudyPinnedChapterComment(study, modeActions);
+                            },
+                        },
+                    },
+                    [icon('check')],
+                ),
+            ]),
+            h('textarea', {
+                attrs: { maxlength: '10000', 'aria-label': pinnedChapterCommentTitle() },
+                hook: {
+                    insert: vnode => {
+                        const textarea = vnode.elm as HTMLTextAreaElement;
+                        textarea.value = empty ? '' : description;
+                        textarea.focus();
+                    },
+                },
+                on: {
+                    input: event =>
+                        modeActions.setDescription((event.currentTarget as HTMLTextAreaElement).value.trim()),
+                },
+            }),
+        ]);
+    } else if (description && (!empty || study.canWrite)) {
+        content = h(`div.study-desc.chapter-desc${empty ? '.empty' : ''}`, [
+            ...(study.canWrite && !empty
+                ? [
+                      h('div.contrib', [
+                          h('span', pinnedChapterCommentTitle()),
+                          h(
+                              'button.study-desc__action',
+                              {
+                                  attrs: { type: 'button', title: _('Edit'), 'aria-label': _('Edit') },
+                                  on: {
+                                      click: () => {
+                                          study.chapterDescriptionEditing = true;
+                                          redrawStudyPinnedChapterComment(study, modeActions);
+                                      },
+                                  },
+                              },
+                              [icon('pencil')],
+                          ),
+                          h(
+                              'button.study-desc__action',
+                              {
+                                  attrs: { type: 'button', title: _('Delete'), 'aria-label': _('Delete') },
+                                  on: {
+                                      click: () => {
+                                          if (window.confirm(_('Delete permanent description?'))) {
+                                              study.chapterDescriptionEditing = false;
+                                              modeActions.setDescription('');
+                                          }
+                                      },
+                                  },
+                              },
+                              [icon('trash-o')],
+                          ),
+                      ]),
+                  ]
+                : []),
+            empty
+                ? h(
+                      'button.text.button',
+                      {
+                          attrs: { type: 'button' },
+                          on: {
+                              click: () => {
+                                  study.chapterDescriptionEditing = true;
+                                  redrawStudyPinnedChapterComment(study, modeActions);
+                              },
+                          },
+                      },
+                      pinnedChapterCommentTitle(),
+                  )
+                : h('div.text', description),
+        ]);
+    }
+
+    return h('div.study-desc-slot', content ? [content] : []);
+}
+
+function redrawStudyPinnedChapterComment(study: StudyPageModel, modeActions: StudyModeActions): void {
+    const slot = document.querySelector<HTMLElement>('.study-desc-slot');
+    if (slot) patch(toVNode(slot), studyPinnedChapterComment(study, modeActions));
+}
+
+function syncStudyPinnedDescriptionUi(study: StudyPageModel, modeActions?: StudyModeActions): void {
+    const pinned = Boolean(study.chapter.description);
+    const preview = study.chapters.find(chapter => chapter.id === study.chapter.id);
+    if (preview) preview.descriptionPinned = pinned;
+    const pinnedSelect = document.querySelector<HTMLSelectElement>(
+        `#chapter-settings-${study.chapter.id} select[name="description"]`,
+    );
+    if (pinnedSelect) pinnedSelect.value = pinned ? '1' : '';
+    if (modeActions && !study.chapterDescriptionEditing) redrawStudyPinnedChapterComment(study, modeActions);
+}
+
+function studyTag(study: StudyPageModel, name: string): string | undefined {
+    const expected = name.toLowerCase();
+    const entry = Object.entries(study.chapter.tags).find(([key]) => key.toLowerCase() === expected);
+    return entry?.[1];
+}
+
+function studyHasGamePlayers(study: StudyPageModel): boolean {
+    return study.chapter.source?.kind === 'game' && Boolean(studyTag(study, 'White') && studyTag(study, 'Black'));
+}
+
+function studyPlayerIdentity(study: StudyPageModel, color: 'white' | 'black'): VNode {
+    const prefix = color === 'white' ? 'White' : 'Black';
+    const username = studyTag(study, prefix) ?? '?';
+    const title = studyTag(study, `${prefix}Title`);
+    const rating = studyTag(study, `${prefix}Elo`);
+    const shownRating = rating && /^\d+$/.test(rating) ? rating : undefined;
+    return h('div.left', [
+        h('span.info', [
+            ...(title ? [h('player-title', title)] : []),
+            userLink(username, displayUsername(username), { className: 'name' }),
+            ...(shownRating ? [h('span.elo', shownRating)] : []),
+        ]),
+    ]);
+}
+
+function studyPlayerColorAt(
+    study: StudyPageModel,
+    placement: 'top' | 'bottom',
+    orientation = study.chapter.orientation,
+) {
+    if (placement === 'bottom') return orientation;
+    return orientation === 'white' ? 'black' : 'white';
+}
+
+function studyPlayerBar(
+    study: StudyPageModel,
+    placement: 'top' | 'bottom',
+    orientation = study.chapter.orientation,
+): VNode {
+    const clockId = placement === 'top' ? 'anal-clock-top' : 'anal-clock-bottom';
+    return h(`div.study__player.study__player-${placement === 'bottom' ? 'bot' : 'top'}`, [
+        studyPlayerIdentity(study, studyPlayerColorAt(study, placement, orientation)),
+        h(`div#${clockId}.anal-clock.${placement}`, '-'),
+    ]);
+}
+
+function studyBoardParts(study: StudyPageModel): { boardTop?: VNode; boardBottom?: VNode } {
+    return studyHasGamePlayers(study)
+        ? { boardTop: studyPlayerBar(study, 'top'), boardBottom: studyPlayerBar(study, 'bottom') }
+        : {};
+}
+
+function updateStudyPlayerIdentities(study: StudyPageModel, orientation: 'white' | 'black'): void {
+    if (!studyHasGamePlayers(study)) return;
+    const top = document.querySelector<HTMLElement>('.study__player-top > .left');
+    const bottom = document.querySelector<HTMLElement>('.study__player-bot > .left');
+    if (top) patch(toVNode(top), studyPlayerIdentity(study, studyPlayerColorAt(study, 'top', orientation)));
+    if (bottom) patch(toVNode(bottom), studyPlayerIdentity(study, studyPlayerColorAt(study, 'bottom', orientation)));
+}
+
 export function updateStudyUnderboardChapter(
     study: StudyPageModel,
     model: PyChessModel,
@@ -1377,6 +1595,7 @@ export function updateStudyUnderboardChapter(
 
     const shareLinks = document.querySelector<HTMLElement>('.study-share__links');
     if (shareLinks) patch(toVNode(shareLinks), studyShareLinks(study, model));
+    syncStudyPinnedDescriptionUi(study, modeActions);
     updateStudyServerEvalContent(study, modeActions);
 }
 
@@ -1389,13 +1608,13 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions
                   ['glyphs', _('Annotate with glyphs'), '!?'],
               ] as [StudyTab, string, VNode | string][])
             : []),
-        ['description', _('Chapter description'), icon('book')],
         ['serverEval', _('Server analysis'), icon('bar-chart')],
         ...(studyCanShare(study)
             ? ([['export', _('Share & export'), icon('download')]] as [StudyTab, string, VNode][])
             : []),
     ];
     return h('div.study-underboard', [
+        studyPinnedChapterComment(study, modeActions),
         h('nav.study-tool-tabs', { attrs: { role: 'tablist', 'aria-label': _('Study tools') } }, [
             ...studyModeButtons(study, modeActions),
             ...tabs.map(([tab, label, symbol]) =>
@@ -1490,15 +1709,6 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions
                   ]),
               ]
             : []),
-        toolPanel('description', [
-            study.canWrite
-                ? h('div.study-annotations__description', [
-                      h('label', { attrs: { for: 'study-description' } }, _('Chapter description')),
-                      h('textarea#study-description', { attrs: { maxlength: '10000', rows: '5' } }),
-                      h('button.button', { attrs: { type: 'button' } }, _('Save description')),
-                  ])
-                : h('p.study-description__readonly', study.chapter.description || _('No chapter description.')),
-        ]),
         toolPanel('serverEval', [studyServerEvalContent(study, modeActions)]),
         ...(studyCanShare(study)
             ? [
@@ -1555,7 +1765,12 @@ function parseTags(text: string): Record<string, string> {
     return tags;
 }
 
-function updateAnnotationPanel(state: StudyAnnotationState, editor?: StudyCommentEditor): void {
+function updateAnnotationPanel(
+    study: StudyPageModel,
+    modeActions: StudyModeActions,
+    state: StudyAnnotationState,
+    editor?: StudyCommentEditor,
+): void {
     editor?.update(state.path, state.annotations.comments);
     document.querySelectorAll<HTMLButtonElement>('.study-annotations__nag').forEach(button => {
         const nag = Number(button.dataset.nag);
@@ -1584,10 +1799,9 @@ function updateAnnotationPanel(state: StudyAnnotationState, editor?: StudyCommen
             }),
         );
 
-    const description = document.querySelector<HTMLTextAreaElement>('.study-annotations__description textarea');
-    if (description && document.activeElement !== description) description.value = state.description;
-    const readonlyDescription = document.querySelector<HTMLElement>('.study-description__readonly');
-    if (readonlyDescription) readonlyDescription.textContent = state.description || _('No chapter description.');
+    study.chapter.description = state.description;
+    study.chapter.tags = { ...state.tags };
+    syncStudyPinnedDescriptionUi(study, modeActions);
     const tags = document.querySelector<HTMLTextAreaElement>('.study-annotations__tags textarea');
     if (tags && document.activeElement !== tags) tags.value = tagsText(state.tags);
 }
@@ -1600,13 +1814,6 @@ function bindAnnotationPanel(getExtension: () => StudyAnalysisExtension): void {
             getExtension().setNags(toggleGlyph(current, nag));
         });
     });
-    const description = document.querySelector<HTMLTextAreaElement>('.study-annotations__description textarea');
-    document
-        .querySelector<HTMLButtonElement>('.study-annotations__description .button')
-        ?.addEventListener('click', () => {
-            if (description) getExtension().setDescription(description.value);
-        });
-
     const tags = document.querySelector<HTMLTextAreaElement>('.study-annotations__tags textarea');
     document.querySelector<HTMLButtonElement>('.study-annotations__tags .button')?.addEventListener('click', () => {
         if (tags) getExtension().setTags(parseTags(tags.value));
@@ -1727,7 +1934,7 @@ function runStudyGround(
                 variantIni: study.chapter.variantIni ?? undefined,
                 createdAt: study.chapter.createdAt,
                 serverEval: study.chapter.serverEval,
-                onAnnotationStateChanged: state => updateAnnotationPanel(state, editor),
+                onAnnotationStateChanged: state => updateAnnotationPanel(study, modeActions, state, editor),
                 onServerEvalChanged: serverEval => {
                     study.chapter.serverEval = serverEval ?? null;
                     study.serverAnalysisError = undefined;
@@ -1737,6 +1944,7 @@ function runStudyGround(
                     study.serverAnalysisError = reason;
                     updateStudyServerEvalContent(study, modeActions);
                 },
+                onOrientationChanged: orientation => updateStudyPlayerIdentities(study, orientation),
                 onLocalPathChanged: path => {
                     if (!study.sticky) return;
                     if (study.canWrite && study.write) extension.sharePosition(study.chapter.id, path);
@@ -1796,10 +2004,11 @@ function runStudyGround(
             if (!chart || !study.chapter.serverEval?.analysis.some(step => step !== null)) return;
             serverAnalysisChart = analysisChart(ctrl, 'study-server-analysis-chart');
         };
+        modeActions.setDescription = description => extension.setDescription(description);
         if (socket.ws.readyState === WebSocket.OPEN) extension.onSocketOpen();
         const serverPanel = document.getElementById('study-panel-serverEval');
         if (serverPanel && !serverPanel.hidden) modeActions.showServerAnalysis();
-        updateAnnotationPanel(extension.annotationState, editor);
+        updateAnnotationPanel(study, modeActions, extension.annotationState, editor);
         window['onFSFline'] = ctrl.onFSFline;
     };
     mount(vnode.elm as HTMLElement);
@@ -1852,6 +2061,7 @@ function runStudyGround(
             ctrl.destroy();
             editor?.reset();
             Object.assign(study, data.study);
+            study.chapterDescriptionEditing = false;
             study.serverAnalysisError = undefined;
             model = {
                 ...model,
@@ -1876,8 +2086,10 @@ function runStudyGround(
                 underboard: [],
                 ongoing: false,
                 mountBoard: () => {},
+                ...studyBoardParts(study),
             })[0];
             const app = document.querySelector<HTMLElement>('.study-app')!;
+            app.classList.toggle('has-players', studyHasGamePlayers(study));
             const selectors = [
                 '#mainboard',
                 '#gauge',
@@ -2028,6 +2240,7 @@ export function studyView(model: PyChessModel): VNode[] {
         toggleWrite: () => {},
         requestServerAnalysis: () => {},
         showServerAnalysis: () => {},
+        setDescription: () => {},
     };
     const side = studySide(study, model);
     const page = renderAnalysisPage(model, {
@@ -2035,7 +2248,11 @@ export function studyView(model: PyChessModel): VNode[] {
         underboard: studyUnderboard(study, model, modeActions),
         mountBoard: vnode => runStudyGround(vnode, model, study, side, modeActions),
         ongoing: false,
+        ...studyBoardParts(study),
     });
-    page[0].data = { ...page[0].data, class: { 'study-app': true } };
+    page[0].data = {
+        ...page[0].data,
+        class: { 'study-app': true, 'has-players': studyHasGamePlayers(study) },
+    };
     return page;
 }

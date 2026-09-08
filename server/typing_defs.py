@@ -45,6 +45,8 @@ class UserDocument(TypedDict, total=False):
     patron: bool
     createdAt: datetime
     count: UserCount
+    tournamentPoints: int | float
+    forumPosts: int
     swissBanUntil: datetime
     swissBanHours: int
     swissBanGameId: str
@@ -635,6 +637,8 @@ class ViewContext(TypedDict, total=False):
     profile: str | None
     profile_teams: Sequence[Mapping[str, object]]
     profile_simul_count: int
+    profile_tournament_points: int | float
+    profile_forum_posts: int
     profile_title: str
     profile_patron: bool
     profile_online: bool

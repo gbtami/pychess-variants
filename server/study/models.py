@@ -403,6 +403,7 @@ class StudyChapter:
     updated_at: datetime
     chess960: bool = False
     variant_ini: str | None = None
+    source: StudySource = field(default_factory=StudySource)
     description: str = ""
     tags: Mapping[str, str] = field(default_factory=dict)
     server_eval: StudyServerEval | None = None
@@ -436,6 +437,8 @@ class StudyChapter:
             doc["chess960"] = True
         if self.variant_ini is not None:
             doc["variantIni"] = self.variant_ini
+        if self.source.kind != "scratch":
+            doc["source"] = self.source.encode()
         if description:
             doc["description"] = description
         if tags:
@@ -474,6 +477,7 @@ class StudyChapter:
             updated_at=_required_datetime(doc, "updatedAt"),
             chess960=raw_chess960,
             variant_ini=_optional_str(doc, "variantIni"),
+            source=StudySource.decode(doc.get("source", "scratch")),
             description=canonical_description(doc.get("description", "")),
             tags=canonical_tags(raw_tags),
             server_eval=(
@@ -520,6 +524,7 @@ async def make_chapter(
     chess960: bool = False,
     variant_ini: str | None = None,
     root: StudyTree | None = None,
+    source: StudySource | None = None,
     description: str = "",
     tags: Mapping[str, str] | None = None,
     now: datetime | None = None,
@@ -537,6 +542,7 @@ async def make_chapter(
         orientation=orientation,
         variant_ini=variant_ini,
         root=StudyTree() if root is None else root,
+        source=source or StudySource(),
         description=description,
         tags={} if tags is None else dict(tags),
         created_at=created_at,

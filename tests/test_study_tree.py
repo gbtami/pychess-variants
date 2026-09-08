@@ -31,6 +31,7 @@ def make_node(
     force_variation: bool = False,
     annotations: StudyAnnotations | None = None,
     eval_score: dict[str, int] | None = None,
+    clocks: tuple[int | float, int | float] | None = None,
 ) -> StudyTreeNode:
     return StudyTreeNode(
         id=node_id,
@@ -45,6 +46,7 @@ def make_node(
         force_variation=force_variation,
         annotations=annotations or StudyAnnotations(),
         eval_score=eval_score,
+        clocks=clocks,
     )
 
 
@@ -88,18 +90,29 @@ class StudyTreeTestCase(unittest.TestCase):
             nags=(2,),
         )
         tree = StudyTree(
-            {ROOT_A: make_node(ROOT_A, annotations=node_annotations, eval_score={"cp": 42})},
+            {
+                ROOT_A: make_node(
+                    ROOT_A,
+                    annotations=node_annotations,
+                    eval_score={"cp": 42},
+                    clocks=(298000, 300000),
+                )
+            },
             root_annotations=root_annotations,
+            root_clocks=(300000, 300000),
         )
 
         doc = tree.to_document()
         self.assertEqual(doc[STUDY_TREE_ROOT_KEY]["a"]["n"], [1, 3])  # type: ignore[index]
+        self.assertEqual(doc[STUDY_TREE_ROOT_KEY]["k"], [300000, 300000])  # type: ignore[index]
         self.assertIn("a", doc[ROOT_A])  # type: ignore[operator]
         self.assertEqual(doc[ROOT_A]["e"], {"cp": 42})  # type: ignore[index]
+        self.assertEqual(doc[ROOT_A]["k"], [298000, 300000])  # type: ignore[index]
         self.assertEqual(StudyTree.from_document(doc), tree)
 
         payload = tree.to_payload()
         self.assertEqual(payload["rootAnnotations"]["nags"], [1, 3])  # type: ignore[index]
+        self.assertEqual(payload["rootClocks"], [300000, 300000])
         self.assertEqual(payload["nodes"][0]["eval"], {"cp": 42})  # type: ignore[index]
         self.assertEqual(StudyTree.from_payload(payload), tree)
 

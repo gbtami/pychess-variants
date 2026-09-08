@@ -138,7 +138,7 @@ function chapterTags(study: StudyPgnContext, chapter: StudyPgnChapterData): Arra
         tags.delete('PyChessVariantIni');
     }
 
-    if (chapter.description) {
+    if (chapter.description && chapter.description !== '-') {
         tags.set('PyChessChapterDescriptionEncoding', 'base64');
         tags.set('PyChessChapterDescription', encodePgnUtf8Base64(chapter.description));
     } else {

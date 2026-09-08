@@ -451,6 +451,12 @@ class PychessGlobalAppState:
                     )
 
             with startup.phase("restore tournaments"):
+                from profile_counts import refresh_tournament_points
+
+                async for pending in self.db.tournament.find(
+                    {"profilePointsPending": True}, {"_id": 1}
+                ):
+                    await refresh_tournament_points(self, pending["_id"])
                 cursor = self.db.tournament.find(
                     {"$or": [{"status": T_STARTED}, {"status": T_CREATED}]}
                 )

@@ -599,7 +599,11 @@ def _merge_analysis_into_tree(
         )
         return chapter.root
 
-    return StudyTree(nodes, root_annotations=chapter.root.root_annotations)
+    return StudyTree(
+        nodes,
+        root_annotations=chapter.root.root_annotations,
+        root_clocks=chapter.root.root_clocks,
+    )
 
 
 def _tree_within_chapter_size(

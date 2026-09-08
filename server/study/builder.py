@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from collections import deque
 from collections.abc import Mapping
 from dataclasses import dataclass, field
@@ -7,6 +8,7 @@ from typing import Any, Literal, cast
 
 from catalogued_variants import find_catalogued_variant_doc
 from fairy.fairy_board import FEN_OK, NOTATION_SAN, WHITE, FairyBoard, validate_fen
+from settings import URI
 from utils import MAX_CUSTOM_FEN_LENGTH, load_game, sanitize_fen
 from variants import ALL_VARIANTS, C2V, TWO_BOARD_VARIANT_CODES, is_catalogued_variant
 
@@ -115,6 +117,7 @@ class StudyChapterBuilder:
                 turn_color=cast(StudyOrientation, turn_color),
                 check=bool(raw_step.get("check", False)),
                 san=str(raw_step["san"]) if raw_step.get("san") is not None else None,
+                clocks=self._step_clocks(raw_step),
             )
             nodes[node_id] = node
             parent_id = node_id
@@ -127,15 +130,30 @@ class StudyChapterBuilder:
 
         default_name = f"{game.wplayer.username} - {game.bplayer.username}"
         initial_fen = str(raw_steps[0].get("fen") or game.initial_fen)
+        tags = canonical_tags(
+            {
+                "Event": "PyChess game",
+                "Site": f"{URI}/{game_id}",
+                "Date": game.date.strftime("%Y.%m.%d"),
+                "White": game.wplayer.username,
+                "Black": game.bplayer.username,
+                "Result": game.result,
+                "WhiteElo": str(game.wrating),
+                "BlackElo": str(game.brating),
+                **({"WhiteTitle": game.wplayer.title} if game.wplayer.title else {}),
+                **({"BlackTitle": game.bplayer.title} if game.bplayer.title else {}),
+            }
+        )
         return StudyChapterDraft(
             variant=game.variant,
             chess960=bool(game.chess960),
             initial_fen=initial_fen,
             orientation="white",
             variant_ini=variant_ini,
-            root=StudyTree(nodes),
+            root=StudyTree(nodes, root_clocks=self._step_clocks(raw_steps[0])),
             name=name or default_name,
             source=StudySource("game", game_id),
+            tags=tags,
         )
 
     async def from_import(
@@ -321,6 +339,25 @@ class StudyChapterBuilder:
             raise StudyChapterBuildError("Analysis mode does not match source game")
         return doc
 
+    @staticmethod
+    def _step_clocks(step: Mapping[str, object]) -> tuple[int | float, int | float] | None:
+        raw = step.get("clocks")
+        if raw is None:
+            return None
+        if not isinstance(raw, (list, tuple)) or len(raw) != 2:
+            raise StudyChapterBuildError("Saved game contains invalid clock data")
+        values: list[int | float] = []
+        for value in raw:
+            if (
+                isinstance(value, bool)
+                or not isinstance(value, (int, float))
+                or value < 0
+                or not math.isfinite(value)
+            ):
+                raise StudyChapterBuildError("Saved game contains invalid clock data")
+            values.append(value)
+        return values[0], values[1]
+
     async def _variant_snapshot(self, variant: str, chess960: bool) -> str | None:
         server_variant = ALL_VARIANTS.get(variant)
         if server_variant is None:
@@ -403,6 +440,7 @@ class StudyChapterBuilder:
                     check=board.is_checked(),
                     san=san,
                     san_san=san_san,
+                    clocks=submitted.clocks,
                     force_variation=submitted.force_variation,
                     annotations=StudyChapterBuilder._canonical_annotation_authors(
                         submitted.annotations, comment_author
@@ -419,6 +457,7 @@ class StudyChapterBuilder:
             root_annotations=StudyChapterBuilder._canonical_annotation_authors(
                 tree.root_annotations, comment_author
             ),
+            root_clocks=tree.root_clocks,
         )
 
     @staticmethod

@@ -447,6 +447,7 @@
 .study-app .movelist-block { min-height: 0; }
 .study-app .pocketrow { max-width: 100%; }
 .study-app > under-board { min-width: 0; margin-top: .6rem; }
+.study-app.has-players > under-board { margin-top: 1.4rem; }
 .study-app .btn-controls { min-width: 0; }
 .study-side { min-width: 0; }
 /* Sidebar tabs mirror lila's tabs-horiz Study navigation. */
@@ -695,7 +696,98 @@
 }
 .study-share__copy .button { border-radius: 0 3px 3px 0; }
 .study-share__private { margin: 0; opacity: .75; font-size: .9rem; }
-.study-description__readonly { white-space: pre-wrap; overflow-wrap: anywhere; }
+/* Lichess Study parity: a chapter description is a pinned comment directly
+   below the board, not a separate tool tab. */
+.study-desc {
+    position: relative;
+    margin-top: .5em;
+    padding: .7em 1em;
+    border-radius: 4px;
+    background: var(--bg-color0);
+    box-shadow: var(--base-shadow);
+}
+.study-desc .text { white-space: pre-wrap; overflow-wrap: anywhere; }
+.study-desc.empty { text-align: center; }
+.study-desc.empty .button { display: inline-block; margin: 2em auto; }
+.study-desc .contrib {
+    position: absolute;
+    inset-inline-end: 0;
+    top: 0;
+    z-index: 2;
+    display: none;
+    align-items: center;
+    padding: .5em .8em;
+    background: color-mix(in srgb, var(--rusty) 10%, var(--bg-color0));
+    box-shadow: var(--base-shadow);
+}
+.study-desc:hover .contrib, .study-desc:focus-within .contrib { display: flex; }
+.study-desc__action {
+    margin-inline-start: 8px;
+    border: 0;
+    padding: .15rem .25rem;
+    background: transparent;
+    color: var(--link-color);
+    cursor: pointer;
+}
+.study-desc-form { margin-top: .5em; }
+.study-desc-form .title { display: flex; align-items: center; justify-content: space-between; width: 100%; font-weight: bold; }
+.study-desc-form .button-green { color: var(--good); }
+.study-desc-form textarea {
+    box-sizing: border-box;
+    width: 100%;
+    height: 12em;
+    margin-top: .65rem;
+    padding: .6rem;
+    resize: vertical;
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    background: var(--bg-color0);
+    color: var(--font-color);
+    font: inherit;
+}
+.study-desc-form textarea:focus { outline: 2px solid var(--link-color-blue); outline-offset: -1px; }
+
+/* Site-game Study chapters mirror Lichess player bars around the board. */
+.study-app.has-players #mainboard cg-board { border-radius: 0; }
+.study__player {
+    position: absolute;
+    right: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: var(--cg-width, 100%);
+    height: 1.6rem;
+    white-space: nowrap;
+    background: var(--bg-color2);
+    box-shadow: var(--base-shadow);
+    font-weight: bold;
+}
+.study__player-top { top: -1.6rem; border-radius: 4px 4px 0 0; }
+.study__player-bot { top: var(--cg-height, 100%); border-radius: 0 0 4px 4px; }
+.study__player .left { flex: 1 1 100%; display: flex; min-width: 0; overflow: hidden; }
+.study__player .info { display: flex; align-items: center; min-width: 0; margin-inline-start: 10px; overflow: hidden; }
+.study__player player-title { flex: 0 0 auto; }
+.study__player .name { flex: 1 1 auto; min-width: 0; margin-inline-start: .5ch; overflow: hidden; text-overflow: ellipsis; color: var(--font-color); }
+.study__player a.name:hover { color: var(--link-color); }
+.study__player .elo { flex: 0 0 auto; margin-inline-start: .5em; font-weight: normal; }
+.study__player .anal-clock {
+    position: static;
+    top: auto;
+    right: auto;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    margin: 0;
+    padding: 0 .8em 0 .6em;
+    border-radius: 0 4px 0 0;
+    box-shadow: none;
+    font-size: 1.1em;
+    font-weight: normal;
+}
+.study__player-bot .anal-clock { border-radius: 0 0 4px 0; }
+.study__player .anal-clock.active { background: var(--anal-clock); }
 .study-dialog {
     position: fixed;
     inset: 0;
@@ -720,6 +812,28 @@
 .study-dialog__form { display: grid; gap: 1.35rem; }
 .study-dialog__field { display: grid; gap: .45rem; min-width: 0; font-weight: bold; }
 .study-dialog__field input, .study-dialog__field select { font-weight: normal; }
+.study-dialog__split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.35rem; }
+.study-dialog select:disabled { opacity: .8; cursor: not-allowed; }
+.study-dialog__secondary-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem .7rem;
+    margin: 1.35rem 0 -1rem;
+    font-size: .9em;
+}
+.study-dialog__secondary-actions form { margin: 0; }
+.study-dialog__secondary-actions .button-red {
+    padding: .8em 1em;
+    background: transparent;
+    color: var(--bad);
+    opacity: .8;
+}
+.study-dialog__secondary-actions .button-red:hover,
+.study-dialog__secondary-actions .button-red:focus-visible {
+    background: color-mix(in srgb, var(--bad) 10%, transparent);
+    filter: none;
+    opacity: 1;
+}
 .study-dialog__actions {
     display: flex;
     align-items: center;
@@ -767,6 +881,9 @@
     .study-app > .sidebar-first { margin-top: .75rem; }
 }
 @media (max-width: 799px) {
+    .study-app.has-players > #mainboard { margin-top: 1.6rem; margin-bottom: 1.6rem; }
+    .study-app.has-players > under-board { margin-top: .6rem; }
+    .study-dialog__split { grid-template-columns: 1fr; gap: 1rem; }
     .study-app { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'side' 'pocket-top' 'board' 'pocket-bot' 'move-controls' 'tools' 'uboard'; }
     .study-app > #gauge { display: none; }
     .study-side__tabs { min-height: 2.4rem; }
