@@ -6,7 +6,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass, field
 from typing import Any, Literal, cast
 
-from catalogued_variants import find_catalogued_variant_doc
+from catalogued_variants import CATALOGUED_SOURCE_FSF_BUILTIN, find_catalogued_variant_doc
 from fairy.fairy_board import FEN_OK, NOTATION_SAN, WHITE, FairyBoard, validate_fen
 from settings import URI
 from utils import MAX_CUSTOM_FEN_LENGTH, load_game, sanitize_fen
@@ -55,7 +55,9 @@ class StudyChapterBuilder:
         variant_ini = await self._variant_snapshot(variant, chess960)
         with study_variant_context(self.app_state, variant, variant_ini) as options:
             if fen and fen.strip():
-                valid, initial_fen = sanitize_fen(variant, fen.strip(), chess960)
+                valid, initial_fen = self._validated_initial_fen(
+                    variant, fen.strip(), chess960, options.runtime_variant
+                )
                 if not valid:
                     raise StudyChapterBuildError("Invalid FEN for this variant")
             else:
@@ -213,7 +215,9 @@ class StudyChapterBuilder:
         else:
             snapshot = await self._variant_snapshot(variant, chess960)
             with study_variant_context(self.app_state, variant, snapshot) as options:
-                valid, sanitized_fen = sanitize_fen(variant, initial_fen, chess960)
+                valid, sanitized_fen = self._validated_initial_fen(
+                    variant, initial_fen, chess960, options.runtime_variant
+                )
                 if not valid:
                     raise StudyChapterBuildError("Invalid PGN FEN for this variant")
                 initial_fen = sanitized_fen
@@ -276,7 +280,9 @@ class StudyChapterBuilder:
                     raise StudyChapterBuildError("Analysis start FEN does not match source game")
                 sanitized_fen = saved_initial_fen
             else:
-                valid, sanitized_fen = sanitize_fen(variant, initial_fen.strip(), chess960)
+                valid, sanitized_fen = self._validated_initial_fen(
+                    variant, initial_fen.strip(), chess960, options.runtime_variant
+                )
                 if not valid:
                     raise StudyChapterBuildError("Invalid analysis start FEN")
             try:
@@ -340,6 +346,24 @@ class StudyChapterBuilder:
         return doc
 
     @staticmethod
+    def _validated_initial_fen(
+        variant: str,
+        initial_fen: str,
+        chess960: bool,
+        runtime_variant: str,
+    ) -> tuple[bool, str]:
+        if is_catalogued_variant(variant):
+            # Generic sanitize_fen() deliberately carries first-class-variant
+            # assumptions such as king counts and pieces derived from the start
+            # position. Catalogued variants can legitimately violate those
+            # assumptions (Joust and Amazons have no kings, for example), so the
+            # loaded Fairy-Stockfish definition is the authoritative validator.
+            if len(initial_fen) > MAX_CUSTOM_FEN_LENGTH:
+                return False, ""
+            return validate_fen(initial_fen, runtime_variant, chess960) == FEN_OK, initial_fen
+        return sanitize_fen(variant, initial_fen, chess960)
+
+    @staticmethod
     def _step_clocks(step: Mapping[str, object]) -> tuple[int | float, int | float] | None:
         raw = step.get("clocks")
         if raw is None:
@@ -372,6 +396,11 @@ class StudyChapterBuilder:
                 raise StudyChapterBuildError("Variant is unavailable")
             ini = str(doc.get("ini") or "")
             if not ini:
+                # Fairy-Stockfish catalogue built-ins are metadata-only entries.
+                # Their rules already live in the engine binary, so there is no INI
+                # to snapshot (the same way normal built-in variants store none).
+                if doc.get("source") == CATALOGUED_SOURCE_FSF_BUILTIN:
+                    return None
                 raise StudyChapterBuildError("Variant rules snapshot is unavailable")
             return ini
         return None

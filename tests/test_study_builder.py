@@ -6,10 +6,16 @@ from types import SimpleNamespace
 from typing import Any, cast
 from unittest.mock import AsyncMock, patch
 
+from catalogued_variants import (
+    FSF_CATALOGUED_BUILTIN_VARIANTS,
+    _build_fsf_builtin_doc,
+    register_catalogued_variant_doc,
+)
 from fairy import FairyBoard
 from mongomock_motor import AsyncMongoMockClient
 from study.builder import StudyChapterBuilder, StudyChapterBuildError
 from study.variant import study_variant_client_doc, study_variant_context
+from variants import unregister_catalogued_server_variant
 
 
 class StudyChapterBuilderTestCase(unittest.IsolatedAsyncioTestCase):
@@ -152,6 +158,54 @@ class StudyChapterBuilderTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(draft.source.kind, "game")
         self.assertEqual(draft.source.source_id, "gameOld1")
         self.assertEqual(draft.root.children_of(None)[0].san, "e4")
+
+    async def test_analysis_from_fsf_catalogued_builtin_does_not_require_ini_snapshot(self) -> None:
+        doc = _build_fsf_builtin_doc("joust", FSF_CATALOGUED_BUILTIN_VARIANTS["joust"])
+        register_catalogued_variant_doc(cast(Any, self.app_state), doc, load_config=False)
+        initial_fen = FairyBoard.start_fen("joust")
+        move = next(iter(FairyBoard("joust", initial_fen=initial_fen).legal_moves()))
+        await self.db.game.insert_one({"_id": "gameFsf1", "v": "joust", "z": 0})
+        try:
+            draft = await self.builder.from_analysis(
+                variant="joust",
+                initial_fen=initial_fen,
+                game_id="gameFsf1",
+                tree_payload={
+                    "nodes": [
+                        {
+                            "id": "Client0001",
+                            "parentId": None,
+                            "order": 0,
+                            "move": move,
+                            "fen": "client-fen-is-not-trusted",
+                            "turnColor": "black",
+                            "check": False,
+                        }
+                    ]
+                },
+            )
+        finally:
+            unregister_catalogued_server_variant("joust")
+
+        self.assertIsNone(draft.variant_ini)
+        self.assertEqual(draft.source.kind, "game")
+        self.assertEqual(draft.source.source_id, "gameFsf1")
+        self.assertEqual(draft.root.children_of(None)[0].move, move)
+
+    async def test_analysis_rejects_catalogued_variant_without_rules_snapshot(self) -> None:
+        with (
+            patch("study.builder.is_catalogued_variant", return_value=True),
+            patch(
+                "study.builder.find_catalogued_variant_doc",
+                new=AsyncMock(return_value={"name": "chess", "source": "user", "ini": ""}),
+            ),
+            self.assertRaisesRegex(StudyChapterBuildError, "rules snapshot"),
+        ):
+            await self.builder.from_analysis(
+                variant="chess",
+                initial_fen=FairyBoard.start_fen("chess"),
+                tree_payload={"nodes": []},
+            )
 
     async def test_analysis_tree_rejects_illegal_move(self) -> None:
         with self.assertRaisesRegex(StudyChapterBuildError, "illegal move"):
