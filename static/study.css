@@ -353,6 +353,8 @@
 .study-card {
     position: relative;
     min-width: 0;
+    padding: 1rem .6rem 1rem 1.3rem;
+    overflow: hidden;
     border-inline-end: 1px solid var(--border-color);
     border-bottom: 1px solid var(--border-color);
     background: var(--bg-color0);
@@ -362,14 +364,12 @@
 .study-card:focus-within {
     background: color-mix(in srgb, var(--link-color-blue) 9%, var(--bg-color0));
 }
-.study-card__link {
-    display: block;
-    min-width: 0;
-    padding: 1rem .65rem 1rem 1.15rem;
-    color: var(--font-color);
-    text-decoration: none;
+.study-card__overlay {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
 }
-.study-card__link:focus-visible {
+.study-card__overlay:focus-visible {
     outline: 2px solid var(--link-color-blue);
     outline-offset: -2px;
 }
@@ -388,7 +388,6 @@
     mask: url('images/study/studyBoard.svg') center / contain no-repeat;
 }
 .study-card__summary {
-    display: block;
     min-width: 0;
     overflow: hidden;
 }
@@ -397,21 +396,21 @@
     overflow: hidden;
     color: var(--link-color-blue);
     font-family: var(--font-sans);
-    font-size: 1.35rem;
+    font-size: 1.5em;
     font-weight: normal;
     line-height: 1.2;
     text-overflow: ellipsis;
     white-space: nowrap;
+    unicode-bidi: plaintext;
 }
 .study-card__meta {
     display: flex;
     align-items: center;
     gap: .25rem;
     min-width: 0;
-    margin-top: .25rem;
     overflow: hidden;
     color: color-mix(in srgb, var(--font-color) 65%, transparent);
-    font-size: .8rem;
+    font-size: .9rem;
     white-space: nowrap;
 }
 .study-card__owner,
@@ -422,15 +421,16 @@
 .study-card__body {
     display: flex;
     min-width: 0;
-    margin-top: .55rem;
     color: color-mix(in srgb, var(--font-color) 65%, transparent);
-    font-size: .8rem;
-    line-height: 1.35;
+    font-size: .9em;
+    line-height: 1.3;
 }
 .study-card__chapters,
 .study-card__members {
-    display: block;
     min-width: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
 }
 .study-card__chapters {
     flex: 0 0 58%;

@@ -465,12 +465,15 @@ async def test_study_list_cards_preview_chapters_and_members(aiohttp_client) -> 
     response = await client.get("/study/all")
     assert response.status == 200
     html = await response.text()
+    assert 'class="study-card__overlay"' in html
     assert 'class="study-card__icon"' in html
-    assert 'class="study-card__chapter">First line</span>' in html
-    assert 'class="study-card__chapter">Fourth line</span>' in html
-    assert 'class="study-card__chapter">Fifth line</span>' not in html
-    assert f'class="study-card__member study-card__member--write">{owner}</span>' in html
-    assert f'class="study-card__member study-card__member--read">{reader}</span>' in html
+    assert '<ol class="study-card__chapters">' in html
+    assert '<ol class="study-card__members">' in html
+    assert 'class="study-card__chapter">First line</li>' in html
+    assert 'class="study-card__chapter">Fourth line</li>' in html
+    assert 'class="study-card__chapter">Fifth line</li>' not in html
+    assert f'class="study-card__member study-card__member--write">{owner}</li>' in html
+    assert f'class="study-card__member study-card__member--read">{reader}</li>' in html
 
 
 @pytest.mark.asyncio
