@@ -25,7 +25,7 @@ It replaces the earlier compact table with diagrams covering:
 | **Round websocket** | `/wsr/{gameId}`, handled by `server/wsr.py`; used by `client/roundCtrl.ts`. |
 | **Tournament websocket** | `/wst`, used for tournament updates and new-game redirects. |
 | **Simul websocket** | `/wss`, used for simul updates and new-game redirects. |
-| **Challenge SSE** | `/challenge/subscribe`, handled by `server/header_challenges.py`. |
+| **Header SSE** | `/api/header/subscribe`, handled by `server/header_challenges.py`; multiplexes challenge and notification updates over one connection. |
 | **Invite SSE** | `/api/invites/{gameId}` and `/api/bot-challenges/{gameId}`, both handled by `subscribe_invites()` in `server/game_api.py`. |
 | **Seek** | A pending game specification and one or two partially assigned seats, represented by `Seek` in `server/seek.py`. |
 | **Reserved game ID** | An eight-character game ID allocated before the game exists. Friend invites, hosted games, and BOT challenges use it as the public waiting-page ID and later as the actual game ID. |
@@ -39,7 +39,7 @@ flowchart LR
         WSR["WebSocket /wsr/{gameId}"]
         WST["WebSocket /wst"]
         WSS["WebSocket /wss"]
-        ChallengeSSE["SSE /challenge/subscribe"]
+        HeaderSSE["SSE /api/header/subscribe<br/>challenge + notification channels"]
         InviteSSE["SSE /api/invites/{gameId}<br/>or /api/bot-challenges/{gameId}"]
     end
 
@@ -57,7 +57,7 @@ flowchart LR
     Browser --> LobbyPage
     Browser <--> WSL
     Browser --> ChallengePage
-    Browser <--> ChallengeSSE
+    Browser <--> HeaderSSE
     Browser --> ChallengeActions
     Browser --> InvitePage
     Browser <--> InviteSSE
@@ -174,7 +174,7 @@ flowchart LR
 | Creation method | Initial browser route/UI | Creation request | Waiting/state channel | Operation that actually completes the game | Redirect signal |
 |---|---|---|---|---|---|
 | Open lobby seek | `/`, `/seek/{variant}`, `client/lobby.ts` | WS `create_seek` | WS `get_seeks` | WS `accept_seek` -> `join_seek()` | WS `new_game` to both players |
-| Direct human challenge | `/@/{profileId}/challenge`, lobby dialog | WS `create_seek` with `target=<username>` | Challenge SSE + `/challenges` | HTTP POST `.../{seekId}/accept` or lobby WS `accept_seek` | HTTP `new_game`, challenge SSE `gameId`, or lobby WS `new_game`, depending on acceptance path/connectivity |
+| Direct human challenge | `/@/{profileId}/challenge`, lobby dialog | WS `create_seek` with `target=<username>` | Header SSE + `/challenges` | HTTP POST `.../{seekId}/accept` or lobby WS `accept_seek` | HTTP `new_game`, header SSE challenge `gameId`, or lobby WS `new_game`, depending on acceptance path/connectivity |
 | Built-in AI | Lobby dialog / `?ai`, `client/lobby.ts` | WS `create_ai_challenge` | None; immediate | Server creates a temporary `Seek`, then bot immediately `join_seek()` | WS `new_game` |
 | External BOT | `/@/{bot}/challenge`, lobby dialog | WS `create_bot_challenge` | Bot event stream + browser invite SSE | BOT POST `/api/challenge/{gameId}/accept` -> `new_game(..., gameId)` | Browser invite SSE `{accept:true}`; BOT receives game-start event |
 | Friend invite | Lobby “Play with a friend” | WS `create_invite` | Invite page + invite SSE | Visitor POST `/invite/accept/{gameId}` -> `join_seek(..., gameId)` | Invite SSE causes both pages to reload `/invite/{gameId}`, which now renders round view |
@@ -316,12 +316,12 @@ sequenceDiagram
 
     C->>CP: Render dedicated challenge page
     CP->>Challenge: GET /challenges
-    CP->>Challenge: EventSource /challenge/subscribe
+    CP->>Challenge: EventSource /api/header/subscribe (challenges channel)
     O->>OP: Site-wide challenge panel or /challenge/{seekId}
     OP->>Challenge: GET /challenges
-    OP->>Challenge: EventSource /challenge/subscribe
-    Challenge-->>CP: SSE challenge envelope
-    Challenge-->>OP: SSE challenge envelope
+    OP->>Challenge: EventSource /api/header/subscribe (challenges channel)
+    Challenge-->>CP: Header SSE challenge envelope
+    Challenge-->>OP: Header SSE challenge envelope
 
     O->>OP: Accept
     OP->>Challenge: POST /api/challenge/seek/{seekId}/accept
@@ -329,7 +329,7 @@ sequenceDiagram
     Utils->>Utils: new_game(...)
     Utils-->>Challenge: new_game {gameId}
     Challenge-->>OP: HTTP JSON new_game
-    Challenge-->>CP: SSE envelope, optionally with gameId
+    Challenge-->>CP: Header SSE challenge envelope, optionally with gameId
     OP->>O: Redirect /{gameId}
     CP->>C: Redirect /{gameId} when envelope carries gameId
 ```
@@ -797,7 +797,7 @@ flowchart TB
 
     Routes --> WebSockets["WebSockets<br/>/wsl lobby<br/>/wsr/{gameId} round<br/>/wst tournament<br/>/wss simul"]
 
-    Routes --> ChallengeHTTP["Direct challenge HTTP/SSE<br/>GET /challenges<br/>GET /challenge/subscribe<br/>POST /api/challenge/seek/{seekId}/{accept|decline|cancel}"]
+    Routes --> ChallengeHTTP["Direct challenge HTTP/SSE<br/>GET /challenges<br/>GET /api/header/subscribe (multiplexed)<br/>POST /api/challenge/seek/{seekId}/{accept|decline|cancel}"]
 
     Routes --> InviteHTTP["Invite HTTP/SSE<br/>POST /invite/accept/{gameId}[/{player}]<br/>POST /invite/cancel/{gameId}<br/>GET /api/invites/{gameId}"]
 
@@ -831,7 +831,7 @@ flowchart LR
         O8["error / game_in_progress"]
     end
 
-    subgraph ChallengeSSEMessages["Challenge SSE envelopes"]
+    subgraph ChallengeSSEMessages["Header SSE challenge envelopes"]
         C1["challenges: serialized challenge list"]
         C2["optional gameId for redirect"]
     end

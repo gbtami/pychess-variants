@@ -8,6 +8,7 @@ import { gameType } from './result';
 import { timeControlStr } from './view';
 import { PyChessModel } from './types';
 import { sanitizeURL } from './url';
+import { subscribeHeaderRealtime } from './headerRealtime';
 
 type ChallengeStatus = 'created' | 'offline' | 'canceled' | 'declined' | 'accepted';
 
@@ -57,8 +58,7 @@ export function directChallengeView(model: PyChessModel): VNode[] {
     const challengeId = model.challengeId;
     let challenge: HeaderChallenge | null = null;
     let appEl: HTMLElement | VNode;
-    let evtSource: EventSource | null = null;
-    let reconnectTimer: number | null = null;
+    let realtime: ReturnType<typeof subscribeHeaderRealtime> | null = null;
     let loading = true;
     let unavailable = false;
     let declineReasonKey = 'generic';
@@ -97,20 +97,8 @@ export function directChallengeView(model: PyChessModel): VNode[] {
     }
 
     function connectChallengeStream() {
-        if (evtSource !== null) evtSource.close();
-        evtSource = new EventSource('/challenge/subscribe');
-        evtSource.onmessage = event => updateFromEnvelope(JSON.parse(event.data));
-        evtSource.onerror = () => {
-            if (evtSource !== null) {
-                evtSource.close();
-                evtSource = null;
-            }
-            if (reconnectTimer !== null) window.clearTimeout(reconnectTimer);
-            reconnectTimer = window.setTimeout(() => {
-                reconnectTimer = null;
-                connectChallengeStream();
-            }, 1500);
-        };
+        realtime?.close();
+        realtime = subscribeHeaderRealtime('challenges', data => updateFromEnvelope(JSON.parse(data)));
     }
 
     function postAction(action: 'accept' | 'decline' | 'cancel') {

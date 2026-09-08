@@ -8,7 +8,7 @@ import { sizeMiniBoardHost } from './miniBoard';
 import { getLastMoveFen, splitVariantKey, VARIANTS } from './variants';
 import { displayUsername } from './user';
 import { renderFollowButtonState } from './followButton';
-import { subscribeProfileRealtime } from './profileRealtime';
+import { subscribeOngoingRealtime } from './ongoingRealtime';
 
 interface MiniPerf {
     variant: string;
@@ -125,8 +125,7 @@ class UserMiniWidget {
     private liveOrientation: 'white' | 'black' = 'white';
 
     private readonly cache = new Map<string, CacheEntry>();
-    private ongoingSource: EventSource | null = null;
-    private profileRealtime: ReturnType<typeof subscribeProfileRealtime> = null;
+    private ongoingRealtime: ReturnType<typeof subscribeOngoingRealtime> | null = null;
 
     constructor(
         private readonly assetURL: string,
@@ -150,8 +149,6 @@ class UserMiniWidget {
             this.overWidget = false;
             this.scheduleHide();
         });
-
-        this.connectOngoingSource();
     }
 
     init() {
@@ -162,13 +159,8 @@ class UserMiniWidget {
         window.addEventListener('resize', this.onWindowChange);
     }
 
-    private isProfilePage() {
-        const view = document.getElementById('pychess-variants')?.getAttribute('data-view');
-        return view === 'profile' || view === 'level8win';
-    }
-
     private connectOngoingSource() {
-        if (this.ongoingSource !== null || this.profileRealtime !== null) return;
+        if (!this.liveGameId || this.ongoingRealtime !== null) return;
 
         const onMessage = (data: string) => {
             if (!this.liveGameId || !this.cg || !this.liveVariantName) return;
@@ -182,14 +174,12 @@ class UserMiniWidget {
                 orientation: this.liveOrientation,
             });
         };
-        if (this.isProfilePage()) {
-            this.profileRealtime = subscribeProfileRealtime('ongoing', onMessage);
-            return;
-        }
+        this.ongoingRealtime = subscribeOngoingRealtime(onMessage);
+    }
 
-        const source = new EventSource('/api/ongoing');
-        source.onmessage = event => onMessage(event.data);
-        this.ongoingSource = source;
+    private disconnectOngoingSource() {
+        this.ongoingRealtime?.close();
+        this.ongoingRealtime = null;
     }
 
     private onWindowChange = () => {
@@ -469,6 +459,7 @@ class UserMiniWidget {
                 this.liveGameId = payload.playing.gameId;
                 this.liveVariantName = variant.name;
                 this.liveOrientation = payload.playing.orientation;
+                this.connectOngoingSource();
             }
         }
     }
@@ -562,6 +553,7 @@ class UserMiniWidget {
     }
 
     private clearLiveBoard() {
+        this.disconnectOngoingSource();
         this.cg = undefined;
         this.liveGameId = undefined;
         this.liveVariantName = undefined;

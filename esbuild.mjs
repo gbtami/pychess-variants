@@ -20,10 +20,16 @@ const appOpts = {
     outfile: './static/pychess-variants.js',
 };
 
-const profileRealtimeWorkerOpts = {
+const ongoingRealtimeWorkerOpts = {
     ...baseOpts,
-    entryPoints: ['./client/profileRealtimeWorker.ts'],
-    outfile: './static/profile-realtime-worker.js',
+    entryPoints: ['./client/ongoingRealtimeWorker.ts'],
+    outfile: './static/ongoing-realtime-worker.js',
+};
+
+const headerRealtimeWorkerOpts = {
+    ...baseOpts,
+    entryPoints: ['./client/headerRealtimeWorker.ts'],
+    outfile: './static/header-realtime-worker.js',
 };
 
 if (dev) {
@@ -32,8 +38,13 @@ if (dev) {
         './static/pychess-variants.js.gz',
         './static/pychess-variants.css.br',
         './static/pychess-variants.css.gz',
+        './static/profile-realtime-worker.js',
         './static/profile-realtime-worker.js.br',
         './static/profile-realtime-worker.js.gz',
+        './static/ongoing-realtime-worker.js.br',
+        './static/ongoing-realtime-worker.js.gz',
+        './static/header-realtime-worker.js.br',
+        './static/header-realtime-worker.js.gz',
     ]) {
         rmSync(staleAsset, { force: true });
     }
@@ -43,7 +54,11 @@ if (dev) {
         sourcemap: 'inline',
     });
     await esbuild.build({
-        ...profileRealtimeWorkerOpts,
+        ...ongoingRealtimeWorkerOpts,
+        sourcemap: 'inline',
+    });
+    await esbuild.build({
+        ...headerRealtimeWorkerOpts,
         sourcemap: 'inline',
     });
 } else {
@@ -54,7 +69,13 @@ if (dev) {
         plugins: [compress()],
     });
     await esbuild.build({
-        ...profileRealtimeWorkerOpts,
+        ...ongoingRealtimeWorkerOpts,
+        minify: true,
+        write: false,
+        plugins: [compress()],
+    });
+    await esbuild.build({
+        ...headerRealtimeWorkerOpts,
         minify: true,
         write: false,
         plugins: [compress()],

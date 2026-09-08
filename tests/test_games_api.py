@@ -788,6 +788,97 @@ class SSESubscribeErrorFallbackTestCase(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(asyncio.QueueShutDown):
             notify_channels.added.get_nowait()
 
+    async def test_legacy_header_streams_keep_unwrapped_payloads(self):
+        from routes import get_routes
+
+        routes = dict(get_routes)
+        self.assertIs(routes["/notify"], utils.subscribe_notify)
+        self.assertIs(routes["/challenge/subscribe"], header_challenges.subscribe_challenges)
+        self.assertIs(routes["/api/header/subscribe"], header_challenges.subscribe_header)
+
+        for module, handler, channel, payload in (
+            (utils, utils.subscribe_notify, "notify_channels", [{"type": "studyInvite"}]),
+            (
+                header_challenges,
+                header_challenges.subscribe_challenges,
+                "challenge_channels",
+                {"challenges": [{"id": "c1"}]},
+            ),
+        ):
+            with self.subTest(channel=channel):
+                channels = self._TrackingSet()
+                user = SimpleNamespace(
+                    **{channel: channels}, update_online=lambda: None, online=True
+                )
+                app_state = SimpleNamespace(users=self._UsersStub(user))
+                response = self._CapturingResponse()
+
+                @asynccontextmanager
+                async def legacy_sse(
+                    _request,
+                    channel=channel,
+                    channels=channels,
+                    payload=payload,
+                    response=response,
+                ):
+                    if channel == "notify_channels":
+                        channels.added.put_nowait(json.dumps(payload))
+                    yield response
+
+                with (
+                    patch.object(module, "get_app_state", return_value=app_state),
+                    patch.object(
+                        module.aiohttp_session,
+                        "get_session",
+                        new=AsyncMock(return_value={"user_name": "sse-user"}),
+                    ),
+                    patch.object(module, "sse_response", legacy_sse),
+                    patch("header_challenges.cancel_direct_challenge_offline"),
+                    patch("header_challenges.reactivate_direct_challenges", new=AsyncMock()),
+                    patch("header_challenges.challenge_envelope", return_value=payload),
+                ):
+                    result = await handler(SimpleNamespace(app=object()))
+
+                self.assertIs(result, response)
+                self.assertEqual([json.loads(item) for item in response.payloads], [payload])
+                self.assertEqual(len(channels), 0)
+                with self.assertRaises(asyncio.QueueShutDown):
+                    channels.added.get_nowait()
+
+    async def test_subscribe_challenges_handles_sse_setup_error(self):
+        challenge_channels = self._TrackingSet()
+        challenge_user = SimpleNamespace(
+            challenge_channels=challenge_channels,
+            update_online=lambda: None,
+            online=True,
+        )
+        app_state = SimpleNamespace(users=self._UsersStub(challenge_user))
+        request = SimpleNamespace(app=object())
+
+        with (
+            patch("header_challenges.get_app_state", return_value=app_state),
+            patch(
+                "header_challenges.aiohttp_session.get_session",
+                new=AsyncMock(return_value={"user_name": "sse-user"}),
+            ),
+            patch("header_challenges.cancel_direct_challenge_offline"),
+            patch(
+                "header_challenges.reactivate_direct_challenges",
+                new=AsyncMock(),
+            ),
+            patch("header_challenges.sse_response", side_effect=RuntimeError("setup failed")),
+        ):
+            response = await header_challenges.subscribe_challenges(request)
+
+        self.assertEqual(response.status, 200)
+        self.assertEqual(len(challenge_channels), 0)
+        self.assertEqual(
+            challenge_channels.added.maxsize,
+            header_challenges.SSE_SNAPSHOT_QUEUE_MAXSIZE,
+        )
+        with self.assertRaises(asyncio.QueueShutDown):
+            challenge_channels.added.get_nowait()
+
     async def test_subscribe_invites_handles_sse_setup_error(self):
         game_id = "abcd1234"
         invite_channels = self._TrackingSet()
@@ -885,14 +976,84 @@ class SSESubscribeErrorFallbackTestCase(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(asyncio.QueueShutDown):
             inbox_channels.added.get_nowait()
 
-    async def test_subscribe_challenges_handles_sse_setup_error(self):
+    async def test_subscribe_header_multiplexes_challenges_and_notifications(self):
         challenge_channels = self._TrackingSet()
-        challenge_user = SimpleNamespace(
+        notify_channels = self._TrackingSet()
+        header_user = SimpleNamespace(
             challenge_channels=challenge_channels,
+            notify_channels=notify_channels,
             update_online=lambda: None,
             online=True,
         )
-        app_state = SimpleNamespace(users=self._UsersStub(challenge_user))
+        app_state = SimpleNamespace(users=self._UsersStub(header_user))
+        request = SimpleNamespace(app=object())
+
+        class CapturingResponse:
+            def __init__(self):
+                self.connected = True
+                self.payloads: list[str] = []
+
+            def is_connected(self):
+                return self.connected
+
+            async def send(self, payload):
+                self.payloads.append(payload)
+                if len(self.payloads) >= 3:
+                    self.connected = False
+
+        response = CapturingResponse()
+
+        @asynccontextmanager
+        async def multiplexed_sse(_request):
+            for queue in tuple(challenge_channels):
+                queue.put_nowait('{"challenges":[{"id":"c1"}]}')
+            for queue in tuple(notify_channels):
+                queue.put_nowait('[{"type":"studyInvite"}]')
+            yield response
+
+        with (
+            patch("header_challenges.get_app_state", return_value=app_state),
+            patch(
+                "header_challenges.aiohttp_session.get_session",
+                new=AsyncMock(return_value={"user_name": "sse-user"}),
+            ),
+            patch("header_challenges.cancel_direct_challenge_offline"),
+            patch(
+                "header_challenges.reactivate_direct_challenges",
+                new=AsyncMock(),
+            ),
+            patch(
+                "header_challenges.challenge_envelope",
+                return_value={"challenges": []},
+            ),
+            patch("header_challenges.sse_response", multiplexed_sse),
+        ):
+            result = await header_challenges.subscribe_header(request)
+
+        self.assertIs(result, response)
+        decoded = [json.loads(payload) for payload in response.payloads]
+        self.assertEqual(decoded[0]["channel"], "challenges")
+        self.assertEqual(json.loads(decoded[0]["payload"]), {"challenges": []})
+        self.assertEqual(
+            {item["channel"] for item in decoded[1:]},
+            {"challenges", "notifications"},
+        )
+        by_channel = {item["channel"]: json.loads(item["payload"]) for item in decoded[1:]}
+        self.assertEqual(by_channel["challenges"], {"challenges": [{"id": "c1"}]})
+        self.assertEqual(by_channel["notifications"], [{"type": "studyInvite"}])
+        self.assertEqual(len(challenge_channels), 0)
+        self.assertEqual(len(notify_channels), 0)
+
+    async def test_subscribe_header_handles_sse_setup_error(self):
+        challenge_channels = self._TrackingSet()
+        notify_channels = self._TrackingSet()
+        header_user = SimpleNamespace(
+            challenge_channels=challenge_channels,
+            notify_channels=notify_channels,
+            update_online=lambda: None,
+            online=True,
+        )
+        app_state = SimpleNamespace(users=self._UsersStub(header_user))
         request = SimpleNamespace(app=object())
 
         with (
@@ -908,16 +1069,21 @@ class SSESubscribeErrorFallbackTestCase(unittest.IsolatedAsyncioTestCase):
             ),
             patch("header_challenges.sse_response", side_effect=RuntimeError("setup failed")),
         ):
-            response = await header_challenges.subscribe_challenges(request)
+            response = await header_challenges.subscribe_header(request)
 
         self.assertEqual(response.status, 200)
         self.assertEqual(len(challenge_channels), 0)
+        self.assertEqual(len(notify_channels), 0)
         self.assertEqual(
-            challenge_channels.added.maxsize,
-            header_challenges.SSE_SNAPSHOT_QUEUE_MAXSIZE,
+            challenge_channels.added.maxsize, header_challenges.SSE_SNAPSHOT_QUEUE_MAXSIZE
+        )
+        self.assertEqual(
+            notify_channels.added.maxsize, header_challenges.SSE_SNAPSHOT_QUEUE_MAXSIZE
         )
         with self.assertRaises(asyncio.QueueShutDown):
             challenge_channels.added.get_nowait()
+        with self.assertRaises(asyncio.QueueShutDown):
+            notify_channels.added.get_nowait()
 
     async def test_subscribe_games_handles_sse_setup_error(self):
         game_channels = self._TrackingSet()

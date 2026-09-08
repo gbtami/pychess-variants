@@ -7,6 +7,10 @@ static/pychess-variants.js
 static/pychess-variants.js.*
 static/profile-realtime-worker.js
 static/profile-realtime-worker.js.*
+static/header-realtime-worker.js
+static/header-realtime-worker.js.*
+static/ongoing-realtime-worker.js
+static/ongoing-realtime-worker.js.*
 static/ffish.js
 static/ffish.wasm
 static/ffish.worker.js

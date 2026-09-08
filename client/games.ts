@@ -11,6 +11,7 @@ import { PyChessModel } from './types';
 import { aiLevel } from './result';
 import { sizeMiniBoardHost } from './miniBoard';
 import { getLastMoveFen, VARIANTS } from './variants';
+import { subscribeOngoingRealtime } from './ongoingRealtime';
 import { displayUsername } from './user';
 
 export interface Game {
@@ -32,6 +33,7 @@ export interface Game {
 
 type GameData = [Api, string];
 type Games = Map<string, GameData>;
+let gamesRealtime: ReturnType<typeof subscribeOngoingRealtime> | null = null;
 
 function gameView(games: Games, game: Game) {
     const variant = VARIANTS[game.variant];
@@ -107,9 +109,9 @@ export function renderGames(model: PyChessModel): VNode[] {
                     ),
                 );
 
-                const evtSource = new EventSource('/api/ongoing');
-                evtSource.onmessage = function (event) {
-                    const message = JSON.parse(event.data);
+                gamesRealtime?.close();
+                gamesRealtime = subscribeOngoingRealtime(data => {
+                    const message = JSON.parse(data);
                     const gameData = games.get(message.gameId);
                     if (gameData === undefined) return;
                     let cg, variantName;
@@ -120,7 +122,7 @@ export function renderGames(model: PyChessModel): VNode[] {
                         fen: fen,
                         lastMove: lastMove,
                     });
-                };
+                });
             }
         }
     };

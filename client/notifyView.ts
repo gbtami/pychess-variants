@@ -4,7 +4,7 @@ import { _ } from './i18n';
 import { patch } from './document';
 import { timeago } from './datetime';
 import { sound } from './sound';
-import { subscribeProfileRealtime } from './profileRealtime';
+import { subscribeHeaderRealtime } from './headerRealtime';
 
 interface Message {
     type: string;
@@ -238,15 +238,10 @@ function renderMessages(messages: Message[]) {
 }
 
 export function notifyView() {
-    const profilePage = ['profile', 'level8win'].includes(
-        document.getElementById('pychess-variants')?.getAttribute('data-view') ?? '',
-    );
     var page: number = 0;
     var unread: number = 0;
     var messages: Message[] = [];
-    let evtSource: EventSource | null = null;
-    let profileRealtime: ReturnType<typeof subscribeProfileRealtime> = null;
-    let reconnectTimer: number | null = null;
+    let realtime: ReturnType<typeof subscribeHeaderRealtime> | null = null;
     let notifyStreamReady = false;
 
     const xmlhttp = new XMLHttpRequest();
@@ -284,35 +279,12 @@ export function notifyView() {
         redraw();
     }
 
-    function scheduleReconnect() {
-        if (reconnectTimer !== null) window.clearTimeout(reconnectTimer);
-        reconnectTimer = window.setTimeout(() => {
-            reconnectTimer = null;
-            connectNotifications();
-        }, 1500);
-    }
-
     function connectNotifications() {
-        const onMessage = (data: string) => {
+        realtime?.close();
+        realtime = subscribeHeaderRealtime('notifications', data => {
             applyMessages(JSON.parse(data), notifyStreamReady);
             notifyStreamReady = true;
-        };
-        if (profilePage) {
-            profileRealtime?.close();
-            profileRealtime = subscribeProfileRealtime('notifications', onMessage);
-            return;
-        }
-
-        if (evtSource !== null) evtSource.close();
-        evtSource = new EventSource('/notify');
-        evtSource.onmessage = event => onMessage(event.data);
-        evtSource.onerror = function () {
-            if (evtSource !== null) {
-                evtSource.close();
-                evtSource = null;
-            }
-            scheduleReconnect();
-        };
+        });
     }
 
     xmlhttp.onreadystatechange = function () {

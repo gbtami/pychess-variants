@@ -106,6 +106,7 @@ from header_challenges import (
     challenge_seek_decline,
     get_header_challenges,
     subscribe_challenges,
+    subscribe_header,
 )
 from inbox_api import (
     inbox_delete,
@@ -337,6 +338,8 @@ get_routes: tuple[RouteDef, ...] = (
     ("/reports", reports_view.reports),
     ("/mod/public-chat", mod_public_chat_view.mod_public_chat),
     ("/challenges", get_header_challenges),
+    ("/api/header/subscribe", subscribe_header),
+    # Keep the original streams for browser tabs opened before deployment.
     ("/notify", subscribe_notify),
     ("/challenge/subscribe", subscribe_challenges),
     ("/service-worker.js", service_worker),

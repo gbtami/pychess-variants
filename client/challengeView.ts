@@ -6,7 +6,7 @@ import { patch } from './document';
 import { alertDialog } from './alertDialog';
 import { sound } from './sound';
 import { VARIANTS } from './variants';
-import { subscribeProfileRealtime } from './profileRealtime';
+import { subscribeHeaderRealtime } from './headerRealtime';
 
 interface Challenge {
     id: string;
@@ -98,14 +98,9 @@ function challengeMetaView(challenge: Challenge) {
 }
 
 export function challengeView() {
-    const profilePage = ['profile', 'level8win'].includes(
-        document.getElementById('pychess-variants')?.getAttribute('data-view') ?? '',
-    );
     let challenges: Challenge[] = [];
     let appEl: HTMLElement | VNode;
-    let evtSource: EventSource | null = null;
-    let profileRealtime: ReturnType<typeof subscribeProfileRealtime> = null;
-    let reconnectTimer: number | null = null;
+    let realtime: ReturnType<typeof subscribeHeaderRealtime> | null = null;
     let challengeStreamReady = false;
     const pending = new Set<string>();
 
@@ -162,30 +157,11 @@ export function challengeView() {
     }
 
     function connectChallenges() {
-        const onMessage = (data: string) => {
+        realtime?.close();
+        realtime = subscribeHeaderRealtime('challenges', data => {
             applyEnvelope(JSON.parse(data), challengeStreamReady);
             challengeStreamReady = true;
-        };
-        if (profilePage) {
-            profileRealtime?.close();
-            profileRealtime = subscribeProfileRealtime('challenges', onMessage);
-            return;
-        }
-
-        if (evtSource !== null) evtSource.close();
-        evtSource = new EventSource('/challenge/subscribe');
-        evtSource.onmessage = event => onMessage(event.data);
-        evtSource.onerror = function () {
-            if (evtSource !== null) {
-                evtSource.close();
-                evtSource = null;
-            }
-            if (reconnectTimer !== null) window.clearTimeout(reconnectTimer);
-            reconnectTimer = window.setTimeout(() => {
-                reconnectTimer = null;
-                connectChallenges();
-            }, 1500);
-        };
+        });
     }
 
     function postAction(challenge: Challenge, action: 'accept' | 'decline' | 'cancel', reason = 'generic') {

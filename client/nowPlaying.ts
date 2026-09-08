@@ -13,6 +13,7 @@ import { getLastMoveFen, VARIANTS } from './variants';
 import { displayUsername } from './user';
 import { compareGames } from './ongoingGameSelection';
 import type { OngoingGamesMode } from './ongoingGameSelection';
+import { subscribeOngoingRealtime } from './ongoingRealtime';
 
 export { compareGames };
 export type { OngoingGamesMode };
@@ -61,9 +62,8 @@ export function handleOngoingGameEvents(
 ) {
     const mode = options.mode ?? 'corr';
     const updateUnreadCounter = options.updateUnreadCounter ?? mode === 'corr';
-    const evtSource = new EventSource('/api/ongoing');
-    evtSource.onmessage = function (event) {
-        const message = JSON.parse(event.data) as OngoingGameUpdate;
+    return subscribeOngoingRealtime(data => {
+        const message = JSON.parse(data) as OngoingGameUpdate;
 
         if (options.onUpdate) {
             options.onUpdate(message);
@@ -96,7 +96,7 @@ export function handleOngoingGameEvents(
         const diff = isMyTurn ? 1 : -1;
         const count = parseInt(noreadEl.dataset.count || '0') + diff;
         patch(noreadEl, h('span.noread.data-count', { attrs: { 'data-count': count } }));
-    };
+    });
 }
 
 function timer(date: string) {

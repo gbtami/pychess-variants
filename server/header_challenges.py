@@ -19,7 +19,7 @@ from seek import (
     DIRECT_CHALLENGE_OFFLINE,
     resolve_decline_reason,
 )
-from sse_utils import consume_sse_queue, enqueue_sse_payload, send_sse_payload
+from sse_utils import SSEResponse, consume_sse_queue, enqueue_sse_payload, send_sse_payload
 from utils import join_seek, remove_seek
 
 if TYPE_CHECKING:
@@ -247,7 +247,86 @@ async def get_header_challenges(request: web.Request) -> web.StreamResponse:
     return json_response(challenge_envelope(app_state, session_user))
 
 
+async def _consume_header_channels(
+    response: SSEResponse,
+    channels: dict[str, asyncio.Queue[str]],
+) -> None:
+    merged: asyncio.Queue[str] = asyncio.Queue(maxsize=max(1, len(channels)))
+
+    async def forward(channel: str, source: asyncio.Queue[str]) -> None:
+        while True:
+            try:
+                payload = await source.get()
+            except asyncio.QueueShutDown:
+                return
+
+            try:
+                await merged.put(json_dumps({"channel": channel, "payload": payload}))
+            finally:
+                source.task_done()
+
+    tasks = [asyncio.create_task(forward(channel, queue)) for channel, queue in channels.items()]
+    try:
+        await consume_sse_queue(response, merged)
+    finally:
+        for task in tasks:
+            task.cancel()
+        await asyncio.gather(*tasks, return_exceptions=True)
+        merged.shutdown(immediate=True)
+
+
+async def subscribe_header(request: web.Request) -> web.StreamResponse:
+    """Multiplex header challenges and notifications over one SSE connection."""
+
+    app_state = get_app_state(request.app)
+    session = await aiohttp_session.get_session(request)
+    session_user = session.get("user_name")
+    if session_user is None:
+        return json_response({})
+
+    user = await app_state.users.get(session_user)
+    cancel_direct_challenge_offline(user)
+    challenge_queue: asyncio.Queue[str] = asyncio.Queue(maxsize=SSE_SNAPSHOT_QUEUE_MAXSIZE)
+    notify_queue: asyncio.Queue[str] = asyncio.Queue(maxsize=SSE_SNAPSHOT_QUEUE_MAXSIZE)
+    user.challenge_channels.add(challenge_queue)
+    user.notify_channels.add(notify_queue)
+    user.update_online()
+    await reactivate_direct_challenges(app_state, session_user)
+
+    response: web.StreamResponse = web.Response(status=200)
+    try:
+        async with sse_response(request) as response:
+            await send_sse_payload(
+                response,
+                json_dumps(
+                    {
+                        "channel": "challenges",
+                        "payload": json_dumps(challenge_envelope(app_state, session_user)),
+                    }
+                ),
+            )
+            await _consume_header_channels(
+                response,
+                {
+                    "challenges": challenge_queue,
+                    "notifications": notify_queue,
+                },
+            )
+    except Exception:
+        pass
+    finally:
+        user.challenge_channels.discard(challenge_queue)
+        user.notify_channels.discard(notify_queue)
+        challenge_queue.shutdown(immediate=True)
+        notify_queue.shutdown(immediate=True)
+        user.update_online()
+        if not user.online:
+            schedule_direct_challenge_offline(app_state, session_user)
+    return response
+
+
 async def subscribe_challenges(request: web.Request) -> web.StreamResponse:
+    # Compatibility for tabs running the pre-multiplexing client.
     app_state = get_app_state(request.app)
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")

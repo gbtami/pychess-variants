@@ -1825,6 +1825,7 @@ async def notified(request):
 
 
 async def subscribe_notify(request):
+    # Compatibility for tabs running the pre-multiplexing client.
     app_state = get_app_state(request.app)
     # Who made the request?
     session = await aiohttp_session.get_session(request)
