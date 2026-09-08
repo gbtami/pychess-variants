@@ -150,21 +150,37 @@
                 {% for study in studies %}
                 <article class="study-card">
                     <a class="study-card__link" href="/study/{{ study.id }}">
-                        <span class="study-card__icon" aria-hidden="true"></span>
-                        <span class="study-card__summary">
-                            <strong class="study-card__name">{{ study.name }}</strong>
-                            <span class="study-card__meta">
-                                {% if study.visibility != 'public' %}
-                                <span class="study-card__visibility study-card__visibility--{{ study.visibility }}" title="{{ study.visibility }}" aria-label="{{ study.visibility }}"></span>
-                                {% endif %}
-                                <span class="study-card__likes{% if not anon and study.is_liked_by(username) %} liked{% endif %}" title="{% trans count=study.likes %}{{ count }} like{% pluralize %}{{ count }} likes{% endtrans %}">
-                                    <span class="icon icon-heart" aria-hidden="true"></span>
-                                    <span>{{ study.likes }}</span>
+                        <span class="study-card__top">
+                            <span class="study-card__icon" aria-hidden="true"></span>
+                            <span class="study-card__summary">
+                                <strong class="study-card__name">{{ study.name }}</strong>
+                                <span class="study-card__meta">
+                                    {% if study.visibility != 'public' %}
+                                    <span class="study-card__visibility study-card__visibility--{{ study.visibility }}" title="{{ study.visibility }}" aria-label="{{ study.visibility }}"></span>
+                                    {% endif %}
+                                    <span class="study-card__likes{% if not anon and study.is_liked_by(username) %} liked{% endif %}" title="{% trans count=study.likes %}{{ count }} like{% pluralize %}{{ count }} likes{% endtrans %}">
+                                        <span class="icon icon-heart" aria-hidden="true"></span>
+                                        <span>{{ study.likes }}</span>
+                                    </span>
+                                    <span aria-hidden="true">•</span>
+                                    <span class="study-card__owner">{{ study.owner }}</span>
+                                    <span aria-hidden="true">•</span>
+                                    <time datetime="{{ study.updated_at.isoformat() }}">{{ study.updated_at.strftime('%Y-%m-%d %H:%M') }}</time>
                                 </span>
-                                <span aria-hidden="true">•</span>
-                                <span class="study-card__owner">{{ study.owner }}</span>
-                                <span aria-hidden="true">•</span>
-                                <time datetime="{{ study.updated_at.isoformat() }}">{{ study.updated_at.strftime('%Y-%m-%d %H:%M') }}</time>
+                            </span>
+                        </span>
+                        <span class="study-card__body">
+                            <span class="study-card__chapters">
+                                {% for chapter_name in study_card_chapters.get(study.id, ()) %}
+                                <span class="study-card__chapter">{{ chapter_name }}</span>
+                                {% endfor %}
+                            </span>
+                            <span class="study-card__members">
+                                {% for member, role in study.members.items() %}
+                                {% if loop.index0 < study_preview_nb_members %}
+                                <span class="study-card__member study-card__member--{{ role }}">{{ member }}</span>
+                                {% endif %}
+                                {% endfor %}
                             </span>
                         </span>
                     </a>

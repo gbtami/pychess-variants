@@ -23,6 +23,7 @@ from study.constants import (
     STUDY_MAX_CHAPTERS,
     STUDY_MAX_MEMBERS,
     STUDY_MAX_TOPICS,
+    STUDY_PREVIEW_NB_MEMBERS,
     STUDY_TOPIC_MAX_LENGTH,
     STUDY_TOPIC_MIN_LENGTH,
 )
@@ -72,6 +73,7 @@ from study.storage import (
     set_study_visibility,
     studies_for_owner_view,
     studies_writable_by,
+    study_list_chapter_names,
     study_list_order,
     study_search_page,
     topic_studies_page,
@@ -101,6 +103,7 @@ def _require_owner_user(user: Any) -> None:
 def _study_context(context: ViewContext) -> None:
     context["view_css"] = "study.css"
     context["title"] = "Studies • PyChess"
+    context["study_preview_nb_members"] = STUDY_PREVIEW_NB_MEMBERS
 
 
 def _positive_page(value: str | None) -> int:
@@ -164,6 +167,7 @@ def _populate_study_page(
 ) -> None:
     order = study_list_order(result.get("order"))
     context["studies"] = result["studies"]
+    context["study_card_chapters"] = result.get("chapter_names", {})
     context["study_page"] = result
     context["study_list_order"] = order
     context["study_list_order_label"] = _STUDY_ORDER_LABELS[order]
@@ -545,7 +549,9 @@ async def studies_by_owner(request: web.Request) -> ViewContext:
     is_self = viewer == owner
     _study_context(context)
     context["title"] = f"Studies by {owner} • PyChess"
-    context["studies"] = await studies_for_owner_view(app_state, owner, viewer)
+    owner_studies = await studies_for_owner_view(app_state, owner, viewer)
+    context["studies"] = owner_studies
+    context["study_card_chapters"] = await study_list_chapter_names(app_state, owner_studies)
     context["study_list_owner"] = owner
     context["study_list_is_self"] = is_self
     context["study_list_can_create"] = is_self and not user.bot

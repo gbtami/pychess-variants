@@ -44,6 +44,7 @@ from study.storage import (
     set_study_visibility,
     studies_for_owner,
     studies_for_owner_view,
+    study_list_chapter_names,
     study_search_page,
     topic_studies_page,
 )
@@ -417,6 +418,18 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(doc.get("source", "scratch"), original.source.encode())
             self.assertEqual(doc["root"], original.root.to_document())
             self.assertEqual(doc["revision"], 0)
+
+    async def test_study_list_chapter_names_previews_first_four_in_order(self) -> None:
+        study, first = await create_study_with_chapter(cast(Any, self.app_state), "owner")
+        for name in ("Second line", "Third line", "Fourth line", "Fifth line"):
+            await add_chapter(cast(Any, self.app_state), study, first, name=name)
+
+        previews = await study_list_chapter_names(cast(Any, self.app_state), [study])
+
+        self.assertEqual(
+            previews,
+            {study.id: ("Chapter 1", "Second line", "Third line", "Fourth line")},
+        )
 
     async def test_chapter_crud_keeps_lightweight_ordered_previews(self) -> None:
         study, first = await create_study_with_chapter(cast(Any, self.app_state), "owner")

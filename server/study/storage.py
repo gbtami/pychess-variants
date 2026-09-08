@@ -19,6 +19,7 @@ from study.constants import (
     STUDY_MAX_MEMBERS,
     STUDY_MAX_TOPICS,
     STUDY_NAME_MAX_LENGTH,
+    STUDY_PREVIEW_NB_CHAPTERS,
     STUDY_TOPIC_MAX_LENGTH,
     STUDY_TOPIC_MIN_LENGTH,
 )
@@ -70,6 +71,40 @@ def _study_list_sort(order: StudyListOrder) -> list[tuple[str, int]]:
     return [("updatedAt", -1), ("_id", 1)]
 
 
+async def study_list_chapter_names(
+    app_state: Any, studies: list[Study]
+) -> dict[str, tuple[str, ...]]:
+    """Return the ordered chapter-name previews used by Study list cards.
+
+    Lichess previews four chapter names per Study. Group them in MongoDB so list
+    pages do not issue one chapter query per card and do not load chapter trees.
+    """
+
+    study_ids = [study.id for study in studies]
+    if not study_ids:
+        return {}
+
+    pipeline = [
+        {"$match": {"studyId": {"$in": study_ids}}},
+        {"$sort": {"studyId": 1, "order": 1}},
+        {"$group": {"_id": "$studyId", "names": {"$push": "$name"}}},
+    ]
+    cursor_or_awaitable = app_state.db.study_chapter.aggregate(pipeline)
+    cursor = await cursor_or_awaitable if isawaitable(cursor_or_awaitable) else cursor_or_awaitable
+    docs = await cursor.to_list(length=len(study_ids))
+
+    previews: dict[str, tuple[str, ...]] = {}
+    for doc in docs:
+        study_id = doc.get("_id")
+        raw_names = doc.get("names")
+        if not isinstance(study_id, str) or not isinstance(raw_names, list):
+            continue
+        previews[study_id] = tuple(
+            name for name in raw_names[:STUDY_PREVIEW_NB_CHAPTERS] if isinstance(name, str)
+        )
+    return previews
+
+
 async def _studies_page(
     app_state: Any,
     query: dict[str, object],
@@ -91,6 +126,7 @@ async def _studies_page(
     studies = [Study.from_document(doc) async for doc in cursor]
     return {
         "studies": studies,
+        "chapter_names": await study_list_chapter_names(app_state, studies),
         "order": order,
         "page": page,
         "pages": pages,

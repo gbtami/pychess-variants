@@ -363,9 +363,7 @@
     background: color-mix(in srgb, var(--link-color-blue) 9%, var(--bg-color0));
 }
 .study-card__link {
-    display: flex;
-    align-items: center;
-    gap: .85rem;
+    display: block;
     min-width: 0;
     padding: 1rem .65rem 1rem 1.15rem;
     color: var(--font-color);
@@ -374,6 +372,12 @@
 .study-card__link:focus-visible {
     outline: 2px solid var(--link-color-blue);
     outline-offset: -2px;
+}
+.study-card__top {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-width: 0;
 }
 .study-card__icon {
     flex: 0 0 auto;
@@ -414,6 +418,60 @@
 .study-card__meta time {
     overflow: hidden;
     text-overflow: ellipsis;
+}
+.study-card__body {
+    display: flex;
+    min-width: 0;
+    margin-top: .55rem;
+    color: color-mix(in srgb, var(--font-color) 65%, transparent);
+    font-size: .8rem;
+    line-height: 1.35;
+}
+.study-card__chapters,
+.study-card__members {
+    display: block;
+    min-width: 0;
+}
+.study-card__chapters {
+    flex: 0 0 58%;
+    max-width: 58%;
+}
+.study-card__members {
+    flex: 0 0 40%;
+    max-width: 40%;
+    margin-inline-start: 2%;
+}
+.study-card__chapter,
+.study-card__member {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    unicode-bidi: plaintext;
+}
+.study-card__chapter::before {
+    content: '○';
+    flex: 0 0 auto;
+    margin-inline-end: .32rem;
+    color: color-mix(in srgb, var(--font-color) 45%, transparent);
+    font-size: 1.15em;
+    line-height: 1;
+}
+.study-card__member::before {
+    content: '';
+    flex: 0 0 auto;
+    width: .95em;
+    height: .95em;
+    margin-inline-end: .35rem;
+    background: color-mix(in srgb, var(--font-color) 45%, transparent);
+    -webkit-mask: url('images/study/user.svg') center / contain no-repeat;
+    mask: url('images/study/user.svg') center / contain no-repeat;
+}
+.study-card__member--read::before {
+    -webkit-mask-image: url('images/study/eye.svg');
+    mask-image: url('images/study/eye.svg');
 }
 .study-card__visibility {
     flex: 0 0 auto;

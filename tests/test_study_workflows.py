@@ -444,6 +444,36 @@ async def test_profile_study_listing_only_exposes_public_studies(aiohttp_client)
 
 
 @pytest.mark.asyncio
+async def test_study_list_cards_preview_chapters_and_members(aiohttp_client) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    owner = "study_card_owner"
+    reader = "study_card_reader"
+    await _insert_user(app_state, owner)
+    await _insert_user(app_state, reader)
+
+    draft = await StudyChapterBuilder(app_state, owner).blank_or_fen(
+        variant="chess", name="First line"
+    )
+    study, first = await create_study_from_draft(app_state, owner, draft, name="Preview repertoire")
+    for name in ("Second line", "Third line", "Fourth line", "Fifth line"):
+        await add_chapter(app_state, study, first, name=name)
+    await add_study_member(app_state, study.id, owner, reader, "read")
+    await set_study_visibility(app_state, study, "public")
+
+    response = await client.get("/study/all")
+    assert response.status == 200
+    html = await response.text()
+    assert 'class="study-card__icon"' in html
+    assert 'class="study-card__chapter">First line</span>' in html
+    assert 'class="study-card__chapter">Fourth line</span>' in html
+    assert 'class="study-card__chapter">Fifth line</span>' not in html
+    assert f'class="study-card__member study-card__member--write">{owner}</span>' in html
+    assert f'class="study-card__member study-card__member--read">{reader}</span>' in html
+
+
+@pytest.mark.asyncio
 async def test_personal_study_lists_include_contributions_filters_and_ordering(
     aiohttp_client,
 ) -> None:

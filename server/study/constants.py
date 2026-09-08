@@ -27,6 +27,9 @@ STUDY_MAX_NODES_PER_CHAPTER = _positive_int_env("STUDY_MAX_NODES_PER_CHAPTER", 3
 # Lichess currently caps Study membership at 30. Keep the same conservative
 # default but allow operators to lower/raise it without code changes.
 STUDY_MAX_MEMBERS = _positive_int_env("STUDY_MAX_MEMBERS", 30)
+# Lichess Study list cards preview at most four chapter names and four members.
+STUDY_PREVIEW_NB_CHAPTERS = 4
+STUDY_PREVIEW_NB_MEMBERS = 4
 STUDY_CHAPTER_MAX_BSON_BYTES = min(
     _positive_int_env("STUDY_CHAPTER_MAX_BSON_BYTES", 8 * 1024 * 1024),
     STUDY_CHAPTER_BSON_HARD_CEILING,
