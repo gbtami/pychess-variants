@@ -593,29 +593,33 @@ and annotate the tree, for example:
 Local engine evaluation should stay local unless a future explicit "save evaluation" or
 server-analysis feature is implemented.
 
-# Stable node identity before persistence
+# Stable Study node identity and paths
 
-The current `analysisTree.ts` allocates dotted path segments from a client-local
-`nextId`. That is fine for an in-memory tree but should not become the permanent identity
-scheme of a collaborative Study.
+Study uses an empty path for the synthetic root. Every non-root node has an opaque,
+stable 10-character `[A-Za-z0-9]` ID, and a path is the dot-joined chain of ancestor IDs,
+for example `aB7kP2xQ9z.N4fx81QaZ2`. The browser generates IDs with Web Crypto so an
+optimistic move already has its final identity before the server replies; the server
+validates IDs, rejects collisions, and uses `secrets` when it needs to allocate one.
 
-Two clients can allocate the same sequential ID independently, and IDs are regenerated
-when a tree is reconstructed.
+This intentionally differs from Lichess, whose compact two-character path segments are
+deterministically derived from its chess move encoding. PyChess supports a much wider
+and evolving move space: large boards, drops, custom promotions/pieces, pass and
+multi-leg moves, gating, duck/Amazons moves, two-board variants, and UDV formats.
+Coupling persistent identity to move syntax would make the Study storage and websocket
+protocol depend on every present and future move encoding.
 
-Before persisted Studies are introduced, define a Study-safe identity strategy. Good
-options are:
+Keep these invariants when changing Study tree code:
 
-1. a deterministic ID derived from the canonical move identity under its parent, with a
-   server-side collision check; or
-2. a high-entropy client-generated node ID accepted/canonicalized by the server, while
-   the server deduplicates siblings by canonical move.
+- **node identity is not move representation**; changing move serialization must not
+  change an existing node ID;
+- persisted/broadcast paths use stable Study IDs, never ply, sibling order, or the
+  ordinary analysis tree's local sequential IDs;
+- reordering/promoting variations or editing annotations does not change node IDs;
+- sibling moves are still deduplicated by canonical move even though IDs are random.
 
-Lichess's two-character ID is deterministic from chess UCI and supports optimistic local
-updates, but its exact encoding is too chess-specific for PyChess. Preserve the property
-(stable identity) rather than the encoding.
-
-The UI may continue using dotted paths, but persisted/broadcast paths must be made from
-stable node IDs.
+The longer paths are a deliberate tradeoff for variant-agnostic persistence, cheap
+`id -> node` lookup, optimistic collaboration, and freedom to evolve Fairy-Stockfish
+move formats without migrating Study identity.
 
 # Proposed MongoDB model
 
