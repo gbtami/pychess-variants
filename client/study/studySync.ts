@@ -17,6 +17,7 @@ import type { JSONObject, StudyServerEval } from '../types';
 import {
     mergeStudyNodeIntoAnalysisTree,
     mergeStudyTreeIntoAnalysisTree,
+    reconcileStudyNodeIntoAnalysisTree,
     analysisAnnotationsFromStudy,
     analysisTreeFromStudy,
     isStudyNodeId,
@@ -136,6 +137,11 @@ function asStringRecord(value: unknown): Record<string, string> | undefined {
         result[key] = entry;
     }
     return result;
+}
+
+function remapPathPrefix(path: string, fromPath: string, toPath: string): string {
+    if (path === fromPath) return toPath;
+    return path.startsWith(`${fromPath}.`) ? `${toPath}${path.slice(fromPath.length)}` : path;
 }
 
 function asStringArray(value: unknown): string[] | undefined {
@@ -861,14 +867,32 @@ export class StudyAnalysisExtension implements AnalysisExtension {
             const node = asStudyTreeNode(data.node);
             const localNodeId = pending.body.nodeId;
             const parent = pending.body.parentPath;
-            const expectedPath = parent ? `${parent}.${localNodeId}` : localNodeId;
-            if (!node || node.id !== localNodeId || data.path !== expectedPath || !this.ctrl.analysisTree) {
+            if (typeof localNodeId !== 'string' || typeof parent !== 'string' || !node || !this.ctrl.analysisTree) {
+                this.requestReload('invalid_add_ack');
+                return;
+            }
+            const localPath = parent ? `${parent}.${localNodeId}` : localNodeId;
+            const canonicalPath = parent ? `${parent}.${node.id}` : node.id;
+            if (data.path !== canonicalPath || node.move !== pending.body.move) {
+                this.requestReload('invalid_add_ack');
+                return;
+            }
+            if (node.id !== localNodeId && data.changed) {
                 this.requestReload('node_canonicalized');
                 return;
             }
-            if (mergeStudyNodeIntoAnalysisTree(this.ctrl.analysisTree, parent as string, node) !== expectedPath) {
+            const reconciled = reconcileStudyNodeIntoAnalysisTree(this.ctrl.analysisTree, parent, localNodeId, node);
+            if (!reconciled || reconciled.localPath !== localPath || reconciled.canonicalPath !== canonicalPath) {
                 this.requestReload('tree_mismatch');
                 return;
+            }
+            if (canonicalPath !== localPath) this.remapCanonicalizedPath(localPath, canonicalPath);
+            this.restorePendingTreeMutations(this.pending.slice(1));
+            const canonicalNode = nodeAtPath(this.ctrl.analysisTree, canonicalPath);
+            if (canonicalNode) {
+                let annotations = parseStudyAnnotations(node.annotations ?? {});
+                annotations = this.overlayPendingAnnotations(canonicalPath, annotations, this.pending.slice(1));
+                canonicalNode.annotations = analysisAnnotationsFromStudy(annotations);
             }
             this.refreshPreferredMainline();
             updateMovelist(this.ctrl, true, false);
@@ -1008,6 +1032,49 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         this.currentRevision = data.revision as number;
         updateMovelist(this.ctrl, true, false);
         this.ctrl.refreshPgnView?.();
+    }
+
+    private remapCanonicalizedPath(localPath: string, canonicalPath: string): void {
+        for (const queued of this.pending.slice(1)) {
+            for (const field of ['path', 'parentPath'] as const) {
+                const value = queued.body[field];
+                if (typeof value === 'string') queued.body[field] = remapPathPrefix(value, localPath, canonicalPath);
+            }
+        }
+        if (this.pendingSharedPosition) {
+            this.pendingSharedPosition.path = remapPathPrefix(
+                this.pendingSharedPosition.path,
+                localPath,
+                canonicalPath,
+            );
+        }
+
+        const activePath = this.ctrl.analysisPath ?? '';
+        const nextActivePath = remapPathPrefix(activePath, localPath, canonicalPath);
+        if (nextActivePath !== activePath && nodeAtPath(this.ctrl.analysisTree!, nextActivePath)) {
+            this.suppressLocalPath = true;
+            try {
+                this.ctrl.activateTreePath(nextActivePath, true, false);
+            } finally {
+                this.suppressLocalPath = false;
+            }
+        }
+    }
+
+    private restorePendingTreeMutations(pendingMutations: PendingMutation[]): void {
+        const tree = this.ctrl.analysisTree;
+        if (!tree) return;
+        for (const queued of pendingMutations) {
+            const path = queued.body.path;
+            if (typeof path !== 'string') continue;
+            if (queued.type === 'study_delete_node') {
+                if (nodeAtPath(tree, path)) deleteNodePath(tree, path);
+            } else if (queued.type === 'study_promote_variation') {
+                if (nodeAtPath(tree, path)) promoteNodePath(tree, path, queued.body.toMainline === true);
+            } else if (queued.type === 'study_force_variation') {
+                if (nodeAtPath(tree, path)) forceVariationAt(tree, path, queued.body.force === true);
+            }
+        }
     }
 
     private overlayPendingAnnotations(

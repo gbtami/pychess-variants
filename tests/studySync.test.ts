@@ -775,6 +775,135 @@ describe('Study analysis websocket synchronization', () => {
         expect(reload).not.toHaveBeenCalled();
     });
 
+    test('reconciles a duplicate move id and continues queued descendant mutations', () => {
+        const ctrl = makeCtrl();
+        const reload = jest.fn();
+        const opIds = ['LocalE4Op', 'LocalE5Op', 'LocalNote'];
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            onReloadRequired: reload,
+            opIdFactory: () => opIds.shift()!,
+        });
+        const localE4: StudyTreeNodeDto = { ...e4Node(), id: 'LocalNode1' };
+        const localE5: StudyTreeNodeDto = {
+            id: 'LocalNode2',
+            parentId: 'LocalNode1',
+            order: 0,
+            move: 'e7e5',
+            fen: 'e5 w - - 0 2',
+            turnColor: 'white',
+            check: false,
+            san: 'e5',
+            sanSAN: 'e5',
+        };
+        addStudyNodeToAnalysisTree(ctrl.analysisTree, '', localE4);
+        addStudyNodeToAnalysisTree(ctrl.analysisTree, 'LocalNode1', localE5);
+        ctrl.analysisPath = 'LocalNode1.LocalNode2';
+
+        extension.onSocketOpen();
+        extension.onNodeAdded('', ctrl.analysisTree.root.children[0]);
+        extension.onNodeAdded('LocalNode1', ctrl.analysisTree.root.children[0].children[0]);
+        extension.setComment('Comment001', 'Keep this note', 'LocalNode1.LocalNode2');
+
+        expect(ctrl.doSend).toHaveBeenCalledTimes(1);
+        expect(extension.pendingCount).toBe(3);
+
+        const canonicalE4: StudyTreeNodeDto = { ...e4Node(), id: 'CanonNode1' };
+        extension.onSocketMessage('study_add_node', {
+            type: 'study_add_node',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'RemoteE4Op',
+            revision: 1,
+            changed: true,
+            parentPath: '',
+            path: 'CanonNode1',
+            node: canonicalE4,
+        });
+        expect(ctrl.analysisTree.root.children.map((node: any) => node.id)).toEqual(['CanonNode1', 'LocalNode1']);
+
+        extension.onSocketMessage('study_add_node', {
+            type: 'study_add_node',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'LocalE4Op',
+            revision: 1,
+            changed: false,
+            parentPath: '',
+            path: 'CanonNode1',
+            move: 'e2e4',
+            node: canonicalE4,
+        });
+
+        expect(reload).not.toHaveBeenCalled();
+        expect(extension.pendingCount).toBe(2);
+        expect(ctrl.analysisTree.root.children.map((node: any) => node.id)).toEqual(['CanonNode1']);
+        expect(ctrl.analysisTree.byPath.has('LocalNode1')).toBe(false);
+        expect(ctrl.analysisTree.byPath.has('LocalNode1.LocalNode2')).toBe(false);
+        expect(ctrl.analysisTree.byPath.get('CanonNode1.LocalNode2')?.step.move).toBe('e7e5');
+        expect(ctrl.analysisPath).toBe('CanonNode1.LocalNode2');
+        expect(ctrl.doSend).toHaveBeenCalledTimes(2);
+        expect(ctrl.doSend).toHaveBeenLastCalledWith({
+            type: 'study_add_node',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'LocalE5Op',
+            expectedRevision: 1,
+            parentPath: 'CanonNode1',
+            move: 'e7e5',
+            nodeId: 'LocalNode2',
+        });
+
+        extension.onSocketMessage('study_add_node', {
+            type: 'study_add_node',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'LocalE5Op',
+            revision: 2,
+            changed: true,
+            parentPath: 'CanonNode1',
+            path: 'CanonNode1.LocalNode2',
+            move: 'e7e5',
+            node: { ...localE5, parentId: 'CanonNode1' },
+        });
+
+        expect(ctrl.doSend).toHaveBeenCalledTimes(3);
+        expect(ctrl.doSend).toHaveBeenLastCalledWith({
+            type: 'study_set_comment',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'LocalNote',
+            expectedRevision: 2,
+            path: 'CanonNode1.LocalNode2',
+            commentId: 'Comment001',
+            text: 'Keep this note',
+        });
+        expect(ctrl.analysisTree.byPath.get('CanonNode1.LocalNode2')?.annotations?.comments).toEqual([
+            { id: 'Comment001', author: 'owner', text: 'Keep this note' },
+        ]);
+
+        extension.onSocketMessage('study_set_comment', {
+            type: 'study_set_comment',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'LocalNote',
+            revision: 3,
+            changed: true,
+            path: 'CanonNode1.LocalNode2',
+            annotations: {
+                shapes: [],
+                comments: [{ id: 'Comment001', author: 'owner', text: 'Keep this note' }],
+                nags: [],
+            },
+        });
+
+        expect(extension.pendingCount).toBe(0);
+        expect(extension.revision).toBe(3);
+        expect(reload).not.toHaveBeenCalled();
+    });
+
     test('reloads after a real websocket reconnect because broadcasts may have been missed', () => {
         const ctrl = makeCtrl();
         const reload = jest.fn();

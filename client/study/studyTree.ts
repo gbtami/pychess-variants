@@ -465,6 +465,61 @@ export function mergeStudyNodeIntoAnalysisTree(
     return path;
 }
 
+export function reconcileStudyNodeIntoAnalysisTree(
+    tree: AnalysisTree,
+    parentPath: string,
+    localNodeId: string,
+    dtoNode: StudyTreeNodeDto,
+): { localPath: string; canonicalPath: string } | undefined {
+    if (!isStudyNodeId(localNodeId)) return undefined;
+    const parent = tree.byPath.get(parentPath);
+    if (!parent) return undefined;
+
+    const localPath = parentPath ? `${parentPath}.${localNodeId}` : localNodeId;
+    const localNode = tree.byPath.get(localPath);
+    const canonicalPath = mergeStudyNodeIntoAnalysisTree(tree, parentPath, dtoNode);
+    if (!canonicalPath) return undefined;
+    const canonicalNode = tree.byPath.get(canonicalPath);
+    if (!canonicalNode) return undefined;
+
+    if (localNode && localNode !== canonicalNode) {
+        const localIndex = parent.children.indexOf(localNode);
+        if (localIndex < 0) return undefined;
+
+        const descendants: AnalysisTreeNode[] = [];
+        const collect = (node: AnalysisTreeNode): void => {
+            for (const child of node.children) {
+                descendants.push(child);
+                collect(child);
+            }
+        };
+        collect(localNode);
+        const descendantSet = new Set(descendants);
+        const remappedPaths = descendants.map(node => [
+            node,
+            `${canonicalPath}${node.path.slice(localPath.length)}`,
+        ] as const);
+        for (const [node, nextPath] of remappedPaths) {
+            const existing = tree.byPath.get(nextPath);
+            if (existing && existing !== node && !descendantSet.has(existing)) return undefined;
+        }
+
+        parent.children.splice(localIndex, 1);
+        canonicalNode.children.push(...localNode.children);
+        localNode.children = [];
+        if (localNode.collapsed !== undefined) canonicalNode.collapsed = localNode.collapsed;
+
+        tree.byPath.delete(localPath);
+        for (const [node] of remappedPaths) tree.byPath.delete(node.path);
+        for (const [node, nextPath] of remappedPaths) {
+            node.path = nextPath;
+            tree.byPath.set(nextPath, node);
+        }
+    }
+
+    return { localPath, canonicalPath };
+}
+
 export function mergeStudyTreeIntoAnalysisTree(tree: AnalysisTree, dto: StudyTreeDto): boolean {
     if (dto.rootClocks !== undefined) {
         if (
