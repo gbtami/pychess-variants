@@ -4056,6 +4056,29 @@ img.logo {
   padding: 1rem;
 }
 
+/* Native confirmations use the browser top layer so they can be opened
+   above another modal <dialog> without closing or reparenting it. Keep the
+   legacy root layout above for non-native consumers such as Add to Study. */
+.confirm-dialog-root.confirm-dialog-native[open] {
+  display: block;
+  width: min(420px, calc(100vw - 2rem));
+  height: fit-content;
+  margin: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: visible;
+}
+
+.confirm-dialog-native::backdrop {
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.confirm-dialog-native .confirm-dialog-content {
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .confirm-dialog-wrap {
   position: fixed;
   inset: 0;

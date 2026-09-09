@@ -11,30 +11,30 @@ interface ConfirmDialogOptions {
 }
 
 let dialogVNode: VNode | null = null;
-let keydownHandler: ((event: KeyboardEvent) => void) | null = null;
 let pendingResolve: ((value: boolean) => void) | null = null;
 
-function ensureDialogElement(): HTMLElement {
-    let dialogElement = document.getElementById('confirm-dialog');
-    if (!dialogElement) {
-        dialogElement = document.createElement('div');
-        dialogElement.id = 'confirm-dialog';
-        dialogElement.className = 'confirm-dialog-root';
-        document.body.appendChild(dialogElement);
-    }
+function ensureDialogElement(): HTMLDialogElement {
+    const existing = document.getElementById('confirm-dialog');
+    if (existing instanceof HTMLDialogElement) return existing;
+    existing?.remove();
+
+    const dialogElement = document.createElement('dialog');
+    dialogElement.id = 'confirm-dialog';
+    dialogElement.className = 'confirm-dialog-root confirm-dialog-native';
+    dialogElement.addEventListener('cancel', event => {
+        event.preventDefault();
+        closeDialog(false);
+    });
+    dialogElement.addEventListener('click', event => {
+        if (event.target === dialogElement) closeDialog(false);
+    });
+    document.body.appendChild(dialogElement);
     return dialogElement;
 }
 
 function closeDialog(result: boolean): void {
-    if (keydownHandler) {
-        document.removeEventListener('keydown', keydownHandler);
-        keydownHandler = null;
-    }
-
     const dialogElement = document.getElementById('confirm-dialog');
-    if (dialogElement) {
-        dialogElement.style.display = 'none';
-    }
+    if (dialogElement instanceof HTMLDialogElement && dialogElement.open) dialogElement.close();
     dialogVNode = null;
 
     if (pendingResolve) {
@@ -46,12 +46,20 @@ function closeDialog(result: boolean): void {
 
 function renderDialog(options: ConfirmDialogOptions): void {
     const dialogElement = ensureDialogElement();
+    const currentElm = dialogVNode?.elm as Node | undefined;
+    if (dialogVNode !== null && (!currentElm || !document.contains(currentElm))) {
+        dialogVNode = null;
+    }
 
     const contentChildren: VNode[] = [];
     if (options.title) {
-        contentChildren.push(h('h2', options.title));
+        contentChildren.push(h('h2#confirm-dialog-title', options.title));
+        dialogElement.setAttribute('aria-labelledby', 'confirm-dialog-title');
+    } else {
+        dialogElement.removeAttribute('aria-labelledby');
     }
-    contentChildren.push(h('p', options.text));
+    contentChildren.push(h('p#confirm-dialog-text', options.text));
+    dialogElement.setAttribute('aria-describedby', 'confirm-dialog-text');
     contentChildren.push(
         h('div.confirm-dialog-actions', [
             h(
@@ -77,23 +85,7 @@ function renderDialog(options: ConfirmDialogOptions): void {
         ]),
     );
 
-    const vnode = h('div.confirm-dialog-wrap', [
-        h('div.confirm-dialog-backdrop', {
-            on: {
-                click: () => closeDialog(false),
-            },
-        }),
-        h(
-            'div.confirm-dialog-content',
-            {
-                attrs: {
-                    role: 'dialog',
-                    'aria-modal': 'true',
-                },
-            },
-            contentChildren,
-        ),
-    ]);
+    const vnode = h('div.confirm-dialog-content', contentChildren);
 
     if (dialogVNode === null) {
         dialogElement.innerHTML = '';
@@ -104,7 +96,10 @@ function renderDialog(options: ConfirmDialogOptions): void {
         dialogVNode = patch(dialogVNode, vnode);
     }
 
-    dialogElement.style.display = 'flex';
+    // showModal() promotes the confirmation to the browser top layer. This is
+    // important when a confirmation is opened from another native <dialog>:
+    // the parent can stay open while the confirmation appears above it.
+    if (!dialogElement.open) dialogElement.showModal();
     window.requestAnimationFrame(() => {
         const confirmButton = dialogElement.querySelector('.confirm-dialog-confirm') as HTMLButtonElement | null;
         if (confirmButton) confirmButton.focus();
@@ -112,21 +107,9 @@ function renderDialog(options: ConfirmDialogOptions): void {
 }
 
 export function confirmDialog(options: ConfirmDialogOptions): Promise<boolean> {
-    if (pendingResolve) {
-        const resolve = pendingResolve;
-        pendingResolve = null;
-        resolve(false);
-    }
+    if (pendingResolve) closeDialog(false);
 
     renderDialog(options);
-
-    keydownHandler = (event: KeyboardEvent) => {
-        if (event.key === 'Escape') {
-            event.preventDefault();
-            closeDialog(false);
-        }
-    };
-    document.addEventListener('keydown', keydownHandler);
 
     return new Promise<boolean>(resolve => {
         pendingResolve = resolve;

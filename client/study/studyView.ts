@@ -186,9 +186,6 @@ function deleteForm(
                 submit: event => {
                     event.preventDefault();
                     const form = event.currentTarget as HTMLFormElement;
-                    const modal = form.closest<HTMLDialogElement>('dialog');
-                    const reopenModal = Boolean(modal?.open);
-                    if (reopenModal) modal?.close();
                     void confirmDialog({
                         text: prompt,
                         confirmText: label,
@@ -196,7 +193,6 @@ function deleteForm(
                         danger: true,
                     }).then(confirmed => {
                         if (confirmed) HTMLFormElement.prototype.submit.call(form);
-                        else if (reopenModal && modal?.isConnected) modal.showModal();
                     });
                 },
             },
