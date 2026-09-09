@@ -59,6 +59,7 @@ async def test_study_create_modal_starts_with_default_chess_chapter(aiohttp_clie
     assert "data-study-new-open" in html
     assert 'id="study-new-dialog"' in html
     assert 'id="study-create-form"' in html
+    assert '<script src="' in html and "pychess-variants.js" in html
     assert 'name="variant"' not in html
     assert 'name="gameId"' not in html
     assert 'name="fen"' not in html
