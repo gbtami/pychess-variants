@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import time
 from dataclasses import replace
@@ -12,13 +13,16 @@ from const import FOLLOW
 from fairy import FairyBoard
 from mongomock_motor import AsyncMongoMockClient
 from pychess_global_app_state_utils import get_app_state
+from study import storage as study_storage
 from study.builder import StudyChapterBuilder
+from study.sequencer import sequence_study
 from study.storage import (
     add_chapter,
     add_study_member,
     create_study_from_draft,
     set_study_visibility,
 )
+from views import study as study_views
 
 from server import make_app
 
@@ -148,6 +152,171 @@ async def test_analysis_can_append_to_existing_owned_study(aiohttp_client) -> No
     assert chapters[1]["name"] == "Imported analysis"
     assert chapters[1]["orientation"] == "black"
     assert chapters[1]["tags"] == {"Black": "Bob", "White": "Alice"}
+
+
+@pytest.mark.asyncio
+async def test_chapter_create_reloads_writer_after_waiting_for_study_sequencer(
+    aiohttp_client, monkeypatch
+) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    owner = "chapter_lock_owner"
+    writer = "chapter_lock_writer"
+    await _insert_user(app_state, owner)
+    await _insert_user(app_state, writer)
+
+    draft = await StudyChapterBuilder(app_state, owner).blank_or_fen(variant="chess")
+    study, _ = await create_study_from_draft(app_state, owner, draft, visibility="unlisted")
+    await add_study_member(app_state, study.id, owner, writer, "write")
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie(writer)})
+
+    original_load_study = study_views.load_study
+    loaded = asyncio.Event()
+    resume_load = asyncio.Event()
+
+    async def pausing_load_study(inner_app_state, study_id):
+        result = await original_load_study(inner_app_state, study_id)
+        if study_id == study.id:
+            loaded.set()
+            await resume_load.wait()
+        return result
+
+    monkeypatch.setattr(study_views, "load_study", pausing_load_study)
+
+    sequencer = sequence_study(app_state, study.id)
+    await sequencer.__aenter__()
+    try:
+        request_task = asyncio.create_task(
+            client.post(
+                f"/study/{study.id}/chapter",
+                data={"chapterName": "Should not be created", "variant": "chess"},
+                allow_redirects=False,
+            )
+        )
+        try:
+            await asyncio.wait_for(loaded.wait(), timeout=0.05)
+        except TimeoutError:
+            pass
+
+        await app_state.db.study.update_one(
+            {"_id": study.id},
+            {
+                "$set": {
+                    "members": {owner: "write"},
+                    "memberIds": [owner],
+                    "writeMemberIds": [owner],
+                }
+            },
+        )
+        resume_load.set()
+    finally:
+        await sequencer.__aexit__(None, None, None)
+
+    response = await request_task
+    assert response.status == 403
+    assert await app_state.db.study_chapter.count_documents({"studyId": study.id}) == 1
+
+
+@pytest.mark.asyncio
+async def test_concurrent_chapter_creates_share_cap_and_order_sequencer(
+    aiohttp_client, monkeypatch
+) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    owner = "chapter_create_owner"
+    await _insert_user(app_state, owner)
+
+    draft = await StudyChapterBuilder(app_state, owner).blank_or_fen(variant="chess")
+    study, _ = await create_study_from_draft(app_state, owner, draft)
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie(owner)})
+
+    monkeypatch.setattr(study_storage, "STUDY_MAX_CHAPTERS", 2)
+    original_add_chapter = study_views.add_chapter_from_draft
+    active = 0
+    max_active = 0
+
+    async def observed_add_chapter(inner_app_state, inner_study, inner_draft):
+        nonlocal active, max_active
+        active += 1
+        max_active = max(max_active, active)
+        try:
+            await asyncio.sleep(0.02)
+            return await original_add_chapter(inner_app_state, inner_study, inner_draft)
+        finally:
+            active -= 1
+
+    monkeypatch.setattr(study_views, "add_chapter_from_draft", observed_add_chapter)
+
+    first_response, second_response = await asyncio.gather(
+        client.post(
+            f"/study/{study.id}/chapter",
+            data={"chapterName": "Second A", "variant": "chess"},
+            allow_redirects=False,
+        ),
+        client.post(
+            f"/study/{study.id}/chapter",
+            data={"chapterName": "Second B", "variant": "chess"},
+            allow_redirects=False,
+        ),
+    )
+
+    assert sorted((first_response.status, second_response.status)) == [302, 400]
+    assert max_active == 1
+    chapters = (
+        await app_state.db.study_chapter.find({"studyId": study.id})
+        .sort("order", 1)
+        .to_list(length=10)
+    )
+    assert [chapter["order"] for chapter in chapters] == [1, 2]
+
+
+@pytest.mark.asyncio
+async def test_concurrent_chapter_deletes_are_serialized_by_study(
+    aiohttp_client, monkeypatch
+) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    owner = "chapter_delete_owner"
+    await _insert_user(app_state, owner)
+
+    draft = await StudyChapterBuilder(app_state, owner).blank_or_fen(variant="chess")
+    study, first = await create_study_from_draft(app_state, owner, draft)
+    second = await add_chapter(app_state, study, first, name="Second")
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie(owner)})
+
+    original_delete_chapter = study_views.delete_chapter
+    active = 0
+    max_active = 0
+
+    async def observed_delete_chapter(inner_app_state, inner_study, inner_chapter):
+        nonlocal active, max_active
+        active += 1
+        max_active = max(max_active, active)
+        try:
+            await asyncio.sleep(0.02)
+            return await original_delete_chapter(inner_app_state, inner_study, inner_chapter)
+        finally:
+            active -= 1
+
+    monkeypatch.setattr(study_views, "delete_chapter", observed_delete_chapter)
+
+    first_response, second_response = await asyncio.gather(
+        client.post(
+            f"/study/{study.id}/{first.id}/delete",
+            allow_redirects=False,
+        ),
+        client.post(
+            f"/study/{study.id}/{second.id}/delete",
+            allow_redirects=False,
+        ),
+    )
+
+    assert sorted((first_response.status, second_response.status)) == [302, 400]
+    assert max_active == 1
+    assert await app_state.db.study_chapter.count_documents({"studyId": study.id}) == 1
 
 
 @pytest.mark.asyncio

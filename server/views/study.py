@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import json
-from collections.abc import Mapping
+from collections.abc import AsyncIterator, Mapping
+from contextlib import asynccontextmanager
 from typing import Any, cast
 
 import aiohttp_jinja2
@@ -20,7 +21,6 @@ from study.builder import (
     StudyOrientation,
 )
 from study.constants import (
-    STUDY_MAX_CHAPTERS,
     STUDY_MAX_MEMBERS,
     STUDY_MAX_TOPICS,
     STUDY_PREVIEW_NB_MEMBERS,
@@ -251,6 +251,41 @@ async def _writable_study_and_chapter(
             raise web.HTTPNotFound(text="Study has no chapters")
         chapter = StudyChapter.from_document(doc)
     return user, context, study, chapter
+
+
+@asynccontextmanager
+async def _sequenced_writable_study_and_chapter(
+    request: web.Request,
+) -> AsyncIterator[tuple[Any, ViewContext, Study, StudyChapter]]:
+    """Load authoritative writable Study/chapter state under its mutation sequencer."""
+
+    user, context = await get_user_context(request)
+    _require_owner_user(user)
+    app_state = get_app_state(request.app)
+    if app_state.db is None:
+        raise web.HTTPServiceUnavailable(text="Studies require database access.")
+
+    study_id = request.match_info["studyId"]
+    async with sequence_study(app_state, study_id):
+        study = await load_study(app_state, study_id)
+        if study is None or not can_view_study(study, user.username):
+            raise web.HTTPNotFound()
+        if not can_write_study(study, user.username):
+            raise web.HTTPForbidden(text="You cannot edit this Study.")
+
+        requested_chapter_id = request.match_info.get("chapterId")
+        chapter_id = requested_chapter_id or study.current_chapter
+        chapter = await load_chapter(app_state, study.id, chapter_id) if chapter_id else None
+        if requested_chapter_id and chapter is None:
+            raise web.HTTPNotFound()
+        if chapter is None:
+            doc = await app_state.db.study_chapter.find_one(
+                {"studyId": study.id}, sort=[("order", 1)]
+            )
+            if doc is None:
+                raise web.HTTPNotFound(text="Study has no chapters")
+            chapter = StudyChapter.from_document(doc)
+        yield user, context, study, chapter
 
 
 async def _viewable_study_and_chapter(
@@ -954,12 +989,13 @@ async def study_from_analysis(request: web.Request) -> web.StreamResponse:
         )
         destination_id = str(data.get("studyId") or "").strip()
         if destination_id:
-            study = await load_study(app_state, destination_id)
-            if study is None or not can_view_study(study, user.username):
-                return web.json_response({"ok": False, "error": "study_not_found"}, status=404)
-            if not can_write_study(study, user.username):
-                return web.json_response({"ok": False, "error": "forbidden"}, status=403)
-            chapter = await add_chapter_from_draft(app_state, study, draft)
+            async with sequence_study(app_state, destination_id):
+                study = await load_study(app_state, destination_id)
+                if study is None or not can_view_study(study, user.username):
+                    return web.json_response({"ok": False, "error": "study_not_found"}, status=404)
+                if not can_write_study(study, user.username):
+                    return web.json_response({"ok": False, "error": "forbidden"}, status=403)
+                chapter = await add_chapter_from_draft(app_state, study, draft)
         else:
             study, chapter = await create_study_from_draft(
                 app_state,
@@ -989,17 +1025,6 @@ async def study_import_pgn(request: web.Request) -> web.StreamResponse:
     if not isinstance(raw_chapters, list) or not raw_chapters:
         return web.json_response(
             {"ok": False, "error": "PGN import contains no chapters"}, status=400
-        )
-
-    existing = await app_state.db.study_chapter.count_documents({"studyId": study.id})
-    remaining = max(0, STUDY_MAX_CHAPTERS - existing)
-    if len(raw_chapters) > remaining:
-        return web.json_response(
-            {
-                "ok": False,
-                "error": f"Study has room for {remaining} more chapter{'s' if remaining != 1 else ''}",
-            },
-            status=400,
         )
 
     builder = StudyChapterBuilder(app_state, user.username)
@@ -1084,7 +1109,8 @@ async def study_import_pgn(request: web.Request) -> web.StreamResponse:
             )
 
     try:
-        chapters = await add_chapters_from_drafts(app_state, study, drafts)
+        async with _sequenced_writable_study_and_chapter(request) as (_, _, study, _):
+            chapters = await add_chapters_from_drafts(app_state, study, drafts)
     except StudyStorageError as exc:
         return web.json_response({"ok": False, "error": str(exc)}, status=400)
 
@@ -1301,72 +1327,83 @@ async def study_leave(request: web.Request) -> web.StreamResponse:
 
 
 async def study_chapter_create(request: web.Request) -> web.StreamResponse:
-    user, _, study, chapter = await _writable_study_and_chapter(request)
     data = await read_post_data(request)
     if data is None:
         raise web.HTTPNoContent()
     app_state = get_app_state(request.app)
     try:
-        # A source-aware form creates a fresh chapter. The old one-button request still
-        # creates a blank chapter using the current chapter's variant as its default.
-        draft = await _draft_from_form(
-            StudyChapterBuilder(app_state, user.username),
-            data,
-            fallback_variant=chapter.variant,
-            fallback_chess960=chapter.chess960,
-        )
-        created = await add_chapter_from_draft(app_state, study, draft)
+        async with _sequenced_writable_study_and_chapter(request) as (
+            user,
+            _,
+            study,
+            chapter,
+        ):
+            # A source-aware form creates a fresh chapter. The old one-button request still
+            # creates a blank chapter using the current chapter's variant as its default.
+            draft = await _draft_from_form(
+                StudyChapterBuilder(app_state, user.username),
+                data,
+                fallback_variant=chapter.variant,
+                fallback_chess960=chapter.chess960,
+            )
+            created = await add_chapter_from_draft(app_state, study, draft)
     except (StudyStorageError, StudyChapterBuildError) as exc:
         raise web.HTTPBadRequest(text=str(exc)) from exc
     raise web.HTTPFound(f"/study/{study.id}/{created.id}")
 
 
 async def study_chapter_edit(request: web.Request) -> web.StreamResponse:
-    _, _, study, chapter = await _writable_study_and_chapter(request)
     data = await read_post_data(request)
     if data is None:
         raise web.HTTPNoContent()
+    app_state = get_app_state(request.app)
     try:
-        await edit_chapter_metadata(
-            get_app_state(request.app),
-            chapter,
-            name=data.get("name"),
-            orientation=data.get("orientation", chapter.orientation),
-            pinned_description=data.get("description") if "description" in data else None,
-        )
+        async with _sequenced_writable_study_and_chapter(request) as (_, _, study, chapter):
+            await edit_chapter_metadata(
+                app_state,
+                chapter,
+                name=data.get("name"),
+                orientation=data.get("orientation", chapter.orientation),
+                pinned_description=data.get("description") if "description" in data else None,
+            )
     except StudyStorageError as exc:
         raise web.HTTPBadRequest(text=str(exc)) from exc
     raise web.HTTPFound(f"/study/{study.id}/{chapter.id}")
 
 
 async def study_chapter_clear_annotations(request: web.Request) -> web.StreamResponse:
-    _, _, study, chapter = await _writable_study_and_chapter(request)
     app_state = get_app_state(request.app)
     try:
-        changed = await clear_chapter_annotations(app_state, study, chapter)
+        async with _sequenced_writable_study_and_chapter(request) as (_, _, study, chapter):
+            changed = await clear_chapter_annotations(app_state, study, chapter)
+            if changed:
+                await broadcast_study_reload(
+                    app_state, study.id, reason="chapter_annotations_cleared"
+                )
     except StudyStorageError as exc:
         raise web.HTTPBadRequest(text=str(exc)) from exc
-    if changed:
-        await broadcast_study_reload(app_state, study.id, reason="chapter_annotations_cleared")
     raise web.HTTPFound(f"/study/{study.id}/{chapter.id}")
 
 
 async def study_chapter_clear_variations(request: web.Request) -> web.StreamResponse:
-    _, _, study, chapter = await _writable_study_and_chapter(request)
     app_state = get_app_state(request.app)
     try:
-        changed = await clear_chapter_variations(app_state, study, chapter)
+        async with _sequenced_writable_study_and_chapter(request) as (_, _, study, chapter):
+            changed = await clear_chapter_variations(app_state, study, chapter)
+            if changed:
+                await broadcast_study_reload(
+                    app_state, study.id, reason="chapter_variations_cleared"
+                )
     except StudyStorageError as exc:
         raise web.HTTPBadRequest(text=str(exc)) from exc
-    if changed:
-        await broadcast_study_reload(app_state, study.id, reason="chapter_variations_cleared")
     raise web.HTTPFound(f"/study/{study.id}/{chapter.id}")
 
 
 async def study_chapter_delete(request: web.Request) -> web.StreamResponse:
-    _, _, study, chapter = await _writable_study_and_chapter(request)
+    app_state = get_app_state(request.app)
     try:
-        next_chapter = await delete_chapter(get_app_state(request.app), study, chapter)
+        async with _sequenced_writable_study_and_chapter(request) as (_, _, study, chapter):
+            next_chapter = await delete_chapter(app_state, study, chapter)
     except StudyStorageError as exc:
         raise web.HTTPBadRequest(text=str(exc)) from exc
     raise web.HTTPFound(f"/study/{study.id}/{next_chapter}")
