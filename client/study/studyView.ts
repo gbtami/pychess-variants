@@ -12,7 +12,7 @@ import { copyTextToClipboard } from '../clipboard';
 import { downloadText, notifyChessgroundResize, patch } from '../document';
 import { _, ngettext } from '../i18n';
 import type { PyChessModel, StudyFeatureSelection, StudyPageModel } from '../types';
-import { selectVariant, twoBoarsVariants, loadCataloguedVariantsFromJson, variantConfigIni } from '../variants';
+import { loadCataloguedVariantsFromJson, variantConfigIni } from '../variants';
 import { variantsIni } from '../variantsIni';
 import { createWebsocket } from '../socket/webSocketUtils';
 import { displayUsername, userLink } from '../user';
@@ -22,6 +22,7 @@ import { StudyAnalysisExtension, type StudyAnnotationState } from './studySync';
 import { GLYPH_GROUPS, toggleGlyph } from '../analysis/glyphs';
 import { StudyCommentEditor } from './commentEditor';
 import { fetchStudyChapterExportData, renderStudyChapterPgn, renderStudyPgn, studyPgnFilename } from './studyPgn';
+import { studyChapterCreateForm } from './studyChapterForm';
 
 function dialogField(label: string, control: VNode): VNode {
     return h('label.study-dialog__field', [h('span', label), control]);
@@ -1207,42 +1208,15 @@ function studySide(study: StudyPageModel, model: PyChessModel): VNode {
                       ]),
                   ),
                   dialog('study-new-chapter', _('Add a new chapter'), [
-                      h(
-                          'form.study-side__new-chapter',
-                          { attrs: { method: 'post', action: `/study/${study.id}/chapter` } },
-                          [
-                              chapterField('chapterName', _('Chapter name'), '', 80),
-                              h('label', [
-                                  h('span', _('Variant')),
-                                  selectVariant(
-                                      'variant',
-                                      model.variant || 'chess',
-                                      () => {},
-                                      () => {},
-                                      twoBoarsVariants,
-                                  ),
-                              ]),
-                              model.chess960 === 'True'
-                                  ? h('input', { attrs: { type: 'hidden', name: 'chess960', value: '1' } })
-                                  : '',
-                              chapterField('fen', _('FEN (optional)')),
-                              chapterField('gameId', _('Game ID (optional)'), '', 12),
-                              h('button.button', { attrs: { type: 'submit' } }, _('Create chapter')),
-                          ],
+                      studyChapterCreateForm(
+                          `/study/${study.id}/chapter`,
+                          model.variant || 'chess',
+                          model.chess960 === 'True',
                       ),
                   ]),
               ]
             : []),
         ...(study.isOwner && Object.keys(study.members).length < study.maxMembers ? [studyInviteDialog(study)] : []),
-    ]);
-}
-
-function chapterField(name: string, label: string, value = '', maxLength?: number): VNode {
-    return h('label', [
-        h('span', label),
-        h('input', {
-            attrs: { type: 'text', name, value, ...(maxLength ? { maxlength: maxLength } : {}), autocomplete: 'off' },
-        }),
     ]);
 }
 

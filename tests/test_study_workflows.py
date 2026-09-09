@@ -45,7 +45,7 @@ def _login_cookie(username: str) -> str:
 
 
 @pytest.mark.asyncio
-async def test_study_create_modal_starts_with_default_chess_chapter(aiohttp_client) -> None:
+async def test_study_create_modal_collects_first_chapter_before_creating(aiohttp_client) -> None:
     app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
     client = await aiohttp_client(app)
     app_state = get_app_state(app)
@@ -59,10 +59,14 @@ async def test_study_create_modal_starts_with_default_chess_chapter(aiohttp_clie
     assert "data-study-new-open" in html
     assert 'id="study-new-dialog"' in html
     assert 'id="study-create-form"' in html
+    assert 'id="study-first-chapter-dialog"' in html
+    assert 'id="study-first-chapter-form-mount"' in html
     assert '<script src="' in html and "pychess-variants.js" in html
-    assert 'name="variant"' not in html
-    assert 'name="gameId"' not in html
-    assert 'name="fen"' not in html
+
+    study_form = html.split('id="study-create-form"', 1)[1].split("</form>", 1)[0]
+    assert 'name="variant"' not in study_form
+    assert 'name="gameId"' not in study_form
+    assert 'name="fen"' not in study_form
 
     response = await client.post(
         "/study",
@@ -73,10 +77,8 @@ async def test_study_create_modal_starts_with_default_chess_chapter(aiohttp_clie
             "explorer": "owner",
             "cloneable": "contributor",
             "shareable": "nobody",
-            # Study creation intentionally ignores chapter-specific input.
+            "chapterName": "Atomic opener",
             "variant": "atomic",
-            "fen": "not-a-fen",
-            "gameId": "ignored",
         },
         allow_redirects=False,
     )
@@ -93,8 +95,10 @@ async def test_study_create_modal_starts_with_default_chess_chapter(aiohttp_clie
     }
     chapter_doc = await app_state.db.study_chapter.find_one({"studyId": study_doc["_id"]})
     assert chapter_doc is not None
-    assert chapter_doc["variant"] == "chess"
-    assert chapter_doc["initialFen"] == FairyBoard.start_fen("chess")
+    assert chapter_doc["name"] == "Atomic opener"
+    assert chapter_doc["variant"] == "atomic"
+    assert chapter_doc["initialFen"] == FairyBoard.start_fen("atomic")
+    assert response.headers["Location"] == f"/study/{study_doc['_id']}/{chapter_doc['_id']}"
 
 
 @pytest.mark.asyncio

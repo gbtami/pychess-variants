@@ -57,7 +57,6 @@ from study.storage import (
     clone_study,
     contributed_studies_page,
     create_study_from_draft,
-    create_study_with_chapter,
     delete_chapter,
     delete_study,
     edit_chapter_metadata,
@@ -688,13 +687,19 @@ async def study_create(request: web.Request) -> web.StreamResponse:
         }
     except ValueError as exc:
         raise web.HTTPBadRequest(text="Invalid Study settings") from exc
-    study, chapter = await create_study_with_chapter(
-        app_state,
-        user.username,
-        name=data.get("name"),
-        visibility=visibility,
-        settings=settings,
-    )
+
+    try:
+        draft = await _draft_from_form(StudyChapterBuilder(app_state, user.username), data)
+        study, chapter = await create_study_from_draft(
+            app_state,
+            user.username,
+            draft,
+            name=data.get("name"),
+            visibility=visibility,
+            settings=settings,
+        )
+    except (StudyStorageError, StudyChapterBuildError) as exc:
+        raise web.HTTPBadRequest(text=str(exc)) from exc
     raise web.HTTPFound(f"/study/{study.id}/{chapter.id}")
 
 
