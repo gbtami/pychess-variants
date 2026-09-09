@@ -1,4 +1,80 @@
-Study review: PyChess 1.11.66 → 303bf70dc
+Study re-review: 303bf70dc → 019e79ee1
+
+Reviewed the latest nine fixes, fe47ee21c through 019e79ee1, and their surrounding Study code paths. The earlier review is retained below as history. No application source was changed. Per request, no local lint, test, build, or browser suites were run. Findings below are based on source inspection and explicit event/write orderings, not newly executed reproductions. The reported green GitHub workflows are taken as given.
+
+Fresh authorization under the shared sequencer addresses the original websocket join race. Chapter CRUD now uses that sequencer, native snapshot registrations have an admission budget and isolated import validation, duplicate move acknowledgements remap pending paths, and membership events recognize read-role changes. Five issues remain in the reviewed flows.
+
+1. **[P2] Preserve parsed evaluations through server-side import validation.**
+
+   References: [tree rebuilding](/home/tami/pychess-variants/server/study/builder.py:470), [PGN normalization](/home/tami/pychess-variants/client/study/studyPgnImport.ts:402).
+
+   The new browser importer parses `[%eval ...]` into each submitted node's `eval`, and `StudyTreeNode.from_payload` accepts it. Both ordinary and embedded-snapshot imports then call `_validated_tree`, whose replacement node copies clocks, annotations, and variation flags but omits `eval_score`. That field defaults to `None`, so every imported evaluation disappears before the chapter is saved.
+
+   For example, importing `1. e4 {[%eval 0.35]} *` produces a browser node with a score, but the persisted rebuilt node has no evaluation. Exporting and reimporting an evaluated Study therefore still loses its scores. The same builder also affects analysis-tree imports.
+
+   Fix: carry the validated submitted evaluation into the rebuilt node, with its point of view tied to the authoritative reconstructed position. Coverage needs to cross the server import/save boundary; browser parser/export assertions alone cannot cover this loss.
+
+2. **[P2] Broadcast the description and revision when the chapter form changes pinning.**
+
+   References: [metadata mutation](/home/tami/pychess-variants/server/study/storage.py:1297), [HTTP broadcast](/home/tami/pychess-variants/server/views/study.py:1412), [client metadata application](/home/tami/pychess-variants/client/study/studySync.ts:552).
+
+   Enabling a previously absent description writes `"-"`; disabling an existing description removes it. `edit_chapter_metadata` increments the chapter revision in either case. The handler sends only `study_chapters`, whose previews contain `descriptionPinned` but neither the description nor the chapter revision. The client updates name, order, and orientation without advancing `currentRevision` or refreshing the description.
+
+   With both viewers at revision R, toggling description pinning leaves the collaborator at R while the server is at R+1. The next accepted move/comment is broadcast at R+2, causing the collaborator's revision check to request a reload. A queued continuation is interrupted; even without another edit, the description stays stale.
+
+   Fix: publish a revision-bearing chapter-content update that clients apply in order, or explicitly reload the affected chapter on description changes. A preview update cannot represent a mutation that advances the content revision.
+
+3. **[P2] Include Study-wide state in snapshot-to-stream reconciliation.**
+
+   References: [chapter-only verification response](/home/tami/pychess-variants/server/study/ws.py:296), [whole Study snapshot replacement](/home/tami/pychess-variants/client/study/studyView.ts:2074), [HTTP shared state and capabilities](/home/tami/pychess-variants/server/views/study.py:813).
+
+   The handshake fingerprints only a `StudyChapter`, while navigation subsequently assigns the entire HTTP `data.study` object over live state. Shared position, members/settings, likes/topics, and the chapter list are outside that fingerprint. A successful chapter check does not establish that the Study data being installed is current.
+
+   Concrete ordering: a reader with SYNC off starts loading chapter B; its HTTP snapshot contains shared path P0. While the request or engine preparation is pending, a contributor selects an existing path P1. The reader receives `study_position`, updating live `study.sharedPath` to P1. Chapter B itself has not changed, so verification succeeds. `Object.assign(study, data.study)` restores P0. Adding another chapter during the fetch can similarly update the live chapter list and then have that update overwritten.
+
+   Initial connection has the analogous gap: a Study-wide change between HTTP rendering and room insertion is absent from the connected acknowledgement and cannot invalidate an unchanged chapter token. Removing read membership from a public Study during this interval can leave member-gated capabilities enabled in the initial page despite the membership-event fix.
+
+   Fix: reconcile Study-wide state as well as chapter content at the subscribed boundary. Use a Study/room version or an authoritative room snapshot and preserve/replay newer events; do not overwrite already-applied live fields with unchecked HTTP data.
+
+4. **[P2] Put whole-Study deletion through the sequencer and terminate its room.**
+
+   References: [delete handler](/home/tami/pychess-variants/server/views/study.py:1277), [two-collection deletion](/home/tami/pychess-variants/server/study/storage.py:1486), [chapter insertion](/home/tami/pychess-variants/server/study/storage.py:1018).
+
+   Chapter CRUD now uses `sequence_study`, but the ordinary whole-Study delete route still loads and deletes outside it. Deletion removes chapters first, then the Study document. A chapter creation already authorized under the sequencer can insert its new chapter after `delete_many`, leaving an orphan when the parent Study is removed. The single-chapter add does not check the parent update's `matched_count`, so it can even report success after that parent has disappeared.
+
+   The ordinary delete route also neither broadcasts deletion nor closes the room. Idle collaborators keep displaying a deleted Study until a later action or reload reveals it. The account-erasure deletion path already closes sockets under the sequencer.
+
+   Fix: load authoritative ownership and perform deletion plus room termination inside the same sequencer used by chapter additions and analysis work. Check failed parent updates defensively so they cannot leave orphan chapters.
+
+5. **[P2] Recheck comment authorship under the erasure lock instead of trusting the preliminary scan.**
+
+   References: [unlocked authorship scan](/home/tami/pychess-variants/server/study/gdpr.py:95), [restricted rewrite query](/home/tami/pychess-variants/server/study/gdpr.py:143), [erasure sequencing](/home/tami/pychess-variants/server/study/gdpr.py:266), [account cleanup order](/home/tami/pychess-variants/server/account_api.py:579).
+
+   Erasure scans all chapter roots before acquiring Study locks. For a Study owned by someone else, the locked rewrite visits only chapter IDs found by that scan and returns immediately if none matched. Existing Study sockets can still submit comments during this interval: the member has not yet been removed, and the mutation service authorizes against Study membership.
+
+   Concrete ordering: the scan sees no Alice comment in Bob's chapter; Alice's open tab saves a pending comment; erasure then locks Bob's Study. Membership makes it an affected Study, but the empty `authored_chapter_ids` set skips its chapters. Erasure removes Alice from membership and closes her socket while leaving the new comment attributed to her erased account.
+
+   Fix: prevent further authored writes before discovery and scan affected Studies authoritatively under their sequencer before membership removal completes. At minimum, member-Study rewrites must not be restricted to chapter IDs captured before locking. Rereading only previously matched chapters does not cover new matches.
+
+Status of the original nine findings
+
+| Earlier finding | Assessment from this review |
+| --- | --- |
+| 1. Websocket join authorization race | Addressed by fresh authorization and room insertion under the revocation sequencer. |
+| 2. Concurrent chapter CRUD | Addressed for chapter routes; whole-Study deletion remains outside the sequencer. |
+| 3. Unbounded native snapshot registration | Admission is bounded and untrusted FEN/tree validation is isolated. No new memory measurements were taken. |
+| 4. Duplicate move IDs abandon continuations | Remapping addresses the reported same-move case and rewrites pending paths. No runtime replay was performed here. |
+| 5. Chapter lifecycle broadcasts | Added, but description-changing metadata edits omit their content revision. |
+| 6. Snapshot-to-stream gap | Chapter verification added; Study-wide state remains outside the boundary. |
+| 7. PGN result/clock/evaluation loss | Result export and clock-pair serialization added; server import still discards evaluations. |
+| 8. Read membership capability changes | Own-role transitions trigger a capability reload; initial-load reconciliation remains a separate gap. |
+| 9. Account erasure integration | Policy and cleanup added; comments written between discovery and locked cleanup can escape anonymization. |
+
+Deferred product features listed in the earlier review remain outside the findings. Visual/theme parity, live engine behavior, production memory use, and browser-suite status were not reverified. No claim of a newly passing or failing local test is made.
+
+---
+
+Historical review: PyChess 1.11.66 → 303bf70dc
 
 Compared with local lila 39deb036f3. Scope: Study persistence, HTTP and websocket mutations, collaboration, REC/SYNC, permissions, annotations, PGN, Fishnet integration, and custom-variant lifetime. Unrelated merged PRs were considered only where they intersect these flows. No application source was changed. This review does not establish visual parity across themes, devices, or variant families.
 
