@@ -13,3 +13,6 @@
     <a class="admin-nav__item{% if admin_section == 'system-messages' %} active{% endif %}" href="/admin/system-messages">System messages</a>
     <a class="admin-nav__item{% if admin_section == 'operations' %} active{% endif %}" href="/admin/operations">Site operations</a>
 </nav>
+{% block js %}
+    <script src="{{ js }}"></script>
+{% endblock %}
