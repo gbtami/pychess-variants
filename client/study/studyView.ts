@@ -1936,6 +1936,7 @@ function runStudyGround(
                 variantIni: study.chapter.variantIni ?? undefined,
                 createdAt: study.chapter.createdAt,
                 serverEval: study.chapter.serverEval,
+                memberRole: model.username ? study.members[model.username] : undefined,
                 onAnnotationStateChanged: state => updateAnnotationPanel(study, modeActions, state, editor),
                 onServerEvalChanged: serverEval => {
                     study.chapter.serverEval = serverEval ?? null;
@@ -1986,14 +1987,12 @@ function runStudyGround(
                     else if (!extension.followSharedPath(path)) window.location.reload();
                 },
                 onMembersChanged: members => {
-                    const previousCanWrite = study.canWrite;
                     study.members = { ...members };
                     if (study.memberConfig && !members[study.memberConfig]) study.memberConfig = undefined;
                     study.canWrite = model.username ? members[model.username] === 'write' : false;
                     if (!study.canWrite) study.write = false;
                     sideVNode = patch(sideVNode, studySide(study, model));
                     refreshStudyModeButtons(study);
-                    if (study.canWrite !== previousCanWrite) window.location.reload();
                 },
                 onLikesChanged: likes => {
                     study.likes = likes;

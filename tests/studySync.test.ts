@@ -680,6 +680,7 @@ describe('Study analysis websocket synchronization', () => {
             chapterId: 'chapter1',
             revision: 0,
             writable: true,
+            memberRole: 'write',
             onMembersChanged: membersChanged,
             onReloadRequired: reload,
         });
@@ -695,9 +696,81 @@ describe('Study analysis websocket synchronization', () => {
         ).toBe(true);
 
         expect(membersChanged).toHaveBeenCalledWith({ owner: 'write', writer: 'read' });
-        expect(reload).toHaveBeenCalledWith('write_access_changed');
+        expect(reload).toHaveBeenCalledWith('member_access_changed');
         extension.setDescription('must stay local');
         expect(ctrl.doSend).not.toHaveBeenCalled();
+    });
+
+    test('reloads when read membership changes even though write access stays false', () => {
+        const addedCtrl = makeCtrl();
+        addedCtrl.username = 'reader';
+        const addedReload = jest.fn();
+        const added = new StudyAnalysisExtension(addedCtrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            writable: false,
+            onReloadRequired: addedReload,
+        });
+        added.onSocketOpen();
+
+        expect(
+            added.onSocketMessage('study_members', {
+                type: 'study_members',
+                studyId: 'study001',
+                members: { owner: 'write', reader: 'read' },
+                revision: 1,
+            }),
+        ).toBe(true);
+        expect(addedReload).toHaveBeenCalledWith('member_access_changed');
+
+        const removedCtrl = makeCtrl();
+        removedCtrl.username = 'reader';
+        const removedReload = jest.fn();
+        const removed = new StudyAnalysisExtension(removedCtrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            writable: false,
+            memberRole: 'read',
+            onReloadRequired: removedReload,
+        });
+        removed.onSocketOpen();
+
+        expect(
+            removed.onSocketMessage('study_members', {
+                type: 'study_members',
+                studyId: 'study001',
+                members: { owner: 'write' },
+                revision: 1,
+            }),
+        ).toBe(true);
+        expect(removedReload).toHaveBeenCalledWith('member_access_changed');
+    });
+
+    test('does not reload when only another Study member changes', () => {
+        const ctrl = makeCtrl();
+        ctrl.username = 'reader';
+        const reload = jest.fn();
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            writable: false,
+            memberRole: 'read',
+            onReloadRequired: reload,
+        });
+        extension.onSocketOpen();
+
+        expect(
+            extension.onSocketMessage('study_members', {
+                type: 'study_members',
+                studyId: 'study001',
+                members: { owner: 'write', reader: 'read', contributor: 'write' },
+                revision: 1,
+            }),
+        ).toBe(true);
+        expect(reload).not.toHaveBeenCalled();
     });
 
     test('updates the Study like count from room broadcasts', () => {

@@ -82,6 +82,8 @@ type PendingMutation = {
     sent: boolean;
 };
 
+export type StudyMemberRole = 'read' | 'write';
+
 export interface StudyAnnotationState {
     path: string;
     annotations: StudyAnnotationsDto;
@@ -113,7 +115,8 @@ export interface StudySyncOptions {
     serverEval?: StudyServerEval | null;
     onAnnotationStateChanged?: (state: StudyAnnotationState) => void;
     onReloadRequired?: (reason: string) => void;
-    onMembersChanged?: (members: Record<string, 'read' | 'write'>) => void;
+    memberRole?: StudyMemberRole;
+    onMembersChanged?: (members: Record<string, StudyMemberRole>) => void;
     onLikesChanged?: (likes: number) => void;
     onTopicsChanged?: (topics: string[]) => void;
     onChaptersChanged?: (chapters: StudyChapterPreview[], sharedChapter: string, sharedPath: string) => void;
@@ -374,6 +377,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     >();
     private streamReady: boolean;
     private writable: boolean;
+    private memberRole?: StudyMemberRole;
     private recording: boolean;
     private suppressLocalPath = false;
     private pendingSharedPosition?: { chapterId: string; path: string };
@@ -403,6 +407,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         this.syncIdFactory = options.syncIdFactory ?? newStudyNodeId;
         this.streamReady = options.snapshotVerified === true || !options.snapshotToken;
         this.writable = options.writable ?? true;
+        this.memberRole = options.memberRole ?? (this.writable ? 'write' : undefined);
         this.recording = this.writable && (options.recording ?? true);
     }
 
@@ -869,15 +874,19 @@ export class StudyAnalysisExtension implements AnalysisExtension {
                 this.requestReload('invalid_members');
                 return true;
             }
-            const nextWritable = members[this.ctrl.username] === 'write';
-            const capabilityChanged = nextWritable !== this.writable;
-            this.writable = nextWritable;
+            const nextRole = members[this.ctrl.username];
+            const membershipChanged = nextRole !== this.memberRole;
+            this.memberRole = nextRole;
+            this.writable = nextRole === 'write';
             if (!this.writable) {
                 this.recording = false;
                 this.pendingSharedPosition = undefined;
             }
             this.options.onMembersChanged?.(members);
-            if (capabilityChanged) this.requestReload('write_access_changed');
+            // Read membership can gate computer analysis, cloning and sharing even
+            // when write access stays false. Reload only when this viewer's own role
+            // changes so the complete capability set is rebuilt from server state.
+            if (membershipChanged) this.requestReload('member_access_changed');
             return true;
         }
 
