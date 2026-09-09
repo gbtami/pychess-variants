@@ -737,6 +737,17 @@ async def close_study_sockets(app_state: PychessGlobalAppState, study_id: str) -
         await ws.close()
 
 
+async def close_study_user_sockets(
+    app_state: PychessGlobalAppState, study_id: str, username: str
+) -> None:
+    """Close one user's live sockets in a Study room without evicting other viewers."""
+
+    users = app_state.study_socket_users.get(study_id, {})
+    for ws, socket_username in tuple(users.items()):
+        if socket_username == username:
+            await ws.close()
+
+
 async def study_socket_handler(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     study_id = request.match_info["studyId"]

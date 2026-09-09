@@ -1443,10 +1443,13 @@ These are not Phase 1 blockers beyond owner deletion, but the data model must ma
 straightforward.
 
 - Owner deleting an owner-only Study can delete its chapter documents.
-- When collaboration exists, account deletion must define whether an owned Study is
-  deleted, transferred, or anonymized if other collaborators depend on it.
-- Member/comment authorship must be erasable/anonymizable under the existing account
-  deletion flow.
+- Account erasure follows the Lichess Study policy: delete Studies owned by the erased
+  account when they are private/unlisted; retain public Studies but anonymize their
+  Study/chapter owner as `<erased>` so public collaborative work is not reassigned to a
+  real user. Remove the erased account from every remaining membership and like list.
+- Persisted Study comments authored by the erased account are retained as collaborative
+  content but their author is anonymized to `<erased>`. Live Study sockets are refreshed
+  and the erased user's sockets are closed under the normal per-Study sequencer.
 - Public Study descriptions/comments/chat become user-generated public content and must
   be included in moderation/reporting policy.
 - Private visibility must be checked on every direct chapter/export/embed endpoint, not

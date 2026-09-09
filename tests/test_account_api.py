@@ -10,6 +10,8 @@ from bot_accounts import BOT_TOKEN_SCOPE, create_bot_token
 from forum.constants import ERASED_POST_TEXT, ERASED_POST_USER
 from mongomock_motor import AsyncMongoMockClient
 from pychess_global_app_state_utils import get_app_state
+from study.gdpr import STUDY_ERASED_USER
+from study.storage import create_study_with_chapter, set_study_visibility
 from team import TEAM_ERASED_UPDATE_TEXT, TEAM_ERASED_USER
 from user import User
 
@@ -925,6 +927,47 @@ class AccountApiTestCase(AioHTTPTestCase):
         self.assertEqual("cached bob simul", app_state.simuls["simul1"].tourneychat[1]["message"])
         self.assertEqual(ERASED_POST_USER, app_state.games["g1"].messages[0]["user"])
         self.assertEqual("cached bob game", app_state.games["g1"].messages[1]["message"])
+
+    async def test_account_delete_applies_study_erasure_policy(self):
+        app_state = get_app_state(self.app)
+        user = User(app_state, username="alice")
+        app_state.users[user.username] = user
+        await app_state.db.user.insert_one(
+            {
+                "_id": "alice",
+                "username_lower": "alice",
+                "enabled": True,
+                "createdAt": datetime.now(UTC),
+                "perfs": {},
+                "pperfs": {},
+                "count": {"game": 0, "win": 0, "loss": 0, "draw": 0, "rated": 0},
+            }
+        )
+        private, private_chapter = await create_study_with_chapter(
+            app_state, "alice", name="Private study"
+        )
+        public, public_chapter = await create_study_with_chapter(
+            app_state, "alice", name="Public study"
+        )
+        await set_study_visibility(app_state, public, "public")
+
+        self.set_session_user("alice")
+        response = await self.client.post(
+            "/account/delete",
+            data={"confirm_username": "alice", "understand": "on"},
+            allow_redirects=False,
+        )
+        self.assertEqual(response.status, 302)
+
+        self.assertIsNone(await app_state.db.study.find_one({"_id": private.id}))
+        self.assertIsNone(await app_state.db.study_chapter.find_one({"_id": private_chapter.id}))
+        public_doc = await app_state.db.study.find_one({"_id": public.id})
+        self.assertIsNotNone(public_doc)
+        self.assertEqual(STUDY_ERASED_USER, public_doc.get("owner"))
+        self.assertNotIn("alice", public_doc.get("members", {}))
+        self.assertNotIn("alice", public_doc.get("likers", []))
+        public_chapter_doc = await app_state.db.study_chapter.find_one({"_id": public_chapter.id})
+        self.assertEqual(STUDY_ERASED_USER, public_chapter_doc.get("owner"))
 
     async def test_reopen_self_closed_account(self):
         app_state = get_app_state(self.app)
