@@ -105,6 +105,18 @@ class StudyImportTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertIn("4P3", node["f"])
         self.assertEqual(imported["root"]["_"]["a"]["c"][0]["a"], "owner")
 
+    async def test_sync_off_import_keeps_existing_shared_chapter(self) -> None:
+        response = await self._request(
+            {
+                "sync": False,
+                "chapters": [self._chapter("e2e4", name="Private import", node_id="Node000009")],
+            }
+        )
+        self.assertEqual(response.status, 200)
+        study_doc = await self.db.study.find_one({"_id": self.study.id})
+        assert study_doc is not None
+        self.assertEqual(study_doc["currentChapter"], self.initial_chapter.id)
+
     async def test_rejects_illegal_later_chapter_without_partial_import(self) -> None:
         invalid = self._chapter("e2e5", name="Illegal", node_id="Node000004")
         response = await self._request(

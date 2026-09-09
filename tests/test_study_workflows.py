@@ -48,6 +48,17 @@ def _login_cookie(username: str) -> str:
     return json.dumps({"session": {"user_name": username}, "created": int(time.time())})
 
 
+class _StudyRoomSocket:
+    def __init__(self) -> None:
+        self.sent: list[dict[str, object]] = []
+
+    async def send_str(self, payload: str) -> None:
+        self.sent.append(json.loads(payload))
+
+    async def close(self) -> None:
+        return None
+
+
 @pytest.mark.asyncio
 async def test_study_create_modal_collects_first_chapter_before_creating(aiohttp_client) -> None:
     app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
@@ -117,6 +128,8 @@ async def test_analysis_can_append_to_existing_owned_study(aiohttp_client) -> No
         variant="chess", name="First chapter"
     )
     study, _ = await create_study_from_draft(app_state, username, first, name="Existing Study")
+    room = _StudyRoomSocket()
+    app_state.study_sockets[study.id] = {room}
 
     client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie(username)})
 
@@ -152,6 +165,8 @@ async def test_analysis_can_append_to_existing_owned_study(aiohttp_client) -> No
     assert chapters[1]["name"] == "Imported analysis"
     assert chapters[1]["orientation"] == "black"
     assert chapters[1]["tags"] == {"Black": "Bob", "White": "Alice"}
+    assert [message["type"] for message in room.sent] == ["study_chapters", "study_position"]
+    assert room.sent[1]["chapterId"] == chapters[1]["_id"]
 
 
 @pytest.mark.asyncio
@@ -237,13 +252,17 @@ async def test_concurrent_chapter_creates_share_cap_and_order_sequencer(
     active = 0
     max_active = 0
 
-    async def observed_add_chapter(inner_app_state, inner_study, inner_draft):
+    async def observed_add_chapter(
+        inner_app_state, inner_study, inner_draft, *, activate_shared=True
+    ):
         nonlocal active, max_active
         active += 1
         max_active = max(max_active, active)
         try:
             await asyncio.sleep(0.02)
-            return await original_add_chapter(inner_app_state, inner_study, inner_draft)
+            return await original_add_chapter(
+                inner_app_state, inner_study, inner_draft, activate_shared=activate_shared
+            )
         finally:
             active -= 1
 
@@ -317,6 +336,107 @@ async def test_concurrent_chapter_deletes_are_serialized_by_study(
     assert sorted((first_response.status, second_response.status)) == [302, 400]
     assert max_active == 1
     assert await app_state.db.study_chapter.count_documents({"studyId": study.id}) == 1
+
+
+@pytest.mark.asyncio
+async def test_chapter_create_honors_sync_mode_and_broadcasts_chapter_list(aiohttp_client) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    owner = "chapter_sync_owner"
+    await _insert_user(app_state, owner)
+
+    draft = await StudyChapterBuilder(app_state, owner).blank_or_fen(
+        variant="chess", name="Shared chapter"
+    )
+    study, first = await create_study_from_draft(app_state, owner, draft)
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie(owner)})
+    room = _StudyRoomSocket()
+    app_state.study_sockets[study.id] = {room}
+
+    response = await client.post(
+        f"/study/{study.id}/chapter",
+        data={"chapterName": "Private branch", "variant": "chess", "sync": "0"},
+        allow_redirects=False,
+    )
+    assert response.status == 302
+
+    stored = await app_state.db.study.find_one({"_id": study.id})
+    assert stored is not None
+    assert stored["currentChapter"] == first.id
+    assert [message["type"] for message in room.sent] == ["study_chapters"]
+    chapter_event = room.sent[0]
+    assert chapter_event["sharedChapter"] == first.id
+    assert chapter_event["sharedPath"] == ""
+    assert [chapter["name"] for chapter in chapter_event["chapters"]] == [
+        "Shared chapter",
+        "Private branch",
+    ]
+
+    room.sent.clear()
+    response = await client.post(
+        f"/study/{study.id}/chapter",
+        data={"chapterName": "Shared branch", "variant": "chess", "sync": "1"},
+        allow_redirects=False,
+    )
+    assert response.status == 302
+    shared_id = response.headers["Location"].rsplit("/", 1)[-1]
+    stored = await app_state.db.study.find_one({"_id": study.id})
+    assert stored is not None
+    assert stored["currentChapter"] == shared_id
+    assert [message["type"] for message in room.sent] == ["study_chapters", "study_position"]
+    assert room.sent[0]["sharedChapter"] == shared_id
+    assert room.sent[1] == {
+        "type": "study_position",
+        "studyId": study.id,
+        "chapterId": shared_id,
+        "path": "",
+    }
+
+
+@pytest.mark.asyncio
+async def test_chapter_edit_and_delete_are_broadcast_to_room(aiohttp_client) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    owner = "chapter_broadcast_owner"
+    await _insert_user(app_state, owner)
+
+    draft = await StudyChapterBuilder(app_state, owner).blank_or_fen(
+        variant="chess", name="First chapter"
+    )
+    study, first = await create_study_from_draft(app_state, owner, draft)
+    second = await add_chapter(app_state, study, first, name="Second chapter")
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie(owner)})
+    room = _StudyRoomSocket()
+    app_state.study_sockets[study.id] = {room}
+
+    response = await client.post(
+        f"/study/{study.id}/{first.id}/edit",
+        data={"name": "Renamed first", "orientation": "black"},
+        allow_redirects=False,
+    )
+    assert response.status == 302
+    assert [message["type"] for message in room.sent] == ["study_chapters"]
+    first_preview = room.sent[0]["chapters"][0]
+    assert first_preview["name"] == "Renamed first"
+    assert first_preview["orientation"] == "black"
+
+    room.sent.clear()
+    response = await client.post(
+        f"/study/{study.id}/{second.id}/delete",
+        allow_redirects=False,
+    )
+    assert response.status == 302
+    assert [message["type"] for message in room.sent] == ["study_chapters", "study_position"]
+    assert [chapter["id"] for chapter in room.sent[0]["chapters"]] == [first.id]
+    assert room.sent[0]["sharedChapter"] == first.id
+    assert room.sent[1] == {
+        "type": "study_position",
+        "studyId": study.id,
+        "chapterId": first.id,
+        "path": "",
+    }
 
 
 @pytest.mark.asyncio

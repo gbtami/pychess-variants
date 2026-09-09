@@ -92,8 +92,10 @@ from study.variant import (
     study_variant_metadata,
 )
 from study.ws import (
+    broadcast_study_chapters,
     broadcast_study_likes,
     broadcast_study_members,
+    broadcast_study_position,
     broadcast_study_reload,
     broadcast_study_topics,
     close_study_sockets,
@@ -110,6 +112,20 @@ def _require_owner_user(user: Any) -> None:
         raise web.HTTPFound("/login")
     if user.bot:
         raise web.HTTPForbidden(text="BOT accounts cannot use Studies.")
+
+
+def _study_sync_enabled(value: object, *, default: bool = True) -> bool:
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        normalized = value.strip().lower()
+        if normalized in {"1", "true", "on", "yes"}:
+            return True
+        if normalized in {"0", "false", "off", "no"}:
+            return False
+    raise StudyStorageError("Invalid Study SYNC mode")
 
 
 def _study_context(context: ViewContext) -> None:
@@ -994,13 +1010,19 @@ async def study_from_analysis(request: web.Request) -> web.StreamResponse:
         )
         destination_id = str(data.get("studyId") or "").strip()
         if destination_id:
+            activate_shared = _study_sync_enabled(data.get("sync"))
             async with sequence_study(app_state, destination_id):
                 study = await load_study(app_state, destination_id)
                 if study is None or not can_view_study(study, user.username):
                     return web.json_response({"ok": False, "error": "study_not_found"}, status=404)
                 if not can_write_study(study, user.username):
                     return web.json_response({"ok": False, "error": "forbidden"}, status=403)
-                chapter = await add_chapter_from_draft(app_state, study, draft)
+                chapter = await add_chapter_from_draft(
+                    app_state, study, draft, activate_shared=activate_shared
+                )
+                await broadcast_study_chapters(app_state, study.id)
+                if activate_shared:
+                    await broadcast_study_position(app_state, study.id, chapter.id, "")
         else:
             study, chapter = await create_study_from_draft(
                 app_state,
@@ -1116,8 +1138,14 @@ async def study_import_pgn(request: web.Request) -> web.StreamResponse:
             )
 
     try:
+        activate_shared = _study_sync_enabled(data.get("sync"))
         async with _sequenced_writable_study_and_chapter(request) as (_, _, study, _):
-            chapters = await add_chapters_from_drafts(app_state, study, drafts)
+            chapters = await add_chapters_from_drafts(
+                app_state, study, drafts, activate_shared=activate_shared
+            )
+            await broadcast_study_chapters(app_state, study.id)
+            if activate_shared:
+                await broadcast_study_position(app_state, study.id, chapters[-1].id, "")
     except StudyStorageError as exc:
         return web.json_response({"ok": False, "error": str(exc)}, status=400)
 
@@ -1353,7 +1381,13 @@ async def study_chapter_create(request: web.Request) -> web.StreamResponse:
                 fallback_variant=chapter.variant,
                 fallback_chess960=chapter.chess960,
             )
-            created = await add_chapter_from_draft(app_state, study, draft)
+            activate_shared = _study_sync_enabled(data.get("sync"))
+            created = await add_chapter_from_draft(
+                app_state, study, draft, activate_shared=activate_shared
+            )
+            await broadcast_study_chapters(app_state, study.id)
+            if activate_shared:
+                await broadcast_study_position(app_state, study.id, created.id, "")
     except (StudyStorageError, StudyChapterBuildError) as exc:
         raise web.HTTPBadRequest(text=str(exc)) from exc
     raise web.HTTPFound(f"/study/{study.id}/{created.id}")
@@ -1373,6 +1407,7 @@ async def study_chapter_edit(request: web.Request) -> web.StreamResponse:
                 orientation=data.get("orientation", chapter.orientation),
                 pinned_description=data.get("description") if "description" in data else None,
             )
+            await broadcast_study_chapters(app_state, study.id)
     except StudyStorageError as exc:
         raise web.HTTPBadRequest(text=str(exc)) from exc
     raise web.HTTPFound(f"/study/{study.id}/{chapter.id}")
@@ -1410,7 +1445,13 @@ async def study_chapter_delete(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     try:
         async with _sequenced_writable_study_and_chapter(request) as (_, _, study, chapter):
+            shared_chapter_deleted = (
+                not study.current_chapter or study.current_chapter == chapter.id
+            )
             next_chapter = await delete_chapter(app_state, study, chapter)
+            await broadcast_study_chapters(app_state, study.id)
+            if shared_chapter_deleted:
+                await broadcast_study_position(app_state, study.id, next_chapter, "")
     except StudyStorageError as exc:
         raise web.HTTPBadRequest(text=str(exc)) from exc
     raise web.HTTPFound(f"/study/{study.id}/{next_chapter}")

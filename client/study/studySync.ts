@@ -13,7 +13,7 @@ import {
 import type { AnalysisController } from '../analysis/analysisCtrl';
 import type { Ceval } from '../messages';
 import type { AnalysisExtension, AnalysisExtensionFactory } from '../analysis/analysisExtension';
-import type { JSONObject, StudyServerEval } from '../types';
+import type { JSONObject, StudyChapterPreview, StudyServerEval } from '../types';
 import {
     mergeStudyNodeIntoAnalysisTree,
     mergeStudyTreeIntoAnalysisTree,
@@ -37,6 +37,7 @@ const STUDY_SOCKET_TYPES = new Set([
     'study_members',
     'study_likes',
     'study_topics',
+    'study_chapters',
     'study_position',
     'study_analysis_progress',
     'study_analysis_unavailable',
@@ -112,6 +113,7 @@ export interface StudySyncOptions {
     onMembersChanged?: (members: Record<string, 'read' | 'write'>) => void;
     onLikesChanged?: (likes: number) => void;
     onTopicsChanged?: (topics: string[]) => void;
+    onChaptersChanged?: (chapters: StudyChapterPreview[], sharedChapter: string, sharedPath: string) => void;
     onLocalPathChanged?: (path: string) => void;
     onSharedPositionChanged?: (chapterId: string, path: string) => void;
     onServerEvalChanged?: (serverEval: StudyServerEval | undefined) => void;
@@ -152,6 +154,36 @@ function asStringArray(value: unknown): string[] | undefined {
         result.push(entry);
     }
     return result;
+}
+
+function asStudyChapterPreviews(value: unknown): StudyChapterPreview[] | undefined {
+    if (!Array.isArray(value) || value.length === 0) return undefined;
+    const chapters: StudyChapterPreview[] = [];
+    const ids = new Set<string>();
+    for (const entry of value) {
+        const chapter = record(entry);
+        if (
+            !chapter ||
+            typeof chapter.id !== 'string' ||
+            !chapter.id ||
+            ids.has(chapter.id) ||
+            typeof chapter.name !== 'string' ||
+            !Number.isInteger(chapter.order) ||
+            (chapter.order as number) < 1 ||
+            (chapter.orientation !== 'white' && chapter.orientation !== 'black') ||
+            (chapter.descriptionPinned !== undefined && typeof chapter.descriptionPinned !== 'boolean')
+        )
+            return undefined;
+        ids.add(chapter.id);
+        chapters.push({
+            id: chapter.id,
+            name: chapter.name,
+            order: chapter.order as number,
+            orientation: chapter.orientation,
+            ...(chapter.descriptionPinned === undefined ? {} : { descriptionPinned: chapter.descriptionPinned }),
+        });
+    }
+    return chapters;
 }
 
 function asStudyMembers(value: unknown): Record<string, 'read' | 'write'> | undefined {
@@ -464,6 +496,14 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         return study && chapter ? renderStudyChapterPgn(study, chapter) : undefined;
     }
 
+    updateChapterMetadata(chapter: StudyChapterPreview): void {
+        if (chapter.id !== this.options.chapterId) return;
+        this.options.chapterName = chapter.name;
+        this.options.chapterOrder = chapter.order;
+        this.options.orientation = chapter.orientation;
+        if (this.ctrl.chessground.state.orientation !== chapter.orientation) this.ctrl.toggleOrientation();
+    }
+
     onOrientationChanged(): void {
         this.options.onOrientationChanged?.(this.ctrl.chessground.state.orientation);
     }
@@ -686,6 +726,22 @@ export class StudyAnalysisExtension implements AnalysisExtension {
                 this.options.onServerEvalChanged?.(undefined);
             }
             this.options.onServerAnalysisUnavailable?.(data.reason);
+            return true;
+        }
+
+        if (type === 'study_chapters') {
+            const chapters = asStudyChapterPreviews(data.chapters);
+            if (
+                !chapters ||
+                typeof data.sharedChapter !== 'string' ||
+                !data.sharedChapter ||
+                !chapters.some(chapter => chapter.id === data.sharedChapter) ||
+                typeof data.sharedPath !== 'string'
+            ) {
+                this.requestReload('invalid_chapter_list');
+                return true;
+            }
+            this.options.onChaptersChanged?.(chapters, data.sharedChapter, data.sharedPath);
             return true;
         }
 

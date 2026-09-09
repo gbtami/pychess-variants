@@ -1224,6 +1224,7 @@ function studySide(study: StudyPageModel, model: PyChessModel): VNode {
                           `/study/${study.id}/chapter`,
                           model.variant || 'chess',
                           model.chess960 === 'True',
+                          { sync: () => Boolean(study.sticky) },
                       ),
                   ]),
               ]
@@ -1952,6 +1953,21 @@ function runStudyGround(
                         study.behind = Math.max(1, study.behind ?? 0);
                         refreshStudyModeButtons(study);
                     }
+                },
+                onChaptersChanged: (chapters, sharedChapter) => {
+                    study.chapters = chapters.map(chapter => ({ ...chapter }));
+                    const current = study.chapters.find(chapter => chapter.id === study.chapter.id);
+                    sideVNode = patch(sideVNode, studySide(study, model));
+                    if (!current) {
+                        const fallback =
+                            study.chapters.find(chapter => chapter.id === sharedChapter)?.id ?? study.chapters[0]?.id;
+                        if (fallback) void navigation?.go(fallback, 'replace');
+                        return;
+                    }
+                    study.chapter.name = current.name;
+                    study.chapter.order = current.order;
+                    study.chapter.orientation = current.orientation;
+                    extension.updateChapterMetadata(current);
                 },
                 onSharedPositionChanged: (chapterId, path) => {
                     const changed = study.sharedChapter !== chapterId || study.sharedPath !== path;

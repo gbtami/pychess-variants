@@ -16,7 +16,7 @@ from study.models import Study
 from study.mutations import StudyMutationResult, StudyMutationService
 from study.permissions import can_view_study
 from study.sequencer import cleanup_study_sequence, sequence_study
-from study.storage import StudyStorageError, set_shared_position
+from study.storage import StudyStorageError, chapter_previews, set_shared_position
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -142,6 +142,50 @@ async def _finish_mutation(
         await ws_send_json(ws, payload)
 
 
+async def broadcast_study_chapters(
+    app_state: PychessGlobalAppState,
+    study_id: str,
+) -> None:
+    room = app_state.study_sockets.get(study_id)
+    if not room:
+        return
+    study_doc = await app_state.db.study.find_one(
+        {"_id": study_id}, projection={"currentChapter": 1, "currentPath": 1}
+    )
+    if study_doc is None:
+        return
+    await ws_send_json_many(
+        tuple(room),
+        {
+            "type": "study_chapters",
+            "studyId": study_id,
+            "chapters": await chapter_previews(app_state, study_id),
+            "sharedChapter": str(study_doc.get("currentChapter") or ""),
+            "sharedPath": str(study_doc.get("currentPath") or ""),
+        },
+    )
+
+
+async def broadcast_study_position(
+    app_state: PychessGlobalAppState,
+    study_id: str,
+    chapter_id: str,
+    path: str,
+) -> None:
+    room = app_state.study_sockets.get(study_id)
+    if not room:
+        return
+    await ws_send_json_many(
+        tuple(room),
+        {
+            "type": "study_position",
+            "studyId": study_id,
+            "chapterId": chapter_id,
+            "path": path,
+        },
+    )
+
+
 async def _broadcast_shared_position(
     app_state: PychessGlobalAppState,
     ws: WebSocketResponse,
@@ -149,17 +193,19 @@ async def _broadcast_shared_position(
     chapter_id: str,
     path: str,
 ) -> None:
-    payload = {
-        "type": "study_position",
-        "studyId": study_id,
-        "chapterId": chapter_id,
-        "path": path,
-    }
     room = app_state.study_sockets.get(study_id)
     if room:
-        await ws_send_json_many(tuple(room), payload)
+        await broadcast_study_position(app_state, study_id, chapter_id, path)
     else:
-        await ws_send_json(ws, payload)
+        await ws_send_json(
+            ws,
+            {
+                "type": "study_position",
+                "studyId": study_id,
+                "chapterId": chapter_id,
+                "path": path,
+            },
+        )
 
 
 async def _set_shared_position_message(

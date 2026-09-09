@@ -5,6 +5,7 @@ import { selectVariant, twoBoarsVariants } from '../variants';
 export interface StudyChapterCreateFormOptions {
     id?: string;
     chapterName?: string;
+    sync?: () => boolean;
 }
 
 function chapterField(name: string, label: string, value = '', maxLength?: number): VNode {
@@ -30,8 +31,26 @@ export function studyChapterCreateForm(
                 method: 'post',
                 action,
             },
+            ...(options.sync
+                ? {
+                      on: {
+                          submit: (event: SubmitEvent) => {
+                              const form = event.currentTarget as HTMLFormElement;
+                              const input = form.elements.namedItem('sync') as HTMLInputElement | null;
+                              if (input) input.value = options.sync?.() ? '1' : '0';
+                          },
+                      },
+                  }
+                : {}),
         },
         [
+            ...(options.sync
+                ? [
+                      h('input', {
+                          attrs: { type: 'hidden', name: 'sync', value: options.sync() ? '1' : '0' },
+                      }),
+                  ]
+                : []),
             chapterField('chapterName', _('Chapter name'), options.chapterName ?? '', 80),
             h('label', [
                 h('span', _('Variant')),

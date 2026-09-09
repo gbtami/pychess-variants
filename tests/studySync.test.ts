@@ -528,6 +528,74 @@ describe('Study analysis websocket synchronization', () => {
         });
     });
 
+    test('chapter-list messages deliver metadata and authoritative shared chapter without changing revision', () => {
+        const ctrl = makeCtrl();
+        const chaptersChanged = jest.fn();
+        const reload = jest.fn();
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 7,
+            onChaptersChanged: chaptersChanged,
+            onReloadRequired: reload,
+        });
+
+        expect(
+            extension.onSocketMessage('study_chapters', {
+                type: 'study_chapters',
+                studyId: 'study001',
+                sharedChapter: 'chapter2',
+                sharedPath: '',
+                chapters: [
+                    {
+                        id: 'chapter1',
+                        name: 'Renamed chapter',
+                        order: 1,
+                        orientation: 'black',
+                        descriptionPinned: true,
+                    },
+                    { id: 'chapter2', name: 'Second', order: 2, orientation: 'white' },
+                ],
+            }),
+        ).toBe(true);
+        expect(chaptersChanged).toHaveBeenCalledWith(
+            [
+                {
+                    id: 'chapter1',
+                    name: 'Renamed chapter',
+                    order: 1,
+                    orientation: 'black',
+                    descriptionPinned: true,
+                },
+                { id: 'chapter2', name: 'Second', order: 2, orientation: 'white' },
+            ],
+            'chapter2',
+            '',
+        );
+        expect(extension.revision).toBe(7);
+        expect(reload).not.toHaveBeenCalled();
+    });
+
+    test('rejects chapter-list messages whose shared chapter is no longer present', () => {
+        const ctrl = makeCtrl();
+        const reload = jest.fn();
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            onReloadRequired: reload,
+        });
+
+        extension.onSocketMessage('study_chapters', {
+            type: 'study_chapters',
+            studyId: 'study001',
+            sharedChapter: 'deleted',
+            sharedPath: '',
+            chapters: [{ id: 'chapter1', name: 'Only', order: 1, orientation: 'white' }],
+        });
+        expect(reload).toHaveBeenCalledWith('invalid_chapter_list');
+    });
+
     test('shared position messages are delivered independently of chapter revisions', () => {
         const ctrl = makeCtrl();
         const sharedPosition = jest.fn();

@@ -985,6 +985,8 @@ async def add_chapter_from_draft(
     app_state: Any,
     study: Study,
     draft: StudyChapterDraft,
+    *,
+    activate_shared: bool = True,
 ) -> StudyChapter:
     count = await app_state.db.study_chapter.count_documents({"studyId": study.id})
     if count >= STUDY_MAX_CHAPTERS:
@@ -1015,13 +1017,17 @@ async def add_chapter_from_draft(
     _ensure_chapter_size(chapter)
     await app_state.db.study_chapter.insert_one(chapter.to_document())
     now = datetime.now(UTC)
+    study_update: dict[str, object] = {
+        "$set": {"updatedAt": now},
+        "$inc": {"revision": 1},
+    }
+    if activate_shared:
+        cast_set = cast(dict[str, object], study_update["$set"])
+        cast_set["currentChapter"] = chapter.id
+        study_update["$unset"] = {"currentPath": ""}
     await app_state.db.study.update_one(
         {"_id": study.id, "owner": study.owner},
-        {
-            "$set": {"currentChapter": chapter.id, "updatedAt": now},
-            "$unset": {"currentPath": ""},
-            "$inc": {"revision": 1},
-        },
+        study_update,
     )
     await refresh_study_search_tokens(app_state, study.id)
     return chapter
@@ -1031,6 +1037,8 @@ async def add_chapters_from_drafts(
     app_state: Any,
     study: Study,
     drafts: list[StudyChapterDraft],
+    *,
+    activate_shared: bool = True,
 ) -> list[StudyChapter]:
     if not drafts:
         raise StudyStorageError("PGN import contains no chapters")
@@ -1076,13 +1084,17 @@ async def add_chapters_from_drafts(
             [chapter.to_document() for chapter in chapters]
         )
         now = datetime.now(UTC)
+        study_update: dict[str, object] = {
+            "$set": {"updatedAt": now},
+            "$inc": {"revision": 1},
+        }
+        if activate_shared:
+            cast_set = cast(dict[str, object], study_update["$set"])
+            cast_set["currentChapter"] = chapters[-1].id
+            study_update["$unset"] = {"currentPath": ""}
         result = await app_state.db.study.update_one(
             {"_id": study.id, "owner": study.owner},
-            {
-                "$set": {"currentChapter": chapters[-1].id, "updatedAt": now},
-                "$unset": {"currentPath": ""},
-                "$inc": {"revision": 1},
-            },
+            study_update,
         )
         if result.matched_count != 1:
             raise StudyStorageError("Study disappeared during PGN import")
