@@ -285,9 +285,19 @@ body.no-select {
 ::-webkit-scrollbar-track {
   background-color: var(--bg-color2);
 }
-::-webkit-scrollbar {
-  width: 8px;
-  background-color: #fff;
+::-webkit-scrollbar,
+::-webkit-scrollbar-corner {
+  background-color: var(--bg-color2);
+}
+/* Firefox 153 exposes partial ::-webkit-scrollbar support, but forcing its
+   width there turns the native overlay scrollbar into a layout gutter. Match
+   Lichess and only set the WebKit scrollbar width outside Gecko so Firefox
+   keeps its thin idle scrollbar and expands it on hover without shifting the
+   centered page layout. */
+@supports not (-moz-appearance: none) {
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
 }
 ::-webkit-scrollbar-thumb {
   background-color: var(--scrollbar-thumb);
