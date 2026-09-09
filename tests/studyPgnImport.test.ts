@@ -93,6 +93,48 @@ describe('Study PGN import core', () => {
         expect(roots[0].annotations?.comments[0].text).toBe('King pawn');
     });
 
+    test('imports result, clock and evaluation directives without turning them into visible comments', () => {
+        const parsed = parsedDocument();
+        parsed.games[0].tags.Result = '1-0';
+        parsed.games[0].comments = ['Root note [%csl Ge4] [%pynag 3] [%pyclocks 300000,300000]'];
+        const e4 = parsed.games[0].children[0];
+        e4.comments = ['King pawn [%cal Re2e4] [%eval 0.42] [%clk 0:04:59] [%pyclocks 298765,300000]'];
+        const e5 = e4.children![0];
+        e5.comments = ['[%eval #3] [%clk 0:04:57] [%pyclocks 298765,297234]'];
+
+        const [chapter] = normalizeStudyPgnDocument(ffish, parsed);
+        const roots = chapter.tree.nodes.filter(node => node.parentId === null).sort((a, b) => a.order - b.order);
+        const e4Node = roots[0];
+        const e5Node = chapter.tree.nodes.find(node => node.parentId === e4Node.id && node.order === 0)!;
+
+        expect(chapter.tags.Result).toBe('1-0');
+        expect(chapter.tree.rootClocks).toEqual([300000, 300000]);
+        expect(e4Node.eval).toEqual({ cp: -42 });
+        expect(e4Node.clocks).toEqual([298765, 300000]);
+        expect(e4Node.annotations?.comments.map(comment => comment.text)).toEqual(['King pawn']);
+        expect(e5Node.eval).toEqual({ mate: 3 });
+        expect(e5Node.clocks).toEqual([298765, 297234]);
+        expect(e5Node.annotations).toBeUndefined();
+    });
+
+    test('imports standard clock directives by carrying known clocks down each variation', () => {
+        const parsed = parsedDocument();
+        parsed.games[0].comments = ['[%pyclocks 300000,300000]'];
+        parsed.games[0].children[0].comments = ['[%clk 0:04:58]'];
+        parsed.games[0].children[0].children![0].comments = ['[%clk 0:04:57]'];
+        parsed.games[0].children[1].comments = ['[%clk 0:04:56]'];
+
+        const [chapter] = normalizeStudyPgnDocument(ffish, parsed);
+        const roots = chapter.tree.nodes.filter(node => node.parentId === null).sort((a, b) => a.order - b.order);
+        const e4 = roots[0];
+        const d4 = roots[1];
+        const e5 = chapter.tree.nodes.find(node => node.parentId === e4.id && node.order === 0)!;
+
+        expect(e4.clocks).toEqual([298000, 300000]);
+        expect(e5.clocks).toEqual([298000, 297000]);
+        expect(d4.clocks).toEqual([296000, 300000]);
+    });
+
     test('round-trips PyChess custom variant and description extension tags', () => {
         const ini = '[pgncustom:chess]\nstartFen = rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\n';
         const description = 'Plans ✓\nsecond line';

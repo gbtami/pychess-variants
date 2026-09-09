@@ -1097,7 +1097,8 @@ PGN in the browser; the server does not generate SAN/PGN or instantiate Fairy-St
 export. This keeps export work away from the latency-sensitive game server.
 
 Interoperable annotations follow the Lichess/de-facto PGN convention: node NAGs use normal
-`$N` syntax, circles use `[%csl ...]`, and arrows use `[%cal ...]`. Standard PGN has no
+`$N` syntax, circles use `[%csl ...]`, arrows use `[%cal ...]`, saved move clocks use
+`[%clk ...]`, and saved evaluations use `[%eval ...]`. Standard PGN has no
 position for a root NAG, so PyChess preserves those in the ignorable comment extension
 `[%pynag ...]`. The authoritative `Variant`, `FEN`, `SetUp`, and `Result` tags cannot be
 overridden by chapter free-form tags. PyChess also exports these explicit extension tags:
@@ -1108,8 +1109,11 @@ overridden by chapter free-form tags. PyChess also exports these explicit extens
   INI snapshot when one exists.
 - `PyChessChapterDescriptionEncoding=base64` plus `PyChessChapterDescription` -- exact UTF-8
   chapter description, since PGN has no standard chapter-description field.
+- `[%pyclocks whiteMs,blackMs]` -- exact PyChess two-value clock snapshot. The standard
+  `[%clk ...]` directive is exported alongside it for interoperability; the PyChess extension
+  preserves root clocks, the non-moving side, and sub-second precision across export/import.
 
-Unknown PGN tags and the `[%pynag ...]` comment remain safely ignorable by ordinary readers;
+Unknown PGN tags and the `[%pynag ...]` / `[%pyclocks ...]` comments remain safely ignorable by ordinary readers;
 Phase 2C should recognize these extensions when importing a PyChess Study export.
 
 ## 2C. PGN import
@@ -1131,7 +1135,7 @@ continues to use the lightweight parser, with its generic Variant/FEN/tag helper
 
 - [x] Define parser-neutral recursive PGN AST / adapter contract.
 - [x] Normalize one complete parsed PGN into a full variation tree, not only mainline.
-- [x] Import comments, NAGs, shapes, root `[%pynag ...]`, and PyChess export extensions.
+- [x] Import comments, NAGs, shapes, root `[%pynag ...]`, clocks/evaluations, and PyChess export extensions.
 - [x] Validate/replay every branch using the selected variant in the browser and again server-side.
 - [x] Import multiple normalized PGNs as multiple chapters up to remaining capacity.
 - [x] Produce actionable errors for unsupported/ambiguous variant notation.

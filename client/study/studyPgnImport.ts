@@ -1,5 +1,11 @@
 import { decodePgnUtf8Base64, parsePgnVariantTag } from '../pgn';
-import { newStudyNodeId, type StudyAnnotationsDto, type StudyShapeDto, type StudyTreeDto } from './studyTree';
+import {
+    newStudyNodeId,
+    type StudyAnnotationsDto,
+    type StudyEvalDto,
+    type StudyShapeDto,
+    type StudyTreeDto,
+} from './studyTree';
 
 export interface StudyPgnParserCapabilities {
     recursiveVariations: boolean;
@@ -166,10 +172,50 @@ function addUniqueShape(shapes: StudyShapeDto[], shape: StudyShapeDto): void {
     }
 }
 
-function annotationsFromPgn(
-    comments: readonly string[],
-    rawNags: readonly number[] = [],
-): StudyAnnotationsDto | undefined {
+interface ParsedPgnComments {
+    annotations?: StudyAnnotationsDto;
+    whiteEval?: StudyEvalDto;
+    clock?: number;
+    clocks?: [number, number];
+}
+
+function parsePgnClock(value: string): number | undefined {
+    const match = /^(\d+):([0-5]?\d):([0-5]?\d(?:\.\d{1,3})?)$/.exec(value.trim());
+    if (!match) return undefined;
+    const hours = Number(match[1]);
+    const minutes = Number(match[2]);
+    const seconds = Number(match[3]);
+    const milliseconds = Math.round((hours * 3600 + minutes * 60 + seconds) * 1000);
+    return Number.isSafeInteger(milliseconds) && milliseconds >= 0 ? milliseconds : undefined;
+}
+
+function parseFullClocks(value: string): [number, number] | undefined {
+    const parts = value.split(',').map(part => Number(part.trim()));
+    if (parts.length !== 2 || parts.some(clock => !Number.isFinite(clock) || clock < 0)) return undefined;
+    return [parts[0], parts[1]];
+}
+
+function parseWhiteEval(value: string): StudyEvalDto | undefined {
+    const score = value.split(',', 1)[0].trim();
+    const mate = /^#([+-]?\d+)$/.exec(score);
+    if (mate) {
+        const value = Number(mate[1]);
+        return Number.isSafeInteger(value) ? { mate: value } : undefined;
+    }
+    if (!/^[+-]?(?:\d+(?:\.\d+)?|\.\d+)$/.test(score)) return undefined;
+    const cp = Math.round(Number(score) * 100);
+    return Number.isSafeInteger(cp) ? { cp } : undefined;
+}
+
+function evalForTurn(whiteEval: StudyEvalDto | undefined, turnColor: 'white' | 'black'): StudyEvalDto | undefined {
+    if (!whiteEval) return undefined;
+    const factor = turnColor === 'black' ? -1 : 1;
+    if (whiteEval.mate !== undefined) return { mate: whiteEval.mate * factor };
+    if (whiteEval.cp !== undefined) return { cp: whiteEval.cp * factor };
+    return undefined;
+}
+
+function commentsFromPgn(comments: readonly string[], rawNags: readonly number[] = []): ParsedPgnComments {
     const shapes: StudyShapeDto[] = [];
     const nags: number[] = [];
     for (const raw of rawNags) {
@@ -177,6 +223,9 @@ function annotationsFromPgn(
         if (!nags.includes(raw)) nags.push(raw);
     }
 
+    let whiteEval: StudyEvalDto | undefined;
+    let clock: number | undefined;
+    let clocks: [number, number] | undefined;
     const visibleComments: string[] = [];
     for (const original of comments) {
         let text = original;
@@ -200,16 +249,39 @@ function annotationsFromPgn(
             });
             return '';
         });
+        text = text.replace(/\[%eval\s+([^\]]+)\]/gi, (full, body: string) => {
+            const parsed = parseWhiteEval(body);
+            if (!parsed) return full;
+            whiteEval = parsed;
+            return '';
+        });
+        text = text.replace(/\[%clk\s+([^\]]+)\]/gi, (full, body: string) => {
+            const parsed = parsePgnClock(body);
+            if (parsed === undefined) return full;
+            clock = parsed;
+            return '';
+        });
+        text = text.replace(/\[%pyclocks\s+([^\]]+)\]/gi, (full, body: string) => {
+            const parsed = parseFullClocks(body);
+            if (!parsed) return full;
+            clocks = parsed;
+            return '';
+        });
         const cleaned = text.trim();
         if (cleaned) visibleComments.push(cleaned);
     }
 
-    const result: StudyAnnotationsDto = {
+    const annotations: StudyAnnotationsDto = {
         shapes,
         comments: visibleComments.map(text => ({ id: newStudyNodeId(), author: 'import', text })),
         nags,
     };
-    return result.shapes.length || result.comments.length || result.nags.length ? result : undefined;
+    return {
+        ...(annotations.shapes.length || annotations.comments.length || annotations.nags.length ? { annotations } : {}),
+        ...(whiteEval ? { whiteEval } : {}),
+        ...(clock !== undefined ? { clock } : {}),
+        ...(clocks ? { clocks } : {}),
+    };
 }
 
 function canonicalTags(rawTags: Record<string, string>): Record<string, string> {
@@ -296,12 +368,15 @@ function turnColorFromFen(fen: string): 'white' | 'black' {
     throw new StudyPgnImportError('Fairy-Stockfish returned a FEN without a valid side to move.');
 }
 
+type ClockState = [number | undefined, number | undefined];
+
 function normalizeChildren(
     board: StudyPgnBoard,
     parsedChildren: readonly ParsedStudyPgnMove[],
     parentId: string | null,
     nodes: StudyTreeDto['nodes'],
     path: string,
+    parentClocks: ClockState = [undefined, undefined],
 ): void {
     for (let order = 0; order < parsedChildren.length; order++) {
         const parsed = parsedChildren[order];
@@ -311,20 +386,35 @@ function normalizeChildren(
         try {
             const id = newStudyNodeId();
             const fen = board.fen();
-            const annotations = annotationsFromPgn(parsed.comments ?? [], parsed.nags ?? []);
+            const turnColor = turnColorFromFen(fen);
+            const parsedComments = commentsFromPgn(parsed.comments ?? [], parsed.nags ?? []);
+            const clockState: ClockState = parsedComments.clocks ? [...parsedComments.clocks] : [...parentClocks];
+            if (!parsedComments.clocks && parsedComments.clock !== undefined) {
+                const mover = turnColor === 'black' ? 0 : 1;
+                clockState[mover] = parsedComments.clock;
+            }
+            const clocks =
+                clockState[0] !== undefined &&
+                clockState[1] !== undefined &&
+                (parsedComments.clocks !== undefined || parsedComments.clock !== undefined)
+                    ? ([clockState[0], clockState[1]] as [number, number])
+                    : undefined;
+            const evalScore = evalForTurn(parsedComments.whiteEval, turnColor);
             nodes.push({
                 id,
                 parentId,
                 order,
                 move: resolved.move,
                 fen,
-                turnColor: turnColorFromFen(fen),
+                turnColor,
                 check: board.isCheck(),
                 san: resolved.san,
                 sanSAN: resolved.san,
-                ...(annotations ? { annotations } : {}),
+                ...(parsedComments.annotations ? { annotations: parsedComments.annotations } : {}),
+                ...(evalScore ? { eval: evalScore } : {}),
+                ...(clocks ? { clocks } : {}),
             });
-            normalizeChildren(board, parsed.children ?? [], id, nodes, location);
+            normalizeChildren(board, parsed.children ?? [], id, nodes, location, clockState);
         } finally {
             board.pop();
         }
@@ -345,8 +435,15 @@ function normalizeGame(engine: StudyPgnEngine, game: ParsedStudyPgnGame, index: 
         const initialFen = board.fen();
         if (!initialFen) throw new StudyPgnImportError(`Unable to initialize PGN variant ${variant}.`);
         const nodes: StudyTreeDto['nodes'] = [];
-        normalizeChildren(board, game.children, null, nodes, '');
-        const rootAnnotations = annotationsFromPgn(game.comments ?? []);
+        const rootComments = commentsFromPgn(game.comments ?? []);
+        normalizeChildren(
+            board,
+            game.children,
+            null,
+            nodes,
+            '',
+            rootComments.clocks ? [...rootComments.clocks] : [undefined, undefined],
+        );
         return {
             name: chapterName(tags, index),
             variant,
@@ -355,7 +452,11 @@ function normalizeGame(engine: StudyPgnEngine, game: ParsedStudyPgnGame, index: 
             orientation: tags['Orientation']?.trim().toLowerCase() === 'black' ? 'black' : 'white',
             description,
             tags: canonicalTags(tags),
-            tree: { nodes, ...(rootAnnotations ? { rootAnnotations } : {}) },
+            tree: {
+                nodes,
+                ...(rootComments.annotations ? { rootAnnotations: rootComments.annotations } : {}),
+                ...(rootComments.clocks ? { rootClocks: rootComments.clocks } : {}),
+            },
             ...(variantIni ? { variantIni } : {}),
         };
     } catch (error) {

@@ -100,7 +100,7 @@ describe('Study PGN export', () => {
         const pgn = renderStudyChapterPgn(study, chapter());
 
         expect(pgn).toContain('[Event "Custom event"]');
-        expect(pgn).toContain('[Result "*"]');
+        expect(pgn).toContain('[Result "1-0"]');
         expect(pgn).toContain('[Variant "chess"]');
         expect(pgn).toContain('[FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"]');
         expect(pgn).toContain('[StudyName "Opening Lab"]');
@@ -111,7 +111,31 @@ describe('Study PGN export', () => {
         expect(pgn).toContain('[PyChessChapterDescriptionEncoding "base64"]');
 
         expect(pgn).toContain('{Root note} {[%csl Ge4]} {[%pynag 3]}');
-        expect(pgn).toContain('1. e4! {King pawn} {[%cal Re2e4]} (1. d4?!) e5 *');
+        expect(pgn).toContain('1. e4! {King pawn} {[%cal Re2e4]} (1. d4?!) e5 1-0');
+    });
+
+    test('preserves result, clocks and evaluations with compatible PGN directives', () => {
+        const data = chapter();
+        data.tree.rootClocks = [300000, 300000];
+        data.tree.nodes[0].clocks = [298765, 300000];
+        data.tree.nodes[0].eval = { cp: -42 };
+        data.tree.nodes[1].clocks = [298765, 297234];
+        data.tree.nodes[1].eval = { mate: 3 };
+
+        const pgn = renderStudyChapterPgn(study, data);
+
+        expect(pgn).toContain('[Result "1-0"]');
+        expect(pgn).toContain('{[%pyclocks 300000,300000]}');
+        expect(pgn).toContain(
+            'e4! {[%eval 0.42]} {King pawn} {[%cal Re2e4]} {[%clk 0:04:59]} {[%pyclocks 298765,300000]}',
+        );
+        expect(pgn).toContain('e5 {[%eval #3]} {[%clk 0:04:57]} {[%pyclocks 298765,297234]} 1-0');
+    });
+
+    test('uses an unfinished result when a saved Result tag is invalid', () => {
+        const pgn = renderStudyChapterPgn(study, chapter({ tags: { Result: 'abandoned' } }));
+        expect(pgn).toContain('[Result "*"]');
+        expect(pgn.trimEnd().endsWith('*')).toBe(true);
     });
 
     test.each([
@@ -143,7 +167,7 @@ describe('Study PGN export', () => {
         const first = chapter({ id: 'chapter1', name: 'First', order: 1, tree: { nodes: [] } });
         const pgn = renderStudyPgn(study, [second, first]);
         expect(pgn.indexOf('[ChapterName "First"]')).toBeLessThan(pgn.indexOf('[ChapterName "Second"]'));
-        expect(pgn).toContain('*\n\n\n[Event');
+        expect(pgn).toContain('1-0\n\n\n[Event');
     });
 
     test('parses the lightweight server export DTO', () => {

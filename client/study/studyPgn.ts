@@ -62,6 +62,24 @@ function variantTag(chapter: StudyPgnChapterData): string {
     return `${chapter.variant}${chapter.chess960 ? '960' : ''}`;
 }
 
+function chapterResult(chapter: StudyPgnChapterData): string {
+    const result = chapter.tags['Result']?.trim();
+    if (result === '½-½') return '1/2-1/2';
+    return result === '1-0' || result === '0-1' || result === '1/2-1/2' || result === '*' ? result : '*';
+}
+
+function pgnClock(milliseconds: number): string {
+    const totalSeconds = Math.max(0, Math.round(milliseconds / 1000));
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+function fullClockComment(clocks: [number, number] | undefined): string | undefined {
+    return clocks ? `{[%pyclocks ${clocks[0]},${clocks[1]}]}` : undefined;
+}
+
 function shapeComment(annotations: AnalysisAnnotations | undefined): string | undefined {
     if (!annotations?.shapes.length) return undefined;
     const circles: string[] = [];
@@ -98,12 +116,32 @@ function nodeSan(node: AnalysisTreeNode): string {
     return san + suffix;
 }
 
+function evalComment(node: AnalysisTreeNode): string | undefined {
+    const score = node.eval?.s;
+    if (!score) return undefined;
+    const whitePov = node.step.turnColor === 'black' ? -1 : 1;
+    if (Number.isInteger(score.mate)) return `{[%eval #${whitePov * score.mate!}]}`;
+    if (Number.isInteger(score.cp)) return `{[%eval ${((whitePov * score.cp!) / 100).toFixed(2)}]}`;
+    return undefined;
+}
+
+function clockComments(node: AnalysisTreeNode): string[] {
+    const clocks = node.step.clocks;
+    if (!clocks) return [];
+    const mover = node.step.turnColor === 'black' ? 0 : 1;
+    return [`{[%clk ${pgnClock(clocks[mover])}]}`, fullClockComment(clocks)!];
+}
+
 function nodeSuffix(node: AnalysisTreeNode): string {
     const annotations = node.annotations;
-    if (!annotations) return '';
-    return [...annotations.nags.filter(nag => nag > 6).map(nag => `$${nag}`), ...annotationComments(annotations)].join(
-        ' ',
-    );
+    return [
+        ...(annotations?.nags.filter(nag => nag > 6).map(nag => `$${nag}`) ?? []),
+        evalComment(node),
+        ...annotationComments(annotations),
+        ...clockComments(node),
+    ]
+        .filter((value): value is string => Boolean(value))
+        .join(' ');
 }
 
 function chapterTags(study: StudyPgnContext, chapter: StudyPgnChapterData): Array<[string, string]> {
@@ -117,7 +155,7 @@ function chapterTags(study: StudyPgnContext, chapter: StudyPgnChapterData): Arra
     if (!tags.has('Black')) tags.set('Black', '?');
 
     // Structural tags are authoritative and may not be overridden by free-form tags.
-    tags.set('Result', '*');
+    tags.set('Result', chapterResult(chapter));
     tags.set('Variant', variantTag(chapter));
     tags.set('FEN', chapter.initialFen);
     tags.set('SetUp', '1');
@@ -190,7 +228,9 @@ export function renderStudyChapterPgn(study: StudyPgnContext, chapter: StudyPgnC
     const tree = analysisTreeFromStudy(rootStep, chapter.tree);
     const moveText = renderFullTreePgnMoveText(tree, nodeSan, nodeSuffix);
     const initialComments = annotationComments(tree.root.annotations, true);
-    const body = [...initialComments, moveText, '*'].filter(Boolean).join(' ');
+    const body = [...initialComments, fullClockComment(tree.root.step.clocks), moveText, chapterResult(chapter)]
+        .filter((value): value is string => Boolean(value))
+        .join(' ');
     const headers = chapterTags(study, chapter)
         .map(([name, value]) => `[${name} "${tagValue(value)}"]`)
         .join('\n');
