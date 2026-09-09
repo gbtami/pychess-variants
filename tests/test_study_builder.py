@@ -13,8 +13,13 @@ from catalogued_variants import (
 )
 from fairy import FairyBoard
 from mongomock_motor import AsyncMongoMockClient
+from study import variant as study_variant
 from study.builder import StudyChapterBuilder, StudyChapterBuildError
-from study.variant import study_variant_client_doc, study_variant_context
+from study.variant import (
+    StudyVariantCapacityError,
+    study_variant_client_doc,
+    study_variant_context,
+)
 from variants import unregister_catalogued_server_variant
 
 
@@ -275,6 +280,60 @@ class StudyChapterBuilderTestCase(unittest.IsolatedAsyncioTestCase):
         with self.assertRaisesRegex(StudyChapterBuildError, "invalid clock data"):
             self.builder._step_clocks({"clocks": [float("nan"), 300000]})
 
+    async def test_rejected_embedded_snapshot_never_reaches_main_pyffish_registry(self) -> None:
+        snapshot = (
+            "[isolatedstudy:chess]\n"
+            "startFen = rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\n"
+        )
+        from fairy.fairy_board import sf
+
+        before_variants = set(sf.variants())
+        with patch("study.variant.validate_catalogued_ini") as main_process_validate:
+            for index in range(3):
+                with self.assertRaisesRegex(StudyChapterBuildError, "snapshot is invalid"):
+                    await self.builder.from_import(
+                        variant="isolatedstudy",
+                        initial_fen="not a fen",
+                        tree_payload={"nodes": []},
+                        variant_ini=f"{snapshot}# rejected import {index}\n",
+                    )
+
+        main_process_validate.assert_not_called()
+        self.assertEqual(set(sf.variants()), before_variants)
+
+    async def test_illegal_embedded_tree_never_reaches_main_pyffish_registry(self) -> None:
+        initial_fen = FairyBoard.start_fen("chess")
+        snapshot = f"[isolatedtree:chess]\nstartFen = {initial_fen}\n"
+        submitted = {
+            "nodes": [
+                {
+                    "id": "Illegal001",
+                    "parentId": None,
+                    "order": 0,
+                    "move": "e2e5",
+                    "fen": "client supplied",
+                    "turnColor": "white",
+                    "check": False,
+                }
+            ]
+        }
+        from fairy.fairy_board import sf
+
+        before_variants = set(sf.variants())
+        with (
+            patch("study.variant.validate_catalogued_ini") as main_process_validate,
+            self.assertRaisesRegex(StudyChapterBuildError, "snapshot is invalid"),
+        ):
+            await self.builder.from_import(
+                variant="isolatedtree",
+                initial_fen=initial_fen,
+                tree_payload=submitted,
+                variant_ini=snapshot,
+            )
+
+        main_process_validate.assert_not_called()
+        self.assertEqual(set(sf.variants()), before_variants)
+
     async def test_rejects_two_board_game(self) -> None:
         await self.db.game.insert_one({"_id": "game0002"})
         fake_game = SimpleNamespace(server_variant=SimpleNamespace(two_boards=True))
@@ -286,6 +345,35 @@ class StudyChapterBuilderTestCase(unittest.IsolatedAsyncioTestCase):
 
 
 class StudyVariantSnapshotTestCase(unittest.TestCase):
+    def test_semantic_alias_ignores_comments_and_native_registry_has_hard_cap(self) -> None:
+        first = "[studybudget:chess]\ncustomPiece1 = a:KN\n"
+        commented = f"{first}# formatting-only historical note\n"
+        second = "[studybudget:chess]\ncustomPiece1 = a:BN\n"
+        self.assertEqual(
+            study_variant._snapshot_alias(first), study_variant._snapshot_alias(commented)
+        )
+
+        def validation(ini: str):
+            return SimpleNamespace(
+                name=study_variant.extract_variant_name(ini),
+                start_fen=FairyBoard.start_fen("chess"),
+                show_promoted=False,
+            )
+
+        with (
+            patch("study.variant._SNAPSHOT_NATIVE_ALIASES", set()),
+            patch("study.variant._SNAPSHOT_VALIDATION", {}),
+            patch("study.variant.STUDY_MAX_NATIVE_SNAPSHOT_VARIANTS", 1),
+            patch("study.variant.validate_catalogued_ini", side_effect=validation) as validate_ini,
+        ):
+            first_validation = study_variant._snapshot_validation(first)
+            same_validation = study_variant._snapshot_validation(commented)
+            self.assertIs(same_validation, first_validation)
+            with self.assertRaisesRegex(StudyVariantCapacityError, "capacity"):
+                study_variant._snapshot_validation(second)
+
+        self.assertEqual(validate_ini.call_count, 1)
+
     def test_current_snapshot_client_doc_reuses_live_metadata_without_alias(self) -> None:
         name = "studycurrent"
         ini = f"[{name}:chess]\nstartFen = 8/8/8/8/8/8/4K3/7k w - - 0 1\n"

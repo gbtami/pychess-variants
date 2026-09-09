@@ -2709,6 +2709,107 @@ async def check_catalogued_ini_without_mutating_server(ini: str, name: str) -> s
     return await _check_ini_with_pyffish_child(ini, name)
 
 
+async def check_catalogued_ini_tree_without_mutating_server(
+    ini: str,
+    name: str,
+    initial_fen: str,
+    move_tree: Iterable[tuple[str, str | None, str]],
+) -> None:
+    """Validate an imported custom position/tree in an isolated pyffish process.
+
+    A successful Study import may later admit its immutable rules snapshot into the
+    serving process. Untrusted imports must first prove that their INI, initial FEN,
+    and every submitted move can be replayed without mutating the main process's
+    irreversible Fairy-Stockfish variant registry.
+    """
+    _ensure_catalogued_ini_size(ini)
+    _ensure_catalogued_rules_supported(ini)
+
+    payload = json.dumps(
+        {
+            "ini": ini,
+            "initialFen": initial_fen,
+            "moveTree": [list(node) for node in move_tree],
+        },
+        separators=(",", ":"),
+    )
+    code = r"""
+import json
+import sys
+
+import pyffish as sf
+
+name = sys.argv[1]
+payload = json.loads(sys.stdin.read())
+ini = payload["ini"]
+initial_fen = payload["initialFen"]
+move_tree = payload["moveTree"]
+
+try:
+    sf.set_option("VariantPath", "variants.ini")
+    sf.load_variant_config(ini)
+    start_fen = sf.start_fen(name)
+    if not start_fen:
+        raise RuntimeError("Fairy-Stockfish did not return a start FEN.")
+    if sf.validate_fen(start_fen, name, False) != sf.FEN_OK:
+        raise RuntimeError("The variant start FEN is invalid.")
+    if sf.validate_fen(initial_fen, name, False) != sf.FEN_OK:
+        raise RuntimeError("The imported initial FEN is invalid.")
+
+    nodes = {node_id: (parent_id, move) for node_id, parent_id, move in move_tree}
+    parent_ids = {parent_id for parent_id, _move in nodes.values() if parent_id is not None}
+    for leaf_id in nodes:
+        if leaf_id in parent_ids:
+            continue
+        path = []
+        current_id = leaf_id
+        while current_id is not None:
+            parent_id, move = nodes[current_id]
+            path.append(move)
+            current_id = parent_id
+        path.reverse()
+
+        history = []
+        for move in path:
+            if move not in sf.legal_moves(name, initial_fen, history, False):
+                raise RuntimeError("The imported tree contains an illegal move.")
+            history.append(move)
+        if history:
+            sf.get_fen(name, initial_fen, history, False)
+
+    print(json.dumps({"ok": True, "startFen": start_fen}))
+except Exception as exc:
+    print(json.dumps({"ok": False, "error": str(exc)}))
+    raise
+"""
+    returncode, output = await _run_process([sys.executable, "-c", code, name], stdin=payload)
+
+    if returncode != 0:
+        log.info(
+            "Fairy-Stockfish isolated Study import validation failed for %s: %s",
+            name,
+            _one_line_log_text(output),
+        )
+        raise web.HTTPBadRequest(text="Fairy-Stockfish rejected this Study variant import.")
+
+    try:
+        result = json.loads(output.splitlines()[-1])
+        start_fen = str(result.get("startFen") or "")
+        _ensure_catalogued_start_fen_has_side_to_move(start_fen)
+    except web.HTTPException:
+        raise
+    except Exception:
+        log.info(
+            "Fairy-Stockfish Study import validation returned invalid output for %s: %s",
+            name,
+            _one_line_log_text(output),
+            exc_info=True,
+        )
+        raise web.HTTPBadRequest(
+            text="Fairy-Stockfish Study import validation returned invalid output."
+        ) from None
+
+
 def _is_builtin_variant_name(name: str) -> bool:
     # Do not use the mutable ALL_VARIANTS map here. A previously-buggy upload
     # could have registered a catalogued variant with a built-in key and hidden

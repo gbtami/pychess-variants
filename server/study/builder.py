@@ -15,7 +15,11 @@ from variants import ALL_VARIANTS, C2V, TWO_BOARD_VARIANT_CODES, is_catalogued_v
 from study.annotations import StudyAnnotations, StudyComment, canonical_tags
 from study.models import StudySource
 from study.tree import StudyTree, StudyTreeNode
-from study.variant import study_variant_context
+from study.variant import (
+    StudyVariantCapacityError,
+    study_variant_context,
+    validate_study_variant_import_without_mutating_server,
+)
 
 StudyOrientation = Literal["white", "black"]
 
@@ -192,12 +196,16 @@ class StudyChapterBuilder:
                     "Built-in variants cannot use an embedded custom rules snapshot"
                 )
             try:
+                submitted = StudyTree.from_payload(tree_payload)
+                await validate_study_variant_import_without_mutating_server(
+                    variant,
+                    snapshot,
+                    initial_fen,
+                    tuple(
+                        (node.id, node.parent_id, node.move) for node in submitted.nodes.values()
+                    ),
+                )
                 with study_variant_context(self.app_state, variant, snapshot) as options:
-                    if validate_fen(initial_fen, options.runtime_variant, chess960) != FEN_OK:
-                        raise StudyChapterBuildError(
-                            "Invalid PGN FEN for embedded variant snapshot"
-                        )
-                    submitted = StudyTree.from_payload(tree_payload)
                     root = self._validated_tree(
                         submitted,
                         variant=variant,
@@ -208,7 +216,7 @@ class StudyChapterBuilder:
                         runtime_variant=options.runtime_variant,
                         comment_author=self.owner,
                     )
-            except StudyChapterBuildError:
+            except (StudyChapterBuildError, StudyVariantCapacityError):
                 raise
             except Exception as exc:
                 raise StudyChapterBuildError("Embedded PGN variant snapshot is invalid") from exc

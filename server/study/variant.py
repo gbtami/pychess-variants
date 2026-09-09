@@ -3,7 +3,6 @@ from __future__ import annotations
 from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass
-from hashlib import sha256
 from typing import Any
 
 from catalogued_variants import (
@@ -12,10 +11,14 @@ from catalogued_variants import (
     CATALOGUED_VISIBILITY_PRIVATE,
     CataloguedVariantValidation,
     catalogued_legal_moves_need_history,
+    check_catalogued_ini_tree_without_mutating_server,
     extract_variant_name,
     replace_variant_section_name,
     validate_catalogued_ini,
 )
+from nnue_identity import fsf_ini_v1_fingerprint
+
+from study.constants import STUDY_MAX_NATIVE_SNAPSHOT_VARIANTS
 
 
 @dataclass(frozen=True, slots=True)
@@ -25,11 +28,31 @@ class StudyVariantOptions:
     legal_moves_need_history: bool = False
 
 
+class StudyVariantCapacityError(RuntimeError):
+    pass
+
+
 _SNAPSHOT_VALIDATION: dict[str, CataloguedVariantValidation] = {}
+# pyffish has no API to unload a loaded variant. Keep an independent admission
+# ledger even when validation fails after load_variant_config(), because the native
+# alias may already exist and must continue to count against the process budget.
+_SNAPSHOT_NATIVE_ALIASES: set[str] = set()
 
 
 def _snapshot_alias(variant_ini: str) -> str:
-    return f"studysnap_{sha256(variant_ini.encode('utf-8')).hexdigest()[:12]}"
+    # Use the repository's semantic INI fingerprint so comments/formatting cannot
+    # manufacture fresh native aliases for identical Fairy-Stockfish rules. Twenty
+    # hex chars keep the internal alias below the normal 32-character name limit.
+    return f"studysnap_{fsf_ini_v1_fingerprint(variant_ini)[:20]}"
+
+
+def _same_variant_rules(first: str, second: str) -> bool:
+    if not first or not second:
+        return first == second
+    try:
+        return fsf_ini_v1_fingerprint(first) == fsf_ini_v1_fingerprint(second)
+    except ValueError:
+        return first == second
 
 
 def _snapshot_validation(variant_ini: str) -> CataloguedVariantValidation:
@@ -45,10 +68,38 @@ def _snapshot_validation(variant_ini: str) -> CataloguedVariantValidation:
     cached = _SNAPSHOT_VALIDATION.get(alias)
     if cached is not None:
         return cached
+
+    if alias not in _SNAPSHOT_NATIVE_ALIASES:
+        if len(_SNAPSHOT_NATIVE_ALIASES) >= STUDY_MAX_NATIVE_SNAPSHOT_VARIANTS:
+            raise StudyVariantCapacityError(
+                "Study variant snapshot capacity is exhausted for this server process"
+            )
+        # Reserve before the irreversible native load begins. Never remove this on
+        # failure: load_variant_config() may already have registered the alias.
+        _SNAPSHOT_NATIVE_ALIASES.add(alias)
+
     aliased_ini = replace_variant_section_name(variant_ini, alias)
     validated = validate_catalogued_ini(aliased_ini)
     _SNAPSHOT_VALIDATION[alias] = validated
     return validated
+
+
+async def validate_study_variant_import_without_mutating_server(
+    variant: str,
+    variant_ini: str,
+    initial_fen: str,
+    move_tree: tuple[tuple[str, str | None, str], ...],
+) -> None:
+    """Validate an untrusted embedded Study snapshot outside the serving process."""
+
+    snapshot_name = extract_variant_name(variant_ini)
+    if snapshot_name != variant:
+        raise ValueError("Study variant snapshot name does not match chapter variant")
+    alias = _snapshot_alias(variant_ini)
+    aliased_ini = replace_variant_section_name(variant_ini, alias)
+    await check_catalogued_ini_tree_without_mutating_server(
+        aliased_ini, alias, initial_fen, move_tree
+    )
 
 
 @contextmanager
@@ -79,7 +130,7 @@ def study_variant_context(
     active_doc = getattr(app_state, "catalogued_variants", {}).get(variant)
     active_ini = str(active_doc.get("ini") or "") if isinstance(active_doc, Mapping) else ""
 
-    if active_ini == variant_ini:
+    if _same_variant_rules(active_ini, variant_ini):
         runtime_variant = variant
         show_promoted = (
             bool(active_doc.get("showPromoted", False))
@@ -151,7 +202,7 @@ def study_variant_client_doc(
         "rulesPass",
         "showCheckCounters",
     )
-    use_live_metadata = str(meta.get("ini") or "") == variant_ini and all(
+    use_live_metadata = _same_variant_rules(str(meta.get("ini") or ""), variant_ini) and all(
         key in meta for key in required_metadata
     )
 

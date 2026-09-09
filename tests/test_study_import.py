@@ -17,7 +17,13 @@ class StudyImportTestCase(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self) -> None:
         self.client = AsyncMongoMockClient(tz_aware=True)
         self.db = self.client["pychess-test"]
-        self.app_state = SimpleNamespace(db=self.db, catalogued_variants={})
+        self.app_state = SimpleNamespace(
+            db=self.db,
+            catalogued_variants={},
+            study_sockets={},
+            study_mutation_locks={},
+            study_mutation_lock_refs={},
+        )
         self.study, self.initial_chapter = await create_study_with_chapter(
             cast(Any, self.app_state), "owner", name="Import target"
         )

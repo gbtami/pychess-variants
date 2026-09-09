@@ -85,7 +85,12 @@ from study.storage import (
     study_search_page,
     topic_studies_page,
 )
-from study.variant import study_variant_client_doc, study_variant_context, study_variant_metadata
+from study.variant import (
+    StudyVariantCapacityError,
+    study_variant_client_doc,
+    study_variant_context,
+    study_variant_metadata,
+)
 from study.ws import (
     broadcast_study_likes,
     broadcast_study_members,
@@ -1103,6 +1108,8 @@ async def study_import_pgn(request: web.Request) -> web.StreamResponse:
                     tags=cast(Mapping[str, str], raw_tags),
                 )
             )
+        except StudyVariantCapacityError as exc:
+            return web.json_response({"ok": False, "error": str(exc)}, status=503)
         except StudyChapterBuildError as exc:
             return web.json_response(
                 {"ok": False, "error": f"Imported chapter {index}: {exc}"}, status=400
