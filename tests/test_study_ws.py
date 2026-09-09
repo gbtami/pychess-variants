@@ -12,6 +12,8 @@ from fairy.fairy_board import FairyBoard
 from mongomock_motor import AsyncMongoMockClient
 from study.models import Study, StudyChapter
 from study.mutations import StudyMutationService
+from study.permissions import can_view_study
+from study.sequencer import sequence_study
 from study.tree import StudyTree
 from study.ws import (
     broadcast_study_members,
@@ -68,6 +70,7 @@ class StudyWebsocketTestCase(unittest.IsolatedAsyncioTestCase):
             catalogued_variants={},
             study_sockets={},
             study_mutation_locks={},
+            study_mutation_lock_refs={},
             study_socket_users={},
         )
         now = datetime(2026, 9, 4, 16, 0, tzinfo=UTC)
@@ -119,9 +122,37 @@ class StudyWebsocketTestCase(unittest.IsolatedAsyncioTestCase):
             cast(Any, self.app_state),
             cast(Any, ws),
             cast(Any, user or self.user),
-            self.study,
+            STUDY_ID,
         )
         return ws
+
+    async def test_init_reauthorizes_stale_public_handshake_before_room_insertion(self) -> None:
+        public_study = replace(self.study, visibility="public")
+        await self.db.study.replace_one({"_id": STUDY_ID}, public_study.to_document())
+        stale_snapshot = Study.from_document(public_study.to_document())
+        outsider = FakeUser("outsider")
+        self.assertTrue(can_view_study(stale_snapshot, outsider.username))
+
+        private_study = replace(
+            public_study,
+            members={OWNER: "write"},
+            visibility="private",
+            revision=public_study.revision + 1,
+        )
+        await self.db.study.replace_one({"_id": STUDY_ID}, private_study.to_document())
+
+        ws = FakeWebSocket()
+        await init_ws(
+            cast(Any, self.app_state),
+            cast(Any, ws),
+            cast(Any, outsider),
+            STUDY_ID,
+        )
+
+        self.assertTrue(ws.closed)
+        self.assertEqual(ws.sent, [])
+        self.assertNotIn(STUDY_ID, self.app_state.study_sockets)
+        self.assertNotIn(STUDY_ID, outsider.study_sockets)
 
     async def test_room_is_lazy_and_removed_after_last_socket(self) -> None:
         self.assertNotIn(STUDY_ID, self.app_state.study_sockets)
@@ -140,6 +171,32 @@ class StudyWebsocketTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn(STUDY_ID, self.app_state.study_socket_users)
         self.assertNotIn(STUDY_ID, self.user.study_sockets)
         self.assertFalse(self.user.online)
+
+    async def test_room_cleanup_keeps_lock_used_by_queued_study_operation(self) -> None:
+        ws = await self._connect()
+        lock = self.app_state.study_mutation_locks[STUDY_ID]
+        await lock.acquire()
+
+        entered = asyncio.Event()
+
+        async def queued_operation() -> None:
+            async with sequence_study(cast(Any, self.app_state), STUDY_ID):
+                entered.set()
+
+        task = asyncio.create_task(queued_operation())
+        await asyncio.sleep(0)
+        self.assertEqual(self.app_state.study_mutation_lock_refs[STUDY_ID], 1)
+
+        await finally_logic(
+            cast(Any, self.app_state), cast(Any, ws), cast(Any, self.user), STUDY_ID
+        )
+        self.assertIs(self.app_state.study_mutation_locks[STUDY_ID], lock)
+
+        lock.release()
+        await task
+        self.assertTrue(entered.is_set())
+        self.assertNotIn(STUDY_ID, self.app_state.study_mutation_locks)
+        self.assertNotIn(STUDY_ID, self.app_state.study_mutation_lock_refs)
 
     async def test_typed_add_broadcasts_same_stable_node_to_both_tabs(self) -> None:
         first = await self._connect()

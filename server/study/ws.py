@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import logging
 import re
 from collections.abc import Mapping
@@ -16,6 +15,7 @@ from ws_structs import STUDY_TYPED_DECODERS, WsInboundStruct
 from study.models import Study
 from study.mutations import StudyMutationResult, StudyMutationService
 from study.permissions import can_view_study
+from study.sequencer import cleanup_study_sequence, sequence_study
 from study.storage import StudyStorageError, set_shared_position
 
 if TYPE_CHECKING:
@@ -240,8 +240,7 @@ async def process_message(
     # room are processed and broadcast in one total order. Holding the lock through
     # broadcast guarantees every connected client observes monotonically ordered
     # revisions before the next queued mutation starts.
-    lock = app_state.study_mutation_locks.setdefault(study_id, asyncio.Lock())
-    async with lock:
+    async with sequence_study(app_state, study_id):
         await _process_message_unlocked(
             app_state, user, ws, raw_data, study_id=study_id, service=service
         )
@@ -507,21 +506,39 @@ async def init_ws(
     app_state: PychessGlobalAppState,
     ws: WebSocketResponse,
     user: User,
-    study: Study,
+    study_id: str,
 ) -> None:
-    room = app_state.study_sockets.setdefault(study.id, set())
-    room.add(ws)
-    app_state.study_mutation_locks.setdefault(study.id, asyncio.Lock())
-    app_state.study_socket_users.setdefault(study.id, {})[ws] = user.username
-    user.study_sockets.setdefault(study.id, set()).add(ws)
-    user.update_online()
-    await ws_send_json(
-        ws,
-        {
-            "type": "study_user_connected",
-            "studyId": study.id,
-        },
-    )
+    # The HTTP handshake may have authorized an older Study snapshot. Re-read the
+    # document under the same sequencer used by visibility/member revocations, then
+    # insert the socket before releasing it. No private room event can pass between
+    # the authoritative authorization check and room membership.
+    async with sequence_study(app_state, study_id):
+        raw_study = await app_state.db.study.find_one({"_id": study_id})
+        if raw_study is None:
+            await ws.close()
+            return
+        try:
+            study = Study.from_document(raw_study)
+        except (TypeError, ValueError):
+            log.warning("Invalid stored Study document %s", study_id, exc_info=True)
+            await ws.close()
+            return
+        if not can_view_study(study, user.username):
+            await ws.close()
+            return
+
+        room = app_state.study_sockets.setdefault(study_id, set())
+        room.add(ws)
+        app_state.study_socket_users.setdefault(study_id, {})[ws] = user.username
+        user.study_sockets.setdefault(study_id, set()).add(ws)
+        user.update_online()
+        await ws_send_json(
+            ws,
+            {
+                "type": "study_user_connected",
+                "studyId": study_id,
+            },
+        )
 
 
 async def finally_logic(
@@ -538,7 +555,6 @@ async def finally_logic(
             users.pop(ws, None)
         if not room:
             app_state.study_sockets.pop(study_id, None)
-            app_state.study_mutation_locks.pop(study_id, None)
             app_state.study_socket_users.pop(study_id, None)
 
     user_room = user.study_sockets.get(study_id)
@@ -547,6 +563,7 @@ async def finally_logic(
         if not user_room:
             user.study_sockets.pop(study_id, None)
     user.update_online()
+    cleanup_study_sequence(app_state, study_id)
 
 
 async def broadcast_study_likes(
@@ -662,7 +679,7 @@ async def study_socket_handler(request: web.Request) -> web.StreamResponse:
         ws: WebSocketResponse,
         inner_user: User,
     ) -> None:
-        await init_ws(inner_app_state, ws, inner_user, study)
+        await init_ws(inner_app_state, ws, inner_user, study_id)
 
     async def on_message(
         inner_app_state: PychessGlobalAppState,

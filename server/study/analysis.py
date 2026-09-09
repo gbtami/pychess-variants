@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import logging
 import random
 import string
@@ -32,6 +31,7 @@ from study.constants import (
 )
 from study.models import Study, StudyChapter, StudyServerEval
 from study.permissions import can_write_study
+from study.sequencer import sequence_study
 from study.tree import StudyTree, StudyTreeNode, new_study_node_id
 from study.variant import study_variant_context
 
@@ -638,8 +638,7 @@ async def merge_study_server_analysis(
         app_state.fishnet_works.pop(work_id, None)
         return
 
-    lock = app_state.study_mutation_locks.setdefault(study_id, asyncio.Lock())
-    async with lock:
+    async with sequence_study(app_state, study_id):
         loaded = await _load_study_and_chapter(app_state, study_id, chapter_id)
         if loaded is None:
             app_state.fishnet_works.pop(work_id, None)
@@ -703,8 +702,7 @@ async def fail_study_server_analysis(
     if not study_id or not chapter_id or work_path is None:
         return
 
-    lock = app_state.study_mutation_locks.setdefault(study_id, asyncio.Lock())
-    async with lock:
+    async with sequence_study(app_state, study_id):
         result = await app_state.db.study_chapter.update_one(
             {
                 "_id": chapter_id,

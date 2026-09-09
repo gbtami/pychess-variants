@@ -31,6 +31,7 @@ class StudyServerAnalysisTestCase(unittest.IsolatedAsyncioTestCase):
             fishnet_variant_payloads={},
             study_sockets={},
             study_mutation_locks={},
+            study_mutation_lock_refs={},
         )
         self.service = StudyMutationService(cast(Any, self.app_state))
         now = datetime(2026, 9, 7, 12, 0, tzinfo=UTC)

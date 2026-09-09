@@ -45,6 +45,7 @@ from study.permissions import (
     is_study_owner,
     study_feature_selection,
 )
+from study.sequencer import sequence_study
 from study.storage import (
     StudyStorageError,
     add_chapter_from_draft,
@@ -1181,26 +1182,32 @@ async def study_topics_update(request: web.Request) -> web.StreamResponse:
 
 
 async def study_edit(request: web.Request) -> web.StreamResponse:
-    _, _, study, _ = await _owned_study_and_chapter(request)
+    user, _, study, _ = await _owned_study_and_chapter(request)
     data = await read_post_data(request)
     if data is None:
         raise web.HTTPNoContent()
-    try:
-        visibility = study_visibility(data.get("visibility", study.visibility))
-    except ValueError as exc:
-        raise web.HTTPBadRequest(text="Invalid Study visibility") from exc
     app_state = get_app_state(request.app)
-    try:
-        settings = await set_study_feature_settings(app_state, study, data)
-    except StudyStorageError as exc:
-        raise web.HTTPBadRequest(text=str(exc)) from exc
-    settings_changed = settings != dict(study.settings)
-    await rename_study(app_state, study, data.get("name"))
-    await set_study_visibility(app_state, study, visibility)
-    if settings_changed:
-        await broadcast_study_reload(app_state, study.id, reason="feature_permissions_changed")
-    if visibility == "private" and study.visibility != "private":
-        await close_study_sockets(app_state, study.id)
+    async with sequence_study(app_state, study.id):
+        current = await load_owned_study(app_state, study.id, user.username)
+        if current is None:
+            raise web.HTTPNotFound()
+        try:
+            visibility = study_visibility(data.get("visibility", current.visibility))
+        except ValueError as exc:
+            raise web.HTTPBadRequest(text="Invalid Study visibility") from exc
+        try:
+            settings = await set_study_feature_settings(app_state, current, data)
+        except StudyStorageError as exc:
+            raise web.HTTPBadRequest(text=str(exc)) from exc
+        settings_changed = settings != dict(current.settings)
+        await rename_study(app_state, current, data.get("name"))
+        await set_study_visibility(app_state, current, visibility)
+        if settings_changed:
+            await broadcast_study_reload(
+                app_state, current.id, reason="feature_permissions_changed"
+            )
+        if visibility == "private" and current.visibility != "private":
+            await close_study_sockets(app_state, current.id)
     raise web.HTTPFound(f"/study/{study.id}")
 
 
@@ -1231,12 +1238,13 @@ async def study_member_add(request: web.Request) -> web.StreamResponse:
     target = await _study_member_target(request, data)
     app_state = get_app_state(request.app)
     try:
-        updated = await add_study_member(
-            app_state, study.id, user.username, target, data.get("role", "read")
-        )
+        async with sequence_study(app_state, study.id):
+            updated = await add_study_member(
+                app_state, study.id, user.username, target, data.get("role", "read")
+            )
+            await broadcast_study_members(app_state, updated)
     except (StudyStorageError, ValueError) as exc:
         raise web.HTTPBadRequest(text=str(exc)) from exc
-    await broadcast_study_members(app_state, updated)
     raise web.HTTPFound(f"/study/{study.id}")
 
 
@@ -1248,12 +1256,13 @@ async def study_member_role(request: web.Request) -> web.StreamResponse:
     target = str(data.get("username") or "").strip()
     app_state = get_app_state(request.app)
     try:
-        updated = await set_study_member_role(
-            app_state, study.id, user.username, target, data.get("role")
-        )
+        async with sequence_study(app_state, study.id):
+            updated = await set_study_member_role(
+                app_state, study.id, user.username, target, data.get("role")
+            )
+            await broadcast_study_members(app_state, updated)
     except (StudyStorageError, ValueError) as exc:
         raise web.HTTPBadRequest(text=str(exc)) from exc
-    await broadcast_study_members(app_state, updated)
     raise web.HTTPFound(f"/study/{study.id}")
 
 
@@ -1265,10 +1274,11 @@ async def study_member_remove(request: web.Request) -> web.StreamResponse:
     target = str(data.get("username") or "").strip()
     app_state = get_app_state(request.app)
     try:
-        updated = await remove_study_member(app_state, study.id, user.username, target)
+        async with sequence_study(app_state, study.id):
+            updated = await remove_study_member(app_state, study.id, user.username, target)
+            await broadcast_study_members(app_state, updated)
     except StudyStorageError as exc:
         raise web.HTTPBadRequest(text=str(exc)) from exc
-    await broadcast_study_members(app_state, updated)
     raise web.HTTPFound(f"/study/{study.id}")
 
 
@@ -1282,10 +1292,11 @@ async def study_leave(request: web.Request) -> web.StreamResponse:
     if study is None or not can_view_study(study, user.username):
         raise web.HTTPNotFound()
     try:
-        updated = await leave_study(app_state, study.id, user.username)
+        async with sequence_study(app_state, study.id):
+            updated = await leave_study(app_state, study.id, user.username)
+            await broadcast_study_members(app_state, updated)
     except StudyStorageError as exc:
         raise web.HTTPBadRequest(text=str(exc)) from exc
-    await broadcast_study_members(app_state, updated)
     raise web.HTTPFound("/study")
 
 

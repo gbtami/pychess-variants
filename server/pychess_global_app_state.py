@@ -231,10 +231,11 @@ class PychessGlobalAppState:
             # Study rooms are created lazily when the first browser opens /wsstudy/<id>
             # and removed as soon as their last websocket leaves. No Study is preloaded.
             self.study_sockets: dict[str, set[WebSocketResponse]] = {}
-            # Serialize mutations for one active Study room while allowing unrelated
-            # Studies to progress independently. Locks are created lazily and evicted
-            # with the last room socket.
+            # Serialize Study operations while allowing unrelated Studies to progress
+            # independently. Ref-count queued/active users so room cleanup cannot replace
+            # a lock while an HTTP/websocket/Fishnet operation is waiting on it.
             self.study_mutation_locks: dict[str, asyncio.Lock] = {}
+            self.study_mutation_lock_refs: dict[str, int] = {}
             self.study_socket_users: dict[str, dict[WebSocketResponse, str]] = {}
             self.background_tasks: set[asyncio.Task[Any]] = set()
             self.game_remove_tasks: dict[str, asyncio.Task[None]] = {}
