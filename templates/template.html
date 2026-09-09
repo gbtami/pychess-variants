@@ -136,9 +136,29 @@
                 <div class="icon icon-warning data-count" data-count="{{ mod_report_score }}"></div>
             </a>
             {% endif %}
+            {% if not anon %}
+            <div id="challenge-panel">
+                <button id="btn-challenge" aria-label="Challenges: 0" title="Challenges: 0">
+                    <div class="icon icon-crossedswords data-count" data-count="0"></div>
+                </button>
+                <div id="challenge-app"></div>
+            </div>
+            <div id="notify-panel">
+                <button id="btn-notify" aria-label="Notifications: 0">
+                    <div class="icon icon-bell-o data-count" data-count="0"></div>
+                </button>
+                <div id="notify-app"></div>
+            </div>
+            {% else %}
             <div id="challenge-panel"></div>
             <div id="notify-panel"></div>
-            <div id="settings-panel"></div>
+            {% endif %}
+            <div id="settings-panel">
+                <button id="btn-settings" aria-label="Settings">
+                    <div class="icon icon-cog"></div>
+                </button>
+                <div id="settings"></div>
+            </div>
         </div>
     </header>
 {% endblock %}

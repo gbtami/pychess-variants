@@ -66,6 +66,7 @@ import { initVariantAuthors } from './variantAuthors';
 import { initSearchBarDismissal } from './searchBar';
 import { timelinePageView } from './timeline';
 import { initAdminSystemMessages } from './adminSystemMessages';
+import { hydrateHeaderPanel } from './headerPanel';
 
 // redirect to correct URL except Heroku preview/dev apps
 if (
@@ -391,15 +392,15 @@ function start() {
     });
 
     // Clicking outside settings panel closes it
-    const settingsPanel = patch(
+    const settingsPanel = hydrateHeaderPanel(
         document.getElementById('settings-panel') as HTMLElement,
         settingsView(model['variant']),
-    ).elm as HTMLElement;
+    );
     var challengePanel = document.getElementById('challenge-panel') as HTMLElement;
     var notifyPanel = document.getElementById('notify-panel') as HTMLElement;
     if (model['anon'] !== 'True') {
-        challengePanel = patch(challengePanel, challengeView()).elm as HTMLElement;
-        notifyPanel = patch(notifyPanel, notifyView()).elm as HTMLElement;
+        challengePanel = hydrateHeaderPanel(challengePanel, challengeView());
+        notifyPanel = hydrateHeaderPanel(notifyPanel, notifyView());
     }
 
     document.addEventListener('click', function (event) {
