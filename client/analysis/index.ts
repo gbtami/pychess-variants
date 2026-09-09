@@ -210,11 +210,20 @@ export function analysisUnderboard(
                         on: { click: onClickFullfen },
                     }),
                 ]),
-                h('div#copyfen'),
+                h('div.pgn-toolbar', [
+                    h('div#copyfen'),
+                    addToStudy && !isOngoingGame && model.anon !== 'True'
+                        ? h(
+                              'button.i-pgn.analysis-add-to-study',
+                              {
+                                  attrs: { type: 'button', title: _('Add to Study') },
+                                  on: { click: addToStudy },
+                              },
+                              [h('i.icon.icon-plus-square', { attrs: { 'aria-hidden': 'true' } }), _('Add to Study')],
+                          )
+                        : '',
+                ]),
                 h('div#pgntext'),
-                addToStudy && !isOngoingGame && model.anon !== 'True'
-                    ? h('button.button', { on: { click: addToStudy } }, _('Add to Study'))
-                    : '',
             ],
         ),
     ];

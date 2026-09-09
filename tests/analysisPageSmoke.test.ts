@@ -155,7 +155,7 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('#movelist')).not.toBeNull();
         expect(root.querySelector('#move-controls')).not.toBeNull();
         expect(root.querySelector('#pgntext')).not.toBeNull();
-        expect([...root.querySelectorAll('button')].some(button => button.textContent === 'Add to Study')).toBe(true);
+        expect(root.querySelector('.pgn-toolbar .analysis-add-to-study')?.textContent).toBe('Add to Study');
         expect(root.querySelectorAll('[role="tab"]').length).toBeGreaterThan(0);
     });
 
@@ -166,7 +166,7 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('#movelist')).not.toBeNull();
         expect(root.querySelector('#move-controls')).not.toBeNull();
         expect(root.querySelector('#pgntext')).not.toBeNull();
-        expect([...root.querySelectorAll('button')].some(button => button.textContent === 'Add to Study')).toBe(true);
+        expect(root.querySelector('.pgn-toolbar .analysis-add-to-study')?.textContent).toBe('Add to Study');
     });
 
     test('ongoing and anonymous analysis do not offer Add to Study', () => {
@@ -263,6 +263,7 @@ describe('analysis page smoke coverage', () => {
         );
 
         expect(root.querySelector('.study-side')).not.toBeNull();
+        expect(root.querySelector('.study-side__metadata')).toBeNull();
         expect(root.querySelector('#study-side-tab-chapters')?.getAttribute('aria-selected')).toBe('true');
         expect(root.querySelector('#study-side-tab-members')?.getAttribute('aria-selected')).toBe('false');
         expect(root.querySelectorAll('.study-chapter__row')).toHaveLength(2);

@@ -425,8 +425,19 @@ div#panel-4 {
     font-size: 0.9em;
     flex-flow: column;
 }
+div.pgn-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
 div.pgnbuttons {
     display: flex;
+}
+button.analysis-add-to-study {
+    border: 0;
+    background: transparent;
+    font: inherit;
+    cursor: pointer;
 }
 div#pgntext {
     white-space: pre-wrap;

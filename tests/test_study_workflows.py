@@ -659,6 +659,12 @@ async def test_public_study_discovery_and_search_never_expose_link_only_studies(
     assert "discovery_alice" in html
     assert "Sicilian Secret" not in html
     assert "Sicilian Private" not in html
+    assert 'class="study-index__topics"' in html
+    assert 'class="study-topic-list study-topic-list--shortcuts"' not in html
+    assert 'class="study-search-count"' not in html
+    assert "<info-date timestamp=" in html
+    # Keep Studies with the learning resources, matching Lichess navigation.
+    assert html.index('href="/study/all">Studies</a>') < html.index('href="/tv">Watch</a>')
 
     response = await client.get("/study/all?q=sic")
     assert response.status == 200

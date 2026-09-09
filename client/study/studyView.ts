@@ -1171,13 +1171,6 @@ function studySide(study: StudyPageModel, model: PyChessModel): VNode {
             },
             [studyMembersSide(study, model)],
         ),
-        h('div.study-side__metadata', [
-            h('h3', study.name),
-            h('a', { attrs: { href: `/@/${study.owner}` } }, study.owner),
-            study.isOwner
-                ? h('a', { attrs: { href: '/study' } }, _('My studies'))
-                : h('span.study-side__visibility', study.visibility),
-        ]),
         ...(study.isOwner
             ? [
                   dialog('study-settings', _('Edit study'), [

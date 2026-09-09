@@ -91,35 +91,19 @@
                     </div>
                 </details>
                 {% endif %}
+                <a class="study-index__topics" href="{{ home }}/study/topic" title="{% trans %}Topics{% endtrans %}" aria-label="{% trans %}Topics{% endtrans %}">
+                    <span class="icon icon-list" aria-hidden="true"></span>
+                </a>
                 {% if study_list_can_create %}
                 <button class="study-new__toggle" type="button" data-study-new-open title="{% trans %}Create study{% endtrans %}" aria-label="{% trans %}Create study{% endtrans %}" aria-haspopup="dialog" aria-controls="study-new-dialog">
                     <span class="icon icon-plus-square" aria-hidden="true"></span>
                 </button>
                 {% endif %}
             </div>
-            {% if study_nav_topics and not anon and study_list_active != 'topic' %}
-            <div class="study-topic-list study-topic-list--shortcuts">
-                {% for topic in study_nav_topics %}
-                <a href="{{ home }}/study/topic/{{ topic | urlencode }}">{{ topic }}</a>
-                {% endfor %}
-            </div>
-            {% endif %}
-            {% if study_search is defined %}
-            {% if study_search.query_too_short %}
+            {% if study_search is defined and study_search.query_too_short %}
             <p class="study-search__hint">{% trans %}Enter at least 3 characters to search studies.{% endtrans %}</p>
-            {% else %}
-            <p class="study-search-count">
-                {% trans count=study_search.total %}{{ count }} matching study{% pluralize %}{{ count }} matching studies{% endtrans %}
-            </p>
-            {% endif %}
-            {% elif study_public is defined %}
-            {% if study_public.query_too_short %}
+            {% elif study_public is defined and study_public.query_too_short %}
             <p class="study-search__hint">{% trans %}Enter at least 3 characters to search studies.{% endtrans %}</p>
-            {% else %}
-            <p class="study-search-count">
-                {% trans count=study_public.total %}{{ count }} public study{% pluralize %}{{ count }} public studies{% endtrans %}
-            </p>
-            {% endif %}
             {% endif %}
             {% if studies %}
             <div class="studies study-list">
@@ -141,7 +125,7 @@
                                 <span aria-hidden="true">•</span>
                                 <span class="study-card__owner">{{ study.owner }}</span>
                                 <span aria-hidden="true">•</span>
-                                <time datetime="{{ study.updated_at.isoformat() }}">{{ study.updated_at.strftime('%Y-%m-%d %H:%M') }}</time>
+                                <info-date timestamp="{{ study.updated_at.isoformat() }}"></info-date>
                             </div>
                         </div>
                     </div>

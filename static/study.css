@@ -76,9 +76,9 @@
 .study-index__top {
     display: flex;
     flex-wrap: wrap;
-    align-items: stretch;
+    align-items: start;
     gap: 1rem;
-    padding: 2rem 1.6rem 1.5rem;
+    padding: 1.6rem;
 }
 .study-index__title {
     position: absolute;
@@ -169,7 +169,7 @@
     background: var(--bg-color0);
     color: var(--font-color);
     font: inherit;
-    font-size: 1.05rem;
+    font-size: 1.1rem;
 }
 .study-search input:focus {
     position: relative;
@@ -199,8 +199,8 @@
 }
 .study-list-order {
     position: relative;
-    flex: 1 1 15rem;
-    max-width: 17.5rem;
+    flex: 1 1 12rem;
+    max-width: 15rem;
 }
 .study-list-order > summary {
     display: flex;
@@ -261,6 +261,28 @@
     display: inline-block;
     width: 1.2rem;
 }
+.study-index__topics {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    flex: 0 0 3.2rem;
+    width: 3.2rem;
+    height: 3.2rem;
+    border-radius: 3px;
+    color: var(--link-color-blue);
+    text-decoration: none;
+    font-size: 1.25rem;
+}
+.study-index__topics:hover,
+.study-index__topics:focus-visible {
+    background: color-mix(in srgb, var(--link-color-blue) 10%, transparent);
+    color: var(--link-color-blue);
+}
+.study-index__topics:focus-visible {
+    outline: 2px solid var(--link-color-blue);
+    outline-offset: 2px;
+}
 .study-new__toggle {
     display: inline-flex;
     align-items: center;
@@ -276,7 +298,7 @@
     color: #fff;
     box-shadow: var(--btn-shadow);
     font: inherit;
-    font-size: 1.25rem;
+    font-size: 1.55rem;
     cursor: pointer;
     transition: filter 150ms ease, box-shadow 150ms ease;
 }
@@ -314,8 +336,7 @@
 .study-dialog__close:focus-visible {
     color: var(--link-color-blue);
 }
-.study-search__hint,
-.study-search-count {
+.study-search__hint {
     margin: 0;
     padding: 0 1.6rem 1rem;
     color: color-mix(in srgb, var(--font-color) 65%, transparent);
@@ -370,7 +391,7 @@
     flex: 0 0 auto;
     width: 3rem;
     height: 3rem;
-    background: color-mix(in srgb, var(--link-color-blue) 82%, var(--font-color));
+    background: color-mix(in srgb, var(--link-color-blue) 80%, var(--bg-color0));
     -webkit-mask: url('images/study/studyBoard.svg') center / contain no-repeat;
     mask: url('images/study/studyBoard.svg') center / contain no-repeat;
 }
@@ -401,7 +422,7 @@
     white-space: nowrap;
 }
 .study-card__owner,
-.study-card__meta time {
+.study-card__meta info-date {
     overflow: hidden;
     text-overflow: ellipsis;
 }
@@ -608,9 +629,6 @@
     box-shadow: var(--base-shadow);
 }
 .study-side__add .icon { color: var(--link-color-blue); }
-.study-side__metadata { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .7rem; padding: 1rem .5rem; }
-.study-side__metadata h3 { flex-basis: 100%; font-size: 1.1rem; margin: 0; overflow-wrap: anywhere; }
-.study-side__metadata a { font-size: .9rem; }
 .study-tool-tabs { display: flex; align-items: stretch; padding-top: 5px; border-bottom: 1px solid var(--border-color); }
 .study-tool-tabs button[role='tab'] { position: relative; flex: 1; min-height: 2.8rem; font-size: 1.2rem; border-bottom: 2px solid transparent; }
 .study-tool-tabs button[role='tab'][aria-selected='true'] { color: var(--rusty); border-bottom-color: var(--rusty); }
@@ -927,7 +945,6 @@
     .study-app > #gauge { display: none; }
     .study-side__tabs { min-height: 2.4rem; }
     .study-chapters, .study-members-side__list { min-height: 0; max-height: 6.6rem; }
-    .study-side__metadata { display: none; }
     .study-app > .sidebar-first { margin-bottom: .8rem; }
     .study-app .movelist-block { flex: auto; height: 12rem; max-height: 35vh; }
     .study-tool-tabs button[role='tab'] { min-height: 2.75rem; }
@@ -960,8 +977,7 @@
     .study-create-form { grid-template-columns: 1fr; }
     .study-create-form__wide, .study-create-form__submit { grid-column: auto; }
     .study-create-form__submit { width: 100%; justify-self: stretch; }
-    .study-search__hint, .study-search-count { padding-inline: 1rem; }
-    .study-topic-list--shortcuts { padding: 0 1rem 1rem; }
+    .study-search__hint { padding-inline: 1rem; }
     .study-topics-index { padding: 1.5rem 1rem 3rem; }
     .study-public-pages { gap: .6rem; padding-inline: 1rem; }
     .studies { grid-template-columns: 1fr; }
