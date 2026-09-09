@@ -14,6 +14,21 @@
     max-width: 1180px;
     margin: 1.25rem auto 3rem;
 }
+/* Standard Study actions share one button treatment across the index,
+   workspace, and native dialogs. More specialized icon/tab controls keep
+   their dedicated styles below. */
+:where(.study-index, .study-app, .study-dialog) .button {
+    border: 0;
+    border-radius: 3px;
+    padding: .55rem .85rem;
+    background: var(--link-color-blue);
+    color: #fff;
+    font: inherit;
+    cursor: pointer;
+}
+:where(.study-index, .study-app, .study-dialog) .button:hover { filter: brightness(1.1); }
+:where(.study-index, .study-app, .study-dialog) .button-empty { background: transparent; color: var(--link-color); }
+:where(.study-index, .study-app, .study-dialog) .button-red { background: var(--bad); }
 .study-index-page.page-menu {
     grid-template-columns: 13rem minmax(0, 1fr);
     column-gap: .7rem;
@@ -278,7 +293,6 @@
 .study-new-dialog { width: min(600px, calc(100vw - 2rem)); }
 .study-new-dialog .study-dialog__header { margin-bottom: 1.8rem; }
 .study-new-dialog .study-dialog__actions { margin-top: 2rem; }
-.study-new-dialog__cancel,
 .study-dialog__close {
     border: 0;
     background: transparent;
@@ -286,11 +300,7 @@
     font: inherit;
     cursor: pointer;
 }
-.study-new-dialog__cancel {
-    padding: .7rem 1rem;
-    color: var(--bad);
-    text-transform: uppercase;
-}
+.study-new-dialog__cancel.button-empty { color: var(--bad); }
 .study-new-dialog__cancel:hover,
 .study-new-dialog__cancel:focus-visible {
     background: color-mix(in srgb, var(--bad) 10%, transparent);
@@ -574,7 +584,7 @@
     line-height: 1.25rem;
     text-align: center;
 }
-.study-app button.study-icon-button, .study-app .study-side__add, .study-tool-tabs button[role='tab'], .study-annotations__nag {
+:where(.study-app, .study-dialog) button.study-icon-button, .study-app .study-side__add, .study-tool-tabs button[role='tab'], .study-annotations__nag {
     border: 0;
     border-radius: 0;
     background: transparent;
@@ -583,7 +593,7 @@
     cursor: pointer;
     padding: .5rem .7rem;
 }
-.study-app button.study-icon-button { min-width: 2.4rem; }
+:where(.study-app, .study-dialog) button.study-icon-button { min-width: 2.4rem; }
 .study-chapter__edit { opacity: .35; }
 .study-chapter__row:hover .study-chapter__edit, .study-chapter__edit:focus-visible { opacity: 1; }
 .study-app .study-side__add {
@@ -607,7 +617,7 @@
 /* Tag icon from lila public/images/svg-icons/tag.svg (AGPL-3.0). */
 .study-tag-icon { display: inline-block; width: 1.1em; height: 1.1em; background: currentColor; mask: url('images/study/tag.svg') center / contain no-repeat; vertical-align: middle; }
 .study-tool-count { font-size: .7rem; margin-left: .2rem; vertical-align: super; }
-.study-app button.study-icon-button:hover, .study-app .study-side__add:hover, .study-tool-tabs button[role='tab']:hover, .study-annotations__nag:hover {
+:where(.study-app, .study-dialog) button.study-icon-button:hover, .study-app .study-side__add:hover, .study-tool-tabs button[role='tab']:hover, .study-annotations__nag:hover {
     background: var(--bg-color2);
     color: var(--link-color-blue);
 }
@@ -668,18 +678,6 @@
 .study-dialog textarea { resize: vertical; }
 .study-tool-panel textarea { resize: vertical; margin: .4rem 0; }
 .study-tool-panel textarea:focus, .study-dialog input:focus, .study-dialog select:focus, .study-dialog textarea:focus { outline: 2px solid var(--link-color-blue); outline-offset: -1px; }
-.study-app .button {
-    border: 0;
-    border-radius: 3px;
-    padding: .55rem .85rem;
-    background: var(--link-color-blue);
-    color: #fff;
-    font: inherit;
-    cursor: pointer;
-}
-.study-app .button:hover { filter: brightness(1.1); }
-.study-app .button-empty { background: transparent; color: var(--link-color); }
-.study-app .button-red { background: var(--bad); }
 .study-underboard { container-type: inline-size; }
 #study-panel-comments, #study-panel-glyphs { padding: 0; }
 #study-panel-comments { background: transparent; }
@@ -884,6 +882,7 @@
     border-top: 1px solid var(--border-color);
 }
 .study-dialog__actions form { margin: 0; }
+.study-dialog__actions--submit-only { justify-content: flex-end; }
 .study-dialog__actions .button-red {
     background: transparent;
     color: var(--bad);

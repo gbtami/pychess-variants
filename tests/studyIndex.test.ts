@@ -80,5 +80,8 @@ describe('Study index creation dialogs', () => {
         expect(chapterForm.querySelector<HTMLInputElement>('input[name="computer"]')?.value).toBe('everyone');
         expect(chapterForm.querySelector<HTMLInputElement>('input[name="cloneable"]')?.value).toBe('everyone');
         expect(chapterForm.querySelector<HTMLInputElement>('input[name="shareable"]')?.value).toBe('everyone');
+        expect(chapterForm.querySelector('.study-dialog__actions--submit-only .button')?.textContent).toBe(
+            'Create chapter',
+        );
     });
 });

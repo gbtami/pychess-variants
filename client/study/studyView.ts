@@ -9,6 +9,7 @@ import { analysisChart } from '../analysis/analysisChart';
 import { AnalysisController } from '../analysis/analysisCtrl';
 import { renderAnalysisPage } from '../analysis/analysisPage';
 import { copyTextToClipboard } from '../clipboard';
+import { confirmDialog } from '../confirmDialog';
 import { downloadText, notifyChessgroundResize, patch } from '../document';
 import { _, ngettext } from '../i18n';
 import type { PyChessModel, StudyFeatureSelection, StudyPageModel } from '../types';
@@ -183,7 +184,20 @@ function deleteForm(
             class: className ? { [className]: true } : undefined,
             on: {
                 submit: event => {
-                    if (!window.confirm(prompt)) event.preventDefault();
+                    event.preventDefault();
+                    const form = event.currentTarget as HTMLFormElement;
+                    const modal = form.closest<HTMLDialogElement>('dialog');
+                    const reopenModal = Boolean(modal?.open);
+                    if (reopenModal) modal?.close();
+                    void confirmDialog({
+                        text: prompt,
+                        confirmText: label,
+                        cancelText: _('Cancel'),
+                        danger: true,
+                    }).then(confirmed => {
+                        if (confirmed) HTMLFormElement.prototype.submit.call(form);
+                        else if (reopenModal && modal?.isConnected) modal.showModal();
+                    });
                 },
             },
         },
@@ -1045,7 +1059,16 @@ function studyMembersSide(study: StudyPageModel, model: PyChessModel): VNode {
                           attrs: { method: 'post', action: `/study/${study.id}/leave` },
                           on: {
                               submit: event => {
-                                  if (!window.confirm(_('Leave this Study?'))) event.preventDefault();
+                                  event.preventDefault();
+                                  const form = event.currentTarget as HTMLFormElement;
+                                  void confirmDialog({
+                                      text: _('Leave this Study?'),
+                                      confirmText: _('Leave study'),
+                                      cancelText: _('Cancel'),
+                                      danger: true,
+                                  }).then(confirmed => {
+                                      if (confirmed) HTMLFormElement.prototype.submit.call(form);
+                                  });
                               },
                           },
                       },
@@ -1450,10 +1473,16 @@ function studyPinnedChapterComment(study: StudyPageModel, modeActions: StudyMode
                                   attrs: { type: 'button', title: _('Delete'), 'aria-label': _('Delete') },
                                   on: {
                                       click: () => {
-                                          if (window.confirm(_('Delete permanent description?'))) {
+                                          void confirmDialog({
+                                              text: _('Delete permanent description?'),
+                                              confirmText: _('Delete'),
+                                              cancelText: _('Cancel'),
+                                              danger: true,
+                                          }).then(confirmed => {
+                                              if (!confirmed) return;
                                               study.chapterDescriptionEditing = false;
                                               modeActions.setDescription('');
-                                          }
+                                          });
                                       },
                                   },
                               },

@@ -35,12 +35,20 @@ export function studyChapterCreateForm(
             chapterField('chapterName', _('Chapter name'), options.chapterName ?? '', 80),
             h('label', [
                 h('span', _('Variant')),
-                selectVariant('variant', variant, () => {}, () => {}, twoBoarsVariants),
+                selectVariant(
+                    'variant',
+                    variant,
+                    () => {},
+                    () => {},
+                    twoBoarsVariants,
+                ),
             ]),
             chess960 ? h('input', { attrs: { type: 'hidden', name: 'chess960', value: '1' } }) : '',
             chapterField('fen', _('FEN (optional)')),
             chapterField('gameId', _('Game ID (optional)'), '', 12),
-            h('button.button', { attrs: { type: 'submit' } }, _('Create chapter')),
+            h('div.study-dialog__actions.study-dialog__actions--submit-only', [
+                h('button.button', { attrs: { type: 'submit' } }, _('Create chapter')),
+            ]),
         ],
     );
 }

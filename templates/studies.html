@@ -222,7 +222,7 @@
 <dialog id="study-new-dialog" class="study-dialog study-new-dialog" aria-labelledby="study-new-dialog-title">
     <div class="study-dialog__header">
         <h2 id="study-new-dialog-title">{% trans %}Create study{% endtrans %}</h2>
-        <button class="study-dialog__close" type="button" data-study-new-close aria-label="{% trans %}Close{% endtrans %}">×</button>
+        <button class="study-icon-button study-dialog__close" type="button" data-study-new-close aria-label="{% trans %}Close{% endtrans %}">×</button>
     </div>
     <form id="study-create-form" class="study-dialog__form study-create-form">
         <label class="study-dialog__field">
@@ -274,14 +274,14 @@
         <input type="hidden" name="explorer" value="everyone">
     </form>
     <div class="study-dialog__actions">
-        <button class="study-new-dialog__cancel" type="button" data-study-new-close>{% trans %}Cancel{% endtrans %}</button>
+        <button class="button button-empty study-new-dialog__cancel" type="button" data-study-new-close>{% trans %}Cancel{% endtrans %}</button>
         <button class="button" type="submit" form="study-create-form">{% trans %}Start{% endtrans %}</button>
     </div>
 </dialog>
 <dialog id="study-first-chapter-dialog" class="study-dialog" aria-labelledby="study-first-chapter-dialog-title">
     <div class="study-dialog__header">
         <h2 id="study-first-chapter-dialog-title">{% trans %}New chapter{% endtrans %}</h2>
-        <button class="study-dialog__close" type="button" data-study-first-chapter-close aria-label="{% trans %}Close{% endtrans %}">×</button>
+        <button class="study-icon-button study-dialog__close" type="button" data-study-first-chapter-close aria-label="{% trans %}Close{% endtrans %}">×</button>
     </div>
     <div id="study-first-chapter-form-mount"></div>
 </dialog>
