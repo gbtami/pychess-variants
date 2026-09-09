@@ -16,7 +16,8 @@ from study.models import Study
 from study.mutations import StudyMutationResult, StudyMutationService
 from study.permissions import can_view_study
 from study.sequencer import cleanup_study_sequence, sequence_study
-from study.storage import StudyStorageError, chapter_previews, set_shared_position
+from study.snapshot import chapter_snapshot_token
+from study.storage import StudyStorageError, chapter_previews, load_chapter, set_shared_position
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -273,6 +274,39 @@ async def _repair_shared_position_after_delete(
     await _broadcast_shared_position(app_state, ws, study_id, chapter_id, repaired)
 
 
+async def _sync_chapter_message(
+    app_state: PychessGlobalAppState,
+    ws: WebSocketResponse,
+    data: Mapping[str, object],
+    *,
+    study_id: str,
+) -> None:
+    chapter_id = data.get("chapterId")
+    request_id = data.get("requestId")
+    if (
+        data.get("studyId") != study_id
+        or not isinstance(chapter_id, str)
+        or not chapter_id
+        or not isinstance(request_id, str)
+        or _CLIENT_OP_ID_RE.fullmatch(request_id) is None
+    ):
+        await _send_invalid_message(ws, data)
+        return
+
+    chapter = await load_chapter(app_state, study_id, chapter_id)
+    await ws_send_json(
+        ws,
+        {
+            "type": "study_chapter_sync",
+            "studyId": study_id,
+            "chapterId": chapter_id,
+            "requestId": request_id,
+            "revision": chapter.revision if chapter is not None else None,
+            "snapshotToken": chapter_snapshot_token(chapter) if chapter is not None else None,
+        },
+    )
+
+
 async def process_message(
     app_state: PychessGlobalAppState,
     user: User,
@@ -307,6 +341,10 @@ async def _process_message_unlocked(
         return
 
     message_type = data.get("type")
+    if message_type == "study_sync_chapter":
+        await _sync_chapter_message(app_state, ws, data, study_id=study_id)
+        return
+
     if message_type == "study_set_position":
         await _set_shared_position_message(app_state, user, ws, data, study_id=study_id)
         return

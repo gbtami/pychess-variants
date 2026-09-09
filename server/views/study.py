@@ -46,6 +46,7 @@ from study.permissions import (
     study_feature_selection,
 )
 from study.sequencer import sequence_study
+from study.snapshot import chapter_snapshot_token
 from study.storage import (
     StudyStorageError,
     add_chapter_from_draft,
@@ -843,6 +844,7 @@ async def _populate_study_chapter_context(
                 "id": chapter.id,
                 "name": chapter.name,
                 "revision": chapter.revision,
+                "snapshotToken": chapter_snapshot_token(chapter),
                 "order": chapter.order,
                 "orientation": chapter.orientation,
                 "variant": chapter.variant,

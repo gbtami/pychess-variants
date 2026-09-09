@@ -93,6 +93,7 @@ export type StudyPageModel = {
         id: string;
         name: string;
         revision: number;
+        snapshotToken: string;
         order: number;
         orientation: 'white' | 'black';
         variant: string;

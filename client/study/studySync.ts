@@ -34,6 +34,7 @@ import { renderStudyChapterPgn, type StudyPgnChapterData, type StudyPgnContext }
 
 const STUDY_SOCKET_TYPES = new Set([
     'study_user_connected',
+    'study_chapter_sync',
     'study_members',
     'study_likes',
     'study_topics',
@@ -93,6 +94,8 @@ export interface StudySyncOptions {
     studyId: string;
     chapterId: string;
     revision: number;
+    snapshotToken?: string;
+    snapshotVerified?: boolean;
     tree?: StudyTreeDto;
     orientation?: 'white' | 'black';
     description?: string;
@@ -120,6 +123,7 @@ export interface StudySyncOptions {
     onServerAnalysisUnavailable?: (reason: string) => void;
     onOrientationChanged?: (orientation: 'white' | 'black') => void;
     opIdFactory?: () => string;
+    syncIdFactory?: () => string;
     contextMenuActions?: AnalysisExtension['contextMenuActions'];
     writable?: boolean;
     recording?: boolean;
@@ -363,6 +367,12 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     private readonly onReloadRequired: (reason: string) => void;
     private readonly onAnnotationStateChanged?: (state: StudyAnnotationState) => void;
     private readonly opIdFactory: () => string;
+    private readonly syncIdFactory: () => string;
+    private readonly syncWaiters = new Map<
+        string,
+        { chapterId: string; snapshotToken: string; resolve: (matches: boolean) => void; reject: () => void }
+    >();
+    private streamReady: boolean;
     private writable: boolean;
     private recording: boolean;
     private suppressLocalPath = false;
@@ -390,6 +400,8 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         this.onAnnotationStateChanged = options.onAnnotationStateChanged;
         this.contextMenuActions = options.contextMenuActions;
         this.opIdFactory = options.opIdFactory ?? newStudyNodeId;
+        this.syncIdFactory = options.syncIdFactory ?? newStudyNodeId;
+        this.streamReady = options.snapshotVerified === true || !options.snapshotToken;
         this.writable = options.writable ?? true;
         this.recording = this.writable && (options.recording ?? true);
     }
@@ -419,6 +431,42 @@ export class StudyAnalysisExtension implements AnalysisExtension {
 
     get pendingCount(): number {
         return this.pending.length;
+    }
+
+    verifySnapshot(chapterId: string, snapshotToken: string): Promise<boolean> {
+        if (!this.connected || this.reloadRequested || !chapterId || !snapshotToken) {
+            return Promise.reject(new Error('Study socket is not ready for snapshot verification.'));
+        }
+        const requestId = this.syncIdFactory();
+        if (!requestId || this.syncWaiters.has(requestId)) {
+            return Promise.reject(new Error('Could not create a Study snapshot verification request.'));
+        }
+        return new Promise((resolve, reject) => {
+            const timer = window.setTimeout(() => {
+                this.syncWaiters.delete(requestId);
+                reject(new Error('Study snapshot verification timed out.'));
+            }, 5000);
+            this.syncWaiters.set(requestId, {
+                chapterId,
+                snapshotToken,
+                resolve: matches => {
+                    window.clearTimeout(timer);
+                    this.syncWaiters.delete(requestId);
+                    resolve(matches);
+                },
+                reject: () => {
+                    window.clearTimeout(timer);
+                    this.syncWaiters.delete(requestId);
+                    reject(new Error('Study snapshot verification was interrupted.'));
+                },
+            });
+            this.ctrl.doSend({
+                type: 'study_sync_chapter',
+                studyId: this.options.studyId,
+                chapterId,
+                requestId,
+            });
+        });
     }
 
     get isRecording(): boolean {
@@ -538,6 +586,22 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         }
         this.openedOnce = true;
         this.reconnecting = false;
+        if (this.options.snapshotToken && !this.options.snapshotVerified) {
+            this.streamReady = false;
+            void this.verifySnapshot(this.options.chapterId, this.options.snapshotToken)
+                .then(matches => {
+                    if (!matches) {
+                        this.requestReload('snapshot_stale');
+                        return;
+                    }
+                    this.streamReady = true;
+                    this.pump();
+                    this.pumpSharedPosition();
+                })
+                .catch(() => this.requestReload('snapshot_sync_failed'));
+            return;
+        }
+        this.streamReady = true;
         this.pump();
         this.pumpSharedPosition();
     }
@@ -681,6 +745,32 @@ export class StudyAnalysisExtension implements AnalysisExtension {
 
         if (type === 'study_user_connected') {
             if (data.studyId !== this.options.studyId) this.requestReload('wrong_study');
+            return true;
+        }
+
+        if (type === 'study_chapter_sync') {
+            if (data.studyId !== this.options.studyId || typeof data.requestId !== 'string') {
+                this.requestReload('invalid_chapter_sync');
+                return true;
+            }
+            const waiter = this.syncWaiters.get(data.requestId);
+            if (!waiter) return true;
+            if (data.chapterId !== waiter.chapterId) {
+                waiter.reject();
+                this.requestReload('invalid_chapter_sync');
+                return true;
+            }
+            const revision = data.revision;
+            const snapshotToken = data.snapshotToken;
+            if (
+                (revision !== null && (!Number.isInteger(revision) || (revision as number) < 0)) ||
+                (snapshotToken !== null && typeof snapshotToken !== 'string')
+            ) {
+                waiter.reject();
+                this.requestReload('invalid_chapter_sync');
+                return true;
+            }
+            waiter.resolve(snapshotToken === waiter.snapshotToken);
             return true;
         }
 
@@ -858,7 +948,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     }
 
     private pump(): void {
-        if (!this.connected || this.reloadRequested) return;
+        if (!this.connected || !this.streamReady || this.reloadRequested) return;
         const pending = this.pending[0];
         if (!pending) {
             this.pumpSharedPosition();
@@ -879,6 +969,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     private pumpSharedPosition(): void {
         if (
             !this.connected ||
+            !this.streamReady ||
             !this.writable ||
             !this.recording ||
             this.reloadRequested ||
@@ -1230,6 +1321,8 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         if (this.reloadRequested) return;
         this.reloadRequested = true;
         for (const waiter of this.idleWaiters) waiter.reject();
+        for (const waiter of this.syncWaiters.values()) waiter.reject();
+        this.syncWaiters.clear();
         this.connected = false;
         this.onReloadRequired(reason);
     }

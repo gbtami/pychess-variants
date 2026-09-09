@@ -17,7 +17,7 @@ import { loadCataloguedVariantsFromJson, variantConfigIni } from '../variants';
 import { variantsIni } from '../variantsIni';
 import { createWebsocket } from '../socket/webSocketUtils';
 import { displayUsername, userLink } from '../user';
-import { StudyChapterNavigation } from './chapterNavigation';
+import { StaleStudyChapterSnapshotError, StudyChapterNavigation } from './chapterNavigation';
 import { analysisTreeFromStudy } from './studyTree';
 import { StudyAnalysisExtension, type StudyAnnotationState } from './studySync';
 import { GLYPH_GROUPS, toggleGlyph } from '../analysis/glyphs';
@@ -1912,13 +1912,15 @@ function runStudyGround(
             extension.onSocketMessage(message.type, message);
         },
     );
-    const mount = (el: HTMLElement) => {
+    const mount = (el: HTMLElement, snapshotVerified = false) => {
         ctrl = new AnalysisController(el, model, analysisCtrl => {
             extension = new StudyAnalysisExtension(analysisCtrl, {
                 socket,
                 studyId: study.id,
                 chapterId: study.chapter.id,
                 revision: study.chapter.revision,
+                snapshotToken: study.chapter.snapshotToken,
+                snapshotVerified,
                 tree: study.chapter.tree,
                 orientation: study.chapter.orientation,
                 description: study.chapter.description,
@@ -2070,6 +2072,10 @@ function runStudyGround(
             const ffish = await modules.get(alice)!;
             await ctrl.whenEngineConfigured();
             if (!isCurrent()) return;
+            if (!(await extension.verifySnapshot(data.study.chapter.id, data.study.chapter.snapshotToken))) {
+                throw new StaleStudyChapterSnapshotError('Study chapter changed while loading.');
+            }
+            if (!isCurrent()) return;
             paths.set(study.chapter.id, ctrl.analysisPath);
             serverAnalysisChart?.destroy();
             serverAnalysisChart = undefined;
@@ -2124,7 +2130,7 @@ function runStudyGround(
             }
             sideVNode = patch(sideVNode, studySide(study, model));
             refreshStudyModeButtons(study);
-            mount(app.querySelector<HTMLElement>('#mainboard > .cg-wrap')!);
+            mount(app.querySelector<HTMLElement>('#mainboard > .cg-wrap')!, true);
             if (study.sticky && study.chapter.id === study.sharedChapter) {
                 if (!extension.followSharedPath(study.sharedPath)) window.location.reload();
             } else {
@@ -2204,6 +2210,7 @@ function runStudyEmbedGround(vnode: VNode, model: PyChessModel, study: StudyPage
                 studyId: study.id,
                 chapterId: study.chapter.id,
                 revision: study.chapter.revision,
+                snapshotToken: study.chapter.snapshotToken,
                 tree: study.chapter.tree,
                 orientation: study.chapter.orientation,
                 description: study.chapter.description,

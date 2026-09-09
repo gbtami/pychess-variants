@@ -1,5 +1,9 @@
 import { afterEach, beforeEach, expect, jest, test } from '@jest/globals';
-import { StudyChapterNavigation, type StudyChapterSnapshot } from '../client/study/chapterNavigation';
+import {
+    StaleStudyChapterSnapshotError,
+    StudyChapterNavigation,
+    type StudyChapterSnapshot,
+} from '../client/study/chapterNavigation';
 
 const originalFetch = globalThis.fetch;
 const fetchMock = jest.fn<typeof fetch>();
@@ -118,4 +122,32 @@ test('an unavailable chapter leaves the mounted chapter intact', async () => {
     expect(apply).not.toHaveBeenCalled();
     expect(error).toHaveBeenCalled();
     expect(window.location.pathname).toBe('/study/study001/first');
+});
+
+
+test('refetches a chapter when late snapshot verification detects a stream gap', async () => {
+    let current = 'first';
+    let attempt = 0;
+    const apply = jest.fn(async (data: StudyChapterSnapshot) => {
+        attempt += 1;
+        if (attempt === 1) throw new StaleStudyChapterSnapshotError();
+        current = data.study.chapter.id;
+    });
+    const error = jest.fn();
+    const nav = new StudyChapterNavigation({
+        studyId: 'study001',
+        currentChapter: () => current,
+        flush: async () => {},
+        apply,
+        error,
+        busy: jest.fn(),
+    });
+    fetchMock.mockResolvedValue(response('second'));
+
+    await nav.go('second');
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(apply).toHaveBeenCalledTimes(2);
+    expect(error).not.toHaveBeenCalled();
+    expect(window.location.pathname).toBe('/study/study001/second');
 });

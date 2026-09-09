@@ -972,6 +972,82 @@ describe('Study analysis websocket synchronization', () => {
         expect(reload).not.toHaveBeenCalled();
     });
 
+    test('verifies the initial HTTP snapshot before sending queued mutations', async () => {
+        const ctrl = makeCtrl();
+        const reload = jest.fn();
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            snapshotToken: 'snapshot-a',
+            onReloadRequired: reload,
+            opIdFactory: () => 'CommentOp1',
+            syncIdFactory: () => 'SyncOp1',
+        });
+
+        extension.onSocketOpen();
+        expect(ctrl.doSend).toHaveBeenCalledWith({
+            type: 'study_sync_chapter',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            requestId: 'SyncOp1',
+        });
+
+        extension.setComment('Comment001', 'Queued before sync');
+        expect(ctrl.doSend).toHaveBeenCalledTimes(1);
+
+        extension.onSocketMessage('study_chapter_sync', {
+            type: 'study_chapter_sync',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            requestId: 'SyncOp1',
+            revision: 0,
+            snapshotToken: 'snapshot-a',
+        });
+        await Promise.resolve();
+
+        expect(ctrl.doSend).toHaveBeenLastCalledWith({
+            type: 'study_set_comment',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'CommentOp1',
+            expectedRevision: 0,
+            path: '',
+            commentId: 'Comment001',
+            text: 'Queued before sync',
+        });
+        expect(reload).not.toHaveBeenCalled();
+    });
+
+    test('reloads instead of sending queued mutations when the initial snapshot is stale', async () => {
+        const ctrl = makeCtrl();
+        const reload = jest.fn();
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            snapshotToken: 'snapshot-old',
+            onReloadRequired: reload,
+            opIdFactory: () => 'CommentOp1',
+            syncIdFactory: () => 'SyncOp1',
+        });
+
+        extension.onSocketOpen();
+        extension.setComment('Comment001', 'Must not send stale');
+        extension.onSocketMessage('study_chapter_sync', {
+            type: 'study_chapter_sync',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            requestId: 'SyncOp1',
+            revision: 1,
+            snapshotToken: 'snapshot-new',
+        });
+        await Promise.resolve();
+
+        expect(reload).toHaveBeenCalledWith('snapshot_stale');
+        expect(ctrl.doSend).toHaveBeenCalledTimes(1);
+    });
+
     test('reloads after a real websocket reconnect because broadcasts may have been missed', () => {
         const ctrl = makeCtrl();
         const reload = jest.fn();

@@ -14,6 +14,7 @@ from study.models import Study, StudyChapter
 from study.mutations import StudyMutationService
 from study.permissions import can_view_study
 from study.sequencer import sequence_study
+from study.snapshot import chapter_snapshot_token
 from study.tree import StudyTree
 from study.ws import (
     broadcast_study_members,
@@ -31,6 +32,7 @@ from ws_structs import (
     StudySetPositionIn,
     StudySetShapesIn,
     StudySetTagsIn,
+    StudySyncChapterIn,
 )
 
 STUDY_ID = "study001"
@@ -197,6 +199,53 @@ class StudyWebsocketTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(entered.is_set())
         self.assertNotIn(STUDY_ID, self.app_state.study_mutation_locks)
         self.assertNotIn(STUDY_ID, self.app_state.study_mutation_lock_refs)
+
+    async def test_chapter_sync_reports_sequenced_snapshot_token(self) -> None:
+        ws = await self._connect()
+        ws.sent.clear()
+        chapter_doc = await self.db.study_chapter.find_one({"_id": CHAPTER_ID})
+        assert chapter_doc is not None
+        chapter = StudyChapter.from_document(chapter_doc)
+        stale_token = chapter_snapshot_token(chapter)
+        # Snapshot verification must cover persisted content that is allowed to
+        # change without the collaborative mutation revision (Fishnet analysis is
+        # the production example).
+        await self.db.study_chapter.update_one(
+            {"_id": CHAPTER_ID}, {"$set": {"description": "changed without revision"}}
+        )
+        current_doc = await self.db.study_chapter.find_one({"_id": CHAPTER_ID})
+        assert current_doc is not None
+        expected = chapter_snapshot_token(StudyChapter.from_document(current_doc))
+        self.assertNotEqual(stale_token, expected)
+
+        message = StudySyncChapterIn(
+            type="study_sync_chapter",
+            studyId=STUDY_ID,
+            chapterId=CHAPTER_ID,
+            requestId="Sync0001",
+        )
+        await process_message(
+            cast(Any, self.app_state),
+            cast(Any, self.user),
+            cast(Any, ws),
+            message,
+            study_id=STUDY_ID,
+            service=self.service,
+        )
+
+        self.assertEqual(
+            ws.sent,
+            [
+                {
+                    "type": "study_chapter_sync",
+                    "studyId": STUDY_ID,
+                    "chapterId": CHAPTER_ID,
+                    "requestId": "Sync0001",
+                    "revision": 0,
+                    "snapshotToken": expected,
+                }
+            ],
+        )
 
     async def test_typed_add_broadcasts_same_stable_node_to_both_tabs(self) -> None:
         first = await self._connect()

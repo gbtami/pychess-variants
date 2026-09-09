@@ -1,6 +1,8 @@
 import type { MsgBoard } from '../messages';
 import type { StudyPageModel } from '../types';
 
+export class StaleStudyChapterSnapshotError extends Error {}
+
 export interface StudyChapterSnapshot {
     study: StudyPageModel;
     board: MsgBoard;
@@ -24,7 +26,12 @@ export class StudyChapterNavigation {
         },
     ) {}
 
-    async go(chapterId: string, history: 'push' | 'pop' | 'replace' = 'push', forceReload = false): Promise<void> {
+    async go(
+        chapterId: string,
+        history: 'push' | 'pop' | 'replace' = 'push',
+        forceReload = false,
+        staleRetries = 0,
+    ): Promise<void> {
         const request = ++this.request;
         this.abort?.abort();
         this.abort = new AbortController();
@@ -58,6 +65,10 @@ export class StudyChapterNavigation {
                 window.history.replaceState(null, '', `/study/${this.options.studyId}/${chapterId}`);
         } catch (error) {
             if (request !== this.request) return;
+            if (error instanceof StaleStudyChapterSnapshotError && staleRetries < 2) {
+                await this.go(chapterId, history, true, staleRetries + 1);
+                return;
+            }
             if (history === 'pop')
                 window.history.replaceState(
                     null,
