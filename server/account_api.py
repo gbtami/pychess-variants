@@ -577,6 +577,10 @@ async def account_delete_post(request: web.Request) -> web.StreamResponse:
             "$unset": {"security": ""},
         },
     )
+    # Disable the shared live User before any potentially long GDPR discovery and
+    # cleanup. Existing websocket handlers observe this immediately, and new
+    # websocket handshakes are rejected by process_ws while authored data is erased.
+    user.enabled = False
     await _scrub_delete_owned_data(app_state, user, now)
     _clear_public_user_cache(app_state, user.username)
 

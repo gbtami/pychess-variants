@@ -57,6 +57,7 @@ class FakeWebSocket:
 class FakeUser:
     def __init__(self, username: str) -> None:
         self.username = username
+        self.enabled = True
         self.study_sockets: dict[str, set[Any]] = {}
         self.online = False
 
@@ -128,6 +129,60 @@ class StudyWebsocketTestCase(unittest.IsolatedAsyncioTestCase):
             STUDY_ID,
         )
         return ws
+
+    async def test_init_rejects_user_disabled_after_initial_handshake_check(self) -> None:
+        self.user.enabled = False
+        ws = FakeWebSocket()
+
+        await init_ws(
+            cast(Any, self.app_state),
+            cast(Any, ws),
+            cast(Any, self.user),
+            STUDY_ID,
+        )
+
+        self.assertTrue(ws.closed)
+        self.assertNotIn(STUDY_ID, self.app_state.study_sockets)
+        self.assertNotIn(STUDY_ID, self.user.study_sockets)
+
+    async def test_queued_mutation_rechecks_disabled_user_under_sequencer(self) -> None:
+        ws = await self._connect()
+        ws.sent.clear()
+
+        async with sequence_study(cast(Any, self.app_state), STUDY_ID):
+            mutation_task = asyncio.create_task(
+                process_message(
+                    cast(Any, self.app_state),
+                    cast(Any, self.user),
+                    cast(Any, ws),
+                    StudySetCommentIn(
+                        type="study_set_comment",
+                        studyId=STUDY_ID,
+                        chapterId=CHAPTER_ID,
+                        clientOpId="erase-race",
+                        expectedRevision=0,
+                        path="",
+                        commentId="Comment001",
+                        text="Must not persist",
+                    ),
+                    study_id=STUDY_ID,
+                    service=self.service,
+                )
+            )
+            for _ in range(100):
+                if self.app_state.study_mutation_lock_refs.get(STUDY_ID, 0) >= 2:
+                    break
+                await asyncio.sleep(0)
+            self.assertGreaterEqual(self.app_state.study_mutation_lock_refs.get(STUDY_ID, 0), 2)
+            self.user.enabled = False
+
+        await mutation_task
+
+        self.assertTrue(ws.closed)
+        chapter_doc = await self.db.study_chapter.find_one({"_id": CHAPTER_ID})
+        assert chapter_doc is not None
+        self.assertEqual(0, chapter_doc["revision"])
+        self.assertNotIn("a", chapter_doc["root"]["_"])
 
     async def test_init_reauthorizes_stale_public_handshake_before_room_insertion(self) -> None:
         public_study = replace(self.study, visibility="public")

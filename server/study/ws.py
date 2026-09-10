@@ -368,6 +368,13 @@ async def _process_message_unlocked(
     study_id: str,
     service: StudyMutationService,
 ) -> None:
+    # Existing Study websockets can outlive the HTTP account-deletion request.
+    # Once that request disables the shared User object, reject messages that were
+    # queued before socket shutdown but have not yet entered the Study sequencer.
+    if not getattr(user, "enabled", True):
+        await ws.close()
+        return
+
     data = _as_mapping(raw_data)
     if data is None:
         await _send_invalid_message(ws, {})
@@ -630,6 +637,13 @@ async def init_ws(
     # insert the socket before releasing it. No private room event can pass between
     # the authoritative authorization check and room membership.
     async with sequence_study(app_state, study_id):
+        # Account deletion disables the shared in-memory User before GDPR cleanup.
+        # Recheck here as well as in process_ws so a handshake that passed its first
+        # enabled check cannot enter a Study room after erasure has begun.
+        if not getattr(user, "enabled", True):
+            await ws.close()
+            return
+
         raw_study = await app_state.db.study.find_one({"_id": study_id})
         if raw_study is None:
             await ws.close()

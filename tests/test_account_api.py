@@ -3,7 +3,7 @@ import json
 import time
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, patch
 
 from aiohttp.test_utils import AioHTTPTestCase
 from bot_accounts import BOT_TOKEN_SCOPE, create_bot_token
@@ -529,6 +529,29 @@ class AccountApiTestCase(AioHTTPTestCase):
         self.assertIsNotNone(doc)
         self.assertFalse(doc.get("enabled", True))
         self.assertEqual("self_final", doc.get("closeType"))
+
+    async def test_delete_account_disables_live_user_before_gdpr_cleanup(self):
+        app_state = get_app_state(self.app)
+        user = User(app_state, username="alice")
+        app_state.users[user.username] = user
+        await app_state.db.user.insert_one(
+            {"_id": "alice", "username_lower": "alice", "enabled": True}
+        )
+        enabled_during_cleanup: list[bool] = []
+
+        async def observe_cleanup(_app_state, cleanup_user, _now):
+            enabled_during_cleanup.append(cleanup_user.enabled)
+
+        self.set_session_user("alice")
+        with patch("account_api._scrub_delete_owned_data", side_effect=observe_cleanup):
+            response = await self.client.post(
+                "/account/delete",
+                data={"confirm_username": "alice", "understand": "on"},
+                allow_redirects=False,
+            )
+
+        self.assertEqual(response.status, 302)
+        self.assertEqual([False], enabled_during_cleanup)
 
     async def test_delete_account_scrubs_personal_fields(self):
         app_state = get_app_state(self.app)

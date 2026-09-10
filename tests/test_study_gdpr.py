@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import unittest
 from datetime import UTC, datetime
@@ -11,6 +12,7 @@ from mongomock_motor import AsyncMongoMockClient
 from study.annotations import StudyAnnotations, StudyComment
 from study.gdpr import STUDY_ERASED_USER, erase_user_from_studies
 from study.models import Study, StudyChapter
+from study.sequencer import sequence_study
 from study.tree import StudyTree
 
 
@@ -200,6 +202,55 @@ class StudyGdprTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(alice_ws.closed)
         self.assertFalse(carol_ws.closed)
         self.assertTrue(any(message.get("reason") == "account_erased" for message in carol_ws.sent))
+
+    async def test_account_erasure_rechecks_comment_authorship_under_study_lock(self) -> None:
+        study, chapter = await self._insert_study(
+            "race0001",
+            owner="bob",
+            visibility="private",
+            members={"bob": "write", "alice": "write"},
+        )
+
+        async with sequence_study(cast(Any, self.app_state), study.id):
+            erase_task = asyncio.create_task(
+                erase_user_from_studies(cast(Any, self.app_state), "alice")
+            )
+            for _ in range(100):
+                if self.app_state.study_mutation_lock_refs.get(study.id, 0) >= 2:
+                    break
+                await asyncio.sleep(0)
+            self.assertGreaterEqual(
+                self.app_state.study_mutation_lock_refs.get(study.id, 0),
+                2,
+                "erasure did not reach the sequenced Study after preliminary discovery",
+            )
+
+            # The unlocked discovery scan has already completed with no Alice
+            # comment. Model a mutation that committed ahead of erasure acquiring
+            # this Study's sequencer. The locked erasure pass must discover it.
+            root = StudyTree(
+                root_annotations=StudyAnnotations(
+                    comments=(StudyComment("Comment001", "alice", "Late note"),)
+                )
+            )
+            await self.db.study_chapter.update_one(
+                {"_id": chapter.id, "studyId": study.id},
+                {"$set": {"root": root.to_document()}, "$inc": {"revision": 1}},
+            )
+
+        await erase_task
+
+        chapter_doc = await self.db.study_chapter.find_one({"_id": chapter.id})
+        self.assertIsNotNone(chapter_doc)
+        assert chapter_doc is not None
+        comments = chapter_doc["root"]["_"]["a"]["c"]
+        self.assertEqual(STUDY_ERASED_USER, comments[0]["a"])
+        self.assertEqual(2, chapter_doc["revision"])
+
+        study_doc = await self.db.study.find_one({"_id": study.id})
+        self.assertIsNotNone(study_doc)
+        assert study_doc is not None
+        self.assertNotIn("alice", study_doc["members"])
 
     async def test_account_erasure_finds_comments_after_membership_was_already_removed(
         self,

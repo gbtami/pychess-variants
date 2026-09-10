@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import Mapping, Sequence
+from collections.abc import Collection, Mapping, Sequence
 from typing import TYPE_CHECKING, Any
 
 from study.models import Study
@@ -83,33 +83,28 @@ def _anonymize_root_comments(root: object, username: str) -> tuple[object, bool]
     return rewritten_root, changed
 
 
-async def _study_ids_with_authored_comments(app_state: Any, username: str) -> dict[str, set[str]]:
+async def _study_ids_with_authored_comments(app_state: Any, username: str) -> set[str]:
     """Find legacy/current chapters containing comments authored by ``username``.
 
     Study node ids are dynamic Mongo keys, so old chapters cannot be queried by a
-    fixed dotted path. Account erasure is rare; scan chapter roots once and retain
-    only matching ids, then re-read those chapters under the Study sequencer before
-    mutating them.
+    fixed dotted path. Account erasure is rare; this unlocked scan is discovery only.
+    Every affected retained Study is scanned again across all of its chapters while
+    holding the Study sequencer before comment authorship is rewritten.
     """
 
-    matches: dict[str, set[str]] = {}
+    matches: set[str] = set()
     cursor = app_state.db.study_chapter.find({}, projection={"studyId": 1, "root": 1})
     async for doc in cursor:
         study_id = doc.get("studyId")
-        chapter_id = doc.get("_id")
-        if (
-            isinstance(study_id, str)
-            and isinstance(chapter_id, str)
-            and _root_has_comment_author(doc.get("root"), username)
-        ):
-            matches.setdefault(study_id, set()).add(chapter_id)
+        if isinstance(study_id, str) and _root_has_comment_author(doc.get("root"), username):
+            matches.add(study_id)
     return matches
 
 
 async def _affected_study_ids(
     app_state: Any,
     username: str,
-    comment_studies: Mapping[str, set[str]],
+    comment_studies: Collection[str],
 ) -> set[str]:
     ids = set(comment_studies)
     cursor = app_state.db.study.find(
@@ -134,21 +129,20 @@ async def _rewrite_chapters_for_erasure(
     app_state: Any,
     study: Study,
     username: str,
-    authored_chapter_ids: set[str],
     *,
     anonymize_owner: bool,
 ) -> bool:
-    """Anonymize authored comments and, for retained owned Studies, chapter owner."""
+    """Anonymize authored comments and retained owned chapter ownership.
+
+    This function is called only while ``sequence_study`` is held. Scan every
+    chapter in the retained Study instead of trusting the preliminary discovery
+    scan: a websocket mutation may have committed an authored comment after that
+    scan but before erasure acquired this Study's sequencer.
+    """
 
     changed_any = False
-    query: dict[str, object] = {"studyId": study.id}
-    if not anonymize_owner:
-        if not authored_chapter_ids:
-            return False
-        query["_id"] = {"$in": list(authored_chapter_ids)}
-
     cursor = app_state.db.study_chapter.find(
-        query,
+        {"studyId": study.id},
         projection={"_id": 1, "owner": 1, "root": 1},
     )
     async for chapter_doc in cursor:
@@ -187,14 +181,12 @@ async def _erase_from_retained_study(
     app_state: Any,
     study: Study,
     username: str,
-    authored_chapter_ids: set[str],
 ) -> None:
     anonymize_owner = study.owner == username
     chapters_changed = await _rewrite_chapters_for_erasure(
         app_state,
         study,
         username,
-        authored_chapter_ids,
         anonymize_owner=anonymize_owner,
     )
 
@@ -263,6 +255,18 @@ async def erase_user_from_studies(
     if getattr(app_state, "db", None) is None:
         return
 
+    # Stop existing Study streams before the unlocked discovery pass. A mutation
+    # that already acquired a Study sequencer may still finish; the locked full
+    # chapter scan below will observe and anonymize it. Account deletion also marks
+    # the live User disabled before entering this helper, preventing new sockets or
+    # queued Study messages from starting while discovery is in progress.
+    socket_users = getattr(app_state, "study_socket_users", {})
+    connected_study_ids = {
+        study_id for study_id, users in tuple(socket_users.items()) if username in users.values()
+    }
+    for study_id in connected_study_ids:
+        await close_study_user_sockets(app_state, study_id, username)
+
     comment_studies = await _study_ids_with_authored_comments(app_state, username)
     study_ids = await _affected_study_ids(app_state, username, comment_studies)
 
@@ -291,5 +295,4 @@ async def erase_user_from_studies(
                 app_state,
                 study,
                 username,
-                comment_studies.get(study.id, set()),
             )
