@@ -467,16 +467,26 @@ class StudyChapterBuilder:
                 except Exception as exc:
                     raise StudyChapterBuildError("Analysis tree cannot be replayed") from exc
 
+                turn_color = "white" if board.color == WHITE else "black"
+                eval_score = submitted.eval_score
+                if eval_score is not None and submitted.turn_color != turn_color:
+                    # Study evaluations are stored from the side-to-move point of view.
+                    # Submitted FEN/turn metadata is deliberately untrusted, so rebase
+                    # the score if authoritative move replay reconstructs the opposite
+                    # side to move.
+                    eval_score = {key: -value for key, value in eval_score.items()}
+
                 node = StudyTreeNode(
                     id=submitted.id,
                     parent_id=parent_id,
                     order=submitted.order,
                     move=submitted.move,
                     fen=board.fen,
-                    turn_color="white" if board.color == WHITE else "black",
+                    turn_color=turn_color,
                     check=board.is_checked(),
                     san=san,
                     san_san=san_san,
+                    eval_score=eval_score,
                     clocks=submitted.clocks,
                     force_variation=submitted.force_variation,
                     annotations=StudyChapterBuilder._canonical_annotation_authors(

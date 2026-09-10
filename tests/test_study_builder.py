@@ -60,6 +60,7 @@ class StudyChapterBuilderTestCase(unittest.IsolatedAsyncioTestCase):
                     "turnColor": "white",
                     "check": True,
                     "san": "fake-san",
+                    "eval": {"cp": 35},
                     "annotations": {
                         "shapes": [{"orig": "e4", "dest": "e5", "brush": "red"}],
                         "comments": [
@@ -76,6 +77,7 @@ class StudyChapterBuilderTestCase(unittest.IsolatedAsyncioTestCase):
                     "fen": "another-fake-fen",
                     "turnColor": "black",
                     "check": True,
+                    "eval": {"mate": 3},
                 },
                 {
                     "id": "Client0003",
@@ -100,7 +102,12 @@ class StudyChapterBuilderTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(first.turn_color, "black")
         self.assertFalse(first.check)
         self.assertNotEqual(first.fen, "fake-fen")
+        # Submitted evals use the submitted node turn as their POV. Move replay
+        # reconstructs the opposite turn for both deliberately bogus payloads, so
+        # the builder must preserve the score while rebasing it authoritatively.
+        self.assertEqual(first.eval_score, {"cp": -35})
         self.assertEqual(draft.root.nodes["Client0002"].san, "e5")
+        self.assertEqual(draft.root.nodes["Client0002"].eval_score, {"mate": -3})
         self.assertTrue(draft.root.nodes["Client0003"].force_variation)
         self.assertEqual([n.id for n in draft.root.children_of(None)], ["Client0001", "Client0003"])
         self.assertEqual(draft.root.root_annotations.comments[0].text, "Root note")

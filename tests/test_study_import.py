@@ -105,6 +105,23 @@ class StudyImportTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertIn("4P3", node["f"])
         self.assertEqual(imported["root"]["_"]["a"]["c"][0]["a"], "owner")
 
+    async def test_import_persists_parsed_evaluation_after_server_replay(self) -> None:
+        chapter = self._chapter("e2e4", name="Evaluated", node_id="Node000010")
+        tree = cast(dict[str, object], chapter["tree"])
+        nodes = cast(list[dict[str, object]], tree["nodes"])
+        # Match the browser-normalized PGN payload: after 1.e4 Black is to move,
+        # so a White +0.35 PGN evaluation is stored internally as Black -0.35.
+        nodes[0]["turnColor"] = "black"
+        nodes[0]["eval"] = {"cp": -35}
+
+        response = await self._request({"chapters": [chapter]})
+        self.assertEqual(response.status, 200)
+
+        doc = await self.db.study_chapter.find_one({"studyId": self.study.id, "name": "Evaluated"})
+        assert doc is not None
+        node = next(value for key, value in doc["root"].items() if key != "_")
+        self.assertEqual(node["e"], {"cp": -35})
+
     async def test_sync_off_import_keeps_existing_shared_chapter(self) -> None:
         response = await self._request(
             {
