@@ -596,6 +596,68 @@ describe('Study analysis websocket synchronization', () => {
         expect(reload).toHaveBeenCalledWith('invalid_chapter_list');
     });
 
+    test('chapter-content messages advance revision and refresh the pinned description', () => {
+        const ctrl = makeCtrl();
+        const changed = jest.fn();
+        const reload = jest.fn();
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 7,
+            description: 'old description',
+            onAnnotationStateChanged: changed,
+            onReloadRequired: reload,
+        });
+
+        expect(
+            extension.onSocketMessage('study_chapter_content', {
+                type: 'study_chapter_content',
+                studyId: 'study001',
+                chapterId: 'chapter1',
+                revision: 8,
+                description: '-',
+            }),
+        ).toBe(true);
+        expect(extension.revision).toBe(8);
+        expect(extension.annotationState.description).toBe('-');
+        expect(changed).toHaveBeenLastCalledWith(expect.objectContaining({ description: '-' }));
+        expect(reload).not.toHaveBeenCalled();
+
+        extension.onSocketMessage('study_chapter_content', {
+            type: 'study_chapter_content',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 10,
+            description: '',
+        });
+        expect(reload).toHaveBeenCalledWith('revision_mismatch');
+    });
+
+    test('chapter-content messages for other chapters do not change the current revision', () => {
+        const ctrl = makeCtrl();
+        const reload = jest.fn();
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 7,
+            description: 'current',
+            onReloadRequired: reload,
+        });
+
+        expect(
+            extension.onSocketMessage('study_chapter_content', {
+                type: 'study_chapter_content',
+                studyId: 'study001',
+                chapterId: 'chapter2',
+                revision: 3,
+                description: 'other chapter',
+            }),
+        ).toBe(true);
+        expect(extension.revision).toBe(7);
+        expect(extension.annotationState.description).toBe('current');
+        expect(reload).not.toHaveBeenCalled();
+    });
+
     test('shared position messages are delivered independently of chapter revisions', () => {
         const ctrl = makeCtrl();
         const sharedPosition = jest.fn();

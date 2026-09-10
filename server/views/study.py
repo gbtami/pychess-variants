@@ -93,6 +93,7 @@ from study.variant import (
     study_variant_metadata,
 )
 from study.ws import (
+    broadcast_study_chapter_content,
     broadcast_study_chapters,
     broadcast_study_likes,
     broadcast_study_members,
@@ -1409,6 +1410,17 @@ async def study_chapter_edit(request: web.Request) -> web.StreamResponse:
                 orientation=data.get("orientation", chapter.orientation),
                 pinned_description=data.get("description") if "description" in data else None,
             )
+            updated_chapter = await load_chapter(app_state, study.id, chapter.id)
+            if updated_chapter is None:
+                raise StudyStorageError("Study chapter disappeared while editing metadata")
+            if updated_chapter.revision != chapter.revision:
+                await broadcast_study_chapter_content(
+                    app_state,
+                    study.id,
+                    updated_chapter.id,
+                    updated_chapter.revision,
+                    updated_chapter.description,
+                )
             await broadcast_study_chapters(app_state, study.id)
     except StudyStorageError as exc:
         raise web.HTTPBadRequest(text=str(exc)) from exc

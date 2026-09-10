@@ -167,6 +167,28 @@ async def broadcast_study_chapters(
     )
 
 
+async def broadcast_study_chapter_content(
+    app_state: PychessGlobalAppState,
+    study_id: str,
+    chapter_id: str,
+    revision: int,
+    description: str,
+) -> None:
+    room = app_state.study_sockets.get(study_id)
+    if not room:
+        return
+    await ws_send_json_many(
+        tuple(room),
+        {
+            "type": "study_chapter_content",
+            "studyId": study_id,
+            "chapterId": chapter_id,
+            "revision": revision,
+            "description": description,
+        },
+    )
+
+
 async def broadcast_study_position(
     app_state: PychessGlobalAppState,
     study_id: str,

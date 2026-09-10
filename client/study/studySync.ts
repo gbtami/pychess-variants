@@ -39,6 +39,7 @@ const STUDY_SOCKET_TYPES = new Set([
     'study_likes',
     'study_topics',
     'study_chapters',
+    'study_chapter_content',
     'study_position',
     'study_analysis_progress',
     'study_analysis_unavailable',
@@ -837,6 +838,29 @@ export class StudyAnalysisExtension implements AnalysisExtension {
                 return true;
             }
             this.options.onChaptersChanged?.(chapters, data.sharedChapter, data.sharedPath);
+            return true;
+        }
+
+        if (type === 'study_chapter_content') {
+            if (
+                typeof data.chapterId !== 'string' ||
+                !Number.isInteger(data.revision) ||
+                (data.revision as number) < 0 ||
+                typeof data.description !== 'string'
+            ) {
+                this.requestReload('invalid_chapter_content');
+                return true;
+            }
+            if (data.chapterId !== this.options.chapterId) return true;
+            if (data.revision !== this.currentRevision + 1) {
+                this.requestReload('revision_mismatch');
+                return true;
+            }
+            if (!this.pending.some(pending => pending.type === 'study_set_description')) {
+                this.description = data.description;
+                this.notifyAnnotationState();
+            }
+            this.currentRevision = data.revision as number;
             return true;
         }
 

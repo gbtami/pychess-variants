@@ -440,6 +440,57 @@ async def test_chapter_edit_and_delete_are_broadcast_to_room(aiohttp_client) -> 
 
 
 @pytest.mark.asyncio
+async def test_chapter_description_pinning_broadcasts_content_revision(aiohttp_client) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    owner = "chapter_description_owner"
+    await _insert_user(app_state, owner)
+
+    draft = await StudyChapterBuilder(app_state, owner).blank_or_fen(
+        variant="chess", name="Pinned description"
+    )
+    study, chapter = await create_study_from_draft(app_state, owner, draft)
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie(owner)})
+    room = _StudyRoomSocket()
+    app_state.study_sockets[study.id] = {room}
+
+    response = await client.post(
+        f"/study/{study.id}/{chapter.id}/edit",
+        data={"name": chapter.name, "orientation": chapter.orientation, "description": "1"},
+        allow_redirects=False,
+    )
+    assert response.status == 302
+    assert [message["type"] for message in room.sent] == [
+        "study_chapter_content",
+        "study_chapters",
+    ]
+    assert room.sent[0] == {
+        "type": "study_chapter_content",
+        "studyId": study.id,
+        "chapterId": chapter.id,
+        "revision": 1,
+        "description": "-",
+    }
+    assert room.sent[1]["chapters"][0]["descriptionPinned"] is True
+
+    room.sent.clear()
+    response = await client.post(
+        f"/study/{study.id}/{chapter.id}/edit",
+        data={"name": chapter.name, "orientation": chapter.orientation, "description": ""},
+        allow_redirects=False,
+    )
+    assert response.status == 302
+    assert [message["type"] for message in room.sent] == [
+        "study_chapter_content",
+        "study_chapters",
+    ]
+    assert room.sent[0]["revision"] == 2
+    assert room.sent[0]["description"] == ""
+    assert room.sent[1]["chapters"][0]["descriptionPinned"] is False
+
+
+@pytest.mark.asyncio
 async def test_browsing_chapter_does_not_change_shared_study_position(aiohttp_client) -> None:
     app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
     client = await aiohttp_client(app)
