@@ -2,7 +2,7 @@
   "metadata": {
     "name": "pychess-variants",
     "lastOpened": 0,
-    "created": 1760348374526
+    "created": 1789035761457
   },
   "iconSets": [
     {
@@ -12727,1144 +12727,1160 @@
     {
       "selection": [
         {
-          "order": 532,
+          "order": 670,
+          "id": 135,
+          "name": "patron-wing",
+          "prevSize": 32,
+          "code": 59651,
+          "tempChar": ""
+        },
+        {
+          "order": 538,
+          "id": 134,
+          "name": "share",
+          "prevSize": 32,
+          "code": 59650,
+          "tempChar": ""
+        },
+        {
+          "order": 539,
           "id": 133,
           "name": "admin",
           "prevSize": 32,
           "code": 59648,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 531,
+          "order": 540,
           "id": 132,
           "name": "developer",
           "prevSize": 32,
           "code": 59649,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 530,
+          "order": 541,
           "id": 131,
           "name": "YokaiShogi",
           "prevSize": 32,
           "code": 128121,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 527,
+          "order": 542,
           "id": 130,
           "name": "ShoShogi-icomoon-bw-piece",
           "prevSize": 32,
           "code": 127865,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 504,
+          "order": 543,
           "id": 129,
           "name": "Xiangfu",
           "prevSize": 32,
           "code": 128074,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 505,
+          "order": 544,
           "id": 128,
           "name": "Shatranj",
           "prevSize": 32,
           "code": 128024,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 506,
+          "order": 545,
           "id": 127,
           "name": "Horde960",
           "prevSize": 32,
           "code": 128055,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 507,
+          "order": 546,
           "id": 126,
           "name": "Antichess960",
           "prevSize": 32,
           "code": 128019,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 508,
+          "order": 547,
           "id": 125,
           "name": "Racingkings960",
           "prevSize": 32,
           "code": 128665,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 509,
+          "order": 548,
           "id": 122,
           "name": "horde",
           "prevSize": 32,
           "code": 128022,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 510,
+          "order": 549,
           "id": 121,
           "name": "antichess",
           "prevSize": 32,
           "code": 128037,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 511,
+          "order": 550,
           "id": 120,
           "name": "racingkings",
           "prevSize": 32,
           "code": 128663,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 512,
+          "order": 551,
           "id": 119,
           "name": "FogOfWar",
           "prevSize": 32,
           "code": 127787,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 513,
+          "order": 552,
           "id": 118,
           "name": "Alice",
           "prevSize": 32,
           "code": 128103,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 514,
+          "order": 553,
           "id": 117,
           "name": "dragon",
           "prevSize": 32,
           "code": 128009,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 515,
+          "order": 554,
           "id": 116,
           "name": "khans",
           "prevSize": 32,
           "code": 128014,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 516,
+          "order": 555,
           "id": 115,
           "name": "CannonShogi",
           "prevSize": 32,
           "code": 128163,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 517,
+          "order": 556,
           "id": 114,
           "name": "ataxx",
           "prevSize": 32,
           "code": 9763,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 518,
+          "order": 557,
           "id": 113,
           "name": "mansindam",
           "prevSize": 32,
           "code": 9973,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 519,
+          "order": 558,
           "id": 112,
           "name": "3check960",
           "prevSize": 32,
           "code": 9783,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 520,
+          "order": 559,
           "id": 111,
           "name": "3check",
           "prevSize": 32,
           "code": 9776,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 521,
+          "order": 560,
           "id": 110,
           "name": "koth960",
           "prevSize": 32,
           "code": 127937,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 464,
+          "order": 561,
           "id": 109,
           "name": "koth",
           "prevSize": 32,
           "code": 127988,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 457,
+          "order": 562,
           "id": 108,
           "name": "Bughouse960",
           "prevSize": 32,
           "code": 8960,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 456,
+          "order": 563,
           "id": 107,
           "name": "Bughouse",
           "prevSize": 32,
           "code": 162,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 453,
+          "order": 564,
           "id": 106,
           "name": "spartan",
           "prevSize": 32,
           "code": 9082,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 452,
+          "order": 565,
           "id": 105,
           "name": "duck",
           "prevSize": 32,
           "code": 129414,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 426,
+          "order": 566,
           "id": 104,
           "name": "Chennis",
           "prevSize": 32,
           "code": 127934,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 441,
+          "order": 567,
           "id": 103,
           "name": "Chak",
           "prevSize": 32,
           "code": 128044,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 446,
+          "order": 568,
           "id": 102,
           "name": "berserk",
           "prevSize": 32,
           "code": 10595,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 429,
+          "order": 569,
           "id": 101,
           "name": "ASEAN",
           "prevSize": 32,
           "code": 9851,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 430,
+          "order": 570,
           "id": 100,
           "name": "discord",
           "prevSize": 32,
           "code": 127918,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 431,
+          "order": 571,
           "id": 99,
           "name": "ToriShogi",
           "prevSize": 32,
           "code": 128038,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 432,
+          "order": 572,
           "id": 98,
           "name": "ordamirror",
           "prevSize": 32,
           "code": 9705,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 433,
+          "order": 573,
           "id": 97,
           "name": "empire",
           "prevSize": 32,
           "code": 9818,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 434,
+          "order": 574,
           "id": 96,
           "name": "shinobi",
           "prevSize": 32,
           "code": 128034,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 1,
-          "order": 435,
+          "order": 575,
           "ligatures": "",
           "prevSize": 32,
           "code": 97,
           "name": "adjust",
-          "tempChar": ""
-        },
-        {
-          "id": 2,
-          "order": 436,
-          "prevSize": 32,
-          "code": 98,
-          "name": "black",
-          "tempChar": ""
-        },
-        {
-          "id": 3,
-          "order": 437,
-          "prevSize": 32,
-          "code": 99,
-          "name": "white",
           "tempChar": ""
         },
         {
+          "id": 2,
+          "order": 576,
+          "prevSize": 32,
+          "code": 98,
+          "name": "black",
+          "tempChar": ""
+        },
+        {
+          "id": 3,
+          "order": 577,
+          "prevSize": 32,
+          "code": 99,
+          "name": "white",
+          "tempChar": ""
+        },
+        {
           "id": 4,
-          "order": 438,
+          "order": 578,
           "ligatures": "",
           "prevSize": 32,
           "code": 100,
           "name": "flag-o",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 5,
-          "order": 439,
+          "order": 579,
           "ligatures": "",
           "prevSize": 32,
           "code": 101,
           "name": "hand-paper-o",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 6,
-          "order": 440,
+          "order": 580,
           "ligatures": "",
           "prevSize": 32,
           "code": 102,
           "name": "music",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 7,
-          "order": 324,
+          "order": 581,
           "ligatures": "",
           "prevSize": 32,
           "code": 103,
           "name": "search",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 8,
-          "order": 325,
+          "order": 582,
           "ligatures": "",
           "prevSize": 32,
           "code": 104,
           "name": "sign-in",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 9,
-          "order": 326,
+          "order": 583,
           "ligatures": "",
           "prevSize": 32,
           "code": 105,
           "name": "sign-out",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 10,
-          "order": 327,
+          "order": 584,
           "ligatures": "",
           "prevSize": 32,
           "code": 106,
           "name": "abort",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 11,
-          "order": 328,
+          "order": 585,
           "ligatures": "",
           "prevSize": 32,
           "code": 107,
           "name": "volume-up",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 12,
-          "order": 329,
+          "order": 586,
           "ligatures": "",
           "prevSize": 32,
           "code": 108,
           "name": "fast-backward",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 13,
-          "order": 330,
+          "order": 587,
           "ligatures": "",
           "prevSize": 32,
           "code": 109,
           "name": "fast-forward",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 14,
-          "order": 331,
+          "order": 588,
           "ligatures": "",
           "prevSize": 32,
           "code": 110,
           "name": "step-backward",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 15,
-          "order": 332,
+          "order": 589,
           "ligatures": "",
           "prevSize": 32,
           "code": 111,
           "name": "step-forward",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 16,
-          "order": 333,
+          "order": 590,
           "ligatures": "",
           "prevSize": 32,
           "code": 112,
           "name": "refresh",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 17,
-          "order": 334,
+          "order": 591,
           "ligatures": "",
           "prevSize": 32,
           "code": 113,
           "name": "thumbs-o-up",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 18,
-          "order": 335,
+          "order": 592,
           "ligatures": "",
           "prevSize": 32,
           "code": 114,
           "name": "trash-o",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 19,
-          "order": 336,
+          "order": 593,
           "ligatures": "",
           "prevSize": 32,
           "code": 115,
           "name": "bars",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 20,
-          "order": 337,
+          "order": 594,
           "ligatures": "",
           "prevSize": 32,
           "code": 116,
           "name": "cog",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 21,
-          "order": 338,
+          "order": 595,
           "ligatures": "",
           "prevSize": 32,
           "code": 117,
           "name": "bolt",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 22,
-          "order": 339,
+          "order": 596,
           "ligatures": "",
           "prevSize": 32,
           "code": 118,
           "name": "comment-o",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 23,
-          "order": 340,
+          "order": 597,
           "ligatures": "",
           "prevSize": 32,
           "code": 119,
           "name": "bell-o",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 24,
-          "order": 341,
+          "order": 598,
           "ligatures": "",
           "prevSize": 32,
           "code": 120,
           "name": "trophy",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 25,
-          "order": 342,
+          "order": 599,
           "ligatures": "",
           "prevSize": 32,
           "code": 121,
           "name": "paper-plane",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 26,
-          "order": 343,
+          "order": 600,
           "ligatures": "",
           "prevSize": 32,
           "code": 122,
           "name": "list",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 27,
-          "order": 344,
+          "order": 601,
           "ligatures": "",
           "prevSize": 32,
           "code": 65,
           "name": "download",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 28,
-          "order": 345,
+          "order": 602,
           "ligatures": "",
           "prevSize": 32,
           "code": 66,
           "name": "ban",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 29,
-          "order": 346,
+          "order": 603,
           "ligatures": "",
           "prevSize": 32,
           "code": 67,
           "name": "volume-off",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 30,
-          "order": 347,
+          "order": 604,
           "ligatures": "",
           "prevSize": 32,
           "code": 68,
           "name": "droid",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 31,
-          "order": 348,
+          "order": 605,
           "ligatures": "",
           "prevSize": 32,
           "code": 69,
           "name": "bot",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 32,
-          "order": 349,
+          "order": 606,
           "ligatures": "",
           "prevSize": 32,
           "code": 70,
           "name": "dark",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 33,
-          "order": 350,
+          "order": 607,
           "ligatures": "",
           "prevSize": 32,
           "code": 71,
           "name": "light",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 34,
-          "order": 351,
+          "order": 608,
           "ligatures": "",
           "prevSize": 32,
           "code": 72,
           "name": "h-square",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 35,
-          "order": 352,
+          "order": 609,
           "ligatures": "",
           "prevSize": 32,
           "code": 73,
           "name": "online",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 36,
-          "order": 353,
+          "order": 610,
           "ligatures": "",
           "prevSize": 32,
           "code": 74,
           "name": "offline",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 37,
-          "order": 354,
+          "order": 611,
           "ligatures": "",
           "prevSize": 32,
           "code": 75,
           "name": "shogi",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 38,
-          "order": 355,
+          "order": 612,
           "ligatures": "",
           "prevSize": 32,
           "code": 76,
           "name": "seirawan",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 39,
-          "order": 356,
+          "order": 613,
           "ligatures": "",
           "prevSize": 32,
           "code": 77,
           "name": "chess",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 40,
-          "order": 357,
+          "order": 614,
           "ligatures": "",
           "prevSize": 32,
           "code": 78,
           "name": "crazyhouse",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 41,
-          "order": 358,
+          "order": 615,
           "ligatures": "",
           "prevSize": 32,
           "code": 80,
           "name": "capablanca",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 42,
-          "order": 359,
+          "order": 616,
           "ligatures": "",
           "prevSize": 32,
           "code": 83,
           "name": "placement",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 43,
-          "order": 360,
+          "order": 617,
           "ligatures": "",
           "prevSize": 32,
           "code": 84,
           "name": "tv",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 44,
-          "order": 361,
+          "order": 618,
           "ligatures": "",
           "prevSize": 32,
           "code": 85,
           "name": "retweet",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 45,
-          "order": 362,
+          "order": 619,
           "ligatures": "",
           "prevSize": 32,
           "code": 86,
           "name": "dice",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 46,
-          "order": 363,
+          "order": 620,
           "ligatures": "",
           "prevSize": 32,
           "code": 87,
           "name": "plus-square",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 47,
-          "order": 364,
+          "order": 621,
           "ligatures": "",
           "prevSize": 32,
           "code": 88,
           "name": "reply",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 48,
-          "order": 365,
+          "order": 622,
           "ligatures": "",
           "prevSize": 32,
           "code": 89,
           "name": "microscope",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 49,
-          "order": 366,
+          "order": 623,
           "ligatures": "",
           "prevSize": 32,
           "code": 90,
           "name": "clipboard",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 50,
-          "order": 367,
+          "order": 624,
           "ligatures": "",
           "prevSize": 32,
           "code": 48,
           "name": "cloud-upload",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 51,
-          "order": 368,
+          "order": 625,
           "ligatures": "",
           "prevSize": 32,
           "code": 49,
           "name": "pencil",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 52,
-          "order": 369,
+          "order": 626,
           "ligatures": "",
           "prevSize": 32,
           "code": 50,
           "name": "ink-pen",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 53,
-          "order": 370,
+          "order": 627,
           "ligatures": "",
           "prevSize": 32,
           "code": 51,
           "name": "bar-chart",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 54,
-          "order": 371,
+          "order": 628,
           "ligatures": "",
           "prevSize": 32,
           "code": 52,
           "name": "microphone",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 55,
-          "order": 372,
+          "order": 629,
           "ligatures": "",
           "prevSize": 32,
           "code": 53,
           "name": "crown",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 56,
-          "order": 373,
+          "order": 630,
           "ligatures": "",
           "prevSize": 32,
           "code": 55,
           "name": "minixiangqi",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 57,
-          "order": 374,
+          "order": 631,
           "ligatures": "",
           "prevSize": 32,
           "code": 57,
           "name": "shako",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 58,
-          "order": 375,
+          "order": 632,
           "ligatures": "",
           "prevSize": 32,
           "code": 33,
           "name": "cambodian",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 59,
-          "order": 376,
+          "order": 633,
           "ligatures": "",
           "prevSize": 32,
           "code": 34,
           "name": "crossedswords",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 60,
-          "order": 377,
+          "order": 634,
           "ligatures": "",
           "prevSize": 32,
           "code": 35,
           "name": "at",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 61,
-          "order": 378,
+          "order": 635,
           "ligatures": "",
           "prevSize": 32,
           "code": 36,
           "name": "shouse",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 62,
-          "order": 379,
+          "order": 636,
           "ligatures": "",
           "prevSize": 32,
           "code": 37,
           "name": "crazyhouse960",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 63,
-          "order": 380,
+          "order": 637,
           "ligatures": "",
           "prevSize": 32,
           "code": 38,
           "name": "capahouse",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 64,
-          "order": 381,
+          "order": 638,
           "ligatures": "",
           "prevSize": 32,
           "code": 39,
           "name": "capahouse960",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 65,
-          "order": 382,
+          "order": 639,
           "ligatures": "",
           "prevSize": 32,
           "code": 40,
           "name": "grand",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 66,
-          "order": 383,
+          "order": 640,
           "ligatures": "",
           "prevSize": 32,
           "code": 42,
           "name": "grandhouse",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 67,
-          "order": 384,
+          "order": 641,
           "ligatures": "",
           "prevSize": 32,
           "code": 43,
           "name": "zh",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 68,
-          "order": 385,
+          "order": 642,
           "ligatures": "",
           "prevSize": 32,
           "code": 44,
           "name": "caparandom",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 69,
-          "order": 386,
+          "order": 643,
           "ligatures": "",
           "prevSize": 32,
           "code": 45,
           "name": "shogun",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 70,
-          "order": 387,
+          "order": 644,
           "ligatures": "",
           "prevSize": 32,
           "code": 46,
           "name": "bullhorn",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 71,
-          "order": 388,
+          "order": 645,
           "ligatures": "",
           "prevSize": 32,
           "code": 47,
           "name": "phone",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 72,
-          "order": 389,
+          "order": 646,
           "ligatures": "",
           "prevSize": 32,
           "code": 59,
           "name": "unlock",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 73,
-          "order": 390,
+          "order": 647,
           "ligatures": "",
           "prevSize": 32,
           "code": 60,
           "name": "unlock-alt",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 74,
-          "order": 391,
+          "order": 648,
           "ligatures": "",
           "prevSize": 32,
           "code": 62,
           "name": "exchange",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 75,
-          "order": 392,
+          "order": 649,
           "ligatures": "",
           "prevSize": 32,
           "code": 63,
           "name": "check",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 76,
-          "order": 393,
+          "order": 650,
           "ligatures": "",
           "prevSize": 32,
           "code": 41,
           "name": "kyotoshogi",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 77,
-          "order": 394,
+          "order": 651,
           "ligatures": "",
           "prevSize": 32,
           "code": 61,
           "name": "janggi",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 78,
-          "order": 395,
+          "order": 652,
           "ligatures": "",
           "prevSize": 32,
           "code": 81,
           "name": "makruk",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 79,
-          "order": 396,
+          "order": 653,
           "ligatures": "",
           "prevSize": 32,
           "code": 54,
           "name": "minishogi",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 80,
-          "order": 397,
+          "order": 654,
           "ligatures": "",
           "prevSize": 32,
           "code": 58,
           "name": "sittuyin",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 81,
-          "order": 398,
+          "order": 655,
           "ligatures": "",
           "prevSize": 32,
           "code": 79,
           "name": "makpong",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 82,
-          "order": 399,
+          "order": 656,
           "ligatures": "",
           "prevSize": 32,
           "code": 82,
           "name": "orda",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 83,
-          "order": 400,
+          "order": 657,
           "ligatures": "",
           "prevSize": 32,
           "code": 64,
           "name": "globe",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 84,
-          "order": 401,
+          "order": 658,
           "ligatures": "",
           "prevSize": 32,
           "code": 91,
           "name": "left",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 85,
-          "order": 402,
+          "order": 659,
           "ligatures": "",
           "prevSize": 32,
           "code": 93,
           "name": "right",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 86,
-          "order": 403,
+          "order": 660,
           "ligatures": "",
           "prevSize": 32,
           "code": 94,
           "name": "heart",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 87,
-          "order": 404,
+          "order": 661,
           "ligatures": "",
           "prevSize": 32,
           "code": 95,
           "name": "synochess",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 88,
-          "order": 405,
+          "order": 662,
           "ligatures": "",
           "prevSize": 32,
           "code": 96,
           "name": "hoppelpoppel",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 89,
-          "order": 406,
+          "order": 663,
           "ligatures": "",
           "prevSize": 32,
           "code": 123,
           "name": "manchu",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 90,
-          "order": 407,
+          "order": 664,
           "ligatures": "",
           "prevSize": 32,
           "code": 124,
           "name": "xiangqi",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 91,
-          "order": 408,
+          "order": 665,
           "ligatures": "",
           "prevSize": 32,
           "code": 56,
           "name": "dobutsu",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 92,
-          "order": 409,
+          "order": 666,
           "ligatures": "",
           "prevSize": 32,
           "code": 125,
           "name": "seirawan960",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 93,
-          "order": 410,
+          "order": 667,
           "ligatures": "",
           "prevSize": 32,
           "code": 126,
           "name": "atomic",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "id": 94,
-          "order": 411,
+          "order": 668,
           "ligatures": "",
           "prevSize": 32,
           "code": 92,
           "name": "atomic960",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
-          "order": 412,
+          "order": 669,
           "id": 95,
           "name": "Gorogoro",
           "prevSize": 32,
           "code": 128049,
-          "tempChar": ""
+          "tempChar": ""
         }
       ],
       "id": 2,
@@ -13878,6 +13894,46 @@
       "height": 1024,
       "prevSize": 32,
       "icons": [
+        {
+          "id": 134,
+          "paths": [
+            "M2 8q0 2 1 6t2 10 1 10q4 70 42 144 26 54 70 94 48 48 114 86t208 98q136 56 200 94 82 48 82 56l-10-6q-12-4-22-8-68-20-224-48-202-36-288-72-56-24-86-42-16-10-16-8 4 10 8 22 56 146 220 192 62 16 216 34 156 14 216 32l18 6h-36q-50 0-140 14-110 12-164 14-78 4-164-16l-18-8q-2 2 17 27t33 39q46 46 114 68 20 4 68 4 62 0 166-24 124-24 136-24 8-2 30-2l12-2-18 6q-52 22-100 50-120 68-206 74l-26 4 20 16q42 32 74 44 6 2 44 10 38 2 72-14t106-70q58-42 78-48 28-10 52 2 32 18 32 54 0 4 0 8t0 6v4q-2 4-4 0 0 0-2-6-10-20-31-27t-39 5q-36 18-22 58 2 6 14 22 28 28 66 27t64-31q50-48 14-108-20-28-40-36l-24-12q-28-22-30-30 32 10 65-4t47-46q20-44-6-84-22-40-74-44-26 0-42 10-26 22-12 48 16 38 54 24 22-10 24-24 2-4 4 10-6 36-34 52-28 12-58 0-16-10-28-30-6-24-6-40-12-62-30-96-30-64-98-120-72-58-258-154-180-94-264-149t-152-127l-30-30q-2 0-2 6z"
+          ],
+          "attrs": [
+            {}
+          ],
+          "isMulticolor": false,
+          "isMulticolor2": false,
+          "grid": 0,
+          "tags": [
+            "patron-wing"
+          ],
+          "colorPermutations": {
+            "1031081731111120125111212012511141372181136170011411087011441912131144192213114419321311521294511571031731157103174115810217412552552551551132001": [
+              {}
+            ]
+          }
+        },
+        {
+          "id": 133,
+          "paths": [
+            "M814.938 1016.895c-63.111 0-63.111 0-107.289-44.178-44.18-44.178-44.18-44.178-44.18-107.289 0-7.594 0-7.594 3.797-35.354l-354.709-206.988c-20.166 18.934-20.166 18.934-46.693 29.635-26.527 10.748-26.527 10.748-56.801 10.748-63.111 0-63.111 0-107.291-44.178-44.178-44.178-44.178-44.178-44.178-107.291s0-63.113 44.178-107.291c44.18-44.178 44.18-44.178 107.291-44.178 30.273 0 30.273 0 56.801 10.748 26.527 10.701 26.527 10.701 46.693 29.635l354.709-206.988c-2.516-8.826-2.516-8.826-3.154-17.061-0.643-8.186-0.643-8.186-0.643-18.293 0-63.111 0-63.111 44.18-107.289 44.178-44.178 44.178-44.178 107.289-44.178s63.111 0 107.291 44.178c44.178 44.178 44.178 44.178 44.178 107.289s0 63.111-44.178 107.291c-44.18 44.178-44.18 44.178-107.291 44.178-30.273 0-30.273 0-56.801-10.748-26.527-10.701-26.527-10.701-46.693-29.633l-354.709 206.986c2.516 8.826 2.516 8.826 3.154 17.061 0.643 8.186 0.643 8.186 0.643 18.293s0 10.107-0.643 18.293c-0.639 8.234-0.639 8.234-3.154 17.061l354.709 206.986c20.166-18.932 20.166-18.932 46.693-29.633 26.527-10.748 26.527-10.748 56.801-10.748 63.111 0 63.111 0 107.291 44.178 44.178 44.18 44.178 44.18 44.178 107.291s0 63.111-44.178 107.289c-44.18 44.178-44.18 44.178-107.291 44.178zM814.938 915.916c21.449 0 21.449 0 35.994-14.496 14.496-14.545 14.496-14.545 14.496-35.992 0-21.449 0-21.449-14.496-35.994-14.545-14.496-14.545-14.496-35.994-14.496-21.447 0-21.447 0-35.992 14.496-14.498 14.545-14.498 14.545-14.498 35.994 0 21.447 0 21.447 14.498 35.992 14.545 14.496 14.545 14.496 35.992 14.496zM209.063 562.488c21.447 0 21.447 0 35.992-14.494 14.498-14.545 14.498-14.545 14.498-35.994s0-21.449-14.498-35.994c-14.545-14.494-14.545-14.494-35.992-14.494-21.449 0-21.449 0-35.994 14.494-14.496 14.545-14.496 14.545-14.496 35.994s0 21.449 14.496 35.994c14.545 14.494 14.545 14.494 35.994 14.494zM814.938 209.063c21.449 0 21.449 0 35.994-14.496 14.496-14.545 14.496-14.545 14.496-35.994 0-21.447 0-21.447-14.496-35.992-14.545-14.496-14.545-14.496-35.994-14.496-21.447 0-21.447 0-35.992 14.496-14.498 14.545-14.498 14.545-14.498 35.992 0 21.449 0 21.449 14.498 35.994 14.545 14.496 14.545 14.496 35.992 14.496z"
+          ],
+          "attrs": [
+            {}
+          ],
+          "isMulticolor": false,
+          "isMulticolor2": false,
+          "grid": 0,
+          "tags": [
+            "share"
+          ],
+          "colorPermutations": {
+            "1031081731111120125111212012511141372181136170011411087011441912131144192213114419321311521294511571031731157103174115810217412552552551551132001": [
+              {}
+            ]
+          }
+        },
         {
           "id": 132,
           "paths": [
@@ -16831,7 +16887,7 @@
           "id": 31,
           "prevSize": 32,
           "code": 59678,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "book, read",
@@ -16840,7 +16896,7 @@
           "id": 32,
           "prevSize": 32,
           "code": 59679,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "books, library",
@@ -17329,7 +17385,7 @@
           "id": 113,
           "prevSize": 32,
           "code": 59760,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "user, profile2",
@@ -17578,7 +17634,7 @@
           "id": 154,
           "prevSize": 32,
           "code": 128030,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "pie-chart, stats",
@@ -17677,7 +17733,7 @@
           "id": 170,
           "prevSize": 32,
           "code": 59817,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "lab, beta",
@@ -17740,7 +17796,7 @@
           "id": 180,
           "prevSize": 32,
           "code": 59827,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "shield, security",
@@ -18247,7 +18303,7 @@
           "id": 264,
           "prevSize": 32,
           "code": 59911,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "notification, warning2",
@@ -18280,7 +18336,7 @@
           "id": 269,
           "prevSize": 32,
           "code": 59916,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "cancel-circle, close",
@@ -18379,7 +18435,7 @@
           "id": 285,
           "prevSize": 32,
           "code": 59932,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "pause2, player9",
@@ -18388,7 +18444,7 @@
           "id": 286,
           "prevSize": 32,
           "code": 59933,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "stop2, player10",
@@ -18523,7 +18579,7 @@
           "id": 308,
           "prevSize": 32,
           "code": 11016,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "arrow-right, right3",
@@ -18538,7 +18594,7 @@
           "id": 310,
           "prevSize": 32,
           "code": 11018,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "arrow-down, down",
@@ -18721,7 +18777,7 @@
           "id": 340,
           "prevSize": 32,
           "code": 9744,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "radio-checked, radio-button",
@@ -27168,7 +27224,7 @@
     "showCodes": true,
     "gridSize": 16,
     "quickUsageToken": {
-      "pychess-variants": "NjYyNDkxODRlNCMxNzg2MzQ3ODEwI3Z2MzZpb1pOS0pSM0p0WjlKSVJaTFN4Wjc0L01ZN2t0U3VQUUQ3aW4vQWtS"
+      "pychess-variants": "NzNjNTUzODg1YiMxNzg5MDM2MzAxI2l6S3lNY01hMHExYUdUbkxUVVpZMFY0dzJwWndhL3ExWmJJVzJEY2tmYjc2"
     },
     "showLiga": false
   },

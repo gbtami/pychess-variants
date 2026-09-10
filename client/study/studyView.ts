@@ -1610,7 +1610,7 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions
             : []),
         ['serverEval', _('Server analysis'), icon('bar-chart')],
         ...(studyCanShare(study)
-            ? ([['export', _('Share & export'), icon('download')]] as [StudyTab, string, VNode][])
+            ? ([['export', _('Share & export'), icon('share')]] as [StudyTab, string, VNode][])
             : []),
     ];
     return h('div.study-underboard', [

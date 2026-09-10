@@ -40,7 +40,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 .icon-patron-wing:before {
-  content: "\1f302";
+  content: "\e903";
+}
+.icon-share:before {
+  content: "\e902";
 }
 .icon-admin:before {
   content: "\e900";
