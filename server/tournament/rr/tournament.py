@@ -963,6 +963,7 @@ class RRTournament(Tournament):
             await self.app_state.db.tournament_arrangement.delete_many({"tid": self.id})
             await self.app_state.db.tournament_player.delete_many({"tid": self.id})
             await self.app_state.db.tournament_chat.delete_many({"tid": self.id})
+        self.remove_calendar_link()
         self.app_state.tournaments.pop(self.id, None)
         self.app_state.tourneysockets.pop(self.id, None)
 

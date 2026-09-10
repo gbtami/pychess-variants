@@ -29,7 +29,7 @@ async def tournament(request: web.Request) -> ViewContext:
     tournament = await load_tournament(app_state, tournamentId)
 
     if tournament is None:
-        return context  # web.HTTPFound("/")
+        raise web.HTTPNotFound(text="Tournament not found.")
 
     if is_catalogued_variant(tournament.variant):
         catalogued_variants = json.loads(str(context.get("catalogued_variants") or "[]"))
