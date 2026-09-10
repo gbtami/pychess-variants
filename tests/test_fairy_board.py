@@ -5,9 +5,59 @@ from unittest.mock import patch
 
 import pyffish as sf
 import test_logger
-from fairy.fairy_board import BLACK, FairyBoard, modded_variant
+from fairy.fairy_board import BLACK, FairyBoard, get_san_moves, modded_variant, validate_fen
+from variants import (
+    ServerVariants,
+    register_catalogued_server_variant,
+    unregister_catalogued_server_variant,
+)
 
 test_logger.init_test_logger()
+
+
+class FairyBoardVariantNameTestCase(unittest.TestCase):
+    def test_site_960_suffix_still_selects_randomized_base_variant(self):
+        for variant in ServerVariants:
+            if not variant.chess960:
+                continue
+            with self.subTest(variant=variant.server_name):
+                with patch.object(
+                    FairyBoard, "shuffle_start", return_value="random start"
+                ) as shuffle:
+                    fen = FairyBoard.start_fen(variant.server_name)
+                shuffle.assert_called_once_with(variant.uci_variant)
+                self.assertEqual(
+                    fen, "random start | random start" if variant.two_boards else "random start"
+                )
+
+                if not variant.two_boards:
+                    initial_fen = FairyBoard.start_fen(variant.uci_variant, chess960=True)
+                    board = FairyBoard(variant.server_name, initial_fen)
+                    self.assertEqual(board.variant, variant.uci_variant)
+                    self.assertTrue(board.chess960)
+                    self.assertTrue(board.has_legal_move())
+
+    def test_community_960_name_preserves_fixed_start_and_castling_rules(self):
+        name = "pawnsideways960"
+        fen = "4k3/8/8/8/8/8/8/RK1R4 w DA - 0 1"
+        sf.load_variant_config(f"[{name}:pawnsideways]\nchess960 = true\nstartFen = {fen}\n")
+        register_catalogued_server_variant(name, name)
+        self.addCleanup(unregister_catalogued_server_variant, name)
+
+        with patch.object(FairyBoard, "shuffle_start", side_effect=AssertionError("randomized")):
+            for _ in range(2):
+                board = FairyBoard(name)
+                self.assertEqual(board.variant, name)
+                self.assertEqual(board.initial_fen, fen)
+                self.assertFalse(board.chess960)
+                self.assertEqual(validate_fen(fen, name, False), sf.FEN_OK)
+                self.assertIn("b1d1", board.legal_moves())
+                self.assertEqual(board.get_san("b1d1"), "O-O")
+                self.assertEqual(
+                    get_san_moves(name, fen, ["b1d1"], False, sf.NOTATION_SAN), ["O-O"]
+                )
+                board.push("b1d1")
+                self.assertEqual(board.fen.split()[0], "4k3/8/8/8/8/8/8/R4RK1")
 
 
 class FairyBoardPosNumTestCase(unittest.TestCase):

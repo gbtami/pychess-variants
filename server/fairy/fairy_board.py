@@ -7,6 +7,7 @@ from functools import lru_cache
 from typing import TYPE_CHECKING
 
 from const import CATEGORIES
+from variants import is_catalogued_variant
 
 # -*- coding: utf-8 -*-
 from fairy.ataxx import ATAXX_FENS
@@ -55,7 +56,9 @@ def _normalize_variant_and_chess960(variant: str | None, chess960: bool) -> tupl
     normalized_variant = (variant or "chess").strip()
     normalized_chess960 = chess960
 
-    if normalized_variant.endswith("960"):
+    # Community names are literal engine keys; only site variants use the
+    # suffix to select randomized starts and Chess960 castling.
+    if normalized_variant.endswith("960") and not is_catalogued_variant(normalized_variant):
         normalized_variant = normalized_variant[:-3]
         normalized_chess960 = True
 

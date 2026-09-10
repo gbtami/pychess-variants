@@ -429,7 +429,9 @@ class Game:
             [self.byoyomi_state()] if self.byoyomi else []
         )
 
-        if self.chess960 or self.random_only:
+        # Snapshot community starts too, so reloads and rematches use the
+        # game's actual position even if the variant's default later changes.
+        if self.chess960 or self.random_only or catalogued_casual:
             self.initial_fen = self.board.initial_fen
 
         self.random_mover = (
