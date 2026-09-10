@@ -219,22 +219,33 @@ class TestStudyGUI:
                 await add.locator('input[name="chapterName"]').fill("Middle chapter")
                 await add.get_by_role("button", name="Create chapter").click()
                 await page.wait_for_url(
-                    re.compile(rf"{re.escape(base_url)}/study/{study_id}/\w{{8}}$")
+                    re.compile(
+                        rf"{re.escape(base_url)}/study/{study_id}/(?!{first_chapter_id}$)\w{{8}}$"
+                    )
                 )
                 _, middle_chapter_id = self._study_ids_from_url(page.url)
 
                 await page.get_by_role("button", name="Edit chapter: Middle chapter").click()
-                chapter_rename = page.locator("dialog[open] form.study-side__rename")
-                await chapter_rename.locator('input[name="name"]').fill("Renamed middle")
-                await chapter_rename.get_by_role("button", name="Rename").click()
+                chapter_settings = page.get_by_role("dialog", name="Edit chapter", exact=True)
+                await chapter_settings.get_by_role("textbox", name="Name", exact=True).fill(
+                    "Renamed middle"
+                )
+                await chapter_settings.get_by_role("button", name="Save chapter").click()
                 await expect(page.locator(".study-chapters")).to_contain_text("2. Renamed middle")
 
                 await page.get_by_role("button", name="Add a new chapter").click()
                 add = page.locator("#study-new-chapter")
                 await add.locator('input[name="chapterName"]').fill("Last chapter")
                 await add.get_by_role("button", name="Create chapter").click()
+                await page.wait_for_url(
+                    re.compile(
+                        rf"{re.escape(base_url)}/study/{study_id}/(?!{middle_chapter_id}$)\w{{8}}$"
+                    )
+                )
                 _, last_chapter_id = self._study_ids_from_url(page.url)
 
+                # The URL can change before the client has mounted the Study UI.
+                await expect(page.locator("#mainboard cg-board")).to_be_visible()
                 await page.evaluate(
                     "window.studySidebar = document.querySelector('.sidebar-first')"
                 )
@@ -246,7 +257,12 @@ class TestStudyGUI:
                 assert self._study_ids_from_url(page.url)[1] == middle_chapter_id
                 await page.get_by_role("button", name="Edit chapter: Renamed middle").click()
                 await (
-                    page.locator("dialog[open]")
+                    page.get_by_role("dialog", name="Edit chapter", exact=True)
+                    .get_by_role("button", name="Delete chapter")
+                    .click()
+                )
+                await (
+                    page.locator("#confirm-dialog")
                     .get_by_role("button", name="Delete chapter")
                     .click()
                 )
@@ -350,13 +366,13 @@ class TestStudyGUI:
 
                 response = await intruder_page.goto(study_url)
                 assert response is not None and response.status == 404
-                await anon_page.goto(study_url)
-                # Study redirects anonymous viewers through /login, whose provider
-                # chooser intentionally lands on the homepage (#login). Assert the
-                # final protected-state behavior rather than the transient redirect.
-                await expect(anon_page).to_have_url(
-                    re.compile(rf"{re.escape(base_url)}/(?:#login)?$")
-                )
+                # Private studies return the same not-found response to anonymous
+                # viewers and signed-in users without access.
+                response = await anon_page.goto(study_url)
+                assert response is not None and response.status == 404
+                await expect(
+                    anon_page.get_by_role("heading", name="404", exact=True)
+                ).to_be_visible()
                 await expect(
                     anon_page.get_by_role("button", name=re.compile(r"Login"))
                 ).to_be_visible()
