@@ -1025,10 +1025,13 @@ async def add_chapter_from_draft(
         cast_set = cast(dict[str, object], study_update["$set"])
         cast_set["currentChapter"] = chapter.id
         study_update["$unset"] = {"currentPath": ""}
-    await app_state.db.study.update_one(
+    result = await app_state.db.study.update_one(
         {"_id": study.id, "owner": study.owner},
         study_update,
     )
+    if result.matched_count != 1:
+        await app_state.db.study_chapter.delete_one({"_id": chapter.id, "studyId": study.id})
+        raise StudyStorageError("Study disappeared while adding chapter")
     await refresh_study_search_tokens(app_state, study.id)
     return chapter
 
@@ -1136,7 +1139,7 @@ async def add_chapter(
     )
     await app_state.db.study_chapter.insert_one(chapter.to_document())
     now = datetime.now(UTC)
-    await app_state.db.study.update_one(
+    result = await app_state.db.study.update_one(
         {"_id": study.id, "owner": study.owner},
         {
             "$set": {"currentChapter": chapter.id, "updatedAt": now},
@@ -1144,6 +1147,9 @@ async def add_chapter(
             "$inc": {"revision": 1},
         },
     )
+    if result.matched_count != 1:
+        await app_state.db.study_chapter.delete_one({"_id": chapter.id, "studyId": study.id})
+        raise StudyStorageError("Study disappeared while adding chapter")
     await refresh_study_search_tokens(app_state, study.id)
     return chapter
 

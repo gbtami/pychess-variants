@@ -1280,8 +1280,20 @@ async def study_edit(request: web.Request) -> web.StreamResponse:
 
 
 async def study_delete(request: web.Request) -> web.StreamResponse:
-    _, _, study, _ = await _owned_study_and_chapter(request)
-    await delete_study(get_app_state(request.app), study)
+    user, _ = await get_user_context(request)
+    _require_owner_user(user)
+    app_state = get_app_state(request.app)
+    if app_state.db is None:
+        raise web.HTTPServiceUnavailable(text="Studies require database access.")
+
+    study_id = request.match_info["studyId"]
+    async with sequence_study(app_state, study_id):
+        study = await load_owned_study(app_state, study_id, user.username)
+        if study is None:
+            raise web.HTTPNotFound()
+        await delete_study(app_state, study)
+        await broadcast_study_reload(app_state, study.id, reason="study_deleted")
+        await close_study_sockets(app_state, study.id)
     raise web.HTTPFound("/study")
 
 
