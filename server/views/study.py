@@ -46,7 +46,7 @@ from study.permissions import (
     study_feature_selection,
 )
 from study.sequencer import sequence_study
-from study.snapshot import chapter_snapshot_token
+from study.snapshot import chapter_snapshot_token, study_snapshot_token
 from study.storage import (
     StudyStorageError,
     add_chapter_from_draft,
@@ -809,6 +809,7 @@ async def _populate_study_chapter_context(
     # The current full tree is paired with lightweight chapter previews. Both the
     # normal Study page and the compact chapter embed consume this same snapshot.
     viewer = None if user.anon else user.username
+    chapters = await chapter_previews(app_state, study.id)
     context["study_data"] = json_dumps(
         {
             "id": study.id,
@@ -841,6 +842,7 @@ async def _populate_study_chapter_context(
             "maxMembers": STUDY_MAX_MEMBERS,
             "sharedChapter": study.current_chapter or chapter.id,
             "sharedPath": study.current_path or "",
+            "roomSnapshotToken": study_snapshot_token(study, chapters),
             "chapter": {
                 "id": chapter.id,
                 "name": chapter.name,
@@ -894,7 +896,7 @@ async def _populate_study_chapter_context(
                 ),
                 "tree": chapter.root.to_payload(),
             },
-            "chapters": await chapter_previews(app_state, study.id),
+            "chapters": chapters,
         }
     )
 
@@ -1190,18 +1192,19 @@ async def study_like(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     if app_state.db is None:
         return web.json_response({"ok": False, "error": "db_unavailable"}, status=503)
-    study = await load_study(app_state, request.match_info["studyId"])
-    if study is None or not can_view_study(study, user.username):
-        return web.json_response({"ok": False, "error": "not_found"}, status=404)
-
     data = await read_json_data(request)
     if data is None:
         raise web.HTTPNoContent()
     if not isinstance(data, Mapping) or not isinstance(data.get("liked"), bool):
         return web.json_response({"ok": False, "error": "invalid_like"}, status=400)
 
-    liked, likes, changed = await set_study_like(app_state, study, user.username, data["liked"])
-    await broadcast_study_likes(app_state, study.id, likes)
+    study_id = request.match_info["studyId"]
+    async with sequence_study(app_state, study_id):
+        study = await load_study(app_state, study_id)
+        if study is None or not can_view_study(study, user.username):
+            return web.json_response({"ok": False, "error": "not_found"}, status=404)
+        liked, likes, changed = await set_study_like(app_state, study, user.username, data["liked"])
+        await broadcast_study_likes(app_state, study.id, likes)
     if changed and liked and study.visibility == "public":
         await app_state.timeline.publish(
             "study-like",
@@ -1219,29 +1222,30 @@ async def study_topics_update(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     if app_state.db is None:
         return web.json_response({"ok": False, "error": "db_unavailable"}, status=503)
-    study = await load_study(app_state, request.match_info["studyId"])
-    if study is None or not can_view_study(study, user.username):
-        return web.json_response({"ok": False, "error": "not_found"}, status=404)
-    if not can_write_study(study, user.username):
-        return web.json_response({"ok": False, "error": "forbidden"}, status=403)
-
     data = await read_json_data(request)
     if not isinstance(data, Mapping) or not isinstance(data.get("topics"), list):
         return web.json_response({"ok": False, "error": "invalid_topics"}, status=400)
+    study_id = request.match_info["studyId"]
     try:
-        updated, changed = await set_study_topics(
-            app_state,
-            study.id,
-            user.username,
-            data["topics"],
-        )
+        async with sequence_study(app_state, study_id):
+            study = await load_study(app_state, study_id)
+            if study is None or not can_view_study(study, user.username):
+                return web.json_response({"ok": False, "error": "not_found"}, status=404)
+            if not can_write_study(study, user.username):
+                return web.json_response({"ok": False, "error": "forbidden"}, status=403)
+            updated, changed = await set_study_topics(
+                app_state,
+                study.id,
+                user.username,
+                data["topics"],
+            )
+            if changed:
+                await broadcast_study_topics(app_state, updated.id, updated.topics)
     except StudyStorageError as exc:
         return web.json_response(
             {"ok": False, "error": "invalid_topics", "message": str(exc)},
             status=400,
         )
-    if changed:
-        await broadcast_study_topics(app_state, updated.id, updated.topics)
     return web.json_response({"ok": True, "topics": list(updated.topics)})
 
 

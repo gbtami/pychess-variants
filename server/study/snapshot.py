@@ -4,7 +4,7 @@ from hashlib import sha256
 
 from bson import BSON
 
-from study.models import StudyChapter
+from study.models import Study, StudyChapter
 
 
 def chapter_snapshot_token(chapter: StudyChapter) -> str:
@@ -17,3 +17,23 @@ def chapter_snapshot_token(chapter: StudyChapter) -> str:
     """
 
     return sha256(BSON.encode(chapter.to_document())).hexdigest()[:32]
+
+
+def study_snapshot_token(study: Study, chapters: list[dict[str, object]]) -> str:
+    """Fingerprint Study-wide state installed from an HTTP Study snapshot.
+
+    Chapter content has its own token.  This token covers the persisted Study
+    document plus the ordered lightweight chapter previews that the client also
+    replaces during chapter navigation.  Derived viewer capabilities are a
+    deterministic function of this Study document and the connected user, so a
+    membership/settings change also invalidates the room snapshot.
+    """
+
+    return sha256(
+        BSON.encode(
+            {
+                "study": study.to_document(),
+                "chapters": chapters,
+            }
+        )
+    ).hexdigest()[:32]

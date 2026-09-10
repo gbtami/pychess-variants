@@ -16,8 +16,14 @@ from study.models import Study
 from study.mutations import StudyMutationResult, StudyMutationService
 from study.permissions import can_view_study
 from study.sequencer import cleanup_study_sequence, sequence_study
-from study.snapshot import chapter_snapshot_token
-from study.storage import StudyStorageError, chapter_previews, load_chapter, set_shared_position
+from study.snapshot import chapter_snapshot_token, study_snapshot_token
+from study.storage import (
+    StudyStorageError,
+    chapter_previews,
+    load_chapter,
+    load_study,
+    set_shared_position,
+)
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -315,6 +321,8 @@ async def _sync_chapter_message(
         await _send_invalid_message(ws, data)
         return
 
+    study = await load_study(app_state, study_id)
+    chapters = await chapter_previews(app_state, study_id) if study is not None else []
     chapter = await load_chapter(app_state, study_id, chapter_id)
     await ws_send_json(
         ws,
@@ -325,6 +333,9 @@ async def _sync_chapter_message(
             "requestId": request_id,
             "revision": chapter.revision if chapter is not None else None,
             "snapshotToken": chapter_snapshot_token(chapter) if chapter is not None else None,
+            "roomSnapshotToken": (
+                study_snapshot_token(study, chapters) if study is not None else None
+            ),
         },
     )
 
@@ -633,6 +644,7 @@ async def init_ws(
             await ws.close()
             return
 
+        chapters = await chapter_previews(app_state, study_id)
         room = app_state.study_sockets.setdefault(study_id, set())
         room.add(ws)
         app_state.study_socket_users.setdefault(study_id, {})[ws] = user.username
@@ -643,6 +655,7 @@ async def init_ws(
             {
                 "type": "study_user_connected",
                 "studyId": study_id,
+                "roomSnapshotToken": study_snapshot_token(study, chapters),
             },
         )
 

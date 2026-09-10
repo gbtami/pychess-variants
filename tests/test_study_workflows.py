@@ -1141,7 +1141,9 @@ async def test_switching_to_private_disconnects_read_only_study_websockets(aioht
     async with aiohttp.ClientSession() as viewer:
         ws = await viewer.ws_connect(client.make_url(f"/wsstudy/{study.id}"))
         connected = await ws.receive_json()
-        assert connected == {"type": "study_user_connected", "studyId": study.id}
+        assert connected["type"] == "study_user_connected"
+        assert connected["studyId"] == study.id
+        assert isinstance(connected["roomSnapshotToken"], str)
         assert study.id in app_state.study_sockets
         server_ws = next(iter(app_state.study_sockets[study.id]))
         assert not server_ws.closed

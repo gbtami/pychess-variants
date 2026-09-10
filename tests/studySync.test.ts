@@ -1115,6 +1115,7 @@ describe('Study analysis websocket synchronization', () => {
             chapterId: 'chapter1',
             revision: 0,
             snapshotToken: 'snapshot-a',
+            roomSnapshotToken: 'room-a',
             onReloadRequired: reload,
             opIdFactory: () => 'CommentOp1',
             syncIdFactory: () => 'SyncOp1',
@@ -1138,6 +1139,7 @@ describe('Study analysis websocket synchronization', () => {
             requestId: 'SyncOp1',
             revision: 0,
             snapshotToken: 'snapshot-a',
+            roomSnapshotToken: 'room-a',
         });
         await Promise.resolve();
 
@@ -1162,6 +1164,7 @@ describe('Study analysis websocket synchronization', () => {
             chapterId: 'chapter1',
             revision: 0,
             snapshotToken: 'snapshot-old',
+            roomSnapshotToken: 'room-old',
             onReloadRequired: reload,
             opIdFactory: () => 'CommentOp1',
             syncIdFactory: () => 'SyncOp1',
@@ -1176,11 +1179,63 @@ describe('Study analysis websocket synchronization', () => {
             requestId: 'SyncOp1',
             revision: 1,
             snapshotToken: 'snapshot-new',
+            roomSnapshotToken: 'room-old',
         });
         await Promise.resolve();
 
         expect(reload).toHaveBeenCalledWith('snapshot_stale');
         expect(ctrl.doSend).toHaveBeenCalledTimes(1);
+    });
+
+    test('reloads when Study-wide state changed although the chapter snapshot still matches', async () => {
+        const ctrl = makeCtrl();
+        const reload = jest.fn();
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            snapshotToken: 'chapter-a',
+            roomSnapshotToken: 'room-old',
+            onReloadRequired: reload,
+            syncIdFactory: () => 'SyncOp1',
+        });
+
+        extension.onSocketOpen();
+        extension.onSocketMessage('study_chapter_sync', {
+            type: 'study_chapter_sync',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            requestId: 'SyncOp1',
+            revision: 0,
+            snapshotToken: 'chapter-a',
+            roomSnapshotToken: 'room-new',
+        });
+        await Promise.resolve();
+
+        expect(reload).toHaveBeenCalledWith('snapshot_stale');
+    });
+
+    test('initial room acknowledgement rejects stale Study-wide HTTP state', () => {
+        const ctrl = makeCtrl();
+        const reload = jest.fn();
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            snapshotToken: 'chapter-a',
+            roomSnapshotToken: 'room-old',
+            onReloadRequired: reload,
+            syncIdFactory: () => 'SyncOp1',
+        });
+
+        extension.onSocketOpen();
+        extension.onSocketMessage('study_user_connected', {
+            type: 'study_user_connected',
+            studyId: 'study001',
+            roomSnapshotToken: 'room-new',
+        });
+
+        expect(reload).toHaveBeenCalledWith('study_snapshot_stale');
     });
 
     test('reloads after a real websocket reconnect because broadcasts may have been missed', () => {

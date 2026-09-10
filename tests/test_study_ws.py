@@ -14,7 +14,8 @@ from study.models import Study, StudyChapter
 from study.mutations import StudyMutationService
 from study.permissions import can_view_study
 from study.sequencer import sequence_study
-from study.snapshot import chapter_snapshot_token
+from study.snapshot import chapter_snapshot_token, study_snapshot_token
+from study.storage import chapter_previews, load_study
 from study.tree import StudyTree
 from study.ws import (
     broadcast_study_members,
@@ -163,7 +164,10 @@ class StudyWebsocketTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.app_state.study_sockets[STUDY_ID], {ws})
         self.assertEqual(self.user.study_sockets[STUDY_ID], {ws})
         self.assertTrue(self.user.online)
-        self.assertEqual(ws.sent[-1], {"type": "study_user_connected", "studyId": STUDY_ID})
+        connected = ws.sent[-1]
+        self.assertEqual(connected["type"], "study_user_connected")
+        self.assertEqual(connected["studyId"], STUDY_ID)
+        self.assertIsInstance(connected["roomSnapshotToken"], str)
 
         await finally_logic(
             cast(Any, self.app_state), cast(Any, ws), cast(Any, self.user), STUDY_ID
@@ -216,6 +220,11 @@ class StudyWebsocketTestCase(unittest.IsolatedAsyncioTestCase):
         current_doc = await self.db.study_chapter.find_one({"_id": CHAPTER_ID})
         assert current_doc is not None
         expected = chapter_snapshot_token(StudyChapter.from_document(current_doc))
+        current_study = await load_study(cast(Any, self.app_state), STUDY_ID)
+        assert current_study is not None
+        expected_room = study_snapshot_token(
+            current_study, await chapter_previews(cast(Any, self.app_state), STUDY_ID)
+        )
         self.assertNotEqual(stale_token, expected)
 
         message = StudySyncChapterIn(
@@ -243,9 +252,59 @@ class StudyWebsocketTestCase(unittest.IsolatedAsyncioTestCase):
                     "requestId": "Sync0001",
                     "revision": 0,
                     "snapshotToken": expected,
+                    "roomSnapshotToken": expected_room,
                 }
             ],
         )
+
+    async def test_room_snapshot_token_covers_study_state_and_chapter_previews(self) -> None:
+        study = await load_study(cast(Any, self.app_state), STUDY_ID)
+        assert study is not None
+        previews = await chapter_previews(cast(Any, self.app_state), STUDY_ID)
+        original = study_snapshot_token(study, previews)
+
+        await self.db.study.update_one({"_id": STUDY_ID}, {"$set": {"currentPath": "Node0001"}})
+        shared_changed = await load_study(cast(Any, self.app_state), STUDY_ID)
+        assert shared_changed is not None
+        self.assertNotEqual(original, study_snapshot_token(shared_changed, previews))
+
+        await self.db.study.update_one({"_id": STUDY_ID}, {"$unset": {"currentPath": ""}})
+        await self.db.study_chapter.update_one(
+            {"_id": CHAPTER_ID}, {"$set": {"name": "Renamed chapter"}}
+        )
+        renamed_study = await load_study(cast(Any, self.app_state), STUDY_ID)
+        assert renamed_study is not None
+        renamed_previews = await chapter_previews(cast(Any, self.app_state), STUDY_ID)
+        self.assertNotEqual(original, study_snapshot_token(renamed_study, renamed_previews))
+
+    async def test_chapter_sync_detects_room_change_without_chapter_change(self) -> None:
+        chapter_doc = await self.db.study_chapter.find_one({"_id": CHAPTER_ID})
+        assert chapter_doc is not None
+        chapter_token = chapter_snapshot_token(StudyChapter.from_document(chapter_doc))
+        study = await load_study(cast(Any, self.app_state), STUDY_ID)
+        assert study is not None
+        old_room_token = study_snapshot_token(
+            study, await chapter_previews(cast(Any, self.app_state), STUDY_ID)
+        )
+
+        await self.db.study.update_one({"_id": STUDY_ID}, {"$set": {"currentPath": "Node0001"}})
+        ws = FakeWebSocket()
+        await process_message(
+            cast(Any, self.app_state),
+            cast(Any, self.user),
+            cast(Any, ws),
+            StudySyncChapterIn(
+                type="study_sync_chapter",
+                studyId=STUDY_ID,
+                chapterId=CHAPTER_ID,
+                requestId="SyncRoom1",
+            ),
+            study_id=STUDY_ID,
+            service=self.service,
+        )
+
+        self.assertEqual(ws.sent[0]["snapshotToken"], chapter_token)
+        self.assertNotEqual(ws.sent[0]["roomSnapshotToken"], old_room_token)
 
     async def test_typed_add_broadcasts_same_stable_node_to_both_tabs(self) -> None:
         first = await self._connect()

@@ -78,6 +78,7 @@ export type StudyPageModel = {
     maxMembers: number;
     sharedChapter: string;
     sharedPath: string;
+    roomSnapshotToken: string;
     // Runtime collaboration mode. The server owns sharedChapter/sharedPath; these
     // three fields are local browser state initialized by the Study client.
     sticky?: boolean;

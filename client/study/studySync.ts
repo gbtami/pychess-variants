@@ -98,6 +98,7 @@ export interface StudySyncOptions {
     chapterId: string;
     revision: number;
     snapshotToken?: string;
+    roomSnapshotToken?: string;
     snapshotVerified?: boolean;
     tree?: StudyTreeDto;
     orientation?: 'white' | 'black';
@@ -374,7 +375,13 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     private readonly syncIdFactory: () => string;
     private readonly syncWaiters = new Map<
         string,
-        { chapterId: string; snapshotToken: string; resolve: (matches: boolean) => void; reject: () => void }
+        {
+            chapterId: string;
+            snapshotToken: string;
+            roomSnapshotToken?: string;
+            resolve: (matches: boolean) => void;
+            reject: () => void;
+        }
     >();
     private streamReady: boolean;
     private writable: boolean;
@@ -439,7 +446,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         return this.pending.length;
     }
 
-    verifySnapshot(chapterId: string, snapshotToken: string): Promise<boolean> {
+    verifySnapshot(chapterId: string, snapshotToken: string, roomSnapshotToken?: string): Promise<boolean> {
         if (!this.connected || this.reloadRequested || !chapterId || !snapshotToken) {
             return Promise.reject(new Error('Study socket is not ready for snapshot verification.'));
         }
@@ -455,6 +462,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
             this.syncWaiters.set(requestId, {
                 chapterId,
                 snapshotToken,
+                roomSnapshotToken,
                 resolve: matches => {
                     window.clearTimeout(timer);
                     this.syncWaiters.delete(requestId);
@@ -594,7 +602,11 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         this.reconnecting = false;
         if (this.options.snapshotToken && !this.options.snapshotVerified) {
             this.streamReady = false;
-            void this.verifySnapshot(this.options.chapterId, this.options.snapshotToken)
+            void this.verifySnapshot(
+                this.options.chapterId,
+                this.options.snapshotToken,
+                this.options.roomSnapshotToken,
+            )
                 .then(matches => {
                     if (!matches) {
                         this.requestReload('snapshot_stale');
@@ -750,7 +762,22 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         }
 
         if (type === 'study_user_connected') {
-            if (data.studyId !== this.options.studyId) this.requestReload('wrong_study');
+            if (data.studyId !== this.options.studyId) {
+                this.requestReload('wrong_study');
+                return true;
+            }
+            const roomSnapshotToken = data.roomSnapshotToken;
+            if (roomSnapshotToken !== undefined && typeof roomSnapshotToken !== 'string') {
+                this.requestReload('invalid_room_snapshot');
+                return true;
+            }
+            if (
+                this.options.roomSnapshotToken &&
+                roomSnapshotToken !== undefined &&
+                roomSnapshotToken !== this.options.roomSnapshotToken
+            ) {
+                this.requestReload('study_snapshot_stale');
+            }
             return true;
         }
 
@@ -768,15 +795,20 @@ export class StudyAnalysisExtension implements AnalysisExtension {
             }
             const revision = data.revision;
             const snapshotToken = data.snapshotToken;
+            const roomSnapshotToken = data.roomSnapshotToken;
             if (
                 (revision !== null && (!Number.isInteger(revision) || (revision as number) < 0)) ||
-                (snapshotToken !== null && typeof snapshotToken !== 'string')
+                (snapshotToken !== null && typeof snapshotToken !== 'string') ||
+                (roomSnapshotToken !== null && typeof roomSnapshotToken !== 'string')
             ) {
                 waiter.reject();
                 this.requestReload('invalid_chapter_sync');
                 return true;
             }
-            waiter.resolve(snapshotToken === waiter.snapshotToken);
+            waiter.resolve(
+                snapshotToken === waiter.snapshotToken &&
+                    (waiter.roomSnapshotToken === undefined || roomSnapshotToken === waiter.roomSnapshotToken),
+            );
             return true;
         }
 

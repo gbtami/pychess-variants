@@ -413,6 +413,7 @@ describe('analysis page smoke coverage', () => {
             maxMembers: 30,
             sharedChapter: 'ChAp0001',
             sharedPath: '',
+            roomSnapshotToken: 'room-snapshot',
             chapter: {
                 id: 'ChAp0001',
                 name: 'Played game',
@@ -477,6 +478,7 @@ describe('analysis page smoke coverage', () => {
             maxMembers: 30,
             sharedChapter: 'ChAp0001',
             sharedPath: '',
+            roomSnapshotToken: 'room-snapshot',
             chapter: {
                 id: 'ChAp0001',
                 name: 'Shared line',
@@ -551,6 +553,7 @@ describe('analysis page smoke coverage', () => {
             maxMembers: 30,
             sharedChapter: 'ChAp0001',
             sharedPath: '',
+            roomSnapshotToken: 'room-snapshot',
             chapter: {
                 id: 'ChAp0001',
                 name: 'Shared line',
@@ -597,6 +600,7 @@ describe('analysis page smoke coverage', () => {
             maxMembers: 30,
             sharedChapter: 'ChAp0001',
             sharedPath: '',
+            roomSnapshotToken: 'room-snapshot',
             chapter: {
                 id: 'ChAp0001',
                 name: 'First line',
@@ -654,6 +658,7 @@ describe('analysis page smoke coverage', () => {
             maxMembers: 30,
             sharedChapter: 'ChAp0001',
             sharedPath: '',
+            roomSnapshotToken: 'room-snapshot',
             chapter: {
                 id: 'ChAp0001',
                 name: 'Shared line',

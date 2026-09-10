@@ -1920,6 +1920,7 @@ function runStudyGround(
                 chapterId: study.chapter.id,
                 revision: study.chapter.revision,
                 snapshotToken: study.chapter.snapshotToken,
+                roomSnapshotToken: study.roomSnapshotToken,
                 snapshotVerified,
                 tree: study.chapter.tree,
                 orientation: study.chapter.orientation,
@@ -2071,7 +2072,13 @@ function runStudyGround(
             const ffish = await modules.get(alice)!;
             await ctrl.whenEngineConfigured();
             if (!isCurrent()) return;
-            if (!(await extension.verifySnapshot(data.study.chapter.id, data.study.chapter.snapshotToken))) {
+            if (
+                !(await extension.verifySnapshot(
+                    data.study.chapter.id,
+                    data.study.chapter.snapshotToken,
+                    data.study.roomSnapshotToken,
+                ))
+            ) {
                 throw new StaleStudyChapterSnapshotError('Study chapter changed while loading.');
             }
             if (!isCurrent()) return;
