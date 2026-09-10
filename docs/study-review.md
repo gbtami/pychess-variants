@@ -1,4 +1,20 @@
-Study re-review: 303bf70dc → 019e79ee1
+Study follow-up review: 349ae6ba8 → 7a576880e
+
+Reviewed the five corrective commits, 2c9755a05 through 7a576880e, their surrounding code paths, and their added regression coverage. All five findings from the previous review are addressed in the inspected implementation. No additional actionable defect was identified within this follow-up scope.
+
+| Previous finding | Fix assessment |
+| --- | --- |
+| Imported evaluations discarded | The server tree builder preserves `eval_score` and adjusts its point of view when replay corrects submitted turn metadata. Added import coverage checks the persisted Mongo node. |
+| Description pinning skips a content revision | The HTTP handler publishes the updated description and chapter revision before the chapter previews. The client applies the revision and preserves pending local description edits. |
+| Study-wide snapshot state can become stale | HTTP data, the initial room acknowledgement, and chapter verification now carry a token covering the Study document and chapter previews. Initial mismatches trigger reload; navigation mismatches use the existing retry path. Like/topic mutation and broadcast now also use the sequencer. |
+| Whole-Study deletion races chapter creation | The delete handler reloads ownership under the sequencer, removes the Study, broadcasts deletion, and closes the room. Single-chapter creation also rolls back if its parent update matches no Study. |
+| Erasure misses comments added after discovery | Account deletion disables the live User before cleanup. Study joins and queued messages recheck that state, existing Study sockets are closed before discovery, and retained Studies rescan every chapter under the sequencer. |
+
+This is a source-level follow-up, not a fresh runtime certification of the entire Study feature. Per request, no local linting, tests, builds, or browser suites were run; the reported green GitHub workflows are taken as given. Added tests were inspected, not executed. Only this review document was changed. Earlier reviews below are historical and their open-finding statements describe the earlier revisions.
+
+---
+
+Historical re-review: 303bf70dc → 019e79ee1
 
 Reviewed the latest nine fixes, fe47ee21c through 019e79ee1, and their surrounding Study code paths. The earlier review is retained below as history. No application source was changed. Per request, no local lint, test, build, or browser suites were run. Findings below are based on source inspection and explicit event/write orderings, not newly executed reproductions. The reported green GitHub workflows are taken as given.
 
