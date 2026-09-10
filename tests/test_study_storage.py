@@ -382,7 +382,14 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
             topics=("Opening", "King pawn"),
         )
 
-        cloned, cloned_first = await clone_study(cast(Any, self.app_state), source, "cloner")
+        with patch.object(
+            self.db.study_chapter,
+            "insert_many",
+            side_effect=AssertionError(
+                "Study clone must stream chapters instead of bulk inserting"
+            ),
+        ):
+            cloned, cloned_first = await clone_study(cast(Any, self.app_state), source, "cloner")
 
         self.assertNotEqual(cloned.id, study.id)
         self.assertEqual(cloned.name, study.name)

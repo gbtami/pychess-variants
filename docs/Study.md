@@ -39,7 +39,8 @@ core and its remaining integration are described below.
 - Chapter-wide Clear annotations and Clear variations actions.
 - Local engine analysis, subject to the viewer's computer-analysis permission.
 - Contributor requests for Fishnet analysis of a chapter's preferred mainline, with
-  at least five moves and a five-minute repeat guard.
+  at least five moves, a five-minute repeat guard, one pending Study analysis per
+  account, and rolling per-account analysis budgets.
 - Persisted partial/completed server evaluations, live progress, the shared analysis
   chart, generated mistake glyphs/advice comments, and best-line variations. Existing
   human comments and variations are preserved/reused.
@@ -187,7 +188,17 @@ content and Study-wide snapshot tokens against the subscribed room.
 Deployment defaults in [constants.py](../server/study/constants.py) are 64 chapters,
 3,000 nodes per chapter, 30 members, and 8 MiB encoded chapter size. The chapter-size
 setting is capped at 15 MiB, below MongoDB's 16 MiB limit. Annotations and search
-metadata have additional bounded counts/lengths.
+metadata have additional bounded counts/lengths. Cloning streams chapters through the
+database one at a time rather than materializing a maximal Study in the web process.
+
+Study creation and server analysis also have account-level resource-fairness budgets.
+A normal creation consumes one of 30 rolling credits per 24 hours; cloning costs three
+credits. Study Fishnet analysis defaults to 40 requests per rolling day and 200 per
+rolling week, with at most one pending Study analysis per account. These are abuse and
+capacity guards, not a paid-usage model. Deployments can tune them without a code
+change through `STUDY_CREATION_CREDITS_PER_24H`, `STUDY_CLONE_CREATION_COST`,
+`STUDY_ANALYSIS_MAX_PER_DAY`, and `STUDY_ANALYSIS_MAX_PER_WEEK`. Failed creation, clone,
+or queue admission rolls its claimed budget entry back.
 
 Untrusted embedded rules and their imported positions/trees are validated outside
 the serving process. Historical rules admitted to the main native engine registry
@@ -248,9 +259,9 @@ product scope:
 
 - Review Study-specific reporting/moderation needs for public comments and descriptions.
   Account-erasure integration is implemented; a dedicated Study reporting workflow is absent.
-- Reconcile the browser scenarios with the current creation dialogs and rerun them
-  before relying on their results. The historical review reported two stale scenarios;
-  the later source reviews did not rerun the browser suite.
+- Keep the Study browser acceptance scenarios aligned with the current creation
+  dialogs. The stale two-stage-creation scenarios have been updated and the Study GUI
+  module is part of the web-test workflow.
 - Measure production resource use and verify visual behavior across themes, viewports,
   and representative variant families when assessing rollout readiness. The source
   review did not establish those results.

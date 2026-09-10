@@ -236,6 +236,10 @@ class PychessGlobalAppState:
             # a lock while an HTTP/websocket/Fishnet operation is waiting on it.
             self.study_mutation_locks: dict[str, asyncio.Lock] = {}
             self.study_mutation_lock_refs: dict[str, int] = {}
+            # Study mutations are sequenced per Study, but Fishnet admission also
+            # needs a tiny cross-Study critical section to enforce one request per
+            # account without retaining one lock per user.
+            self.study_analysis_request_lock = asyncio.Lock()
             self.study_socket_users: dict[str, dict[WebSocketResponse, str]] = {}
             self.background_tasks: set[asyncio.Task[Any]] = set()
             self.game_remove_tasks: dict[str, asyncio.Task[None]] = {}

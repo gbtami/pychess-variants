@@ -920,16 +920,6 @@ async def clone_study(
     Study id for provenance.
     """
 
-    docs = (
-        await app_state.db.study_chapter.find({"studyId": source.id})
-        .sort("order", 1)
-        .to_list(length=STUDY_MAX_CHAPTERS + 1)
-    )
-    if not docs:
-        raise StudyStorageError("Study has no chapters to clone")
-    if len(docs) > STUDY_MAX_CHAPTERS:
-        raise StudyStorageError(f"A Study can have at most {STUDY_MAX_CHAPTERS} chapters")
-
     now = datetime.now(UTC)
     cloned = await make_study(
         app_state.db.study,
@@ -940,45 +930,54 @@ async def clone_study(
     )
     cloned = replace(cloned, settings=dict(source.settings), topics=source.topics)
 
-    chapters: list[StudyChapter] = []
-    for doc in docs:
-        original = StudyChapter.from_document(doc)
-        chapter = await make_chapter(
-            app_state.db.study_chapter,
-            study_id=cloned.id,
-            owner=owner,
-            variant=original.variant,
-            initial_fen=original.initial_fen,
-            orientation=original.orientation,
-            order=original.order,
-            name=original.name,
-            chess960=original.chess960,
-            variant_ini=original.variant_ini,
-            root=original.root,
-            source=original.source,
-            description=original.description,
-            tags=original.tags,
-            now=now,
-        )
-        _ensure_chapter_size(chapter)
-        chapters.append(chapter)
-
-    cloned = replace(cloned, current_chapter=chapters[0].id)
-    chapter_ids = [chapter.id for chapter in chapters]
+    # Do not materialize every chapter at once. A chapter may be several MiB and
+    # a maximal Study can contain dozens of them, which makes an eager clone an
+    # avoidable OOM risk on small web dynos. MongoDB cursor batches are bounded
+    # by the wire-protocol batch size; copying one decoded chapter at a time keeps
+    # Python-side memory proportional to one chapter rather than the whole Study.
+    cursor = app_state.db.study_chapter.find({"studyId": source.id}).sort("order", 1)
+    first_chapter: StudyChapter | None = None
+    chapter_count = 0
     try:
-        await app_state.db.study_chapter.insert_many(
-            [chapter.to_document() for chapter in chapters]
-        )
+        async for doc in cursor:
+            chapter_count += 1
+            if chapter_count > STUDY_MAX_CHAPTERS:
+                raise StudyStorageError(f"A Study can have at most {STUDY_MAX_CHAPTERS} chapters")
+            original = StudyChapter.from_document(doc)
+            chapter = await make_chapter(
+                app_state.db.study_chapter,
+                study_id=cloned.id,
+                owner=owner,
+                variant=original.variant,
+                initial_fen=original.initial_fen,
+                orientation=original.orientation,
+                order=original.order,
+                name=original.name,
+                chess960=original.chess960,
+                variant_ini=original.variant_ini,
+                root=original.root,
+                source=original.source,
+                description=original.description,
+                tags=original.tags,
+                now=now,
+            )
+            _ensure_chapter_size(chapter)
+            await app_state.db.study_chapter.insert_one(chapter.to_document())
+            if first_chapter is None:
+                first_chapter = chapter
+
+        if first_chapter is None:
+            raise StudyStorageError("Study has no chapters to clone")
+
+        cloned = replace(cloned, current_chapter=first_chapter.id)
         await app_state.db.study.insert_one(cloned.to_document())
         await refresh_study_search_tokens(app_state, cloned.id)
     except Exception:
-        await app_state.db.study_chapter.delete_many(
-            {"_id": {"$in": chapter_ids}, "studyId": cloned.id}
-        )
+        await app_state.db.study_chapter.delete_many({"studyId": cloned.id})
         await app_state.db.study.delete_one({"_id": cloned.id, "owner": owner})
         raise
 
-    return cloned, chapters[0]
+    return cloned, first_chapter
 
 
 async def add_chapter_from_draft(

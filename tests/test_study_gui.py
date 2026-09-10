@@ -124,6 +124,8 @@ class TestStudyGUI:
                 await page.locator("[data-study-new-open]").click()
                 await page.locator('#study-new-dialog input[name="name"]').fill("Acceptance Study")
                 await page.locator('#study-new-dialog button[type="submit"]').click()
+                await expect(page.locator("#study-first-chapter-dialog")).to_be_visible()
+                await page.locator('#study-first-chapter-form button[type="submit"]').click()
                 await page.wait_for_url(
                     re.compile(rf"{re.escape(base_url)}/study/\w{{8}}/\w{{8}}$")
                 )
@@ -295,6 +297,11 @@ class TestStudyGUI:
                 await page_a.locator("[data-study-new-open]").click()
                 await page_a.locator('#study-new-dialog input[name="name"]').fill("Synced Study")
                 await page_a.locator('#study-new-dialog button[type="submit"]').click()
+                await expect(page_a.locator("#study-first-chapter-dialog")).to_be_visible()
+                await page_a.locator('#study-first-chapter-form button[type="submit"]').click()
+                await page_a.wait_for_url(
+                    re.compile(rf"{re.escape(base_url)}/study/\w{{8}}/\w{{8}}$")
+                )
                 study_id, chapter_id = self._study_ids_from_url(page_a.url)
                 study_url = f"{base_url}/study/{study_id}/{chapter_id}"
                 await page_b.goto(study_url)

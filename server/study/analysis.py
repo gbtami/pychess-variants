@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+import asyncio
 import logging
 import random
 import string
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Literal, cast
 
 from analysis_advice import (
     ANALYSIS_COMMENT_AUTHOR,
@@ -31,6 +32,11 @@ from study.constants import (
 )
 from study.models import Study, StudyChapter, StudyServerEval
 from study.permissions import can_write_study
+from study.quota import (
+    StudyQuotaExceeded,
+    claim_study_analysis_slot,
+    release_study_analysis_slot,
+)
 from study.sequencer import sequence_study
 from study.tree import StudyTree, StudyTreeNode, new_study_node_id
 from study.variant import study_variant_context
@@ -53,6 +59,9 @@ StudyAnalysisRequestStatus = Literal[
     "not_found",
     "fishnet_unavailable",
     "variant_unavailable",
+    "concurrent_analysis",
+    "daily_limit",
+    "weekly_limit",
 ]
 
 
@@ -84,6 +93,26 @@ def has_pending_study_analysis(
     return any(
         _study_work_matches(work, study_id, chapter_id) for work in app_state.fishnet_works.values()
     )
+
+
+def has_pending_study_analysis_for_user(app_state: PychessGlobalAppState, username: str) -> bool:
+    return any(
+        work["work"]["type"] == "analysis"
+        and bool(work.get("study_id"))
+        and work.get("username") == username
+        for work in app_state.fishnet_works.values()
+    )
+
+
+def _analysis_request_lock(app_state: PychessGlobalAppState) -> asyncio.Lock:
+    lock = getattr(app_state, "study_analysis_request_lock", None)
+    if lock is None:
+        # Tests and small helper app states do not necessarily construct the full
+        # PychessGlobalAppState. There is no await between this lookup and set, so
+        # lazy initialization is still atomic within the single aiohttp process.
+        lock = asyncio.Lock()
+        app_state.study_analysis_request_lock = lock
+    return lock
 
 
 def _drop_study_analysis_works(
@@ -204,6 +233,9 @@ async def request_study_server_analysis(
         if requested_at - current.requested_at < STUDY_ANALYSIS_COOLDOWN:
             return StudyAnalysisRequestResult("already_requested", current)
 
+    if has_pending_study_analysis_for_user(app_state, username):
+        return StudyAnalysisRequestResult("concurrent_analysis", current)
+
     from fishnet import (
         fishnet_variants_payload_from_ini,
         has_available_fishnet_worker,
@@ -244,32 +276,68 @@ async def request_study_server_analysis(
         return StudyAnalysisRequestResult("variant_unavailable", current)
 
     requested_at = now or datetime.now(UTC)
-    server_eval = StudyServerEval(path=path, done=False, requested_at=requested_at)
-    result = await app_state.db.study_chapter.update_one(
-        {"_id": chapter.id, "studyId": study.id},
-        {"$set": {"serverEval": server_eval.to_document()}},
-    )
-    if result.matched_count != 1:
-        return StudyAnalysisRequestResult("not_found")
+    async with _analysis_request_lock(app_state):
+        # Different Studies have different mutation locks, so two tabs could reach
+        # this point concurrently for the same account. Recheck under one short
+        # process-wide admission lock before charging quota and queueing work.
+        if has_pending_study_analysis_for_user(app_state, username):
+            return StudyAnalysisRequestResult("concurrent_analysis", current)
+        try:
+            quota_claim = await claim_study_analysis_slot(
+                app_state,
+                username,
+                now=requested_at,
+            )
+        except StudyQuotaExceeded as exc:
+            if exc.code in {"daily_limit", "weekly_limit"}:
+                return StudyAnalysisRequestResult(
+                    cast(StudyAnalysisRequestStatus, exc.code), current
+                )
+            return StudyAnalysisRequestResult("forbidden", current)
 
-    work_id = _new_work_id(app_state)
-    work: FishnetWork = {
-        "work": {"type": "analysis", "id": work_id},
-        "study_id": study.id,
-        "chapter_id": chapter.id,
-        "study_path": path,
-        "position": chapter.initial_fen,
-        "variant": work_variant,
-        "chess960": chapter.chess960,
-        "moves": " ".join(node.move for node in mainline),
-        "nnue": board.nnue,
-        "nodes": STUDY_ANALYSIS_NODES,
-    }
-    if pinned_payload is not None:
-        work["variantsSha256"] = pinned_payload["variantsSha256"]
-        work["variantsScope"] = pinned_payload["variantsScope"]
-    app_state.fishnet_works[work_id] = work
-    app_state.fishnet_queue.put_nowait((ANALYSIS, work_id))
+        server_eval = StudyServerEval(path=path, done=False, requested_at=requested_at)
+        result = await app_state.db.study_chapter.update_one(
+            {"_id": chapter.id, "studyId": study.id},
+            {"$set": {"serverEval": server_eval.to_document()}},
+        )
+        if result.matched_count != 1:
+            await release_study_analysis_slot(app_state, username, quota_claim)
+            return StudyAnalysisRequestResult("not_found")
+
+        work_id = _new_work_id(app_state)
+        work: FishnetWork = {
+            "work": {"type": "analysis", "id": work_id},
+            "study_id": study.id,
+            "chapter_id": chapter.id,
+            "study_path": path,
+            "username": username,
+            "position": chapter.initial_fen,
+            "variant": work_variant,
+            "chess960": chapter.chess960,
+            "moves": " ".join(node.move for node in mainline),
+            "nnue": board.nnue,
+            "nodes": STUDY_ANALYSIS_NODES,
+        }
+        if pinned_payload is not None:
+            work["variantsSha256"] = pinned_payload["variantsSha256"]
+            work["variantsScope"] = pinned_payload["variantsScope"]
+        app_state.fishnet_works[work_id] = work
+        try:
+            app_state.fishnet_queue.put_nowait((ANALYSIS, work_id))
+        except Exception:
+            app_state.fishnet_works.pop(work_id, None)
+            await release_study_analysis_slot(app_state, username, quota_claim)
+            if current is None:
+                await app_state.db.study_chapter.update_one(
+                    {"_id": chapter.id, "studyId": study.id},
+                    {"$unset": {"serverEval": ""}},
+                )
+            else:
+                await app_state.db.study_chapter.update_one(
+                    {"_id": chapter.id, "studyId": study.id},
+                    {"$set": {"serverEval": current.to_document()}},
+                )
+            raise
 
     chapter = replace(chapter, server_eval=server_eval)
     await _broadcast_server_eval(app_state, chapter, server_eval, pending=True)

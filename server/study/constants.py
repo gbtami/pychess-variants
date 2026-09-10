@@ -32,6 +32,13 @@ STUDY_MAX_NATIVE_SNAPSHOT_VARIANTS = _positive_int_env("STUDY_MAX_NATIVE_SNAPSHO
 # Lichess currently caps Study membership at 30. Keep the same conservative
 # default but allow operators to lower/raise it without code changes.
 STUDY_MAX_MEMBERS = _positive_int_env("STUDY_MAX_MEMBERS", 30)
+# Resource-fairness budgets follow Lichess-scale defaults while remaining
+# configurable for PyChess deployments. A normal new Study costs one creation
+# credit; cloning costs more because it copies every chapter.
+STUDY_CREATION_CREDITS_PER_24H = _positive_int_env("STUDY_CREATION_CREDITS_PER_24H", 30)
+STUDY_CLONE_CREATION_COST = _positive_int_env("STUDY_CLONE_CREATION_COST", 3)
+STUDY_ANALYSIS_MAX_PER_DAY = _positive_int_env("STUDY_ANALYSIS_MAX_PER_DAY", 40)
+STUDY_ANALYSIS_MAX_PER_WEEK = _positive_int_env("STUDY_ANALYSIS_MAX_PER_WEEK", 200)
 # Lichess Study list cards preview at most four chapter names and four members.
 STUDY_PREVIEW_NB_CHAPTERS = 4
 STUDY_PREVIEW_NB_MEMBERS = 4

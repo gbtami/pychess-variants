@@ -1285,6 +1285,9 @@ function studyServerAnalysisError(reason: string | undefined): string | undefine
     if (reason === 'forbidden') return _('Only contributors can request analysis.');
     if (reason === 'fishnet_failed') return _('Server analysis failed. You can request it again.');
     if (reason === 'already_requested') return _('Server analysis was requested recently. Try again in a few minutes.');
+    if (reason === 'concurrent_analysis') return _('You already have a Study analysis in progress.');
+    if (reason === 'daily_limit') return _('You have reached the daily Study analysis limit.');
+    if (reason === 'weekly_limit') return _('You have reached the weekly Study analysis limit.');
     if (reason === 'not_found') return _('The chapter is no longer available.');
     return _('Server analysis is unavailable right now.');
 }

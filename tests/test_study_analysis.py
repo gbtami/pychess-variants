@@ -58,6 +58,13 @@ class StudyServerAnalysisTestCase(unittest.IsolatedAsyncioTestCase):
         )
         await self.db.study.insert_one(study.to_document())
         await self.db.study_chapter.insert_one(chapter.to_document())
+        await self.db.user.insert_many(
+            [
+                {"_id": OWNER},
+                {"_id": "writer"},
+                {"_id": "reader"},
+            ]
+        )
 
     async def _add_line(
         self, moves: list[str], *, start_revision: int = 0, parent_path: str = ""
@@ -115,6 +122,7 @@ class StudyServerAnalysisTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(work["study_id"], STUDY_ID)
         self.assertEqual(work["chapter_id"], CHAPTER_ID)
         self.assertEqual(work["study_path"], path)
+        self.assertEqual(work["username"], "writer")
         self.assertEqual(work["variant"], "chess")
         self.assertEqual(work["position"], FairyBoard.start_fen("chess"))
         self.assertEqual(work["moves"], "e2e4 e7e5 g1f3 b8c6 f1b5")
@@ -123,6 +131,80 @@ class StudyServerAnalysisTestCase(unittest.IsolatedAsyncioTestCase):
         repeated = await self._request("writer")
         self.assertEqual(repeated.status, "already_requested")
         self.assertEqual(len(self.app_state.fishnet_works), 1)
+
+    async def test_user_cannot_queue_two_study_analyses_at_once(self) -> None:
+        await self._add_line(["e2e4", "e7e5", "g1f3", "b8c6", "f1b5"])
+        self.app_state.fishnet_works["other1"] = {
+            "work": {"type": "analysis", "id": "other1"},
+            "study_id": "another1",
+            "chapter_id": "another2",
+            "username": OWNER,
+        }
+
+        result = await self._request()
+
+        self.assertEqual(result.status, "concurrent_analysis")
+        self.assertEqual(set(self.app_state.fishnet_works), {"other1"})
+        account = await self.db.user.find_one({"_id": OWNER})
+        assert account is not None
+        self.assertNotIn("studyAnalysisHistory", account)
+
+    async def test_analysis_request_honors_persisted_daily_and_weekly_budgets(self) -> None:
+        await self._add_line(["e2e4", "e7e5", "g1f3", "b8c6", "f1b5"])
+        requested_at = datetime(2026, 9, 10, 12, 0, tzinfo=UTC)
+        await self.db.user.update_one(
+            {"_id": OWNER},
+            {
+                "$set": {
+                    "studyAnalysisHistory": [
+                        {"at": requested_at, "id": "today", "cost": 1},
+                    ]
+                }
+            },
+        )
+        with (
+            patch("study.quota.STUDY_ANALYSIS_MAX_PER_DAY", 1),
+            patch("study.quota.STUDY_ANALYSIS_MAX_PER_WEEK", 10),
+            patch("fishnet.has_available_fishnet_worker", return_value=True),
+        ):
+            daily = await request_study_server_analysis(
+                cast(Any, self.app_state),
+                study_id=STUDY_ID,
+                chapter_id=CHAPTER_ID,
+                username=OWNER,
+                now=requested_at,
+            )
+        self.assertEqual(daily.status, "daily_limit")
+        self.assertEqual(self.app_state.fishnet_works, {})
+
+        await self.db.user.update_one(
+            {"_id": OWNER},
+            {
+                "$set": {
+                    "studyAnalysisHistory": [
+                        {
+                            "at": requested_at - timedelta(days=2),
+                            "id": "week",
+                            "cost": 1,
+                        },
+                    ]
+                }
+            },
+        )
+        with (
+            patch("study.quota.STUDY_ANALYSIS_MAX_PER_DAY", 10),
+            patch("study.quota.STUDY_ANALYSIS_MAX_PER_WEEK", 1),
+            patch("fishnet.has_available_fishnet_worker", return_value=True),
+        ):
+            weekly = await request_study_server_analysis(
+                cast(Any, self.app_state),
+                study_id=STUDY_ID,
+                chapter_id=CHAPTER_ID,
+                username=OWNER,
+                now=requested_at,
+            )
+        self.assertEqual(weekly.status, "weekly_limit")
+        self.assertEqual(self.app_state.fishnet_works, {})
 
     async def test_partial_progress_persists_then_completion_finishes_work(self) -> None:
         await self._add_line(["e2e4", "e7e5", "g1f3", "b8c6", "f1b5"])

@@ -5,6 +5,7 @@ import json
 import time
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
+from unittest.mock import patch
 
 import aiohttp
 import pytest
@@ -115,6 +116,78 @@ async def test_study_create_modal_collects_first_chapter_before_creating(aiohttp
     assert chapter_doc["variant"] == "atomic"
     assert chapter_doc["initialFen"] == FairyBoard.start_fen("atomic")
     assert response.headers["Location"] == f"/study/{study_doc['_id']}/{chapter_doc['_id']}"
+
+
+@pytest.mark.asyncio
+async def test_new_study_entry_points_share_creation_budget(aiohttp_client) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    username = "study_quota_owner"
+    await _insert_user(app_state, username)
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie(username)})
+
+    with patch("study.quota.STUDY_CREATION_CREDITS_PER_24H", 1):
+        first = await client.post(
+            "/study",
+            data={"name": "First", "chapterName": "Chapter 1", "variant": "chess"},
+            allow_redirects=False,
+        )
+        assert first.status == 302
+
+        second = await client.post(
+            "/study",
+            data={"name": "Second", "chapterName": "Chapter 1", "variant": "chess"},
+            allow_redirects=False,
+        )
+        assert second.status == 429
+        assert "Retry-After" in second.headers
+
+        from_analysis = await client.post(
+            "/study/from-analysis",
+            json={
+                "variant": "chess",
+                "initialFen": FairyBoard.start_fen("chess"),
+                "tree": {"nodes": []},
+            },
+        )
+        assert from_analysis.status == 429
+
+
+@pytest.mark.asyncio
+async def test_failed_study_creation_releases_quota_claim(aiohttp_client, monkeypatch) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    username = "study_quota_rollback"
+    await _insert_user(app_state, username)
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie(username)})
+
+    original = study_views.create_study_from_draft
+    calls = 0
+
+    async def fail_once(*args, **kwargs):
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            raise study_storage.StudyStorageError("simulated creation failure")
+        return await original(*args, **kwargs)
+
+    monkeypatch.setattr(study_views, "create_study_from_draft", fail_once)
+    with patch("study.quota.STUDY_CREATION_CREDITS_PER_24H", 1):
+        failed = await client.post(
+            "/study",
+            data={"name": "Failed", "chapterName": "Chapter 1", "variant": "chess"},
+            allow_redirects=False,
+        )
+        assert failed.status == 400
+
+        retry = await client.post(
+            "/study",
+            data={"name": "Retry", "chapterName": "Chapter 1", "variant": "chess"},
+            allow_redirects=False,
+        )
+        assert retry.status == 302
 
 
 @pytest.mark.asyncio
@@ -1334,6 +1407,11 @@ async def test_viewable_study_can_be_cloned_into_private_owned_copy(aiohttp_clie
     response = await client.get(source_url, headers={"Accept": "application/json"})
     assert response.status == 200
     assert (await response.json())["study"]["canClone"] is True
+
+    with patch("study.quota.STUDY_CREATION_CREDITS_PER_24H", 2):
+        response = await client.post(clone_url, allow_redirects=False)
+        assert response.status == 429
+        assert "Retry-After" in response.headers
 
     response = await client.post(clone_url, allow_redirects=False)
     assert response.status == 302

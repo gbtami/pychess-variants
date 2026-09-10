@@ -21,6 +21,7 @@ from study.builder import (
     StudyOrientation,
 )
 from study.constants import (
+    STUDY_CLONE_CREATION_COST,
     STUDY_MAX_MEMBERS,
     STUDY_MAX_TOPICS,
     STUDY_PREVIEW_NB_MEMBERS,
@@ -44,6 +45,11 @@ from study.permissions import (
     can_write_study,
     is_study_owner,
     study_feature_selection,
+)
+from study.quota import (
+    StudyQuotaExceeded,
+    claim_study_creation_slot,
+    release_study_creation_slot,
 )
 from study.sequencer import sequence_study
 from study.snapshot import chapter_snapshot_token, study_snapshot_token
@@ -114,6 +120,15 @@ def _require_owner_user(user: Any) -> None:
         raise web.HTTPFound("/login")
     if user.bot:
         raise web.HTTPForbidden(text="BOT accounts cannot use Studies.")
+
+
+def _study_quota_http_error(exc: StudyQuotaExceeded) -> web.HTTPException:
+    if exc.code == "account_missing":
+        return web.HTTPForbidden(text=str(exc))
+    return web.HTTPTooManyRequests(
+        text=str(exc),
+        headers={"Retry-After": str(exc.retry_after_seconds)},
+    )
 
 
 def _study_sync_enabled(value: object, *, default: bool = True) -> bool:
@@ -749,6 +764,14 @@ async def study_create(request: web.Request) -> web.StreamResponse:
 
     try:
         draft = await _draft_from_form(StudyChapterBuilder(app_state, user.username), data)
+    except (StudyStorageError, StudyChapterBuildError) as exc:
+        raise web.HTTPBadRequest(text=str(exc)) from exc
+
+    try:
+        quota_claim = await claim_study_creation_slot(app_state, user.username)
+    except StudyQuotaExceeded as exc:
+        raise _study_quota_http_error(exc) from exc
+    try:
         study, chapter = await create_study_from_draft(
             app_state,
             user.username,
@@ -758,7 +781,11 @@ async def study_create(request: web.Request) -> web.StreamResponse:
             settings=settings,
         )
     except (StudyStorageError, StudyChapterBuildError) as exc:
+        await release_study_creation_slot(app_state, user.username, quota_claim)
         raise web.HTTPBadRequest(text=str(exc)) from exc
+    except Exception:
+        await release_study_creation_slot(app_state, user.username, quota_claim)
+        raise
     raise web.HTTPFound(f"/study/{study.id}/{chapter.id}")
 
 
@@ -1029,12 +1056,26 @@ async def study_from_analysis(request: web.Request) -> web.StreamResponse:
                 if activate_shared:
                     await broadcast_study_position(app_state, study.id, chapter.id, "")
         else:
-            study, chapter = await create_study_from_draft(
-                app_state,
-                user.username,
-                draft,
-                name=str(data.get("studyName") or "").strip() or None,
-            )
+            try:
+                quota_claim = await claim_study_creation_slot(app_state, user.username)
+            except StudyQuotaExceeded as exc:
+                if exc.code == "account_missing":
+                    return web.json_response({"ok": False, "error": str(exc)}, status=403)
+                return web.json_response(
+                    {"ok": False, "error": str(exc)},
+                    status=429,
+                    headers={"Retry-After": str(exc.retry_after_seconds)},
+                )
+            try:
+                study, chapter = await create_study_from_draft(
+                    app_state,
+                    user.username,
+                    draft,
+                    name=str(data.get("studyName") or "").strip() or None,
+                )
+            except Exception:
+                await release_study_creation_slot(app_state, user.username, quota_claim)
+                raise
     except (StudyChapterBuildError, StudyStorageError) as exc:
         return web.json_response({"ok": False, "error": str(exc)}, status=400)
     return web.json_response(
@@ -1178,9 +1219,26 @@ async def study_clone(request: web.Request) -> web.StreamResponse:
         raise web.HTTPNotFound()
 
     try:
-        cloned, chapter = await clone_study(app_state, source, user.username)
+        quota_claim = await claim_study_creation_slot(
+            app_state,
+            user.username,
+            cost=STUDY_CLONE_CREATION_COST,
+        )
+    except StudyQuotaExceeded as exc:
+        raise _study_quota_http_error(exc) from exc
+
+    try:
+        async with sequence_study(app_state, source.id):
+            source = await load_study(app_state, source.id)
+            if source is None or not can_clone_study(source, user.username):
+                raise web.HTTPNotFound()
+            cloned, chapter = await clone_study(app_state, source, user.username)
     except StudyStorageError as exc:
+        await release_study_creation_slot(app_state, user.username, quota_claim)
         raise web.HTTPBadRequest(text=str(exc)) from exc
+    except Exception:
+        await release_study_creation_slot(app_state, user.username, quota_claim)
+        raise
     raise web.HTTPFound(f"/study/{cloned.id}/{chapter.id}")
 
 
