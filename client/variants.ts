@@ -396,6 +396,7 @@ export interface Variant {
     readonly _tooltip: string;
     readonly tooltip: string;
     readonly chess960: boolean;
+    readonly randomStart: boolean;
     readonly aiDisabled: boolean;
     readonly twoBoards: boolean;
     readonly ratingEnabled: boolean;
@@ -497,6 +498,7 @@ export function variant(config: VariantConfig): Variant {
             return _(this._tooltip);
         },
         chess960: !!config.chess960,
+        randomStart: !!config.randomStart,
         aiDisabled: !!config.aiDisabled,
         twoBoards: !!config.twoBoards,
         ratingEnabled: config.ratingEnabled ?? true,
@@ -605,6 +607,8 @@ interface VariantConfig {
     startFen: string;
     // Whether it is possible to play a randomized starting position (default: false)
     chess960?: boolean;
+    // Community variants can always randomize new games without exposing a second variant key.
+    randomStart?: boolean;
     // Whether Fairy-Stockfish AI is temporarily disabled for this catalogued variant
     aiDisabled?: boolean;
     // Identity metadata used to gate automatic NNUE for user-defined variants.
@@ -2075,6 +2079,7 @@ export interface CataloguedVariantClientDocument {
     // better represented by a different first-class variant.
     readonly premoveVariant?: string;
     readonly startFen: string;
+    readonly randomStart?: boolean;
     readonly width: number;
     readonly height: number;
     readonly pieces: cg.Letter[];
@@ -2787,6 +2792,8 @@ export function registerCataloguedVariant(meta: CataloguedVariantClientDocument)
     VARIANTS[meta.name] = variant({
         name: meta.name,
         displayName: meta.displayName || meta.name,
+        display960: '',
+        randomStart: !!meta.randomStart,
         tooltip: meta.tooltip || 'Catalogued variant',
         aiDisabled: !!meta.aiDisabled,
         cataloguedSource: meta.source,
@@ -3082,10 +3089,17 @@ export function validVariant(variant: string): string {
 }
 
 export function splitVariantKey(variantKey: string): { base: string; chess960: boolean } {
+    if (isCataloguedVariant(variantKey)) {
+        return { base: variantKey, chess960: VARIANTS[variantKey].randomStart };
+    }
     if (variantKey.endsWith('960')) {
         return { base: variantKey.slice(0, -3), chess960: true };
     }
     return { base: variantKey, chess960: false };
+}
+
+export function variantKey(name: string, chess960: boolean): string {
+    return name + (chess960 && !isCataloguedVariant(name) ? '960' : '');
 }
 
 export function getVariantByKey(variantKey: string): Variant {

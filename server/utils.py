@@ -82,7 +82,14 @@ from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
 from settings import URI
 from sse_utils import consume_sse_queue
-from variants import C2V, GRANDS, TWO_BOARD_VARIANT_CODES, get_server_variant, is_catalogued_variant
+from variants import (
+    C2V,
+    GRANDS,
+    TWO_BOARD_VARIANT_CODES,
+    catalogued_variant_random_start,
+    get_server_variant,
+    is_catalogued_variant,
+)
 
 log = logging.getLogger(__name__)
 USERNAME_PREFIX_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
@@ -533,8 +540,13 @@ async def import_game(request):
         app_state.users[bp] = bplayer
 
     variant = data.get("Variant", "chess").lower()
-    chess960 = variant.endswith("960")
-    variant = variant.removesuffix("960")
+    chess960 = (
+        catalogued_variant_random_start(variant)
+        if is_catalogued_variant(variant)
+        else variant.endswith("960")
+    )
+    if not is_catalogued_variant(variant):
+        variant = variant.removesuffix("960")
     if variant == "caparandom":
         variant = "capablanca"
         chess960 = True
@@ -1393,7 +1405,9 @@ def pgn(doc):
         doc["i"],
         doc["p0"]["e"] if "p0" in doc else "?",
         doc["p1"]["e"] if "p1" in doc else "?",
-        variant.capitalize() if not chess960 else VARIANT_960_TO_PGN[variant],
+        variant.capitalize()
+        if not chess960 or is_catalogued_variant(variant)
+        else VARIANT_960_TO_PGN[variant],
         moves,
         C2R[doc["r"]],
         fen="" if no_setup else '[FEN "%s"]\n' % setup_fen,

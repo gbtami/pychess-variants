@@ -162,6 +162,21 @@ describe('Study PGN export', () => {
         expect(pgn).not.toContain('PyChessVariantIni');
     });
 
+    test('exports a community 960 snapshot under its exact engine name', () => {
+        const pgn = renderStudyChapterPgn(
+            study,
+            chapter({
+                variant: 'pawnsideways960',
+                chess960: true,
+                variantIni: '[pawnsideways960:pawnsideways]\nchess960 = true',
+            }),
+        );
+        expect(pgn).toContain('[Variant "pawnsideways960"]');
+        expect(pgn).toContain('[PyChessVariant "pawnsideways960"]');
+        expect(pgn).toContain('[PyChessChess960 "1"]');
+        expect(pgn).not.toContain('pawnsideways960960');
+    });
+
     test('sorts chapters for a multi-PGN Study export', () => {
         const second = chapter({ id: 'chapter2', name: 'Second', order: 2, tree: { nodes: [] } });
         const first = chapter({ id: 'chapter1', name: 'First', order: 1, tree: { nodes: [] } });

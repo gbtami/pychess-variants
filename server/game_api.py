@@ -35,7 +35,7 @@ from settings import ADMINS
 from sse_utils import consume_sse_queue, enqueue_sse_payload
 from tournament.tournaments import get_tournament_name, load_tournament
 from utils import pgn
-from variants import C2V, GRANDS, VARIANTS, get_server_variant
+from variants import C2V, GRANDS, VARIANTS, get_server_variant, is_catalogued_variant
 
 log = logging.getLogger(__name__)
 
@@ -200,7 +200,8 @@ def variant_counts_from_docs(
         variant = (
             variant_code
             if variant_name is None
-            else variant_name + ("960" if doc["_id"].get("z", 0) else "")
+            else variant_name
+            + ("960" if doc["_id"].get("z", 0) and not is_catalogued_variant(variant_name) else "")
         )
         if variant not in variant_counts:
             if variant not in _seen_discontinued_variants:
@@ -642,7 +643,7 @@ async def _get_games(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     games = app_state.games.values()
     variant = request.match_info.get("variant")
-    if variant and variant.endswith("960"):
+    if variant and variant.endswith("960") and not is_catalogued_variant(variant):
         chess960 = True
         variant = variant[:-3]
     else:
@@ -681,9 +682,16 @@ async def _get_games(request: web.Request) -> web.StreamResponse:
             }
             for game in games
             if game.status == STARTED
-            and ((game.variant == variant and game.chess960 == chess960) if variant else True)
             and (
-                (f"{game.variant}960" if game.chess960 else game.variant) in allowed_variants
+                (
+                    game.variant == variant
+                    and (is_catalogued_variant(variant) or game.chess960 == chess960)
+                )
+                if variant
+                else True
+            )
+            and (
+                get_server_variant(game.variant, game.chess960).server_name in allowed_variants
                 if allowed_variants is not None
                 else True
             )

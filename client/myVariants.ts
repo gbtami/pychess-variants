@@ -867,6 +867,14 @@ function renderForm(model: PyChessModel): VNode {
                 ? null
                 : h(
                       'p.catalogued-help',
+                      _(
+                          'For randomized Chess960 starts, use a name ending in 960, explicitly set chess960 = true, and use an 8×8 default position with standard chess back ranks and ordinary king/rook castling rules. Custom starting positions are kept as supplied.',
+                      ),
+                  ),
+            editingSystem
+                ? null
+                : h(
+                      'p.catalogued-help',
                       _('Private and unlisted variants are sandbox variants: games are playable but are not saved.'),
                   ),
             editingSystem

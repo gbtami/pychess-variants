@@ -7,7 +7,7 @@ from functools import lru_cache
 from typing import TYPE_CHECKING
 
 from const import CATEGORIES
-from variants import is_catalogued_variant
+from variants import catalogued_variant_random_start, is_catalogued_variant
 
 # -*- coding: utf-8 -*-
 from fairy.ataxx import ATAXX_FENS
@@ -192,6 +192,30 @@ class FairyBoard:
     @staticmethod
     def start_fen(variant: str | None, chess960=False, disabled_fen=""):
         normalized_variant, normalized_chess960 = _normalize_variant_and_chess960(variant, chess960)
+
+        if is_catalogued_variant(normalized_variant):
+            default_fen = sf.start_fen(normalized_variant)
+            if not normalized_chess960 or not catalogued_variant_random_start(normalized_variant):
+                return default_fen
+            # Only replace back ranks and castling rights; keep the variant's
+            # pawns, middle ranks, hands and additional FEN fields intact.
+            fields = default_fen.split()
+            placement, bracket, pockets = fields[0].partition("[")
+            rows = placement.split("/")
+            candidates = list(CHESS960_FENS)
+            random.shuffle(candidates)
+            for rank in candidates:
+                rows[0], rows[-1] = rank, rank.upper()
+                fields[0] = "/".join(rows) + bracket + pockets
+                rights = FILES[rank.rindex("r")] + FILES[rank.index("r")]
+                fields[2] = rights.upper() + rights
+                new_fen = " ".join(fields)
+                if (
+                    fields[0] != disabled_fen.split(" ", 1)[0]
+                    and sf.validate_fen(new_fen, normalized_variant, True) == FEN_OK
+                ):
+                    return new_fen
+            raise ValueError(f"No valid randomized start for {normalized_variant}")
 
         if normalized_chess960 or normalized_variant in RANDOM_START_VARIANTS:
             new_fen = FairyBoard.shuffle_start(normalized_variant)

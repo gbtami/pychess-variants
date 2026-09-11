@@ -14,7 +14,7 @@ from json_utils import json_dumps
 from misc import time_control_str
 from newid import new_id
 from rated_start import can_rate_start
-from variants import get_server_variant, is_catalogued_variant
+from variants import catalogued_variant_random_start, get_server_variant, is_catalogued_variant
 
 log = logging.getLogger(__name__)
 
@@ -182,7 +182,7 @@ class Seek:
         self.fen: str = "" if fen is None else fen
         if is_catalogued_variant(variant):
             rated = False
-            chess960 = False
+            chess960 = catalogued_variant_random_start(variant) and (not self.fen or bool(chess960))
         elif rated and not can_rate_start(
             variant,
             self.fen,
@@ -429,7 +429,7 @@ class Seek:
     @property
     def discord_msg(self) -> str:
         tc = time_control_str(self.base, self.inc, self.byoyomi_period, self.day)
-        tail960 = "960" if self.chess960 else ""
+        tail960 = "960" if self.chess960 and not is_catalogued_variant(self.variant) else ""
         return "%s: **%s%s** %s" % (self.creator.username, self.variant, tail960, tc)
 
     @staticmethod
@@ -570,7 +570,9 @@ async def create_seek(
     if is_catalogued_variant(data["variant"]):
         data = dict(data)  # type: ignore[assignment]
         data["rated"] = False
-        data["chess960"] = False
+        data["chess960"] = catalogued_variant_random_start(data["variant"]) and (
+            not data.get("fen") or bool(data.get("chess960"))
+        )
     day = data.get("day", 0)
     chess960: bool | None = data.get("chess960")
     try:
@@ -722,7 +724,7 @@ def get_seeks(user: User, seeks: Iterable[Seek]) -> list[SeekJson]:
 
 def challenge(seek: Seek) -> str:
     """BOT API stream event response"""
-    perf_name = seek.variant + ("960" if seek.chess960 else "")
+    perf_name = get_server_variant(seek.variant, seek.chess960).server_name
     if seek.day > 0:
         time_control: dict[str, object] = {"type": "correspondence", "daysPerTurn": seek.day}
         speed = "correspondence"

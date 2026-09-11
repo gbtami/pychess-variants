@@ -390,8 +390,8 @@ export class AnalysisController extends GameController {
             copyTextToClipboard(`${this.fullfen};variant ${this.variant.name};site ${model.home}/${this.gameId}\n`),
         );
 
-        const gaugeEl = document.getElementById('gauge') as HTMLElement;
-        if (this.variant.name !== 'racingkings' && this.mycolor === 'black') gaugeEl.classList.add('flipped');
+        const gaugeEl = document.getElementById('gauge');
+        if (this.variant.name !== 'racingkings' && this.mycolor === 'black') gaugeEl?.classList.add('flipped');
 
         this.autoShapes = [];
     }
@@ -754,7 +754,7 @@ export class AnalysisController extends GameController {
         super.toggleOrientation();
         this.pvHoverPreview.onOrientationChange();
         boardSettings.updateDropSuggestion();
-        (document.getElementById('gauge') as HTMLElement).classList.toggle('flipped');
+        document.getElementById('gauge')?.classList.toggle('flipped');
         const clocktimes = this.steps[1]?.clocks;
         if (clocktimes !== undefined) {
             renderClocks(this);

@@ -10,7 +10,13 @@ from catalogued_variants import CATALOGUED_SOURCE_FSF_BUILTIN, find_catalogued_v
 from fairy.fairy_board import FEN_OK, NOTATION_SAN, WHITE, FairyBoard, validate_fen
 from settings import URI
 from utils import MAX_CUSTOM_FEN_LENGTH, load_game, sanitize_fen
-from variants import ALL_VARIANTS, C2V, TWO_BOARD_VARIANT_CODES, is_catalogued_variant
+from variants import (
+    ALL_VARIANTS,
+    C2V,
+    TWO_BOARD_VARIANT_CODES,
+    catalogued_variant_random_start,
+    is_catalogued_variant,
+)
 
 from study.annotations import StudyAnnotations, StudyComment, canonical_tags
 from study.models import StudySource
@@ -186,10 +192,6 @@ class StudyChapterBuilder:
 
         snapshot = variant_ini if isinstance(variant_ini, str) and variant_ini.strip() else None
         if snapshot is not None:
-            if chess960:
-                raise StudyChapterBuildError(
-                    "Embedded custom variant snapshots do not support Chess960"
-                )
             server_variant = ALL_VARIANTS.get(variant)
             if server_variant is not None and not is_catalogued_variant(variant):
                 raise StudyChapterBuildError(
@@ -206,6 +208,10 @@ class StudyChapterBuilder:
                     ),
                 )
                 with study_variant_context(self.app_state, variant, snapshot) as options:
+                    if chess960 and not options.random_start:
+                        raise StudyChapterBuildError(
+                            "Embedded custom variant snapshot does not support randomized Chess960 starts"
+                        )
                     root = self._validated_tree(
                         submitted,
                         variant=variant,
@@ -397,7 +403,7 @@ class StudyChapterBuilder:
         if server_variant.two_boards:
             raise StudyChapterBuildError("Two-board variants are not supported by Study yet")
         if is_catalogued_variant(variant):
-            if chess960:
+            if chess960 and not catalogued_variant_random_start(variant):
                 raise StudyChapterBuildError("Catalogued variants do not support Chess960 mode")
             doc = await find_catalogued_variant_doc(self.app_state, variant, self.owner)
             if doc is None:

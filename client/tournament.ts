@@ -9,7 +9,7 @@ import { patch } from './document';
 import { alertDialog } from './alertDialog';
 import { chatMessage, chatView, ChatController } from './chat';
 import { colorIcon } from './chess';
-import { getLastMoveFen, VARIANTS, Variant } from './variants';
+import { getLastMoveFen, VARIANTS, Variant, variantKey } from './variants';
 import { timeControlStr } from './view';
 import { initializeClock, localeOptions, syncTournamentStartAlerts } from './tournamentClock';
 import { tournamentLifecycleView } from './tournamentLifecycle';
@@ -1187,7 +1187,7 @@ export function tournamentView(model: PyChessModel): VNode[] {
                                 {
                                     attrs: {
                                         target: '_blank',
-                                        href: '/variants/' + model['variant'] + (chess960 ? '960' : ''),
+                                        href: '/variants/' + variantKey(model.variant, chess960),
                                     },
                                 },
                                 variant.displayName(chess960),

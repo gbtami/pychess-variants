@@ -1,4 +1,5 @@
 import type { FairyStockfish } from 'ffish-es6';
+import { isCataloguedVariant, VARIANTS } from './variants';
 
 const FEN_VALIDATION_ERRORS: Record<number, string> = {
     [-14]: 'Invalid counting rule field',
@@ -98,6 +99,9 @@ export interface PgnVariantInfo {
 export function parsePgnVariantTag(rawVariant: string): PgnVariantInfo {
     const raw = rawVariant || 'chess';
     let variant = raw.toLowerCase();
+    if (isCataloguedVariant(variant)) {
+        return { variant, chess960: VARIANTS[variant].randomStart, raw };
+    }
     let chess960 = variant.includes('960') || variant.includes('random');
 
     variant = variant.endsWith('960') ? variant.slice(0, -3) : variant;

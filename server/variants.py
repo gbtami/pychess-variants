@@ -57,6 +57,7 @@ class CataloguedServerVariant:
     translated_name: str
     icon: str = CATALOGUED_VARIANT_ICON
     chess960: bool = False
+    random_start: bool = False
     grand: bool = False
     byo: bool = False
     two_boards: bool = False
@@ -270,6 +271,7 @@ def register_catalogued_server_variant(
     show_promoted: bool = False,
     legal_moves_need_history: bool = False,
     n_fold_is_draw: bool = False,
+    random_start: bool = False,
 ) -> CataloguedServerVariant:
     """Register a casual uploaded variant in the runtime server variant maps.
 
@@ -288,6 +290,7 @@ def register_catalogued_server_variant(
         show_promoted=show_promoted,
         legal_moves_need_history=legal_moves_need_history,
         n_fold_is_draw=n_fold_is_draw,
+        random_start=random_start,
         move_encoding=(
             encode_move_duck
             if arrowing
@@ -334,6 +337,11 @@ def unregister_catalogued_server_variant(name: str) -> None:
 
 def is_catalogued_variant(name: str | None) -> bool:
     return bool(name) and name in CATALOGUED_VARIANTS
+
+
+def catalogued_variant_random_start(name: str) -> bool:
+    variant = CATALOGUED_VARIANTS.get(name)
+    return variant is not None and variant.random_start
 
 
 def is_catalogued_variant_code(code: str | None) -> bool:

@@ -5,6 +5,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Any
 
+from catalogued_rules import catalogued_random_start
 from catalogued_variants import (
     CATALOGUED_SOURCE_USER,
     CATALOGUED_VARIANT_COLLECTION,
@@ -26,6 +27,7 @@ class StudyVariantOptions:
     runtime_variant: str
     show_promoted: bool = False
     legal_moves_need_history: bool = False
+    random_start: bool = False
 
 
 class StudyVariantCapacityError(RuntimeError):
@@ -132,6 +134,12 @@ def study_variant_context(
 
     if _same_variant_rules(active_ini, variant_ini):
         runtime_variant = variant
+        random_start = catalogued_random_start(
+            variant_ini,
+            str(active_doc.get("startFen") or ""),
+            int(active_doc.get("width") or 0),
+            int(active_doc.get("height") or 0),
+        )
         show_promoted = (
             bool(active_doc.get("showPromoted", False))
             if isinstance(active_doc, Mapping)
@@ -141,11 +149,18 @@ def study_variant_context(
         validated = _snapshot_validation(variant_ini)
         runtime_variant = validated.name
         show_promoted = validated.show_promoted
+        random_start = catalogued_random_start(
+            variant_ini,
+            validated.start_fen,
+            validated.width,
+            validated.height,
+        )
 
     yield StudyVariantOptions(
         runtime_variant=runtime_variant,
         show_promoted=show_promoted,
         legal_moves_need_history=catalogued_legal_moves_need_history(variant_ini),
+        random_start=random_start,
     )
 
 
@@ -247,6 +262,7 @@ def study_variant_client_doc(
         "ini": variant_ini,
         "baseVariant": base_variant,
         "startFen": start_fen,
+        "randomStart": catalogued_random_start(variant_ini, start_fen, width, height),
         "width": width,
         "height": height,
         "pieces": pieces,

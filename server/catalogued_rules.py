@@ -27,7 +27,7 @@ class CataloguedRuleSummary(TypedDict):
 
 
 RULE_SUMMARY_CACHE_SIZE = 512
-RULE_SUMMARY_GENERATOR_VERSION = 2
+RULE_SUMMARY_GENERATOR_VERSION = 3
 
 
 @dataclass
@@ -295,6 +295,42 @@ def _negative_bool_value(value: str | None) -> bool:
     return str(value or "").strip().casefold() in {"false", "no", "0", "off"}
 
 
+def catalogued_random_start(ini: str, start_fen: str, width: int, height: int) -> bool:
+    """Recognize the restricted community convention for randomized Chess960 starts.
+
+    Engine castling support alone does not opt into randomization. Keep fixed
+    layouts and custom castling/setup rules outside this convention.
+    """
+    parsed = parse_catalogued_ini(ini)
+    if not parsed.name.endswith("960") or not _bool_value(parsed.option("chess960")):
+        return False
+    fields = start_fen.split()
+    if (width, height) != (8, 8) or len(fields) < 6:
+        return False
+    rows = fields[0].split("[", 1)[0].split("/")
+    if len(rows) != 8 or rows[0] != "rnbqkbnr" or rows[-1] != "RNBQKBNR":
+        return False
+    if fields[2] not in ("KQkq", "HAha", "AHah"):
+        return False
+    if parsed.has("castling") and not _bool_value(parsed.option("castling")):
+        return False
+    for key, value in parsed.items():
+        key = key.casefold()
+        if key.startswith("castling") and key != "castling":
+            return False
+        if key in {"gating", "seirawangating", "cambodianmoves", "oppositecastling"} and _bool_value(value):
+            return False
+        if key in {"king", "rook"} and value.casefold() != {"king": "k", "rook": "r"}[key]:
+            return False
+        if key in PIECE_OPTION_NAMES and key not in {"king", "rook"} and value.casefold() in {"k", "r"}:
+            return False
+        if key == "piecetochartable":
+            return False
+        if key.startswith("custompiece") and value.split(":", 1)[0].strip().casefold() in {"k", "r"}:
+            return False
+    return True
+
+
 def _join_values(values: list[str]) -> str:
     if not values:
         return ""
@@ -477,6 +513,11 @@ def _board_setup_lines(parsed: ParsedCataloguedIni, doc: Mapping[str, Any]) -> l
 
     if _bool_value(parsed.option("chess960")):
         _add(lines, "The variant supports Chess960-style castling.", "chess960", "true")
+    if catalogued_random_start(
+        str(doc.get("ini") or ""), str(doc.get("startFen") or ""),
+        int(doc.get("width") or 0), int(doc.get("height") or 0),
+    ):
+        _add(lines, "Games use a randomized Chess960 starting position.", "chess960", "true")
 
     if _bool_value(parsed.option("twoBoards")):
         _add(lines, "Pocket pieces can arrive from another board, as in bughouse-style variants.", "twoBoards", "true")

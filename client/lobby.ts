@@ -22,6 +22,7 @@ import {
     splitVariantKey,
     Variant,
     variantGroups,
+    variantKey,
 } from './variants';
 import { timeControlStr, changeTabs, setAriaTabClick } from './view';
 import { notify } from './notification';
@@ -534,7 +535,7 @@ export class LobbyController {
         localStorage.seek_rating_max = e.value;
 
         e = document.getElementById('chess960') as HTMLInputElement;
-        const chess960 = !catalogued && variant.chess960 && fen.trim() === '' ? e.checked : false;
+        const chess960 = fen.trim() === '' && (catalogued ? variant.randomStart : variant.chess960 && e.checked);
         localStorage.seek_chess960 = e.checked;
 
         // console.log("CREATE SEEK variant, color, fen, minutes, increment, hide, chess960", variant, color, fen, minutes, increment, chess960, rated, rrMin, rrMax);
@@ -1517,7 +1518,7 @@ export class LobbyController {
 
     private leadersView(msg: MsgLeaderboard): VNode {
         const filtered = msg.items.filter((entry: LeaderboardEntry) =>
-            this.isVariantAllowed(entry.variant + (entry.chess960 ? '960' : '')),
+            this.isVariantAllowed(variantKey(entry.variant, entry.chess960)),
         );
         const rows = filtered
             .map((entry: LeaderboardEntry) => {
@@ -1543,7 +1544,7 @@ export class LobbyController {
 
     private winnersView(msg: MsgTournamentWinners): VNode {
         const filtered = msg.items.filter((entry: TournamentWinnerEntry) =>
-            this.isVariantAllowed(entry.variant + (entry.chess960 ? '960' : '')),
+            this.isVariantAllowed(variantKey(entry.variant, entry.chess960)),
         );
         const rows = filtered
             .map((entry: TournamentWinnerEntry) => {

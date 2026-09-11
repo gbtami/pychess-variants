@@ -16,6 +16,22 @@ test_logger.init_test_logger()
 
 
 class FairyBoardVariantNameTestCase(unittest.TestCase):
+    def test_community_random_start_preserves_the_rest_of_the_default_fen(self):
+        name = "testpocket960"
+        fen = "rnbqkbnr/pppppppp/8/8/8/P7/1PPPPPPP/RNBQKBNR[] b KQkq - 7 12"
+        sf.load_variant_config(f"[{name}:crazyhouse]\nchess960 = true\nstartFen = {fen}\n")
+        register_catalogued_server_variant(name, name, random_start=True)
+        self.addCleanup(unregister_catalogued_server_variant, name)
+        generated = FairyBoard.start_fen(name, True)
+        expected_fields = fen.split()
+        actual_fields = generated.split()
+        self.assertEqual(actual_fields[0].split("/")[1:-1], expected_fields[0].split("/")[1:-1])
+        self.assertTrue(actual_fields[0].endswith("[]"))
+        self.assertEqual(actual_fields[1], expected_fields[1])
+        self.assertEqual(actual_fields[3:], expected_fields[3:])
+        self.assertEqual(sf.validate_fen(generated, name, True), sf.FEN_OK)
+        self.assertEqual(FairyBoard.start_fen(name), fen)
+
     def test_site_960_suffix_still_selects_randomized_base_variant(self):
         for variant in ServerVariants:
             if not variant.chess960:

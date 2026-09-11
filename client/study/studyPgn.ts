@@ -1,6 +1,7 @@
 import type { Step } from '../messages';
 import { GLYPH_GROUPS } from '../analysis/glyphs';
 import { encodePgnUtf8Base64 } from '../pgn';
+import { variantKey } from '../variants';
 import { renderFullTreePgnMoveText, type AnalysisAnnotations, type AnalysisTreeNode } from '../analysis/analysisTree';
 import { analysisTreeFromStudy, type StudyTreeDto } from './studyTree';
 
@@ -59,7 +60,7 @@ function rootTurnColor(initialFen: string): Step['turnColor'] {
 }
 
 function variantTag(chapter: StudyPgnChapterData): string {
-    return `${chapter.variant}${chapter.chess960 ? '960' : ''}`;
+    return chapter.variantIni ? chapter.variant : variantKey(chapter.variant, chapter.chess960);
 }
 
 function chapterResult(chapter: StudyPgnChapterData): string {

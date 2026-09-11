@@ -6,7 +6,7 @@ import { aiLevel, gameType, renderRdiff } from './result';
 import { timeago } from './datetime';
 import { alternateStartName, timeControlStr } from './view';
 import { PyChessModel } from './types';
-import { VARIANTS } from './variants';
+import { VARIANTS, variantKey } from './variants';
 import { displayUsername, userLink } from './user';
 
 export function gameInfo(model: PyChessModel): VNode {
@@ -28,7 +28,7 @@ export function gameInfo(model: PyChessModel): VNode {
                             {
                                 attrs: {
                                     target: '_blank',
-                                    href: '/variants/' + model['variant'] + (chess960 ? '960' : ''),
+                                    href: '/variants/' + variantKey(model.variant, chess960),
                                 },
                             },
                             variant.displayName(chess960),

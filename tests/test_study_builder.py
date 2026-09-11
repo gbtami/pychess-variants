@@ -42,6 +42,37 @@ class StudyChapterBuilderTestCase(unittest.IsolatedAsyncioTestCase):
         with self.assertRaisesRegex(StudyChapterBuildError, "Invalid FEN"):
             await self.builder.blank_or_fen(variant="chess", fen="not a fen")
 
+    async def test_randomized_community_game_position_can_be_imported_with_snapshot(self) -> None:
+        name = "studysideways960"
+        ini = f"[{name}:pawnsideways]\nchess960 = true"
+        default = FairyBoard.start_fen("chess")
+        metadata = {
+            "name": name,
+            "ini": ini,
+            "startFen": default,
+            "width": 8,
+            "height": 8,
+            "visibility": "public",
+        }
+        register_catalogued_variant_doc(self.app_state, metadata)
+        self.addCleanup(unregister_catalogued_server_variant, name)
+        fen = "rnkrqbbn/pppppppp/8/8/8/8/PPPPPPPP/RNKRQBBN w DAda - 0 1"
+        draft = await self.builder.from_import(
+            variant=name,
+            initial_fen=fen,
+            chess960=True,
+            variant_ini=ini,
+            tree_payload={"nodes": []},
+        )
+        self.assertEqual(draft.variant, name)
+        self.assertEqual(draft.initial_fen, fen)
+        self.assertTrue(draft.chess960)
+        self.assertEqual(draft.variant_ini, ini)
+        with patch("study.builder.find_catalogued_variant_doc", AsyncMock(return_value=metadata)):
+            custom = await self.builder.blank_or_fen(variant=name, fen=fen, chess960=True)
+        self.assertEqual(custom.initial_fen, fen)
+        self.assertTrue(custom.chess960)
+
     async def test_analysis_tree_is_replayed_authoritatively(self) -> None:
         root_fen = FairyBoard.start_fen("chess")
         submitted = {

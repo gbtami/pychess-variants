@@ -3,7 +3,7 @@ import { h } from 'snabbdom';
 import { _ } from '../i18n';
 import { createModeStr, LobbyController } from '../lobby';
 import { patch } from '../document';
-import { Variant, VARIANTS } from '../variants';
+import { Variant, VARIANTS, variantKey } from '../variants';
 import { variantBoard } from './util';
 import { layer2chess } from './layer2chess';
 import { layer2fairy } from './layer2fairy';
@@ -97,7 +97,7 @@ export function layer3variant(container2Id: string, lobbyCtrl: LobbyController, 
                 {
                     class: { icon: true, 'icon-book': true },
                     attrs: {
-                        href: lobbyCtrl.home + '/variants/' + variant.name + (chess960 ? '960' : ''),
+                        href: lobbyCtrl.home + '/variants/' + variantKey(variant.name, chess960),
                         target: '_blank',
                     },
                 },

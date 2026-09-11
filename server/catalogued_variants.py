@@ -18,7 +18,7 @@ import aiohttp_session
 from aiohttp import web
 from catalogued_betza import catalogued_betza_diagrams, catalogued_betza_pieces
 from catalogued_board import catalogued_start_board_preview
-from catalogued_rules import catalogued_rule_summary
+from catalogued_rules import catalogued_random_start, catalogued_rule_summary
 from compress import MAX_COMPRESSED_BOARD_HEIGHT, MAX_COMPRESSED_BOARD_WIDTH
 from const import ANON_PREFIX, STARTED, T_STARTED
 from fairy.fairy_board import sf
@@ -1177,6 +1177,7 @@ class CataloguedVariantClientDocument(TypedDict):
     clientVariant: NotRequired[str]
     premoveVariant: NotRequired[str]
     startFen: str
+    randomStart: NotRequired[bool]
     width: int
     height: int
     pieces: list[str]
@@ -2961,6 +2962,9 @@ def _client_doc(
         "ini": ini,
         "baseVariant": base_variant or (extract_variant_base_name(ini) if ini else ""),
         "startFen": start_fen,
+        "randomStart": catalogued_random_start(
+            ini, start_fen, int(doc["width"]), int(doc["height"])
+        ),
         "width": int(doc["width"]),
         "height": int(doc["height"]),
         "pieces": pieces,
@@ -3333,6 +3337,7 @@ def register_catalogued_variant_doc(
     register_catalogued_server_variant(
         name,
         str(doc.get("displayName") or name),
+        random_start=catalogued_random_start(ini, start_fen, width, height),
         grand=_catalogued_grand_from_dimensions(width, height),
         extended_move_codec=_catalogued_extended_move_codec_from_dimensions(width, height),
         arrowing=bool(doc.get("rulesArrowing", False)),
@@ -3371,6 +3376,7 @@ def register_historical_catalogued_variant_doc(doc: Mapping[str, Any]) -> None:
     register_catalogued_server_variant(
         name,
         str(doc.get("displayName") or doc.get("vd") or name),
+        random_start=catalogued_random_start(ini, start_fen, width, height),
         grand=_catalogued_grand_from_dimensions(width, height),
         extended_move_codec=_catalogued_extended_move_codec_from_dimensions(width, height),
         arrowing=bool(doc.get("rulesArrowing", False)),
