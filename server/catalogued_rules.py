@@ -295,13 +295,9 @@ def _negative_bool_value(value: str | None) -> bool:
     return str(value or "").strip().casefold() in {"false", "no", "0", "off"}
 
 
-def catalogued_random_start(ini: str, start_fen: str, width: int, height: int) -> bool:
-    """Recognize the restricted community convention for randomized Chess960 starts.
-
-    Engine castling support alone does not opt into randomization. Keep fixed
-    layouts and custom castling/setup rules outside this convention.
-    """
-    parsed = parse_catalogued_ini(ini)
+def _catalogued_random_start_from_parsed(
+    parsed: ParsedCataloguedIni, start_fen: str, width: int, height: int
+) -> bool:
     if not parsed.name.endswith("960") or not _bool_value(parsed.option("chess960")):
         return False
     fields = start_fen.split()
@@ -329,6 +325,17 @@ def catalogued_random_start(ini: str, start_fen: str, width: int, height: int) -
         if key.startswith("custompiece") and value.split(":", 1)[0].strip().casefold() in {"k", "r"}:
             return False
     return True
+
+
+def catalogued_random_start(ini: str, start_fen: str, width: int, height: int) -> bool:
+    """Recognize the restricted community convention for randomized Chess960 starts.
+
+    Engine castling support alone does not opt into randomization. Keep fixed
+    layouts and custom castling/setup rules outside this convention.
+    """
+    return _catalogued_random_start_from_parsed(
+        parse_catalogued_ini(ini), start_fen, width, height
+    )
 
 
 def _join_values(values: list[str]) -> str:
@@ -513,9 +520,11 @@ def _board_setup_lines(parsed: ParsedCataloguedIni, doc: Mapping[str, Any]) -> l
 
     if _bool_value(parsed.option("chess960")):
         _add(lines, "The variant supports Chess960-style castling.", "chess960", "true")
-    if catalogued_random_start(
-        str(doc.get("ini") or ""), str(doc.get("startFen") or ""),
-        int(doc.get("width") or 0), int(doc.get("height") or 0),
+    if _catalogued_random_start_from_parsed(
+        parsed,
+        str(doc.get("startFen") or ""),
+        int(doc.get("width") or 0),
+        int(doc.get("height") or 0),
     ):
         _add(lines, "Games use a randomized Chess960 starting position.", "chess960", "true")
 

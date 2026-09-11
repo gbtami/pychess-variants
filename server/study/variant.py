@@ -152,8 +152,8 @@ def study_variant_context(
         random_start = catalogued_random_start(
             variant_ini,
             validated.start_fen,
-            validated.width,
-            validated.height,
+            int(getattr(validated, "width", 0) or 0),
+            int(getattr(validated, "height", 0) or 0),
         )
 
     yield StudyVariantOptions(
