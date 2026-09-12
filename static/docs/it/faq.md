@@ -42,8 +42,6 @@ Controlla la [pagina Impara](https://www.pychess.org/variants). Inoltre, mentre 
 
 *Come scegliete quali varianti aggiungere?*
 
-Major regional variants have high precedence. For western chess variants, often the most popular or well-known variants are added. However, there are still some that can't be added. Pychess relies on Fairy-Stockfish to support the variant, as our code also depends on Fairy-Stockfish for move validation. This also means no variants that aren't supported by Fairy-Stockfish can be on Pychess.
-
 Le varianti regionali più importanti hanno la precedenza. Per le varianti scacchistiche occidentali, spesso vengono aggiunte le varianti più popolari o conosciute. Tuttavia, ce ne sono ancora alcune che non possono essere aggiunte. Pychess si basa su Fairy-Stockfish per supportare la variante, visto che il nostro codice dipende anche da Fairy-Stockfish per la validazione delle mosse. Questo significa anche che nessuna variante che non sia supportata da Fairy-Stockfish può essere presente su Pychess.
 
 *Potete aggiungere lo Shatranj?*
