@@ -14,7 +14,7 @@ Unlike Shogi, there are quite a few pieces that don't promote. This includes the
 
 All pieces that are capable of promoting are typically represented by their head. Once they promote, they appear as a full (or almost full) Yokai.
 
-Half of the piecees drawings employ implicit movement guides. The Yokai will typically point to where they can go. Other pieces uses explicit movement guides. For example, the Kitsune and Tanuki both have symbols behind the characters showing where they can attack. Yurei and Tengu also employ little symbols to tip you off to their movement.
+Half of the pieces' drawings employ implicit movement guides. The Yokai will typically point to where they can go. Other pieces use explicit movement guides. For example, the Kitsune and Tanuki both have symbols behind the characters showing where they can attack. Yurei and Tengu also employ little symbols to tip you off to their movement.
 
 
 ### Onmyoji (K)
