@@ -72,7 +72,7 @@ Estes são os controles de relógio definidos na partida. Por defeito usamos o s
 
 *O que significa o (b) em "5+3(b)"?*
 
-O b tem como significado o byo-yomi, é um relógio de incremento um bocado diferente, e só é usado para determinadas variantes (ex: Shogi e Janggi). Cada jogador tem um tempo definido como reserva (5 minutos neste exemplo) e após este ser esgotado, o jogador só tem períodos byo-yomi definidos para o resto dos seus lances até perderem a partirda. Neste exemplo isto significa que é 3 segundos por lance. Tipicamente em Byo-yomi são usados mais do que 3 segundos de reserva... normalmente entre 10 a 30 segundos.
+O b tem como significado o byo-yomi, é um relógio de incremento um bocado diferente, e só é usado para determinadas variantes (ex: Shogi e Janggi). Cada jogador tem um tempo definido como reserva (5 minutos neste exemplo) e após este ser esgotado, o jogador só tem períodos byo-yomi definidos para o resto dos seus lances até perderem a partida. Neste exemplo isto significa que é 3 segundos por lance. Tipicamente em Byo-yomi são usados mais do que 3 segundos de reserva... normalmente entre 10 a 30 segundos.
 
 *O que é o Random-Mover?*
 
