@@ -118,6 +118,7 @@ log = logging.getLogger(__name__)
 GAME_KEEP_TIME = 1800  # keep game in app[games_key] for GAME_KEEP_TIME secs
 TOURNAMENT_KEEP_TIME = 5 * 60  # retain an idle finished tournament after its last access
 TOURNAMENT_ACTIVE_RECHECK_INTERVAL = 60  # never evict while a viewer socket is active
+GAME_ACTIVE_RECHECK_INTERVAL = 60  # nor a game, while a player or spectator is attached to it
 REGISTERED_USER_CACHE_TTL = 30 * 60
 REGISTERED_USER_CACHE_SWEEP_INTERVAL = 5 * 60
 TOURNAMENT_EFFECT_RECOVERY_DELAY = 60
@@ -1027,19 +1028,31 @@ class PychessGlobalAppState:
         self.game_remove_tasks.pop(game.id, None)
         await self._evict_game_from_cache(game)
 
+    def game_is_held(self, game: Game | GameBug) -> bool:
+        """Is anything still using this game, so its cache entry must stay?
+
+        Both eviction paths ask this. The immediate path below has always refused to evict a game
+        whose players or spectators are still connected; the scheduled path used to sleep out the
+        keep time and then evict regardless. One shared predicate is what keeps them from drifting
+        apart again, and that drift had a user-visible cost: see `remove_from_cache()`.
+        """
+        from fishnet import has_pending_analysis_work_for_game
+
+        if has_pending_analysis_work_for_game(self, game.id):
+            return True
+
+        if any(player.is_user_active_in_game(game.id) for player in game.non_bot_players):
+            return True
+
+        return any(
+            spectator.is_user_active_in_game(game.id) for spectator in tuple(game.spectators)
+        )
+
     async def maybe_remove_finished_game_from_cache_now(self, game: Game | GameBug) -> None:
         if game.status <= STARTED or game.id not in self.games:
             return
 
-        from fishnet import has_pending_analysis_work_for_game
-
-        if has_pending_analysis_work_for_game(self, game.id):
-            return
-
-        if any(player.is_user_active_in_game(game.id) for player in game.non_bot_players):
-            return
-
-        if any(spectator.is_user_active_in_game(game.id) for spectator in tuple(game.spectators)):
+        if self.game_is_held(game):
             return
 
         await self.remove_game_from_cache_now(game)
@@ -1062,6 +1075,29 @@ class PychessGlobalAppState:
 
     async def remove_from_cache(self, game):
         await asyncio.sleep(LOCALHOST_CACHE_KEEP_TIME if URI == LOCALHOST else GAME_KEEP_TIME)
+
+        # The keep time is not the whole rule: an audience holds the entry.
+        #
+        # Why it matters. `round_socket_handler` resolves the game once, when the socket opens, and
+        # holds that reference for the life of the connection. Evicting while sockets are still
+        # attached means the next client to connect finds nothing cached, loads the document, and
+        # gets a SECOND object for the same game. Sockets from either side of the eviction then
+        # operate on different instances, and any state that accumulates on the game object
+        # diverges with them -- `rematch_offers` most visibly, since every player's request lands on
+        # whichever instance their own socket holds. The offers still reach every client, because
+        # they are broadcast through the shared `User` objects rather than through the game, so the
+        # players see each other agreeing while no set ever reaches the number needed to start the
+        # rematch. Observed with a four-player bughouse game, where four participants make the split
+        # easy to hit, but nothing about it is variant-specific.
+        #
+        # Deferred, not dropped: a game whose viewers all leave still has to be released, or the
+        # cache grows without bound, so this re-asks on an interval -- the shape
+        # `TOURNAMENT_ACTIVE_RECHECK_INTERVAL` already uses for tournaments. The loop also ends if
+        # something else evicted the game meanwhile, so a deferred task cannot outlive the entry it
+        # was armed for and go on holding a reference to it.
+        while game.id in self.games and self.game_is_held(game):
+            await asyncio.sleep(GAME_ACTIVE_RECHECK_INTERVAL)
+
         await self._evict_game_from_cache(game)
 
     @staticmethod
