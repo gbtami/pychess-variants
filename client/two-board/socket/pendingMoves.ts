@@ -120,10 +120,20 @@ export function reconcilePendingMove(gameId: string, board: BugBoardName, lastMo
     writeStoredPendingMoves(gameId, stored);
 }
 
-/** Forgets everything cached for this game. Called when the game ends, which is what finally
- * bounds the cache: a finished game can never accept a resend, so whatever is left — an entry the
- * server silently deduplicated, a move made as the result arrived — is dead weight, and the key
- * itself goes with it. */
+/** Forgets everything cached for THIS game. Called when the game ends: a finished game can never
+ * accept a resend, so whatever is left — an entry the server silently deduplicated, a move made as
+ * the result arrived — is dead weight, and the key itself goes with it.
+ *
+ * IT DOES NOT BOUND THE CACHE AS A WHOLE, and this comment used to claim it did. It runs from
+ * `gameEnded()`, so it needs a page open on the game at the moment the game ends; nothing here
+ * looks at any key but its own, so a game that ended while the reader was elsewhere keeps its entry.
+ *
+ * ACCEPTED, MEASURED 2026-09-12. The entry needs a move that was never confirmed, a page that left
+ * before the end, and a reader who never opens that game again — reopening it clears the entry
+ * either by `reconcilePendingMove()` on the snapshot or by this function on the final status. An
+ * orphan is ~150 bytes against a multi-megabyte quota, and it can never be resent into another game
+ * because every read is keyed by game id. A sweep was proposed and declined as more machinery than
+ * the residue is worth. */
 export function clearPendingMoves(gameId: string): void {
     writeStoredPendingMoves(gameId, {});
 }

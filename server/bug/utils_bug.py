@@ -81,19 +81,6 @@ async def init_players(app_state: PychessGlobalAppState, wp_a, bp_a, wp_b, bp_b)
     return [wplayer_a, bplayer_a, wplayer_b, bplayer_b]
 
 
-async def load_game_bug(app_state: PychessGlobalAppState, game_id, *, cache_finished: bool = True):
-    """Return GameBug object from app cache or from database."""
-    if game_id in app_state.games:
-        return app_state.games[game_id]
-
-    log.debug("load_game_bug from db ")
-    doc = await app_state.db.game.find_one({"_id": game_id})
-    if doc is None:
-        return None
-
-    return await load_game_bug_from_doc(app_state, doc, cache_finished=cache_finished)
-
-
 async def load_game_bug_from_doc(
     app_state: PychessGlobalAppState, doc, *, cache_finished: bool = True
 ):
@@ -281,6 +268,29 @@ async def load_game_bug_from_doc(
             # mover is white on a board's 1st, 3rd, 5th... move, so the parity of that board's
             # counter — read BEFORE it is incremented below — gives the colour that just moved.
             mover_color = WHITE if board_ply[board_name] % 2 == 0 else BLACK
+
+            # THE MAP THAT LETS A RESENT MOVE BE IGNORED, REBUILT RATHER THAN LOST.
+            #
+            # `play_move()` consults `lastmovePerBoardAndUser[board][username]` to recognise a move
+            # a player has already made, which is what a reconnect payload resends. It lives only
+            # in memory, so a restarted server used to answer the same resend differently: not with
+            # the quiet "already played" of branch 1.2.3.2, but by handing the move to the engine,
+            # which refuses it because the position already contains it, and then resyncing that
+            # client — branch 1.2.3.4. Both endings leave the client in step, which is why the
+            # scenario bed passes either way; what could not stand is that the answer depended on
+            # nothing but whether the server happened to have restarted.
+            #
+            # THE SEAT IS DERIVED THE SAME WAY `play_move()` DERIVES IT, from the colour to move on
+            # that board — here from this board's ply parity, which is the same fact one move
+            # earlier. Assigned on every ply because only the last one per player survives, which
+            # is exactly what the map holds.
+            mover = (
+                (game.wplayerA if mover_color == WHITE else game.bplayerA)
+                if board_name == "a"
+                else (game.wplayerB if mover_color == WHITE else game.bplayerB)
+            )
+            game.lastmovePerBoardAndUser[board_name][mover.username] = move
+
             mover_clocks = step["clocks"] if board_name == "a" else step["clocksB"]
             if mover_clocks[mover_color] is not None:
                 restored_last_move_clocks[board_name][mover_color] = mover_clocks[mover_color]

@@ -144,6 +144,22 @@ class GameBug:
         # `resign_offer` is the username of the player who asked their partner to resign.
         # One name gives both facts needed: which team is resigning, and which of the two
         # is the one who may confirm (the other one).
+        #
+        # NEITHER SURVIVES A RESTART, AND THAT IS ACCEPTED — decided 2026-09-12 after
+        # weighing it, so nobody spends an afternoon on it again. An offer is an intention,
+        # not a fact about the position: restoring it would mean persisting intentions in
+        # the document, which it has never held, and the alternative of cancelling offers
+        # whenever a socket drops needs a server-side hook plus a message the clients do
+        # not have — both far past what the case is worth.
+        #
+        # WHAT IT COSTS IS ONE MISREAD PRESS, and it announces itself. A client that lived
+        # through the restart still shows the control; the next move does not clear it
+        # (`cancel_team_offers_on_move` only speaks when this state is set), so the press
+        # comes. Then `handle_draw_bughouse` sees no offer and records a NEW one from the
+        # presser's team, broadcast to all four with `full=True`; `handle_resign_request`
+        # does the same for the team. So the button does the wrong thing exactly once, no
+        # game ends wrongly, nothing is left stuck, and every client is told the new truth
+        # by the press itself. A client that reloaded shows nothing and was right all along.
         self.draw_offer_team: list[str] | None = None
         self.resign_offer: str | None = None
         self.takeback_offer: tuple[str, int] | None = None

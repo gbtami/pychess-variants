@@ -182,10 +182,11 @@ import {
  *   |   |            opponent could not have moved unless our move had been played.
  *   |   |            a whole position can be stale, a single move never is
  *   |   |
- *   |   +-- 2.1.2  it is older than what we are already showing
- *   |   |            take that board's two clocks and nothing else — the position
- *   |   |            stays where the reader put it, and no premove is released:
- *   |   |            "nothing else" includes one
+ *   |   +-- 2.1.2  it is older than the game we already hold
+ *   |   |            do nothing at all. not the position, not a premove, and NOT
+ *   |   |            the clocks: a message behind us is one built earlier and
+ *   |   |            delivered late, so its times are stale by the same margin as
+ *   |   |            its ply, and taking them would set that board back
  *   |   |
  *   |   +-- 2.1.3  it is further ahead than the next move
  *   |                a move we were never told about is missing between us and it,
@@ -202,17 +203,27 @@ import {
  *   |                a hole, and the next one will
  *   |
  *   +-- 2.2  it is our own move coming back
- *       |        NEITHER SUB-BRANCH RELEASES A PREMOVE. our own move landing does
- *       |        not make it our turn — the opponent has still to reply, and 2.1.1
- *       |        is what releases it when they do
+ *       |        NO SUB-BRANCH RELEASES A PREMOVE. our own move landing does not
+ *       |        make it our turn — the opponent has still to reply, and 2.1.1 is
+ *       |        what releases it when they do
  *       |
  *       +-- 2.2.1  we sent it once and waited
  *       |            show the position, keep every clock we have
  *       |
  *       +-- 2.2.2  we had to send it again after a break
- *                    show the position, and take that board's two clocks from the
- *                    server: it charged the disconnected time to us and our own
- *                    reading never saw it
+ *       |            show the position, and take that board's two clocks from the
+ *       |            server: it charged the disconnected time to us and our own
+ *       |            reading never saw it
+ *       |
+ *       +-- 2.2.3  it is ours, but THIS page never sent it
+ *                    a previous instance of this page did, or the record of it is
+ *                    gone. show the position and take that board's two clocks:
+ *                    `sendMove()` never paused that clock here, so there is no
+ *                    reading of our own to prefer over the server's
+ *
+ *                    the same answer as 2.2.2 and for the same reason, which is why
+ *                    one field decides both. what separates them from 2.2.1 is not
+ *                    the break but whether we ever measured that clock ourselves
  *
  * WHICH CLOCKS COME FROM THE SERVER, AND WHICH KEEP TICKING HERE
  * --------------------------------------------------------------
@@ -221,19 +232,38 @@ import {
  * carries a trustworthy pair only for that board.
  *
  * A POSITION FOR THE WHOLE GAME, which is what a returning connection is given: all four clocks are
- * taken, both boards. This is the only case where every clock is replaced.
+ * taken, both boards. This is the only case where every clock is replaced — and the only one where
+ * a clock rule is not per board, which is why `SnapshotDecision.takeAllClocks` sits beside the two
+ * boards' answers rather than inside them. A position for a FINISHED game takes none: `checkStatus()`
+ * has stopped all four by then, and writing values onto stopped clocks only invites a reader to
+ * wonder which number was the last one.
  *
- * SOMEONE ELSE'S MOVE: both clocks of the board that moved are taken. The two on the other board are
- * left alone and go on ticking here. The message does carry numbers for the other board and they are
- * not to be believed — only the clock belonging to the player who actually moved was measured by the
- * person whose clock it is; the rest are that player's browser reporting on clocks it does not own,
- * frozen at whenever they last started.
+ * SOMEONE ELSE'S MOVE, AND IT IS NEWS: both clocks of the board that moved are taken. The two on the
+ * other board are left alone and go on ticking here. The message does carry numbers for the other
+ * board and they are not to be believed — only the clock belonging to the player who actually moved
+ * was measured by the person whose clock it is; the rest are that player's browser reporting on
+ * clocks it does not own, frozen at whenever they last started.
  *
- * OUR OWN MOVE: nothing is taken, normally. We stopped our own clock at the instant we sent the
- * move, and that reading is better than anything that can come back to us. The exception is a move
- * we had to send AGAIN after a break: the server replayed it with its own clocks and charged the
- * disconnected time to whoever was on move, which was us, so its number is the true one and ours is
- * the stale one — even though our clock is sitting still.
+ * SOMEONE ELSE'S MOVE THAT IS NOT NEWS — a message behind the game we hold, branch 2.1.2 — is taken
+ * for nothing. A single-move message's ply and its clocks are read at the same instant, so one that
+ * arrives late carries times as old as its ply, and applying them would set that board backwards.
+ * "The clocks are the game's, not the view's" is what makes 2.1.3 take them and this one not: being
+ * ahead of a message is not a gap in what we know, and there is nothing to fill.
+ *
+ * OUR OWN MOVE: nothing is taken when WE stopped that clock ourselves. `sendMove()` pauses it at the
+ * instant the move goes out, and that reading is better than anything that can come back to us.
+ *
+ * THE TEST IS WHETHER THIS PAGE EVER PAUSED IT, and there are two ways for the answer to be no. A
+ * move we had to send AGAIN after a break (2.2.2): the server replayed it with its own clocks and
+ * charged the disconnected time to whoever was on move, which was us, so its number is the true one
+ * and ours is the stale one — even though our clock is sitting still. And a move THIS page never
+ * sent (2.2.3), because a previous instance of the page sent it: there is no local reading to prefer
+ * at all. Both take the server's pair, which is why one field answers both.
+ *
+ * THE RULE IS NOT "IS THE CLOCK RUNNING", though the caller used to ask that. It is a symptom: the
+ * clock is usually running when this page has not paused it, but `updateClocks()` restarts clocks
+ * too, so every snapshot that leaves us on the move makes the symptom true without the cause. The
+ * cause is `ahead`, which records what THIS page sent.
  *
  * AND A CLOCK IS ALWAYS STOPPED BEFORE IT IS SET. Setting a value on a running clock subtracts the
  * time since it started a second time, because the server has already deducted it. It never bites on
@@ -307,12 +337,15 @@ import {
  * write it had queued. Even then the tree is not asked what happened — it is asked what arrived,
  * and "a position missing a move we were shown" is a fact about the message, not about the cause.
  *
- * A restart also moves a journey from one branch to another WITHOUT changing what the reader sees.
+ * A RESTART USED TO MOVE A JOURNEY FROM ONE BRANCH TO ANOTHER, and no longer does.
  * `lastmovePerBoardAndUser`, the map the server uses to ignore a move a player has already made,
- * lives only in memory. So a move resent in a reconnect payload takes 1.2.3.2 (the server stays
- * silent) against a server that has been up all along, and 1.2.3.4 (the server rejects it and hands
- * back its position) against one that has just restarted. Both are correct and both end with the
- * client in step; it is only safe because a refused move no longer ends the game.
+ * lives only in memory, so a move resent in a reconnect payload took 1.2.3.2 (the server stays
+ * silent) against a server that had been up all along and 1.2.3.4 (the server rejects it and hands
+ * back its position) against one that had just restarted. Both were correct and both ended with the
+ * client in step — which is why the bed passed either way — but the answer depended on nothing the
+ * message could express. `load_game_bug_from_doc()` rebuilds the map from the move list now, so the
+ * resend takes 1.2.3.2 whatever the server has been through. Measured on scenario T6 both ways: the
+ * log says "move already played" where it used to say "refused invalid move … resyncing".
  *
  * A reloaded page loses the note that says WE are the ones waiting on a move, while the move itself
  * survives in storage. That used to matter — the board was handed back to a reader who still had a
@@ -398,11 +431,22 @@ export interface BoardDecision {
     rolledBack: boolean;
 }
 
-/* THE CLOCKS ARE NOT DECIDED HERE YET, and this type deliberately does not pretend otherwise. It
-   once carried a `clocksFromServer` flag that was true in every branch and read by nobody, which
-   said something untrue about the case where our own move comes back: there, the local reading is
-   kept. The rule is written out above; moving it into this decision is work that has not been done,
-   and a field that is always true is worse than an absent one. */
+/** What the caller should do with one whole-game position — the two boards' answers, and the one
+ *  answer that is not per board.
+ *
+ *  THE CLOCKS ARE DECIDED HERE NOW. This type once refused to carry them, and said so: a
+ *  `clocksFromServer` flag had been true in every branch and read by nobody, so it was removed and
+ *  the rule was left in prose with a note that moving it in was work not yet done. That is task
+ *  1.2, done 2026-09-12. What makes it expressible is that the answer is not always the same —
+ *  branch 1.1.1, a position for a finished game, takes none — and what makes it belong to the game
+ *  rather than to a board is that every clock is replaced together, which is true of no other
+ *  message. */
+export interface SnapshotDecision {
+    a: BoardDecision;
+    b: BoardDecision;
+    /** Replace all four clocks — both boards, both seats. False only for a finished game. */
+    takeAllClocks: boolean;
+}
 
 /** Where a single move sits relative to the position this page is showing.
  *
@@ -549,15 +593,34 @@ export class ReconnectController {
         }
 
         if (place === 'older') {
-            // 2.1.2 — older than what we are already showing. The reader has scrolled back, or this
-            // is a message we have already seen; either way the position they are looking at is not
-            // ours to move.
+            /* 2.1.2 — older than the game we already hold. NOTHING IS TAKEN, and the clocks least
+             * of all. Decided 2026-09-12; it used to take that board's pair.
+             *
+             * THE OLD RULE WAS INHERITED FROM A MISREADING OF THIS BRANCH. Its note said "the
+             * reader has scrolled back", and the prose said the position "stays where the reader
+             * put it" — but scrolling cannot produce this answer. `place` is decided against
+             * `steps.length`, the game we hold, not against the reader's cursor, which is
+             * `readerAtEnd` and is the caller's business. So 2.1.2 never means a scrolled reader;
+             * it means the MESSAGE is behind the game.
+             *
+             * AND SUCH A MESSAGE IS STALE IN ITS CLOCKS BY EXACTLY AS MUCH AS IT IS STALE IN ITS
+             * PLY. `get_board()` builds a single-move message from `steps[-1]` with
+             * `last_move_clocks` read at that same instant, so a message's ply and its clocks
+             * always agree — there is no way for the server to send an old ply with fresh times.
+             * A message behind us is therefore one built earlier and delivered late or twice, and
+             * taking its pair RESETS that board's clocks to an earlier ply. `updateClocks()` sets
+             * both seats, so the harmless half cannot be taken without the harmful one.
+             *
+             * The only case where taking was safe is the exact duplicate of the last move, where
+             * it wrote the values already showing. Nothing is lost by declining that too: a later
+             * message about this board will carry the current pair, and the local clocks have been
+             * ticking correctly in the meantime. */
             return {
                 applyPosition: false,
-                takeClocks: true,
+                takeClocks: false,
                 releasePremove: false,
                 movesMissing: false,
-                because: '2.1.2 older than what we are showing',
+                because: '2.1.2 older than the game we hold',
             };
         }
 
@@ -591,6 +654,16 @@ export class ReconnectController {
      *  what is decided here rather than folded in, so neither half has to pretend to know the
      *  other's business. Task 3.4 is where that division is settled for good. */
     private ourMoveCameBack(board: BugBoardName, move: string | undefined): MoveDecision {
+        /* DID THIS PAGE SEND IT? Read before the delete below, which is what clears the record.
+         *
+         * THIS IS THE FACT THE CALLER USED TO SUPPLY, and the class held it all along. `roundCtrl`
+         * ORed in "this seat's clock is still running", standing in for "did `sendMove()` ever
+         * pause it in this page's lifetime" — and `this.ahead` answers exactly that question, being
+         * set by `moveSent()` and kept in memory on purpose. `Clock.running` was only ever a
+         * symptom of it, and a poor one: `updateClocks()` flips that flag itself, so every full
+         * board message where the server still has us on the move turned it true for reasons that
+         * have nothing to do with who sent what. */
+        const sentByThisPage = this.ahead[board] !== undefined;
         delete this.ahead[board];
         // A CONFIRMATION IS THE STRONGEST THING WE ARE EVER TOLD, and branch 1.1.4 exists because
         // it is not durable: the server can acknowledge a move from memory and then lose the write
@@ -600,13 +673,22 @@ export class ReconnectController {
         const resent = move !== undefined && consumePendingMove(this.gameId, board, move);
         return {
             applyPosition: true,
-            takeClocks: resent,
+            /* THE WHOLE RULE, IN ONE FIELD. Task 1.1, decided 2026-09-12: the server's pair wins
+             * when it replayed the move for us (2.2.2), and when this page never paused that clock
+             * itself (2.2.3). Both are the same statement — we have no reading of our own to
+             * prefer — and neither is a fact about a `Clock`, so the caller no longer ORs anything
+             * in and the rule is testable without a board. */
+            takeClocks: resent || !sentByThisPage,
             // Our own move coming back is not a position anything can be queued behind: whatever
             // was queued went out with it. The full path releases premoves after a snapshot; this
             // one has never released any, and that is unchanged.
             releasePremove: false,
             movesMissing: false,
-            because: resent ? '2.2.2 sent again after a break' : '2.2.1 sent once and waited',
+            because: resent
+                ? '2.2.2 sent again after a break'
+                : sentByThisPage
+                  ? '2.2.1 sent once and waited'
+                  : '2.2.3 ours, but not sent by this page',
         };
     }
 
@@ -614,12 +696,13 @@ export class ReconnectController {
      *  is answered with. `history` is every move played on each board.
      *
      *  A snapshot answers two questions at once — has our move landed, and may this board be played
-     *  on — and the answers are per board. */
+     *  on — and the answers are per board. `takeAllClocks` is the third and is not: it belongs to
+     *  the whole game. */
     snapshot(
         history: Record<BugBoardName, string[]>,
         playableNow: (board: BugBoardName, move: string) => boolean,
         ourTurnNow: (board: BugBoardName) => boolean = () => false,
-    ): Record<BugBoardName, BoardDecision> {
+    ): SnapshotDecision {
         for (const board of BOARDS) {
             const moves = history[board] ?? [];
             // Asked BEFORE reconcile, which may clear the very record that answers it, and before
@@ -629,7 +712,26 @@ export class ReconnectController {
             const last = moves[moves.length - 1];
             if (last !== undefined) this.seen[board] = last;
         }
-        return { a: this.decide('a', ourTurnNow('a')), b: this.decide('b', ourTurnNow('b')) };
+        return {
+            a: this.decide('a', ourTurnNow('a')),
+            b: this.decide('b', ourTurnNow('b')),
+            /* BRANCH 1'S CLOCK RULE, WHICH USED TO BE APPLIED AND STATED NOWHERE. Task 1.2,
+             * decided with 1.1 on 2026-09-12: a position for the whole game replaces all four
+             * clocks, and a finished one replaces none — `checkStatus()` has already stopped them
+             * by the time we are asked, and writing values onto stopped clocks would only invite a
+             * reader to wonder which number is the last one.
+             *
+             * NOT A FIELD THAT IS ALWAYS TRUE, which is why it can exist: the removed
+             * `clocksFromServer` flag was true in every branch and read by nobody, and this one is
+             * false for exactly the case 1.1.1 describes.
+             *
+             * `finished` IS ALREADY SET WHEN WE ARE ASKED, and that ordering is load-bearing:
+             * `onMsgBoard` calls `checkStatus(msg)` — which calls `gameEnded()` on a final status —
+             * before it dispatches to either branch. The caller's old `!isGameOver()` guard read
+             * the same message's status a few lines later, so this is the same answer from the
+             * object that owns it. */
+            takeAllClocks: !this.finished,
+        };
     }
 
     /** Branch 1.1.4 — is this position missing a move we have already been shown?

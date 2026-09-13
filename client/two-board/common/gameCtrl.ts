@@ -176,6 +176,16 @@ export class GameControllerBughouse extends GameController {
      * not have. Here a board borrows a controller it does not have. Defaults to allowing
      * everything, so a board nobody wires behaves exactly as before.
      *
+     * ALWAYS TRUE HERE, AND THAT IS THE BASE CASE RATHER THAN DEAD CODE. Two readers reach it.
+     * The ANALYSIS page never wires anything — `AnalysisControllerBughouse` has no socket, no
+     * reconnection and no unconfirmed move, so its boards must never refuse one. And every board
+     * reaches it while being BUILT, before any owner could have wired it; a board under
+     * construction has nothing in flight, so `true` is the right answer there too.
+     *
+     * `RoundControllerBughouse` is the only thing that installs a real answer, by assigning over
+     * this in its constructor (`this.boardA.movesAllowed = ...`). Delete this and that assignment
+     * has nothing to shadow.
+     *
      * A PROTOTYPE METHOD, NOT A CLASS FIELD, AND THE DIFFERENCE IS LOAD-BEARING. `GameController`'s
      * constructor calls `this.setDests()`, which dispatches to the override below — and a subclass
      * class field is not initialised until `super()` RETURNS, so a field here would still be
