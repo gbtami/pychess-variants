@@ -999,7 +999,12 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
         this.replayPendingMove('a', decision.a.replay);
         this.replayPendingMove('b', decision.b.replay);
 
-        if (!this.isGameOver()) {
+        // ALL FOUR, OR NONE, AND THE DECISION SAYS WHICH — task 1.2, decided with 1.1. This was
+        // `if (!this.isGameOver())`: the rule that a whole-game position replaces every clock was
+        // applied here and stated nowhere, which is what the task was about. `takeAllClocks` is
+        // the same answer from the object that owns the branch, and `checkStatus()` has already
+        // stopped all four by the time a finished game reaches here.
+        if (decision.takeAllClocks) {
             this.updateClocks('a', this.boardA.turnColor, clocksA, this.status);
             this.updateClocks('b', this.boardB.turnColor, clocksB, this.status);
         } else {
@@ -1071,37 +1076,44 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
         board: GameControllerBughouse,
         fen: cg.FEN,
         fenPartner: cg.FEN,
-        lastStepA: Step,
-        lastStepB: Step,
+        /** THE STEP THIS MESSAGE CARRIES — one, and not a pair drawn from `this.steps`. Every
+         *  fact about the move that just happened comes from here: an 'older' or 'ahead' message
+         *  is never pushed into `this.steps`, so the page's own last step would describe another
+         *  ply — another turn colour, another mover, another move.
+         *
+         *  It carries BOTH boards' fens, so one step is enough for the position and the pocket.
+         *  It does NOT carry the partner board's last move — see `lastMovePartner` below, the one
+         *  thing still read from the page's history. */
+        step: Step,
         msgClocks: Clocks,
         place: MovePlace,
         status: number,
         check: boolean,
         readerAtEnd: boolean,
     ) => {
-        console.log(
-            'updateSingleBoardAndClocks',
-            board,
-            fen,
-            fenPartner,
-            lastStepA,
-            lastStepB,
-            msgClocks,
-            place,
-            status,
-            check,
-        );
+        console.log('updateSingleBoardAndClocks', board, fen, fenPartner, step, msgClocks, place, status, check);
 
-        const step = board.boardName === 'a' ? lastStepA : lastStepB;
-        const stepPartner = board.boardName === 'b' ? lastStepA : lastStepB;
         const msgTurnColor = step.turnColor; // whose turn it is after this move
         const msgMoveColor = msgTurnColor === 'white' ? 'black' : 'white'; // which color made the move
         const myMove = this.seats.myColor(board.boardName as BugBoardName) === msgMoveColor; // the received move was made by me
 
         const move = board.boardName === 'a' ? step.move : step.moveB;
         const lastMove = uci2LastMove(move);
-        const lastMovePartner = stepPartner
-            ? uci2LastMove(board.partnerCC.boardName === 'a' ? stepPartner.move : stepPartner.moveB)
+        /* THE PARTNER BOARD'S LAST MOVE IS THE ONE FACT THIS MESSAGE DOES NOT CARRY, so it alone
+         * is read from `this.steps` rather than from the step above.
+         *
+         * A LIVE step fills only the board its move happened on — `move_a = move if board == "a"
+         * else ""` in `game_bug.py` — while the LOADER fills both boards' last moves into every
+         * step (`utils_bug.py`). Taking the partner's move off an arriving single move therefore
+         * reads `""`, and `setState` in the branch below would clear the other board's highlight.
+         * Measured 2026-09-12 in the harness: a board-a move blanked the partner board's
+         * last-move highlight in the window that was not playing on board a.
+         *
+         * The last step ON THE PARTNER BOARD is where that move lives, and it is still the page's
+         * own history that holds it — the same source the pocket splice below reads. */
+        const partnerStep = this.steps[this.steps.findLastIndex(s => s.boardName === board.partnerCC.boardName)];
+        const lastMovePartner = partnerStep
+            ? uci2LastMove(board.partnerCC.boardName === 'a' ? partnerStep.move : partnerStep.moveB)
             : undefined;
 
         let capture = false;
@@ -1136,14 +1148,13 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
             );
         }
 
-        // THE CLOCK CONDITION IS DELIBERATELY IN TWO HALVES. The controller answers the part it can
-        // know — was this move resent after a break, so the server's clocks charged us for it. The
-        // running check is the part it cannot: whether `sendMove()` ever paused this seat's clock in
-        // this page's lifetime is a fact about a Clock object the controller has never held. For
-        // somebody else's move the controller always says take them, and this OR changes nothing.
-        const ourClockNeverPaused =
-            myMove && this.seats.byBoardAndColor(board.boardName as BugBoardName, msgMoveColor).clock!.running;
-        if (decision.takeClocks || ourClockNeverPaused) {
+        // ONE FIELD, ONE RULE — task 1.1, decided 2026-09-12. This site used to OR in "and this
+        // seat's clock is still running", the caller's half of a split clock rule. The controller
+        // owns the whole of it now: `this.ahead` already recorded whether THIS page sent the move,
+        // which is the fact the running check was standing in for, and a truer form of it —
+        // `updateClocks()` below flips `Clock.running` itself, so the old test went true for
+        // reasons that had nothing to do with who sent what.
+        if (decision.takeClocks) {
             // Only the board this move happened on. The other board's values in this message are
             // the mover's stale view of clocks they do not own — see `game_bug_clocks.update_clocks`.
             this.updateClocks(board.boardName, msgTurnColor, msgClocks, this.status);
@@ -1293,13 +1304,16 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
         this.updateSteps(full, msg.steps, msg.ply, full || (place === 'next' && readerAtEnd));
         this.checkStatus(msg);
 
-        //
-        const lastStep = this.steps[this.steps.length - 1];
-
-        const lastStepA = this.steps[this.steps.findLastIndex(s => s.boardName === 'a')];
-        const lastStepB = this.steps[this.steps.findLastIndex(s => s.boardName === 'b')];
-
         if (full) {
+            /* A SNAPSHOT'S LAST STEPS COME FROM `this.steps`, WHICH `updateSteps` HAS JUST
+             * REBUILT FROM THIS VERY MESSAGE — so these are the message's own steps, and the
+             * indirection is harmless here. It is NOT harmless for a single move, which is why
+             * the branch below reads the message directly; see the comment there. */
+            const lastStep = this.steps[this.steps.length - 1];
+
+            const lastStepA = this.steps[this.steps.findLastIndex(s => s.boardName === 'a')];
+            const lastStepB = this.steps[this.steps.findLastIndex(s => s.boardName === 'b')];
+
             // reconnect after lost ws connection or refresh
             if (this.spectator) {
                 this.updateBoardsAndClocksSpectors(
@@ -1337,19 +1351,42 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
                 );
             }
         } else {
-            const boardName = msg.steps[msg.steps.length - 1].boardName as BugBoardName;
+            /* THE MESSAGE'S OWN STEP, NOT THE PAGE'S LAST ONE.
+             *
+             * `updateSteps` pushes a single-move step only when it is the next one — `if (ply ===
+             * this.steps.length)`, the very test that produced `place` — so an 'older' or 'ahead'
+             * message is never in `this.steps`, and its last entry there describes a DIFFERENT
+             * ply: another turn colour, another mover, another move.
+             *
+             * Nothing is missing by reading the message instead. A single-move board message
+             * carries exactly one step (`get_board()` sends `steps[-1]`) and that step carries
+             * both boards' fens and both boards' last moves, which is every fact wanted below.
+             *
+             * WHAT THE INDIRECTION COST. `updateClocks()` is handed `step.turnColor`, and that is
+             * what decides WHICH of the two clocks is restarted — so an out-of-order message
+             * could start the seat the server does not have on the move, with that board's pair
+             * taken from the message all the same. And on a page whose `steps` is still empty —
+             * the first message being a broadcast that beat the snapshot, the case the `full`
+             * test above describes — `this.steps[-1]` was `undefined` and this threw before any
+             * decision was consulted.
+             */
+            const msgStep = msg.steps[msg.steps.length - 1];
+            const boardName = msgStep.boardName as BugBoardName;
             const board = boardName === 'a' ? this.boardA : this.boardB;
             const check = boardName == 'a' ? msg.check : msg.checkB!;
             const clocks = boardName == 'a' ? msg.clocks : msg.clocksB!;
-            const fen = boardName == 'a' ? lastStep.fen : lastStep.fenB!;
-            const fenPartner = boardName == 'a' ? lastStep.fenB! : lastStep.fen;
+            const fen = boardName == 'a' ? msgStep.fen : msgStep.fenB!;
+            const fenPartner = boardName == 'a' ? msgStep.fenB! : msgStep.fen;
             if (this.spectator) {
+                // BOTH STEP ARGUMENTS ARE THIS ONE STEP, which is what the pair means here: it
+                // holds this board's last move and the partner board's alike. Only the snapshot
+                // above has two different steps to give.
                 this.updateBoardsAndClocksSpectors(
                     board,
                     fen,
                     fenPartner,
-                    lastStepA,
-                    lastStepB,
+                    msgStep,
+                    msgStep,
                     clocks!,
                     place === 'next' && readerAtEnd,
                     msg.status,
@@ -1360,8 +1397,7 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
                     board,
                     fen,
                     fenPartner,
-                    lastStepA,
-                    lastStepB,
+                    msgStep,
                     clocks!,
                     place,
                     msg.status,

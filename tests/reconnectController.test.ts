@@ -424,12 +424,17 @@ describe('one move arrives', () => {
         expect(d.because).toContain('2.1.1');
     });
 
-    test('2.1.2  older than what we show: the clocks, and nothing else', () => {
+    test('2.1.2  older than the game we hold: nothing at all, the clocks included', () => {
+        // It used to take that board's pair, on a note that said the reader had scrolled back.
+        // Scrolling cannot produce 'older' — `place` is decided against the game we hold, not the
+        // reader's cursor — so this branch only ever means a message delivered late or twice, and
+        // such a message's clocks are as old as its ply. Taking them set that board backwards.
         const ctrl = new ReconnectController(GAME);
         const d = ctrl.moveArrived('a', 'e7e5', false, 'older');
-        expect(d.takeClocks).toBe(true);
+        expect(d.takeClocks).toBe(false);
         expect(d.applyPosition).toBe(false);
         expect(d.releasePremove).toBe(false);
+        expect(d.movesMissing).toBe(false);
         expect(d.because).toContain('2.1.2');
     });
 
@@ -487,10 +492,18 @@ describe('one move arrives', () => {
         expect(ctrl.moveArrived('a', 'e2e4', true, 'older').applyPosition).toBe(true);
     });
 
-    test('2.2.1  a confirmation for a move we were not holding changes nothing', () => {
+    test('2.2.3  ours, but this page never sent it: the server’s clocks win', () => {
+        // No `moveSent()` here, so this controller never recorded the move — the case of a page
+        // that has reloaded, or whose stored record is gone. It used to assert `false` under the
+        // name "changes nothing", which was the controller's rule and NOT the app's: `roundCtrl`
+        // ORed in "the clock is still running" and took them anyway. Task 1.1 moved that fact
+        // where it belongs, and the two now agree — there is no local reading to prefer, because
+        // `sendMove()` never paused that clock in this page.
         const ctrl = new ReconnectController(GAME);
         const d = ctrl.moveArrived('a', 'e2e4', true, 'next');
-        expect(d.takeClocks).toBe(false);
+        expect(d.takeClocks).toBe(true);
+        expect(d.applyPosition).toBe(true);
+        expect(d.because).toContain('2.2.3');
         expect(stored()).toBe(null);
     });
 });

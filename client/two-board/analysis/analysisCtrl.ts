@@ -113,7 +113,28 @@ export default class AnalysisControllerBughouse extends TwoBoardController {
            the column pair when it does — the round page's arrangement, driven by the same file.
            One droppable part: the panel is this page's equivalent of that page's chat, the part
            that never moves. */
-        trackToolsPlacement([['[role="tablist"]', 'drop-tablist']], '.analysis-app.bug', () => clearBoardBounds(this));
+        /* THE PARTS THAT MAY LEAVE THE COLUMN, IN THE ORDER THEY LEAVE — and the order is the
+           template's, not a preference. Zone A grows upwards from the bottom row, so the first
+           part to go must be the one in the last row and whatever never goes must be in the
+           first: the strip (row 4), then the ENGINE BOX (row 3), then the move CONTROLS (row 2),
+           with the move list holding row 1 and never leaving. Engine before controls because it
+           is the taller of the two, so moving it frees the most for the list.
+           BOTH FRAGMENTS NAME A ZONE B CLASS, which is what marks them as parts that can use
+           either region. In the tools-column home the engine box uses it as a fallback — where the
+           two boards are the same size there is no zone A at all. In the two placed homes the
+           class families are how the fragments move between the band and the full-width row while
+           the move list keeps whichever of the two the home gave it.
+           What each part NEEDS is declared in `bughouse.css` as `--bug-part-min-w/h` and read
+           from there — see `declaredMin()`. */
+        trackToolsPlacement(
+            [
+                ['[role="tablist"]', 'drop-tablist'],
+                ['.analysis-engine-panel', 'drop-engine', 'drop-engine-b'],
+                ['.analysis-controls-panel', 'drop-controls', 'drop-controls-b'],
+            ],
+            '.analysis-app.bug',
+            () => clearBoardBounds(this),
+        );
         // The four player bars, keyed by which end of which board they sit at. Painted
         // here rather than by the view because the seat that is at a given end depends
         // on the orientation set a few lines above.

@@ -145,6 +145,16 @@ export function analysisView(model: PyChessModel): VNode[] {
        reading the game, and splitting the evaluation from the move it evaluates would
        make a reader choose which half to look at.
 
+       IT IS ONE TAB IN THREE PARTS, and the two statements do not conflict. A PART is the
+       smallest thing this page can PLACE — a named grid area holds one item, so a single
+       panel can only ever be in one place at a time. Selecting a tab shows every one of its
+       parts, so the reader still has the evaluation beside the move it evaluates however the
+       parts are arranged; what the split buys is that the engine box and the button row can
+       go somewhere the movelist cannot follow. Both are content-height and read at a glance,
+       which is what zone A — the band the shorter board frees, measured empty at 701x829 — has
+       room for. The rule for when they actually go there is a separate change; this one only
+       makes them separable.
+
        INFO is the game information that used to sit bottom-left.
 
        CHAT is #roundchat, which is in this page's markup and renders nowhere visible.
@@ -165,20 +175,48 @@ export function analysisView(model: PyChessModel): VNode[] {
     const toolPanels: TabPanelDef[] = [
             {
                 label: _('Moves'),
+                /* THE RECORD, THE BUTTONS, AND THE ENGINE BOX — three parts, and this order is
+                   the DROP QUEUE's, not a matter of reading pleasure. Zone A grows upwards from
+                   the bottom row of the strip, so a part's row is its place in the queue: the
+                   first to leave must be in the last row and whatever never leaves must be in the
+                   first. The move list never leaves — it is the one part useless in a band four
+                   squares tall — so it holds row 1; the engine box leaves before the controls,
+                   being the taller of the two, so it sits below them. See the `zoneTools` rules in
+                   `bughouse.css` and the droppable list in `analysisCtrl.ts`.
+
+                   Each boundary is drawn where the thing behind it is one whole:
+
+                   The ENGINE is its switch, both boards' numbers, its name, both PV columns and
+                   the Multiple-lines control that decides how many lines there are. The control
+                   belongs with the lines it counts, which is why the pv box comes with it rather
+                   than staying with the movelist.
+
+                   The RECORD is the movelist block and #misc-info, which is the movelist's own
+                   footer on the single-board page and empty on this one.
+
+                   The CONTROLS are the six buttons: flip, switch, start, back, forward, end.
+                   They act on the position, not on the list, and they are the one part here whose
+                   whole content is a row — 100.8px wide and 40px tall, which is why a narrow band
+                   can take them. */
                 parts: [
                     {
                         panelClass: 'analysis-moves-panel',
                         content: [
-                            h('div#ceval', [engine.renderPanel()]),
-                            engine.pvPanel(),
                             h('div.movelist-block', [movelistView.placeholder()]),
-                            h('div#move-controls'),
                             h('div#misc-info', [
                                 h('div#misc-infow'),
                                 h('div#misc-info-center'),
                                 h('div#misc-infob'),
                             ]),
                         ],
+                    },
+                    {
+                        panelClass: 'analysis-controls-panel',
+                        content: [h('div#move-controls')],
+                    },
+                    {
+                        panelClass: 'analysis-engine-panel',
+                        content: [h('div#ceval', [engine.renderPanel()]), engine.pvPanel()],
                     },
                 ],
             },
@@ -324,13 +362,38 @@ export function analysisView(model: PyChessModel): VNode[] {
        Declared HERE rather than beside the other tabs above because a tab holds its content, and
        this content is the board: `strip`, the board selections and the gauge do not exist until
        this point in the view. The widget is therefore constructed here too. */
-    toolPanels.push({
+    /* FIRST IN THE STRIP, NOT LAST. A tab's position in the strip is its position in this list, and
+       the partner's board is the one tab that is a BOARD: where the strip shows it at all — the last
+       resort, and nowhere else — it is what the reader is looking for, so it goes at the head of the
+       row rather than after four panels. `unshift` because the content has to be built first: the
+       strips, the board selections and the gauge do not exist until this point in the view. */
+    toolPanels.unshift({
         label: _('Partner board'),
         detached: true,
         parts: [
             {
                 panelClass: 'bug-partner-stack',
-                display: 'block',
+                /* `grid`, AND THE VALUE MATTERS MORE HERE THAN ANYWHERE ELSE ON THE PAGE.
+                   A part's display is written as an INLINE style, so it beats the stylesheet: this
+                   one word decides what `.analysis-app.bug .bug-partner-stack` is allowed to be.
+                   This page's stacks are TWO-COLUMN GRIDS — board over pockets in the first column,
+                   the gauge parked in the board's row in the second — and the first column is
+                   `calc(var(--bug-stack-sq) * 8)`, which is where the partner board's width comes
+                   from.
+
+                   It said `block` for a while, copied from the round page, where a stack really is
+                   block flow. The consequence was not a stack laid out differently; it was a stack
+                   with NO DEFINITE WIDTH. `.cg-wrap` resolves its height from percentage padding
+                   against its own width, so board B stopped following `--bug-sq-b` and instead took
+                   whatever its grid area gave it — the app's `auto` track, whose base is the seat
+                   strip's max-content. Measured at 1276x430: columns 354.6 / 225.1 / 679.1 with
+                   board A at 341 and board B at 225, the partner's gauge 225 wide and ZERO tall in
+                   block flow, and the partner's pockets 213 (5 squares, sized from the variable as
+                   intended) beside a 225 board. Flipping this one value: 354.6 / 354.6 / 549.6,
+                   both boards 341, the gauge back in the board's row — and the tools still 550 wide.
+                   The partner board being smaller than the viewer's own is a DECISION this page has
+                   yet to take; it was not this. */
+                display: 'grid',
                 content: [
                     strip(0, 'partner', partnerBoard, ownBoard === 'a' ? pocketB0 : pocketA0),
                     ownBoard === 'a' ? bugboardSel : mainboardSel,
@@ -341,7 +404,7 @@ export function analysisView(model: PyChessModel): VNode[] {
             },
         ],
     });
-    const PARTNER_BOARD_TAB = toolPanels.length - 1;
+    const PARTNER_BOARD_TAB = 0;
     const toolsTabs = new TabbedPanels('analysis-tools', toolPanels, _('Analysis tools'));
     registerStandingTab(toolsTabs, PARTNER_BOARD_TAB);
 
@@ -420,14 +483,34 @@ export function analysisView(model: PyChessModel): VNode[] {
                     // rather than inside it, so nothing gained a level and the grid area it has
                     // always occupied is still declared on the same element.
                     toolsTabs.panel(PARTNER_BOARD_TAB, 0),
-                    // Derived from the declarations above, so a tab can be added or made
-                    // conditional without a second list to keep in step. Every tab here has
-                    // exactly one part.
-                    // Every tab but the board's: that one is mounted above, in the column, which is
-                    // the whole point of a detached tab — the widget says whether a part is shown,
-                    // never where.
+                    /* Derived from the declarations above, so a tab can be added, made
+                       conditional, or gain a part without a second list to keep in step. The
+                       board's tab is index 0 and mounted above, so the slice starts at 1 and the
+                       widget is asked for `t + 1`.
+                       Every tab but the board's: that one is mounted above, in the column, which is
+                       the whole point of a detached tab — the widget says whether a part is shown,
+                       never where.
+
+                       A TAB OF SEVERAL PARTS IS MOUNTED AS ONE GROUP, and the group is the grid
+                       item its single panel used to be. Two items assigned the same named area do
+                       not stack, they OVERLAP, so parts that still share a home have to be one
+                       item — and the group takes the area the panel took in every home this page
+                       has, which is why declaring the parts moves nothing on screen.
+
+                       The element is the PAGE'S, not the widget's: the widget builds no container
+                       around a tab's parts, deliberately, because that container is exactly what a
+                       mode wanting one part elsewhere has to dissolve. The round page's
+                       `.bug-presets-group` is the same element with its default the other way
+                       round — dissolved everywhere, a box only in zone B, where two preset rows
+                       must be one item to span both boards. Here the box is the default because
+                       all three parts are still in the column together; the mode that relocates
+                       one of them is what will dissolve it. */
                     h('div.bug-parts', [
-                        ...toolPanels.slice(0, PARTNER_BOARD_TAB).map((_p, t) => toolsTabs.panel(t, 0)),
+                        ...toolPanels.slice(PARTNER_BOARD_TAB + 1).map((panel, index) => {
+                            const t = index + PARTNER_BOARD_TAB + 1;
+                            const parts = panel.parts.map((_part, p) => toolsTabs.panel(t, p));
+                            return parts.length === 1 ? parts[0] : h('div.bug-tool-group', parts);
+                        }),
                         toolsTabs.tabList(),
                     ]),
                 ]),

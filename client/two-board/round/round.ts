@@ -12,9 +12,13 @@ import { boardZoom } from '@/boardSettings';
 import { TabbedPanels } from '../common/tabs';
 import { registerStandingTab } from '../common/toolsPlacement';
 
-// The partner board's position in the tab list below. Named because two places need it and a
-// tab's index is also its id.
-const PARTNER_BOARD_TAB = 3;
+// The partner board's position in the tab list below — FIRST. Named because two places need it and
+// a tab's index is also its id.
+//
+// First rather than last because it is the one tab that is a BOARD: where the strip shows it at all
+// — the last resort, and nowhere else — it is what the reader is looking for, so it heads the row
+// instead of following three panels.
+const PARTNER_BOARD_TAB = 0;
 import { ChatPresetsView } from './chatPresets';
 import { twoBoardSeats } from '../common/seatConfiguration';
 import { _ } from '../../i18n';
@@ -114,33 +118,6 @@ export function roundView(model: PyChessModel): VNode[] {
     const roundTabs = new TabbedPanels(
         'round-tabs',
         [
-            // one part each for now: splitting a tab across places is what the
-            // widget newly allows, and which tabs should be split is a separate
-            // change — chat's two pieces are produced together inside the shared
-            // chatView(), so dividing them is a change about chat, not about tabs
-            // Two parts: the chat view, and the presets beside it. They are
-            // mounted adjacent for now, so nothing moves on screen — but either
-            // can be placed on its own, which is why the presets were pulled out
-            // of the chat view in the first place.
-            {
-                label: _('Chat'),
-                parts: [
-                    { content: [h('div#bugroundchat')] },
-                    // One part per preset group, so each can be placed on its own
-                    // and they flow into the space under the board one at a time.
-                    ...(chatPresetsView
-                        ? chatPresetsView.parts().map((part, i) => ({
-                              panelClass: `chatpresets-panel.chatpresets-panel-${i + 1}`,
-                              content: [part],
-                          }))
-                        : []),
-                ],
-            },
-            {
-                label: _('Moves'),
-                parts: [{ content: [h('div.movelist-block', [movelistView.placeholder(), h('div#move-controls')])] }],
-            },
-            { label: _('Info'), parts: [{ content: [gameInfoView.placeholder()] }] },
             /* THE PARTNER'S BOARD IS A TAB, AND IT IS DETACHED FROM THE FIRST FRAME.
                Detached it is absent from the strip and always drawn, which is the board in every
                home but one — so declaring it here changes nothing on screen today. What it buys is
@@ -172,6 +149,33 @@ export function roundView(model: PyChessModel): VNode[] {
                     },
                 ],
             },
+            // one part each for now: splitting a tab across places is what the
+            // widget newly allows, and which tabs should be split is a separate
+            // change — chat's two pieces are produced together inside the shared
+            // chatView(), so dividing them is a change about chat, not about tabs
+            // Two parts: the chat view, and the presets beside it. They are
+            // mounted adjacent for now, so nothing moves on screen — but either
+            // can be placed on its own, which is why the presets were pulled out
+            // of the chat view in the first place.
+            {
+                label: _('Chat'),
+                parts: [
+                    { content: [h('div#bugroundchat')] },
+                    // One part per preset group, so each can be placed on its own
+                    // and they flow into the space under the board one at a time.
+                    ...(chatPresetsView
+                        ? chatPresetsView.parts().map((part, i) => ({
+                              panelClass: `chatpresets-panel.chatpresets-panel-${i + 1}`,
+                              content: [part],
+                          }))
+                        : []),
+                ],
+            },
+            {
+                label: _('Moves'),
+                parts: [{ content: [h('div.movelist-block', [movelistView.placeholder(), h('div#move-controls')])] }],
+            },
+            { label: _('Info'), parts: [{ content: [gameInfoView.placeholder()] }] },
         ],
         _('Round tabs'),
     );
@@ -282,7 +286,7 @@ export function roundView(model: PyChessModel): VNode[] {
                     // shrunken board. Each mode dissolves whichever container it
                     // does not want: landscape this one, portrait the two around it.
                     h('div.bug-parts', [
-                        roundTabs.panel(0, 0),
+                        roundTabs.panel(1, 0),
                         // The two preset rows, grouped. `display: contents` everywhere except
                         // zone B, so normally they are placed individually exactly as before
                         // and this element is not in the layout at all.
@@ -292,10 +296,10 @@ export function roundView(model: PyChessModel): VNode[] {
                         // item, so twenty buttons can only share a row under both boards if
                         // the twenty are inside one box. In zone B the group becomes that box.
                         ...(chatPresetsView
-                            ? [h('div.bug-presets-group', [roundTabs.panel(0, 1), roundTabs.panel(0, 2)])]
+                            ? [h('div.bug-presets-group', [roundTabs.panel(1, 1), roundTabs.panel(1, 2)])]
                             : []),
-                        roundTabs.panel(1, 0),
                         roundTabs.panel(2, 0),
+                        roundTabs.panel(3, 0),
                         // Where the end-of-game controls are rendered, empty until
                         // there is a result. It belongs to no tab — it must show
                         // whichever tab is selected — so it is a sibling of the

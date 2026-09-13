@@ -61,7 +61,15 @@ export interface TabPartDef {
      *
      * Stated because the widget has to write a value: the page stylesheet hides an unselected
      * panel, so showing one again cannot simply clear the inline style. A part whose box is not a
-     * flex container — a board stack is a block — says so here rather than being bent into one. */
+     * flex container — a board stack is a block — says so here rather than being bent into one.
+     *
+     * IT IS WRITTEN INLINE, SO IT BEATS THE PAGE STYLESHEET. Whatever the sheet says about this
+     * element's `display` is dead, and silently: nothing warns, the element simply lays out as
+     * something else. The analysis page's partner stack said `block`, copied from the round page,
+     * against a sheet that makes that stack a two-column grid — the board's definite width lived in
+     * a track that therefore never existed, and board B was drawn at whatever its column happened
+     * to give it. Declare the value the SHEET wants for this element, not the one a similar part on
+     * another page uses. */
     display?: string;
 }
 
