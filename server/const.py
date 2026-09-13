@@ -313,7 +313,7 @@ CATEGORIES = {
         "cannonshogi",
     ),
     "xiangqi": ("xiangqi", "supply", "manchu", "janggi", "minixiangqi", "jieqi"),
-    "other": ("ataxx"),
+    "other": ("ataxx",),
 }
 
 VARIANT_GROUPS = {}
