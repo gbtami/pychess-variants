@@ -825,6 +825,59 @@ ul.guide li {
   color: red;
 }
 
+/* Absorbs the band between the width where the header stops fitting and the 800px hand-off to the
+   hamburger — not one width, since it moves with the username and the translated labels. The nav
+   is the side that yields: menu labels are cut evenly, in proportion to their width, down to 6ch;
+   DONATE yields first and furthest, down to its bare icon; a cut label is drawn in full over its
+   neighbours while hovered or focused. `clip`, not `hidden`, or the hover menus are cut off too. */
+@media (min-width: 800px) {
+  .site-title-nav {
+    min-width: 0;
+    overflow-x: clip;
+    overflow-y: visible;
+  }
+  .topnav {
+    min-width: 0;
+  }
+  .topnav > a.home {
+    flex: 0 0 auto;
+  }
+
+  .topnav section {
+    flex: 1 1 max-content;
+    min-width: 6ch;
+  }
+  .topnav section > a {
+    float: none;
+    display: block;
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .topnav > a.donate-link {
+    float: none;
+    display: block;
+    flex: 1 1 2.8em;
+    min-width: 2.8em;
+    max-width: max-content;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .topnav section:hover > a,
+  .topnav section:focus-within > a,
+  .topnav > a.donate-link:hover,
+  .topnav > a.donate-link:focus-visible {
+    width: max-content;
+    max-width: none;
+    position: relative;
+    z-index: 6;
+    background: var(--drop-down);
+  }
+}
+
 .hamburger {
   display: none;
   width: 100%;
@@ -1478,6 +1531,10 @@ button.back {
    Names are not prose and there is nothing to gain from breaking one. */
 #username .user-link {
   white-space: nowrap;
+  display: block;
+  max-width: 12ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .site-buttons > div > button:hover {
   color: var(--blue-hover);
