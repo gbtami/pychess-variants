@@ -859,9 +859,8 @@ ul.guide li {
   .topnav > a.donate-link {
     float: none;
     display: block;
-    flex: 1 1 2.8em;
+    flex: 0 20 max-content;
     min-width: 2.8em;
-    max-width: max-content;
     overflow: hidden;
     white-space: nowrap;
   }
