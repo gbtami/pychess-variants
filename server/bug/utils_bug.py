@@ -179,7 +179,15 @@ async def load_game_bug_from_doc(
     }
     # Epoch-ns of the last move on each board, which is when that board's current turn began.
     restored_last_move_ts: dict[str, int] = {}
-    doc_ts = doc.get("ts") or []
+    # PLAIN INTS, NOT WHAT THE DRIVER HANDS BACK. `save_game()` writes `time_ns()` values, which are
+    # too large for BSON's 32-bit int, so MongoDB stores them as `NumberLong` and the driver returns
+    # `bson.Int64`. Every consumer below puts one in a step, and a step's `ts` reaches the client:
+    # `msgspec`'s encoder — which the whole server sends websocket JSON through — has no `enc_hook`
+    # and refuses anything it does not know, so a bughouse game REBUILT FROM ITS DOCUMENT raised
+    # `TypeError: Encoding objects of type Int64 is unsupported` on the first message carrying a
+    # step. In the cache the same values are plain ints and nothing fails, which is why only a
+    # restarted server or an evicted game showed it.
+    doc_ts = [int(t) for t in (doc.get("ts") or [])]
 
     board_ply = {"a": 0, "b": 0}
     last_move, last_move_b = "", ""
