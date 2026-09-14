@@ -513,7 +513,7 @@ suggestions; existing file links above are the concrete integration points.
   no extension is installed. Add a session generation and cancellation cleanup.
   **Done:** existing-child moves are observable and every navigation/move route
   follows the intended policy; normal analysis and puzzles still work.
-- [ ] **A4 — Forms and safe activation.** Add one shared translated Analysis mode
+- [x] **A4 — Forms and safe activation.** Add one shared translated Analysis mode
   selector to initial/add/edit chapter flows, explanatory text and learner-side
   labels. Install policy before navigation or evaluation rendering. Settle pending
   writes before mode/session transitions and reload before restoring recording.

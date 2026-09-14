@@ -62,6 +62,7 @@ export interface AnalysisExtension {
     onPositionChanged?(change: AnalysisPositionChange): void;
     boardInput?(context: AnalysisBoardInputContext): 'white' | 'black' | 'both' | false;
     onEvaluation?(evaluation: AnalysisEvaluationDelivery): boolean | void;
+    allowComputerSearch?(): boolean;
     isTreeNodeVisible?(node: AnalysisTreeNode): boolean;
     onShapesChanged?(shapes: DrawShape[]): void;
     onNodeAdded?(parentPath: string, node: AnalysisTreeNode): void;

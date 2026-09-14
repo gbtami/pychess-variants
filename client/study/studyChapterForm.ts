@@ -1,11 +1,102 @@
 import { h, VNode } from 'snabbdom';
 import { _ } from '../i18n';
+import type { StudyChapterMode } from '../types';
 import { selectVariant, twoBoarsVariants } from '../variants';
 
 export interface StudyChapterCreateFormOptions {
     id?: string;
     chapterName?: string;
+    orientation?: 'white' | 'black';
+    mode?: StudyChapterMode;
     sync?: () => boolean;
+    beforeSubmit?: () => Promise<boolean>;
+}
+
+type StudyChapterModeOption = {
+    value: StudyChapterMode;
+    label: string;
+    description: string;
+    available: boolean;
+};
+
+function studyChapterModeOptions(): StudyChapterModeOption[] {
+    return [
+        {
+            value: 'normal',
+            label: _('Normal analysis'),
+            description: _('Show the complete chapter tree and the usual analysis tools.'),
+            available: true,
+        },
+        {
+            value: 'practice',
+            label: _('Practice with computer'),
+            description: _('Play the saved position against the computer.'),
+            available: false,
+        },
+        {
+            value: 'conceal',
+            label: _('Hide next moves'),
+            description: _('Hide unrevealed continuations while the learner explores the position.'),
+            available: false,
+        },
+        {
+            value: 'gamebook',
+            label: _('Interactive lesson'),
+            description: _('Guide the learner through the authored main line with feedback and hints.'),
+            available: false,
+        },
+    ];
+}
+
+export function studyChapterModeLabel(mode: StudyChapterMode): string {
+    return studyChapterModeOptions().find(option => option.value === mode)?.label ?? _('Normal analysis');
+}
+
+function studyChapterModeDescription(mode: StudyChapterMode): string {
+    return studyChapterModeOptions().find(option => option.value === mode)?.description ?? '';
+}
+
+export function studyChapterModeField(mode: StudyChapterMode = 'normal'): VNode {
+    const options = studyChapterModeOptions();
+    const available = options.filter(option => option.available || option.value === mode);
+    const current = options.find(option => option.value === mode) ?? options[0];
+    const unavailable = !current.available;
+    return h('label.study-dialog__field.study-chapter-mode', [
+        h('span', _('Analysis mode')),
+        h(
+            'select',
+            { attrs: { name: 'mode' } },
+            available.map(option =>
+                h(
+                    'option',
+                    {
+                        attrs: { value: option.value, selected: option.value === mode },
+                    },
+                    option.label,
+                ),
+            ),
+        ),
+        h(
+            'small.study-dialog__help',
+            unavailable
+                ? _(
+                      'This chapter uses %1, which is not available in the player yet. You can switch it back to Normal analysis.',
+                      current.label,
+                  )
+                : studyChapterModeDescription(mode),
+        ),
+    ]);
+}
+
+export function studyChapterOrientationField(orientation: 'white' | 'black' = 'white'): VNode {
+    return h('label.study-dialog__field.study-chapter-orientation', [
+        h('span', _('Orientation / learner side')),
+        h('select', { attrs: { name: 'orientation' } }, [
+            h('option', { attrs: { value: 'white', selected: orientation === 'white' } }, _('White')),
+            h('option', { attrs: { value: 'black', selected: orientation === 'black' } }, _('Black')),
+        ]),
+        h('small.study-dialog__help', _('In training modes, this also chooses the learner side.')),
+    ]);
 }
 
 function chapterField(name: string, label: string, value = '', maxLength?: number): VNode {
@@ -17,12 +108,41 @@ function chapterField(name: string, label: string, value = '', maxLength?: numbe
     ]);
 }
 
+function syncHiddenInput(form: HTMLFormElement, sync?: () => boolean): void {
+    if (!sync) return;
+    const input = form.elements.namedItem('sync') as HTMLInputElement | null;
+    if (input) input.value = sync() ? '1' : '0';
+}
+
+export function settleStudyFormSubmit(event: SubmitEvent, beforeSubmit: () => Promise<boolean>): void {
+    const form = event.currentTarget as HTMLFormElement;
+    if (form.dataset.studySettled === 'true') {
+        delete form.dataset.studySettled;
+        return;
+    }
+    event.preventDefault();
+    if (form.dataset.studySettling === 'true' || !form.reportValidity()) return;
+    form.dataset.studySettling = 'true';
+    const submitter = event.submitter instanceof HTMLElement ? event.submitter : undefined;
+    void beforeSubmit()
+        .then(proceed => {
+            if (!proceed || !form.isConnected) return;
+            form.dataset.studySettled = 'true';
+            if (submitter instanceof HTMLButtonElement) form.requestSubmit(submitter);
+            else form.requestSubmit();
+        })
+        .finally(() => {
+            delete form.dataset.studySettling;
+        });
+}
+
 export function studyChapterCreateForm(
     action: string,
     variant: string,
     chess960: boolean,
     options: StudyChapterCreateFormOptions = {},
 ): VNode {
+    const mode = options.mode ?? 'normal';
     return h(
         'form.study-side__new-chapter',
         {
@@ -31,13 +151,13 @@ export function studyChapterCreateForm(
                 method: 'post',
                 action,
             },
-            ...(options.sync
+            ...(options.sync || options.beforeSubmit
                 ? {
                       on: {
                           submit: (event: SubmitEvent) => {
                               const form = event.currentTarget as HTMLFormElement;
-                              const input = form.elements.namedItem('sync') as HTMLInputElement | null;
-                              if (input) input.value = options.sync?.() ? '1' : '0';
+                              syncHiddenInput(form, options.sync);
+                              if (options.beforeSubmit) settleStudyFormSubmit(event, options.beforeSubmit);
                           },
                       },
                   }
@@ -63,6 +183,8 @@ export function studyChapterCreateForm(
                 ),
             ]),
             chess960 ? h('input', { attrs: { type: 'hidden', name: 'chess960', value: '1' } }) : '',
+            studyChapterOrientationField(options.orientation ?? 'white'),
+            studyChapterModeField(mode),
             chapterField('fen', _('FEN (optional)')),
             chapterField('gameId', _('Game ID (optional)'), '', 12),
             h('div.study-dialog__actions.study-dialog__actions--submit-only', [

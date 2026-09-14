@@ -176,6 +176,7 @@ export class AnalysisController extends GameController {
             localStorage.localAnalysis !== undefined &&
             this.analysisContext.capabilities.localAnalysisAllowed &&
             !this.isLocalAnalysisBlockedByAntiCheat() &&
+            this.isLocalAnalysisAllowedByExtension() &&
             localStorage.localAnalysis === 'true';
 
         // UCI isready/readyok
@@ -678,15 +679,22 @@ export class AnalysisController extends GameController {
         return this.analysisContext.capabilities.localAnalysisAllowed && hasActiveEligibleLiveGame();
     }
 
+    isLocalAnalysisAllowedByExtension(): boolean {
+        return this.analysisExtension?.allowComputerSearch?.() !== false;
+    }
+
     refreshLocalAnalysisAvailabilityForAntiCheat() {
         const blocked = this.isLocalAnalysisBlockedByAntiCheat();
+        const extensionAllowed = this.isLocalAnalysisAllowedByExtension();
         if (blocked) this.disableLocalAnalysisForAntiCheat();
+        else if (!extensionAllowed) this.suspendLocalAnalysisForExtension();
 
         const engineToggle = document.getElementById('engine-enabled') as HTMLInputElement | null;
         if (engineToggle !== null) {
             engineToggle.disabled =
                 !this.analysisContext.capabilities.localAnalysisAllowed ||
                 blocked ||
+                !extensionAllowed ||
                 !this.localEngine ||
                 !this.isEngineReady ||
                 !this.variantSupportedByFSF;
@@ -1482,8 +1490,7 @@ export class AnalysisController extends GameController {
         }
     }
 
-    disableLocalAnalysisForAntiCheat() {
-        localStorage.localAnalysis = 'false';
+    private suspendLocalAnalysis(): void {
         const wasEnabled = this.localAnalysis;
         this.localAnalysis = false;
         this.lastBroadcastLocalAnalysisFen = undefined;
@@ -1494,6 +1501,15 @@ export class AnalysisController extends GameController {
 
         const engineToggle = document.getElementById('engine-enabled') as HTMLInputElement | null;
         if (engineToggle !== null) engineToggle.checked = false;
+    }
+
+    suspendLocalAnalysisForExtension(): void {
+        this.suspendLocalAnalysis();
+    }
+
+    disableLocalAnalysisForAntiCheat() {
+        localStorage.localAnalysis = 'false';
+        this.suspendLocalAnalysis();
     }
 
     private onAntiCheatStorage = (event: StorageEvent) => {

@@ -287,6 +287,15 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('#roundchat')).toBeNull();
         expect([...root.querySelectorAll('button')].some(button => button.textContent === 'Add to Study')).toBe(false);
         expect(root.querySelector('dialog#study-new-chapter .study-side__new-chapter')).not.toBeNull();
+        const newChapterForm = root.querySelector<HTMLFormElement>(
+            'dialog#study-new-chapter .study-side__new-chapter',
+        )!;
+        expect(newChapterForm.querySelector<HTMLSelectElement>('select[name="orientation"]')?.value).toBe('white');
+        expect(
+            [...newChapterForm.querySelectorAll<HTMLOptionElement>('select[name="mode"] option')].map(
+                option => option.value,
+            ),
+        ).toEqual(['normal']);
         expect(root.querySelector('dialog#study-members')).toBeNull();
         const writerRow = root.querySelector<HTMLElement>('[data-study-member="writer"]')!;
         const writerConfigButton = writerRow.querySelector<HTMLButtonElement>('[data-study-member-config-button]')!;
@@ -320,7 +329,13 @@ describe('analysis page smoke coverage', () => {
         expect(secondChapterSettings.querySelector<HTMLSelectElement>('select[name="orientation"]')?.value).toBe(
             'black',
         );
-        expect(secondChapterSettings.querySelector<HTMLSelectElement>('select[name="mode"]')?.disabled).toBe(true);
+        const chapterMode = secondChapterSettings.querySelector<HTMLSelectElement>('select[name="mode"]')!;
+        expect(chapterMode.disabled).toBe(false);
+        expect(chapterMode.value).toBe('normal');
+        expect([...chapterMode.options].map(option => option.value)).toEqual(['normal']);
+        expect(
+            secondChapterSettings.querySelector('.study-chapter-orientation .study-dialog__help')?.textContent,
+        ).toContain('learner side');
         expect(secondChapterSettings.querySelector<HTMLSelectElement>('select[name="description"]')?.value).toBe('');
         expect(
             secondChapterSettings.querySelector('.study-dialog__actions button[form="chapter-settings-form-ChAp0002"]')
