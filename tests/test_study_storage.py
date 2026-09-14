@@ -48,7 +48,7 @@ from study.storage import (
     study_search_page,
     topic_studies_page,
 )
-from study.tree import StudyTree, StudyTreeNode
+from study.tree import StudyGamebook, StudyTree, StudyTreeNode
 
 
 class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
@@ -384,8 +384,10 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
                         move="e2e4",
                         fen="after-e4",
                         turn_color="black",
+                        gamebook=StudyGamebook(deviation="Node lesson"),
                     )
-                }
+                },
+                root_gamebook=StudyGamebook(hint="Root lesson"),
             ),
             tags={"Chapter": "Two"},
         )
@@ -546,6 +548,7 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
             fen="fen-1",
             turn_color="black",
             annotations=StudyAnnotations(nags=(1,)),
+            gamebook=StudyGamebook(deviation="Keep node lesson"),
             clocks=(298000, 300000),
         )
         tree = StudyTree(
@@ -553,6 +556,7 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
             root_annotations=StudyAnnotations(
                 comments=(StudyComment("Comment001", "owner", "Root note"),)
             ),
+            root_gamebook=StudyGamebook(hint="Keep root lesson"),
             root_clocks=(300000, 300000),
         )
         chapter = replace(chapter, root=tree)
@@ -567,13 +571,23 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
         assert loaded is not None
         self.assertTrue(loaded.root.root_annotations.empty)
         self.assertTrue(all(node.annotations.empty for node in loaded.root.nodes.values()))
+        self.assertEqual(loaded.root.root_gamebook, StudyGamebook(hint="Keep root lesson"))
+        self.assertEqual(
+            loaded.root.nodes[main.id].gamebook, StudyGamebook(deviation="Keep node lesson")
+        )
         self.assertEqual(loaded.root.root_clocks, (300000, 300000))
         self.assertEqual(loaded.root.nodes[main.id].clocks, (298000, 300000))
 
     async def test_clear_chapter_variations_keeps_first_child_recursively(self) -> None:
         study, chapter = await create_study_with_chapter(cast(Any, self.app_state), "owner")
         main = StudyTreeNode(
-            id="MainNode01", parent_id=None, order=0, move="e2e4", fen="fen-1", turn_color="black"
+            id="MainNode01",
+            parent_id=None,
+            order=0,
+            move="e2e4",
+            fen="fen-1",
+            turn_color="black",
+            gamebook=StudyGamebook(hint="Mainline hint"),
         )
         root_variation = StudyTreeNode(
             id="RootVar001", parent_id=None, order=1, move="d2d4", fen="fen-2", turn_color="black"
@@ -585,6 +599,7 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
             move="e7e5",
             fen="fen-3",
             turn_color="white",
+            gamebook=StudyGamebook(deviation="Mainline fallback"),
         )
         side = StudyTreeNode(
             id="SideNode01",
@@ -596,6 +611,7 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
         )
         tree = StudyTree(
             {node.id: node for node in (main, root_variation, continuation, side)},
+            root_gamebook=StudyGamebook(hint="Root hint"),
             root_clocks=(300000, 300000),
         )
         chapter = replace(chapter, root=tree, mode="conceal", conceal_ply=2)
@@ -613,6 +629,12 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
         loaded = await load_owned_chapter(cast(Any, self.app_state), study.id, chapter.id, "owner")
         assert loaded is not None
         self.assertEqual(set(loaded.root.nodes), {main.id, continuation.id})
+        self.assertEqual(loaded.root.root_gamebook, StudyGamebook(hint="Root hint"))
+        self.assertEqual(loaded.root.nodes[main.id].gamebook, StudyGamebook(hint="Mainline hint"))
+        self.assertEqual(
+            loaded.root.nodes[continuation.id].gamebook,
+            StudyGamebook(deviation="Mainline fallback"),
+        )
         self.assertEqual(loaded.root.root_clocks, (300000, 300000))
         self.assertEqual(loaded.conceal_ply, 2)
         study_doc = await self.db.study.find_one({"_id": study.id})

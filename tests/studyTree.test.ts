@@ -70,9 +70,10 @@ describe('Study tree persistence adapter', () => {
         expect(restored.root.children[0].step.clocks).toEqual([298000, 300000]);
     });
 
-    test('round-trips root and node annotations through the generic analysis tree', () => {
+    test('round-trips root/node annotations and gamebook metadata through the generic analysis tree', () => {
         const rootStep = makeStep('start w - - 0 1', undefined, 'white');
         const dto: StudyTreeDto = {
+            rootGamebook: { hint: 'Root hint' },
             rootAnnotations: {
                 shapes: [{ orig: 'e4', dest: 'e5', brush: 'red' }],
                 comments: [{ id: 'Comment001', author: 'owner', text: 'Root note' }],
@@ -93,6 +94,7 @@ describe('Study tree persistence adapter', () => {
                         comments: [{ id: 'Comment002', author: 'owner', text: 'Node note' }],
                         nags: [2],
                     },
+                    gamebook: { hint: 'Node hint', deviation: 'Try the mainline' },
                     eval: { cp: 42 },
                 },
             ],
@@ -100,7 +102,9 @@ describe('Study tree persistence adapter', () => {
 
         const tree = analysisTreeFromStudy(rootStep, dto);
         expect(tree.root.annotations?.comments[0].text).toBe('Root note');
+        expect(tree.root.gamebook).toEqual({ hint: 'Root hint' });
         expect(tree.root.children[0].annotations?.shapes).toEqual([{ orig: 'd4', brush: 'blue' }]);
+        expect(tree.root.children[0].gamebook).toEqual({ hint: 'Node hint', deviation: 'Try the mainline' });
         expect(tree.root.children[0].annotations?.nags).toEqual([2]);
         expect(tree.root.children[0].eval).toEqual({ s: { cp: 42 }, d: 0 });
         expect(studyTreeFromAnalysisTree(tree)).toEqual(dto);

@@ -670,6 +670,7 @@ def _merge_analysis_into_tree(
     return StudyTree(
         nodes,
         root_annotations=chapter.root.root_annotations,
+        root_gamebook=chapter.root.root_gamebook,
         root_clocks=chapter.root.root_clocks,
     )
 
