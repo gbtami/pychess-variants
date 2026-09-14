@@ -548,7 +548,7 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
             fen="fen-1",
             turn_color="black",
             annotations=StudyAnnotations(nags=(1,)),
-            gamebook=StudyGamebook(deviation="Keep node lesson"),
+            gamebook=StudyGamebook(deviation="Remove node lesson"),
             clocks=(298000, 300000),
         )
         tree = StudyTree(
@@ -556,7 +556,7 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
             root_annotations=StudyAnnotations(
                 comments=(StudyComment("Comment001", "owner", "Root note"),)
             ),
-            root_gamebook=StudyGamebook(hint="Keep root lesson"),
+            root_gamebook=StudyGamebook(hint="Remove root lesson"),
             root_clocks=(300000, 300000),
         )
         chapter = replace(chapter, root=tree)
@@ -571,10 +571,8 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
         assert loaded is not None
         self.assertTrue(loaded.root.root_annotations.empty)
         self.assertTrue(all(node.annotations.empty for node in loaded.root.nodes.values()))
-        self.assertEqual(loaded.root.root_gamebook, StudyGamebook(hint="Keep root lesson"))
-        self.assertEqual(
-            loaded.root.nodes[main.id].gamebook, StudyGamebook(deviation="Keep node lesson")
-        )
+        self.assertTrue(loaded.root.root_gamebook.empty)
+        self.assertTrue(loaded.root.nodes[main.id].gamebook.empty)
         self.assertEqual(loaded.root.root_clocks, (300000, 300000))
         self.assertEqual(loaded.root.nodes[main.id].clocks, (298000, 300000))
 

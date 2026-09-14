@@ -728,6 +728,30 @@
 .study-underboard { container-type: inline-size; }
 #study-panel-comments, #study-panel-glyphs { padding: 0; }
 #study-panel-comments { background: transparent; }
+
+.study-gamebook-edit { display: grid; gap: .7rem; line-height: 1.4; }
+.study-gamebook-edit p { margin: 0; }
+.study-gamebook-edit__header { display: flex; align-items: baseline; justify-content: space-between; gap: .8rem; }
+.study-gamebook-edit__title { font-weight: 600; }
+.study-gamebook-edit__keys { display: inline-flex; align-items: center; gap: .2rem; font-size: .8rem; opacity: .72; }
+.study-gamebook-edit__keys kbd {
+    min-width: 1.5rem;
+    padding: .05rem .3rem;
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    background: var(--bg-color2);
+    text-align: center;
+    font: inherit;
+}
+.study-gamebook-edit__warning {
+    padding: .55rem .65rem;
+    border-left: 3px solid var(--bad);
+    background: color-mix(in srgb, var(--bad) 10%, transparent);
+}
+.study-gamebook-edit__field { display: grid; gap: .2rem; font-weight: 600; }
+.study-gamebook-edit__field textarea { margin: 0; font-weight: 400; }
+.study-gamebook-edit__comment, .study-gamebook-edit__preview { justify-self: start; }
+
 .study-annotations__comments { display: grid; gap: .4rem; }
 .study-annotations__comment-input { min-height: 5rem; }
 /* Like lila's glyph panel, wrap whole groups instead of their labels. */

@@ -42,7 +42,7 @@ from study.models import (
     study_visibility,
 )
 from study.permissions import STUDY_FEATURE_KEYS, can_write_study
-from study.tree import StudyTree
+from study.tree import StudyGamebook, StudyTree
 
 
 class StudyStorageError(ValueError):
@@ -1532,20 +1532,24 @@ async def edit_chapter_metadata(
 
 
 def _without_chapter_annotations(tree: StudyTree) -> tuple[StudyTree, bool]:
-    changed = not tree.root_annotations.empty or any(
-        not node.annotations.empty for node in tree.nodes.values()
+    changed = (
+        not tree.root_annotations.empty
+        or not tree.root_gamebook.empty
+        or any(
+            not node.annotations.empty or not node.gamebook.empty for node in tree.nodes.values()
+        )
     )
     if not changed:
         return tree, False
     nodes = {
-        node_id: replace(node, annotations=StudyAnnotations())
+        node_id: replace(node, annotations=StudyAnnotations(), gamebook=StudyGamebook())
         for node_id, node in tree.nodes.items()
     }
     return (
         StudyTree(
             nodes,
             root_annotations=StudyAnnotations(),
-            root_gamebook=tree.root_gamebook,
+            root_gamebook=StudyGamebook(),
             root_clocks=tree.root_clocks,
         ),
         True,
@@ -1583,7 +1587,7 @@ def _existing_tree_path(tree: StudyTree, path: str) -> str:
 
 
 async def clear_chapter_annotations(app_state: Any, study: Study, chapter: StudyChapter) -> bool:
-    """Clear all comments, shapes and NAGs in a chapter, like Lichess.
+    """Clear comments, shapes, NAGs and lesson instructions in a chapter.
 
     Lichess also clears the chapter's server-analysis record because that record
     can contain annotations derived from the old tree state. Keep node evals,

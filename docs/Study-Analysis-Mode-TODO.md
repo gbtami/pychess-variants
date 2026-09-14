@@ -558,7 +558,7 @@ are complete; it need not wait for computer practice.
   path later. Test duplicate-node reconciliation and a deleted target.
   **Done:** two contributors see the same hint/deviation; unrelated tree edits
   never erase root metadata or save text on a different node.
-- [ ] **C2 — Editor and instructional guidance.** Add `studyGamebookEdit.ts`
+- [x] **C2 — Editor and instructional guidance.** Add `studyGamebookEdit.ts`
   (suggested), borrowing the small lila editor workflow. Integrate ordinary comment
   editing, expected-mainline guidance, optional hint, fallback deviation, wrong
   variation explanation and Preview. Add empty-script warnings and keyboard labels.
