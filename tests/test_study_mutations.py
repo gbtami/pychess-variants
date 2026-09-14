@@ -275,6 +275,48 @@ class StudyMutationServiceTestCase(unittest.IsolatedAsyncioTestCase):
             [node.id for node in chapter.root.children_of(None)], [d4.node.id, e4.node.id]
         )
 
+    async def test_conceal_boundary_clamps_when_mainline_is_promoted_or_deleted(self) -> None:
+        e4 = await self._add("e2e4", 0)
+        assert e4.path is not None
+        e5 = await self._add("e7e5", 1, e4.path)
+        c5 = await self._add("c7c5", 2, e4.path)
+        assert e5.path is not None and c5.path is not None
+        await self.db.study_chapter.update_one(
+            {"_id": CHAPTER_ID},
+            {"$set": {"mode": "conceal", "concealPly": 2}},
+        )
+
+        promoted = await self.service.promote_variation(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            path=c5.path,
+            to_mainline=False,
+            expected_revision=3,
+        )
+        self.assertEqual(promoted.status, "ok")
+        self.assertTrue(promoted.conceal_changed)
+        self.assertEqual(promoted.conceal_ply, 1)
+        self.assertEqual((await self._chapter()).conceal_ply, 1)
+
+        # Reveal the new second ply, then remove it. Deletion keeps only the still
+        # unchanged first mainline move revealed.
+        await self.db.study_chapter.update_one(
+            {"_id": CHAPTER_ID},
+            {"$set": {"concealPly": 2}},
+        )
+        deleted = await self.service.delete_node(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            path=c5.path,
+            expected_revision=4,
+        )
+        self.assertEqual(deleted.status, "ok")
+        self.assertTrue(deleted.conceal_changed)
+        self.assertEqual(deleted.conceal_ply, 1)
+        self.assertEqual((await self._chapter()).conceal_ply, 1)
+
     async def test_force_variation_keeps_only_one_marker(self) -> None:
         e4 = await self._add("e2e4", 0)
         d4 = await self._add("d2d4", 1)

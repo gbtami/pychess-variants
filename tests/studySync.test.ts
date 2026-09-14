@@ -631,6 +631,79 @@ describe('Study analysis websocket synchronization', () => {
             studyId: 'study001',
             chapterId: 'chapter1',
             path: 'StudyNode1',
+            expectedRevision: 1,
+        });
+    });
+
+    test('shared chapter switch does not invent a revision for a chapter that is not loaded', () => {
+        const ctrl = makeCtrl();
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 7,
+            writable: true,
+            recording: true,
+            onReloadRequired: jest.fn(),
+        });
+        extension.onSocketOpen();
+
+        expect(extension.sharePosition('chapter2', '')).toBe(true);
+        expect(ctrl.doSend).toHaveBeenLastCalledWith({
+            type: 'study_set_position',
+            studyId: 'study001',
+            chapterId: 'chapter2',
+            path: '',
+        });
+    });
+
+    test('conceal broadcasts update reveal revision and authoritative shared position', () => {
+        const ctrl = makeCtrl();
+        const concealChanged = jest.fn();
+        const sharedChanged = jest.fn();
+        const reload = jest.fn();
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 4,
+            onConcealChanged: concealChanged,
+            onSharedPositionChanged: sharedChanged,
+            onReloadRequired: reload,
+        });
+
+        expect(
+            extension.onSocketMessage('study_conceal', {
+                type: 'study_conceal',
+                studyId: 'study001',
+                chapterId: 'chapter1',
+                path: 'StudyNode1',
+                concealPly: 1,
+                revision: 5,
+            }),
+        ).toBe(true);
+        expect(extension.revision).toBe(5);
+        expect(concealChanged).toHaveBeenCalledWith(1, 5);
+        expect(sharedChanged).toHaveBeenCalledWith('chapter1', 'StudyNode1');
+        expect(reload).not.toHaveBeenCalled();
+    });
+
+    test('conceal reset is an explicit writable operation independent of REC', () => {
+        const ctrl = makeCtrl();
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 9,
+            writable: true,
+            recording: false,
+            onReloadRequired: jest.fn(),
+        });
+        extension.onSocketOpen();
+
+        expect(extension.resetConcealment()).toBe(true);
+        expect(ctrl.doSend).toHaveBeenLastCalledWith({
+            type: 'study_reset_conceal',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            expectedRevision: 9,
         });
     });
 

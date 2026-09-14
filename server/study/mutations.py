@@ -20,6 +20,7 @@ from study.annotations import (
     canonical_tags,
     is_study_comment_id,
 )
+from study.conceal import reconciled_conceal_ply
 from study.constants import STUDY_CHAPTER_MAX_BSON_BYTES, STUDY_MAX_NODES_PER_CHAPTER
 from study.models import Study, StudyChapter
 from study.permissions import can_write_study
@@ -54,6 +55,8 @@ class StudyMutationResult:
     annotations: StudyAnnotations | None = None
     description: str | None = None
     tags: Mapping[str, str] | None = None
+    conceal_ply: int | None = None
+    conceal_changed: bool = False
 
     def to_payload(self) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -74,6 +77,8 @@ class StudyMutationResult:
             payload["description"] = self.description
         if self.tags is not None:
             payload["tags"] = dict(self.tags)
+        if self.conceal_changed:
+            payload["concealPly"] = self.conceal_ply
         return payload
 
 
@@ -202,6 +207,8 @@ class StudyMutationService:
             changed=True,
             path=self._join_path(parent_path, node.id),
             node=node,
+            conceal_ply=candidate.conceal_ply,
+            conceal_changed=candidate.conceal_ply != chapter.conceal_ply,
         )
 
     async def delete_node(
@@ -264,6 +271,8 @@ class StudyMutationService:
             revision=candidate.revision,
             changed=True,
             path=path,
+            conceal_ply=candidate.conceal_ply,
+            conceal_changed=candidate.conceal_ply != chapter.conceal_ply,
         )
 
     async def promote_variation(
@@ -346,6 +355,8 @@ class StudyMutationService:
             revision=candidate.revision,
             changed=True,
             path=path,
+            conceal_ply=candidate.conceal_ply,
+            conceal_changed=candidate.conceal_ply != chapter.conceal_ply,
         )
 
     async def force_variation(
@@ -406,6 +417,8 @@ class StudyMutationService:
             revision=candidate.revision,
             changed=True,
             path=path,
+            conceal_ply=candidate.conceal_ply,
+            conceal_changed=candidate.conceal_ply != chapter.conceal_ply,
         )
 
     async def set_shapes(
@@ -838,10 +851,12 @@ class StudyMutationService:
         server_eval = chapter.server_eval
         if server_eval is not None and root.preferred_mainline_path() != server_eval.path:
             server_eval = None
+        conceal_ply = reconciled_conceal_ply(chapter.root, root, chapter.conceal_ply)
         return replace(
             chapter,
             root=root,
             server_eval=server_eval,
+            conceal_ply=conceal_ply,
             updated_at=datetime.now(UTC),
             revision=chapter.revision + 1,
         )
@@ -881,6 +896,11 @@ class StudyMutationService:
         unset_fields.update(extra_unset or set())
         if previous.server_eval is not None and candidate.server_eval is None:
             unset_fields.add("serverEval")
+        if candidate.conceal_ply != previous.conceal_ply:
+            if candidate.conceal_ply is None:
+                unset_fields.add("concealPly")
+            else:
+                set_fields["concealPly"] = candidate.conceal_ply
         if unset_fields:
             update["$unset"] = {field: "" for field in unset_fields}
 

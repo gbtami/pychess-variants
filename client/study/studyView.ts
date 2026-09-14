@@ -777,6 +777,7 @@ type StudyModeActions = {
     showServerAnalysis: () => void;
     setDescription: (description: string) => void;
     settleWrites: () => Promise<boolean>;
+    resetConcealment: () => Promise<void>;
 };
 
 function studyRecordingKey(studyId: string): string {
@@ -1222,6 +1223,32 @@ function studySide(study: StudyPageModel, model: PyChessModel, modeActions: Stud
                                   _('Clear variations'),
                                   _('Clear variations?'),
                               ),
+                              ...(item.id === study.chapter.id && item.mode === 'conceal'
+                                  ? [
+                                        h(
+                                            'button.button.button-empty',
+                                            {
+                                                attrs: { type: 'button' },
+                                                on: {
+                                                    click: () => {
+                                                        void (async () => {
+                                                            const confirmed = await confirmDialog({
+                                                                title: _('Hide moves again'),
+                                                                confirmText: _('Hide moves again'),
+                                                                cancelText: _('Cancel'),
+                                                                text: _(
+                                                                    'Hide all moves and return the shared position to the start?',
+                                                                ),
+                                                            });
+                                                            if (confirmed) await modeActions.resetConcealment();
+                                                        })();
+                                                    },
+                                                },
+                                            },
+                                            _('Hide moves again'),
+                                        ),
+                                    ]
+                                  : []),
                           ]),
                           dialogActions(
                               `chapter-settings-form-${item.id}`,
@@ -2000,6 +2027,12 @@ function runStudyGround(
                     study.chapter.orientation = current.orientation;
                     extension.updateChapterMetadata(current);
                 },
+                onConcealChanged: (concealPly, revision) => {
+                    study.chapter.concealPly = concealPly;
+                    study.chapter.revision = revision;
+                    const preview = study.chapters.find(chapter => chapter.id === study.chapter.id);
+                    if (preview) preview.concealPly = concealPly;
+                },
                 onSharedPositionChanged: (chapterId, path) => {
                     const changed = study.sharedChapter !== chapterId || study.sharedPath !== path;
                     study.sharedChapter = chapterId;
@@ -2068,6 +2101,10 @@ function runStudyGround(
                 await alertDialog({ text: _('Study changes could not be saved. Please try again.') });
                 return false;
             }
+        };
+        modeActions.resetConcealment = async () => {
+            if (!(await modeActions.settleWrites())) return;
+            extension.resetConcealment();
         };
         if (socket.ws.readyState === WebSocket.OPEN) extension.onSocketOpen();
         const serverPanel = document.getElementById('study-panel-serverEval');
@@ -2340,6 +2377,7 @@ export function studyView(model: PyChessModel): VNode[] {
         showServerAnalysis: () => {},
         setDescription: () => {},
         settleWrites: async () => true,
+        resetConcealment: async () => {},
     };
     const side = studySide(study, model, modeActions);
     const page = renderAnalysisPage(model, {

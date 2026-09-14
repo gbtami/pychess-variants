@@ -165,6 +165,14 @@ class StudySetPositionIn(WsInboundStruct):
     studyId: str
     chapterId: str
     path: str
+    expectedRevision: int | None = None
+
+
+class StudyResetConcealIn(WsInboundStruct):
+    type: Literal["study_reset_conceal"]
+    studyId: str
+    chapterId: str
+    expectedRevision: int
 
 
 class StudyRequestAnalysisIn(WsInboundStruct):
@@ -192,6 +200,7 @@ STUDY_TYPED_DECODERS: dict[str, msgspec.json.Decoder] = {
     "study_set_description": msgspec.json.Decoder(type=StudySetDescriptionIn),
     "study_set_tags": msgspec.json.Decoder(type=StudySetTagsIn),
     "study_set_position": msgspec.json.Decoder(type=StudySetPositionIn),
+    "study_reset_conceal": msgspec.json.Decoder(type=StudyResetConcealIn),
     "study_request_analysis": msgspec.json.Decoder(type=StudyRequestAnalysisIn),
     "study_sync_chapter": msgspec.json.Decoder(type=StudySyncChapterIn),
 }
