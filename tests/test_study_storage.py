@@ -598,11 +598,12 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
             {node.id: node for node in (main, root_variation, continuation, side)},
             root_clocks=(300000, 300000),
         )
-        chapter = replace(chapter, root=tree)
+        chapter = replace(chapter, root=tree, mode="conceal", conceal_ply=2)
         variation_path = f"{main.id}.{side.id}"
         study = replace(study, current_path=variation_path)
         await self.db.study_chapter.update_one(
-            {"_id": chapter.id}, {"$set": {"root": tree.to_document()}}
+            {"_id": chapter.id},
+            {"$set": {"root": tree.to_document(), "mode": "conceal", "concealPly": 2}},
         )
         await self.db.study.update_one({"_id": study.id}, {"$set": {"currentPath": variation_path}})
 
@@ -613,6 +614,7 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
         assert loaded is not None
         self.assertEqual(set(loaded.root.nodes), {main.id, continuation.id})
         self.assertEqual(loaded.root.root_clocks, (300000, 300000))
+        self.assertEqual(loaded.conceal_ply, 2)
         study_doc = await self.db.study.find_one({"_id": study.id})
         assert study_doc is not None
         self.assertEqual(study_doc.get("currentPath"), main.id)

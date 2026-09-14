@@ -22,6 +22,7 @@ from study.storage import (
     chapter_previews,
     load_chapter,
     load_study,
+    reset_concealment,
     set_shared_position,
 )
 
@@ -134,6 +135,8 @@ async def _finish_mutation(
         payload["description"] = result.description
     if result.tags is not None:
         payload["tags"] = dict(result.tags)
+    if result.conceal_changed:
+        payload["concealPly"] = result.conceal_ply
     if extra:
         payload.update(extra)
 
@@ -215,6 +218,30 @@ async def broadcast_study_position(
     )
 
 
+async def _broadcast_conceal_state(
+    app_state: PychessGlobalAppState,
+    ws: WebSocketResponse,
+    study_id: str,
+    chapter_id: str,
+    path: str,
+    conceal_ply: int,
+    revision: int,
+) -> None:
+    payload = {
+        "type": "study_conceal",
+        "studyId": study_id,
+        "chapterId": chapter_id,
+        "path": path,
+        "concealPly": conceal_ply,
+        "revision": revision,
+    }
+    room = app_state.study_sockets.get(study_id)
+    if room:
+        await ws_send_json_many(tuple(room), payload)
+    else:
+        await ws_send_json(ws, payload)
+
+
 async def _broadcast_shared_position(
     app_state: PychessGlobalAppState,
     ws: WebSocketResponse,
@@ -247,17 +274,33 @@ async def _set_shared_position_message(
 ) -> None:
     chapter_id = data.get("chapterId")
     path = data.get("path")
+    expected_revision = data.get("expectedRevision")
     if (
         data.get("studyId") != study_id
         or not isinstance(chapter_id, str)
         or not chapter_id
         or not isinstance(path, str)
         or len(path) > _MAX_PATH_LENGTH
+        or (
+            expected_revision is not None
+            and (
+                isinstance(expected_revision, bool)
+                or not isinstance(expected_revision, int)
+                or expected_revision < 0
+            )
+        )
     ):
         await _send_invalid_message(ws, data)
         return
     try:
-        _, changed = await set_shared_position(app_state, study_id, user.username, chapter_id, path)
+        result = await set_shared_position(
+            app_state,
+            study_id,
+            user.username,
+            chapter_id,
+            path,
+            expected_revision=cast(int | None, expected_revision),
+        )
     except StudyStorageError:
         await ws_send_json(
             ws,
@@ -269,8 +312,76 @@ async def _set_shared_position_message(
             },
         )
         return
-    if changed:
-        await _broadcast_shared_position(app_state, ws, study_id, chapter_id, path)
+    if not result.changed:
+        return
+    if result.conceal_changed and result.conceal_ply is not None:
+        await _broadcast_conceal_state(
+            app_state,
+            ws,
+            study_id,
+            chapter_id,
+            path,
+            result.conceal_ply,
+            result.chapter_revision,
+        )
+        return
+    await _broadcast_shared_position(app_state, ws, study_id, chapter_id, path)
+
+
+async def _reset_conceal_message(
+    app_state: PychessGlobalAppState,
+    user: User,
+    ws: WebSocketResponse,
+    data: Mapping[str, object],
+    *,
+    study_id: str,
+) -> None:
+    chapter_id = data.get("chapterId")
+    expected_revision = data.get("expectedRevision")
+    if (
+        data.get("studyId") != study_id
+        or not isinstance(chapter_id, str)
+        or not chapter_id
+        or isinstance(expected_revision, bool)
+        or not isinstance(expected_revision, int)
+        or expected_revision < 0
+    ):
+        await _send_invalid_message(ws, data)
+        return
+    try:
+        result = await reset_concealment(
+            app_state,
+            study_id,
+            user.username,
+            chapter_id,
+            expected_revision,
+        )
+    except StudyStorageError:
+        await ws_send_json(
+            ws,
+            {
+                "type": "study_reload",
+                "studyId": study_id,
+                "chapterId": chapter_id,
+                "reason": "invalid_conceal_reset",
+            },
+        )
+        return
+    if not result.changed:
+        return
+    path = result.study.current_path or ""
+    if result.conceal_changed and result.conceal_ply is not None:
+        await _broadcast_conceal_state(
+            app_state,
+            ws,
+            study_id,
+            chapter_id,
+            path,
+            result.conceal_ply,
+            result.chapter_revision,
+        )
+        return
+    await _broadcast_shared_position(app_state, ws, study_id, chapter_id, path)
 
 
 async def _repair_shared_position_after_delete(
@@ -387,6 +498,10 @@ async def _process_message_unlocked(
 
     if message_type == "study_set_position":
         await _set_shared_position_message(app_state, user, ws, data, study_id=study_id)
+        return
+
+    if message_type == "study_reset_conceal":
+        await _reset_conceal_message(app_state, user, ws, data, study_id=study_id)
         return
 
     if message_type == "study_request_analysis":

@@ -846,6 +846,10 @@ async def test_chapter_mode_edit_reloads_room_is_idempotent_and_requires_write_a
     )
     room = _StudyRoomSocket()
     app_state.study_sockets[study.id] = {room}
+    await app_state.db.study.update_one(
+        {"_id": study.id},
+        {"$set": {"currentChapter": chapter.id, "currentPath": "StalePath1"}},
+    )
     client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie(owner)})
 
     changed = await client.post(
@@ -859,6 +863,10 @@ async def test_chapter_mode_edit_reloads_room_is_idempotent_and_requires_write_a
     assert stored["mode"] == "conceal"
     assert stored["concealPly"] == 0
     assert stored["revision"] == 1
+    shared = await app_state.db.study.find_one({"_id": study.id})
+    assert shared is not None
+    assert shared["currentChapter"] == chapter.id
+    assert "currentPath" not in shared
     assert room.sent == [
         {"type": "study_reload", "studyId": study.id, "reason": "chapter_mode_changed"}
     ]

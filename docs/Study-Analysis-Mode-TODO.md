@@ -527,7 +527,7 @@ are complete; it need not wait for computer practice.
 
 ### B. Hide next moves
 
-- [ ] **B1 — Reveal state protocol.** Implement 3.3 in shared-position publication
+- [x] **B1 — Reveal state protocol.** Implement 3.3 in shared-position publication
   and a dedicated reset operation. Serialize authorization, boundary/path persistence,
   revisions, and broadcasts together. Include root/custom-FEN depth, stale updates,
   non-mainline publication, edits, deletion and reconnect cases.

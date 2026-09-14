@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Mapping
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from inspect import isawaitable
 from typing import Any, Literal, cast
@@ -12,6 +12,7 @@ from fairy import FairyBoard
 
 from study.annotations import StudyAnnotations
 from study.builder import StudyChapterDraft
+from study.conceal import preferred_mainline_depth_for_path, reconciled_conceal_ply
 from study.constants import (
     STUDY_CHAPTER_MAX_BSON_BYTES,
     STUDY_CHAPTER_NAME_MAX_LENGTH,
@@ -46,6 +47,15 @@ from study.tree import StudyTree
 
 class StudyStorageError(ValueError):
     pass
+
+
+@dataclass(frozen=True, slots=True)
+class StudySharedPositionResult:
+    study: Study
+    changed: bool
+    chapter_revision: int
+    conceal_ply: int | None = None
+    conceal_changed: bool = False
 
 
 STUDY_LIST_PAGE_SIZE = 16
@@ -1202,12 +1212,15 @@ async def set_shared_position(
     username: str,
     chapter_id: str,
     path: str,
-) -> tuple[Study, bool]:
-    """Persist the authoritative Study chapter/path selected by a contributor.
+    *,
+    expected_revision: int | None = None,
+) -> StudySharedPositionResult:
+    """Persist an authorized shared position and advance concealment when presented.
 
-    Shared navigation is intentionally separate from chapter tree revisions: the
-    active position is ephemeral collaboration state, but it still lives in MongoDB
-    so late joiners and reconnecting clients can resume the same presentation.
+    The caller holds the Study sequencer while this runs and broadcasts the result.
+    A concealed chapter advances only when the published path is a prefix of the
+    preferred mainline; side variations and backward publication never increase the
+    boundary. The boundary is root-relative, so custom-FEN move numbers are irrelevant.
     """
 
     study = await load_study(app_state, study_id)
@@ -1220,10 +1233,46 @@ async def set_shared_position(
         raise StudyStorageError("Study chapter not found")
     if path and chapter.root.node_at_path(path) is None:
         raise StudyStorageError("Study path not found")
+    if expected_revision is not None and expected_revision != chapter.revision:
+        raise StudyStorageError("Study chapter changed while publishing position")
 
     current_path = study.current_path or ""
-    if study.current_chapter == chapter_id and current_path == path:
-        return study, False
+    position_changed = study.current_chapter != chapter_id or current_path != path
+    next_conceal_ply = chapter.conceal_ply
+    conceal_changed = False
+    if chapter.mode == "conceal":
+        depth = preferred_mainline_depth_for_path(chapter.root, path)
+        if depth is not None and depth > (chapter.conceal_ply or 0):
+            if expected_revision is None:
+                raise StudyStorageError("Conceal reveal publication requires a chapter revision")
+            next_conceal_ply = depth
+            conceal_changed = True
+
+    if not position_changed and not conceal_changed:
+        return StudySharedPositionResult(
+            study=study,
+            changed=False,
+            chapter_revision=chapter.revision,
+            conceal_ply=chapter.conceal_ply,
+        )
+
+    next_revision = chapter.revision
+    if conceal_changed:
+        next_revision += 1
+        chapter_update = await app_state.db.study_chapter.update_one(
+            {
+                "_id": chapter.id,
+                "studyId": study.id,
+                "revision": chapter.revision,
+                "mode": "conceal",
+            },
+            {
+                "$set": {"concealPly": next_conceal_ply},
+                "$inc": {"revision": 1},
+            },
+        )
+        if chapter_update.matched_count != 1:
+            raise StudyStorageError("Study chapter changed while publishing position")
 
     update: dict[str, object] = {"$set": {"currentChapter": chapter_id}}
     if path:
@@ -1232,8 +1281,83 @@ async def set_shared_position(
         cast_set["currentPath"] = path
     else:
         update["$unset"] = {"currentPath": ""}
-    await app_state.db.study.update_one({"_id": study_id}, update)
-    return replace(study, current_chapter=chapter_id, current_path=path or None), True
+    study_update = await app_state.db.study.update_one({"_id": study_id}, update)
+    if study_update.matched_count != 1:
+        raise StudyStorageError("Study disappeared while publishing position")
+
+    return StudySharedPositionResult(
+        study=replace(study, current_chapter=chapter_id, current_path=path or None),
+        changed=True,
+        chapter_revision=next_revision,
+        conceal_ply=next_conceal_ply,
+        conceal_changed=conceal_changed,
+    )
+
+
+async def reset_concealment(
+    app_state: Any,
+    study_id: str,
+    username: str,
+    chapter_id: str,
+    expected_revision: int,
+) -> StudySharedPositionResult:
+    """Hide a concealed chapter again and reset its shared presentation to root."""
+
+    study = await load_study(app_state, study_id)
+    if study is None:
+        raise StudyStorageError("Study not found")
+    if not can_write_study(study, username):
+        raise StudyStorageError("Study is read only")
+    chapter = await load_chapter(app_state, study_id, chapter_id)
+    if chapter is None:
+        raise StudyStorageError("Study chapter not found")
+    if chapter.mode != "conceal":
+        raise StudyStorageError("Study chapter is not concealed")
+    if expected_revision != chapter.revision:
+        raise StudyStorageError("Study chapter changed while resetting concealment")
+
+    current_path = study.current_path or ""
+    position_changed = study.current_chapter != chapter_id or bool(current_path)
+    conceal_changed = (chapter.conceal_ply or 0) != 0
+    if not position_changed and not conceal_changed:
+        return StudySharedPositionResult(
+            study=study,
+            changed=False,
+            chapter_revision=chapter.revision,
+            conceal_ply=0,
+        )
+
+    next_revision = chapter.revision
+    if conceal_changed:
+        next_revision += 1
+        chapter_update = await app_state.db.study_chapter.update_one(
+            {
+                "_id": chapter.id,
+                "studyId": study.id,
+                "revision": chapter.revision,
+                "mode": "conceal",
+            },
+            {
+                "$set": {"concealPly": 0},
+                "$inc": {"revision": 1},
+            },
+        )
+        if chapter_update.matched_count != 1:
+            raise StudyStorageError("Study chapter changed while resetting concealment")
+
+    study_update = await app_state.db.study.update_one(
+        {"_id": study.id},
+        {"$set": {"currentChapter": chapter.id}, "$unset": {"currentPath": ""}},
+    )
+    if study_update.matched_count != 1:
+        raise StudyStorageError("Study disappeared while resetting concealment")
+    return StudySharedPositionResult(
+        study=replace(study, current_chapter=chapter.id, current_path=None),
+        changed=True,
+        chapter_revision=next_revision,
+        conceal_ply=0,
+        conceal_changed=conceal_changed,
+    )
 
 
 async def rename_study(app_state: Any, study: Study, name: object) -> str:
@@ -1386,9 +1510,22 @@ async def edit_chapter_metadata(
         {"_id": chapter.id, "studyId": chapter.study_id, "owner": chapter.owner},
         update,
     )
+    study_update: dict[str, object] = {
+        "$set": {"updatedAt": now},
+        "$inc": {"revision": 1},
+    }
+    if chapter.mode != "conceal" and next_mode == "conceal":
+        # Enabling concealment starts a new shared presentation from the root.
+        # Only reset the path when this chapter is currently being presented.
+        current = await app_state.db.study.find_one(
+            {"_id": chapter.study_id, "owner": chapter.owner},
+            projection={"currentChapter": 1},
+        )
+        if current is not None and current.get("currentChapter") == chapter.id:
+            study_update["$unset"] = {"currentPath": ""}
     await app_state.db.study.update_one(
         {"_id": chapter.study_id, "owner": chapter.owner},
-        {"$set": {"updatedAt": now}, "$inc": {"revision": 1}},
+        study_update,
     )
     await refresh_study_search_tokens(app_state, chapter.study_id)
     return clean_name, typed_orientation
@@ -1489,12 +1626,22 @@ async def clear_chapter_variations(app_state: Any, study: Study, chapter: StudyC
         return False
 
     now = datetime.now(UTC)
-    candidate = replace(chapter, root=root, revision=chapter.revision + 1, updated_at=now)
+    next_conceal_ply = reconciled_conceal_ply(chapter.root, root, chapter.conceal_ply)
+    candidate = replace(
+        chapter,
+        root=root,
+        conceal_ply=next_conceal_ply,
+        revision=chapter.revision + 1,
+        updated_at=now,
+    )
     _ensure_chapter_size(candidate)
+    set_fields: dict[str, object] = {"root": root.to_document(), "updatedAt": now}
+    if next_conceal_ply != chapter.conceal_ply:
+        set_fields["concealPly"] = next_conceal_ply
     await app_state.db.study_chapter.update_one(
         {"_id": chapter.id, "studyId": study.id, "owner": study.owner},
         {
-            "$set": {"root": root.to_document(), "updatedAt": now},
+            "$set": set_fields,
             "$inc": {"revision": 1},
         },
     )

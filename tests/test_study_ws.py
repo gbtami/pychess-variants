@@ -28,6 +28,7 @@ from ws_structs import (
     StudyAddNodeIn,
     StudyDeleteNodeIn,
     StudyPromoteVariationIn,
+    StudyResetConcealIn,
     StudySetCommentIn,
     StudySetDescriptionIn,
     StudySetPositionIn,
@@ -908,6 +909,303 @@ class StudyWebsocketTestCase(unittest.IsolatedAsyncioTestCase):
         stored_chapter = await self.db.study_chapter.find_one({"_id": CHAPTER_ID})
         assert stored_chapter is not None
         self.assertEqual(stored_chapter["revision"], 1)
+
+    async def test_concealed_custom_fen_mainline_publication_advances_root_relative_boundary(
+        self,
+    ) -> None:
+        first = await self.service.add_node(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            parent_path="",
+            move="e2e4",
+            expected_revision=0,
+            node_id="Client0001",
+        )
+        second = await self.service.add_node(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            parent_path="Client0001",
+            move="e7e5",
+            expected_revision=1,
+            node_id="Client0002",
+        )
+        side = await self.service.add_node(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            parent_path="",
+            move="d2d4",
+            expected_revision=2,
+            node_id="Client0003",
+        )
+        self.assertTrue(first.changed and second.changed and side.changed)
+        await self.db.study_chapter.update_one(
+            {"_id": CHAPTER_ID},
+            {
+                "$set": {
+                    "mode": "conceal",
+                    "concealPly": 0,
+                    # Fullmove 42 must not affect concealment depth: tree root is ply 0.
+                    "initialFen": "8/8/8/8/8/8/8/K6k b - - 17 42",
+                }
+            },
+        )
+
+        owner_ws = await self._connect(self.user)
+        writer_ws = await self._connect(self.writer)
+        owner_ws.sent.clear()
+        writer_ws.sent.clear()
+        await process_message(
+            cast(Any, self.app_state),
+            cast(Any, self.writer),
+            cast(Any, writer_ws),
+            StudySetPositionIn(
+                type="study_set_position",
+                studyId=STUDY_ID,
+                chapterId=CHAPTER_ID,
+                path="Client0001.Client0002",
+                expectedRevision=3,
+            ),
+            study_id=STUDY_ID,
+            service=self.service,
+        )
+
+        self.assertEqual(owner_ws.sent, writer_ws.sent)
+        self.assertEqual(
+            owner_ws.sent,
+            [
+                {
+                    "type": "study_conceal",
+                    "studyId": STUDY_ID,
+                    "chapterId": CHAPTER_ID,
+                    "path": "Client0001.Client0002",
+                    "concealPly": 2,
+                    "revision": 4,
+                }
+            ],
+        )
+        stored = await self.db.study_chapter.find_one({"_id": CHAPTER_ID})
+        assert stored is not None
+        self.assertEqual(stored["concealPly"], 2)
+        self.assertEqual(stored["revision"], 4)
+        previews = await chapter_previews(cast(Any, self.app_state), STUDY_ID)
+        self.assertEqual(previews[0]["concealPly"], 2)
+
+        owner_ws.sent.clear()
+        writer_ws.sent.clear()
+        await process_message(
+            cast(Any, self.app_state),
+            cast(Any, self.writer),
+            cast(Any, writer_ws),
+            StudySetPositionIn(
+                type="study_set_position",
+                studyId=STUDY_ID,
+                chapterId=CHAPTER_ID,
+                path="Client0003",
+                expectedRevision=4,
+            ),
+            study_id=STUDY_ID,
+            service=self.service,
+        )
+        self.assertEqual(owner_ws.sent[0]["type"], "study_position")
+        stored = await self.db.study_chapter.find_one({"_id": CHAPTER_ID})
+        assert stored is not None
+        self.assertEqual(stored["concealPly"], 2)
+        self.assertEqual(stored["revision"], 4)
+
+    async def test_stale_conceal_publication_cannot_advance_boundary(self) -> None:
+        await self.service.add_node(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            parent_path="",
+            move="e2e4",
+            expected_revision=0,
+            node_id="Client0001",
+        )
+        await self.db.study_chapter.update_one(
+            {"_id": CHAPTER_ID},
+            {"$set": {"mode": "conceal", "concealPly": 0}},
+        )
+        await self.service.add_node(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            parent_path="",
+            move="d2d4",
+            expected_revision=1,
+            node_id="Client0002",
+        )
+        writer_ws = await self._connect(self.writer)
+        writer_ws.sent.clear()
+
+        await process_message(
+            cast(Any, self.app_state),
+            cast(Any, self.writer),
+            cast(Any, writer_ws),
+            StudySetPositionIn(
+                type="study_set_position",
+                studyId=STUDY_ID,
+                chapterId=CHAPTER_ID,
+                path="Client0001",
+                expectedRevision=1,
+            ),
+            study_id=STUDY_ID,
+            service=self.service,
+        )
+
+        self.assertEqual(writer_ws.sent[0]["type"], "study_reload")
+        self.assertEqual(writer_ws.sent[0]["reason"], "invalid_shared_position")
+        stored = await self.db.study_chapter.find_one({"_id": CHAPTER_ID})
+        assert stored is not None
+        self.assertEqual(stored["concealPly"], 0)
+        self.assertEqual(stored["revision"], 2)
+
+    async def test_conceal_reset_hides_moves_and_resets_shared_path(self) -> None:
+        await self.service.add_node(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            parent_path="",
+            move="e2e4",
+            expected_revision=0,
+            node_id="Client0001",
+        )
+        await self.service.add_node(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            parent_path="Client0001",
+            move="e7e5",
+            expected_revision=1,
+            node_id="Client0002",
+        )
+        await self.db.study_chapter.update_one(
+            {"_id": CHAPTER_ID},
+            {"$set": {"mode": "conceal", "concealPly": 2}},
+        )
+        await self.db.study.update_one(
+            {"_id": STUDY_ID},
+            {"$set": {"currentChapter": CHAPTER_ID, "currentPath": "Client0001.Client0002"}},
+        )
+        owner_ws = await self._connect(self.user)
+        writer_ws = await self._connect(self.writer)
+        owner_ws.sent.clear()
+        writer_ws.sent.clear()
+
+        await process_message(
+            cast(Any, self.app_state),
+            cast(Any, self.writer),
+            cast(Any, writer_ws),
+            StudyResetConcealIn(
+                type="study_reset_conceal",
+                studyId=STUDY_ID,
+                chapterId=CHAPTER_ID,
+                expectedRevision=2,
+            ),
+            study_id=STUDY_ID,
+            service=self.service,
+        )
+
+        self.assertEqual(owner_ws.sent, writer_ws.sent)
+        self.assertEqual(owner_ws.sent[0]["type"], "study_conceal")
+        self.assertEqual(owner_ws.sent[0]["concealPly"], 0)
+        self.assertEqual(owner_ws.sent[0]["path"], "")
+        self.assertEqual(owner_ws.sent[0]["revision"], 3)
+        stored_chapter = await self.db.study_chapter.find_one({"_id": CHAPTER_ID})
+        stored_study = await self.db.study.find_one({"_id": STUDY_ID})
+        assert stored_chapter is not None and stored_study is not None
+        self.assertEqual(stored_chapter["concealPly"], 0)
+        self.assertEqual(stored_chapter["revision"], 3)
+        self.assertNotIn("currentPath", stored_study)
+
+    async def test_read_member_cannot_reset_concealment(self) -> None:
+        await self.db.study.update_one(
+            {"_id": STUDY_ID},
+            {"$set": {"members.reader": "read", "currentChapter": CHAPTER_ID}},
+        )
+        await self.db.study_chapter.update_one(
+            {"_id": CHAPTER_ID},
+            {"$set": {"mode": "conceal", "concealPly": 0}},
+        )
+        reader = FakeUser("reader")
+        reader_ws = await self._connect(reader)
+        reader_ws.sent.clear()
+
+        await process_message(
+            cast(Any, self.app_state),
+            cast(Any, reader),
+            cast(Any, reader_ws),
+            StudyResetConcealIn(
+                type="study_reset_conceal",
+                studyId=STUDY_ID,
+                chapterId=CHAPTER_ID,
+                expectedRevision=0,
+            ),
+            study_id=STUDY_ID,
+            service=self.service,
+        )
+
+        self.assertEqual(reader_ws.sent[0]["type"], "study_reload")
+        self.assertEqual(reader_ws.sent[0]["reason"], "invalid_conceal_reset")
+
+    async def test_revealed_mainline_delete_clamps_boundary_in_mutation_broadcast(self) -> None:
+        await self.service.add_node(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            parent_path="",
+            move="e2e4",
+            expected_revision=0,
+            node_id="Client0001",
+        )
+        await self.service.add_node(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            parent_path="Client0001",
+            move="e7e5",
+            expected_revision=1,
+            node_id="Client0002",
+        )
+        await self.db.study_chapter.update_one(
+            {"_id": CHAPTER_ID},
+            {"$set": {"mode": "conceal", "concealPly": 2}},
+        )
+        await self.db.study.update_one(
+            {"_id": STUDY_ID},
+            {"$set": {"currentChapter": CHAPTER_ID, "currentPath": "Client0001.Client0002"}},
+        )
+        owner_ws = await self._connect(self.user)
+        writer_ws = await self._connect(self.writer)
+        owner_ws.sent.clear()
+        writer_ws.sent.clear()
+
+        await process_message(
+            cast(Any, self.app_state),
+            cast(Any, self.writer),
+            cast(Any, writer_ws),
+            StudyDeleteNodeIn(
+                type="study_delete_node",
+                studyId=STUDY_ID,
+                chapterId=CHAPTER_ID,
+                clientOpId="conceal-delete",
+                expectedRevision=2,
+                path="Client0001.Client0002",
+            ),
+            study_id=STUDY_ID,
+            service=self.service,
+        )
+
+        self.assertEqual(owner_ws.sent, writer_ws.sent)
+        self.assertEqual(
+            [message["type"] for message in owner_ws.sent], ["study_delete_node", "study_position"]
+        )
+        self.assertEqual(owner_ws.sent[0]["concealPly"], 1)
+        self.assertEqual(owner_ws.sent[0]["revision"], 3)
+        self.assertEqual(owner_ws.sent[1]["path"], "Client0001")
 
     async def test_read_member_cannot_change_shared_position(self) -> None:
         owner_ws = await self._connect(self.user)
