@@ -12,7 +12,11 @@ import {
 } from '../analysis/analysisTree';
 import type { AnalysisController } from '../analysis/analysisCtrl';
 import type { Ceval } from '../messages';
-import type { AnalysisExtension, AnalysisExtensionFactory } from '../analysis/analysisExtension';
+import type {
+    AnalysisExtension,
+    AnalysisExtensionFactory,
+    AnalysisNavigationOrigin,
+} from '../analysis/analysisExtension';
 import type { JSONObject, StudyChapterMode, StudyChapterPreview, StudyServerEval } from '../types';
 import {
     mergeStudyNodeIntoAnalysisTree,
@@ -122,7 +126,7 @@ export interface StudySyncOptions {
     onLikesChanged?: (likes: number) => void;
     onTopicsChanged?: (topics: string[]) => void;
     onChaptersChanged?: (chapters: StudyChapterPreview[], sharedChapter: string, sharedPath: string) => void;
-    onLocalPathChanged?: (path: string) => void;
+    onLocalPathChanged?: (path: string, origin: AnalysisNavigationOrigin) => void;
     onSharedPositionChanged?: (chapterId: string, path: string) => void;
     onServerEvalChanged?: (serverEval: StudyServerEval | undefined) => void;
     onServerAnalysisUnavailable?: (reason: string) => void;
@@ -519,7 +523,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         if (!tree || !nodeAtPath(tree, path)) return false;
         this.suppressLocalPath = true;
         try {
-            this.ctrl.activateTreePath(path, true, false);
+            this.ctrl.activateTreePath(path, true, 'shared-position');
         } finally {
             this.suppressLocalPath = false;
         }
@@ -648,10 +652,23 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         this.connected = false;
     }
 
-    onPathChanged(path = this.ctrl.analysisPath ?? ''): void {
+    onDestroy(): void {
+        this.connected = false;
+        this.pendingSharedPosition = undefined;
+        [...this.idleWaiters].forEach(waiter => waiter.reject());
+        this.idleWaiters.clear();
+        [...this.syncWaiters.values()].forEach(waiter => waiter.reject());
+        this.syncWaiters.clear();
+    }
+
+    onPathChanged(
+        path = this.ctrl.analysisPath ?? '',
+        _previousPath = '',
+        origin: AnalysisNavigationOrigin = 'user-navigation',
+    ): void {
         this.restoreCurrentShapes();
         this.notifyAnnotationState();
-        if (!this.suppressLocalPath) this.options.onLocalPathChanged?.(path);
+        if (!this.suppressLocalPath) this.options.onLocalPathChanged?.(path, origin);
     }
 
     onShapesChanged(shapes: DrawShape[]): void {
@@ -1199,7 +1216,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
             const nextPath = activePath === path || activePath.startsWith(`${path}.`) ? parentPath(path) : activePath;
             deleteNodePath(tree, path);
             this.refreshPreferredMainline();
-            if (nextPath !== activePath) this.ctrl.activateTreePath(nextPath, true, false);
+            if (nextPath !== activePath) this.ctrl.activateTreePath(nextPath, true, 'reset');
         } else if (type === 'study_promote_variation') {
             const path = data.path;
             const toMainline = data.toMainline;
@@ -1281,7 +1298,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         if (nextActivePath !== activePath && nodeAtPath(this.ctrl.analysisTree!, nextActivePath)) {
             this.suppressLocalPath = true;
             try {
-                this.ctrl.activateTreePath(nextActivePath, true, false);
+                this.ctrl.activateTreePath(nextActivePath, true, 'reset');
             } finally {
                 this.suppressLocalPath = false;
             }

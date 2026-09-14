@@ -2144,7 +2144,7 @@ function runStudyGround(
                 if (!extension.followSharedPath(study.sharedPath)) window.location.reload();
             } else {
                 const path = paths.get(study.chapter.id);
-                if (path && ctrl.getTreeNodeAtPath(path)) ctrl.activateTreePath(path);
+                if (path && ctrl.getTreeNodeAtPath(path)) ctrl.activateTreePath(path, true, 'reset');
             }
             notifyChessgroundResize();
             if (window.fsf) {

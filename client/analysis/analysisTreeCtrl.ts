@@ -28,6 +28,7 @@ import {
     stepLinePath,
 } from './analysisTree';
 import type { AnalysisController } from './analysisCtrl';
+import type { AnalysisNavigationOrigin } from './analysisExtension';
 
 const TREE_COLLAPSED_STORAGE_KEY = 'analysisTreeCollapsedPaths';
 
@@ -39,11 +40,13 @@ export class AnalysisTreeController {
     analysisPath: string;
     treeForkIndex: number;
     treeContextMenu?: { path: string; x: number; y: number };
+    private navigationLinePath: string;
     private readonly onTreeContextMenuDocumentClick: (event: MouseEvent) => void;
 
     constructor(private readonly ctrl: AnalysisController) {
         this.analysisPath = '';
         this.treeForkIndex = 0;
+        this.navigationLinePath = '';
         this.onTreeContextMenuDocumentClick = (event: MouseEvent) => {
             const target = event.target as HTMLElement | null;
             if (target?.closest('.tree-context-menu')) return;
@@ -120,20 +123,22 @@ export class AnalysisTreeController {
     initAnalysisTreeAtPly(ply: number) {
         if (this.ctrl.steps.length === 0) return;
         this.analysisTree = createAnalysisTree(this.ctrl.steps);
+        this.navigationLinePath = '';
         this.applyTreeCollapsedPaths();
         const initialPath = mainlinePathAtPly(this.analysisTree, ply);
         this.revealTreePath(initialPath);
-        this.activateTreePath(initialPath, false, false);
+        this.activateTreePath(initialPath, false, 'reset');
     }
 
     loadAnalysisTree(tree: AnalysisTree, path: string = '') {
         this.analysisTree = tree;
         this.analysisPath = '';
+        this.navigationLinePath = '';
         this.treeForkIndex = 0;
         this.treeContextMenu = undefined;
         this.applyTreeCollapsedPaths();
         this.revealTreePath(path);
-        this.activateTreePath(path, false, false);
+        this.activateTreePath(path, false, 'reset');
     }
 
     getTreeActivePath() {
@@ -266,7 +271,7 @@ export class AnalysisTreeController {
         if (!this.analysisTree) return;
         const changed = nodeAtPath(this.analysisTree, path) !== undefined;
         forceVariationAt(this.analysisTree, path, force);
-        this.activateTreePath(path, true, false);
+        this.activateTreePath(path, true, 'reset');
         if (changed) this.ctrl.analysisExtension?.onVariationForced?.(path, force);
     }
 
@@ -280,7 +285,7 @@ export class AnalysisTreeController {
         deleteNodePath(this.analysisTree, path);
         this.revealTreePath(nextPath);
         this.saveTreeCollapsedPaths();
-        this.activateTreePath(nextPath, true, false);
+        this.activateTreePath(nextPath, true, 'reset');
         if (changed) this.ctrl.analysisExtension?.onNodeDeleted?.(path);
         this.closeTreeContextMenu();
     }
@@ -319,12 +324,18 @@ export class AnalysisTreeController {
         if (node.collapsed) {
             const mainChildPath = node.children[0]?.path;
             if (this.analysisPath !== path && mainChildPath && !this.analysisPath.startsWith(mainChildPath)) {
-                this.activateTreePath(path, false, false);
+                this.activateTreePath(path, false, 'reset');
             }
         }
         this.revealTreePath(this.analysisPath);
         this.saveTreeCollapsedPaths();
         updateMovelist(this.ctrl, true, false);
+    }
+
+    activateTreePly(ply: number) {
+        if (!this.analysisTree) return;
+        const rememberedNode = getNodeList(this.analysisTree, this.navigationLinePath).find(node => node.ply === ply);
+        this.activateTreePath(rememberedNode?.path ?? mainlinePathAtPly(this.analysisTree, ply));
     }
 
     activateTreeMainlinePly(ply: number) {
@@ -338,32 +349,31 @@ export class AnalysisTreeController {
         const nodeOnActivePath = this.getTreeNodeList().find(node => node.ply === ply);
         if (nodeOnActivePath) return nodeOnActivePath;
 
-        const mainlinePath = mainlinePathAtPly(this.analysisTree, ply);
-        const mainlineNode = nodeAtPath(this.analysisTree, mainlinePath);
-        if (!mainlineNode || this.ctrl.analysisExtension?.canActivatePath?.(mainlinePath) === false) return undefined;
-
-        this.setAnalysisPath(mainlinePath);
-        return mainlineNode;
+        return undefined;
     }
 
-    activateTreePath(path: string, redrawMovelist = true, userNavigation = true) {
+    activateTreePath(path: string, redrawMovelist = true, origin: AnalysisNavigationOrigin = 'user-navigation') {
         if (!this.analysisTree) return;
         const node = nodeAtPath(this.analysisTree, path);
         if (!node) return;
-        if (
-            userNavigation &&
-            path !== this.analysisPath &&
-            this.ctrl.analysisExtension?.canActivatePath?.(path) === false
-        )
+        if (path !== this.analysisPath && this.ctrl.analysisExtension?.canActivatePath?.(path, origin) === false)
             return;
 
+        const previousPath = this.analysisPath;
+        if (
+            origin !== 'user-navigation' ||
+            (path !== this.navigationLinePath && !this.navigationLinePath.startsWith(path ? `${path}.` : ''))
+        ) {
+            this.navigationLinePath = path;
+        }
         this.treeForkIndex = 0;
         this.treeContextMenu = undefined;
         document.removeEventListener('click', this.onTreeContextMenuDocumentClick, false);
-        this.setAnalysisPath(path);
+        this.setAnalysisPath(path, origin);
         this.revealTreePath(path);
         this.ctrl.plyVari = 0;
         this.ctrl.goPly(node.ply, 0);
+        this.ctrl.completeAnalysisPositionChange(origin, previousPath, path);
 
         if (redrawMovelist) updateMovelist(this.ctrl);
     }
@@ -418,10 +428,10 @@ export class AnalysisTreeController {
         visit(this.ctrl.steps[0].fen, this.analysisTree.root.children);
     }
 
-    private setAnalysisPath(path: string) {
+    private setAnalysisPath(path: string, origin: AnalysisNavigationOrigin) {
         const previousPath = this.analysisPath;
         this.analysisPath = path;
-        if (previousPath !== path) this.ctrl.analysisExtension?.onPathChanged?.(path, previousPath);
+        if (previousPath !== path) this.ctrl.analysisExtension?.onPathChanged?.(path, previousPath, origin);
     }
 
     private treeCollapsedStorageKey() {
