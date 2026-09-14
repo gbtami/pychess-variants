@@ -93,6 +93,7 @@ from utils import (
     join_seek,
     load_game,
     play_move,
+    remove_seek,
     send_bot_game_start_unless_streaming,
     tv_game,
     tv_game_user,
@@ -824,6 +825,9 @@ async def handle_rematch(
 
             response = await join_seek(app_state, engine, seek)
             await ws_send_json(ws, response)
+            if response["type"] != "new_game":
+                remove_seek(app_state.seeks, seek)
+                return response
 
             gameId = response["gameId"]
             rematch_id = gameId
@@ -857,6 +861,10 @@ async def handle_rematch(
                 app_state.seeks[seek.id] = seek
 
                 response = await join_seek(app_state, opp_player, seek)
+                if response["type"] != "new_game":
+                    remove_seek(app_state.seeks, seek)
+                    await ws_send_json(ws, response)
+                    return response
                 rematch_id = response["gameId"]
                 game.rematch_id = rematch_id
                 await ws_send_json(ws, response)

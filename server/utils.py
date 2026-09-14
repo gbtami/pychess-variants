@@ -1512,6 +1512,12 @@ def sanitize_fen(variant, initial_fen, chess960, base=False):
     if sf_validate != FEN_OK and variant != "duck":
         return False, ""
 
+    if is_catalogued_variant(variant):
+        # Community rules can allow no kings, different royal pieces, or pieces
+        # absent from the starting position. After the engine safety checks,
+        # trust the loaded definition instead of applying first-class rules.
+        return True, initial_fen
+
     # Initial_fen needs validation to prevent segfaulting in pyffish
     sanitized_fen = initial_fen
 
