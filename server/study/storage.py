@@ -1542,7 +1542,12 @@ def _without_chapter_annotations(tree: StudyTree) -> tuple[StudyTree, bool]:
         for node_id, node in tree.nodes.items()
     }
     return (
-        StudyTree(nodes, root_annotations=StudyAnnotations(), root_clocks=tree.root_clocks),
+        StudyTree(
+            nodes,
+            root_annotations=StudyAnnotations(),
+            root_gamebook=tree.root_gamebook,
+            root_clocks=tree.root_clocks,
+        ),
         True,
     )
 
@@ -1563,6 +1568,7 @@ def _without_chapter_variations(tree: StudyTree) -> tuple[StudyTree, bool]:
         StudyTree(
             nodes,
             root_annotations=tree.root_annotations,
+            root_gamebook=tree.root_gamebook,
             root_clocks=tree.root_clocks,
         ),
         True,

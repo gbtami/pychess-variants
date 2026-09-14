@@ -549,7 +549,7 @@ are complete; it need not wait for computer practice.
 
 ### C. Interactive lesson data and editor
 
-- [ ] **C1 — Lossless root/node metadata.** Add bounded canonical `gamebook` data
+- [x] **C1 — Lossless root/node metadata.** Add bounded canonical `gamebook` data
   to Python and TypeScript representations and all tree conversions. Audit each
   `StudyTree(...)` reconstruction, merge, ID remap, clone, clear action and PGN
   conversion. Add `study_set_gamebook` using existing mutation acknowledgments,

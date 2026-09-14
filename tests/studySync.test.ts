@@ -426,6 +426,36 @@ describe('Study analysis websocket synchronization', () => {
         expect(ctrl.doSend).toHaveBeenLastCalledWith(expect.objectContaining({ path: '', text: 'Root draft' }));
     });
 
+    test('saving delayed gamebook text targets the captured path, field and value', () => {
+        const ctrl = makeCtrl();
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            onReloadRequired: jest.fn(),
+            opIdFactory: () => 'GamebookOp1',
+        });
+        addStudyNodeToAnalysisTree(ctrl.analysisTree, '', e4Node());
+        ctrl.analysisPath = 'StudyNode1';
+        extension.onSocketOpen();
+
+        extension.setGamebook('hint', 'Root lesson', '');
+        ctrl.analysisPath = 'StudyNode1';
+
+        expect(ctrl.analysisTree.root.gamebook).toEqual({ hint: 'Root lesson' });
+        expect(ctrl.analysisTree.byPath.get('StudyNode1')?.gamebook).toBeUndefined();
+        expect(ctrl.doSend).toHaveBeenLastCalledWith({
+            type: 'study_set_gamebook',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'GamebookOp1',
+            expectedRevision: 0,
+            path: '',
+            field: 'hint',
+            value: 'Root lesson',
+        });
+    });
+
     test('an older acknowledgement preserves newer comment and glyph edits', () => {
         const ctrl = makeCtrl();
         let op = 0;
@@ -1288,6 +1318,87 @@ describe('Study analysis websocket synchronization', () => {
         expect(extension.pendingCount).toBe(0);
         expect(extension.revision).toBe(3);
         expect(reload).not.toHaveBeenCalled();
+    });
+
+    test('remaps queued gamebook text when a duplicate optimistic node is canonicalized', () => {
+        const ctrl = makeCtrl();
+        const reload = jest.fn();
+        const opIds = ['LocalE4Op', 'LocalLesson'];
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            onReloadRequired: reload,
+            opIdFactory: () => opIds.shift()!,
+        });
+        const local: StudyTreeNodeDto = { ...e4Node(), id: 'LocalNode1' };
+        addStudyNodeToAnalysisTree(ctrl.analysisTree, '', local);
+        ctrl.analysisPath = 'LocalNode1';
+
+        extension.onSocketOpen();
+        extension.onNodeAdded('', ctrl.analysisTree.root.children[0]);
+        extension.setGamebook('deviation', 'Try a different move', 'LocalNode1');
+
+        expect(extension.pendingCount).toBe(2);
+        expect(ctrl.analysisTree.byPath.get('LocalNode1')?.gamebook).toEqual({
+            deviation: 'Try a different move',
+        });
+
+        const canonical: StudyTreeNodeDto = { ...e4Node(), id: 'CanonNode1' };
+        extension.onSocketMessage('study_add_node', {
+            type: 'study_add_node',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'RemoteE4Op',
+            revision: 1,
+            changed: true,
+            parentPath: '',
+            path: 'CanonNode1',
+            node: canonical,
+        });
+        extension.onSocketMessage('study_add_node', {
+            type: 'study_add_node',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'LocalE4Op',
+            revision: 1,
+            changed: false,
+            parentPath: '',
+            path: 'CanonNode1',
+            move: 'e2e4',
+            node: canonical,
+        });
+
+        expect(reload).not.toHaveBeenCalled();
+        expect(extension.pendingCount).toBe(1);
+        expect(ctrl.analysisTree.byPath.has('LocalNode1')).toBe(false);
+        expect(ctrl.analysisTree.byPath.get('CanonNode1')?.gamebook).toEqual({
+            deviation: 'Try a different move',
+        });
+        expect(ctrl.analysisPath).toBe('CanonNode1');
+        expect(ctrl.doSend).toHaveBeenLastCalledWith({
+            type: 'study_set_gamebook',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'LocalLesson',
+            expectedRevision: 1,
+            path: 'CanonNode1',
+            field: 'deviation',
+            value: 'Try a different move',
+        });
+
+        extension.onSocketMessage('study_set_gamebook', {
+            type: 'study_set_gamebook',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'LocalLesson',
+            revision: 2,
+            changed: true,
+            path: 'CanonNode1',
+            gamebook: { deviation: 'Try a different move' },
+        });
+        expect(extension.pendingCount).toBe(0);
+        expect(extension.revision).toBe(2);
     });
 
     test('verifies the initial HTTP snapshot before sending queued mutations', async () => {

@@ -6,6 +6,7 @@ from study.constants import (
 from study.models import Study, StudyChapter, StudySource, make_chapter, make_study
 from study.tree import (
     STUDY_NODE_ID_LENGTH,
+    StudyGamebook,
     StudyTree,
     StudyTreeNode,
     is_study_node_id,
@@ -19,6 +20,7 @@ __all__ = (
     "STUDY_NODE_ID_LENGTH",
     "Study",
     "StudyChapter",
+    "StudyGamebook",
     "StudySource",
     "StudyTree",
     "StudyTreeNode",
