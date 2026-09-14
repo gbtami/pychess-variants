@@ -35,6 +35,7 @@ import {
     type StudyTreeNodeDto,
 } from './studyTree';
 import { renderStudyChapterPgn, type StudyPgnChapterData, type StudyPgnContext } from './studyPgn';
+import type { StudySessionPolicy } from './studyMode';
 
 const STUDY_SOCKET_TYPES = new Set([
     'study_user_connected',
@@ -136,6 +137,7 @@ export interface StudySyncOptions {
     contextMenuActions?: AnalysisExtension['contextMenuActions'];
     writable?: boolean;
     recording?: boolean;
+    policy?: StudySessionPolicy;
 }
 
 function record(message: unknown): Record<string, unknown> | undefined {
@@ -406,6 +408,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     private writable: boolean;
     private memberRole?: StudyMemberRole;
     private recording: boolean;
+    private policy?: StudySessionPolicy;
     private suppressLocalPath = false;
     private pendingSharedPosition?: { chapterId: string; path: string };
 
@@ -435,7 +438,8 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         this.streamReady = options.snapshotVerified === true || !options.snapshotToken;
         this.writable = options.writable ?? true;
         this.memberRole = options.memberRole ?? (this.writable ? 'write' : undefined);
-        this.recording = this.writable && (options.recording ?? true);
+        this.policy = options.policy;
+        this.recording = this.writable && (this.policy?.recording ?? options.recording ?? true);
     }
 
     whenIdle(timeoutMs = 10000): Promise<void> {
@@ -507,11 +511,24 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     }
 
     setRecording(recording: boolean): void {
-        this.recording = this.writable && recording;
+        this.recording = this.writable && (this.policy?.recording ?? recording);
         if (!this.recording) this.pendingSharedPosition = undefined;
     }
 
+    setPolicy(policy: StudySessionPolicy, restoreRecording = true): void {
+        const evaluationDisplay = this.policy?.tools.evaluationDisplay ?? true;
+        this.policy = policy;
+        this.recording = restoreRecording && this.writable && policy.recording;
+        if (!this.recording || !policy.canPublishSharedPosition) this.pendingSharedPosition = undefined;
+        if (evaluationDisplay !== policy.tools.evaluationDisplay) {
+            if (!policy.tools.evaluationDisplay) this.clearServerEval();
+            else this.applyServerEval();
+        }
+        this.ctrl.refreshLocalAnalysisAvailabilityForAntiCheat?.();
+    }
+
     sharePosition(chapterId: string, path: string): boolean {
+        if (this.policy?.canPublishSharedPosition === false) return false;
         if (!this.connected || !this.writable || !this.recording || this.reloadRequested || !chapterId) return false;
         this.pendingSharedPosition = { chapterId, path };
         this.pumpSharedPosition();
@@ -519,6 +536,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     }
 
     followSharedPath(path: string): boolean {
+        if (this.policy?.canFollowSharedPosition === false) return false;
         const tree = this.ctrl.analysisTree;
         if (!tree || !nodeAtPath(tree, path)) return false;
         this.suppressLocalPath = true;
@@ -621,11 +639,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         this.reconnecting = false;
         if (this.options.snapshotToken && !this.options.snapshotVerified) {
             this.streamReady = false;
-            void this.verifySnapshot(
-                this.options.chapterId,
-                this.options.snapshotToken,
-                this.options.roomSnapshotToken,
-            )
+            void this.verifySnapshot(this.options.chapterId, this.options.snapshotToken, this.options.roomSnapshotToken)
                 .then(matches => {
                     if (!matches) {
                         this.requestReload('snapshot_stale');
@@ -745,12 +759,20 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     }
 
     requestServerAnalysis(): void {
-        if (!this.connected || !this.writable) return;
+        if (this.policy?.tools.serverAnalysis === false || !this.connected || !this.writable) return;
         this.ctrl.doSend({
             type: 'study_request_analysis',
             studyId: this.options.studyId,
             chapterId: this.options.chapterId,
         });
+    }
+
+    allowComputerSearch(): boolean {
+        return this.policy?.tools.computerSearch ?? true;
+    }
+
+    onEvaluation(): boolean {
+        return this.policy?.tools.evaluationDisplay ?? true;
     }
 
     onNodeAdded(parentPath: string, node: AnalysisTreeNode): void {
@@ -1374,6 +1396,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     }
 
     private applyTreeEvals(): void {
+        if (this.policy?.tools.evaluationDisplay === false) return;
         const tree = this.ctrl.analysisTree;
         if (!tree) return;
         for (const node of tree.byPath.values()) {
@@ -1396,6 +1419,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
 
     private applyServerEval(): void {
         this.clearServerEval();
+        if (this.policy?.tools.evaluationDisplay === false) return;
         const serverEval = this.serverEval;
         if (!serverEval || this.currentMainlinePath() !== serverEval.path) return;
         for (let ply = 0; ply < Math.min(this.ctrl.steps.length, serverEval.analysis.length); ply++) {

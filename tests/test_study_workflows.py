@@ -608,14 +608,25 @@ async def test_chapter_edit_and_delete_are_broadcast_to_room(aiohttp_client) -> 
 
     response = await client.post(
         f"/study/{study.id}/{first.id}/edit",
-        data={"name": "Renamed first", "orientation": "black"},
+        data={"name": "Renamed first", "orientation": "white"},
         allow_redirects=False,
     )
     assert response.status == 302
     assert [message["type"] for message in room.sent] == ["study_chapters"]
     first_preview = room.sent[0]["chapters"][0]
     assert first_preview["name"] == "Renamed first"
-    assert first_preview["orientation"] == "black"
+    assert first_preview["orientation"] == "white"
+
+    room.sent.clear()
+    response = await client.post(
+        f"/study/{study.id}/{first.id}/edit",
+        data={"name": "Renamed first", "orientation": "black"},
+        allow_redirects=False,
+    )
+    assert response.status == 302
+    assert room.sent == [
+        {"type": "study_reload", "studyId": study.id, "reason": "chapter_orientation_changed"}
+    ]
 
     room.sent.clear()
     response = await client.post(
