@@ -436,46 +436,60 @@ class StudyMutationServiceTestCase(unittest.IsolatedAsyncioTestCase):
             expected_revision=0,
         )
         self.assertEqual(shaped.revision, 1)
+        lesson = await self.service.set_gamebook(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            path="",
+            field_name="hint",
+            value="Lesson hint",
+            expected_revision=1,
+        )
+        self.assertEqual(lesson.revision, 2)
 
         cleared = await self.service.clear_annotations(
             study_id=STUDY_ID,
             chapter_id=CHAPTER_ID,
             username=OWNER,
             path="",
-            expected_revision=1,
+            expected_revision=2,
         )
         self.assertTrue(cleared.changed)
-        self.assertEqual(cleared.revision, 2)
+        self.assertEqual(cleared.revision, 3)
         assert cleared.annotations is not None
+        assert cleared.gamebook is not None
         self.assertTrue(cleared.annotations.empty)
+        self.assertTrue(cleared.gamebook.empty)
 
         description = await self.service.set_description(
             study_id=STUDY_ID,
             chapter_id=CHAPTER_ID,
             username=OWNER,
             description="  Line one\r\nLine two  ",
-            expected_revision=2,
+            expected_revision=3,
         )
         self.assertEqual(description.description, "Line one\nLine two")
-        self.assertEqual(description.revision, 3)
+        self.assertEqual(description.revision, 4)
 
         tags = await self.service.set_tags(
             study_id=STUDY_ID,
             chapter_id=CHAPTER_ID,
             username=OWNER,
             tags={"Site": " PyChess ", "Event": " Study test ", "Empty": "  "},
-            expected_revision=3,
+            expected_revision=4,
         )
         self.assertEqual(tags.tags, {"Event": "Study test", "Site": "PyChess"})
-        self.assertEqual(tags.revision, 4)
+        self.assertEqual(tags.revision, 5)
 
         chapter = await self._chapter()
         self.assertTrue(chapter.root.root_annotations.empty)
+        self.assertTrue(chapter.root.root_gamebook.empty)
         self.assertEqual(chapter.description, "Line one\nLine two")
         self.assertEqual(chapter.tags, {"Event": "Study test", "Site": "PyChess"})
         raw = await self.db.study_chapter.find_one({"_id": CHAPTER_ID})
         assert raw is not None
         self.assertNotIn("a", raw["root"]["_"])
+        self.assertNotIn("g", raw["root"]["_"])
         raw_study = await self.db.study.find_one({"_id": STUDY_ID})
         assert raw_study is not None
         self.assertIn("line", raw_study["searchTokens"])

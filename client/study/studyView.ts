@@ -23,6 +23,7 @@ import { analysisTreeFromStudy } from './studyTree';
 import { StudyAnalysisExtension, type StudyAnnotationState } from './studySync';
 import { GLYPH_GROUPS, toggleGlyph } from '../analysis/glyphs';
 import { StudyCommentEditor } from './commentEditor';
+import { StudyGamebookEditor } from './studyGamebookEdit';
 import { fetchStudyChapterExportData, renderStudyChapterPgn, renderStudyPgn, studyPgnFilename } from './studyPgn';
 import {
     studyChapterCreateForm,
@@ -781,6 +782,8 @@ type StudyModeActions = {
     resetConcealment: () => Promise<void>;
     enterConcealPreview: () => Promise<void>;
     leaveConcealPreview: () => Promise<void>;
+    enterGamebookPreview: () => Promise<void>;
+    leaveGamebookPreview: () => Promise<void>;
 };
 
 function studyRecordingKey(studyId: string): string {
@@ -1238,7 +1241,7 @@ function studySide(study: StudyPageModel, model: PyChessModel, modeActions: Stud
                               deleteForm(
                                   `/study/${study.id}/${item.id}/clear-annotations`,
                                   _('Clear annotations'),
-                                  _('Clear all comments in this chapter?'),
+                                  _('Clear all comments, drawings, glyphs, hints and lesson instructions in this chapter?'),
                               ),
                               deleteForm(
                                   `/study/${study.id}/${item.id}/clear-variations`,
@@ -1303,10 +1306,12 @@ function studySide(study: StudyPageModel, model: PyChessModel, modeActions: Stud
     ]);
 }
 
-type StudyTab = 'tags' | 'comments' | 'glyphs' | 'serverEval' | 'export';
+type StudyTab = 'tags' | 'lesson' | 'comments' | 'glyphs' | 'serverEval' | 'export';
 
 function selectStudyTab(tab: string, focus = false): void {
     if (document.querySelector('.study-app.study-conceal-playback') && tab !== 'tags') tab = 'tags';
+    const requested = document.querySelector<HTMLButtonElement>(`[data-study-tab="${tab}"]`);
+    if (requested?.hidden) tab = 'tags';
     document.querySelectorAll<HTMLButtonElement>('[data-study-tab]').forEach(button => {
         const selected = button.dataset.studyTab === tab;
         button.setAttribute('aria-selected', String(selected));
@@ -1319,7 +1324,7 @@ function selectStudyTab(tab: string, focus = false): void {
     notifyChessgroundResize();
 }
 
-function toolPanel(tab: StudyTab, children: VNode[]): VNode {
+function toolPanel(tab: StudyTab, children: VNode[], selected: StudyTab = 'tags'): VNode {
     return h(
         `section#study-panel-${tab}.study-tool-panel`,
         {
@@ -1327,7 +1332,7 @@ function toolPanel(tab: StudyTab, children: VNode[]): VNode {
                 role: 'tabpanel',
                 'aria-labelledby': `study-tab-${tab}`,
                 'data-study-panel': tab,
-                hidden: tab !== 'tags',
+                hidden: tab !== selected,
             },
         },
         children,
@@ -1712,13 +1717,21 @@ export function updateStudyUnderboardChapter(
     syncStudyPinnedDescriptionUi(study, modeActions);
     updateStudyConcealStatus(study, modeActions);
     updateStudyServerEvalContent(study, modeActions);
+    const lessonTab = document.querySelector<HTMLButtonElement>('[data-study-tab="lesson"]');
+    if (lessonTab) {
+        lessonTab.hidden = !study.canWrite || study.chapter.mode !== 'gamebook';
+        if (study.chapter.mode === 'gamebook' && study.canWrite) selectStudyTab('lesson');
+        else if (lessonTab.getAttribute('aria-selected') === 'true') selectStudyTab('tags');
+    }
 }
 
 function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions: StudyModeActions): VNode {
+    const defaultTab: StudyTab = study.canWrite && study.chapter.mode === 'gamebook' ? 'lesson' : 'tags';
     const tabs: [StudyTab, string, VNode | string][] = [
         ['tags', _('PGN tags'), h('i.study-tag-icon', { attrs: { 'aria-hidden': 'true' } })],
         ...(study.canWrite
             ? ([
+                  ['lesson', _('Lesson editor'), icon('book')],
                   ['comments', _('Comment this position'), icon('comment-o')],
                   ['glyphs', _('Annotate with glyphs'), '!?'],
               ] as [StudyTab, string, VNode | string][])
@@ -1743,8 +1756,9 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions
                             title: label,
                             'aria-label': label,
                             'aria-controls': `study-panel-${tab}`,
-                            'aria-selected': tab === 'tags' ? 'true' : 'false',
-                            tabindex: tab === 'tags' ? 0 : -1,
+                            'aria-selected': tab === defaultTab ? 'true' : 'false',
+                            tabindex: tab === defaultTab ? 0 : -1,
+                            ...(tab === 'lesson' && study.chapter.mode !== 'gamebook' ? { hidden: true } : {}),
                             'data-study-tab': tab,
                         },
                         on: {
@@ -1753,17 +1767,20 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions
                                 if (tab === 'serverEval') modeActions.showServerAnalysis();
                             },
                             keydown: event => {
-                                const index = tabs.findIndex(([key]) => key === tab);
+                                const available = tabs.filter(
+                                    ([key]) => key !== 'lesson' || study.chapter.mode === 'gamebook',
+                                );
+                                const index = available.findIndex(([key]) => key === tab);
                                 let next: number;
-                                if (event.key === 'ArrowRight') next = (index + 1) % tabs.length;
-                                else if (event.key === 'ArrowLeft') next = (index + tabs.length - 1) % tabs.length;
+                                if (event.key === 'ArrowRight') next = (index + 1) % available.length;
+                                else if (event.key === 'ArrowLeft') next = (index + available.length - 1) % available.length;
                                 else if (event.key === 'Home') next = 0;
-                                else if (event.key === 'End') next = tabs.length - 1;
+                                else if (event.key === 'End') next = available.length - 1;
                                 else return;
                                 event.preventDefault();
                                 event.stopPropagation();
-                                selectStudyTab(tabs[next][0], true);
-                                if (tabs[next][0] === 'serverEval') modeActions.showServerAnalysis();
+                                selectStudyTab(available[next][0], true);
+                                if (available[next][0] === 'serverEval') modeActions.showServerAnalysis();
                             },
                         },
                     },
@@ -1795,10 +1812,11 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions
                       ]),
                   ]
                 : []),
-        ]),
+        ], defaultTab),
         ...(study.canWrite
             ? [
-                  toolPanel('comments', [h('div.study-annotations__comments')]),
+                  toolPanel('lesson', [h('div.study-gamebook-edit')], defaultTab),
+                  toolPanel('comments', [h('div.study-annotations__comments')], defaultTab),
                   toolPanel('glyphs', [
                       h(
                           'div.study-annotations__nags',
@@ -1822,10 +1840,10 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions
                               ),
                           ),
                       ),
-                  ]),
+                  ], defaultTab),
               ]
             : []),
-        toolPanel('serverEval', [studyServerEvalContent(study, modeActions)]),
+        toolPanel('serverEval', [studyServerEvalContent(study, modeActions)], defaultTab),
         ...(studyCanShare(study)
             ? [
                   toolPanel('export', [
@@ -1855,7 +1873,7 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions
                           h('summary', _('FEN & PGN')),
                           ...analysisUnderboard(model, analysisContext(model), false),
                       ]),
-                  ]),
+                  ], defaultTab),
               ]
             : []),
     ]);
@@ -2018,6 +2036,31 @@ function runStudyGround(
         study.canWrite && commentsElement
             ? new StudyCommentEditor(commentsElement, (path, id, text) => extension.setComment(id, text, path))
             : undefined;
+    const gamebookElement = document.querySelector<HTMLElement>('.study-gamebook-edit');
+    const gamebookEditor =
+        study.canWrite && gamebookElement
+            ? new StudyGamebookEditor(gamebookElement, {
+                  editComment: () => {
+                      selectStudyTab('comments');
+                      document.querySelector<HTMLTextAreaElement>('.study-annotations__comment-input')?.focus();
+                  },
+                  saveGamebook: (field, value, path) => extension.setGamebook(field, value, path),
+                  togglePreview: () =>
+                      void (policy.session === 'gamebook-preview'
+                          ? modeActions.leaveGamebookPreview()
+                          : modeActions.enterGamebookPreview()),
+              })
+            : undefined;
+    const updateGamebookEditor = (): void => {
+        const tree = ctrl?.analysisTree;
+        if (!gamebookEditor || !tree || study.chapter.mode !== 'gamebook') return;
+        gamebookEditor.update({
+            tree,
+            path: ctrl.analysisPath ?? '',
+            orientation: study.chapter.orientation,
+            preview: policy.session === 'gamebook-preview',
+        });
+    };
     const socket = createWebsocket(
         `wsstudy/${study.id}`,
         () => extension.onSocketOpen(),
@@ -2042,6 +2085,7 @@ function runStudyGround(
                 snapshotVerified,
                 tree: study.chapter.tree,
                 orientation: study.chapter.orientation,
+                mode: study.chapter.mode,
                 description: study.chapter.description,
                 tags: study.chapter.tags,
                 studyName: study.name,
@@ -2060,6 +2104,7 @@ function runStudyGround(
                 memberRole: model.username ? study.members[model.username] : undefined,
                 onAnnotationStateChanged: state => {
                     if (policy.tools.annotations) updateAnnotationPanel(study, modeActions, state, editor);
+                    updateGamebookEditor();
                 },
                 onServerEvalChanged: serverEval => {
                     study.chapter.serverEval = serverEval ?? null;
@@ -2131,6 +2176,8 @@ function runStudyGround(
                     policy = effectiveStudySessionPolicy(study);
                     extension.setPolicy(policy, !accessChanged);
                     sideVNode = patch(sideVNode, studySide(study, model, modeActions));
+                    updateStudyUnderboardChapter(study, model, modeActions);
+                    updateGamebookEditor();
                     syncStudyConcealPlaybackUi(study, modeActions);
                 },
                 onLikesChanged: likes => {
@@ -2164,6 +2211,7 @@ function runStudyGround(
         modeActions.setDescription = description => extension.setDescription(description);
         modeActions.settleWrites = async () => {
             editor?.flush();
+            gamebookEditor?.flush();
             try {
                 await extension.whenIdle();
                 return true;
@@ -2195,10 +2243,26 @@ function runStudyGround(
             study.modeOverride = null;
             await navigation?.reload();
         };
+        modeActions.enterGamebookPreview = async () => {
+            if (study.chapter.mode !== 'gamebook' || !study.canWrite || policy.preview) return;
+            if (!(await modeActions.settleWrites())) return;
+            study.modeOverride = 'preview';
+            policy = effectiveStudySessionPolicy(study);
+            extension.setPolicy(policy);
+            updateGamebookEditor();
+            await navigation?.reload();
+        };
+        modeActions.leaveGamebookPreview = async () => {
+            if (policy.session !== 'gamebook-preview') return;
+            if (!(await modeActions.settleWrites())) return;
+            study.modeOverride = null;
+            await navigation?.reload();
+        };
         if (socket.ws.readyState === WebSocket.OPEN) extension.onSocketOpen();
         const serverPanel = document.getElementById('study-panel-serverEval');
         if (serverPanel && !serverPanel.hidden) modeActions.showServerAnalysis();
         if (policy.tools.annotations) updateAnnotationPanel(study, modeActions, extension.annotationState, editor);
+        updateGamebookEditor();
         syncStudyConcealPlaybackUi(study, modeActions);
         window['onFSFline'] = ctrl.onFSFline;
     };
@@ -2232,6 +2296,7 @@ function runStudyGround(
         currentChapter: () => study.chapter.id,
         flush: () => {
             editor?.flush();
+            gamebookEditor?.flush();
             return extension.whenIdle();
         },
         busy: busy => {
@@ -2283,6 +2348,7 @@ function runStudyGround(
             serverAnalysisChart = undefined;
             ctrl.destroy();
             editor?.reset();
+            gamebookEditor?.reset();
             Object.assign(study, data.study);
             if (study.chapter.id !== previousChapterId) study.modeOverride = null;
             study.chapterDescriptionEditing = false;
@@ -2402,6 +2468,7 @@ function runStudyGround(
     });
     window.addEventListener('beforeunload', event => {
         editor?.flush();
+        gamebookEditor?.flush();
         if (extension.pendingCount > 0) {
             event.preventDefault();
             event.returnValue = '';
@@ -2485,6 +2552,8 @@ export function studyView(model: PyChessModel): VNode[] {
         resetConcealment: async () => {},
         enterConcealPreview: async () => {},
         leaveConcealPreview: async () => {},
+        enterGamebookPreview: async () => {},
+        leaveGamebookPreview: async () => {},
     };
     const side = studySide(study, model, modeActions);
     const page = renderAnalysisPage(model, {

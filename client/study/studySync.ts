@@ -114,6 +114,7 @@ export interface StudySyncOptions {
     snapshotVerified?: boolean;
     tree?: StudyTreeDto;
     orientation?: 'white' | 'black';
+    mode?: StudyChapterMode;
     description?: string;
     tags?: Record<string, string>;
     studyName?: string;
@@ -657,9 +658,11 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         if (!chapterName || !Number.isInteger(chapterOrder) || !variant || !initialFen || !orientation)
             return undefined;
         const tree =
-            this.initialTreeLoaded && this.ctrl.analysisTree
-                ? studyTreeFromAnalysisTree(this.ctrl.analysisTree)
-                : this.options.tree;
+            this.policy?.session === 'gamebook-preview'
+                ? this.options.tree
+                : this.initialTreeLoaded && this.ctrl.analysisTree
+                  ? studyTreeFromAnalysisTree(this.ctrl.analysisTree)
+                  : this.options.tree;
         if (!tree) return undefined;
         return {
             id: this.options.chapterId,
@@ -669,6 +672,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
             chess960: this.options.chess960 ?? false,
             initialFen,
             orientation,
+            mode: this.options.mode ?? 'normal',
             description: this.description === '-' ? '' : this.description,
             tags: { ...this.tags },
             tree,
@@ -688,6 +692,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         this.options.chapterName = chapter.name;
         this.options.chapterOrder = chapter.order;
         this.options.orientation = chapter.orientation;
+        this.options.mode = chapter.mode;
         if (this.ctrl.chessground.state.orientation !== chapter.orientation) this.ctrl.toggleOrientation();
     }
 
@@ -828,6 +833,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         const node = this.currentNode();
         if (!node) return;
         node.annotations = undefined;
+        node.gamebook = undefined;
         this.ctrl.chessground.setShapes([]);
         this.notifyAnnotationState();
         updateMovelist(this.ctrl, true, false);
@@ -1197,6 +1203,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         const node = nodeAtPath(tree, path);
         if (!node) return false;
         node.gamebook = gamebookOrUndefined(gamebook);
+        if (path === (this.ctrl.analysisPath ?? '')) this.notifyAnnotationState();
         return true;
     }
 
@@ -1330,6 +1337,20 @@ export class StudyAnalysisExtension implements AnalysisExtension {
                 this.requestReload('tree_mismatch');
                 return;
             }
+            if (pending.type === 'study_clear_annotations') {
+                let gamebook: StudyGamebookDto;
+                try {
+                    gamebook = parseStudyGamebook(data.gamebook);
+                } catch {
+                    this.requestReload('invalid_gamebook_ack');
+                    return;
+                }
+                gamebook = this.overlayPendingGamebook(path, gamebook, this.pending.slice(1));
+                if (!this.setPositionGamebook(path, gamebook)) {
+                    this.requestReload('tree_mismatch');
+                    return;
+                }
+            }
         } else if (pending.type === 'study_set_gamebook') {
             const path = data.path;
             if (typeof path !== 'string') {
@@ -1440,6 +1461,20 @@ export class StudyAnalysisExtension implements AnalysisExtension {
             if (!this.setPositionAnnotations(path, annotations)) {
                 this.requestReload('tree_mismatch');
                 return;
+            }
+            if (type === 'study_clear_annotations') {
+                let gamebook: StudyGamebookDto;
+                try {
+                    gamebook = parseStudyGamebook(data.gamebook);
+                } catch {
+                    this.requestReload('invalid_remote_gamebook');
+                    return;
+                }
+                gamebook = this.overlayPendingGamebook(path, gamebook, this.pending);
+                if (!this.setPositionGamebook(path, gamebook)) {
+                    this.requestReload('tree_mismatch');
+                    return;
+                }
             }
         } else if (type === 'study_set_gamebook') {
             const path = data.path;
@@ -1562,7 +1597,12 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     ): StudyGamebookDto {
         let gamebook: StudyGamebookDto | undefined = gamebookOrUndefined(base);
         for (const queued of pendingMutations) {
-            if (queued.type !== 'study_set_gamebook' || queued.body.path !== path) continue;
+            if (queued.body.path !== path) continue;
+            if (queued.type === 'study_clear_annotations') {
+                gamebook = undefined;
+                continue;
+            }
+            if (queued.type !== 'study_set_gamebook') continue;
             const field = queued.body.field;
             const value = queued.body.value;
             if ((field !== 'hint' && field !== 'deviation') || typeof value !== 'string') continue;

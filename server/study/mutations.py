@@ -544,10 +544,74 @@ class StudyMutationService:
         mismatch = self._revision_mismatch(chapter, expected_revision)
         if mismatch is not None:
             return mismatch
-        current = self._annotations_for_path(chapter.root, path)
-        if current is None:
-            return self._reload(chapter.revision, "invalid_path")
-        return await self._set_position_annotations(chapter, path, StudyAnnotations())
+
+        empty_annotations = StudyAnnotations()
+        empty_gamebook = StudyGamebook()
+        nodes = dict(chapter.root.nodes)
+        if path:
+            target = chapter.root.node_at_path(path)
+            if target is None:
+                return self._reload(chapter.revision, "invalid_path")
+            if target.annotations.empty and target.gamebook.empty:
+                return StudyMutationResult(
+                    status="ok",
+                    revision=chapter.revision,
+                    changed=False,
+                    path=path,
+                    annotations=empty_annotations,
+                    gamebook=empty_gamebook,
+                )
+            nodes[target.id] = replace(
+                target,
+                annotations=empty_annotations,
+                gamebook=empty_gamebook,
+            )
+            root = StudyTree(
+                nodes,
+                root_annotations=chapter.root.root_annotations,
+                root_gamebook=chapter.root.root_gamebook,
+                root_clocks=chapter.root.root_clocks,
+            )
+            annotation_field = f"root.{target.id}.a"
+            gamebook_field = f"root.{target.id}.g"
+        else:
+            if chapter.root.root_annotations.empty and chapter.root.root_gamebook.empty:
+                return StudyMutationResult(
+                    status="ok",
+                    revision=chapter.revision,
+                    changed=False,
+                    path=path,
+                    annotations=empty_annotations,
+                    gamebook=empty_gamebook,
+                )
+            root = StudyTree(
+                nodes,
+                root_annotations=empty_annotations,
+                root_gamebook=empty_gamebook,
+                root_clocks=chapter.root.root_clocks,
+            )
+            annotation_field = "root._.a"
+            gamebook_field = "root._.g"
+
+        candidate = self._candidate_chapter(chapter, root)
+        size_error = self._size_error(candidate)
+        if size_error is not None:
+            return size_error
+        result = await self._commit(
+            chapter,
+            candidate,
+            extra_unset={annotation_field, gamebook_field},
+        )
+        if result is not None:
+            return result
+        return StudyMutationResult(
+            status="ok",
+            revision=candidate.revision,
+            changed=True,
+            path=path,
+            annotations=empty_annotations,
+            gamebook=empty_gamebook,
+        )
 
     async def set_description(
         self,

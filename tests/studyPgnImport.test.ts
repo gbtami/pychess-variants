@@ -3,6 +3,8 @@ import path from 'path';
 
 import { beforeAll, describe, expect, test } from '@jest/globals';
 
+import { encodePgnUtf8Base64 } from '../client/pgn';
+
 import {
     normalizeStudyPgnDocument,
     parseStudyPgnForImport,
@@ -133,6 +135,90 @@ describe('Study PGN import core', () => {
         expect(e4.clocks).toEqual([298000, 300000]);
         expect(e5.clocks).toEqual([298000, 297000]);
         expect(d4.clocks).toEqual([296000, 300000]);
+    });
+
+    test('imports versioned PyChess lesson mode and root/node metadata losslessly', () => {
+        const rootLesson = { hint: 'Find } the idea\nwith Unicode ✓' };
+        const nodeLesson = { deviation: 'Wrong } answer\nTry again' };
+        const parsed = parsedDocument();
+        parsed.games[0].tags.PyChessStudyVersion = '1';
+        parsed.games[0].tags.PyChessChapterMode = 'gamebook';
+        parsed.games[0].tags.ChapterMode = 'gamebook';
+        parsed.games[0].comments = [
+            `Introduction [%pygamebook ${encodePgnUtf8Base64(JSON.stringify(rootLesson))}]`,
+        ];
+        parsed.games[0].children[0].comments = [
+            `Correct feedback [%pygamebook ${encodePgnUtf8Base64(JSON.stringify(nodeLesson))}]`,
+        ];
+
+        const [chapter] = normalizeStudyPgnDocument(ffish, parsed);
+        const first = chapter.tree.nodes.find(node => node.parentId === null && node.order === 0)!;
+
+        expect(chapter.mode).toBe('gamebook');
+        expect(chapter.tree.rootGamebook).toEqual(rootLesson);
+        expect(first.gamebook).toEqual(nodeLesson);
+        expect(chapter.tree.rootAnnotations?.comments.map(comment => comment.text)).toEqual(['Introduction']);
+        expect(first.annotations?.comments.map(comment => comment.text)).toEqual(['Correct feedback']);
+        expect(chapter.tags.PyChessStudyVersion).toBeUndefined();
+        expect(chapter.tags.PyChessChapterMode).toBeUndefined();
+        expect(chapter.tags.ChapterMode).toBeUndefined();
+    });
+
+    test('does not interpret lesson directives without the PyChess extension version tag', () => {
+        const encoded = encodePgnUtf8Base64(JSON.stringify({ hint: 'Opaque hint' }));
+        const parsed = parsedDocument();
+        parsed.games[0].comments = [`Visible note [%pygamebook ${encoded}]`];
+
+        const [chapter] = normalizeStudyPgnDocument(ffish, parsed);
+
+        expect(chapter.mode).toBe('normal');
+        expect(chapter.tree.rootGamebook).toBeUndefined();
+        expect(chapter.tree.rootAnnotations?.comments[0].text).toContain('[%pygamebook');
+    });
+
+    test('preserves lesson metadata in normal mode and accepts the ChapterMode gamebook compatibility tag', () => {
+        const encoded = encodePgnUtf8Base64(JSON.stringify({ hint: 'Draft hint' }));
+        const normal = parsedDocument();
+        normal.games[0].tags.PyChessStudyVersion = '1';
+        normal.games[0].tags.PyChessChapterMode = 'normal';
+        normal.games[0].comments = [`[%pygamebook ${encoded}]`];
+        expect(normalizeStudyPgnDocument(ffish, normal)[0]).toMatchObject({
+            mode: 'normal',
+            tree: { rootGamebook: { hint: 'Draft hint' } },
+        });
+
+        const compatible = parsedDocument();
+        compatible.games[0].tags.ChapterMode = 'gamebook';
+        expect(normalizeStudyPgnDocument(ffish, compatible)[0].mode).toBe('gamebook');
+    });
+
+    test('rejects unsupported or malformed PyChess lesson extensions instead of silently dropping them', () => {
+        const unsupported = parsedDocument();
+        unsupported.games[0].tags.PyChessStudyVersion = '2';
+        expect(() => normalizeStudyPgnDocument(ffish, unsupported)).toThrow(/Unsupported PyChess Study PGN version/);
+
+        const badMode = parsedDocument();
+        badMode.games[0].tags.PyChessStudyVersion = '1';
+        badMode.games[0].tags.PyChessChapterMode = 'mystery';
+        expect(() => normalizeStudyPgnDocument(ffish, badMode)).toThrow(/Invalid PyChess chapter mode/);
+
+        const conflict = parsedDocument();
+        conflict.games[0].tags.PyChessStudyVersion = '1';
+        conflict.games[0].tags.PyChessChapterMode = 'normal';
+        conflict.games[0].tags.ChapterMode = 'gamebook';
+        expect(() => normalizeStudyPgnDocument(ffish, conflict)).toThrow(/conflicts/);
+
+        const malformed = parsedDocument();
+        malformed.games[0].tags.PyChessStudyVersion = '1';
+        malformed.games[0].comments = ['[%pygamebook definitely-not-base64]'];
+        expect(() => normalizeStudyPgnDocument(ffish, malformed)).toThrow(/Invalid PyChess lesson metadata/);
+
+        const oversized = parsedDocument();
+        oversized.games[0].tags.PyChessStudyVersion = '1';
+        oversized.games[0].comments = [
+            `[%pygamebook ${encodePgnUtf8Base64(JSON.stringify({ hint: 'x'.repeat(4001) }))}]`,
+        ];
+        expect(() => normalizeStudyPgnDocument(ffish, oversized)).toThrow(/Invalid PyChess lesson metadata/);
     });
 
     test('round-trips PyChess custom variant and description extension tags', () => {

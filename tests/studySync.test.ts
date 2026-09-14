@@ -456,6 +456,93 @@ describe('Study analysis websocket synchronization', () => {
         });
     });
 
+    test('clear annotations also clears lesson metadata and preserves a newer queued lesson edit', () => {
+        const ctrl = makeCtrl();
+        ctrl.analysisTree.root.annotations = {
+            shapes: [],
+            comments: [{ id: 'Comment001', author: 'owner', text: 'Root note' }],
+            nags: [],
+        };
+        ctrl.analysisTree.root.gamebook = { hint: 'Old hint', deviation: 'Old fallback' };
+        let op = 0;
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            onReloadRequired: jest.fn(),
+            opIdFactory: () => `ClearGamebookOp${++op}`,
+        });
+        extension.onSocketOpen();
+        ctrl.doSend.mockClear();
+
+        extension.clearAnnotations();
+        expect(ctrl.analysisTree.root.annotations).toBeUndefined();
+        expect(ctrl.analysisTree.root.gamebook).toBeUndefined();
+        expect(ctrl.doSend).toHaveBeenLastCalledWith(
+            expect.objectContaining({ type: 'study_clear_annotations', clientOpId: 'ClearGamebookOp1', path: '' }),
+        );
+
+        extension.setGamebook('hint', 'New hint', '');
+        expect(ctrl.analysisTree.root.gamebook).toEqual({ hint: 'New hint' });
+        expect(extension.pendingCount).toBe(2);
+
+        extension.onSocketMessage('study_clear_annotations', {
+            type: 'study_clear_annotations',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'ClearGamebookOp1',
+            revision: 1,
+            changed: true,
+            path: '',
+            annotations: { shapes: [], comments: [], nags: [] },
+            gamebook: {},
+        });
+
+        expect(ctrl.analysisTree.root.gamebook).toEqual({ hint: 'New hint' });
+        expect(extension.pendingCount).toBe(1);
+        expect(ctrl.doSend).toHaveBeenLastCalledWith({
+            type: 'study_set_gamebook',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'ClearGamebookOp2',
+            expectedRevision: 1,
+            path: '',
+            field: 'hint',
+            value: 'New hint',
+        });
+    });
+
+    test('a remote clear-annotations broadcast removes both annotations and lesson metadata', () => {
+        const ctrl = makeCtrl();
+        ctrl.analysisTree.root.annotations = {
+            shapes: [],
+            comments: [{ id: 'Comment001', author: 'owner', text: 'Root note' }],
+            nags: [1],
+        };
+        ctrl.analysisTree.root.gamebook = { hint: 'Root hint' };
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            onReloadRequired: jest.fn(),
+        });
+
+        extension.onSocketMessage('study_clear_annotations', {
+            type: 'study_clear_annotations',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'RemoteClear1',
+            revision: 1,
+            changed: true,
+            path: '',
+            annotations: { shapes: [], comments: [], nags: [] },
+            gamebook: {},
+        });
+
+        expect(ctrl.analysisTree.root.annotations).toBeUndefined();
+        expect(ctrl.analysisTree.root.gamebook).toBeUndefined();
+    });
+
     test('an older acknowledgement preserves newer comment and glyph edits', () => {
         const ctrl = makeCtrl();
         let op = 0;

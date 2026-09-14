@@ -120,8 +120,16 @@ PyChess also writes ignorable extensions for data ordinary PGN cannot fully expr
 | `PyChessChess960` | Whether the chapter uses the 960 form |
 | `PyChessVariantIniEncoding=base64`, `PyChessVariantIni` | Exact UTF-8 custom-rule snapshot |
 | `PyChessChapterDescriptionEncoding=base64`, `PyChessChapterDescription` | Exact UTF-8 chapter description |
+| `PyChessStudyVersion=1`, `PyChessChapterMode` | Versioned Study teaching extension and exact chapter analysis mode |
+| `ChapterMode=gamebook` | Compatibility marker for interactive lessons; it does not contain the lesson text by itself |
+| `[%pygamebook BASE64]` | UTF-8 JSON containing a position's optional lesson `hint` / `deviation` text |
 | `[%pynag ...]` | Root-position NAGs |
 | `[%pyclocks whiteMs,blackMs]` | Both clock values, including root clocks and sub-second precision |
+
+The teaching extension is intentionally opaque to ordinary PGN software. Other programs
+may ignore or discard the PyChess tags/directives, so lossless lesson round-tripping is
+only guaranteed when the versioned PyChess extension is preserved. `ChapterMode=gamebook`
+alone is only a compatibility hint and is not a lossless lesson interchange format.
 
 ### Import: core implemented, raw-text workflow missing
 
