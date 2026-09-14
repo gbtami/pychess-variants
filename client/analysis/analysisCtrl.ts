@@ -42,7 +42,13 @@ import { animatePassMove } from '../passMove';
 import { mergeServerAdvice, renderFullTreePgnMoveText, renderNodeAnnotations } from './analysisTree';
 import { AnalysisTreeController } from './analysisTreeCtrl';
 import { analysisContext, type AnalysisContext } from './analysisContext';
-import type { AnalysisExtension, AnalysisExtensionFactory } from './analysisExtension';
+import type {
+    AnalysisExtension,
+    AnalysisEvaluationDelivery,
+    AnalysisExtensionFactory,
+    AnalysisMoveApplication,
+    AnalysisNavigationOrigin,
+} from './analysisExtension';
 import {
     CEVAL_ACTIVE_ROUNDS_STORAGE_KEY,
     CEVAL_DISABLE_STORAGE_KEY,
@@ -123,6 +129,8 @@ export class AnalysisController extends GameController {
     private loadedNnueFilename?: string;
     private lastRoundBoardSnapshot?: string;
     private destroyed = false;
+    private analysisSessionGeneration = 0;
+    private readonly analysisSessionCleanups = new Set<() => void>();
     private engineConfigReady?: Promise<void>;
     private resolveEngineConfig?: () => void;
     private readonly onEngineBoardUnload = () => this.fsfEngineBoard?.delete();
@@ -397,6 +405,8 @@ export class AnalysisController extends GameController {
     }
 
     override destroy(): void {
+        this.cancelAnalysisSession();
+        this.analysisExtension?.onDestroy?.();
         this.engineStop();
         this.destroyed = true;
         this.restoreFsfPrompt();
@@ -581,6 +591,10 @@ export class AnalysisController extends GameController {
         this.tree.toggleTreeCollapsed(path);
     }
 
+    activateTreePly(ply: number) {
+        this.tree.activateTreePly(ply);
+    }
+
     activateTreeMainlinePly(ply: number) {
         this.tree.activateTreeMainlinePly(ply);
     }
@@ -589,8 +603,60 @@ export class AnalysisController extends GameController {
         return this.tree.getTreeNodeForPly(ply);
     }
 
-    activateTreePath(path: string, redrawMovelist = true, userNavigation = true) {
-        this.tree.activateTreePath(path, redrawMovelist, userNavigation);
+    activateTreePath(path: string, redrawMovelist = true, origin: AnalysisNavigationOrigin = 'user-navigation') {
+        this.tree.activateTreePath(path, redrawMovelist, origin);
+    }
+
+    beginAnalysisSession(): number {
+        this.cancelAnalysisSession();
+        return this.analysisSessionGeneration;
+    }
+
+    isAnalysisSessionCurrent(generation: number): boolean {
+        return !this.destroyed && generation === this.analysisSessionGeneration;
+    }
+
+    addAnalysisSessionCleanup(generation: number, cleanup: () => void): () => void {
+        if (!this.isAnalysisSessionCurrent(generation)) {
+            cleanup();
+            return () => {};
+        }
+        this.analysisSessionCleanups.add(cleanup);
+        return () => this.analysisSessionCleanups.delete(cleanup);
+    }
+
+    cancelAnalysisSession(): void {
+        this.analysisSessionGeneration += 1;
+        const cleanups = [...this.analysisSessionCleanups];
+        this.analysisSessionCleanups.clear();
+        cleanups.forEach(cleanup => cleanup());
+    }
+
+    completeAnalysisPositionChange(
+        origin: AnalysisNavigationOrigin,
+        previousPath: string,
+        path = this.analysisPath ?? '',
+    ): void {
+        const boardInput = this.analysisExtension?.boardInput?.({
+            path,
+            ply: this.ply,
+            turnColor: this.turnColor,
+        });
+        if (boardInput !== undefined) {
+            this.chessground.set({ movable: { color: boardInput === false ? undefined : boardInput } });
+        }
+        this.analysisExtension?.onPositionChanged?.({
+            origin,
+            path,
+            previousPath,
+            ply: this.ply,
+            fen: this.fullfen,
+            node: this.analysisTree ? this.getTreeNodeAtPath(path) : undefined,
+        });
+    }
+
+    shouldDisplayAnalysisEvaluation(evaluation: AnalysisEvaluationDelivery): boolean {
+        return this.analysisExtension?.onEvaluation?.(evaluation) !== false;
     }
 
     toggleSettings() {
@@ -987,7 +1053,7 @@ export class AnalysisController extends GameController {
         this.checkStatus(msg);
 
         if (this.ply > 0) {
-            if (this.hasAnalysisTree()) this.activateTreePath(this.analysisPath, false);
+            if (this.hasAnalysisTree()) this.activateTreePath(this.analysisPath, false, 'reset');
             else selectMove(this, this.ply);
         }
     }
@@ -1528,8 +1594,19 @@ export class AnalysisController extends GameController {
             if (this.analysisContext.capabilities.positionEvaluation) {
                 this.autoShapes = Array.from({ length: this.multipv }, () => []);
                 this.chessground.setAutoShapes([]);
-                this.drawEval(step.ceval, step.scoreStr, step.turnColor);
-                if (node.mainlinePly !== undefined) this.drawServerEval(node.mainlinePly, step.scoreStr);
+                const displayEvaluation =
+                    (step.ceval === undefined && step.scoreStr === undefined) ||
+                    this.shouldDisplayAnalysisEvaluation({
+                        source: 'stored',
+                        ply,
+                        fen: step.fen,
+                        ceval: step.ceval,
+                        scoreStr: step.scoreStr,
+                    });
+                if (displayEvaluation) {
+                    this.drawEval(step.ceval, step.scoreStr, step.turnColor);
+                    if (node.mainlinePly !== undefined) this.drawServerEval(node.mainlinePly, step.scoreStr);
+                }
             }
 
             this.updateUCImoves();
@@ -1581,8 +1658,19 @@ export class AnalysisController extends GameController {
         if (this.analysisContext.capabilities.positionEvaluation) {
             this.autoShapes = Array.from({ length: this.multipv }, () => []);
             this.chessground.setAutoShapes([]);
-            this.drawEval(step.ceval, step.scoreStr, step.turnColor);
-            this.drawServerEval(ply, step.scoreStr);
+            const displayEvaluation =
+                (step.ceval === undefined && step.scoreStr === undefined) ||
+                this.shouldDisplayAnalysisEvaluation({
+                    source: 'stored',
+                    ply,
+                    fen: step.fen,
+                    ceval: step.ceval,
+                    scoreStr: step.scoreStr,
+                });
+            if (displayEvaluation) {
+                this.drawEval(step.ceval, step.scoreStr, step.turnColor);
+                this.drawServerEval(ply, step.scoreStr);
+            }
         }
 
         this.updateUCImoves();
@@ -1690,6 +1778,20 @@ export class AnalysisController extends GameController {
     }
 
     doSendMove(move: string) {
+        this.applyAnalysisMove(move, 'played-move');
+    }
+
+    applyAnalysisMove(move: string, origin: AnalysisMoveApplication['origin'] = 'played-move'): boolean {
+        const previousPath = this.analysisPath ?? '';
+        if (this.analysisExtension?.beforeMoveApplied?.({ move, origin, path: previousPath }) === false) {
+            if (this.hasAnalysisTree()) this.activateTreePath(previousPath, true, 'reset');
+            else {
+                this.goPly(this.ply, 0);
+                this.completeAnalysisPositionChange('reset', previousPath, '');
+            }
+            return false;
+        }
+
         const san = this.ffishBoard.sanMove(move, this.notationAsObject);
         const sanSAN = this.ffishBoard.sanMove(move);
 
@@ -1731,7 +1833,7 @@ export class AnalysisController extends GameController {
             const recorded = this.tree.recordMove(step);
             if (recorded) {
                 if (recorded.extendedMainline) this.checkStatus(msg);
-                this.tree.activateTreePath(recorded.childPath, true, false);
+                this.tree.activateTreePath(recorded.childPath, true, origin);
                 treeActivated = true;
             }
         } else {
@@ -1739,6 +1841,7 @@ export class AnalysisController extends GameController {
             this.ply = this.steps.length - 1;
             updateMovelist(this);
             this.checkStatus(msg);
+            this.completeAnalysisPositionChange(origin, previousPath, '');
         }
 
         if (!treeActivated) {
@@ -1758,6 +1861,7 @@ export class AnalysisController extends GameController {
         if (this.variant.ui.materialPoint) {
             [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.variant, msg.fen, this.vmiscInfoW, this.vmiscInfoB);
         }
+        return true;
     }
 
     onMsgAnalysisBoard(msg: MsgAnalysisBoard) {
@@ -1808,6 +1912,13 @@ export class AnalysisController extends GameController {
         if (msg['ceval']['s'] === undefined) return;
 
         const scoreStr = this.buildScoreStr(msg.color, msg.ceval);
+        const displayEvaluation = this.shouldDisplayAnalysisEvaluation({
+            source: msg.type === 'local-analysis' ? 'local' : 'server',
+            ply: msg.ply,
+            fen: this.fullfen,
+            ceval: msg.ceval,
+            scoreStr,
+        });
 
         // Server side analysis message
         if (msg.type === 'analysis') {
@@ -1830,8 +1941,8 @@ export class AnalysisController extends GameController {
                 this.pgn = msg.pgn;
                 this.renderFENAndPGN(this.pgn);
             }
-            this.drawServerEval(msg.ply, scoreStr);
-        } else {
+            if (displayEvaluation) this.drawServerEval(msg.ply, scoreStr);
+        } else if (displayEvaluation) {
             const turnColor = msg.color === 'w' ? 'white' : 'black';
             this.drawEval(msg.ceval, scoreStr, turnColor);
         }
