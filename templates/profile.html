@@ -40,7 +40,7 @@
             <div class="profile-number-menu">
                 {% if not profile_system %}
                 {% if profile_title != "BOT" %}
-                <a class="nm-item" href="{{ home }}/@/{{ profile | urlencode }}/tournaments"><strong>{{ '%g' | format(profile_tournament_points) }}</strong> {% trans %}Tournament points{% endtrans %}</a>
+                <a class="nm-item" href="{{ home }}/@/{{ profile | urlencode }}/tournaments"><strong>{{ '%g' | format(profile_tournament_points | default(0)) }}</strong> {% trans %}Tournament points{% endtrans %}</a>
                 {% endif %}
                 {% if (not anon) and (profile_title != "BOT") and profile_simul_count %}
                 <a class="nm-item" href="{{ home }}/@/{{ profile }}/simuls" title="{% trans %}Hosted simuls{% endtrans %}"><strong>{{ profile_simul_count }}</strong> {% trans %}Simuls{% endtrans %}</a>

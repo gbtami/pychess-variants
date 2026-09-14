@@ -92,6 +92,13 @@ class RequestProtectionTestCase(AioHTTPTestCase):
         self.assertIn("/@/CategoryProfile/perf/shogi", html)
         self.assertNotIn("/@/CategoryProfile/perf/chess", html)
 
+    async def test_anonymous_profile_target_renders_without_profile_counters(self):
+        response = await self.client.get("/@/Anon–profile1234")
+
+        self.assertEqual(response.status, 200)
+        html = await response.text()
+        self.assertIn('data-profile-restricted="True"', html)
+
     async def test_websocket_guest_inherits_session_preferences(self):
         app_state = get_app_state(self.app)
 
