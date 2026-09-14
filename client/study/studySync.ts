@@ -46,6 +46,7 @@ const STUDY_SOCKET_TYPES = new Set([
     'study_chapters',
     'study_chapter_content',
     'study_position',
+    'study_conceal',
     'study_analysis_progress',
     'study_analysis_unavailable',
     'study_add_node',
@@ -129,6 +130,7 @@ export interface StudySyncOptions {
     onChaptersChanged?: (chapters: StudyChapterPreview[], sharedChapter: string, sharedPath: string) => void;
     onLocalPathChanged?: (path: string, origin: AnalysisNavigationOrigin) => void;
     onSharedPositionChanged?: (chapterId: string, path: string) => void;
+    onConcealChanged?: (concealPly: number, revision: number) => void;
     onServerEvalChanged?: (serverEval: StudyServerEval | undefined) => void;
     onServerAnalysisUnavailable?: (reason: string) => void;
     onOrientationChanged?: (orientation: 'white' | 'black') => void;
@@ -532,6 +534,17 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         if (!this.connected || !this.writable || !this.recording || this.reloadRequested || !chapterId) return false;
         this.pendingSharedPosition = { chapterId, path };
         this.pumpSharedPosition();
+        return true;
+    }
+
+    resetConcealment(): boolean {
+        if (!this.connected || !this.writable || this.reloadRequested || this.pending.length) return false;
+        this.ctrl.doSend({
+            type: 'study_reset_conceal',
+            studyId: this.options.studyId,
+            chapterId: this.options.chapterId,
+            expectedRevision: this.currentRevision,
+        });
         return true;
     }
 
@@ -959,6 +972,31 @@ export class StudyAnalysisExtension implements AnalysisExtension {
             return true;
         }
 
+        if (type === 'study_conceal') {
+            if (
+                typeof data.chapterId !== 'string' ||
+                typeof data.path !== 'string' ||
+                !Number.isInteger(data.concealPly) ||
+                (data.concealPly as number) < 0 ||
+                !Number.isInteger(data.revision) ||
+                (data.revision as number) < 0
+            ) {
+                this.requestReload('invalid_conceal_state');
+                return true;
+            }
+            if (data.chapterId === this.options.chapterId) {
+                const revision = data.revision as number;
+                if (revision < this.currentRevision || revision > this.currentRevision + 1) {
+                    this.requestReload('revision_mismatch');
+                    return true;
+                }
+                this.currentRevision = revision;
+                this.options.onConcealChanged?.(data.concealPly as number, this.currentRevision);
+            }
+            this.options.onSharedPositionChanged?.(data.chapterId, data.path);
+            return true;
+        }
+
         if (type === 'study_likes') {
             if (!Number.isInteger(data.likes) || (data.likes as number) < 0) {
                 this.requestReload('invalid_likes');
@@ -1008,6 +1046,13 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         if (data.chapterId !== this.options.chapterId) return true;
         if (!this.isAcceptedMutation(type, data)) {
             this.requestReload('invalid_mutation_ack');
+            return true;
+        }
+        if (
+            data.concealPly !== undefined &&
+            (!Number.isInteger(data.concealPly) || (data.concealPly as number) < 0)
+        ) {
+            this.requestReload('invalid_conceal_state');
             return true;
         }
 
@@ -1103,6 +1148,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
             studyId: this.options.studyId,
             chapterId: position.chapterId,
             path: position.path,
+            ...(position.chapterId === this.options.chapterId ? { expectedRevision: this.currentRevision } : {}),
         });
     }
 
@@ -1199,6 +1245,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         }
 
         this.currentRevision = data.revision as number;
+        if (typeof data.concealPly === 'number') this.options.onConcealChanged?.(data.concealPly, this.currentRevision);
         this.pending.shift();
         if (!this.pending.length) for (const waiter of this.idleWaiters) waiter.resolve();
         this.pump();
@@ -1296,6 +1343,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
 
         this.refreshPreferredMainline();
         this.currentRevision = data.revision as number;
+        if (typeof data.concealPly === 'number') this.options.onConcealChanged?.(data.concealPly, this.currentRevision);
         updateMovelist(this.ctrl, true, false);
         this.ctrl.refreshPgnView?.();
     }
