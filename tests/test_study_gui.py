@@ -3,16 +3,25 @@ import json
 import re
 import shutil
 import time
+from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 
 import pytest
 import test_logger
+from fairy import FairyBoard
 from mongomock_motor import AsyncMongoMockClient
 from playwright.async_api import Error as PlaywrightError
 from playwright.async_api import async_playwright, expect
 from pychess_global_app_state_utils import get_app_state
-from study.storage import load_owned_chapter, load_owned_study
+from study.builder import StudyChapterBuilder
+from study.storage import (
+    add_chapter_from_draft,
+    create_study_from_draft,
+    load_owned_chapter,
+    load_owned_study,
+    load_study,
+)
 from study.tree import StudyTree
 
 from server import make_app
@@ -106,6 +115,98 @@ class TestStudyGUI:
                 return result
             await asyncio.sleep(interval)
         raise AssertionError("Timed out waiting for condition")
+
+    @staticmethod
+    async def _equals_async(getter, expected):
+        return await getter() == expected
+
+    async def _create_conceal_acceptance_study(
+        self, app_state, owner: str, writer: str, reader: str
+    ):
+        builder = StudyChapterBuilder(app_state, owner)
+        initial_fen = FairyBoard.start_fen("chess")
+        first = await builder.from_analysis(
+            variant="chess",
+            initial_fen=initial_fen,
+            mode="conceal",
+            conceal_ply=0,
+            name="Hidden line",
+            tree_payload={
+                "nodes": [
+                    {
+                        "id": "Node000001",
+                        "parentId": None,
+                        "order": 0,
+                        "move": "e2e4",
+                        "fen": "ignored",
+                        "turnColor": "black",
+                        "check": False,
+                    },
+                    {
+                        "id": "Node000002",
+                        "parentId": "Node000001",
+                        "order": 0,
+                        "move": "e7e5",
+                        "fen": "ignored",
+                        "turnColor": "white",
+                        "check": False,
+                    },
+                    {
+                        "id": "Node000003",
+                        "parentId": "Node000002",
+                        "order": 0,
+                        "move": "g1f3",
+                        "fen": "ignored",
+                        "turnColor": "black",
+                        "check": False,
+                    },
+                ]
+            },
+        )
+        study, chapter = await create_study_from_draft(
+            app_state, owner, first, name="Conceal acceptance", visibility="public"
+        )
+        second = await builder.from_analysis(
+            variant="chess",
+            initial_fen=initial_fen,
+            mode="conceal",
+            conceal_ply=0,
+            name="Second hidden line",
+            tree_payload={
+                "nodes": [
+                    {
+                        "id": "Node001001",
+                        "parentId": None,
+                        "order": 0,
+                        "move": "c2c4",
+                        "fen": "ignored",
+                        "turnColor": "black",
+                        "check": False,
+                    },
+                    {
+                        "id": "Node001002",
+                        "parentId": "Node001001",
+                        "order": 0,
+                        "move": "e7e5",
+                        "fen": "ignored",
+                        "turnColor": "white",
+                        "check": False,
+                    },
+                ]
+            },
+        )
+        second_chapter = await add_chapter_from_draft(
+            app_state, study, second, activate_shared=False
+        )
+        current = await load_study(app_state, study.id)
+        assert current is not None
+        current = replace(
+            current,
+            visibility="public",
+            members={owner: "write", writer: "write", reader: "read"},
+        )
+        await app_state.db.study.replace_one({"_id": study.id}, current.to_document())
+        return current, chapter, second_chapter
 
     async def test_persistence_chapters_and_fresh_app_state(self, aiohttp_server):
         db_client = AsyncMongoMockClient(tz_aware=True)
@@ -436,4 +537,193 @@ class TestStudyGUI:
                 assert chapter_doc["initialFen"].startswith("rnbqkbnr/pppppppp/")
             finally:
                 await context.close()
+                await browser.close()
+
+    async def test_conceal_multiclient_acceptance(self, aiohttp_server):
+        app = make_app(
+            db_client=AsyncMongoMockClient(tz_aware=True),
+            simple_cookie_storage=True,
+        )
+        server = await aiohttp_server(app, host="127.0.0.1")
+        app_state = get_app_state(app)
+        owner = "conceal_owner"
+        writer = "conceal_writer"
+        reader = "conceal_reader"
+        for username in (owner, writer, reader):
+            await self._insert_user(app_state, username)
+        study, first, second = await self._create_conceal_acceptance_study(
+            app_state, owner, writer, reader
+        )
+        base_url = f"http://{server.host}:{server.port}"
+        first_url = f"{base_url}/study/{study.id}/{first.id}"
+        second_url = f"{base_url}/study/{study.id}/{second.id}"
+        embed_url = f"{base_url}/study/embed/{study.id}/{first.id}"
+
+        async def conceal_ply() -> int:
+            doc = await app_state.db.study_chapter.find_one({"_id": first.id})
+            assert doc is not None
+            return int(doc.get("concealPly", 0))
+
+        async def shared_path() -> str:
+            doc = await app_state.db.study.find_one({"_id": study.id})
+            assert doc is not None
+            return str(doc.get("currentPath") or "")
+
+        async with async_playwright() as p:
+            browser = await self._launch_browser(p)
+            owner_context, owner_page = await self._page_for_user(browser, base_url, owner)
+            writer_context, writer_page = await self._page_for_user(browser, base_url, writer)
+            reader_context, reader_page = await self._page_for_user(browser, base_url, reader)
+            anon_context = await browser.new_context()
+            anon_page = await anon_context.new_page()
+            embed_context = await browser.new_context()
+            embed_page = await embed_context.new_page()
+            rejoin_context = None
+            try:
+                await asyncio.gather(
+                    owner_page.goto(first_url),
+                    writer_page.goto(first_url),
+                    reader_page.goto(first_url),
+                    anon_page.goto(first_url),
+                    embed_page.goto(embed_url),
+                )
+                for page in (owner_page, writer_page, reader_page, anon_page, embed_page):
+                    await expect(page.locator("#mainboard cg-board")).to_be_visible()
+
+                await self._eventually(
+                    lambda: len(app_state.study_sockets.get(study.id, set())) == 5
+                )
+
+                # Owner and writer are authoring clients. Read-only and anonymous
+                # viewers have SYNC but never REC; embeds have neither shared-state
+                # control. Exercise distinct REC/SYNC combinations before revealing.
+                for page in (owner_page, writer_page):
+                    await expect(page.locator(".study-mode--write")).to_have_attribute(
+                        "aria-pressed", "true"
+                    )
+                    await expect(page.locator(".study-mode--sync")).to_have_attribute(
+                        "aria-pressed", "true"
+                    )
+                for page in (reader_page, anon_page):
+                    await expect(page.locator(".study-mode--write")).to_have_count(0)
+                    await expect(page.locator(".study-mode--sync")).to_have_attribute(
+                        "aria-pressed", "true"
+                    )
+                await expect(embed_page.locator(".study-mode--write")).to_have_count(0)
+                await expect(embed_page.locator(".study-mode--sync")).to_have_count(0)
+
+                await writer_page.locator(".study-mode--write").click()
+                await expect(writer_page.locator(".study-mode--write")).to_have_attribute(
+                    "aria-pressed", "false"
+                )
+                await reader_page.locator(".study-mode--sync").click()
+                await expect(reader_page.locator(".study-mode--sync")).to_have_attribute(
+                    "aria-pressed", "false"
+                )
+
+                # Concealed readers receive no next SAN from the rendered tree. The
+                # compact embed joins the Study room as a reader too, but exposes no
+                # REC/SYNC controls of its own.
+                for page in (reader_page, anon_page, embed_page):
+                    await expect(page.locator("#movelist")).not_to_contain_text("e4")
+
+                # A writer with REC disabled may browse the full authored tree but
+                # does not present or reveal it to readers.
+                await writer_page.locator("#movelist move", has_text="e4").click()
+                await expect(
+                    writer_page.locator("#movelist move.active", has_text="e4")
+                ).to_have_count(1)
+                await writer_page.wait_for_timeout(150)
+                assert await conceal_ply() == 0
+                assert await shared_path() == ""
+                await expect(reader_page.locator("#movelist")).not_to_contain_text("e4")
+                await expect(anon_page.locator("#movelist")).not_to_contain_text("e4")
+
+                # Owner REC+SYNC publication advances the global reveal boundary.
+                # The read member has SYNC off, so it learns the revealed SAN but
+                # stays at root; the anonymous public viewer follows the presentation.
+                await owner_page.locator("#movelist move", has_text="e4").click()
+                await self._eventually_async(lambda: self._equals_async(conceal_ply, 1))
+                await expect(reader_page.locator("#movelist")).to_contain_text("e4")
+                await expect(
+                    reader_page.locator("#movelist move.active", has_text="e4")
+                ).to_have_count(0)
+                await expect(
+                    anon_page.locator("#movelist move.active", has_text="e4")
+                ).to_have_count(1)
+                assert await shared_path() != ""
+
+                # The embedded reader receives the same reveal broadcast while
+                # remaining a control-free reader surface.
+                await expect(embed_page.locator("#movelist")).to_contain_text("e4")
+
+                # Presenting back to root does not un-reveal the already presented
+                # move. SYNC-on viewers follow back while the global boundary remains.
+                await owner_page.locator(".btn-controls button:has(.icon-fast-backward)").click()
+                await self._eventually_async(lambda: self._equals_async(shared_path, ""))
+                assert await conceal_ply() == 1
+                await expect(anon_page.locator("#movelist move.active")).to_have_count(0)
+                await expect(anon_page.locator("#movelist")).to_contain_text("e4")
+
+                # A new read-member session deterministically reconstructs the same
+                # persisted reveal state after joining the Study room.
+                rejoin_context, rejoin_page = await self._page_for_user(browser, base_url, reader)
+                await rejoin_page.goto(first_url)
+                await expect(rejoin_page.locator("#mainboard cg-board")).to_be_visible()
+                await expect(rejoin_page.locator("#movelist")).to_contain_text("e4")
+                await expect(rejoin_page.locator("#movelist")).not_to_contain_text("e5")
+
+                # Client-side chapter navigation must preserve concealment across
+                # browser back/forward history: chapter 2 remains fully hidden while
+                # chapter 1 retains its one globally revealed ply.
+                await reader_page.get_by_role("link", name="2. Second hidden line").click()
+                await reader_page.wait_for_url(second_url)
+                await expect(reader_page.locator("#movelist")).not_to_contain_text("c4")
+                await reader_page.go_back()
+                await reader_page.wait_for_url(first_url)
+                await expect(reader_page.locator("#movelist")).to_contain_text("e4")
+                await expect(reader_page.locator("#movelist")).not_to_contain_text("e5")
+                await reader_page.go_forward()
+                await reader_page.wait_for_url(second_url)
+                await expect(reader_page.locator("#movelist")).not_to_contain_text("c4")
+                await reader_page.go_back()
+                await reader_page.wait_for_url(first_url)
+                await expect(reader_page.locator("#movelist")).to_contain_text("e4")
+                await expect(reader_page.locator("#movelist")).not_to_contain_text("e5")
+
+                # A read-only learner may try a different legal move locally. The
+                # attempt is visible only on that path and never mutates the Study DB.
+                before_guess = await app_state.db.study_chapter.find_one({"_id": first.id})
+                assert before_guess is not None
+                await self._play_board_move(reader_page, "d2", "d4")
+                await expect(reader_page.locator("#movelist")).to_contain_text("d4")
+                await reader_page.wait_for_timeout(250)
+                after_guess = await app_state.db.study_chapter.find_one({"_id": first.id})
+                assert after_guess is not None
+                assert after_guess["revision"] == before_guess["revision"]
+                assert after_guess["root"] == before_guess["root"]
+                await reader_page.locator(".btn-controls button:has(.icon-fast-backward)").click()
+                await expect(reader_page.locator("#movelist")).not_to_contain_text("d4")
+
+                # Reset is an explicit author operation: concealPly and shared path
+                # return to root atomically and every live reader, including the
+                # compact embed, hides the SAN again.
+                await owner_page.get_by_role("button", name="Edit chapter: Hidden line").click()
+                chapter_dialog = owner_page.get_by_role("dialog", name="Edit chapter", exact=True)
+                await chapter_dialog.get_by_role("button", name="Hide moves again").click()
+                confirm = owner_page.locator("#confirm-dialog")
+                await expect(confirm).to_be_visible()
+                await confirm.get_by_role("button", name="Hide moves again").click()
+                await self._eventually_async(lambda: self._equals_async(conceal_ply, 0))
+                await self._eventually_async(lambda: self._equals_async(shared_path, ""))
+                for page in (reader_page, anon_page, rejoin_page, embed_page):
+                    await expect(page.locator("#movelist")).not_to_contain_text("e4")
+            finally:
+                if rejoin_context is not None:
+                    await rejoin_context.close()
+                await owner_context.close()
+                await writer_context.close()
+                await reader_context.close()
+                await anon_context.close()
+                await embed_context.close()
                 await browser.close()

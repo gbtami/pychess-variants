@@ -541,7 +541,7 @@ are complete; it need not wait for computer practice.
   indicators and reader Preview.
   **Done:** readers can try moves without learning the next SAN from another UI
   surface; their guesses do not modify the chapter or shared reveal state.
-- [ ] **B3 — Multi-client acceptance.** Exercise owner, write member, reader,
+- [x] **B3 — Multi-client acceptance.** Exercise owner, write member, reader,
   anonymous public viewer and embedded reader with REC/SYNC combinations. Test
   present/reveal/back/reset/rejoin and chapter switches with browser history.
   **Done:** browser tests verify rendered omission and allowed navigation, while
