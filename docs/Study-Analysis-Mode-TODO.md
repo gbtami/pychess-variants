@@ -505,7 +505,7 @@ suggestions; existing file links above are the concrete integration points.
   checks across the large `studyView.ts`.
   **Done:** one policy answers whether an action is allowed without changing saved
   REC/SYNC preferences.
-- [ ] **A3 — Analysis host seams and lifecycle.** Extend `AnalysisExtension` only
+- [x] **A3 — Analysis host seams and lifecycle.** Extend `AnalysisExtension` only
   where needed: before user move application, after completed move/position change,
   board input policy, evaluation delivery, visible-tree policy and cleanup. Supply
   explicit navigation origins for user browsing, played move, scripted/engine reply,

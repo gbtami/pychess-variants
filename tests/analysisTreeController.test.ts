@@ -51,6 +51,7 @@ function stubCtrl(steps: Step[], gameId = 'abcd1234') {
         variant: { name: 'chess' },
         recordedMainlinePly: undefined as number | undefined,
         goPly: jest.fn(),
+        completeAnalysisPositionChange: jest.fn(),
         ffishBoard: {
             setFen: jest.fn(),
             sanMove: jest.fn((move: string) => move),
@@ -103,6 +104,22 @@ test('tree navigation requests scrolling to the newly selected move', () => {
     expect(ctrl.goPly).toHaveBeenLastCalledWith(3, 0);
     // The default activate=true keeps the selected move visible.
     expect(updateMovelistMock).toHaveBeenLastCalledWith(ctrl);
+});
+
+test('active-line ply navigation preserves a selected variation', () => {
+    const ctrl = stubCtrl(steps4());
+    const tree = new AnalysisTreeController(ctrl as any);
+    tree.initAnalysisTreeAtPly(1);
+    const branchParent = tree.getTreeActivePath();
+    const c5 = tree.recordMove(makeStep('v1 w - - 0 1', 'c7c5', 'white', 'c5'))!;
+    tree.activateTreePath(c5.childPath);
+
+    tree.activateTreePly(1);
+    expect(tree.getTreeActivePath()).toBe(branchParent);
+
+    tree.activateTreePly(2);
+    expect(tree.getTreeActivePath()).toBe(c5.childPath);
+    expect(tree.getTreeCurrentNode()?.step.san).toBe('c5');
 });
 
 test('records nested variations without extending persisted steps', () => {
@@ -244,9 +261,9 @@ test('extension observes successful tree mutations without duplicate add notific
     expect(extension.onNodeDeleted).toHaveBeenCalledWith(c5.childPath);
 });
 
-test('extension can veto user navigation while internal navigation still keeps tree state valid', () => {
+test('extension receives explicit navigation origins and can veto each route independently', () => {
     const extension = {
-        canActivatePath: jest.fn((_path: string) => true),
+        canActivatePath: jest.fn((_path: string, _origin: string) => true),
         onPathChanged: jest.fn(),
     };
     const ctrl = { ...stubCtrl(steps4()), analysisExtension: extension };
@@ -256,17 +273,35 @@ test('extension can veto user navigation while internal navigation still keeps t
     const c5 = tree.recordMove(makeStep('v1 w - - 0 1', 'c7c5', 'white', 'c5'))!;
 
     extension.onPathChanged.mockClear();
-    extension.canActivatePath.mockImplementation(path => path !== c5.childPath);
+    extension.canActivatePath.mockImplementation((_path, origin) => origin !== 'user-navigation');
     tree.activateTreePath(c5.childPath);
     expect(tree.getTreeActivePath()).toBe(branchParent);
+    expect(extension.canActivatePath).toHaveBeenLastCalledWith(c5.childPath, 'user-navigation');
     expect(extension.onPathChanged).not.toHaveBeenCalled();
 
-    tree.activateTreePath(c5.childPath, false, false);
+    tree.activateTreePath(c5.childPath, false, 'played-move');
     expect(tree.getTreeActivePath()).toBe(c5.childPath);
-    expect(extension.onPathChanged).toHaveBeenCalledWith(c5.childPath, branchParent);
+    expect(extension.canActivatePath).toHaveBeenLastCalledWith(c5.childPath, 'played-move');
+    expect(extension.onPathChanged).toHaveBeenCalledWith(c5.childPath, branchParent, 'played-move');
 
     extension.onPathChanged.mockClear();
     tree.deleteTreeNode(c5.childPath);
     expect(tree.getTreeActivePath()).toBe(branchParent);
-    expect(extension.onPathChanged).toHaveBeenCalledWith(branchParent, c5.childPath);
+    expect(extension.onPathChanged).toHaveBeenCalledWith(branchParent, c5.childPath, 'reset');
+});
+
+test('played existing child still produces a completed-position notification', () => {
+    const ctrl = stubCtrl(steps4());
+    const tree = new AnalysisTreeController(ctrl as any);
+    tree.initAnalysisTreeAtPly(1);
+    const branchParent = tree.getTreeActivePath();
+    const existing = tree.getTreeNodeAtPath(`${branchParent}.02`);
+    expect(existing?.step.move).toBe('e7e5');
+
+    ctrl.completeAnalysisPositionChange.mockClear();
+    const recorded = tree.recordMove(existing!.step)!;
+    expect(recorded.childPath).toBe(existing!.path);
+
+    tree.activateTreePath(recorded.childPath, false, 'played-move');
+    expect(ctrl.completeAnalysisPositionChange).toHaveBeenCalledWith('played-move', branchParent, existing!.path);
 });
