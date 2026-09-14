@@ -751,6 +751,145 @@ async def test_edit_chapter_updates_name_and_orientation(aiohttp_client) -> None
 
 
 @pytest.mark.asyncio
+async def test_chapter_modes_round_trip_through_create_page_preview_and_export(
+    aiohttp_client,
+) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    owner = "study_mode_owner"
+    await _insert_user(app_state, owner)
+    study, _ = await create_study_from_draft(
+        app_state,
+        owner,
+        await StudyChapterBuilder(app_state, owner).blank_or_fen(variant="chess"),
+    )
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie(owner)})
+
+    created: dict[str, str] = {}
+    for mode in ("normal", "practice", "conceal", "gamebook"):
+        response = await client.post(
+            f"/study/{study.id}/chapter",
+            data={
+                "chapterName": f"{mode} chapter",
+                "variant": "chess",
+                "mode": mode,
+                **({"concealPly": "0"} if mode == "conceal" else {}),
+            },
+            allow_redirects=False,
+        )
+        assert response.status == 302
+        created[mode] = response.headers["Location"].rsplit("/", 1)[-1]
+
+    docs = await app_state.db.study_chapter.find({"studyId": study.id}).to_list(length=10)
+    stored_modes = {doc["name"]: doc["mode"] for doc in docs}
+    for mode in ("normal", "practice", "conceal", "gamebook"):
+        assert stored_modes[f"{mode} chapter"] == mode
+
+    conceal_id = created["conceal"]
+    page = await client.get(
+        f"/study/{study.id}/{conceal_id}", headers={"Accept": "application/json"}
+    )
+    assert page.status == 200
+    payload = await page.json()
+    assert payload["study"]["chapter"]["mode"] == "conceal"
+    assert payload["study"]["chapter"]["concealPly"] == 0
+    conceal_preview = next(
+        chapter for chapter in payload["study"]["chapters"] if chapter["id"] == conceal_id
+    )
+    assert conceal_preview["mode"] == "conceal"
+    assert conceal_preview["concealPly"] == 0
+
+    exported = await client.get(f"/study/{study.id}/{conceal_id}/export-data")
+    assert exported.status == 200
+    export_payload = await exported.json()
+    assert export_payload["mode"] == "conceal"
+    assert export_payload["concealPly"] == 0
+
+    before = await app_state.db.study_chapter.count_documents({"studyId": study.id})
+    invalid = await client.post(
+        f"/study/{study.id}/chapter",
+        data={"chapterName": "Invalid", "variant": "chess", "mode": "training"},
+        allow_redirects=False,
+    )
+    assert invalid.status == 400
+    assert await app_state.db.study_chapter.count_documents({"studyId": study.id}) == before
+
+
+@pytest.mark.asyncio
+async def test_chapter_mode_edit_reloads_room_is_idempotent_and_requires_write_access(
+    aiohttp_client,
+) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    owner = "study_mode_editor"
+    reader = "study_mode_reader"
+    await _insert_user(app_state, owner)
+    await _insert_user(app_state, reader)
+    study, chapter = await create_study_from_draft(
+        app_state,
+        owner,
+        await StudyChapterBuilder(app_state, owner).blank_or_fen(variant="chess"),
+        visibility="unlisted",
+    )
+    room = _StudyRoomSocket()
+    app_state.study_sockets[study.id] = {room}
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie(owner)})
+
+    changed = await client.post(
+        f"/study/{study.id}/{chapter.id}/edit",
+        data={"name": chapter.name, "orientation": chapter.orientation, "mode": "conceal"},
+        allow_redirects=False,
+    )
+    assert changed.status == 302
+    stored = await app_state.db.study_chapter.find_one({"_id": chapter.id})
+    assert stored is not None
+    assert stored["mode"] == "conceal"
+    assert stored["concealPly"] == 0
+    assert stored["revision"] == 1
+    assert room.sent == [
+        {"type": "study_reload", "studyId": study.id, "reason": "chapter_mode_changed"}
+    ]
+
+    room.sent.clear()
+    study_before = await app_state.db.study.find_one({"_id": study.id})
+    same = await client.post(
+        f"/study/{study.id}/{chapter.id}/edit",
+        data={
+            "name": chapter.name,
+            "orientation": chapter.orientation,
+            "mode": "conceal",
+            "concealPly": "0",
+        },
+        allow_redirects=False,
+    )
+    assert same.status == 302
+    stored_same = await app_state.db.study_chapter.find_one({"_id": chapter.id})
+    study_after = await app_state.db.study.find_one({"_id": study.id})
+    assert stored_same is not None and study_before is not None and study_after is not None
+    assert stored_same["revision"] == 1
+    assert study_after["revision"] == study_before["revision"]
+    assert room.sent == []
+
+    invalid = await client.post(
+        f"/study/{study.id}/{chapter.id}/edit",
+        data={"name": chapter.name, "orientation": chapter.orientation, "mode": "unknown"},
+        allow_redirects=False,
+    )
+    assert invalid.status == 400
+
+    client.session.cookie_jar.clear()
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie(reader)})
+    forbidden = await client.post(
+        f"/study/{study.id}/{chapter.id}/edit",
+        data={"name": chapter.name, "orientation": chapter.orientation, "mode": "practice"},
+        allow_redirects=False,
+    )
+    assert forbidden.status == 403
+
+
+@pytest.mark.asyncio
 async def test_study_visibility_controls_page_export_and_write_access(aiohttp_client) -> None:
     app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
     client = await aiohttp_client(app)

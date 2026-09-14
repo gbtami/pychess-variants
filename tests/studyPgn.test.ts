@@ -39,6 +39,7 @@ function chapter(overrides: Partial<StudyPgnChapterData> = {}): StudyPgnChapterD
         chess960: false,
         initialFen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
         orientation: 'white',
+        mode: 'normal',
         description: 'Plans\nwith detail',
         tags: { Event: 'Custom event', Result: '1-0', Variant: 'wrong', FEN: 'wrong' },
         variantIni: '[myvariant:chess]\nmaxRank = 8',
@@ -188,6 +189,15 @@ describe('Study PGN export', () => {
     test('parses the lightweight server export DTO', () => {
         const raw = chapter();
         expect(parseStudyChapterExportData(raw)).toEqual(raw);
+        expect(parseStudyChapterExportData({ ...raw, mode: 'conceal', concealPly: 1 })).toEqual({
+            ...raw,
+            mode: 'conceal',
+            concealPly: 1,
+        });
+        expect(() => parseStudyChapterExportData({ ...raw, mode: 'unknown' })).toThrow('Invalid Study export mode');
+        expect(() => parseStudyChapterExportData({ ...raw, mode: 'normal', concealPly: 0 })).toThrow(
+            'Invalid Study export conceal boundary',
+        );
         expect(() => parseStudyChapterExportData({ ...raw, tags: { Event: 42 } })).toThrow('Invalid Study export tags');
     });
 

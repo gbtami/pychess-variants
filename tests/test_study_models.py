@@ -223,6 +223,74 @@ class StudyModelTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(restored.description, "Line one\nLine two")
         self.assertEqual(restored.tags, {"Event": "Test", "Site": "PyChess"})
 
+    async def test_chapter_modes_and_conceal_boundary_round_trip(self) -> None:
+        now = datetime(2026, 9, 14, 12, 0, tzinfo=UTC)
+        main = StudyTreeNode(
+            id="StudyNode1",
+            parent_id=None,
+            order=0,
+            move="e2e4",
+            fen="after-e4",
+            turn_color="black",
+        )
+        chapter = await make_chapter(
+            None,
+            study_id="Study001",
+            owner="owner",
+            variant="chess",
+            initial_fen="start",
+            orientation="white",
+            mode="conceal",
+            conceal_ply=1,
+            root=StudyTree({main.id: main}),
+            order=1,
+            now=now,
+        )
+
+        doc = chapter.to_document()
+        self.assertEqual(doc["mode"], "conceal")
+        self.assertEqual(doc["concealPly"], 1)
+        self.assertEqual(StudyChapter.from_document(doc), chapter)
+
+        old_doc = dict(doc)
+        old_doc.pop("mode")
+        old_doc.pop("concealPly")
+        restored_old = StudyChapter.from_document(old_doc)
+        self.assertEqual(restored_old.mode, "normal")
+        self.assertIsNone(restored_old.conceal_ply)
+
+    async def test_chapter_mode_validation_rejects_unknown_and_invalid_conceal_boundary(
+        self,
+    ) -> None:
+        now = datetime(2026, 9, 14, 12, 0, tzinfo=UTC)
+        chapter = await make_chapter(
+            None,
+            study_id="Study001",
+            owner="owner",
+            variant="chess",
+            initial_fen="start",
+            orientation="white",
+            order=1,
+            now=now,
+        )
+        doc = chapter.to_document()
+
+        invalid_mode = dict(doc)
+        invalid_mode["mode"] = "training"
+        with self.assertRaisesRegex(ValueError, "Unknown Study chapter mode"):
+            StudyChapter.from_document(invalid_mode)
+
+        invalid_boundary = dict(doc)
+        invalid_boundary["mode"] = "conceal"
+        invalid_boundary["concealPly"] = 1
+        with self.assertRaisesRegex(ValueError, "exceeds preferred mainline depth"):
+            StudyChapter.from_document(invalid_boundary)
+
+        stray_boundary = dict(doc)
+        stray_boundary["concealPly"] = 0
+        with self.assertRaisesRegex(ValueError, "only valid in conceal mode"):
+            StudyChapter.from_document(stray_boundary)
+
     def test_source_round_trip(self) -> None:
         source = StudySource("game", "abcdefgh")
         self.assertEqual(StudySource.decode(source.encode()), source)
@@ -256,6 +324,7 @@ class StudyModelTestCase(unittest.IsolatedAsyncioTestCase):
             updated_at=now,
         )
         doc = chapter.to_document()
+        self.assertEqual(doc["mode"], "normal")
         self.assertNotIn("chess960", doc)
         self.assertNotIn("variantIni", doc)
         self.assertNotIn("description", doc)
