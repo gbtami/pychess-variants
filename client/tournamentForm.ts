@@ -10,6 +10,8 @@ function tournamentFormErrorMessage(message: string): string {
         case 'Unknown tournament variant.': return _('Unknown tournament variant.');
         case 'Two-board variants are not supported in tournaments.':
             return _('Two-board variants are not supported in tournaments.');
+        case 'Byoyomi is not supported for this tournament variant.':
+            return _('Byoyomi is not supported for this tournament variant.');
         case 'Invalid tournament time control.': return _('Invalid tournament time control.');
         case 'Tournament team not found.': return _('Tournament team not found.');
         case 'You need the tournament permission in this team to create this tournament.':
@@ -466,6 +468,7 @@ export function initTournamentForm(): void {
     const teamHelp = document.getElementById('form3-team-help');
     const rated = document.getElementById('form3-rated');
     const variantSelect = document.getElementById('form3-variant');
+    const byoyomiPeriod = document.getElementById('form3-byoyomiPeriod');
     const systemHelp = document.getElementById('form3-system-help');
     const roundsWrap = document.getElementById('form3-rounds-wrap');
     const roundsLabel = document.getElementById('form3-rounds-label');
@@ -541,6 +544,16 @@ export function initTournamentForm(): void {
                 if (!ratingEnabled) element.value = '0';
             }
         });
+    };
+
+    const syncByoyomiPolicy = (): void => {
+        if (!(variantSelect instanceof HTMLSelectElement) || !(byoyomiPeriod instanceof HTMLSelectElement)) return;
+        const { base } = splitVariantKey(variantSelect.value);
+        const supportsByoyomi = VARIANTS[base]?.rules.defaultTimeControl === 'byoyomi';
+        Array.from(byoyomiPeriod.options).forEach(option => {
+            option.disabled = !supportsByoyomi && option.value !== '0';
+        });
+        if (!supportsByoyomi) byoyomiPeriod.value = '0';
     };
 
     const effectiveStartDate = (): Date | null => {
@@ -685,6 +698,7 @@ export function initTournamentForm(): void {
     system.addEventListener('change', updateFormBySystem);
     if (variantSelect instanceof HTMLSelectElement) {
         variantSelect.addEventListener('change', syncRatingPolicy);
+        variantSelect.addEventListener('change', syncByoyomiPolicy);
     }
     minutesSelect.addEventListener('change', syncEndDateFromSchedule);
     waitMinutesSelect.addEventListener('change', syncEndDateFromSchedule);
@@ -725,4 +739,5 @@ export function initTournamentForm(): void {
         }
     });
     updateFormBySystem();
+    syncByoyomiPolicy();
 }

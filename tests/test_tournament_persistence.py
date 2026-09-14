@@ -520,6 +520,22 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         self.assertNotIn("lastArenaCreatedAt", user_doc or {})
         self.assertNotIn("arenaCreationHistory", user_doc or {})
 
+    async def test_regular_user_cannot_create_byoyomi_arena_for_unsupported_variant(self):
+        app_state = get_app_state(self.app)
+        username = f"CommunityByoyomi{id8()}"
+        await app_state.db.user.insert_one({"_id": username})
+
+        with self.assertRaises(web.HTTPBadRequest) as context:
+            await create_or_update_tournament(
+                app_state,
+                username,
+                self._community_arena_form(variant="racingkings", byoyomiPeriod="3"),
+                creator_is_director=False,
+            )
+        self.assertEqual(
+            context.exception.text, "Byoyomi is not supported for this tournament variant."
+        )
+
     async def test_regular_user_cannot_stack_active_arenas(self):
         app_state = get_app_state(self.app)
         username = f"CommunityActive{id8()}"

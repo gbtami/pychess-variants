@@ -932,6 +932,8 @@ async def create_or_update_tournament(
         bp = int(form["byoyomiPeriod"])
     except (KeyError, TypeError, ValueError):
         raise web.HTTPBadRequest(text="Invalid tournament time control.") from None
+    if bp > 0 and not server_variant.byo:
+        raise web.HTTPBadRequest(text="Byoyomi is not supported for this tournament variant.")
     frequency = tournament.frequency if tournament is not None else ""
     team_id = tournament.team_id if tournament is not None else str(form.get("teamId", "")).strip()
 

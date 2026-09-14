@@ -25,6 +25,8 @@ function setupTournamentForm(): void {
                     <optgroup label="Site variants" data-kind="site">
                         <option value="chess" data-kind="site" selected>Chess</option>
                         <option value="atomic" data-kind="site">Atomic</option>
+                        <option value="shogi" data-kind="site">Shogi</option>
+                        <option value="racingkings" data-kind="site">Racing Kings</option>
                     </optgroup>
                     <optgroup label="Community variants" data-kind="community">
                         <option value="community-alpha" data-kind="community">Community Alpha</option>
@@ -49,6 +51,7 @@ function setupTournamentForm(): void {
             <span id="form3-minutes-help"></span>
             <select id="form3-minutes"><option value="45">45</option><option value="90">90</option></select>
             <select id="form3-waitMinutes"><option value="5">5</option></select>
+            <select id="form3-byoyomiPeriod"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select>
             <input id="startDate">
             <div id="form3-endDate-wrap"><input id="endDate"></div>
             <div id="form3-entry-wrap-a"></div>
@@ -94,6 +97,24 @@ describe('tournament schedule form', () => {
 
         expect(minutes.value).toBe('90');
         expect((document.querySelector('#endDate') as HTMLInputElement).value).toBe('');
+    });
+
+    test('allows byoyomi periods only for variants with byoyomi clocks', () => {
+        initTournamentForm();
+
+        const variant = document.querySelector('#form3-variant') as HTMLSelectElement;
+        const byoyomi = document.querySelector('#form3-byoyomiPeriod') as HTMLSelectElement;
+
+        expect(byoyomi.value).toBe('0');
+        expect(byoyomi.options[1].disabled).toBe(true);
+
+        changeValue(variant, 'shogi');
+        expect(byoyomi.options[1].disabled).toBe(false);
+        changeValue(byoyomi, '3');
+
+        changeValue(variant, 'racingkings');
+        expect(byoyomi.value).toBe('0');
+        expect(byoyomi.options[3].disabled).toBe(true);
     });
 });
 
