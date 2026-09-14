@@ -533,7 +533,7 @@ are complete; it need not wait for computer practice.
   non-mainline publication, edits, deletion and reconnect cases.
   **Done:** only authorized presentation advances the shared boundary; reset and
   late joiners get deterministic state.
-- [ ] **B2 — Reader presentation and exploration.** Add `studyConceal.ts`
+- [x] **B2 — Reader presentation and exploration.** Add `studyConceal.ts`
   (suggested) and filtered move/fork/comment rendering. Block unseen navigation from
   keyboard, wheel, chart, context menu, move number, URL/history, remembered path,
   and auto-advance. Allow legal attempted moves, matched stored moves and backward
