@@ -530,6 +530,7 @@ class StudyChapterBuilder:
                     annotations=StudyChapterBuilder._canonical_annotation_authors(
                         submitted.annotations, comment_author
                     ),
+                    gamebook=submitted.gamebook,
                 )
                 rebuilt[node.id] = node
                 moves = parent_moves + (node.move,)
@@ -542,6 +543,7 @@ class StudyChapterBuilder:
             root_annotations=StudyChapterBuilder._canonical_annotation_authors(
                 tree.root_annotations, comment_author
             ),
+            root_gamebook=tree.root_gamebook,
             root_clocks=tree.root_clocks,
         )
 

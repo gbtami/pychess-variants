@@ -12,7 +12,7 @@ from mongomock_motor import AsyncMongoMockClient
 from study.analysis import merge_study_server_analysis, request_study_server_analysis
 from study.models import Study, StudyChapter
 from study.mutations import StudyMutationService
-from study.tree import StudyTree
+from study.tree import StudyGamebook, StudyTree
 
 STUDY_ID = "study001"
 CHAPTER_ID = "chapter1"
@@ -282,6 +282,29 @@ class StudyServerAnalysisTestCase(unittest.IsolatedAsyncioTestCase):
             expected_revision=c5.revision,
         )
         self.assertEqual(human_comment.status, "ok")
+        assert human_comment.revision is not None
+
+        root_hint = await self.service.set_gamebook(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            path="",
+            field_name="hint",
+            value="Keep the root hint",
+            expected_revision=human_comment.revision,
+        )
+        self.assertEqual(root_hint.status, "ok")
+        assert root_hint.revision is not None
+        node_deviation = await self.service.set_gamebook(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            path=e5_path,
+            field_name="deviation",
+            value="Keep the node fallback",
+            expected_revision=root_hint.revision,
+        )
+        self.assertEqual(node_deviation.status, "ok")
 
         started = await self._request()
         self.assertEqual(started.status, "started")
@@ -307,6 +330,8 @@ class StudyServerAnalysisTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(mainline[2].eval_score, {"cp": -380})
 
         e5 = mainline[1]
+        self.assertEqual(chapter.root.root_gamebook, StudyGamebook(hint="Keep the root hint"))
+        self.assertEqual(e5.gamebook, StudyGamebook(deviation="Keep the node fallback"))
         self.assertIn(4, e5.annotations.nags)
         self.assertTrue(any(comment.text == "Human note" for comment in e5.annotations.comments))
         generated = [comment for comment in e5.annotations.comments if comment.author == "PyChess"]

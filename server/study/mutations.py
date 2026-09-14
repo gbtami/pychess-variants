@@ -25,7 +25,7 @@ from study.constants import STUDY_CHAPTER_MAX_BSON_BYTES, STUDY_MAX_NODES_PER_CH
 from study.models import Study, StudyChapter
 from study.permissions import can_write_study
 from study.storage import refresh_study_search_tokens
-from study.tree import StudyTree, StudyTreeNode, is_study_node_id, new_study_node_id
+from study.tree import StudyGamebook, StudyTree, StudyTreeNode, is_study_node_id, new_study_node_id
 from study.variant import study_variant_context
 
 if TYPE_CHECKING:
@@ -53,6 +53,7 @@ class StudyMutationResult:
     path: str | None = None
     node: StudyTreeNode | None = None
     annotations: StudyAnnotations | None = None
+    gamebook: StudyGamebook | None = None
     description: str | None = None
     tags: Mapping[str, str] | None = None
     conceal_ply: int | None = None
@@ -73,6 +74,8 @@ class StudyMutationResult:
             payload["node"] = self.node.to_payload()
         if self.annotations is not None:
             payload["annotations"] = self.annotations.to_payload()
+        if self.gamebook is not None:
+            payload["gamebook"] = self.gamebook.to_payload()
         if self.description is not None:
             payload["description"] = self.description
         if self.tags is not None:
@@ -186,6 +189,7 @@ class StudyMutationService:
             StudyTree(
                 nodes,
                 root_annotations=chapter.root.root_annotations,
+                root_gamebook=chapter.root.root_gamebook,
                 root_clocks=chapter.root.root_clocks,
             ),
         )
@@ -255,6 +259,7 @@ class StudyMutationService:
             StudyTree(
                 nodes,
                 root_annotations=chapter.root.root_annotations,
+                root_gamebook=chapter.root.root_gamebook,
                 root_clocks=chapter.root.root_clocks,
             ),
         )
@@ -341,6 +346,7 @@ class StudyMutationService:
             StudyTree(
                 nodes,
                 root_annotations=chapter.root.root_annotations,
+                root_gamebook=chapter.root.root_gamebook,
                 root_clocks=chapter.root.root_clocks,
             ),
         )
@@ -403,6 +409,7 @@ class StudyMutationService:
             StudyTree(
                 nodes,
                 root_annotations=chapter.root.root_annotations,
+                root_gamebook=chapter.root.root_gamebook,
                 root_clocks=chapter.root.root_clocks,
             ),
         )
@@ -634,6 +641,93 @@ class StudyMutationService:
             status="ok", revision=candidate.revision, changed=True, tags=canonical
         )
 
+    async def set_gamebook(
+        self,
+        *,
+        study_id: str,
+        chapter_id: str,
+        username: str,
+        path: str,
+        field_name: str,
+        value: str,
+        expected_revision: int,
+    ) -> StudyMutationResult:
+        loaded = await self._load_write_context(study_id, chapter_id, username)
+        if isinstance(loaded, StudyMutationResult):
+            return loaded
+        chapter = loaded.chapter
+
+        mismatch = self._revision_mismatch(chapter, expected_revision)
+        if mismatch is not None:
+            return mismatch
+        if field_name not in {"hint", "deviation"}:
+            return self._error(chapter.revision, "invalid_gamebook_field")
+
+        if path:
+            target = chapter.root.node_at_path(path)
+            if target is None:
+                return self._reload(chapter.revision, "invalid_path")
+            current = target.gamebook
+        else:
+            target = None
+            current = chapter.root.root_gamebook
+
+        try:
+            canonical = StudyGamebook(
+                hint=value if field_name == "hint" else current.hint,
+                deviation=value if field_name == "deviation" else current.deviation,
+            )
+        except (TypeError, ValueError):
+            return self._error(chapter.revision, "invalid_gamebook")
+
+        if canonical == current:
+            return StudyMutationResult(
+                status="ok",
+                revision=chapter.revision,
+                changed=False,
+                path=path,
+                gamebook=canonical,
+            )
+
+        nodes = dict(chapter.root.nodes)
+        if target is not None:
+            nodes[target.id] = replace(target, gamebook=canonical)
+            root = StudyTree(
+                nodes,
+                root_annotations=chapter.root.root_annotations,
+                root_gamebook=chapter.root.root_gamebook,
+                root_clocks=chapter.root.root_clocks,
+            )
+            gamebook_field = f"root.{target.id}.g"
+        else:
+            root = StudyTree(
+                nodes,
+                root_annotations=chapter.root.root_annotations,
+                root_gamebook=canonical,
+                root_clocks=chapter.root.root_clocks,
+            )
+            gamebook_field = "root._.g"
+
+        candidate = self._candidate_chapter(chapter, root)
+        size_error = self._size_error(candidate)
+        if size_error is not None:
+            return size_error
+        result = await self._commit(
+            chapter,
+            candidate,
+            extra_set={gamebook_field: canonical.to_document()} if not canonical.empty else None,
+            extra_unset={gamebook_field} if canonical.empty else None,
+        )
+        if result is not None:
+            return result
+        return StudyMutationResult(
+            status="ok",
+            revision=candidate.revision,
+            changed=True,
+            path=path,
+            gamebook=canonical,
+        )
+
     @staticmethod
     def _annotations_for_path(tree: StudyTree, path: str) -> StudyAnnotations | None:
         if not path:
@@ -665,6 +759,7 @@ class StudyMutationService:
             root = StudyTree(
                 nodes,
                 root_annotations=chapter.root.root_annotations,
+                root_gamebook=chapter.root.root_gamebook,
                 root_clocks=chapter.root.root_clocks,
             )
             annotation_field = f"root.{target.id}.a"
@@ -672,6 +767,7 @@ class StudyMutationService:
             root = StudyTree(
                 nodes,
                 root_annotations=annotations,
+                root_gamebook=chapter.root.root_gamebook,
                 root_clocks=chapter.root.root_clocks,
             )
             annotation_field = "root._.a"

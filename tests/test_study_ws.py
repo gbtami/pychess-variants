@@ -31,6 +31,7 @@ from ws_structs import (
     StudyResetConcealIn,
     StudySetCommentIn,
     StudySetDescriptionIn,
+    StudySetGamebookIn,
     StudySetPositionIn,
     StudySetShapesIn,
     StudySetTagsIn,
@@ -730,6 +731,63 @@ class StudyWebsocketTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(chapter["revision"], 4)
         self.assertIn("Client0003", chapter["root"])
         self.assertIn("Client0004", chapter["root"])
+
+    async def test_two_contributors_receive_canonical_gamebook_field_merges(self) -> None:
+        owner_ws = await self._connect(self.user)
+        writer_ws = await self._connect(self.writer)
+        owner_ws.sent.clear()
+        writer_ws.sent.clear()
+
+        await asyncio.gather(
+            process_message(
+                cast(Any, self.app_state),
+                cast(Any, self.user),
+                cast(Any, owner_ws),
+                StudySetGamebookIn(
+                    type="study_set_gamebook",
+                    studyId=STUDY_ID,
+                    chapterId=CHAPTER_ID,
+                    clientOpId="owner-hint",
+                    expectedRevision=0,
+                    path="",
+                    field="hint",
+                    value="  Find the forcing move  ",
+                ),
+                study_id=STUDY_ID,
+                service=self.service,
+            ),
+            process_message(
+                cast(Any, self.app_state),
+                cast(Any, self.writer),
+                cast(Any, writer_ws),
+                StudySetGamebookIn(
+                    type="study_set_gamebook",
+                    studyId=STUDY_ID,
+                    chapterId=CHAPTER_ID,
+                    clientOpId="writer-deviation",
+                    expectedRevision=0,
+                    path="",
+                    field="deviation",
+                    value="That misses the point",
+                ),
+                study_id=STUDY_ID,
+                service=self.service,
+            ),
+        )
+
+        self.assertEqual(owner_ws.sent, writer_ws.sent)
+        self.assertEqual([message["revision"] for message in owner_ws.sent], [1, 2])
+        self.assertEqual(owner_ws.sent[0]["gamebook"], {"hint": "Find the forcing move"})
+        self.assertEqual(
+            owner_ws.sent[1]["gamebook"],
+            {"hint": "Find the forcing move", "deviation": "That misses the point"},
+        )
+        chapter = await self.db.study_chapter.find_one({"_id": CHAPTER_ID})
+        assert chapter is not None
+        self.assertEqual(
+            chapter["root"]["_"]["g"],
+            {"h": "Find the forcing move", "d": "That misses the point"},
+        )
 
     async def test_concurrent_add_delete_and_promote_are_serialized_without_corruption(
         self,

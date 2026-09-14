@@ -131,6 +131,8 @@ async def _finish_mutation(
         payload["node"] = result.node.to_payload()
     if result.annotations is not None:
         payload["annotations"] = result.annotations.to_payload()
+    if result.gamebook is not None:
+        payload["gamebook"] = result.gamebook.to_payload()
     if result.description is not None:
         payload["description"] = result.description
     if result.tags is not None:
@@ -600,6 +602,7 @@ async def _process_message_unlocked(
         "study_set_comment",
         "study_set_nags",
         "study_clear_annotations",
+        "study_set_gamebook",
     }:
         path = data.get("path")
         if not isinstance(path, str) or len(path) > _MAX_ANNOTATION_PATH_LENGTH:
@@ -638,12 +641,27 @@ async def _process_message_unlocked(
                 nags=data.get("nags"),
                 expected_revision=expected_revision,
             )
-        else:
+        elif message_type == "study_clear_annotations":
             result = await service.clear_annotations(
                 study_id=study_id,
                 chapter_id=chapter_id,
                 username=user.username,
                 path=path,
+                expected_revision=expected_revision,
+            )
+        else:
+            field_name = data.get("field")
+            value = data.get("value")
+            if field_name not in {"hint", "deviation"} or not isinstance(value, str):
+                await _send_invalid_message(ws, data)
+                return
+            result = await service.set_gamebook(
+                study_id=study_id,
+                chapter_id=chapter_id,
+                username=user.username,
+                path=path,
+                field_name=cast(str, field_name),
+                value=value,
                 expected_revision=expected_revision,
             )
         await _finish_mutation(app_state, ws, study_id, data, result, {"path": path})
