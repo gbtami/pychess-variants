@@ -3,6 +3,7 @@ import { beforeAll, beforeEach, describe, expect, jest, test } from '@jest/globa
 import { forceVariationAt, promoteNodePath } from '../client/analysis/analysisTree';
 import { Step } from '../client/messages';
 import { addStudyNodeToAnalysisTree, analysisTreeFromStudy, type StudyTreeNodeDto } from '../client/study/studyTree';
+import { studySessionPolicy } from '../client/study/studyMode';
 
 const updateMovelistMock = jest.fn();
 jest.unstable_mockModule('../client/movelist', () => ({
@@ -52,6 +53,7 @@ function makeCtrl() {
         ),
         username: 'owner',
         chessground: { setShapes: jest.fn() },
+        refreshLocalAnalysisAvailabilityForAntiCheat: jest.fn(),
     };
     ctrl.activateTreePath = jest.fn((path: string) => {
         ctrl.analysisPath = path;
@@ -61,6 +63,110 @@ function makeCtrl() {
 
 describe('Study analysis websocket synchronization', () => {
     beforeEach(() => updateMovelistMock.mockClear());
+
+    test('effective session policy gates recording, sync, engine search and evaluation at the extension boundary', () => {
+        const ctrl = makeCtrl();
+        const policy = studySessionPolicy({
+            mode: 'gamebook',
+            canWrite: true,
+            computerAllowed: true,
+            savedRecording: true,
+            savedSynchronization: true,
+            activeGame: false,
+            override: 'preview',
+        });
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            writable: true,
+            recording: true,
+            policy,
+            onReloadRequired: jest.fn(),
+        });
+
+        extension.onSocketOpen();
+        ctrl.doSend.mockClear();
+
+        expect(extension.isRecording).toBe(false);
+        expect(extension.sharePosition('chapter1', '')).toBe(false);
+        expect(extension.followSharedPath('')).toBe(false);
+        expect(extension.allowComputerSearch()).toBe(false);
+        expect(extension.onEvaluation()).toBe(false);
+        extension.requestServerAnalysis();
+        expect(ctrl.doSend).not.toHaveBeenCalled();
+    });
+
+    test('restricted policy removes persisted evaluations before Study output is rendered', () => {
+        const ctrl = makeCtrl();
+        ctrl.tree = { loadAnalysisTree: jest.fn((tree: unknown) => (ctrl.analysisTree = tree)) };
+        const policy = studySessionPolicy({
+            mode: 'gamebook',
+            canWrite: false,
+            computerAllowed: true,
+            savedRecording: true,
+            savedSynchronization: true,
+            activeGame: false,
+        });
+        const node = {
+            ...e4Node(),
+            eval: { cp: 42 },
+        };
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            tree: { nodes: [node] },
+            policy,
+            onReloadRequired: jest.fn(),
+        });
+
+        extension.onInitialBoardLoaded();
+
+        expect(ctrl.steps[1].ceval).toBeUndefined();
+        expect(ctrl.steps[1].analysis).toBeUndefined();
+        expect(ctrl.steps[1].scoreStr).toBeUndefined();
+    });
+
+    test('updating policy clears effective REC immediately without changing the saved preference input', () => {
+        const ctrl = makeCtrl();
+        const normal = studySessionPolicy({
+            mode: 'normal',
+            canWrite: true,
+            computerAllowed: true,
+            savedRecording: true,
+            savedSynchronization: true,
+            activeGame: false,
+        });
+        const preview = studySessionPolicy({
+            mode: 'gamebook',
+            canWrite: true,
+            computerAllowed: true,
+            savedRecording: true,
+            savedSynchronization: true,
+            activeGame: false,
+            override: 'preview',
+        });
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            writable: true,
+            policy: normal,
+            onReloadRequired: jest.fn(),
+        });
+
+        expect(extension.isRecording).toBe(true);
+        extension.setPolicy(preview);
+
+        expect(extension.isRecording).toBe(false);
+        expect(ctrl.refreshLocalAnalysisAvailabilityForAntiCheat).toHaveBeenCalledTimes(1);
+
+        extension.setPolicy(normal, false);
+        expect(extension.isRecording).toBe(false);
+        extension.setPolicy(normal);
+        expect(extension.isRecording).toBe(true);
+    });
 
     test('loads the persisted tree into the generic analysis host before editing', () => {
         const ctrl = makeCtrl();

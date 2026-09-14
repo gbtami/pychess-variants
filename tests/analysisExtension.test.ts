@@ -117,3 +117,35 @@ test('move application can be rejected before the analysis board is mutated', ()
     expect(beforeMoveApplied).toHaveBeenCalledWith({ move: 'e2e4', origin: 'played-move', path: '01' });
     expect(ctrl.activateTreePath).toHaveBeenCalledWith('01', true, 'reset');
 });
+
+test('extension can disable local computer search independently of ordinary analysis capability', () => {
+    const ctrl = Object.create(AnalysisController.prototype) as any;
+    Object.defineProperty(ctrl, 'analysisExtension', {
+        value: { allowComputerSearch: () => false },
+        configurable: true,
+    });
+
+    expect(ctrl.isLocalAnalysisAllowedByExtension()).toBe(false);
+
+    Object.defineProperty(ctrl, 'analysisExtension', {
+        value: { allowComputerSearch: () => true },
+        configurable: true,
+    });
+    expect(ctrl.isLocalAnalysisAllowedByExtension()).toBe(true);
+});
+
+test('extension session suspension stops the engine without overwriting the saved engine preference', () => {
+    localStorage.localAnalysis = 'true';
+    const ctrl = Object.create(AnalysisController.prototype) as any;
+    ctrl.localAnalysis = true;
+    ctrl.lastBroadcastLocalAnalysisFen = 'position';
+    ctrl.vpvlines = undefined;
+    ctrl.engineStop = jest.fn();
+
+    ctrl.suspendLocalAnalysisForExtension();
+
+    expect(ctrl.localAnalysis).toBe(false);
+    expect(ctrl.lastBroadcastLocalAnalysisFen).toBeUndefined();
+    expect(ctrl.engineStop).toHaveBeenCalledTimes(1);
+    expect(localStorage.localAnalysis).toBe('true');
+});

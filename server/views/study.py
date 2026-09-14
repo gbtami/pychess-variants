@@ -1543,14 +1543,20 @@ async def study_chapter_edit(request: web.Request) -> web.StreamResponse:
                 updated_chapter.mode != chapter.mode
                 or updated_chapter.conceal_ply != chapter.conceal_ply
             )
+            orientation_changed = updated_chapter.orientation != chapter.orientation
+            reload_required = teaching_changed or orientation_changed
             metadata_changed = (
                 updated_chapter.name != chapter.name
-                or updated_chapter.orientation != chapter.orientation
+                or orientation_changed
                 or updated_chapter.description != chapter.description
                 or teaching_changed
             )
             if teaching_changed:
                 await broadcast_study_reload(app_state, study.id, reason="chapter_mode_changed")
+            elif orientation_changed:
+                await broadcast_study_reload(
+                    app_state, study.id, reason="chapter_orientation_changed"
+                )
             elif updated_chapter.revision != chapter.revision:
                 await broadcast_study_chapter_content(
                     app_state,
@@ -1559,7 +1565,7 @@ async def study_chapter_edit(request: web.Request) -> web.StreamResponse:
                     updated_chapter.revision,
                     updated_chapter.description,
                 )
-            if metadata_changed and not teaching_changed:
+            if metadata_changed and not reload_required:
                 await broadcast_study_chapters(app_state, study.id)
     except StudyStorageError as exc:
         raise web.HTTPBadRequest(text=str(exc)) from exc
