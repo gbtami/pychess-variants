@@ -1546,3 +1546,105 @@ test('unacknowledged edits prevent a chapter switch after the save timeout', asy
         jest.useRealTimers();
     }
 });
+
+test('conceal reader extension blocks hidden navigation until play or reveal', () => {
+    const ctrl = makeCtrl();
+    ctrl.tree = { loadAnalysisTree: jest.fn((tree: unknown) => (ctrl.analysisTree = tree)) };
+    const e5: StudyTreeNodeDto = {
+        id: 'StudyNode2',
+        parentId: 'StudyNode1',
+        order: 0,
+        move: 'e7e5',
+        fen: 'e5 w - - 0 1',
+        turnColor: 'white',
+        check: false,
+        san: 'e5',
+        sanSAN: 'e5',
+    };
+    const policy = studySessionPolicy({
+        mode: 'conceal',
+        canWrite: false,
+        computerAllowed: true,
+        savedRecording: true,
+        savedSynchronization: false,
+        activeGame: false,
+    });
+    const extension = new StudyAnalysisExtension(ctrl, {
+        studyId: 'study001',
+        chapterId: 'chapter1',
+        revision: 0,
+        tree: { nodes: [e4Node(), e5] },
+        concealPly: 1,
+        policy,
+        writable: false,
+        onReloadRequired: jest.fn(),
+    });
+    extension.onInitialBoardLoaded();
+    ctrl.analysisPath = 'StudyNode1';
+    const hidden = ctrl.analysisTree.byPath.get('StudyNode1.StudyNode2');
+
+    expect(hidden).toBeDefined();
+    expect(extension.isTreeNodeVisible(hidden)).toBe(false);
+    expect(extension.canActivatePath(hidden.path, 'user-navigation')).toBe(false);
+    expect(extension.canActivatePath(hidden.path, 'played-move')).toBe(true);
+    expect(extension.allowTreeContextMenu()).toBe(false);
+    expect(ctrl.chessground.setShapes).toHaveBeenLastCalledWith([]);
+
+    extension.onSocketMessage('study_conceal', {
+        type: 'study_conceal',
+        studyId: 'study001',
+        chapterId: 'chapter1',
+        path: hidden.path,
+        concealPly: 2,
+        revision: 1,
+    });
+    expect(extension.isTreeNodeVisible(hidden)).toBe(true);
+    expect(extension.canActivatePath(hidden.path, 'user-navigation')).toBe(true);
+});
+
+test('conceal reader clears persisted evaluations from hidden sidelines and never records local guesses', () => {
+    const ctrl = makeCtrl();
+    ctrl.tree = { loadAnalysisTree: jest.fn((tree: unknown) => (ctrl.analysisTree = tree)) };
+    const sideline: StudyTreeNodeDto = {
+        ...e4Node(),
+        id: 'StudyNode2',
+        order: 1,
+        move: 'd2d4',
+        fen: 'd4 b - - 0 1',
+        san: 'd4',
+        sanSAN: 'd4',
+        eval: { cp: 73 },
+    };
+    const mainline = { ...e4Node(), eval: { cp: 42 } };
+    const policy = studySessionPolicy({
+        mode: 'conceal',
+        canWrite: false,
+        computerAllowed: true,
+        savedRecording: true,
+        savedSynchronization: false,
+        activeGame: false,
+    });
+    const extension = new StudyAnalysisExtension(ctrl, {
+        studyId: 'study001',
+        chapterId: 'chapter1',
+        revision: 0,
+        tree: { nodes: [mainline, sideline] },
+        concealPly: 0,
+        policy,
+        writable: false,
+        onReloadRequired: jest.fn(),
+    });
+    extension.onInitialBoardLoaded();
+
+    for (const node of ctrl.analysisTree.byPath.values()) {
+        expect(node.step.analysis).toBeUndefined();
+        expect(node.step.ceval).toBeUndefined();
+        expect(node.step.scoreStr).toBeUndefined();
+    }
+
+    extension.onSocketOpen();
+    ctrl.doSend.mockClear();
+    const attempted = ctrl.analysisTree.byPath.get('StudyNode1')!;
+    extension.onNodeAdded('', attempted);
+    expect(ctrl.doSend).not.toHaveBeenCalled();
+});
