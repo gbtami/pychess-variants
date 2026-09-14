@@ -498,7 +498,7 @@ suggestions; existing file links above are the concrete integration points.
   authoritative reload; identical edits are idempotent. Add model/storage/HTTP/WS
   tests for all values, invalid input, old documents, and permission failures.
   **Done:** old chapters remain normal and mode survives a server reload/clone.
-- [ ] **A2 — Effective session policy.** Add `studyMode.ts` (suggested) to derive
+- [x] **A2 — Effective session policy.** Add `studyMode.ts` (suggested) to derive
   author/play/preview behavior, allowed tools, recording, synchronization and start
   path from stored mode, permissions and local override. Test the matrix in 3.2,
   active-game restrictions, and revoked permissions. Avoid spreading raw mode
