@@ -21,12 +21,14 @@ StudyVisibility = Literal["private", "unlisted", "public"]
 StudyMemberRole = Literal["read", "write"]
 StudySourceKind = Literal["scratch", "game", "study", "import"]
 StudyOrientation = Literal["white", "black"]
+StudyChapterMode = Literal["normal", "practice", "conceal", "gamebook"]
 StudyUserSelection = Literal["nobody", "owner", "contributor", "member", "everyone"]
 
 _VISIBILITIES = frozenset(("private", "unlisted", "public"))
 _MEMBER_ROLES = frozenset(("read", "write"))
 _SOURCE_KINDS = frozenset(("scratch", "game", "study", "import"))
 _ORIENTATIONS = frozenset(("white", "black"))
+_CHAPTER_MODES = frozenset(("normal", "practice", "conceal", "gamebook"))
 _USER_SELECTIONS = frozenset(("nobody", "owner", "contributor", "member", "everyone"))
 
 
@@ -46,6 +48,41 @@ def study_user_selection(value: object) -> StudyUserSelection:
     if not isinstance(value, str) or value not in _USER_SELECTIONS:
         raise ValueError(f"Unknown Study user selection: {value!r}")
     return cast(StudyUserSelection, value)
+
+
+def study_chapter_mode(value: object) -> StudyChapterMode:
+    if not isinstance(value, str) or value not in _CHAPTER_MODES:
+        raise ValueError(f"Unknown Study chapter mode: {value!r}")
+    return cast(StudyChapterMode, value)
+
+
+def study_conceal_ply(
+    mode: StudyChapterMode,
+    value: object,
+    root: StudyTree,
+) -> int | None:
+    """Validate the stored conceal boundary as depth from the chapter root.
+
+    Unlike Lichess's absolute FEN ply, PyChess stores the number of preferred
+    mainline moves revealed from this chapter's own root. Existing documents that
+    predate analysis modes have no boundary and remain normal chapters. A concealed
+    chapter with no stored boundary starts fully hidden at root depth 0.
+    """
+
+    if mode != "conceal":
+        if value is not None:
+            raise ValueError("Study concealPly is only valid in conceal mode")
+        return None
+    if value is None:
+        return 0
+    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+        raise ValueError("Study concealPly must be a non-negative integer")
+    mainline_depth = len(root.preferred_mainline())
+    if value > mainline_depth:
+        raise ValueError(
+            f"Study concealPly {value} exceeds preferred mainline depth {mainline_depth}"
+        )
+    return value
 
 
 def study_topic(value: object) -> str:
@@ -403,6 +440,8 @@ class StudyChapter:
     updated_at: datetime
     chess960: bool = False
     variant_ini: str | None = None
+    mode: StudyChapterMode = "normal"
+    conceal_ply: int | None = None
     source: StudySource = field(default_factory=StudySource)
     description: str = ""
     tags: Mapping[str, str] = field(default_factory=dict)
@@ -416,6 +455,8 @@ class StudyChapter:
             raise ValueError(f"Unknown Study chapter orientation: {self.orientation!r}")
         if self.revision < 0:
             raise ValueError("Study chapter revision must be non-negative")
+        mode = study_chapter_mode(self.mode)
+        conceal_ply = study_conceal_ply(mode, self.conceal_ply, self.root)
         description = canonical_description(self.description)
         tags = canonical_tags(self.tags)
 
@@ -428,6 +469,7 @@ class StudyChapter:
             "variant": self.variant,
             "initialFen": self.initial_fen,
             "orientation": self.orientation,
+            "mode": mode,
             "root": self.root.to_document(),
             "createdAt": _utc(self.created_at),
             "updatedAt": _utc(self.updated_at),
@@ -437,6 +479,8 @@ class StudyChapter:
             doc["chess960"] = True
         if self.variant_ini is not None:
             doc["variantIni"] = self.variant_ini
+        if conceal_ply is not None:
+            doc["concealPly"] = conceal_ply
         if self.source.kind != "scratch":
             doc["source"] = self.source.encode()
         if description:
@@ -462,6 +506,9 @@ class StudyChapter:
         raw_server_eval = doc.get("serverEval")
         if raw_server_eval is not None and not isinstance(raw_server_eval, Mapping):
             raise TypeError("Study chapter field 'serverEval' must be a mapping or null")
+        root = StudyTree.from_document(raw_root)
+        mode = study_chapter_mode(doc.get("mode", "normal"))
+        conceal_ply = study_conceal_ply(mode, doc.get("concealPly"), root)
 
         return cls(
             id=_required_str(doc, "_id"),
@@ -472,11 +519,13 @@ class StudyChapter:
             variant=_required_str(doc, "variant"),
             initial_fen=_required_str(doc, "initialFen"),
             orientation=cast(StudyOrientation, raw_orientation),
-            root=StudyTree.from_document(raw_root),
+            root=root,
             created_at=_required_datetime(doc, "createdAt"),
             updated_at=_required_datetime(doc, "updatedAt"),
             chess960=raw_chess960,
             variant_ini=_optional_str(doc, "variantIni"),
+            mode=mode,
+            conceal_ply=conceal_ply,
             source=StudySource.decode(doc.get("source", "scratch")),
             description=canonical_description(doc.get("description", "")),
             tags=canonical_tags(raw_tags),
@@ -526,6 +575,8 @@ async def make_chapter(
     name: str | None = None,
     chess960: bool = False,
     variant_ini: str | None = None,
+    mode: StudyChapterMode = "normal",
+    conceal_ply: int | None = None,
     root: StudyTree | None = None,
     source: StudySource | None = None,
     description: str = "",
@@ -533,6 +584,9 @@ async def make_chapter(
     now: datetime | None = None,
 ) -> StudyChapter:
     created_at = _utc(now or datetime.now(UTC))
+    chapter_root = StudyTree() if root is None else root
+    clean_mode = study_chapter_mode(mode)
+    clean_conceal_ply = study_conceal_ply(clean_mode, conceal_ply, chapter_root)
     return StudyChapter(
         id=await new_id(table),
         study_id=study_id,
@@ -544,7 +598,9 @@ async def make_chapter(
         initial_fen=initial_fen,
         orientation=orientation,
         variant_ini=variant_ini,
-        root=StudyTree() if root is None else root,
+        mode=clean_mode,
+        conceal_ply=clean_conceal_ply,
+        root=chapter_root,
         source=source or StudySource(),
         description=description,
         tags={} if tags is None else dict(tags),

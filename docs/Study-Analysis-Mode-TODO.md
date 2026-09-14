@@ -491,7 +491,7 @@ suggestions; existing file links above are the concrete integration points.
 
 ### A. Common mode infrastructure
 
-- [ ] **A1 — Chapter schema and payloads.** Add validated mode and conceal boundary
+- [x] **A1 — Chapter schema and payloads.** Add validated mode and conceal boundary
   to models/drafts/storage/full payloads/previews/types. Cover every chapter creation
   path, clone, export-data, metadata edit and snapshot fingerprint. Preserve old
   chapter/edit defaults. Mode changes bump chapter revision and trigger an
