@@ -3006,6 +3006,12 @@ vari-move {
   opacity: 0.8;
 }
 
+/* Conceal-mode authors can see the complete tree, with content still hidden
+   from readers faded in the same spirit as Lichess Study conceal mode. */
+#movelist.tview2.analysis-tree .conceal {
+  opacity: 0.4;
+}
+
 #movelist.tview2.analysis-tree move.recorded:not(.active) {
   color: color-mix(in srgb, var(--font-color) 94%, var(--move-active));
 }

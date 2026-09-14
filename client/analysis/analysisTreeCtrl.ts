@@ -218,6 +218,7 @@ export class AnalysisTreeController {
     }
 
     openTreeContextMenu(path: string, clientX: number, clientY: number) {
+        if (this.ctrl.analysisExtension?.allowTreeContextMenu?.() === false) return;
         this.treeContextMenu = { path, x: clientX, y: clientY };
         document.addEventListener('click', this.onTreeContextMenuDocumentClick, false);
         updateMovelist(this.ctrl, true, false);

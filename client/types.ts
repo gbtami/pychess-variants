@@ -87,6 +87,8 @@ export type StudyPageModel = {
     sticky?: boolean;
     write?: boolean;
     behind?: number;
+    // Runtime-only Study session override. Preview never persists to the server.
+    modeOverride?: 'preview' | 'analysis' | null;
     // Local sidebar UI state, kept across in-place chapter and member refreshes.
     sideTab?: 'chapters' | 'members';
     memberConfig?: string;

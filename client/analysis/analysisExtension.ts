@@ -64,6 +64,9 @@ export interface AnalysisExtension {
     onEvaluation?(evaluation: AnalysisEvaluationDelivery): boolean | void;
     allowComputerSearch?(): boolean;
     isTreeNodeVisible?(node: AnalysisTreeNode): boolean;
+    isTreeNodeConcealed?(node: AnalysisTreeNode): boolean;
+    areTreeNodeAnnotationsVisible?(node: AnalysisTreeNode): boolean;
+    allowTreeContextMenu?(): boolean;
     onShapesChanged?(shapes: DrawShape[]): void;
     onNodeAdded?(parentPath: string, node: AnalysisTreeNode): void;
     onNodeDeleted?(path: string): void;

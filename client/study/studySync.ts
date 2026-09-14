@@ -36,6 +36,7 @@ import {
 } from './studyTree';
 import { renderStudyChapterPgn, type StudyPgnChapterData, type StudyPgnContext } from './studyPgn';
 import type { StudySessionPolicy } from './studyMode';
+import { StudyConcealController } from './studyConceal';
 
 const STUDY_SOCKET_TYPES = new Set([
     'study_user_connected',
@@ -131,6 +132,7 @@ export interface StudySyncOptions {
     onLocalPathChanged?: (path: string, origin: AnalysisNavigationOrigin) => void;
     onSharedPositionChanged?: (chapterId: string, path: string) => void;
     onConcealChanged?: (concealPly: number, revision: number) => void;
+    concealPly?: number;
     onServerEvalChanged?: (serverEval: StudyServerEval | undefined) => void;
     onServerAnalysisUnavailable?: (reason: string) => void;
     onOrientationChanged?: (orientation: 'white' | 'black') => void;
@@ -411,6 +413,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     private memberRole?: StudyMemberRole;
     private recording: boolean;
     private policy?: StudySessionPolicy;
+    private conceal?: StudyConcealController;
     private suppressLocalPath = false;
     private pendingSharedPosition?: { chapterId: string; path: string };
 
@@ -441,6 +444,9 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         this.writable = options.writable ?? true;
         this.memberRole = options.memberRole ?? (this.writable ? 'write' : undefined);
         this.policy = options.policy;
+        if (options.policy && options.concealPly !== undefined) {
+            this.conceal = new StudyConcealController(ctrl, options.concealPly, options.policy);
+        }
         this.recording = this.writable && (this.policy?.recording ?? options.recording ?? true);
     }
 
@@ -519,14 +525,41 @@ export class StudyAnalysisExtension implements AnalysisExtension {
 
     setPolicy(policy: StudySessionPolicy, restoreRecording = true): void {
         const evaluationDisplay = this.policy?.tools.evaluationDisplay ?? true;
+        const presentationChanged = this.policy?.tools.fullTree !== policy.tools.fullTree;
         this.policy = policy;
+        this.conceal?.setPolicy(policy);
         this.recording = restoreRecording && this.writable && policy.recording;
         if (!this.recording || !policy.canPublishSharedPosition) this.pendingSharedPosition = undefined;
         if (evaluationDisplay !== policy.tools.evaluationDisplay) {
             if (!policy.tools.evaluationDisplay) this.clearServerEval();
             else this.applyServerEval();
         }
+        if (presentationChanged) {
+            this.ctrl.closeTreeContextMenu?.();
+            this.restoreCurrentShapes();
+            updateMovelist(this.ctrl, true, false);
+        }
         this.ctrl.refreshLocalAnalysisAvailabilityForAntiCheat?.();
+    }
+
+    canActivatePath(path: string, origin: AnalysisNavigationOrigin): boolean {
+        return this.conceal?.canActivatePath(path, origin) ?? true;
+    }
+
+    isTreeNodeVisible(node: AnalysisTreeNode): boolean {
+        return this.conceal?.isTreeNodeVisible(node) ?? true;
+    }
+
+    isTreeNodeConcealed(node: AnalysisTreeNode): boolean {
+        return this.conceal?.isTreeNodeConcealed(node) ?? false;
+    }
+
+    areTreeNodeAnnotationsVisible(node: AnalysisTreeNode): boolean {
+        return this.conceal?.areTreeNodeAnnotationsVisible(node) ?? true;
+    }
+
+    allowTreeContextMenu(): boolean {
+        return this.conceal?.allowTreeContextMenu() ?? true;
     }
 
     sharePosition(chapterId: string, path: string): boolean {
@@ -820,6 +853,13 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         this.enqueue('study_force_variation', { path, force });
     }
 
+    private updateConcealPly(concealPly: number, revision: number): void {
+        this.options.concealPly = concealPly;
+        this.conceal?.setConcealPly(concealPly);
+        updateMovelist(this.ctrl, true, false);
+        this.options.onConcealChanged?.(concealPly, revision);
+    }
+
     onSocketMessage(type: string, message: unknown): boolean {
         if (!STUDY_SOCKET_TYPES.has(type)) return false;
         const data = record(message);
@@ -991,7 +1031,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
                     return true;
                 }
                 this.currentRevision = revision;
-                this.options.onConcealChanged?.(data.concealPly as number, this.currentRevision);
+                this.updateConcealPly(data.concealPly as number, this.currentRevision);
             }
             this.options.onSharedPositionChanged?.(data.chapterId, data.path);
             return true;
@@ -1048,10 +1088,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
             this.requestReload('invalid_mutation_ack');
             return true;
         }
-        if (
-            data.concealPly !== undefined &&
-            (!Number.isInteger(data.concealPly) || (data.concealPly as number) < 0)
-        ) {
+        if (data.concealPly !== undefined && (!Number.isInteger(data.concealPly) || (data.concealPly as number) < 0)) {
             this.requestReload('invalid_conceal_state');
             return true;
         }
@@ -1083,7 +1120,9 @@ export class StudyAnalysisExtension implements AnalysisExtension {
 
     private restoreCurrentShapes(): void {
         const node = this.currentNode();
-        this.ctrl.chessground.setShapes(node?.annotations?.shapes ?? []);
+        this.ctrl.chessground.setShapes(
+            this.conceal?.areBoardShapesVisible() === false ? [] : (node?.annotations?.shapes ?? []),
+        );
     }
 
     private setPositionAnnotations(path: string, annotations: StudyAnnotationsDto): boolean {
@@ -1245,7 +1284,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         }
 
         this.currentRevision = data.revision as number;
-        if (typeof data.concealPly === 'number') this.options.onConcealChanged?.(data.concealPly, this.currentRevision);
+        if (typeof data.concealPly === 'number') this.updateConcealPly(data.concealPly, this.currentRevision);
         this.pending.shift();
         if (!this.pending.length) for (const waiter of this.idleWaiters) waiter.resolve();
         this.pump();
@@ -1343,7 +1382,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
 
         this.refreshPreferredMainline();
         this.currentRevision = data.revision as number;
-        if (typeof data.concealPly === 'number') this.options.onConcealChanged?.(data.concealPly, this.currentRevision);
+        if (typeof data.concealPly === 'number') this.updateConcealPly(data.concealPly, this.currentRevision);
         updateMovelist(this.ctrl, true, false);
         this.ctrl.refreshPgnView?.();
     }
@@ -1456,11 +1495,13 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     }
 
     private clearServerEval(): void {
-        for (const step of this.ctrl.steps) {
+        const clear = (step: { analysis?: Ceval; ceval?: Ceval; scoreStr?: string }): void => {
             step.analysis = undefined;
             step.ceval = undefined;
             step.scoreStr = undefined;
-        }
+        };
+        for (const step of this.ctrl.steps) clear(step);
+        for (const node of this.ctrl.analysisTree?.byPath.values() ?? []) clear(node.step);
         this.applyTreeEvals();
         updateMovelist(this.ctrl, true, false);
     }

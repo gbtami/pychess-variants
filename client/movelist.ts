@@ -65,6 +65,14 @@ function treeNodeVisible(ctrl: TreeCtrl, node: AnalysisTreeNode): boolean {
     return ctrl.analysisExtension?.isTreeNodeVisible?.(node) !== false;
 }
 
+function treeNodeConcealed(ctrl: TreeCtrl, node: AnalysisTreeNode): boolean {
+    return ctrl.analysisExtension?.isTreeNodeConcealed?.(node) === true;
+}
+
+function treeNodeAnnotationsVisible(ctrl: TreeCtrl, node: AnalysisTreeNode): boolean {
+    return ctrl.analysisExtension?.areTreeNodeAnnotationsVisible?.(node) !== false;
+}
+
 function visibleTreeChildren(ctrl: TreeCtrl, node: AnalysisTreeNode): AnalysisTreeNode[] {
     return node.children.filter(child => treeNodeVisible(ctrl, child));
 }
@@ -322,9 +330,14 @@ export function createMovelistButtons(ctrl: GameController) {
 
 // Like lila's treeView: comments interrupt the mainline columns, and flow
 // with variations. Text stays plain text, including imported PGN annotations.
-function renderTreeComments(node: AnalysisTreeNode): VNode[] {
+function renderTreeComments(ctrl: TreeCtrl, node: AnalysisTreeNode): VNode[] {
+    if (!treeNodeAnnotationsVisible(ctrl, node)) return [];
     return (node.annotations?.comments ?? []).map(comment =>
-        h('comment.tree-comment', { attrs: { title: comment.author } }, comment.text),
+        h(
+            'comment.tree-comment',
+            { class: { conceal: treeNodeConcealed(ctrl, node) }, attrs: { title: comment.author } },
+            comment.text,
+        ),
     );
 }
 
@@ -383,6 +396,7 @@ function renderTreeMove(
                 selected: path === ctrl.getTreeSelectedChildPath?.(),
                 recorded,
                 theoretical,
+                conceal: treeNodeConcealed(ctrl, node),
                 branchpoint: visibleTreeChildren(ctrl, node).length > 1,
                 sideline: !isMainline,
                 'tree-node': true,
@@ -401,7 +415,7 @@ function renderTreeMove(
         [
             disclosureButton,
             prefix ? h('index', prefix) : undefined,
-            ...renderTreeMoveText(move, node.annotations?.nags),
+            ...renderTreeMoveText(move, treeNodeAnnotationsVisible(ctrl, node) ? node.annotations?.nags : undefined),
             evalNode,
         ],
     );
@@ -462,7 +476,7 @@ function renderTreeBranch(
                 currentParentDisclose,
             ),
         );
-        out.push(...renderTreeComments(currentNode));
+        out.push(...renderTreeComments(ctrl, currentNode));
         if (currentParentDisclose !== 'collapsed') {
             currentBranchSiblings.forEach(sideline => {
                 out.push(
@@ -488,7 +502,7 @@ function renderTreeBranch(
 function renderTreeMovelist(ctrl: TreeCtrl): VNode[] {
     const root = ctrl.analysisTree!.root;
     const rootTurnColor = root.step.turnColor;
-    const moves: VNode[] = treeNodeVisible(ctrl, root) ? renderTreeComments(root) : [];
+    const moves: VNode[] = treeNodeVisible(ctrl, root) ? renderTreeComments(ctrl, root) : [];
     const rootChildren = visibleTreeChildren(ctrl, root);
     const mainline = rootChildren[0];
     const rootDisclose = treeDiscloseState({ ...root, children: rootChildren });
@@ -590,6 +604,7 @@ function renderTreeColumnMove(
                 selected: path === ctrl.getTreeSelectedChildPath?.(),
                 recorded,
                 theoretical,
+                conceal: treeNodeConcealed(ctrl, node),
                 branchpoint: visibleTreeChildren(ctrl, node).length > 1,
                 sideline: !isMainline,
                 'tree-node': true,
@@ -605,7 +620,11 @@ function renderTreeColumnMove(
                 },
             },
         },
-        [disclosureButton, ...renderTreeMoveText(move, node.annotations?.nags), evalNode],
+        [
+            disclosureButton,
+            ...renderTreeMoveText(move, treeNodeAnnotationsVisible(ctrl, node) ? node.annotations?.nags : undefined),
+            evalNode,
+        ],
     );
 }
 
@@ -632,7 +651,7 @@ function renderTreeLineSequence(ctrl: TreeCtrl, nodes: AnalysisTreeNode[], args:
         ),
     );
 
-    moves.push(...renderTreeComments(child));
+    moves.push(...renderTreeComments(ctrl, child));
 
     if (currentParentDisclose !== 'collapsed' && (args.parenthetical || args.flowInline) && siblings.length > 0) {
         moves.push(renderTreeVariationLines(ctrl, siblings, args));
@@ -714,7 +733,7 @@ function renderTreeColumnNodes(ctrl: TreeCtrl, nodes: AnalysisTreeNode[], args: 
 
     out.push(renderTreeColumnMove(ctrl, child.path, child, args.isMainline, args.parentPath, currentParentDisclose));
 
-    const comments = renderTreeComments(child);
+    const comments = renderTreeComments(ctrl, child);
     if (currentParentDisclose !== 'collapsed' && (siblings.length > 0 || comments.length > 0)) {
         if (isWhiteMove) out.push(h('move.empty', '...'));
         out.push(
@@ -741,7 +760,7 @@ function renderTreeColumnNodes(ctrl: TreeCtrl, nodes: AnalysisTreeNode[], args: 
 
 function renderTreeColumnMovelist(ctrl: TreeCtrl): VNode[] {
     const root = ctrl.analysisTree!.root;
-    const comments = treeNodeVisible(ctrl, root) ? renderTreeComments(root) : [];
+    const comments = treeNodeVisible(ctrl, root) ? renderTreeComments(ctrl, root) : [];
     const moves: VNode[] = comments.length ? [h('interrupt', comments)] : [];
     const rootChildren = visibleTreeChildren(ctrl, root);
 

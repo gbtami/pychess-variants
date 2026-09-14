@@ -305,3 +305,16 @@ test('played existing child still produces a completed-position notification', (
     tree.activateTreePath(recorded.childPath, false, 'played-move');
     expect(ctrl.completeAnalysisPositionChange).toHaveBeenCalledWith('played-move', branchParent, existing!.path);
 });
+
+test('extension can suppress the analysis tree context menu', () => {
+    const extension = { allowTreeContextMenu: jest.fn(() => false) };
+    const ctrl = { ...stubCtrl(steps4()), analysisExtension: extension };
+    const tree = new AnalysisTreeController(ctrl as any);
+    tree.initAnalysisTreeAtPly(1);
+    const path = tree.getTreeActivePath();
+
+    tree.openTreeContextMenu(path, 10, 20);
+
+    expect(extension.allowTreeContextMenu).toHaveBeenCalled();
+    expect(tree.getTreeContextMenu()).toBeUndefined();
+});
