@@ -1,4 +1,5 @@
 import type { Step } from '../messages';
+import type { StudyChapterMode } from '../types';
 import { GLYPH_GROUPS } from '../analysis/glyphs';
 import { encodePgnUtf8Base64 } from '../pgn';
 import { variantKey } from '../variants';
@@ -13,6 +14,8 @@ export interface StudyPgnChapterData {
     chess960: boolean;
     initialFen: string;
     orientation: 'white' | 'black';
+    mode?: StudyChapterMode;
+    concealPly?: number;
     description: string;
     tags: Record<string, string>;
     tree: StudyTreeDto;
@@ -277,6 +280,18 @@ export function parseStudyChapterExportData(value: unknown): StudyPgnChapterData
         if (typeof rawValue !== 'string') throw new Error('Invalid Study export tags');
         tags[name] = rawValue;
     }
+    const mode: StudyChapterMode | undefined =
+        data.mode === undefined
+            ? 'normal'
+            : data.mode === 'normal' || data.mode === 'practice' || data.mode === 'conceal' || data.mode === 'gamebook'
+              ? data.mode
+              : undefined;
+    if (!mode) throw new Error('Invalid Study export mode');
+    if (
+        data.concealPly !== undefined &&
+        (!Number.isInteger(data.concealPly) || (data.concealPly as number) < 0 || mode !== 'conceal')
+    )
+        throw new Error('Invalid Study export conceal boundary');
     return {
         id: data.id,
         name: data.name,
@@ -285,6 +300,8 @@ export function parseStudyChapterExportData(value: unknown): StudyPgnChapterData
         chess960: data.chess960,
         initialFen: data.initialFen,
         orientation: data.orientation,
+        mode,
+        ...(mode === 'conceal' ? { concealPly: (data.concealPly as number | undefined) ?? 0 } : {}),
         description: data.description,
         tags,
         tree: data.tree as StudyTreeDto,

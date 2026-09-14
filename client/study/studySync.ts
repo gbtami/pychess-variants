@@ -13,7 +13,7 @@ import {
 import type { AnalysisController } from '../analysis/analysisCtrl';
 import type { Ceval } from '../messages';
 import type { AnalysisExtension, AnalysisExtensionFactory } from '../analysis/analysisExtension';
-import type { JSONObject, StudyChapterPreview, StudyServerEval } from '../types';
+import type { JSONObject, StudyChapterMode, StudyChapterPreview, StudyServerEval } from '../types';
 import {
     mergeStudyNodeIntoAnalysisTree,
     mergeStudyTreeIntoAnalysisTree,
@@ -171,6 +171,15 @@ function asStudyChapterPreviews(value: unknown): StudyChapterPreview[] | undefin
     const ids = new Set<string>();
     for (const entry of value) {
         const chapter = record(entry);
+        const mode: StudyChapterMode | undefined =
+            chapter?.mode === undefined
+                ? 'normal'
+                : chapter.mode === 'normal' ||
+                    chapter.mode === 'practice' ||
+                    chapter.mode === 'conceal' ||
+                    chapter.mode === 'gamebook'
+                  ? chapter.mode
+                  : undefined;
         if (
             !chapter ||
             typeof chapter.id !== 'string' ||
@@ -180,6 +189,10 @@ function asStudyChapterPreviews(value: unknown): StudyChapterPreview[] | undefin
             !Number.isInteger(chapter.order) ||
             (chapter.order as number) < 1 ||
             (chapter.orientation !== 'white' && chapter.orientation !== 'black') ||
+            !mode ||
+            (chapter.concealPly !== undefined &&
+                (!Number.isInteger(chapter.concealPly) || (chapter.concealPly as number) < 0)) ||
+            (mode !== 'conceal' && chapter.concealPly !== undefined) ||
             (chapter.descriptionPinned !== undefined && typeof chapter.descriptionPinned !== 'boolean')
         )
             return undefined;
@@ -189,6 +202,8 @@ function asStudyChapterPreviews(value: unknown): StudyChapterPreview[] | undefin
             name: chapter.name,
             order: chapter.order as number,
             orientation: chapter.orientation,
+            mode,
+            ...(mode === 'conceal' ? { concealPly: (chapter.concealPly as number | undefined) ?? 0 } : {}),
             ...(chapter.descriptionPinned === undefined ? {} : { descriptionPinned: chapter.descriptionPinned }),
         });
     }

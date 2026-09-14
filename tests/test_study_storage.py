@@ -373,6 +373,20 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
             initial_fen=FairyBoard.start_fen("chess"),
             name="Second line",
             orientation="black",
+            mode="conceal",
+            conceal_ply=1,
+            root=StudyTree(
+                {
+                    "StudyNode1": StudyTreeNode(
+                        id="StudyNode1",
+                        parent_id=None,
+                        order=0,
+                        move="e2e4",
+                        fen="after-e4",
+                        turn_color="black",
+                    )
+                }
+            ),
             tags={"Chapter": "Two"},
         )
         second = await add_chapter_from_draft(cast(Any, self.app_state), study, second_draft)
@@ -419,12 +433,43 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(doc["variant"], original.variant)
             self.assertEqual(doc["initialFen"], original.initial_fen)
             self.assertEqual(doc["orientation"], original.orientation)
+            self.assertEqual(doc["mode"], original.mode)
+            self.assertEqual(
+                doc.get("concealPly"),
+                0 if original.mode == "conceal" else original.conceal_ply,
+            )
             self.assertEqual(doc.get("variantIni"), original.variant_ini)
             self.assertEqual(doc.get("description", ""), original.description)
             self.assertEqual(doc.get("tags", {}), dict(original.tags))
             self.assertEqual(doc.get("source", "scratch"), original.source.encode())
             self.assertEqual(doc["root"], original.root.to_document())
             self.assertEqual(doc["revision"], 0)
+
+    async def test_add_chapter_preserves_mode_and_resets_conceal_progress(self) -> None:
+        study, first = await create_study_with_chapter(cast(Any, self.app_state), "owner")
+        main = StudyTreeNode(
+            id="StudyNode1",
+            parent_id=None,
+            order=0,
+            move="e2e4",
+            fen="after-e4",
+            turn_color="black",
+        )
+        concealed = replace(
+            first,
+            mode="conceal",
+            conceal_ply=1,
+            root=StudyTree({main.id: main}),
+        )
+
+        added = await add_chapter(cast(Any, self.app_state), study, concealed)
+
+        self.assertEqual(added.mode, "conceal")
+        self.assertEqual(added.conceal_ply, 0)
+        stored = await self.db.study_chapter.find_one({"_id": added.id})
+        assert stored is not None
+        self.assertEqual(stored["mode"], "conceal")
+        self.assertEqual(stored["concealPly"], 0)
 
     async def test_study_list_chapter_names_previews_first_four_in_order(self) -> None:
         study, first = await create_study_with_chapter(cast(Any, self.app_state), "owner")
@@ -462,6 +507,7 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
                     "name": "Chapter 1",
                     "order": 1,
                     "orientation": "white",
+                    "mode": "normal",
                     "descriptionPinned": False,
                 },
                 {
@@ -469,6 +515,7 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
                     "name": "Sicilian",
                     "order": 2,
                     "orientation": "white",
+                    "mode": "normal",
                     "descriptionPinned": False,
                 },
                 {
@@ -476,6 +523,7 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
                     "name": "Third line",
                     "order": 3,
                     "orientation": "black",
+                    "mode": "normal",
                     "descriptionPinned": True,
                 },
             ],

@@ -32,6 +32,7 @@ from study.models import (
     StudyVisibility,
     make_chapter,
     make_study,
+    study_chapter_mode,
     study_member_role,
     study_search_query_tokens,
     study_search_tokens,
@@ -825,18 +826,41 @@ async def load_chapter(app_state: Any, study_id: str, chapter_id: str) -> StudyC
 async def chapter_previews(app_state: Any, study_id: str) -> list[dict[str, object]]:
     cursor = app_state.db.study_chapter.find(
         {"studyId": study_id},
-        projection={"_id": 1, "name": 1, "order": 1, "orientation": 1, "description": 1},
+        projection={
+            "_id": 1,
+            "name": 1,
+            "order": 1,
+            "orientation": 1,
+            "mode": 1,
+            "concealPly": 1,
+            "description": 1,
+        },
     ).sort("order", 1)
-    return [
-        {
+    previews: list[dict[str, object]] = []
+    async for doc in cursor:
+        try:
+            mode = study_chapter_mode(doc.get("mode", "normal"))
+        except ValueError as exc:
+            raise StudyStorageError("Invalid stored Study chapter mode") from exc
+        preview: dict[str, object] = {
             "id": str(doc["_id"]),
             "name": str(doc["name"]),
             "order": int(doc["order"]),
             "orientation": str(doc.get("orientation") or "white"),
+            "mode": mode,
             "descriptionPinned": bool(doc.get("description")),
         }
-        async for doc in cursor
-    ]
+        if mode == "conceal":
+            raw_conceal_ply = doc.get("concealPly", 0)
+            if (
+                isinstance(raw_conceal_ply, bool)
+                or not isinstance(raw_conceal_ply, int)
+                or raw_conceal_ply < 0
+            ):
+                raise StudyStorageError("Invalid stored Study conceal boundary")
+            preview["concealPly"] = raw_conceal_ply
+        previews.append(preview)
+    return previews
 
 
 async def create_study_from_draft(
@@ -865,6 +889,8 @@ async def create_study_from_draft(
         initial_fen=draft.initial_fen,
         orientation=draft.orientation,
         variant_ini=draft.variant_ini,
+        mode=draft.mode,
+        conceal_ply=draft.conceal_ply,
         root=draft.root,
         source=draft.source,
         description=draft.description,
@@ -955,6 +981,8 @@ async def clone_study(
                 name=original.name,
                 chess960=original.chess960,
                 variant_ini=original.variant_ini,
+                mode=original.mode,
+                conceal_ply=0 if original.mode == "conceal" else None,
                 root=original.root,
                 source=original.source,
                 description=original.description,
@@ -1004,6 +1032,8 @@ async def add_chapter_from_draft(
         initial_fen=draft.initial_fen,
         orientation=draft.orientation,
         variant_ini=draft.variant_ini,
+        mode=draft.mode,
+        conceal_ply=draft.conceal_ply,
         root=draft.root,
         source=draft.source,
         description=draft.description,
@@ -1068,6 +1098,8 @@ async def add_chapters_from_drafts(
             initial_fen=draft.initial_fen,
             orientation=draft.orientation,
             variant_ini=draft.variant_ini,
+            mode=draft.mode,
+            conceal_ply=draft.conceal_ply,
             root=draft.root,
             source=draft.source,
             description=draft.description,
@@ -1131,6 +1163,8 @@ async def add_chapter(
         initial_fen=source_chapter.initial_fen,
         orientation=source_chapter.orientation,
         variant_ini=source_chapter.variant_ini,
+        mode=source_chapter.mode,
+        conceal_ply=0 if source_chapter.mode == "conceal" else None,
         order=order,
         name=_clean_name(
             name, fallback=f"Chapter {order}", max_length=STUDY_CHAPTER_NAME_MAX_LENGTH
@@ -1280,6 +1314,8 @@ async def edit_chapter_metadata(
     name: object,
     orientation: object,
     pinned_description: object | None = None,
+    mode: object | None = None,
+    conceal_ply: object | None = None,
 ) -> tuple[str, StudyOrientation]:
     clean_name = _clean_name(name, fallback=chapter.name, max_length=STUDY_CHAPTER_NAME_MAX_LENGTH)
     clean_orientation = str(orientation or chapter.orientation).lower()
@@ -1287,24 +1323,63 @@ async def edit_chapter_metadata(
         raise StudyStorageError("Invalid Study chapter orientation")
     typed_orientation = cast(StudyOrientation, clean_orientation)
 
+    try:
+        next_mode = chapter.mode if mode is None else study_chapter_mode(mode)
+    except ValueError as exc:
+        raise StudyStorageError("Invalid Study chapter mode") from exc
+
+    if next_mode == "conceal":
+        if conceal_ply is None or conceal_ply == "":
+            next_conceal_ply = chapter.conceal_ply if chapter.mode == "conceal" else 0
+        else:
+            try:
+                next_conceal_ply = int(conceal_ply)
+            except (TypeError, ValueError) as exc:
+                raise StudyStorageError("Invalid Study conceal boundary") from exc
+            if isinstance(conceal_ply, bool) or str(next_conceal_ply) != str(conceal_ply).strip():
+                raise StudyStorageError("Invalid Study conceal boundary")
+        mainline_depth = len(chapter.root.preferred_mainline())
+        if next_conceal_ply < 0 or next_conceal_ply > mainline_depth:
+            raise StudyStorageError(
+                f"Study conceal boundary must be between 0 and {mainline_depth}"
+            )
+    else:
+        if conceal_ply not in (None, ""):
+            raise StudyStorageError("Study conceal boundary is only valid in conceal mode")
+        next_conceal_ply = None
+
     next_description = chapter.description
     if pinned_description is not None:
         enabled = str(pinned_description or "").strip() == "1"
         next_description = chapter.description or "-" if enabled else ""
 
+    metadata_changed = clean_name != chapter.name or typed_orientation != chapter.orientation
+    description_changed = next_description != chapter.description
+    teaching_changed = next_mode != chapter.mode or next_conceal_ply != chapter.conceal_ply
+    if not metadata_changed and not description_changed and not teaching_changed:
+        return clean_name, typed_orientation
+
     now = datetime.now(UTC)
     set_fields: dict[str, object] = {
         "name": clean_name,
         "orientation": typed_orientation,
+        "mode": next_mode,
         "updatedAt": now,
     }
     update: dict[str, object] = {"$set": set_fields}
-    description_changed = next_description != chapter.description
+    unset_fields: dict[str, object] = {}
     if description_changed:
         if next_description:
             set_fields["description"] = next_description
         else:
-            update["$unset"] = {"description": ""}
+            unset_fields["description"] = ""
+    if next_mode == "conceal":
+        set_fields["concealPly"] = next_conceal_ply
+    elif chapter.conceal_ply is not None:
+        unset_fields["concealPly"] = ""
+    if unset_fields:
+        update["$unset"] = unset_fields
+    if description_changed or teaching_changed:
         update["$inc"] = {"revision": 1}
 
     await app_state.db.study_chapter.update_one(
