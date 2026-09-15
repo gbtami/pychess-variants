@@ -3,6 +3,7 @@ import { beforeAll, beforeEach, describe, expect, jest, test } from '@jest/globa
 import { forceVariationAt, promoteNodePath } from '../client/analysis/analysisTree';
 import { Step } from '../client/messages';
 import { addStudyNodeToAnalysisTree, analysisTreeFromStudy, type StudyTreeNodeDto } from '../client/study/studyTree';
+import { studySessionPolicy } from '../client/study/studyMode';
 
 const updateMovelistMock = jest.fn();
 jest.unstable_mockModule('../client/movelist', () => ({
@@ -52,6 +53,7 @@ function makeCtrl() {
         ),
         username: 'owner',
         chessground: { setShapes: jest.fn() },
+        refreshLocalAnalysisAvailabilityForAntiCheat: jest.fn(),
     };
     ctrl.activateTreePath = jest.fn((path: string) => {
         ctrl.analysisPath = path;
@@ -61,6 +63,110 @@ function makeCtrl() {
 
 describe('Study analysis websocket synchronization', () => {
     beforeEach(() => updateMovelistMock.mockClear());
+
+    test('effective session policy gates recording, sync, engine search and evaluation at the extension boundary', () => {
+        const ctrl = makeCtrl();
+        const policy = studySessionPolicy({
+            mode: 'gamebook',
+            canWrite: true,
+            computerAllowed: true,
+            savedRecording: true,
+            savedSynchronization: true,
+            activeGame: false,
+            override: 'preview',
+        });
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            writable: true,
+            recording: true,
+            policy,
+            onReloadRequired: jest.fn(),
+        });
+
+        extension.onSocketOpen();
+        ctrl.doSend.mockClear();
+
+        expect(extension.isRecording).toBe(false);
+        expect(extension.sharePosition('chapter1', '')).toBe(false);
+        expect(extension.followSharedPath('')).toBe(false);
+        expect(extension.allowComputerSearch()).toBe(false);
+        expect(extension.onEvaluation()).toBe(false);
+        extension.requestServerAnalysis();
+        expect(ctrl.doSend).not.toHaveBeenCalled();
+    });
+
+    test('restricted policy removes persisted evaluations before Study output is rendered', () => {
+        const ctrl = makeCtrl();
+        ctrl.tree = { loadAnalysisTree: jest.fn((tree: unknown) => (ctrl.analysisTree = tree)) };
+        const policy = studySessionPolicy({
+            mode: 'gamebook',
+            canWrite: false,
+            computerAllowed: true,
+            savedRecording: true,
+            savedSynchronization: true,
+            activeGame: false,
+        });
+        const node = {
+            ...e4Node(),
+            eval: { cp: 42 },
+        };
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            tree: { nodes: [node] },
+            policy,
+            onReloadRequired: jest.fn(),
+        });
+
+        extension.onInitialBoardLoaded();
+
+        expect(ctrl.steps[1].ceval).toBeUndefined();
+        expect(ctrl.steps[1].analysis).toBeUndefined();
+        expect(ctrl.steps[1].scoreStr).toBeUndefined();
+    });
+
+    test('updating policy clears effective REC immediately without changing the saved preference input', () => {
+        const ctrl = makeCtrl();
+        const normal = studySessionPolicy({
+            mode: 'normal',
+            canWrite: true,
+            computerAllowed: true,
+            savedRecording: true,
+            savedSynchronization: true,
+            activeGame: false,
+        });
+        const preview = studySessionPolicy({
+            mode: 'gamebook',
+            canWrite: true,
+            computerAllowed: true,
+            savedRecording: true,
+            savedSynchronization: true,
+            activeGame: false,
+            override: 'preview',
+        });
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            writable: true,
+            policy: normal,
+            onReloadRequired: jest.fn(),
+        });
+
+        expect(extension.isRecording).toBe(true);
+        extension.setPolicy(preview);
+
+        expect(extension.isRecording).toBe(false);
+        expect(ctrl.refreshLocalAnalysisAvailabilityForAntiCheat).toHaveBeenCalledTimes(1);
+
+        extension.setPolicy(normal, false);
+        expect(extension.isRecording).toBe(false);
+        extension.setPolicy(normal);
+        expect(extension.isRecording).toBe(true);
+    });
 
     test('loads the persisted tree into the generic analysis host before editing', () => {
         const ctrl = makeCtrl();
@@ -320,6 +426,123 @@ describe('Study analysis websocket synchronization', () => {
         expect(ctrl.doSend).toHaveBeenLastCalledWith(expect.objectContaining({ path: '', text: 'Root draft' }));
     });
 
+    test('saving delayed gamebook text targets the captured path, field and value', () => {
+        const ctrl = makeCtrl();
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            onReloadRequired: jest.fn(),
+            opIdFactory: () => 'GamebookOp1',
+        });
+        addStudyNodeToAnalysisTree(ctrl.analysisTree, '', e4Node());
+        ctrl.analysisPath = 'StudyNode1';
+        extension.onSocketOpen();
+
+        extension.setGamebook('hint', 'Root lesson', '');
+        ctrl.analysisPath = 'StudyNode1';
+
+        expect(ctrl.analysisTree.root.gamebook).toEqual({ hint: 'Root lesson' });
+        expect(ctrl.analysisTree.byPath.get('StudyNode1')?.gamebook).toBeUndefined();
+        expect(ctrl.doSend).toHaveBeenLastCalledWith({
+            type: 'study_set_gamebook',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'GamebookOp1',
+            expectedRevision: 0,
+            path: '',
+            field: 'hint',
+            value: 'Root lesson',
+        });
+    });
+
+    test('clear annotations also clears lesson metadata and preserves a newer queued lesson edit', () => {
+        const ctrl = makeCtrl();
+        ctrl.analysisTree.root.annotations = {
+            shapes: [],
+            comments: [{ id: 'Comment001', author: 'owner', text: 'Root note' }],
+            nags: [],
+        };
+        ctrl.analysisTree.root.gamebook = { hint: 'Old hint', deviation: 'Old fallback' };
+        let op = 0;
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            onReloadRequired: jest.fn(),
+            opIdFactory: () => `ClearGamebookOp${++op}`,
+        });
+        extension.onSocketOpen();
+        ctrl.doSend.mockClear();
+
+        extension.clearAnnotations();
+        expect(ctrl.analysisTree.root.annotations).toBeUndefined();
+        expect(ctrl.analysisTree.root.gamebook).toBeUndefined();
+        expect(ctrl.doSend).toHaveBeenLastCalledWith(
+            expect.objectContaining({ type: 'study_clear_annotations', clientOpId: 'ClearGamebookOp1', path: '' }),
+        );
+
+        extension.setGamebook('hint', 'New hint', '');
+        expect(ctrl.analysisTree.root.gamebook).toEqual({ hint: 'New hint' });
+        expect(extension.pendingCount).toBe(2);
+
+        extension.onSocketMessage('study_clear_annotations', {
+            type: 'study_clear_annotations',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'ClearGamebookOp1',
+            revision: 1,
+            changed: true,
+            path: '',
+            annotations: { shapes: [], comments: [], nags: [] },
+            gamebook: {},
+        });
+
+        expect(ctrl.analysisTree.root.gamebook).toEqual({ hint: 'New hint' });
+        expect(extension.pendingCount).toBe(1);
+        expect(ctrl.doSend).toHaveBeenLastCalledWith({
+            type: 'study_set_gamebook',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'ClearGamebookOp2',
+            expectedRevision: 1,
+            path: '',
+            field: 'hint',
+            value: 'New hint',
+        });
+    });
+
+    test('a remote clear-annotations broadcast removes both annotations and lesson metadata', () => {
+        const ctrl = makeCtrl();
+        ctrl.analysisTree.root.annotations = {
+            shapes: [],
+            comments: [{ id: 'Comment001', author: 'owner', text: 'Root note' }],
+            nags: [1],
+        };
+        ctrl.analysisTree.root.gamebook = { hint: 'Root hint' };
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            onReloadRequired: jest.fn(),
+        });
+
+        extension.onSocketMessage('study_clear_annotations', {
+            type: 'study_clear_annotations',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'RemoteClear1',
+            revision: 1,
+            changed: true,
+            path: '',
+            annotations: { shapes: [], comments: [], nags: [] },
+            gamebook: {},
+        });
+
+        expect(ctrl.analysisTree.root.annotations).toBeUndefined();
+        expect(ctrl.analysisTree.root.gamebook).toBeUndefined();
+    });
+
     test('an older acknowledgement preserves newer comment and glyph edits', () => {
         const ctrl = makeCtrl();
         let op = 0;
@@ -525,6 +748,79 @@ describe('Study analysis websocket synchronization', () => {
             studyId: 'study001',
             chapterId: 'chapter1',
             path: 'StudyNode1',
+            expectedRevision: 1,
+        });
+    });
+
+    test('shared chapter switch does not invent a revision for a chapter that is not loaded', () => {
+        const ctrl = makeCtrl();
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 7,
+            writable: true,
+            recording: true,
+            onReloadRequired: jest.fn(),
+        });
+        extension.onSocketOpen();
+
+        expect(extension.sharePosition('chapter2', '')).toBe(true);
+        expect(ctrl.doSend).toHaveBeenLastCalledWith({
+            type: 'study_set_position',
+            studyId: 'study001',
+            chapterId: 'chapter2',
+            path: '',
+        });
+    });
+
+    test('conceal broadcasts update reveal revision and authoritative shared position', () => {
+        const ctrl = makeCtrl();
+        const concealChanged = jest.fn();
+        const sharedChanged = jest.fn();
+        const reload = jest.fn();
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 4,
+            onConcealChanged: concealChanged,
+            onSharedPositionChanged: sharedChanged,
+            onReloadRequired: reload,
+        });
+
+        expect(
+            extension.onSocketMessage('study_conceal', {
+                type: 'study_conceal',
+                studyId: 'study001',
+                chapterId: 'chapter1',
+                path: 'StudyNode1',
+                concealPly: 1,
+                revision: 5,
+            }),
+        ).toBe(true);
+        expect(extension.revision).toBe(5);
+        expect(concealChanged).toHaveBeenCalledWith(1, 5);
+        expect(sharedChanged).toHaveBeenCalledWith('chapter1', 'StudyNode1');
+        expect(reload).not.toHaveBeenCalled();
+    });
+
+    test('conceal reset is an explicit writable operation independent of REC', () => {
+        const ctrl = makeCtrl();
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 9,
+            writable: true,
+            recording: false,
+            onReloadRequired: jest.fn(),
+        });
+        extension.onSocketOpen();
+
+        expect(extension.resetConcealment()).toBe(true);
+        expect(ctrl.doSend).toHaveBeenLastCalledWith({
+            type: 'study_reset_conceal',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            expectedRevision: 9,
         });
     });
 
@@ -552,6 +848,8 @@ describe('Study analysis websocket synchronization', () => {
                         name: 'Renamed chapter',
                         order: 1,
                         orientation: 'black',
+                        mode: 'conceal',
+                        concealPly: 3,
                         descriptionPinned: true,
                     },
                     { id: 'chapter2', name: 'Second', order: 2, orientation: 'white' },
@@ -565,9 +863,11 @@ describe('Study analysis websocket synchronization', () => {
                     name: 'Renamed chapter',
                     order: 1,
                     orientation: 'black',
+                    mode: 'conceal',
+                    concealPly: 3,
                     descriptionPinned: true,
                 },
-                { id: 'chapter2', name: 'Second', order: 2, orientation: 'white' },
+                { id: 'chapter2', name: 'Second', order: 2, orientation: 'white', mode: 'normal' },
             ],
             'chapter2',
             '',
@@ -1107,6 +1407,87 @@ describe('Study analysis websocket synchronization', () => {
         expect(reload).not.toHaveBeenCalled();
     });
 
+    test('remaps queued gamebook text when a duplicate optimistic node is canonicalized', () => {
+        const ctrl = makeCtrl();
+        const reload = jest.fn();
+        const opIds = ['LocalE4Op', 'LocalLesson'];
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            onReloadRequired: reload,
+            opIdFactory: () => opIds.shift()!,
+        });
+        const local: StudyTreeNodeDto = { ...e4Node(), id: 'LocalNode1' };
+        addStudyNodeToAnalysisTree(ctrl.analysisTree, '', local);
+        ctrl.analysisPath = 'LocalNode1';
+
+        extension.onSocketOpen();
+        extension.onNodeAdded('', ctrl.analysisTree.root.children[0]);
+        extension.setGamebook('deviation', 'Try a different move', 'LocalNode1');
+
+        expect(extension.pendingCount).toBe(2);
+        expect(ctrl.analysisTree.byPath.get('LocalNode1')?.gamebook).toEqual({
+            deviation: 'Try a different move',
+        });
+
+        const canonical: StudyTreeNodeDto = { ...e4Node(), id: 'CanonNode1' };
+        extension.onSocketMessage('study_add_node', {
+            type: 'study_add_node',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'RemoteE4Op',
+            revision: 1,
+            changed: true,
+            parentPath: '',
+            path: 'CanonNode1',
+            node: canonical,
+        });
+        extension.onSocketMessage('study_add_node', {
+            type: 'study_add_node',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'LocalE4Op',
+            revision: 1,
+            changed: false,
+            parentPath: '',
+            path: 'CanonNode1',
+            move: 'e2e4',
+            node: canonical,
+        });
+
+        expect(reload).not.toHaveBeenCalled();
+        expect(extension.pendingCount).toBe(1);
+        expect(ctrl.analysisTree.byPath.has('LocalNode1')).toBe(false);
+        expect(ctrl.analysisTree.byPath.get('CanonNode1')?.gamebook).toEqual({
+            deviation: 'Try a different move',
+        });
+        expect(ctrl.analysisPath).toBe('CanonNode1');
+        expect(ctrl.doSend).toHaveBeenLastCalledWith({
+            type: 'study_set_gamebook',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'LocalLesson',
+            expectedRevision: 1,
+            path: 'CanonNode1',
+            field: 'deviation',
+            value: 'Try a different move',
+        });
+
+        extension.onSocketMessage('study_set_gamebook', {
+            type: 'study_set_gamebook',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'LocalLesson',
+            revision: 2,
+            changed: true,
+            path: 'CanonNode1',
+            gamebook: { deviation: 'Try a different move' },
+        });
+        expect(extension.pendingCount).toBe(0);
+        expect(extension.revision).toBe(2);
+    });
+
     test('verifies the initial HTTP snapshot before sending queued mutations', async () => {
         const ctrl = makeCtrl();
         const reload = jest.fn();
@@ -1362,4 +1743,106 @@ test('unacknowledged edits prevent a chapter switch after the save timeout', asy
     } finally {
         jest.useRealTimers();
     }
+});
+
+test('conceal reader extension blocks hidden navigation until play or reveal', () => {
+    const ctrl = makeCtrl();
+    ctrl.tree = { loadAnalysisTree: jest.fn((tree: unknown) => (ctrl.analysisTree = tree)) };
+    const e5: StudyTreeNodeDto = {
+        id: 'StudyNode2',
+        parentId: 'StudyNode1',
+        order: 0,
+        move: 'e7e5',
+        fen: 'e5 w - - 0 1',
+        turnColor: 'white',
+        check: false,
+        san: 'e5',
+        sanSAN: 'e5',
+    };
+    const policy = studySessionPolicy({
+        mode: 'conceal',
+        canWrite: false,
+        computerAllowed: true,
+        savedRecording: true,
+        savedSynchronization: false,
+        activeGame: false,
+    });
+    const extension = new StudyAnalysisExtension(ctrl, {
+        studyId: 'study001',
+        chapterId: 'chapter1',
+        revision: 0,
+        tree: { nodes: [e4Node(), e5] },
+        concealPly: 1,
+        policy,
+        writable: false,
+        onReloadRequired: jest.fn(),
+    });
+    extension.onInitialBoardLoaded();
+    ctrl.analysisPath = 'StudyNode1';
+    const hidden = ctrl.analysisTree.byPath.get('StudyNode1.StudyNode2');
+
+    expect(hidden).toBeDefined();
+    expect(extension.isTreeNodeVisible(hidden)).toBe(false);
+    expect(extension.canActivatePath(hidden.path, 'user-navigation')).toBe(false);
+    expect(extension.canActivatePath(hidden.path, 'played-move')).toBe(true);
+    expect(extension.allowTreeContextMenu()).toBe(false);
+    expect(ctrl.chessground.setShapes).toHaveBeenLastCalledWith([]);
+
+    extension.onSocketMessage('study_conceal', {
+        type: 'study_conceal',
+        studyId: 'study001',
+        chapterId: 'chapter1',
+        path: hidden.path,
+        concealPly: 2,
+        revision: 1,
+    });
+    expect(extension.isTreeNodeVisible(hidden)).toBe(true);
+    expect(extension.canActivatePath(hidden.path, 'user-navigation')).toBe(true);
+});
+
+test('conceal reader clears persisted evaluations from hidden sidelines and never records local guesses', () => {
+    const ctrl = makeCtrl();
+    ctrl.tree = { loadAnalysisTree: jest.fn((tree: unknown) => (ctrl.analysisTree = tree)) };
+    const sideline: StudyTreeNodeDto = {
+        ...e4Node(),
+        id: 'StudyNode2',
+        order: 1,
+        move: 'd2d4',
+        fen: 'd4 b - - 0 1',
+        san: 'd4',
+        sanSAN: 'd4',
+        eval: { cp: 73 },
+    };
+    const mainline = { ...e4Node(), eval: { cp: 42 } };
+    const policy = studySessionPolicy({
+        mode: 'conceal',
+        canWrite: false,
+        computerAllowed: true,
+        savedRecording: true,
+        savedSynchronization: false,
+        activeGame: false,
+    });
+    const extension = new StudyAnalysisExtension(ctrl, {
+        studyId: 'study001',
+        chapterId: 'chapter1',
+        revision: 0,
+        tree: { nodes: [mainline, sideline] },
+        concealPly: 0,
+        policy,
+        writable: false,
+        onReloadRequired: jest.fn(),
+    });
+    extension.onInitialBoardLoaded();
+
+    for (const node of ctrl.analysisTree.byPath.values()) {
+        expect(node.step.analysis).toBeUndefined();
+        expect(node.step.ceval).toBeUndefined();
+        expect(node.step.scoreStr).toBeUndefined();
+    }
+
+    extension.onSocketOpen();
+    ctrl.doSend.mockClear();
+    const attempted = ctrl.analysisTree.byPath.get('StudyNode1')!;
+    extension.onNodeAdded('', attempted);
+    expect(ctrl.doSend).not.toHaveBeenCalled();
 });

@@ -1,6 +1,11 @@
 import type { DrawShape } from 'chessgroundx/draw';
 
-import { AnalysisTree, AnalysisTreeNode, type AnalysisAnnotations } from '../analysis/analysisTree';
+import {
+    AnalysisTree,
+    AnalysisTreeNode,
+    type AnalysisAnnotations,
+    type AnalysisGamebook,
+} from '../analysis/analysisTree';
 import type { Ceval, Step } from '../messages';
 
 export const STUDY_NODE_ID_LENGTH = 10;
@@ -31,6 +36,11 @@ export interface StudyEvalDto {
     mate?: number;
 }
 
+export interface StudyGamebookDto {
+    hint?: string;
+    deviation?: string;
+}
+
 export interface StudyTreeNodeDto {
     id: string;
     parentId: string | null;
@@ -43,6 +53,7 @@ export interface StudyTreeNodeDto {
     sanSAN?: string;
     forceVariation?: boolean;
     annotations?: StudyAnnotationsDto;
+    gamebook?: StudyGamebookDto;
     eval?: StudyEvalDto;
     clocks?: [number, number];
 }
@@ -50,6 +61,7 @@ export interface StudyTreeNodeDto {
 export interface StudyTreeDto {
     nodes: StudyTreeNodeDto[];
     rootAnnotations?: StudyAnnotationsDto;
+    rootGamebook?: StudyGamebookDto;
     rootClocks?: [number, number];
 }
 
@@ -80,6 +92,34 @@ function asRecord(value: unknown): Record<string, unknown> | undefined {
     return value !== null && typeof value === 'object' && !Array.isArray(value)
         ? (value as Record<string, unknown>)
         : undefined;
+}
+
+export function parseStudyGamebook(value: unknown): StudyGamebookDto {
+    const gamebook = asRecord(value);
+    if (!gamebook) throw new Error('Invalid Study gamebook');
+    for (const key of Object.keys(gamebook)) {
+        if (key !== 'hint' && key !== 'deviation') throw new Error('Invalid Study gamebook field');
+    }
+    const parsed: StudyGamebookDto = {};
+    for (const field of ['hint', 'deviation'] as const) {
+        const raw = gamebook[field];
+        if (raw === undefined) continue;
+        if (typeof raw !== 'string' || !raw || raw.length > 4000) throw new Error('Invalid Study gamebook text');
+        parsed[field] = raw;
+    }
+    return parsed;
+}
+
+function analysisGamebookFromStudy(value: StudyGamebookDto | undefined): AnalysisGamebook | undefined {
+    if (!value) return undefined;
+    const gamebook = parseStudyGamebook(value);
+    return gamebook.hint === undefined && gamebook.deviation === undefined ? undefined : { ...gamebook };
+}
+
+function studyGamebookFromAnalysis(value: AnalysisGamebook | undefined): StudyGamebookDto | undefined {
+    if (!value) return undefined;
+    const gamebook = parseStudyGamebook(value);
+    return gamebook.hint === undefined && gamebook.deviation === undefined ? undefined : { ...gamebook };
 }
 
 export function parseStudyAnnotations(value: unknown): StudyAnnotationsDto {
@@ -195,6 +235,7 @@ function validateDtoNode(node: StudyTreeNodeDto): void {
     if (!node.fen) throw new Error('Study node FEN must be non-empty');
     if (node.turnColor !== 'white' && node.turnColor !== 'black') throw new Error('Invalid Study node turn color');
     if (node.annotations !== undefined) parseStudyAnnotations(node.annotations);
+    if (node.gamebook !== undefined) parseStudyGamebook(node.gamebook);
     if (node.eval !== undefined) cevalFromStudyEval(node.eval);
     if (node.clocks !== undefined) {
         if (
@@ -211,6 +252,7 @@ function parentKey(parentId: string | null): string {
 }
 
 export function analysisTreeFromStudy(rootStep: Step, dto: StudyTreeDto): AnalysisTree {
+    const rootGamebook = dto.rootGamebook === undefined ? undefined : analysisGamebookFromStudy(dto.rootGamebook);
     if (dto.rootClocks !== undefined) {
         if (
             !Array.isArray(dto.rootClocks) ||
@@ -252,6 +294,7 @@ export function analysisTreeFromStudy(rootStep: Step, dto: StudyTreeDto): Analys
         children: [],
         mainlinePly: 0,
         annotations: analysisAnnotationsFromStudy(dto.rootAnnotations),
+        gamebook: rootGamebook,
     };
     const tree: AnalysisTree = {
         root,
@@ -289,6 +332,7 @@ export function analysisTreeFromStudy(rootStep: Step, dto: StudyTreeDto): Analys
                 forceVariation: dtoNode.forceVariation,
                 mainlinePly: onMainline ? current.parent.ply + 1 : undefined,
                 annotations: analysisAnnotationsFromStudy(dtoNode.annotations),
+                gamebook: analysisGamebookFromStudy(dtoNode.gamebook),
                 eval: cevalFromStudyEval(dtoNode.eval),
             };
             current.parent.children.push(node);
@@ -317,6 +361,7 @@ function allocateStableId(preferred: string, used: Set<string>): string {
 export function studyTreeFromAnalysisTree(tree: AnalysisTree): StudyTreeDto {
     const nodes: StudyTreeNodeDto[] = [];
     const rootAnnotations = studyAnnotationsFromAnalysis(tree.root.annotations);
+    const rootGamebook = studyGamebookFromAnalysis(tree.root.gamebook);
     const rootClocks = tree.root.step.clocks ? ([...tree.root.step.clocks] as [number, number]) : undefined;
     const used = new Set<string>();
     const queue: Array<{ parent: AnalysisTreeNode; stableParentId: string | null }> = [
@@ -343,6 +388,8 @@ export function studyTreeFromAnalysisTree(tree: AnalysisTree): StudyTreeDto {
             if (child.forceVariation) node.forceVariation = true;
             const annotations = studyAnnotationsFromAnalysis(child.annotations);
             if (annotations) node.annotations = annotations;
+            const gamebook = studyGamebookFromAnalysis(child.gamebook);
+            if (gamebook) node.gamebook = gamebook;
             const evalScore = studyEvalFromCeval(child.eval);
             if (evalScore) node.eval = evalScore;
             nodes.push(node);
@@ -353,6 +400,7 @@ export function studyTreeFromAnalysisTree(tree: AnalysisTree): StudyTreeDto {
     return {
         nodes,
         ...(rootAnnotations ? { rootAnnotations } : {}),
+        ...(rootGamebook ? { rootGamebook } : {}),
         ...(rootClocks ? { rootClocks } : {}),
     };
 }
@@ -393,6 +441,7 @@ export function addStudyNodeToAnalysisTree(
         forceVariation: dtoNode.forceVariation,
         mainlinePly: onMainline ? parent.ply + 1 : undefined,
         annotations: analysisAnnotationsFromStudy(dtoNode.annotations),
+        gamebook: analysisGamebookFromStudy(dtoNode.gamebook),
         eval: cevalFromStudyEval(dtoNode.eval),
     };
     parent.children.push(child);
@@ -437,6 +486,7 @@ export function mergeStudyNodeIntoAnalysisTree(
         };
         existing.forceVariation = dtoNode.forceVariation;
         existing.annotations = analysisAnnotationsFromStudy(dtoNode.annotations);
+        existing.gamebook = analysisGamebookFromStudy(dtoNode.gamebook);
         existing.eval = cevalFromStudyEval(dtoNode.eval);
         return path;
     }
@@ -458,6 +508,7 @@ export function mergeStudyNodeIntoAnalysisTree(
         children: [],
         forceVariation: dtoNode.forceVariation,
         annotations: analysisAnnotationsFromStudy(dtoNode.annotations),
+        gamebook: analysisGamebookFromStudy(dtoNode.gamebook),
         eval: cevalFromStudyEval(dtoNode.eval),
     };
     parent.children.splice(dtoNode.order, 0, child);
@@ -521,6 +572,15 @@ export function reconcileStudyNodeIntoAnalysisTree(
 }
 
 export function mergeStudyTreeIntoAnalysisTree(tree: AnalysisTree, dto: StudyTreeDto): boolean {
+    if (dto.rootGamebook !== undefined) {
+        try {
+            tree.root.gamebook = analysisGamebookFromStudy(dto.rootGamebook);
+        } catch {
+            return false;
+        }
+    } else {
+        tree.root.gamebook = undefined;
+    }
     if (dto.rootClocks !== undefined) {
         if (
             !Array.isArray(dto.rootClocks) ||

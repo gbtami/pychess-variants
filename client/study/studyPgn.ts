@@ -1,4 +1,5 @@
 import type { Step } from '../messages';
+import type { StudyChapterMode } from '../types';
 import { GLYPH_GROUPS } from '../analysis/glyphs';
 import { encodePgnUtf8Base64 } from '../pgn';
 import { variantKey } from '../variants';
@@ -13,6 +14,8 @@ export interface StudyPgnChapterData {
     chess960: boolean;
     initialFen: string;
     orientation: 'white' | 'black';
+    mode?: StudyChapterMode;
+    concealPly?: number;
     description: string;
     tags: Record<string, string>;
     tree: StudyTreeDto;
@@ -33,6 +36,19 @@ const BRUSH_CODE: Record<string, string> = {
     blue: 'B',
     yellow: 'Y',
 };
+
+// Versioned PyChess-only Study extension. Ordinary PGN readers may ignore or
+// discard these tags/comments; base64 keeps lesson text opaque to PGN brace syntax.
+const PYCHESS_STUDY_PGN_VERSION = '1';
+
+function gamebookComment(gamebook: { hint?: string; deviation?: string } | undefined): string | undefined {
+    if (!gamebook?.hint && !gamebook?.deviation) return undefined;
+    const payload = JSON.stringify({
+        ...(gamebook.hint ? { hint: gamebook.hint } : {}),
+        ...(gamebook.deviation ? { deviation: gamebook.deviation } : {}),
+    });
+    return `{[%pygamebook ${encodePgnUtf8Base64(payload)}]}`;
+}
 
 function tagValue(value: string): string {
     return value
@@ -139,6 +155,7 @@ function nodeSuffix(node: AnalysisTreeNode): string {
         ...(annotations?.nags.filter(nag => nag > 6).map(nag => `$${nag}`) ?? []),
         evalComment(node),
         ...annotationComments(annotations),
+        gamebookComment(node.gamebook),
         ...clockComments(node),
     ]
         .filter((value): value is string => Boolean(value))
@@ -166,6 +183,10 @@ function chapterTags(study: StudyPgnContext, chapter: StudyPgnChapterData): Arra
     tags.set('Annotator', `${study.home}/@/${study.owner}`);
     tags.set('Orientation', chapter.orientation);
     tags.set('PyChessVariant', chapter.variant);
+    tags.set('PyChessStudyVersion', PYCHESS_STUDY_PGN_VERSION);
+    tags.set('PyChessChapterMode', chapter.mode ?? 'normal');
+    if ((chapter.mode ?? 'normal') === 'gamebook') tags.set('ChapterMode', 'gamebook');
+    else tags.delete('ChapterMode');
     if (chapter.chess960) tags.set('PyChessChess960', '1');
     else tags.delete('PyChessChess960');
 
@@ -201,6 +222,9 @@ function chapterTags(study: StudyPgnContext, chapter: StudyPgnChapterData): Arra
         'Annotator',
         'Orientation',
         'PyChessVariant',
+        'PyChessStudyVersion',
+        'PyChessChapterMode',
+        'ChapterMode',
         'PyChessChess960',
         'PyChessVariantIniEncoding',
         'PyChessVariantIni',
@@ -229,7 +253,13 @@ export function renderStudyChapterPgn(study: StudyPgnContext, chapter: StudyPgnC
     const tree = analysisTreeFromStudy(rootStep, chapter.tree);
     const moveText = renderFullTreePgnMoveText(tree, nodeSan, nodeSuffix);
     const initialComments = annotationComments(tree.root.annotations, true);
-    const body = [...initialComments, fullClockComment(tree.root.step.clocks), moveText, chapterResult(chapter)]
+    const body = [
+        ...initialComments,
+        gamebookComment(tree.root.gamebook),
+        fullClockComment(tree.root.step.clocks),
+        moveText,
+        chapterResult(chapter),
+    ]
         .filter((value): value is string => Boolean(value))
         .join(' ');
     const headers = chapterTags(study, chapter)
@@ -277,6 +307,18 @@ export function parseStudyChapterExportData(value: unknown): StudyPgnChapterData
         if (typeof rawValue !== 'string') throw new Error('Invalid Study export tags');
         tags[name] = rawValue;
     }
+    const mode: StudyChapterMode | undefined =
+        data.mode === undefined
+            ? 'normal'
+            : data.mode === 'normal' || data.mode === 'practice' || data.mode === 'conceal' || data.mode === 'gamebook'
+              ? data.mode
+              : undefined;
+    if (!mode) throw new Error('Invalid Study export mode');
+    if (
+        data.concealPly !== undefined &&
+        (!Number.isInteger(data.concealPly) || (data.concealPly as number) < 0 || mode !== 'conceal')
+    )
+        throw new Error('Invalid Study export conceal boundary');
     return {
         id: data.id,
         name: data.name,
@@ -285,6 +327,8 @@ export function parseStudyChapterExportData(value: unknown): StudyPgnChapterData
         chess960: data.chess960,
         initialFen: data.initialFen,
         orientation: data.orientation,
+        mode,
+        ...(mode === 'conceal' ? { concealPly: (data.concealPly as number | undefined) ?? 0 } : {}),
         description: data.description,
         tags,
         tree: data.tree as StudyTreeDto,

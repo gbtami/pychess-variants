@@ -30,6 +30,7 @@ export interface SimulGame {
 }
 
 export type StudyFeatureSelection = 'nobody' | 'owner' | 'contributor' | 'member' | 'everyone';
+export type StudyChapterMode = 'normal' | 'practice' | 'conceal' | 'gamebook';
 
 export type StudyServerEval = {
     path: string;
@@ -44,6 +45,8 @@ export type StudyChapterPreview = {
     name: string;
     order: number;
     orientation: 'white' | 'black';
+    mode: StudyChapterMode;
+    concealPly?: number;
     descriptionPinned?: boolean;
 };
 
@@ -84,6 +87,8 @@ export type StudyPageModel = {
     sticky?: boolean;
     write?: boolean;
     behind?: number;
+    // Runtime-only Study session override. Preview never persists to the server.
+    modeOverride?: 'preview' | 'analysis' | null;
     // Local sidebar UI state, kept across in-place chapter and member refreshes.
     sideTab?: 'chapters' | 'members';
     memberConfig?: string;
@@ -97,6 +102,8 @@ export type StudyPageModel = {
         snapshotToken: string;
         order: number;
         orientation: 'white' | 'black';
+        mode: StudyChapterMode;
+        concealPly?: number;
         variant: string;
         chess960: boolean;
         initialFen: string;

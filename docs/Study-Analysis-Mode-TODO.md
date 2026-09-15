@@ -491,21 +491,21 @@ suggestions; existing file links above are the concrete integration points.
 
 ### A. Common mode infrastructure
 
-- [ ] **A1 — Chapter schema and payloads.** Add validated mode and conceal boundary
+- [x] **A1 — Chapter schema and payloads.** Add validated mode and conceal boundary
   to models/drafts/storage/full payloads/previews/types. Cover every chapter creation
   path, clone, export-data, metadata edit and snapshot fingerprint. Preserve old
   chapter/edit defaults. Mode changes bump chapter revision and trigger an
   authoritative reload; identical edits are idempotent. Add model/storage/HTTP/WS
   tests for all values, invalid input, old documents, and permission failures.
   **Done:** old chapters remain normal and mode survives a server reload/clone.
-- [ ] **A2 — Effective session policy.** Add `studyMode.ts` (suggested) to derive
+- [x] **A2 — Effective session policy.** Add `studyMode.ts` (suggested) to derive
   author/play/preview behavior, allowed tools, recording, synchronization and start
   path from stored mode, permissions and local override. Test the matrix in 3.2,
   active-game restrictions, and revoked permissions. Avoid spreading raw mode
   checks across the large `studyView.ts`.
   **Done:** one policy answers whether an action is allowed without changing saved
   REC/SYNC preferences.
-- [ ] **A3 — Analysis host seams and lifecycle.** Extend `AnalysisExtension` only
+- [x] **A3 — Analysis host seams and lifecycle.** Extend `AnalysisExtension` only
   where needed: before user move application, after completed move/position change,
   board input policy, evaluation delivery, visible-tree policy and cleanup. Supply
   explicit navigation origins for user browsing, played move, scripted/engine reply,
@@ -513,7 +513,7 @@ suggestions; existing file links above are the concrete integration points.
   no extension is installed. Add a session generation and cancellation cleanup.
   **Done:** existing-child moves are observable and every navigation/move route
   follows the intended policy; normal analysis and puzzles still work.
-- [ ] **A4 — Forms and safe activation.** Add one shared translated Analysis mode
+- [x] **A4 — Forms and safe activation.** Add one shared translated Analysis mode
   selector to initial/add/edit chapter flows, explanatory text and learner-side
   labels. Install policy before navigation or evaluation rendering. Settle pending
   writes before mode/session transitions and reload before restoring recording.
@@ -527,13 +527,13 @@ are complete; it need not wait for computer practice.
 
 ### B. Hide next moves
 
-- [ ] **B1 — Reveal state protocol.** Implement 3.3 in shared-position publication
+- [x] **B1 — Reveal state protocol.** Implement 3.3 in shared-position publication
   and a dedicated reset operation. Serialize authorization, boundary/path persistence,
   revisions, and broadcasts together. Include root/custom-FEN depth, stale updates,
   non-mainline publication, edits, deletion and reconnect cases.
   **Done:** only authorized presentation advances the shared boundary; reset and
   late joiners get deterministic state.
-- [ ] **B2 — Reader presentation and exploration.** Add `studyConceal.ts`
+- [x] **B2 — Reader presentation and exploration.** Add `studyConceal.ts`
   (suggested) and filtered move/fork/comment rendering. Block unseen navigation from
   keyboard, wheel, chart, context menu, move number, URL/history, remembered path,
   and auto-advance. Allow legal attempted moves, matched stored moves and backward
@@ -541,7 +541,7 @@ are complete; it need not wait for computer practice.
   indicators and reader Preview.
   **Done:** readers can try moves without learning the next SAN from another UI
   surface; their guesses do not modify the chapter or shared reveal state.
-- [ ] **B3 — Multi-client acceptance.** Exercise owner, write member, reader,
+- [x] **B3 — Multi-client acceptance.** Exercise owner, write member, reader,
   anonymous public viewer and embedded reader with REC/SYNC combinations. Test
   present/reveal/back/reset/rejoin and chapter switches with browser history.
   **Done:** browser tests verify rendered omission and allowed navigation, while
@@ -549,7 +549,7 @@ are complete; it need not wait for computer practice.
 
 ### C. Interactive lesson data and editor
 
-- [ ] **C1 — Lossless root/node metadata.** Add bounded canonical `gamebook` data
+- [x] **C1 — Lossless root/node metadata.** Add bounded canonical `gamebook` data
   to Python and TypeScript representations and all tree conversions. Audit each
   `StudyTree(...)` reconstruction, merge, ID remap, clone, clear action and PGN
   conversion. Add `study_set_gamebook` using existing mutation acknowledgments,
@@ -558,7 +558,7 @@ are complete; it need not wait for computer practice.
   path later. Test duplicate-node reconciliation and a deleted target.
   **Done:** two contributors see the same hint/deviation; unrelated tree edits
   never erase root metadata or save text on a different node.
-- [ ] **C2 — Editor and instructional guidance.** Add `studyGamebookEdit.ts`
+- [x] **C2 — Editor and instructional guidance.** Add `studyGamebookEdit.ts`
   (suggested), borrowing the small lila editor workflow. Integrate ordinary comment
   editing, expected-mainline guidance, optional hint, fallback deviation, wrong
   variation explanation and Preview. Add empty-script warnings and keyboard labels.
@@ -572,7 +572,7 @@ Interactive lesson only with D completed.
 
 ### D. Interactive lesson player
 
-- [ ] **D1 — Deterministic playback controller.** Add `studyGamebookPlay.ts`
+- [x] **D1 — Deterministic playback controller.** Add `studyGamebookPlay.ts`
   (suggested) with explicit prompt, correct-feedback, wrong-feedback, opponent-wait,
   complete and unavailable states. Use a stable authored script plus disposable
   attempt state. Grade canonical played moves, not just node additions. Implement

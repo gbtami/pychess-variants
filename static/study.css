@@ -632,6 +632,34 @@
 .study-tool-tabs { display: flex; align-items: stretch; padding-top: 5px; border-bottom: 1px solid var(--border-color); }
 .study-tool-tabs button[role='tab'] { position: relative; flex: 1; min-height: 2.8rem; font-size: 1.2rem; border-bottom: 2px solid transparent; }
 .study-tool-tabs button[role='tab'][aria-selected='true'] { color: var(--rusty); border-bottom-color: var(--rusty); }
+
+.study-conceal-status-container:empty { display: none; }
+.study-conceal-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    margin-top: .5rem;
+    padding: .65rem .8rem;
+    border-radius: 4px;
+    background: var(--bg-color0);
+    box-shadow: var(--base-shadow);
+}
+.study-app.study-conceal-playback :is(
+    #study-tab-comments,
+    #study-tab-glyphs,
+    #study-tab-serverEval,
+    #study-tab-export,
+    #study-panel-comments,
+    #study-panel-glyphs,
+    #study-panel-serverEval,
+    #study-panel-export,
+    .study-annotations__tags,
+    .study-desc .contrib
+) { display: none !important; }
+.study-app.study-conceal-preview :is(.study-side__more, .study-chapter__edit, .study-side__add) {
+    display: none !important;
+}
 /* Tag icon from lila public/images/svg-icons/tag.svg (AGPL-3.0). */
 .study-tag-icon { display: inline-block; width: 1.1em; height: 1.1em; background: currentColor; mask: url('images/study/tag.svg') center / contain no-repeat; vertical-align: middle; }
 .study-tool-count { font-size: .7rem; margin-left: .2rem; vertical-align: super; }
@@ -654,6 +682,7 @@
 @keyframes study-server-eval-spin { to { transform: rotate(360deg); } }
 .study-underboard__title { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin: 0 0 .7rem; font-size: 1.2rem; overflow-wrap: anywhere; }
 .study-underboard__name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.study-underboard__mode { margin-inline-start: .5rem; padding: .12rem .4rem; border-radius: 999px; background: color-mix(in srgb, var(--font-color) 10%, transparent); font-size: .72em; font-weight: normal; vertical-align: .08em; }
 .study-topics {
     display: flex;
     flex-wrap: wrap;
@@ -699,6 +728,30 @@
 .study-underboard { container-type: inline-size; }
 #study-panel-comments, #study-panel-glyphs { padding: 0; }
 #study-panel-comments { background: transparent; }
+
+.study-gamebook-edit { display: grid; gap: .7rem; line-height: 1.4; }
+.study-gamebook-edit p { margin: 0; }
+.study-gamebook-edit__header { display: flex; align-items: baseline; justify-content: space-between; gap: .8rem; }
+.study-gamebook-edit__title { font-weight: 600; }
+.study-gamebook-edit__keys { display: inline-flex; align-items: center; gap: .2rem; font-size: .8rem; opacity: .72; }
+.study-gamebook-edit__keys kbd {
+    min-width: 1.5rem;
+    padding: .05rem .3rem;
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    background: var(--bg-color2);
+    text-align: center;
+    font: inherit;
+}
+.study-gamebook-edit__warning {
+    padding: .55rem .65rem;
+    border-left: 3px solid var(--bad);
+    background: color-mix(in srgb, var(--bad) 10%, transparent);
+}
+.study-gamebook-edit__field { display: grid; gap: .2rem; font-weight: 600; }
+.study-gamebook-edit__field textarea { margin: 0; font-weight: 400; }
+.study-gamebook-edit__comment, .study-gamebook-edit__preview { justify-self: start; }
+
 .study-annotations__comments { display: grid; gap: .4rem; }
 .study-annotations__comment-input { min-height: 5rem; }
 /* Like lila's glyph panel, wrap whole groups instead of their labels. */
@@ -868,6 +921,7 @@
 .study-dialog__form { display: grid; gap: 1.35rem; }
 .study-dialog__field { display: grid; gap: .45rem; min-width: 0; font-weight: bold; }
 .study-dialog__field input, .study-dialog__field select { font-weight: normal; }
+.study-dialog__help { font-size: .82em; font-weight: normal; line-height: 1.3; opacity: .72; }
 .study-dialog__split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.35rem; }
 .study-dialog select:disabled { opacity: .8; cursor: not-allowed; }
 .study-dialog__secondary-actions {

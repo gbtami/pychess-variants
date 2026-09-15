@@ -20,11 +20,12 @@ from study.annotations import (
     canonical_tags,
     is_study_comment_id,
 )
+from study.conceal import reconciled_conceal_ply
 from study.constants import STUDY_CHAPTER_MAX_BSON_BYTES, STUDY_MAX_NODES_PER_CHAPTER
 from study.models import Study, StudyChapter
 from study.permissions import can_write_study
 from study.storage import refresh_study_search_tokens
-from study.tree import StudyTree, StudyTreeNode, is_study_node_id, new_study_node_id
+from study.tree import StudyGamebook, StudyTree, StudyTreeNode, is_study_node_id, new_study_node_id
 from study.variant import study_variant_context
 
 if TYPE_CHECKING:
@@ -52,8 +53,11 @@ class StudyMutationResult:
     path: str | None = None
     node: StudyTreeNode | None = None
     annotations: StudyAnnotations | None = None
+    gamebook: StudyGamebook | None = None
     description: str | None = None
     tags: Mapping[str, str] | None = None
+    conceal_ply: int | None = None
+    conceal_changed: bool = False
 
     def to_payload(self) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -70,10 +74,14 @@ class StudyMutationResult:
             payload["node"] = self.node.to_payload()
         if self.annotations is not None:
             payload["annotations"] = self.annotations.to_payload()
+        if self.gamebook is not None:
+            payload["gamebook"] = self.gamebook.to_payload()
         if self.description is not None:
             payload["description"] = self.description
         if self.tags is not None:
             payload["tags"] = dict(self.tags)
+        if self.conceal_changed:
+            payload["concealPly"] = self.conceal_ply
         return payload
 
 
@@ -181,6 +189,7 @@ class StudyMutationService:
             StudyTree(
                 nodes,
                 root_annotations=chapter.root.root_annotations,
+                root_gamebook=chapter.root.root_gamebook,
                 root_clocks=chapter.root.root_clocks,
             ),
         )
@@ -202,6 +211,8 @@ class StudyMutationService:
             changed=True,
             path=self._join_path(parent_path, node.id),
             node=node,
+            conceal_ply=candidate.conceal_ply,
+            conceal_changed=candidate.conceal_ply != chapter.conceal_ply,
         )
 
     async def delete_node(
@@ -248,6 +259,7 @@ class StudyMutationService:
             StudyTree(
                 nodes,
                 root_annotations=chapter.root.root_annotations,
+                root_gamebook=chapter.root.root_gamebook,
                 root_clocks=chapter.root.root_clocks,
             ),
         )
@@ -264,6 +276,8 @@ class StudyMutationService:
             revision=candidate.revision,
             changed=True,
             path=path,
+            conceal_ply=candidate.conceal_ply,
+            conceal_changed=candidate.conceal_ply != chapter.conceal_ply,
         )
 
     async def promote_variation(
@@ -332,6 +346,7 @@ class StudyMutationService:
             StudyTree(
                 nodes,
                 root_annotations=chapter.root.root_annotations,
+                root_gamebook=chapter.root.root_gamebook,
                 root_clocks=chapter.root.root_clocks,
             ),
         )
@@ -346,6 +361,8 @@ class StudyMutationService:
             revision=candidate.revision,
             changed=True,
             path=path,
+            conceal_ply=candidate.conceal_ply,
+            conceal_changed=candidate.conceal_ply != chapter.conceal_ply,
         )
 
     async def force_variation(
@@ -392,6 +409,7 @@ class StudyMutationService:
             StudyTree(
                 nodes,
                 root_annotations=chapter.root.root_annotations,
+                root_gamebook=chapter.root.root_gamebook,
                 root_clocks=chapter.root.root_clocks,
             ),
         )
@@ -406,6 +424,8 @@ class StudyMutationService:
             revision=candidate.revision,
             changed=True,
             path=path,
+            conceal_ply=candidate.conceal_ply,
+            conceal_changed=candidate.conceal_ply != chapter.conceal_ply,
         )
 
     async def set_shapes(
@@ -524,10 +544,74 @@ class StudyMutationService:
         mismatch = self._revision_mismatch(chapter, expected_revision)
         if mismatch is not None:
             return mismatch
-        current = self._annotations_for_path(chapter.root, path)
-        if current is None:
-            return self._reload(chapter.revision, "invalid_path")
-        return await self._set_position_annotations(chapter, path, StudyAnnotations())
+
+        empty_annotations = StudyAnnotations()
+        empty_gamebook = StudyGamebook()
+        nodes = dict(chapter.root.nodes)
+        if path:
+            target = chapter.root.node_at_path(path)
+            if target is None:
+                return self._reload(chapter.revision, "invalid_path")
+            if target.annotations.empty and target.gamebook.empty:
+                return StudyMutationResult(
+                    status="ok",
+                    revision=chapter.revision,
+                    changed=False,
+                    path=path,
+                    annotations=empty_annotations,
+                    gamebook=empty_gamebook,
+                )
+            nodes[target.id] = replace(
+                target,
+                annotations=empty_annotations,
+                gamebook=empty_gamebook,
+            )
+            root = StudyTree(
+                nodes,
+                root_annotations=chapter.root.root_annotations,
+                root_gamebook=chapter.root.root_gamebook,
+                root_clocks=chapter.root.root_clocks,
+            )
+            annotation_field = f"root.{target.id}.a"
+            gamebook_field = f"root.{target.id}.g"
+        else:
+            if chapter.root.root_annotations.empty and chapter.root.root_gamebook.empty:
+                return StudyMutationResult(
+                    status="ok",
+                    revision=chapter.revision,
+                    changed=False,
+                    path=path,
+                    annotations=empty_annotations,
+                    gamebook=empty_gamebook,
+                )
+            root = StudyTree(
+                nodes,
+                root_annotations=empty_annotations,
+                root_gamebook=empty_gamebook,
+                root_clocks=chapter.root.root_clocks,
+            )
+            annotation_field = "root._.a"
+            gamebook_field = "root._.g"
+
+        candidate = self._candidate_chapter(chapter, root)
+        size_error = self._size_error(candidate)
+        if size_error is not None:
+            return size_error
+        result = await self._commit(
+            chapter,
+            candidate,
+            extra_unset={annotation_field, gamebook_field},
+        )
+        if result is not None:
+            return result
+        return StudyMutationResult(
+            status="ok",
+            revision=candidate.revision,
+            changed=True,
+            path=path,
+            annotations=empty_annotations,
+            gamebook=empty_gamebook,
+        )
 
     async def set_description(
         self,
@@ -621,6 +705,93 @@ class StudyMutationService:
             status="ok", revision=candidate.revision, changed=True, tags=canonical
         )
 
+    async def set_gamebook(
+        self,
+        *,
+        study_id: str,
+        chapter_id: str,
+        username: str,
+        path: str,
+        field_name: str,
+        value: str,
+        expected_revision: int,
+    ) -> StudyMutationResult:
+        loaded = await self._load_write_context(study_id, chapter_id, username)
+        if isinstance(loaded, StudyMutationResult):
+            return loaded
+        chapter = loaded.chapter
+
+        mismatch = self._revision_mismatch(chapter, expected_revision)
+        if mismatch is not None:
+            return mismatch
+        if field_name not in {"hint", "deviation"}:
+            return self._error(chapter.revision, "invalid_gamebook_field")
+
+        if path:
+            target = chapter.root.node_at_path(path)
+            if target is None:
+                return self._reload(chapter.revision, "invalid_path")
+            current = target.gamebook
+        else:
+            target = None
+            current = chapter.root.root_gamebook
+
+        try:
+            canonical = StudyGamebook(
+                hint=value if field_name == "hint" else current.hint,
+                deviation=value if field_name == "deviation" else current.deviation,
+            )
+        except (TypeError, ValueError):
+            return self._error(chapter.revision, "invalid_gamebook")
+
+        if canonical == current:
+            return StudyMutationResult(
+                status="ok",
+                revision=chapter.revision,
+                changed=False,
+                path=path,
+                gamebook=canonical,
+            )
+
+        nodes = dict(chapter.root.nodes)
+        if target is not None:
+            nodes[target.id] = replace(target, gamebook=canonical)
+            root = StudyTree(
+                nodes,
+                root_annotations=chapter.root.root_annotations,
+                root_gamebook=chapter.root.root_gamebook,
+                root_clocks=chapter.root.root_clocks,
+            )
+            gamebook_field = f"root.{target.id}.g"
+        else:
+            root = StudyTree(
+                nodes,
+                root_annotations=chapter.root.root_annotations,
+                root_gamebook=canonical,
+                root_clocks=chapter.root.root_clocks,
+            )
+            gamebook_field = "root._.g"
+
+        candidate = self._candidate_chapter(chapter, root)
+        size_error = self._size_error(candidate)
+        if size_error is not None:
+            return size_error
+        result = await self._commit(
+            chapter,
+            candidate,
+            extra_set={gamebook_field: canonical.to_document()} if not canonical.empty else None,
+            extra_unset={gamebook_field} if canonical.empty else None,
+        )
+        if result is not None:
+            return result
+        return StudyMutationResult(
+            status="ok",
+            revision=candidate.revision,
+            changed=True,
+            path=path,
+            gamebook=canonical,
+        )
+
     @staticmethod
     def _annotations_for_path(tree: StudyTree, path: str) -> StudyAnnotations | None:
         if not path:
@@ -652,6 +823,7 @@ class StudyMutationService:
             root = StudyTree(
                 nodes,
                 root_annotations=chapter.root.root_annotations,
+                root_gamebook=chapter.root.root_gamebook,
                 root_clocks=chapter.root.root_clocks,
             )
             annotation_field = f"root.{target.id}.a"
@@ -659,6 +831,7 @@ class StudyMutationService:
             root = StudyTree(
                 nodes,
                 root_annotations=annotations,
+                root_gamebook=chapter.root.root_gamebook,
                 root_clocks=chapter.root.root_clocks,
             )
             annotation_field = "root._.a"
@@ -838,10 +1011,12 @@ class StudyMutationService:
         server_eval = chapter.server_eval
         if server_eval is not None and root.preferred_mainline_path() != server_eval.path:
             server_eval = None
+        conceal_ply = reconciled_conceal_ply(chapter.root, root, chapter.conceal_ply)
         return replace(
             chapter,
             root=root,
             server_eval=server_eval,
+            conceal_ply=conceal_ply,
             updated_at=datetime.now(UTC),
             revision=chapter.revision + 1,
         )
@@ -881,6 +1056,11 @@ class StudyMutationService:
         unset_fields.update(extra_unset or set())
         if previous.server_eval is not None and candidate.server_eval is None:
             unset_fields.add("serverEval")
+        if candidate.conceal_ply != previous.conceal_ply:
+            if candidate.conceal_ply is None:
+                unset_fields.add("concealPly")
+            else:
+                set_fields["concealPly"] = candidate.conceal_ply
         if unset_fields:
             update["$unset"] = {field: "" for field in unset_fields}
 

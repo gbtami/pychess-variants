@@ -660,6 +660,11 @@ export class EngineSettings extends BooleanSettings {
             this.ctrl.refreshLocalAnalysisAvailabilityForAntiCheat();
             return;
         }
+        if (this.value && !this.ctrl.isLocalAnalysisAllowedByExtension()) {
+            this.ctrl.suspendLocalAnalysisForExtension();
+            this.ctrl.refreshLocalAnalysisAvailabilityForAntiCheat();
+            return;
+        }
 
         this.ctrl.localAnalysis = this.value;
         if (this.ctrl.localAnalysis) {
@@ -679,6 +684,7 @@ export class EngineSettings extends BooleanSettings {
                 '',
                 !this.ctrl.analysisContext.capabilities.localAnalysisAllowed ||
                     this.ctrl.isLocalAnalysisBlockedByAntiCheat() ||
+                    !this.ctrl.isLocalAnalysisAllowedByExtension() ||
                     !this.ctrl.localEngine ||
                     !this.ctrl.isEngineReady ||
                     !this.ctrl.variantSupportedByFSF,
