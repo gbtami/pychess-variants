@@ -572,7 +572,7 @@ Interactive lesson only with D completed.
 
 ### D. Interactive lesson player
 
-- [ ] **D1 — Deterministic playback controller.** Add `studyGamebookPlay.ts`
+- [x] **D1 — Deterministic playback controller.** Add `studyGamebookPlay.ts`
   (suggested) with explicit prompt, correct-feedback, wrong-feedback, opponent-wait,
   complete and unavailable states. Use a stable authored script plus disposable
   attempt state. Grade canonical played moves, not just node additions. Implement

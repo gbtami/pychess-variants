@@ -1,5 +1,6 @@
 import { _ } from '../i18n';
-import { getNodeList, nodeAtPath, parentPath, type AnalysisTree } from '../analysis/analysisTree';
+import { nodeAtPath, parentPath, type AnalysisTree } from '../analysis/analysisTree';
+import { gamebookPathIsMainline, studyGamebookMainline } from './studyGamebook';
 
 export type StudyGamebookField = 'hint' | 'deviation';
 
@@ -32,25 +33,13 @@ function paragraph(text: string, className = ''): HTMLParagraphElement {
     return el;
 }
 
-export function gamebookPathIsMainline(tree: AnalysisTree, path: string): boolean {
-    const nodes = getNodeList(tree, path);
-    return nodes.every((node, index) => index === 0 || nodes[index - 1].children[0] === node);
-}
-
 function preferredMainlineLength(tree: AnalysisTree): number {
-    let length = 0;
-    let node = tree.root;
-    while (node.children[0]) {
-        node = node.children[0];
-        length += 1;
-    }
-    return length;
+    return studyGamebookMainline(tree).length - 1;
 }
 
 function preferredMainlineEnd(tree: AnalysisTree) {
-    let node = tree.root;
-    while (node.children[0]) node = node.children[0];
-    return node;
+    const line = studyGamebookMainline(tree);
+    return line[line.length - 1];
 }
 
 /**

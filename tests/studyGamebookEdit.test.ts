@@ -1,7 +1,8 @@
 import { describe, expect, jest, test } from '@jest/globals';
 
 import type { Step } from '../client/messages';
-import { gamebookPathIsMainline, StudyGamebookEditor } from '../client/study/studyGamebookEdit';
+import { StudyGamebookEditor } from '../client/study/studyGamebookEdit';
+import { gamebookPathIsMainline } from '../client/study/studyGamebook';
 import { analysisTreeFromStudy, type StudyTreeNodeDto } from '../client/study/studyTree';
 
 function rootStep(turnColor: 'white' | 'black' = 'white'): Step {
