@@ -48,6 +48,7 @@ export class StudyGamebookPlayback {
     private readonly status: HTMLElement;
     private applyingScriptedMove = false;
     private destroyed = false;
+    private scriptReloadPending = false;
     private playbackState?: StudyGamebookPlayState;
 
     constructor(
@@ -91,7 +92,7 @@ export class StudyGamebookPlayback {
     }
 
     beforeMoveApplied(move: AnalysisMoveApplication): boolean {
-        if (this.destroyed) return false;
+        if (this.destroyed || this.scriptReloadPending) return false;
         if (move.origin === 'automated-reply') return this.applyingScriptedMove;
         return (
             move.origin === 'played-move' &&
@@ -101,6 +102,7 @@ export class StudyGamebookPlayback {
     }
 
     canActivatePath(_path: string, origin: AnalysisNavigationOrigin): boolean {
+        if (this.scriptReloadPending) return origin === 'reset';
         return origin === 'played-move' || origin === 'automated-reply' || origin === 'reset';
     }
 
@@ -114,6 +116,7 @@ export class StudyGamebookPlayback {
     }
 
     boardInput(turnColor: 'white' | 'black'): 'white' | 'black' | false {
+        if (this.scriptReloadPending) return false;
         return this.playbackState?.kind === 'prompt' && turnColor === this.options.orientation
             ? this.options.orientation
             : false;
@@ -132,6 +135,22 @@ export class StudyGamebookPlayback {
 
     allowTreeContextMenu(): boolean {
         return false;
+    }
+
+    suspendForScriptReload(): void {
+        if (this.destroyed || this.scriptReloadPending) return;
+        this.scriptReloadPending = true;
+        this.controller.destroy();
+        this.clearSolutionShapes();
+        this.syncBoardInput();
+        this.status.replaceChildren();
+        const heading = document.createElement('h2');
+        heading.className = 'study-gamebook-play__title';
+        heading.textContent = _('Lesson updated');
+        const message = document.createElement('p');
+        message.className = 'study-gamebook-play__message';
+        message.textContent = _('Reloading the latest lesson…');
+        this.status.append(heading, message);
     }
 
     onShapesChanged(): void {

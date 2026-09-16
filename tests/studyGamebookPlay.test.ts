@@ -293,6 +293,48 @@ describe('Study interactive lesson deterministic playback', () => {
         expect(ctrl.state.kind).toBe('prompt');
     });
 
+    test('keeps simultaneous learner attempts independent over the same authored script', () => {
+        const tree = lessonTree();
+        const first = controller(tree).ctrl;
+        const second = controller(tree).ctrl;
+
+        expect(first.gradeLearnerMove('d2d4')).toBe('wrong');
+        expect(first.state).toMatchObject({ kind: 'wrong-feedback', attempts: 1 });
+        expect(second.state).toMatchObject({ kind: 'prompt', solutionMove: 'e2e4' });
+        expect(second.gradeLearnerMove('e2e4')).toBe('correct');
+        expect(first.state).toMatchObject({ kind: 'wrong-feedback', attempts: 1 });
+    });
+
+    test('supports a black learner and canonical promotion/drop solutions', () => {
+        const blackRoot = makeNode('root', '', 0, undefined, 'black', { mainlinePly: 0 });
+        const blackMove = makeNode('blackMove', 'blackMove', 1, 'c7c5', 'white', { mainlinePly: 1 });
+        blackRoot.children = [blackMove];
+        const black = controller(
+            {
+                root: blackRoot,
+                byPath: new Map([
+                    ['', blackRoot],
+                    ['blackMove', blackMove],
+                ]),
+                nextId: 1,
+            },
+            { orientation: 'black' },
+        ).ctrl;
+        expect(black.state).toMatchObject({ kind: 'prompt', solutionMove: 'c7c5' });
+        expect(black.gradeLearnerMove('c7c5')).toBe('correct');
+        expect(black.state.kind).toBe('complete');
+
+        for (const move of ['a7a8q', 'P@e4']) {
+            const root = makeNode('root', '', 0, undefined, 'white', { mainlinePly: 0 });
+            const end = makeNode('end', 'end', 1, move, 'black', { mainlinePly: 1 });
+            root.children = [end];
+            const attempt = controller({ root, byPath: new Map([['', root], ['end', end]]), nextId: 1 }).ctrl;
+            expect(attempt.state).toMatchObject({ kind: 'prompt', solutionMove: move });
+            expect(attempt.gradeLearnerMove(move)).toBe('correct');
+            expect(attempt.state.kind).toBe('complete');
+        }
+    });
+
     test('the stable authored mainline cannot be replaced by a learner-created or reordered first child', () => {
         const tree = lessonTree();
         const { ctrl } = controller(tree);

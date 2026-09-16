@@ -43,7 +43,7 @@ function studyChapterModeOptions(): StudyChapterModeOption[] {
             value: 'gamebook',
             label: _('Interactive lesson'),
             description: _('Guide the learner through the authored main line with feedback and hints.'),
-            available: false,
+            available: true,
         },
     ];
 }

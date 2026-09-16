@@ -97,6 +97,110 @@ describe('Study analysis websocket synchronization', () => {
         expect(ctrl.doSend).not.toHaveBeenCalled();
     });
 
+    test('gamebook preview attempts stay local and do not advance revision or shared position', () => {
+        const ctrl = makeCtrl();
+        const policy = studySessionPolicy({
+            mode: 'gamebook',
+            canWrite: true,
+            computerAllowed: true,
+            savedRecording: true,
+            savedSynchronization: true,
+            activeGame: false,
+            override: 'preview',
+        });
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 4,
+            writable: true,
+            policy,
+            onReloadRequired: jest.fn(),
+        });
+        const playback = {
+            destroy: jest.fn(),
+            onShapesChanged: jest.fn(),
+        } as any;
+        extension.setGamebookPlayback(playback);
+        extension.onSocketOpen();
+        ctrl.doSend.mockClear();
+
+        const local = { ...e4Node(), id: 'LocalTry01' };
+        addStudyNodeToAnalysisTree(ctrl.analysisTree, '', local);
+        extension.onNodeAdded('', ctrl.analysisTree.byPath.get('LocalTry01'));
+        extension.onShapesChanged([{ orig: 'a1', dest: 'a2', brush: 'green' } as any]);
+
+        expect(extension.sharePosition('chapter1', 'LocalTry01')).toBe(false);
+        expect(extension.pendingCount).toBe(0);
+        expect(extension.revision).toBe(4);
+        expect(ctrl.doSend).not.toHaveBeenCalled();
+        expect(playback.onShapesChanged).toHaveBeenCalledTimes(1);
+    });
+
+    test('remote lesson edits, mainline reorders and deletions suspend the attempt and request a fresh script', () => {
+        const ctrl = makeCtrl();
+        const e4 = e4Node();
+        const d4: StudyTreeNodeDto = {
+            ...e4Node(),
+            id: 'StudyNode2',
+            order: 1,
+            move: 'd2d4',
+            fen: 'd4 b - - 0 1',
+            san: 'd4',
+            sanSAN: 'd4',
+        };
+        addStudyNodeToAnalysisTree(ctrl.analysisTree, '', e4);
+        addStudyNodeToAnalysisTree(ctrl.analysisTree, '', d4);
+        const scriptChanged = jest.fn();
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            writable: false,
+            onGamebookScriptChanged: scriptChanged,
+            onReloadRequired: jest.fn(),
+        });
+        const playback = {
+            destroy: jest.fn(),
+            suspendForScriptReload: jest.fn(),
+        } as any;
+        extension.setGamebookPlayback(playback);
+
+        extension.onSocketMessage('study_set_gamebook', {
+            type: 'study_set_gamebook',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'RemoteHint',
+            revision: 1,
+            changed: true,
+            path: '',
+            gamebook: { hint: 'Look for the center.' },
+        });
+        extension.onSocketMessage('study_promote_variation', {
+            type: 'study_promote_variation',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'RemotePromote',
+            revision: 2,
+            changed: true,
+            path: 'StudyNode2',
+            toMainline: true,
+        });
+        extension.onSocketMessage('study_delete_node', {
+            type: 'study_delete_node',
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            clientOpId: 'RemoteDelete',
+            revision: 3,
+            changed: true,
+            path: 'StudyNode2',
+        });
+
+        expect(playback.suspendForScriptReload).toHaveBeenCalledTimes(3);
+        expect(scriptChanged).toHaveBeenCalledTimes(3);
+        expect(extension.revision).toBe(3);
+        expect(ctrl.analysisTree.root.children.map((node: any) => node.id)).toEqual(['StudyNode1']);
+    });
+
     test('restricted policy removes persisted evaluations before Study output is rendered', () => {
         const ctrl = makeCtrl();
         ctrl.tree = { loadAnalysisTree: jest.fn((tree: unknown) => (ctrl.analysisTree = tree)) };

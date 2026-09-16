@@ -2064,6 +2064,13 @@ function runStudyGround(
     let policy = effectiveStudySessionPolicy(study);
     let serverAnalysisChart: ReturnType<typeof analysisChart> | undefined;
     let navigation: StudyChapterNavigation | undefined;
+    let gamebookScriptReloadPending = false;
+    const reloadGamebookScript = (): void => {
+        gamebookScriptReloadPending = true;
+        if (!navigation) return;
+        gamebookScriptReloadPending = false;
+        void navigation.reload();
+    };
     const paths = new Map<string, string>();
     const modules = new Map<boolean, Promise<PyChessModel['ffish']>>([
         [model.variant === 'alice', Promise.resolve(model.ffish)],
@@ -2151,6 +2158,9 @@ function runStudyGround(
                 onServerAnalysisUnavailable: reason => {
                     study.serverAnalysisError = reason;
                     updateStudyServerEvalContent(study, modeActions);
+                },
+                onGamebookScriptChanged: () => {
+                    if (isGamebookPlayback(policy)) reloadGamebookScript();
                 },
                 onOrientationChanged: orientation => updateStudyPlayerIdentities(study, orientation),
                 onLocalPathChanged: path => {
@@ -2476,6 +2486,7 @@ function runStudyGround(
             }
         },
     });
+    if (gamebookScriptReloadPending) reloadGamebookScript();
 
     const followAuthoritativePosition = (): void => {
         policy = effectiveStudySessionPolicy(study);
