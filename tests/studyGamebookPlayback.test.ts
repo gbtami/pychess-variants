@@ -245,12 +245,37 @@ describe('Study interactive lesson playback adapter', () => {
         ctrl.turnColor = nf3.step.turnColor;
         playback.onPositionChanged(position(nf3));
         expect(document.querySelector('.study-gamebook-play__title')?.textContent).toBe('Lesson complete');
+        expect(document.body.textContent).not.toContain('Next chapter');
         const analysis = [...document.querySelectorAll<HTMLButtonElement>('.study-gamebook-play button')].find(
             button => button.textContent === 'Analysis',
         );
         expect(analysis).toBeDefined();
         analysis?.click();
         expect(onAnalyse).toHaveBeenCalledTimes(1);
+
+        playback.destroy();
+    });
+
+    test('freezes board input and stale timers while an authoritative script reload is pending', () => {
+        const ctrl = makeCtrl();
+        const playback = new StudyGamebookPlayback(ctrl, {
+            chapterId: 'chapter-1',
+            orientation: 'white',
+            preview: false,
+            canAnalyse: false,
+            hasNextChapter: false,
+        });
+
+        playback.suspendForScriptReload();
+
+        expect(playback.boardInput('white')).toBe(false);
+        expect(playback.beforeMoveApplied({ move: 'e2e4', origin: 'played-move', path: '' })).toBe(false);
+        expect(playback.canActivatePath('e4', 'played-move')).toBe(false);
+        expect(playback.canActivatePath('', 'reset')).toBe(true);
+        expect(document.querySelector('.study-gamebook-play__title')?.textContent).toBe('Lesson updated');
+        expect(document.body.textContent).toContain('Reloading the latest lesson');
+        jest.runOnlyPendingTimers();
+        expect(ctrl.applyAnalysisMove).not.toHaveBeenCalled();
 
         playback.destroy();
     });

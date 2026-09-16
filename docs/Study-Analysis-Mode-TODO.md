@@ -594,14 +594,18 @@ Interactive lesson only with D completed.
   variant-board coordinates, author Preview return, and reader Analysis after completion.
   Focused adapter tests cover mouse/button and keyboard continuation paths plus input,
   navigation, drawing, and completion guards.
-- [ ] **D3 — Collaboration and variant acceptance.** Test wrong existing variation,
+- [x] **D3 — Collaboration and variant acceptance.** Test wrong existing variation,
   wrong new move, expected existing move, black learner, opponent-to-move start,
   promotion, drop and nonstandard board geometry. Run simultaneous independent
   attempts while a contributor edits/reorders/deletes the script, changes mode or
   orientation, and revokes access. Verify reconnect/retry and completion in the last
   chapter. Check no preview/learner move or hint alters DB tree/revisions/shared path.
-  **Done:** a lesson stays local, resets coherently when its script changes, and
-  returns to a fresh author/analysis tree on exit.
+  **Done:** learner/Preview attempts remain local and independent; remote script edits,
+  promotions or deletions freeze input and reload the authoritative chapter before
+  play can continue. Existing reload/access/reconnect guards cover mode, orientation
+  and membership changes, while focused playback tests cover black-side learning,
+  opponent-first starts, promotion, drops, nonstandard boards and last-chapter finish.
+  Interactive lesson is now exposed by the shared chapter-mode selector.
 
 ### E. Computer practice
 

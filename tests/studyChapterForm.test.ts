@@ -25,19 +25,19 @@ test('chapter creation exposes learner orientation while advertising only comple
     );
     const mode = document.querySelector<HTMLSelectElement>('select[name="mode"]')!;
     expect(mode.value).toBe('normal');
-    expect([...mode.options].map(option => option.value)).toEqual(['normal', 'conceal']);
+    expect([...mode.options].map(option => option.value)).toEqual(['normal', 'conceal', 'gamebook']);
     expect(document.querySelector('.study-chapter-mode .study-dialog__help')?.textContent).toContain(
         'complete chapter tree',
     );
 });
 
-test('an existing unfinished mode remains identifiable but other unfinished modes are not advertised', () => {
+test('an existing unfinished practice mode remains identifiable beside completed modes', () => {
     document.body.innerHTML = '<div id="root"></div>';
     patch(document.getElementById('root')!, studyChapterModeField('practice'));
 
     const mode = document.querySelector<HTMLSelectElement>('select[name="mode"]')!;
     expect(mode.value).toBe('practice');
-    expect([...mode.options].map(option => option.value)).toEqual(['normal', 'practice', 'conceal']);
+    expect([...mode.options].map(option => option.value)).toEqual(['normal', 'practice', 'conceal', 'gamebook']);
     expect(document.querySelector('.study-chapter-mode .study-dialog__help')?.textContent).toContain(
         'not available in the player yet',
     );

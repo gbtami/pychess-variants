@@ -90,6 +90,15 @@ type StudyMutationType =
     | 'study_set_description'
     | 'study_set_tags';
 
+const GAMEBOOK_SCRIPT_MUTATIONS = new Set<StudyMutationType>([
+    'study_add_node',
+    'study_delete_node',
+    'study_promote_variation',
+    'study_set_comment',
+    'study_clear_annotations',
+    'study_set_gamebook',
+]);
+
 type PendingMutation = {
     type: StudyMutationType;
     chapterId: string;
@@ -144,6 +153,7 @@ export interface StudySyncOptions {
     concealPly?: number;
     onServerEvalChanged?: (serverEval: StudyServerEval | undefined) => void;
     onServerAnalysisUnavailable?: (reason: string) => void;
+    onGamebookScriptChanged?: () => void;
     onOrientationChanged?: (orientation: 'white' | 'black') => void;
     opIdFactory?: () => string;
     syncIdFactory?: () => string;
@@ -1551,6 +1561,10 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         if (typeof data.concealPly === 'number') this.updateConcealPly(data.concealPly, this.currentRevision);
         updateMovelist(this.ctrl, true, false);
         this.ctrl.refreshPgnView?.();
+        if (this.gamebookPlayback && GAMEBOOK_SCRIPT_MUTATIONS.has(type)) {
+            this.gamebookPlayback.suspendForScriptReload();
+            this.options.onGamebookScriptChanged?.();
+        }
     }
 
     private remapCanonicalizedPath(localPath: string, canonicalPath: string): void {
