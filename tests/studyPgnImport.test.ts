@@ -164,6 +164,19 @@ describe('Study PGN import core', () => {
         expect(chapter.tags.ChapterMode).toBeUndefined();
     });
 
+    test('imports the versioned conceal boundary and strips its internal tag', () => {
+        const parsed = parsedDocument();
+        parsed.games[0].tags.PyChessStudyVersion = '1';
+        parsed.games[0].tags.PyChessChapterMode = 'conceal';
+        parsed.games[0].tags.PyChessConcealPly = '1';
+
+        const [chapter] = normalizeStudyPgnDocument(ffish, parsed);
+
+        expect(chapter.mode).toBe('conceal');
+        expect(chapter.concealPly).toBe(1);
+        expect(chapter.tags.PyChessConcealPly).toBeUndefined();
+    });
+
     test('does not interpret lesson directives without the PyChess extension version tag', () => {
         const encoded = encodePgnUtf8Base64(JSON.stringify({ hint: 'Opaque hint' }));
         const parsed = parsedDocument();
@@ -207,6 +220,23 @@ describe('Study PGN import core', () => {
         conflict.games[0].tags.PyChessChapterMode = 'normal';
         conflict.games[0].tags.ChapterMode = 'gamebook';
         expect(() => normalizeStudyPgnDocument(ffish, conflict)).toThrow(/conflicts/);
+
+        const concealWithoutVersion = parsedDocument();
+        concealWithoutVersion.games[0].tags.PyChessChapterMode = 'conceal';
+        concealWithoutVersion.games[0].tags.PyChessConcealPly = '1';
+        expect(() => normalizeStudyPgnDocument(ffish, concealWithoutVersion)).toThrow(/requires/);
+
+        const concealOnNormal = parsedDocument();
+        concealOnNormal.games[0].tags.PyChessStudyVersion = '1';
+        concealOnNormal.games[0].tags.PyChessChapterMode = 'normal';
+        concealOnNormal.games[0].tags.PyChessConcealPly = '1';
+        expect(() => normalizeStudyPgnDocument(ffish, concealOnNormal)).toThrow(/only valid/);
+
+        const malformedConceal = parsedDocument();
+        malformedConceal.games[0].tags.PyChessStudyVersion = '1';
+        malformedConceal.games[0].tags.PyChessChapterMode = 'conceal';
+        malformedConceal.games[0].tags.PyChessConcealPly = '-1';
+        expect(() => normalizeStudyPgnDocument(ffish, malformedConceal)).toThrow(/conceal boundary/);
 
         const malformed = parsedDocument();
         malformed.games[0].tags.PyChessStudyVersion = '1';

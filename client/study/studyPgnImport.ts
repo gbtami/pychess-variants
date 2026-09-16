@@ -67,6 +67,7 @@ export interface StudyPgnImportChapter {
     initialFen: string;
     orientation: 'white' | 'black';
     mode: StudyChapterMode;
+    concealPly?: number;
     description: string;
     tags: Record<string, string>;
     tree: StudyTreeDto;
@@ -98,6 +99,7 @@ const INTERNAL_TAGS = new Set([
     'PyChessVariant',
     'PyChessStudyVersion',
     'PyChessChapterMode',
+    'PyChessConcealPly',
     'ChapterMode',
     'PyChessChess960',
     'PyChessVariantIniEncoding',
@@ -192,7 +194,9 @@ interface ParsedPgnComments {
 const PYCHESS_STUDY_PGN_VERSION = '1';
 const STUDY_CHAPTER_MODES = new Set<StudyChapterMode>(['normal', 'practice', 'conceal', 'gamebook']);
 
-function chapterTeaching(tags: Record<string, string>): { mode: StudyChapterMode; lessonExtension: boolean } {
+function chapterTeaching(
+    tags: Record<string, string>,
+): { mode: StudyChapterMode; concealPly?: number; lessonExtension: boolean } {
     const version = tags['PyChessStudyVersion'];
     if (version !== undefined && version !== PYCHESS_STUDY_PGN_VERSION) {
         throw new StudyPgnImportError(`Unsupported PyChess Study PGN version: ${version}.`);
@@ -212,7 +216,25 @@ function chapterTeaching(tags: Record<string, string>): { mode: StudyChapterMode
     if (compatible === 'gamebook' && mode !== 'gamebook') {
         throw new StudyPgnImportError('ChapterMode conflicts with PyChessChapterMode.');
     }
-    return { mode, lessonExtension: version === PYCHESS_STUDY_PGN_VERSION };
+    const rawConcealPly = tags['PyChessConcealPly'];
+    if (rawConcealPly !== undefined && version !== PYCHESS_STUDY_PGN_VERSION) {
+        throw new StudyPgnImportError('PyChessConcealPly requires [PyChessStudyVersion "1"].');
+    }
+    if (rawConcealPly !== undefined && mode !== 'conceal') {
+        throw new StudyPgnImportError('PyChessConcealPly is only valid for concealed chapters.');
+    }
+    if (rawConcealPly !== undefined && !/^(?:0|[1-9]\d*)$/.test(rawConcealPly.trim())) {
+        throw new StudyPgnImportError('Invalid PyChess conceal boundary.');
+    }
+    const concealPly = rawConcealPly === undefined ? undefined : Number(rawConcealPly);
+    if (concealPly !== undefined && !Number.isSafeInteger(concealPly)) {
+        throw new StudyPgnImportError('Invalid PyChess conceal boundary.');
+    }
+    return {
+        mode,
+        ...(mode === 'conceal' ? { concealPly: concealPly ?? 0 } : {}),
+        lessonExtension: version === PYCHESS_STUDY_PGN_VERSION,
+    };
 }
 
 function parseGamebookDirective(encoded: string): StudyGamebookDto {
@@ -517,6 +539,7 @@ function normalizeGame(engine: StudyPgnEngine, game: ParsedStudyPgnGame, index: 
             initialFen,
             orientation: tags['Orientation']?.trim().toLowerCase() === 'black' ? 'black' : 'white',
             mode: teaching.mode,
+            ...(teaching.mode === 'conceal' ? { concealPly: teaching.concealPly ?? 0 } : {}),
             description,
             tags: canonicalTags(tags),
             tree: {

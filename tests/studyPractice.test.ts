@@ -265,6 +265,30 @@ describe('StudyPracticeSession', () => {
         session.destroy();
     });
 
+    test('announces practice state and preserves keyboard focus when controls rerender', async () => {
+        const { session } = makeHarness('white');
+        const panel = document.querySelector<HTMLElement>('.study-practice')!;
+        const status = panel.querySelector<HTMLElement>('.study-gamebook-play__status')!;
+
+        expect(panel.getAttribute('role')).toBe('region');
+        expect(status.getAttribute('aria-live')).toBe('polite');
+        expect(status.getAttribute('aria-atomic')).toBe('true');
+        expect(status.getAttribute('aria-busy')).toBe('false');
+
+        const pause = [...panel.querySelectorAll<HTMLButtonElement>('button')].find(
+            button => button.textContent === 'Pause',
+        )!;
+        pause.focus();
+        pause.click();
+        await Promise.resolve();
+
+        expect(session.state.kind).toBe('paused');
+        expect(document.activeElement).toBe(panel.querySelector('.study-gamebook-play__actions .button'));
+        expect(document.activeElement?.textContent).toBe('Previous');
+
+        session.destroy();
+    });
+
     test('saved authored continuations are discarded from the disposable practice tree', () => {
         scenario = { initialTurn: 'white' };
         document.body.innerHTML = '<div class="analysis-tools"></div>';

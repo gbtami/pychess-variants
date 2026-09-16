@@ -702,6 +702,27 @@ describe('analysis page smoke coverage', () => {
         const link = root.querySelector<HTMLAnchorElement>('.footer .gamelink')!;
         expect(link.href).toContain('/study/StUdY001/ChAp0001');
         expect(link.textContent).toBe('Shared ideas • Shared line');
+
+        const lessonStudy: StudyPageModel = {
+            ...study,
+            chapter: { ...study.chapter, mode: 'gamebook' },
+            chapters: [{ ...study.chapters[0], mode: 'gamebook' }],
+        };
+        const lessonEmbed = studyEmbedView(makeModel({ gameId: '', embed: true, status: 0, study: lessonStudy }))[0];
+        expect(lessonEmbed.data?.class).toMatchObject({ 'study-gamebook-playback': true });
+
+        const practiceStudy: StudyPageModel = {
+            ...study,
+            chapter: { ...study.chapter, mode: 'practice' },
+            chapters: [{ ...study.chapters[0], mode: 'practice' }],
+        };
+        const practiceEmbed = studyEmbedView(
+            makeModel({ gameId: '', embed: true, status: 0, study: practiceStudy }),
+        )[0];
+        expect(practiceEmbed.data?.class).toMatchObject({
+            'study-gamebook-playback': true,
+            'study-practice-playback': true,
+        });
     });
 
     test('embed view stays lean and does not render PGN tab content', () => {

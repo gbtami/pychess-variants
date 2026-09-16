@@ -2606,8 +2606,8 @@ function runStudyGround(
     });
 }
 
-function runStudyEmbedGround(vnode: VNode, model: PyChessModel, study: StudyPageModel): void {
-    const policy = studySessionPolicy({
+function studyEmbedPolicy(study: StudyPageModel): StudySessionPolicy {
+    return studySessionPolicy({
         mode: study.chapter.mode ?? 'normal',
         canWrite: false,
         computerAllowed: study.features?.computer ?? true,
@@ -2615,34 +2615,82 @@ function runStudyEmbedGround(vnode: VNode, model: PyChessModel, study: StudyPage
         savedSynchronization: false,
         activeGame: hasActiveEligibleLiveGame(),
     });
-    const ctrl = new AnalysisController(
-        vnode.elm as HTMLElement,
-        model,
-        analysisCtrl =>
-            new StudyAnalysisExtension(analysisCtrl, {
-                studyId: study.id,
+}
+
+function runStudyEmbedGround(
+    vnode: VNode,
+    model: PyChessModel,
+    study: StudyPageModel,
+    policy: StudySessionPolicy,
+): void {
+    let extension!: StudyAnalysisExtension;
+    const ctrl = new AnalysisController(vnode.elm as HTMLElement, model, analysisCtrl => {
+        extension = new StudyAnalysisExtension(analysisCtrl, {
+            studyId: study.id,
+            chapterId: study.chapter.id,
+            revision: study.chapter.revision,
+            snapshotToken: study.chapter.snapshotToken,
+            tree: study.chapter.tree,
+            orientation: study.chapter.orientation,
+            mode: study.chapter.mode,
+            description: study.chapter.description,
+            tags: study.chapter.tags,
+            studyName: study.name,
+            chapterName: study.chapter.name,
+            chapterOrder: study.chapter.order,
+            owner: study.owner,
+            home: model.home,
+            variant: study.chapter.variant,
+            chess960: study.chapter.chess960,
+            initialFen: study.chapter.initialFen,
+            variantIni: study.chapter.variantIni ?? undefined,
+            createdAt: study.chapter.createdAt,
+            concealPly: study.chapter.mode === 'conceal' ? (study.chapter.concealPly ?? 0) : undefined,
+            policy,
+            ...(isGamebookPlayback(policy) ? { onGamebookScriptChanged: () => window.location.reload() } : {}),
+            writable: false,
+        });
+        return extension;
+    });
+
+    if (isGamebookPlayback(policy)) {
+        const orderedChapters = [...study.chapters].sort((a, b) => a.order - b.order);
+        const chapterIndex = orderedChapters.findIndex(chapter => chapter.id === study.chapter.id);
+        const nextChapter = chapterIndex >= 0 ? orderedChapters[chapterIndex + 1] : undefined;
+        extension.setGamebookPlayback(
+            new StudyGamebookPlayback(ctrl, {
                 chapterId: study.chapter.id,
-                revision: study.chapter.revision,
-                snapshotToken: study.chapter.snapshotToken,
-                tree: study.chapter.tree,
                 orientation: study.chapter.orientation,
-                description: study.chapter.description,
-                tags: study.chapter.tags,
-                studyName: study.name,
-                chapterName: study.chapter.name,
-                chapterOrder: study.chapter.order,
-                owner: study.owner,
-                home: model.home,
-                variant: study.chapter.variant,
-                chess960: study.chapter.chess960,
-                initialFen: study.chapter.initialFen,
-                variantIni: study.chapter.variantIni ?? undefined,
-                createdAt: study.chapter.createdAt,
-                concealPly: study.chapter.mode === 'conceal' ? (study.chapter.concealPly ?? 0) : undefined,
-                policy,
-                writable: false,
+                preview: false,
+                canAnalyse: false,
+                hasNextChapter: Boolean(nextChapter),
+                ...(nextChapter
+                    ? {
+                          onNextChapter: () =>
+                              window.location.assign(`/study/embed/${study.id}/${nextChapter.id}`),
+                      }
+                    : {}),
             }),
-    );
+        );
+    }
+    if (isPracticePlayback(policy)) {
+        extension.setPracticeSession(
+            new StudyPracticeSession(ctrl, {
+                initialFen: study.chapter.initialFen,
+                learnerColor: study.chapter.orientation,
+                access: () => {
+                    if (!(study.features?.computer ?? true)) {
+                        return { available: false, reason: 'computer-disabled' as const };
+                    }
+                    if (ctrl.isLocalAnalysisBlockedByAntiCheat()) {
+                        return { available: false, reason: 'active-game' as const };
+                    }
+                    return { available: true };
+                },
+                canAnalyse: false,
+            }),
+        );
+    }
     window['onFSFline'] = ctrl.onFSFline;
 }
 
@@ -2650,9 +2698,10 @@ export function studyEmbedView(model: PyChessModel): VNode[] {
     const study = model.study;
     if (!study) return [h('div.box.box-pad', _('Study data is unavailable.'))];
 
-    return renderEmbedPage(
+    const policy = studyEmbedPolicy(study);
+    const page = renderEmbedPage(
         model,
-        vnode => runStudyEmbedGround(vnode, model, study),
+        vnode => runStudyEmbedGround(vnode, model, study, policy),
         h(
             'a.gamelink',
             {
@@ -2665,6 +2714,15 @@ export function studyEmbedView(model: PyChessModel): VNode[] {
             `${study.name} • ${study.chapter.name}`,
         ),
     );
+    page[0].data = {
+        ...page[0].data,
+        class: {
+            ...page[0].data?.class,
+            'study-gamebook-playback': isGamebookPlayback(policy) || isPracticePlayback(policy),
+            'study-practice-playback': isPracticePlayback(policy),
+        },
+    };
+    return page;
 }
 
 export function studyView(model: PyChessModel): VNode[] {
