@@ -25,7 +25,7 @@ test('chapter creation exposes learner orientation while advertising only comple
     );
     const mode = document.querySelector<HTMLSelectElement>('select[name="mode"]')!;
     expect(mode.value).toBe('normal');
-    expect([...mode.options].map(option => option.value)).toEqual(['normal']);
+    expect([...mode.options].map(option => option.value)).toEqual(['normal', 'conceal']);
     expect(document.querySelector('.study-chapter-mode .study-dialog__help')?.textContent).toContain(
         'complete chapter tree',
     );
@@ -33,13 +33,26 @@ test('chapter creation exposes learner orientation while advertising only comple
 
 test('an existing unfinished mode remains identifiable but other unfinished modes are not advertised', () => {
     document.body.innerHTML = '<div id="root"></div>';
-    patch(document.getElementById('root')!, studyChapterModeField('conceal'));
+    patch(document.getElementById('root')!, studyChapterModeField('practice'));
 
     const mode = document.querySelector<HTMLSelectElement>('select[name="mode"]')!;
-    expect(mode.value).toBe('conceal');
-    expect([...mode.options].map(option => option.value)).toEqual(['normal', 'conceal']);
+    expect(mode.value).toBe('practice');
+    expect([...mode.options].map(option => option.value)).toEqual(['normal', 'practice', 'conceal']);
     expect(document.querySelector('.study-chapter-mode .study-dialog__help')?.textContent).toContain(
         'not available in the player yet',
+    );
+});
+
+test('analysis mode help follows the newly selected completed mode', () => {
+    document.body.innerHTML = '<div id="root"></div>';
+    patch(document.getElementById('root')!, studyChapterModeField('normal'));
+
+    const mode = document.querySelector<HTMLSelectElement>('select[name="mode"]')!;
+    mode.value = 'conceal';
+    mode.dispatchEvent(new Event('change', { bubbles: true }));
+
+    expect(document.querySelector('.study-chapter-mode .study-dialog__help')?.textContent).toContain(
+        'Hide unrevealed continuations',
     );
 });
 

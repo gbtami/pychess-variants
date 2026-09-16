@@ -78,7 +78,7 @@ describe('Study index creation dialogs', () => {
         expect(chapterForm.querySelector<HTMLSelectElement>('select[name="orientation"]')?.value).toBe('white');
         const mode = chapterForm.querySelector<HTMLSelectElement>('select[name="mode"]')!;
         expect(mode.value).toBe('normal');
-        expect([...mode.options].map(option => option.value)).toEqual(['normal']);
+        expect([...mode.options].map(option => option.value)).toEqual(['normal', 'conceal']);
         expect(chapterForm.querySelector<HTMLInputElement>('input[name="name"]')?.value).toBe("owner's Study");
         expect(chapterForm.querySelector<HTMLInputElement>('input[name="visibility"]')?.value).toBe('private');
         expect(chapterForm.querySelector<HTMLInputElement>('input[name="computer"]')?.value).toBe('everyone');
