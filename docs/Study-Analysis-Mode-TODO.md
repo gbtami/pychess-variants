@@ -624,7 +624,7 @@ Interactive lesson only with D completed.
   position. Deterministic protocol tests reject stale replies that are legal in both
   positions, including rapid same-FEN/session resets, and cover terminal bestmove,
   timeout, drain failure, support/permission changes, engine errors, and teardown.
-- [ ] **E2 — Practice session and engine replies.** Add `studyPractice.ts`
+- [x] **E2 — Practice session and engine replies.** Add `studyPractice.ts`
   (suggested) with initializing, human-turn, engine-thinking, paused, ended and
   unavailable states. Start at the root, control the opposite side, validate and
   apply exactly one engine reply, and retain full attempt history for outcomes.
@@ -632,6 +632,12 @@ Interactive lesson only with D completed.
   Training uses local state and never queues Study edits or Fishnet work.
   **Done:** engine play works from a FEN-only chapter for either learner color;
   chapter switch, anti-cheat change and terminal positions stop play correctly.
+  The runtime owns a separate uninterrupted ffish rules board plus the E1 bounded
+  engine adapter, so repetition-sensitive outcomes and move legality use the full
+  disposable attempt while authored continuations remain outside live play. Reset,
+  pause/browse/resume, writer-only analysis escape, engine/access failure and
+  teardown are covered by deterministic frontend tests; stale/duplicate replies are
+  rejected by the E1 ownership barrier and no practice move is recorded to Study.
 - [ ] **E3 — Hints and move feedback.** Evaluate parent and resulting position
   with a defined budget before comparing scores. Handle insufficient information
   without inventing a verdict. Add approximate good/inaccuracy/mistake/blunder
