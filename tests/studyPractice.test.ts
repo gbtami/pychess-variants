@@ -18,6 +18,8 @@ type Scenario = {
     initialTurn: Color;
     terminalAfter?: number;
     initialTerminal?: boolean;
+    result?: string;
+    legalMoves?: (turn: Color, moves: readonly string[]) => string;
 };
 
 let scenario: Scenario;
@@ -47,19 +49,30 @@ class FakeBoard {
     }
 
     result(): string {
-        return this.isGameOver() ? '1-0' : '*';
+        return this.isGameOver() ? (scenario.result ?? '1-0') : '*';
     }
 
     legalMoves(): string {
         if (this.isGameOver()) return '';
+        if (scenario.legalMoves) return scenario.legalMoves(this.turn, this.moves);
         if (this.turn === 'white') return this.moves.length === 0 ? 'e2e4 d2d4' : 'g1f3 b1c3';
         return this.moves.length === 0 ? 'e7e5 d7d5' : 'e7e5 d7d5 g8f6';
+    }
+
+    pop(): void {
+        if (this.moves.length === 0) throw new Error('no move');
+        this.moves.pop();
+        this.turn = opposite(this.turn);
     }
 
     push(move: string): void {
         if (!this.legalMoves().split(' ').includes(move)) throw new Error(`illegal ${move}`);
         this.moves.push(move);
         this.turn = opposite(this.turn);
+    }
+
+    sanMove(move: string): string {
+        return move;
     }
 }
 
@@ -105,9 +118,12 @@ function makeHarness(learnerColor: Color, accessRef = { value: { available: true
         isEngineReady: true,
         variantSupportedByFSF: true,
         uciOk: true,
+        autoShapes: [],
         chessground: {
+            state: { dimensions: { width: 8, height: 8 } },
             cancelPremove: jest.fn(),
             set: jest.fn(),
+            setAutoShapes: jest.fn(),
         },
         fsfPostMessage: (command: string) => commands.push(command),
         suspendLocalAnalysisForExtension: jest.fn(function (this: { localAnalysis: boolean }) {
@@ -166,7 +182,13 @@ function makeHarness(learnerColor: Color, accessRef = { value: { available: true
         return ctrl.applyAnalysisMove(move, 'played-move');
     };
 
-    return { ctrl, session, commands, sent, humanMove, tree, accessRef };
+    const finishEvaluation = (bestMove: string, cp = 0) => {
+        session.onEngineLine(`info depth 16 multipv 1 score cp ${cp} nodes 400000 time 1000 pv ${bestMove}`);
+        session.onEngineLine(`bestmove ${bestMove}`);
+        session.onEngineLine('readyok');
+    };
+
+    return { ctrl, session, commands, sent, humanMove, tree, accessRef, finishEvaluation };
 }
 
 describe('StudyPracticeSession', () => {
@@ -182,9 +204,10 @@ describe('StudyPracticeSession', () => {
 
     test('white learner starts from a FEN-only root and receives exactly one engine reply', () => {
         scenario = { initialTurn: 'white' };
-        const { session, commands, sent, humanMove, tree } = makeHarness('white');
+        const { session, commands, sent, humanMove, tree, finishEvaluation } = makeHarness('white');
 
         expect(session.state.kind).toBe('human-turn');
+        finishEvaluation('e2e4');
         expect(tree.root.children).toHaveLength(0);
         expect(humanMove('e2e4')).toBe(true);
         expect(session.state.kind).toBe('engine-thinking');
@@ -205,12 +228,14 @@ describe('StudyPracticeSession', () => {
 
     test('black learner waits for the engine to make the root reply first', () => {
         scenario = { initialTurn: 'white' };
-        const { session, sent, humanMove } = makeHarness('black');
+        const { session, sent, humanMove, finishEvaluation } = makeHarness('black');
 
         expect(session.state.kind).toBe('engine-thinking');
         session.onEngineLine('bestmove e2e4');
         expect(session.state.kind).toBe('human-turn');
         expect(sent).toEqual(['e2e4']);
+        session.onEngineLine('readyok');
+        finishEvaluation('e7e5');
         expect(humanMove('e7e5')).toBe(true);
         expect(session.state.kind).toBe('engine-thinking');
         session.destroy();
@@ -254,7 +279,13 @@ describe('StudyPracticeSession', () => {
             isEngineReady: true,
             variantSupportedByFSF: true,
             uciOk: true,
-            chessground: { cancelPremove: jest.fn(), set: jest.fn() },
+            autoShapes: [],
+            chessground: {
+                state: { dimensions: { width: 8, height: 8 } },
+                cancelPremove: jest.fn(),
+                set: jest.fn(),
+                setAutoShapes: jest.fn(),
+            },
             fsfPostMessage: jest.fn(),
             suspendLocalAnalysisForExtension: jest.fn(),
             isPracticeEngineIdle: () => true,
@@ -275,7 +306,8 @@ describe('StudyPracticeSession', () => {
 
     test('pause cancels engine work, permits history browsing, and resume returns to the live path', () => {
         scenario = { initialTurn: 'white' };
-        const { session, ctrl, humanMove } = makeHarness('white');
+        const { session, ctrl, humanMove, finishEvaluation } = makeHarness('white');
+        finishEvaluation('e2e4');
         humanMove('e2e4');
         session.onEngineLine('bestmove e7e5');
         session.onEngineLine('readyok');
@@ -294,7 +326,8 @@ describe('StudyPracticeSession', () => {
 
     test('reset invalidates the old search and starts a fresh root attempt', () => {
         scenario = { initialTurn: 'white' };
-        const { session, ctrl, humanMove } = makeHarness('white');
+        const { session, ctrl, humanMove, finishEvaluation } = makeHarness('white');
+        finishEvaluation('e2e4');
         humanMove('e2e4');
         expect(session.state.kind).toBe('engine-thinking');
         session.reset();
@@ -318,17 +351,100 @@ describe('StudyPracticeSession', () => {
 
     test('terminal result after a human move stops before requesting an engine reply', () => {
         scenario = { initialTurn: 'white', terminalAfter: 1 };
-        const { session, commands, humanMove } = makeHarness('white');
+        const { session, commands, humanMove, finishEvaluation } = makeHarness('white');
         expect(humanMove('e2e4')).toBe(true);
-        expect(session.state).toEqual({ kind: 'ended', result: '1-0' });
-        expect(commands.some(command => command.startsWith('go '))).toBe(false);
+        expect(session.state.kind).toBe('evaluating-move');
+        finishEvaluation('e2e4');
+        expect(session.state.kind).toBe('ended');
+        if (session.state.kind === 'ended') expect(session.state.result).toBe('1-0');
+        expect(commands).not.toContain('go nodes 600000');
+        session.destroy();
+    });
+
+
+    test('actual UCI score output produces negative feedback and retry replaces the disposable move', () => {
+        scenario = { initialTurn: 'white' };
+        const { session, sent, humanMove, finishEvaluation } = makeHarness('white');
+        finishEvaluation('e2e4', 0);
+
+        expect(humanMove('d2d4')).toBe(true);
+        expect(session.state.kind).toBe('evaluating-move');
+        session.onEngineLine('info depth 16 multipv 1 score cp 200 nodes 400000 time 1000 pv e7e5');
+        session.onEngineLine('bestmove e7e5');
+
+        expect(session.state.kind).toBe('move-feedback');
+        if (session.state.kind === 'move-feedback') {
+            expect(session.state.feedback.verdict).toBe('blunder');
+            expect(session.state.feedback.bestMove).toBe('e2e4');
+            expect(session.state.feedback.bestSan).toBe('e2e4');
+        }
+        expect(document.querySelector('.study-practice')?.textContent).toContain('A stronger move was e2e4.');
+
+        session.onEngineLine('readyok');
+        expect(session.retryBestMove()).toBe(true);
+        expect(sent).toEqual(['d2d4', 'e2e4']);
+        expect(session.attemptHistory.map(entry => entry.move)).toEqual(['e2e4']);
+        expect(session.state.kind).toBe('engine-thinking');
+        session.destroy();
+    });
+
+    test('missing exact score reports insufficient information instead of inventing a verdict', () => {
+        scenario = { initialTurn: 'white' };
+        const { session, commands, humanMove } = makeHarness('white');
+        session.onEngineLine('bestmove e2e4');
+        session.onEngineLine('readyok');
+
+        expect(humanMove('d2d4')).toBe(true);
+        expect(session.state.kind).toBe('engine-thinking');
+        expect(document.querySelector('.study-practice')?.textContent).toContain(
+            'There was not enough engine information to grade this move.',
+        );
+        expect(commands).toContain('go nodes 600000');
+        session.destroy();
+    });
+
+    test('hints escalate from the best-move piece to the full move and then hide again', () => {
+        scenario = { initialTurn: 'white' };
+        const { session, ctrl, finishEvaluation } = makeHarness('white');
+
+        expect(session.hint()).toBe(true);
+        expect(document.querySelector('.study-practice')?.textContent).toContain('Analyzing a hint…');
+        finishEvaluation('e2e4');
+        expect(ctrl.autoShapes).toEqual([[{ orig: 'e2', brush: 'paleBlue' }]]);
+        expect(document.querySelector('.study-practice')?.textContent).toContain('Try the piece on e2.');
+
+        expect(session.hint()).toBe(true);
+        expect(ctrl.autoShapes).toEqual([
+            [{ orig: 'e2', dest: 'e4', brush: 'paleBlue', piece: undefined, modifiers: { lineWidth: 14 } }],
+        ]);
+        expect(document.querySelector('.study-practice')?.textContent).toContain('Try e2e4.');
+
+        expect(session.hint()).toBe(true);
+        expect(ctrl.autoShapes).toEqual([]);
+        session.destroy();
+    });
+
+    test('drop hints use the destination square without assuming an origin square', () => {
+        scenario = {
+            initialTurn: 'white',
+            legalMoves: (turn, moves) => (turn === 'white' && moves.length === 0 ? 'P@e4 d2d4' : 'e7e5'),
+        };
+        const { session, ctrl, finishEvaluation } = makeHarness('white');
+        expect(session.hint()).toBe(true);
+        finishEvaluation('P@e4');
+
+        expect(ctrl.autoShapes).toEqual([[{ orig: 'e4', brush: 'paleBlue' }]]);
+        expect(document.querySelector('.study-practice')?.textContent).toContain('Try a P drop.');
+        expect(session.hint()).toBe(true);
+        expect(document.querySelector('.study-practice')?.textContent).toContain('Try P@e4.');
         session.destroy();
     });
 
     test('anti-cheat revocation during engine thinking stops play and fails closed', () => {
         scenario = { initialTurn: 'white' };
         const accessRef = { value: { available: true } as StudyPracticeAccess };
-        const { session, commands, humanMove } = makeHarness('white', accessRef);
+        const { session, commands, humanMove, finishEvaluation } = makeHarness('white', accessRef);
+        finishEvaluation('e2e4');
         humanMove('e2e4');
         expect(session.state.kind).toBe('engine-thinking');
         accessRef.value = { available: false, reason: 'active-game' };
@@ -341,7 +457,8 @@ describe('StudyPracticeSession', () => {
 
     test('destroy during an engine search prevents a late reply from being applied', () => {
         scenario = { initialTurn: 'white' };
-        const { session, sent, humanMove } = makeHarness('white');
+        const { session, sent, humanMove, finishEvaluation } = makeHarness('white');
+        finishEvaluation('e2e4');
         humanMove('e2e4');
         expect(session.state.kind).toBe('engine-thinking');
         session.destroy();
