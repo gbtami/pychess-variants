@@ -12,7 +12,7 @@ function mount(vnode: ReturnType<typeof studyChapterCreateForm> | ReturnType<typ
     patch(document.getElementById('root')!, vnode);
 }
 
-test('chapter creation exposes learner orientation while advertising only completed analysis modes', () => {
+test('chapter creation exposes learner orientation and every completed analysis mode', () => {
     mount(
         studyChapterCreateForm('/study/StUdY001/chapter', 'chess', false, {
             orientation: 'black',
@@ -25,13 +25,13 @@ test('chapter creation exposes learner orientation while advertising only comple
     );
     const mode = document.querySelector<HTMLSelectElement>('select[name="mode"]')!;
     expect(mode.value).toBe('normal');
-    expect([...mode.options].map(option => option.value)).toEqual(['normal', 'conceal', 'gamebook']);
+    expect([...mode.options].map(option => option.value)).toEqual(['normal', 'practice', 'conceal', 'gamebook']);
     expect(document.querySelector('.study-chapter-mode .study-dialog__help')?.textContent).toContain(
         'complete chapter tree',
     );
 });
 
-test('an existing unfinished practice mode remains identifiable beside completed modes', () => {
+test('computer practice is exposed with its completed-mode help text', () => {
     document.body.innerHTML = '<div id="root"></div>';
     patch(document.getElementById('root')!, studyChapterModeField('practice'));
 
@@ -39,7 +39,7 @@ test('an existing unfinished practice mode remains identifiable beside completed
     expect(mode.value).toBe('practice');
     expect([...mode.options].map(option => option.value)).toEqual(['normal', 'practice', 'conceal', 'gamebook']);
     expect(document.querySelector('.study-chapter-mode .study-dialog__help')?.textContent).toContain(
-        'not available in the player yet',
+        'Play the saved position against the computer',
     );
 });
 

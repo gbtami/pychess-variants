@@ -655,13 +655,21 @@ Interactive lesson only with D completed.
   results; Study session tests feed UCI `info`/`bestmove` lines through E1 and verify
   the same feedback, retry and hint paths, while a bounded live Fairy-Stockfish WASM
   search confirms real engine output reaches that adapter/grading path.
-- [ ] **E4 — Browser acceptance and resource bounds.** Verify a real supported
+- [x] **E4 — Browser acceptance and resource bounds.** Verify a real supported
   browser engine, slow initialization, disabled computer permission, active-game
   blocking, engine failure, custom rules, rapid chapter switching and repeat reset.
   Ensure stable worker/listener/ffish-board counts and no engine activity after exit.
   Test multiple variant families and an unsupported variant's explicit fallback.
-  **Done:** normal analysis settings are restored and no practice attempt reaches
-  the persisted tree or server-analysis queue.
+  **Done:** lifecycle coverage exercises slow engine readiness, denied computer
+  permission, active-game/engine failure paths, repeated resets, custom runtime
+  variant names, unsupported variants and teardown while searches are active. The
+  live Fairy-Stockfish acceptance test searches chess, Crazyhouse and Shogi through
+  the bounded adapter, while browser acceptance verifies a real Practice chapter,
+  disposable moves, chapter switching and restoration of normal analysis settings.
+  Practice reuses the page-global worker, keeps one long-lived history board per
+  attempt, deletes transient/reset boards, and emits no bounded-search work after
+  teardown. No practice attempt reaches the persisted tree or server-analysis queue.
+  Practice with computer is now exposed by the shared chapter-mode selector.
 
 Dependencies: A precedes E. E1 is the largest technical uncertainty and can be
 prototyped early; ship practice only after E2–E4. C/D do not depend on E.

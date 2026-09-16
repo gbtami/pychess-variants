@@ -31,7 +31,7 @@ function studyChapterModeOptions(): StudyChapterModeOption[] {
             value: 'practice',
             label: _('Practice with computer'),
             description: _('Play the saved position against the computer.'),
-            available: false,
+            available: true,
         },
         {
             value: 'conceal',
