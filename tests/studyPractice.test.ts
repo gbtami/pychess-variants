@@ -23,6 +23,9 @@ type Scenario = {
 };
 
 let scenario: Scenario;
+let boardsCreated = 0;
+let boardsDeleted = 0;
+let boardVariants: string[] = [];
 
 function opposite(color: Color): Color {
     return color === 'white' ? 'black' : 'white';
@@ -33,11 +36,14 @@ class FakeBoard {
     private readonly moves: string[] = [];
     deleted = false;
 
-    constructor(_variant: string, fen: string) {
+    constructor(variant: string, fen: string) {
+        boardsCreated += 1;
+        boardVariants.push(variant);
         this.turn = fen.split(' ')[1] === 'b' ? 'black' : scenario.initialTurn;
     }
 
     delete(): void {
+        if (!this.deleted) boardsDeleted += 1;
         this.deleted = true;
     }
 
@@ -91,7 +97,22 @@ function makeRoot(fen: string): AnalysisTreeNode {
     };
 }
 
-function makeHarness(learnerColor: Color, accessRef = { value: { available: true } as StudyPracticeAccess }) {
+type HarnessOverrides = Partial<{
+    engineVariant: string;
+    localEngine: boolean;
+    localAnalysis: boolean;
+    isEngineReady: boolean;
+    variantSupportedByFSF: boolean;
+    uciOk: boolean;
+    twoBoards: boolean;
+    practiceEngineIdle: boolean;
+}>;
+
+function makeHarness(
+    learnerColor: Color,
+    accessRef = { value: { available: true } as StudyPracticeAccess },
+    overrides: HarnessOverrides = {},
+) {
     document.body.innerHTML = '<div class="analysis-tools"><div class="ordinary-tools"></div></div>';
     const commands: string[] = [];
     const sent: string[] = [];
@@ -109,15 +130,15 @@ function makeHarness(learnerColor: Color, accessRef = { value: { available: true
         recordedMainlinePly: 0,
         turnColor: scenario.initialTurn,
         fullfen: fen,
-        engineVariant: 'chess',
+        engineVariant: overrides.engineVariant ?? 'chess',
         chess960: false,
-        variant: { twoBoards: false },
+        variant: { twoBoards: overrides.twoBoards ?? false },
         ffish: { Board: FakeBoard },
-        localEngine: true,
-        localAnalysis: false,
-        isEngineReady: true,
-        variantSupportedByFSF: true,
-        uciOk: true,
+        localEngine: overrides.localEngine ?? true,
+        localAnalysis: overrides.localAnalysis ?? false,
+        isEngineReady: overrides.isEngineReady ?? true,
+        variantSupportedByFSF: overrides.variantSupportedByFSF ?? true,
+        uciOk: overrides.uciOk ?? true,
         autoShapes: [],
         chessground: {
             state: { dimensions: { width: 8, height: 8 } },
@@ -129,7 +150,7 @@ function makeHarness(learnerColor: Color, accessRef = { value: { available: true
         suspendLocalAnalysisForExtension: jest.fn(function (this: { localAnalysis: boolean }) {
             this.localAnalysis = false;
         }),
-        isPracticeEngineIdle: () => true,
+        isPracticeEngineIdle: () => overrides.practiceEngineIdle ?? true,
         isLocalAnalysisBlockedByAntiCheat: () => false,
         activateTreePath(path: string, _redraw: boolean, _origin: AnalysisNavigationOrigin) {
             const position = positions.get(path);
@@ -195,6 +216,9 @@ describe('StudyPracticeSession', () => {
     beforeEach(() => {
         jest.useFakeTimers();
         scenario = { initialTurn: 'white' };
+        boardsCreated = 0;
+        boardsDeleted = 0;
+        boardVariants = [];
     });
 
     afterEach(() => {
@@ -361,7 +385,6 @@ describe('StudyPracticeSession', () => {
         session.destroy();
     });
 
-
     test('actual UCI score output produces negative feedback and retry replaces the disposable move', () => {
         scenario = { initialTurn: 'white' };
         const { session, sent, humanMove, finishEvaluation } = makeHarness('white');
@@ -438,6 +461,128 @@ describe('StudyPracticeSession', () => {
         expect(session.hint()).toBe(true);
         expect(document.querySelector('.study-practice')?.textContent).toContain('Try P@e4.');
         session.destroy();
+    });
+
+    test('slow browser-engine initialization stays inert until readiness is revalidated', () => {
+        scenario = { initialTurn: 'white' };
+        const { session, ctrl, commands } = makeHarness('white', undefined, {
+            localEngine: false,
+            isEngineReady: false,
+            variantSupportedByFSF: false,
+            uciOk: false,
+        });
+
+        expect(session.state.kind).toBe('initializing');
+        expect(commands.some(command => command.startsWith('go '))).toBe(false);
+
+        ctrl.localEngine = true;
+        ctrl.isEngineReady = true;
+        ctrl.variantSupportedByFSF = true;
+        ctrl.uciOk = true;
+        session.refreshAvailability();
+
+        expect(session.state.kind).toBe('human-turn');
+        expect(commands).toContain('go nodes 400000');
+        session.destroy();
+    });
+
+    test('disabled computer permission blocks startup without sending engine work and can recover', () => {
+        scenario = { initialTurn: 'white' };
+        const accessRef = {
+            value: { available: false, reason: 'computer-disabled' } as StudyPracticeAccess,
+        };
+        const { session, commands } = makeHarness('white', accessRef);
+
+        expect(session.state).toEqual({ kind: 'unavailable', reason: 'computer-disabled' });
+        expect(commands.some(command => command.startsWith('go '))).toBe(false);
+        expect(document.querySelector('.study-practice')?.textContent).toContain(
+            'Computer analysis is disabled for this study.',
+        );
+
+        accessRef.value = { available: true };
+        session.refreshAvailability();
+        expect(session.state.kind).toBe('human-turn');
+        expect(commands).toContain('go nodes 400000');
+        session.destroy();
+    });
+
+    test('unsupported and two-board variants show explicit fallback without starting a search', () => {
+        scenario = { initialTurn: 'white' };
+        const unsupported = makeHarness('white', undefined, {
+            localEngine: true,
+            isEngineReady: true,
+            variantSupportedByFSF: false,
+            uciOk: true,
+        });
+        expect(unsupported.session.state).toEqual({
+            kind: 'unavailable',
+            reason: 'unsupported',
+            message: 'This variant is not supported by the browser engine.',
+        });
+        expect(unsupported.commands.some(command => command.startsWith('go '))).toBe(false);
+        expect(document.querySelector('.study-practice')?.textContent).toContain(
+            'This variant is not supported by the browser engine.',
+        );
+        unsupported.session.destroy();
+
+        const twoBoard = makeHarness('white', undefined, { twoBoards: true });
+        expect(twoBoard.session.state).toEqual({
+            kind: 'unavailable',
+            reason: 'unsupported',
+            message: 'Two-board variants are not supported by computer practice.',
+        });
+        expect(twoBoard.commands.some(command => command.startsWith('go '))).toBe(false);
+        twoBoard.session.destroy();
+    });
+
+    test('engine failure stops practice and reports the failure instead of reusing stale output', () => {
+        scenario = { initialTurn: 'white' };
+        const { session, commands } = makeHarness('white');
+
+        expect(session.state.kind).toBe('human-turn');
+        expect(session.onEngineLine('info string ERROR: worker crashed')).toBe(true);
+        expect(session.state).toEqual({
+            kind: 'unavailable',
+            reason: 'engine-error',
+            message: 'worker crashed',
+        });
+        expect(commands).toContain('stop');
+        expect(commands).toContain('isready');
+        session.destroy();
+    });
+
+    test('saved custom runtime rules use the chapter engine variant for boards and bounded searches', () => {
+        scenario = { initialTurn: 'white' };
+        const { session, commands, finishEvaluation } = makeHarness('white', undefined, {
+            engineVariant: 'study-custom-deadbeef',
+        });
+
+        expect(boardVariants).toEqual(['study-custom-deadbeef']);
+        expect(commands).toContain('setoption name UCI_Variant value study-custom-deadbeef');
+        finishEvaluation('e2e4');
+        expect(boardVariants).toEqual(['study-custom-deadbeef', 'study-custom-deadbeef']);
+        expect(boardsCreated - boardsDeleted).toBe(1);
+        session.destroy();
+        expect(boardsCreated).toBe(boardsDeleted);
+    });
+
+    test('repeat reset keeps one history board alive and teardown emits no later bounded searches', () => {
+        scenario = { initialTurn: 'white' };
+        const { session, commands } = makeHarness('white');
+
+        for (let index = 0; index < 8; index += 1) {
+            session.reset();
+            expect(boardsCreated - boardsDeleted).toBe(1);
+        }
+
+        session.destroy();
+        expect(boardsCreated).toBe(boardsDeleted);
+        const commandCount = commands.length;
+        jest.advanceTimersByTime(30_000);
+        session.refreshAvailability();
+        session.onEngineLine('readyok');
+        session.onEngineLine('bestmove e2e4');
+        expect(commands).toHaveLength(commandCount);
     });
 
     test('anti-cheat revocation during engine thinking stops play and fails closed', () => {

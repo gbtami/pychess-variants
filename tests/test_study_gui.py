@@ -727,3 +727,111 @@ class TestStudyGUI:
                 await anon_context.close()
                 await embed_context.close()
                 await browser.close()
+
+    async def test_practice_browser_acceptance_and_analysis_restore(self, aiohttp_server):
+        app = make_app(
+            db_client=AsyncMongoMockClient(tz_aware=True),
+            simple_cookie_storage=True,
+        )
+        server = await aiohttp_server(app, host="127.0.0.1")
+        app_state = get_app_state(app)
+        username = "practice_owner"
+        await self._insert_user(app_state, username)
+        builder = StudyChapterBuilder(app_state, username)
+
+        practice_draft = await builder.blank_or_fen(
+            variant="chess",
+            mode="practice",
+            orientation="white",
+            name="Engine practice",
+        )
+        study, practice_chapter = await create_study_from_draft(
+            app_state,
+            username,
+            practice_draft,
+            name="Practice acceptance",
+            visibility="public",
+        )
+        normal_draft = await builder.blank_or_fen(
+            variant="chess",
+            mode="normal",
+            orientation="white",
+            name="Normal analysis",
+        )
+        normal_chapter = await add_chapter_from_draft(
+            app_state,
+            study,
+            normal_draft,
+            activate_shared=False,
+        )
+        initial_doc = await app_state.db.study_chapter.find_one({"_id": practice_chapter.id})
+        assert initial_doc is not None
+
+        base_url = f"http://{server.host}:{server.port}"
+        practice_url = f"{base_url}/study/{study.id}/{practice_chapter.id}"
+        normal_url = f"{base_url}/study/{study.id}/{normal_chapter.id}"
+
+        async with async_playwright() as p:
+            browser = await self._launch_browser(p)
+            context, page = await self._page_for_user(browser, base_url, username)
+            try:
+                await page.add_init_script("localStorage.setItem('localAnalysis', 'true')")
+                await page.goto(practice_url)
+                await expect(page.locator("#mainboard cg-board")).to_be_visible()
+                await expect(page.locator(".study-practice")).to_be_visible()
+                await expect(page.locator(".study-practice")).to_contain_text(
+                    "Your turn", timeout=20_000
+                )
+                assert await page.evaluate("localStorage.getItem('localAnalysis')") == "true"
+
+                await page.get_by_role("button", name="Get a hint").click()
+                await expect(page.locator(".study-practice")).to_contain_text(
+                    re.compile(r"Try the piece on|No reliable engine hint"), timeout=20_000
+                )
+                await expect(page.locator(".pvbox")).not_to_be_visible()
+
+                await page.wait_for_function(
+                    "window.fsf && typeof window.fsf.postMessage === 'function'"
+                )
+                await page.evaluate(
+                    """
+                    () => {
+                        window.__studyPracticeCommands = [];
+                        const fsf = window.fsf;
+                        const original = fsf.postMessage.bind(fsf);
+                        fsf.postMessage = command => {
+                            window.__studyPracticeCommands.push(String(command));
+                            original(command);
+                        };
+                    }
+                    """
+                )
+
+                await self._play_board_move(page, "e2", "e4")
+                await page.wait_for_timeout(100)
+                after_move = await app_state.db.study_chapter.find_one({"_id": practice_chapter.id})
+                assert after_move is not None
+                assert after_move["revision"] == initial_doc["revision"]
+                assert after_move["root"] == initial_doc["root"]
+
+                await page.get_by_role("link", name="2. Normal analysis").click()
+                await page.wait_for_url(normal_url)
+                await expect(page.locator(".study-practice")).to_have_count(0)
+                await expect(page.locator("#engine-enabled")).to_be_checked(timeout=20_000)
+
+                command_mark = await page.evaluate("window.__studyPracticeCommands.length")
+                await page.wait_for_timeout(750)
+                post_exit_commands = await page.evaluate(
+                    "mark => window.__studyPracticeCommands.slice(mark)", command_mark
+                )
+                assert not any(
+                    str(command).startswith("go nodes ") for command in post_exit_commands
+                )
+
+                final_doc = await app_state.db.study_chapter.find_one({"_id": practice_chapter.id})
+                assert final_doc is not None
+                assert final_doc["revision"] == initial_doc["revision"]
+                assert final_doc["root"] == initial_doc["root"]
+            finally:
+                await context.close()
+                await browser.close()
