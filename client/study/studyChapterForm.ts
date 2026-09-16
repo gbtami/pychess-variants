@@ -37,7 +37,7 @@ function studyChapterModeOptions(): StudyChapterModeOption[] {
             value: 'conceal',
             label: _('Hide next moves'),
             description: _('Hide unrevealed continuations while the learner explores the position.'),
-            available: false,
+            available: true,
         },
         {
             value: 'gamebook',
@@ -52,20 +52,36 @@ export function studyChapterModeLabel(mode: StudyChapterMode): string {
     return studyChapterModeOptions().find(option => option.value === mode)?.label ?? _('Normal analysis');
 }
 
-function studyChapterModeDescription(mode: StudyChapterMode): string {
-    return studyChapterModeOptions().find(option => option.value === mode)?.description ?? '';
+function studyChapterModeHelp(mode: StudyChapterMode): string {
+    const current = studyChapterModeOptions().find(option => option.value === mode);
+    if (!current) return '';
+    return current.available
+        ? current.description
+        : _(
+              'This chapter uses %1, which is not available in the player yet. You can switch it back to Normal analysis.',
+              current.label,
+          );
 }
 
 export function studyChapterModeField(mode: StudyChapterMode = 'normal'): VNode {
     const options = studyChapterModeOptions();
     const available = options.filter(option => option.available || option.value === mode);
-    const current = options.find(option => option.value === mode) ?? options[0];
-    const unavailable = !current.available;
     return h('label.study-dialog__field.study-chapter-mode', [
         h('span', _('Analysis mode')),
         h(
             'select',
-            { attrs: { name: 'mode' } },
+            {
+                attrs: { name: 'mode' },
+                on: {
+                    change: (event: Event) => {
+                        const select = event.currentTarget as HTMLSelectElement;
+                        const help = select
+                            .closest('.study-chapter-mode')
+                            ?.querySelector<HTMLElement>('.study-dialog__help');
+                        if (help) help.textContent = studyChapterModeHelp(select.value as StudyChapterMode);
+                    },
+                },
+            },
             available.map(option =>
                 h(
                     'option',
@@ -76,15 +92,7 @@ export function studyChapterModeField(mode: StudyChapterMode = 'normal'): VNode 
                 ),
             ),
         ),
-        h(
-            'small.study-dialog__help',
-            unavailable
-                ? _(
-                      'This chapter uses %1, which is not available in the player yet. You can switch it back to Normal analysis.',
-                      current.label,
-                  )
-                : studyChapterModeDescription(mode),
-        ),
+        h('small.study-dialog__help', studyChapterModeHelp(mode)),
     ]);
 }
 
