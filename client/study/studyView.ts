@@ -24,6 +24,7 @@ import { StudyAnalysisExtension, type StudyAnnotationState } from './studySync';
 import { GLYPH_GROUPS, toggleGlyph } from '../analysis/glyphs';
 import { StudyCommentEditor } from './commentEditor';
 import { StudyGamebookEditor } from './studyGamebookEdit';
+import { StudyGamebookPlayback } from './studyGamebookPlayback';
 import { fetchStudyChapterExportData, renderStudyChapterPgn, renderStudyPgn, studyPgnFilename } from './studyPgn';
 import {
     studyChapterCreateForm,
@@ -784,6 +785,8 @@ type StudyModeActions = {
     leaveConcealPreview: () => Promise<void>;
     enterGamebookPreview: () => Promise<void>;
     leaveGamebookPreview: () => Promise<void>;
+    enterGamebookAnalysis: () => Promise<void>;
+    leaveGamebookAnalysis: () => Promise<void>;
 };
 
 function studyRecordingKey(studyId: string): string {
@@ -868,17 +871,25 @@ function refreshStudyModeButtons(study: StudyPageModel): void {
     update('.study-mode--write', policy.recording);
 }
 
-function syncStudyConcealPlaybackUi(study: StudyPageModel, modeActions: StudyModeActions): void {
+function isGamebookPlayback(policy: StudySessionPolicy): boolean {
+    return policy.session === 'gamebook-play' || policy.session === 'gamebook-preview';
+}
+
+function syncStudyPlaybackUi(study: StudyPageModel, modeActions: StudyModeActions): void {
     const policy = effectiveStudySessionPolicy(study);
     const app = document.querySelector<HTMLElement>('.study-app');
     app?.classList.toggle('study-conceal-playback', isConcealPlayback(policy));
     app?.classList.toggle('study-conceal-preview', policy.session === 'conceal-preview');
-    if (isConcealPlayback(policy)) {
+    app?.classList.toggle('study-gamebook-playback', isGamebookPlayback(policy));
+    app?.classList.toggle('study-gamebook-preview', policy.session === 'gamebook-preview');
+    app?.classList.toggle('study-gamebook-analysis', policy.session === 'gamebook-analysis');
+    if (isConcealPlayback(policy) || isGamebookPlayback(policy)) {
         const selected = document.querySelector<HTMLButtonElement>('[data-study-tab][aria-selected="true"]');
         if (selected && selected.dataset.studyTab !== 'tags') selectStudyTab('tags');
     }
     refreshStudyModeButtons(study);
     updateStudyConcealStatus(study, modeActions);
+    updateStudyGamebookStatus(study, modeActions);
 }
 
 type StudySideTab = 'chapters' | 'members';
@@ -1704,6 +1715,30 @@ function updateStudyConcealStatus(study: StudyPageModel, modeActions?: StudyMode
     if (current) patch(toVNode(current), studyConcealStatus(study, modeActions));
 }
 
+function studyGamebookStatus(study: StudyPageModel, modeActions: StudyModeActions): VNode {
+    const policy = effectiveStudySessionPolicy(study);
+    if (study.chapter.mode !== 'gamebook') return h('div.study-gamebook-status-container');
+    if (policy.session === 'gamebook-analysis') {
+        return h('div.study-gamebook-status-container', [
+            h('div.study-gamebook-status', [
+                h('span', _('You are analysing this interactive lesson outside playback.')),
+                h(
+                    'button.button.button-empty.study-gamebook-return',
+                    { attrs: { type: 'button' }, on: { click: () => void modeActions.leaveGamebookAnalysis() } },
+                    _('Return to lesson'),
+                ),
+            ]),
+        ]);
+    }
+    return h('div.study-gamebook-status-container');
+}
+
+function updateStudyGamebookStatus(study: StudyPageModel, modeActions?: StudyModeActions): void {
+    if (!modeActions) return;
+    const current = document.querySelector<HTMLElement>('.study-gamebook-status-container');
+    if (current) patch(toVNode(current), studyGamebookStatus(study, modeActions));
+}
+
 export function updateStudyUnderboardChapter(
     study: StudyPageModel,
     model: PyChessModel,
@@ -1716,6 +1751,7 @@ export function updateStudyUnderboardChapter(
     if (shareLinks) patch(toVNode(shareLinks), studyShareLinks(study, model));
     syncStudyPinnedDescriptionUi(study, modeActions);
     updateStudyConcealStatus(study, modeActions);
+    updateStudyGamebookStatus(study, modeActions);
     updateStudyServerEvalContent(study, modeActions);
     const lessonTab = document.querySelector<HTMLButtonElement>('[data-study-tab="lesson"]');
     if (lessonTab) {
@@ -1744,6 +1780,7 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions
     return h('div.study-underboard', [
         studyPinnedChapterComment(study, modeActions),
         studyConcealStatus(study, modeActions),
+        studyGamebookStatus(study, modeActions),
         h('nav.study-tool-tabs', { attrs: { role: 'tablist', 'aria-label': _('Study tools') } }, [
             ...studyModeButtons(study, modeActions),
             ...tabs.map(([tab, label, symbol]) =>
@@ -2178,7 +2215,7 @@ function runStudyGround(
                     sideVNode = patch(sideVNode, studySide(study, model, modeActions));
                     updateStudyUnderboardChapter(study, model, modeActions);
                     updateGamebookEditor();
-                    syncStudyConcealPlaybackUi(study, modeActions);
+                    syncStudyPlaybackUi(study, modeActions);
                 },
                 onLikesChanged: likes => {
                     study.likes = likes;
@@ -2194,6 +2231,26 @@ function runStudyGround(
             });
             return extension;
         });
+        if (isGamebookPlayback(policy)) {
+            const orderedChapters = [...study.chapters].sort((a, b) => a.order - b.order);
+            const chapterIndex = orderedChapters.findIndex(chapter => chapter.id === study.chapter.id);
+            const nextChapter = chapterIndex >= 0 ? orderedChapters[chapterIndex + 1] : undefined;
+            const gamebookPlayback = new StudyGamebookPlayback(ctrl, {
+                chapterId: study.chapter.id,
+                orientation: study.chapter.orientation,
+                preview: policy.session === 'gamebook-preview',
+                canAnalyse: !study.canWrite,
+                hasNextChapter: Boolean(nextChapter),
+                ...(nextChapter
+                    ? { onNextChapter: () => void navigation?.go(nextChapter.id, 'push') }
+                    : {}),
+                ...(policy.session === 'gamebook-preview'
+                    ? { onReturnToEditor: () => void modeActions.leaveGamebookPreview() }
+                    : {}),
+                ...(!study.canWrite ? { onAnalyse: () => void modeActions.enterGamebookAnalysis() } : {}),
+            });
+            extension.setGamebookPlayback(gamebookPlayback);
+        }
         modeActions.requestServerAnalysis = () => {
             if (!policy.tools.serverAnalysis) return;
             study.serverAnalysisError = undefined;
@@ -2231,7 +2288,7 @@ function runStudyGround(
             policy = effectiveStudySessionPolicy(study);
             extension.setPolicy(policy);
             sideVNode = patch(sideVNode, studySide(study, model, modeActions));
-            syncStudyConcealPlaybackUi(study, modeActions);
+            syncStudyPlaybackUi(study, modeActions);
             await navigation?.reload();
         };
         modeActions.leaveConcealPreview = async () => {
@@ -2258,12 +2315,24 @@ function runStudyGround(
             study.modeOverride = null;
             await navigation?.reload();
         };
+        modeActions.enterGamebookAnalysis = async () => {
+            if (policy.session !== 'gamebook-play') return;
+            // Keep the old playback extension restricted until reload replaces the
+            // disposable lesson attempt with the authoritative chapter tree.
+            study.modeOverride = 'analysis';
+            await navigation?.reload();
+        };
+        modeActions.leaveGamebookAnalysis = async () => {
+            if (policy.session !== 'gamebook-analysis') return;
+            study.modeOverride = null;
+            await navigation?.reload();
+        };
         if (socket.ws.readyState === WebSocket.OPEN) extension.onSocketOpen();
         const serverPanel = document.getElementById('study-panel-serverEval');
         if (serverPanel && !serverPanel.hidden) modeActions.showServerAnalysis();
         if (policy.tools.annotations) updateAnnotationPanel(study, modeActions, extension.annotationState, editor);
         updateGamebookEditor();
-        syncStudyConcealPlaybackUi(study, modeActions);
+        syncStudyPlaybackUi(study, modeActions);
         window['onFSFline'] = ctrl.onFSFline;
     };
     mount(vnode.elm as HTMLElement);
@@ -2398,7 +2467,7 @@ function runStudyGround(
                 if (current && replacement) patch(toVNode(current), replacement);
             }
             sideVNode = patch(sideVNode, studySide(study, model, modeActions));
-            syncStudyConcealPlaybackUi(study, modeActions);
+            syncStudyPlaybackUi(study, modeActions);
             mount(app.querySelector<HTMLElement>('#mainboard > .cg-wrap')!, true);
             restoreSessionPosition();
             notifyChessgroundResize();
@@ -2554,6 +2623,8 @@ export function studyView(model: PyChessModel): VNode[] {
         leaveConcealPreview: async () => {},
         enterGamebookPreview: async () => {},
         leaveGamebookPreview: async () => {},
+        enterGamebookAnalysis: async () => {},
+        leaveGamebookAnalysis: async () => {},
     };
     const side = studySide(study, model, modeActions);
     const page = renderAnalysisPage(model, {
@@ -2570,6 +2641,9 @@ export function studyView(model: PyChessModel): VNode[] {
             'has-players': studyHasGamePlayers(study),
             'study-conceal-playback': isConcealPlayback(effectiveStudySessionPolicy(study)),
             'study-conceal-preview': effectiveStudySessionPolicy(study).session === 'conceal-preview',
+            'study-gamebook-playback': isGamebookPlayback(effectiveStudySessionPolicy(study)),
+            'study-gamebook-preview': effectiveStudySessionPolicy(study).session === 'gamebook-preview',
+            'study-gamebook-analysis': effectiveStudySessionPolicy(study).session === 'gamebook-analysis',
         },
     };
     return page;

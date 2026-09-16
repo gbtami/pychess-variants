@@ -15,7 +15,9 @@ import type { Ceval } from '../messages';
 import type {
     AnalysisExtension,
     AnalysisExtensionFactory,
+    AnalysisMoveApplication,
     AnalysisNavigationOrigin,
+    AnalysisPositionChange,
 } from '../analysis/analysisExtension';
 import type { JSONObject, StudyChapterMode, StudyChapterPreview, StudyServerEval } from '../types';
 import {
@@ -39,6 +41,7 @@ import {
 import { renderStudyChapterPgn, type StudyPgnChapterData, type StudyPgnContext } from './studyPgn';
 import type { StudySessionPolicy } from './studyMode';
 import { StudyConcealController } from './studyConceal';
+import type { StudyGamebookPlayback } from './studyGamebookPlayback';
 
 const STUDY_SOCKET_TYPES = new Set([
     'study_user_connected',
@@ -457,6 +460,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     private recording: boolean;
     private policy?: StudySessionPolicy;
     private conceal?: StudyConcealController;
+    private gamebookPlayback?: StudyGamebookPlayback;
     private suppressLocalPath = false;
     private pendingSharedPosition?: { chapterId: string; path: string };
 
@@ -585,11 +589,30 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         this.ctrl.refreshLocalAnalysisAvailabilityForAntiCheat?.();
     }
 
+    setGamebookPlayback(playback: StudyGamebookPlayback | undefined): void {
+        this.gamebookPlayback?.destroy();
+        this.gamebookPlayback = playback;
+    }
+
+    beforeMoveApplied(move: AnalysisMoveApplication): boolean | void {
+        return this.gamebookPlayback?.beforeMoveApplied(move);
+    }
+
+    boardInput(context: { turnColor: 'white' | 'black' }): 'white' | 'black' | false {
+        return this.gamebookPlayback?.boardInput(context.turnColor) ?? context.turnColor;
+    }
+
+    onPositionChanged(change: AnalysisPositionChange): void {
+        this.gamebookPlayback?.onPositionChanged(change);
+    }
+
     canActivatePath(path: string, origin: AnalysisNavigationOrigin): boolean {
+        if (this.gamebookPlayback && !this.gamebookPlayback.canActivatePath(path, origin)) return false;
         return this.conceal?.canActivatePath(path, origin) ?? true;
     }
 
     isTreeNodeVisible(node: AnalysisTreeNode): boolean {
+        if (this.gamebookPlayback && !this.gamebookPlayback.isTreeNodeVisible(node)) return false;
         return this.conceal?.isTreeNodeVisible(node) ?? true;
     }
 
@@ -598,10 +621,12 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     }
 
     areTreeNodeAnnotationsVisible(node: AnalysisTreeNode): boolean {
+        if (this.gamebookPlayback && !this.gamebookPlayback.areTreeNodeAnnotationsVisible()) return false;
         return this.conceal?.areTreeNodeAnnotationsVisible(node) ?? true;
     }
 
     allowTreeContextMenu(): boolean {
+        if (this.gamebookPlayback && !this.gamebookPlayback.allowTreeContextMenu()) return false;
         return this.conceal?.allowTreeContextMenu() ?? true;
     }
 
@@ -760,6 +785,8 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     }
 
     onDestroy(): void {
+        this.gamebookPlayback?.destroy();
+        this.gamebookPlayback = undefined;
         this.connected = false;
         this.pendingSharedPosition = undefined;
         [...this.idleWaiters].forEach(waiter => waiter.reject());
@@ -779,6 +806,10 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     }
 
     onShapesChanged(shapes: DrawShape[]): void {
+        if (this.gamebookPlayback) {
+            this.gamebookPlayback.onShapesChanged();
+            return;
+        }
         const node = this.currentNode();
         if (!node) {
             this.requestReload('missing_tree_position');
