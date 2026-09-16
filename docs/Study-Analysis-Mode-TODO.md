@@ -609,7 +609,7 @@ Interactive lesson only with D completed.
 
 ### E. Computer practice
 
-- [ ] **E1 — Reusable bounded engine adapter.** Add `analysisPracticeEngine.ts`
+- [x] **E1 — Reusable bounded engine adapter.** Add `analysisPracticeEngine.ts`
   (suggested) over the existing engine. Preserve parsed nodes/time and expose
   structured score/PV/bestmove events with search ownership. Run one bounded search
   at a time, synchronize stop/drain/new-position, and tag client session/search
@@ -617,8 +617,13 @@ Interactive lesson only with D completed.
   barriers that ensure an old response cannot be assigned to a new search.
   Handle final `bestmove`, no legal move, timeout, unsupported rules, permission
   changes and browser teardown. Do not create a second uncoordinated global engine.
-  **Done:** deterministic protocol tests reject stale replies, including replies
-  legal in both old and new positions and rapid same-FEN resets.
+  **Done:** the adapter accepts the existing engine transport instead of creating a
+  worker, clamps every nodes/movetime/depth request plus a wall-clock timeout, emits
+  tagged structured info/bestmove/unavailable events, and requires both the stopped
+  search's final `bestmove` and an `isready`/`readyok` drain before launching the next
+  position. Deterministic protocol tests reject stale replies that are legal in both
+  positions, including rapid same-FEN/session resets, and cover terminal bestmove,
+  timeout, drain failure, support/permission changes, engine errors, and teardown.
 - [ ] **E2 — Practice session and engine replies.** Add `studyPractice.ts`
   (suggested) with initializing, human-turn, engine-thinking, paused, ended and
   unavailable states. Start at the root, control the opposite side, validate and
