@@ -154,9 +154,12 @@ export class StudyPracticeSession {
         // own semantic class but needs no additional stylesheet or cascade changes.
         this.panel.className = 'study-gamebook-play study-practice';
         this.panel.setAttribute('aria-label', _('Practice with computer'));
+        this.panel.setAttribute('role', 'region');
         this.status = document.createElement('div');
         this.status.className = 'study-gamebook-play__status';
         this.status.setAttribute('aria-live', 'polite');
+        this.status.setAttribute('aria-atomic', 'true');
+        this.status.setAttribute('aria-busy', 'false');
         this.panel.append(this.status);
         tools.append(this.panel);
 
@@ -946,7 +949,16 @@ export class StudyPracticeSession {
             button.type = 'button';
             button.className = `button${className ? ` ${className}` : ''}`;
             button.textContent = label;
-            button.addEventListener('click', action);
+            button.addEventListener('click', event => {
+                const restoreKeyboardFocus = event.detail === 0 || document.activeElement === button;
+                action();
+                if (
+                    restoreKeyboardFocus &&
+                    !this.destroyed &&
+                    !this.panel.contains(document.activeElement)
+                )
+                    this.status.querySelector<HTMLButtonElement>('.study-gamebook-play__actions .button')?.focus();
+            });
             actions.append(button);
         };
         const addFeedback = (feedback: StudyPracticeFeedback) => {
@@ -954,6 +966,15 @@ export class StudyPracticeSession {
             const best = this.feedbackBestMessage(feedback);
             if (best) addText(best);
         };
+
+        this.status.setAttribute(
+            'aria-busy',
+            String(
+                state.kind === 'initializing' ||
+                    state.kind === 'evaluating-move' ||
+                    state.kind === 'engine-thinking',
+            ),
+        );
 
         if (state.kind === 'initializing') {
             heading.textContent = _('Starting computer practice');

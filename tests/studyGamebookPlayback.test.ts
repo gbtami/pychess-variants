@@ -127,6 +127,36 @@ describe('Study interactive lesson playback adapter', () => {
         document.body.replaceChildren();
     });
 
+    test('announces lesson state and preserves keyboard focus across rerendered controls', async () => {
+        const ctrl = makeCtrl();
+        const playback = new StudyGamebookPlayback(ctrl, {
+            chapterId: 'chapter-a11y',
+            orientation: 'white',
+            preview: false,
+            canAnalyse: false,
+            hasNextChapter: false,
+        });
+
+        const panel = document.querySelector<HTMLElement>('.study-gamebook-play')!;
+        const status = panel.querySelector<HTMLElement>('.study-gamebook-play__status')!;
+        expect(panel.getAttribute('role')).toBe('region');
+        expect(status.getAttribute('aria-live')).toBe('polite');
+        expect(status.getAttribute('aria-atomic')).toBe('true');
+        expect(status.getAttribute('aria-busy')).toBe('false');
+
+        const hint = [...panel.querySelectorAll<HTMLButtonElement>('button')].find(button =>
+            button.textContent?.includes('hint'),
+        )!;
+        hint.focus();
+        hint.click();
+        await Promise.resolve();
+
+        expect(document.activeElement).toBe(panel.querySelector('.study-gamebook-play__actions .button'));
+        expect(document.activeElement?.textContent).toBe('Hide hint');
+
+        playback.destroy();
+    });
+
     test('restricts board input and navigation while disabling queued premoves', () => {
         const ctrl = makeCtrl();
         const playback = new StudyGamebookPlayback(ctrl, {

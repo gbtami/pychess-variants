@@ -1,4 +1,5 @@
 @import 'analysis.css';
+@import 'study-playback.css';
 
 /* Adapted from lila ui/analyse/css/study: chapter list, tool tabs, and
    underboard panels. Use PyChess theme tokens and variant board geometry. */
@@ -1311,35 +1312,6 @@
     background: var(--bg-color0);
     box-shadow: var(--base-shadow);
 }
-.study-app.study-gamebook-playback .analysis-tools > :not(.study-gamebook-play),
-.study-app.study-gamebook-playback :is(#gauge, #btn-controls-top, .analysis-settings),
-.study-app.study-gamebook-playback .study-underboard :is(.study-tool-tabs, .study-tool-panel) {
-    display: none !important;
-}
 .study-app.study-gamebook-preview :is(.study-side__more, .study-chapter__edit, .study-side__add) {
     display: none !important;
 }
-.study-gamebook-play {
-    display: flex;
-    flex: 1 1 auto;
-    min-height: 0;
-    flex-direction: column;
-    justify-content: center;
-    padding: clamp(.9rem, 3vw, 1.5rem);
-    overflow: auto;
-    line-height: 1.45;
-}
-.study-gamebook-play__status { display: grid; gap: 1rem; }
-.study-gamebook-play__title { margin: 0; font-size: clamp(1.15rem, 3vw, 1.55rem); }
-.study-gamebook-play__body { display: grid; gap: .65rem; }
-.study-gamebook-play__message,
-.study-gamebook-play__hint,
-.study-gamebook-play__shortcut { margin: 0; }
-.study-gamebook-play__hint {
-    padding: .65rem .75rem;
-    border-left: 3px solid var(--link-color-blue);
-    background: var(--bg-color2);
-}
-.study-gamebook-play__shortcut { font-size: .8rem; opacity: .7; }
-.study-gamebook-play__actions { display: flex; flex-wrap: wrap; gap: .55rem; }
-.study-gamebook-play__actions .button { margin: 0; }

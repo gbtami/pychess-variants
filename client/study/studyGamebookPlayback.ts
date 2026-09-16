@@ -68,6 +68,7 @@ export class StudyGamebookPlayback {
         this.status.className = 'study-gamebook-play__status';
         this.status.setAttribute('aria-live', 'polite');
         this.status.setAttribute('aria-atomic', 'true');
+        this.status.setAttribute('aria-busy', 'false');
         this.panel.append(this.status);
         tools.append(this.panel);
 
@@ -254,9 +255,23 @@ export class StudyGamebookPlayback {
             button.type = 'button';
             button.className = `button${className ? ` ${className}` : ''}`;
             button.textContent = label;
-            button.addEventListener('click', action);
+            button.addEventListener('click', event => {
+                const restoreKeyboardFocus = event.detail === 0 || document.activeElement === button;
+                action();
+                if (
+                    restoreKeyboardFocus &&
+                    !this.destroyed &&
+                    !this.panel.contains(document.activeElement)
+                )
+                    this.status.querySelector<HTMLButtonElement>('.study-gamebook-play__actions .button')?.focus();
+            });
             actions.append(button);
         };
+
+        this.status.setAttribute(
+            'aria-busy',
+            String(state.kind === 'opponent-wait' && !state.waitingForContinue),
+        );
 
         if (state.kind === 'prompt') {
             heading.textContent = _('Your turn');

@@ -1,0 +1,49 @@
+/* Shared Study training panel used by the full workspace and compact embeds. */
+:where(.study-app, .embed-app).study-gamebook-playback .analysis-tools > :not(.study-gamebook-play),
+:where(.study-app, .embed-app).study-gamebook-playback :is(#gauge, #btn-controls-top, #move-controls, .analysis-settings),
+.study-app.study-gamebook-playback .study-underboard :is(.study-tool-tabs, .study-tool-panel) {
+    display: none !important;
+}
+.study-gamebook-play {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+    flex-direction: column;
+    justify-content: center;
+    padding: clamp(.9rem, 3vw, 1.5rem);
+    overflow: auto;
+    overflow-wrap: anywhere;
+    line-height: 1.45;
+}
+.study-gamebook-play__status { display: grid; gap: 1rem; }
+.study-gamebook-play__title { margin: 0; font-size: clamp(1.15rem, 3vw, 1.55rem); }
+.study-gamebook-play__body { display: grid; gap: .65rem; }
+.study-gamebook-play__message,
+.study-gamebook-play__hint,
+.study-gamebook-play__shortcut { margin: 0; }
+.study-gamebook-play__hint {
+    padding: .65rem .75rem;
+    border-left: 3px solid var(--link-color-blue);
+    background: var(--bg-color2);
+}
+.study-gamebook-play__shortcut { font-size: .8rem; opacity: .7; }
+.study-gamebook-play__actions { display: flex; flex-wrap: wrap; gap: .55rem; }
+.study-gamebook-play__actions .button {
+    margin: 0;
+    border: 0;
+    border-radius: 3px;
+    padding: .55rem .85rem;
+    background: var(--link-color-blue);
+    color: #fff;
+    font: inherit;
+    cursor: pointer;
+}
+.study-gamebook-play__actions .button:hover { filter: brightness(1.1); }
+.study-gamebook-play__actions .button.button-empty { background: transparent; color: var(--link-color); }
+.study-gamebook-play__actions .button:focus-visible { outline: 2px solid var(--link-color-blue); outline-offset: 2px; }
+
+@media (max-width: 520px) {
+    .study-gamebook-play { padding: .75rem; }
+    .study-gamebook-play__actions .button { flex: 1 1 auto; }
+}

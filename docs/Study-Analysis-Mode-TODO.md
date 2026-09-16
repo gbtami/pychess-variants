@@ -676,11 +676,21 @@ prototyped early; ship practice only after E2–E4. C/D do not depend on E.
 
 ### F. Release and documentation
 
-- [ ] **F1 — Full interaction review.** Run the acceptance matrix below for every
+- [x] **F1 — Full interaction review.** Run the acceptance matrix below for every
   enabled mode. Confirm embed and export behavior, translated messages, light/dark
   themes, small screens, keyboard focus and screen-reader feedback. Use the
   [CSS debugging skill](../.agents/skills/pychess-css-debugging/SKILL.md) for actual
   styling changes, including served stylesheets and browser computed styles.
+  **Done:** the cross-mode review keeps Normal analysis as the unrestricted baseline,
+  confirms conceal/lesson/practice disclosure and local-attempt guards, and fixes the
+  remaining compact-embed gap by instantiating lesson/practice playback there instead
+  of exposing the ordinary movelist. Shared playback CSS is now served by both Study
+  and embed pages, uses theme variables, wraps at narrow widths and preserves visible
+  keyboard focus. Training panels expose labelled regions with atomic polite status
+  updates and engine/script busy state. PGN export/import now round-trips all chapter
+  modes, including the conceal reveal boundary through the versioned
+  `PyChessConcealPly` extension; lesson metadata remains versioned and local attempts
+  remain absent. All new user-facing strings continue through the translation helper.
 - [ ] **F2 — Deployment compatibility.** Deploy tolerant readers/preserving writers
   before enabling creation of new mode/lesson data. Test documents without the new
   fields and an existing client submitting older forms. Plan an enabled-modes switch

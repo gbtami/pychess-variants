@@ -137,6 +137,20 @@ describe('Study PGN export', () => {
         ]);
     });
 
+    test('exports every teaching mode and preserves the conceal reveal boundary', () => {
+        const practice = renderStudyChapterPgn(study, chapter({ mode: 'practice' }));
+        expect(practice).toContain('[PyChessChapterMode "practice"]');
+        expect(practice).not.toContain('[PyChessConcealPly ');
+
+        const conceal = renderStudyChapterPgn(study, chapter({ mode: 'conceal', concealPly: 3 }));
+        expect(conceal).toContain('[PyChessChapterMode "conceal"]');
+        expect(conceal).toContain('[PyChessConcealPly "3"]');
+
+        const normal = renderStudyChapterPgn(study, chapter({ mode: 'normal', concealPly: undefined }));
+        expect(normal).toContain('[PyChessChapterMode "normal"]');
+        expect(normal).not.toContain('[PyChessConcealPly ');
+    });
+
     test('keeps lesson metadata when a chapter is switched back to normal mode', () => {
         const data = chapter({ mode: 'normal' });
         data.tree.rootGamebook = { hint: 'Preserved lesson draft' };

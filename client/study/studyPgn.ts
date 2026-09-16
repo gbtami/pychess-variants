@@ -185,6 +185,8 @@ function chapterTags(study: StudyPgnContext, chapter: StudyPgnChapterData): Arra
     tags.set('PyChessVariant', chapter.variant);
     tags.set('PyChessStudyVersion', PYCHESS_STUDY_PGN_VERSION);
     tags.set('PyChessChapterMode', chapter.mode ?? 'normal');
+    if ((chapter.mode ?? 'normal') === 'conceal') tags.set('PyChessConcealPly', String(chapter.concealPly ?? 0));
+    else tags.delete('PyChessConcealPly');
     if ((chapter.mode ?? 'normal') === 'gamebook') tags.set('ChapterMode', 'gamebook');
     else tags.delete('ChapterMode');
     if (chapter.chess960) tags.set('PyChessChess960', '1');
@@ -224,6 +226,7 @@ function chapterTags(study: StudyPgnContext, chapter: StudyPgnChapterData): Arra
         'PyChessVariant',
         'PyChessStudyVersion',
         'PyChessChapterMode',
+        'PyChessConcealPly',
         'ChapterMode',
         'PyChessChess960',
         'PyChessVariantIniEncoding',
