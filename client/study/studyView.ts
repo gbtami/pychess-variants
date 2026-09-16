@@ -2623,9 +2623,9 @@ function runStudyEmbedGround(
     study: StudyPageModel,
     policy: StudySessionPolicy,
 ): void {
-    let extension!: StudyAnalysisExtension;
-    const ctrl = new AnalysisController(vnode.elm as HTMLElement, model, analysisCtrl => {
-        extension = new StudyAnalysisExtension(analysisCtrl, {
+    const rootOnlyPreview = (study.chapter.mode ?? 'normal') !== 'normal';
+    const ctrl = new AnalysisController(vnode.elm as HTMLElement, model, analysisCtrl =>
+        new StudyAnalysisExtension(analysisCtrl, {
             studyId: study.id,
             chapterId: study.chapter.id,
             revision: study.chapter.revision,
@@ -2647,50 +2647,10 @@ function runStudyEmbedGround(
             createdAt: study.chapter.createdAt,
             concealPly: study.chapter.mode === 'conceal' ? (study.chapter.concealPly ?? 0) : undefined,
             policy,
-            ...(isGamebookPlayback(policy) ? { onGamebookScriptChanged: () => window.location.reload() } : {}),
+            rootOnlyPreview,
             writable: false,
-        });
-        return extension;
-    });
-
-    if (isGamebookPlayback(policy)) {
-        const orderedChapters = [...study.chapters].sort((a, b) => a.order - b.order);
-        const chapterIndex = orderedChapters.findIndex(chapter => chapter.id === study.chapter.id);
-        const nextChapter = chapterIndex >= 0 ? orderedChapters[chapterIndex + 1] : undefined;
-        extension.setGamebookPlayback(
-            new StudyGamebookPlayback(ctrl, {
-                chapterId: study.chapter.id,
-                orientation: study.chapter.orientation,
-                preview: false,
-                canAnalyse: false,
-                hasNextChapter: Boolean(nextChapter),
-                ...(nextChapter
-                    ? {
-                          onNextChapter: () =>
-                              window.location.assign(`/study/embed/${study.id}/${nextChapter.id}`),
-                      }
-                    : {}),
-            }),
-        );
-    }
-    if (isPracticePlayback(policy)) {
-        extension.setPracticeSession(
-            new StudyPracticeSession(ctrl, {
-                initialFen: study.chapter.initialFen,
-                learnerColor: study.chapter.orientation,
-                access: () => {
-                    if (!(study.features?.computer ?? true)) {
-                        return { available: false, reason: 'computer-disabled' as const };
-                    }
-                    if (ctrl.isLocalAnalysisBlockedByAntiCheat()) {
-                        return { available: false, reason: 'active-game' as const };
-                    }
-                    return { available: true };
-                },
-                canAnalyse: false,
-            }),
-        );
-    }
+        }),
+    );
     window['onFSFline'] = ctrl.onFSFline;
 }
 
@@ -2699,6 +2659,9 @@ export function studyEmbedView(model: PyChessModel): VNode[] {
     if (!study) return [h('div.box.box-pad', _('Study data is unavailable.'))];
 
     const policy = studyEmbedPolicy(study);
+    const chapterMode = study.chapter.mode ?? 'normal';
+    const preview = chapterMode !== 'normal';
+    const studyUrl = `/study/${study.id}/${study.chapter.id}`;
     const page = renderEmbedPage(
         model,
         vnode => runStudyEmbedGround(vnode, model, study, policy),
@@ -2708,18 +2671,31 @@ export function studyEmbedView(model: PyChessModel): VNode[] {
                 attrs: {
                     rel: 'noopener',
                     target: '_blank',
-                    href: `/study/${study.id}/${study.chapter.id}`,
+                    href: studyUrl,
                 },
             },
             `${study.name} • ${study.chapter.name}`,
         ),
+        preview
+            ? h(
+                  'a.button.study-embed-preview__open',
+                  {
+                      attrs: {
+                          rel: 'noopener',
+                          target: '_blank',
+                          href: studyUrl,
+                      },
+                  },
+                  chapterMode === 'gamebook' ? _('Start') : _('Open study'),
+              )
+            : undefined,
     );
     page[0].data = {
         ...page[0].data,
         class: {
             ...page[0].data?.class,
-            'study-gamebook-playback': isGamebookPlayback(policy) || isPracticePlayback(policy),
-            'study-practice-playback': isPracticePlayback(policy),
+            'study-embed-preview': preview,
+            'study-embed-gamebook': chapterMode === 'gamebook',
         },
     };
     return page;

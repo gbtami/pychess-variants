@@ -708,21 +708,42 @@ describe('analysis page smoke coverage', () => {
             chapter: { ...study.chapter, mode: 'gamebook' },
             chapters: [{ ...study.chapters[0], mode: 'gamebook' }],
         };
-        const lessonEmbed = studyEmbedView(makeModel({ gameId: '', embed: true, status: 0, study: lessonStudy }))[0];
-        expect(lessonEmbed.data?.class).toMatchObject({ 'study-gamebook-playback': true });
+        expect(root.querySelector('.study-embed-preview')).toBeNull();
+        expect(root.querySelector('.study-embed-preview__open')).toBeNull();
+
+        const lessonRoot = renderNodes(
+            studyEmbedView(makeModel({ gameId: '', embed: true, status: 0, study: lessonStudy })),
+        );
+        expect(lessonRoot.querySelector('.embed-app')?.classList.contains('study-embed-preview')).toBe(true);
+        expect(lessonRoot.querySelector('.embed-app')?.classList.contains('study-embed-gamebook')).toBe(true);
+        const start = lessonRoot.querySelector<HTMLAnchorElement>('.study-embed-preview__open')!;
+        expect(start.textContent).toBe('Start');
+        expect(start.href).toContain('/study/StUdY001/ChAp0001');
+        expect(lessonRoot.querySelector('.study-gamebook-play')).toBeNull();
 
         const practiceStudy: StudyPageModel = {
             ...study,
             chapter: { ...study.chapter, mode: 'practice' },
             chapters: [{ ...study.chapters[0], mode: 'practice' }],
         };
-        const practiceEmbed = studyEmbedView(
-            makeModel({ gameId: '', embed: true, status: 0, study: practiceStudy }),
-        )[0];
-        expect(practiceEmbed.data?.class).toMatchObject({
-            'study-gamebook-playback': true,
-            'study-practice-playback': true,
-        });
+        const practiceRoot = renderNodes(
+            studyEmbedView(makeModel({ gameId: '', embed: true, status: 0, study: practiceStudy })),
+        );
+        expect(practiceRoot.querySelector('.embed-app')?.classList.contains('study-embed-preview')).toBe(true);
+        expect(practiceRoot.querySelector('.embed-app')?.classList.contains('study-embed-gamebook')).toBe(false);
+        expect(practiceRoot.querySelector('.study-embed-preview__open')?.textContent).toBe('Open study');
+        expect(practiceRoot.querySelector('.study-gamebook-play')).toBeNull();
+
+        const concealStudy: StudyPageModel = {
+            ...study,
+            chapter: { ...study.chapter, mode: 'conceal', concealPly: 3 },
+            chapters: [{ ...study.chapters[0], mode: 'conceal' }],
+        };
+        const concealRoot = renderNodes(
+            studyEmbedView(makeModel({ gameId: '', embed: true, status: 0, study: concealStudy })),
+        );
+        expect(concealRoot.querySelector('.embed-app')?.classList.contains('study-embed-preview')).toBe(true);
+        expect(concealRoot.querySelector('.study-embed-preview__open')?.textContent).toBe('Open study');
     });
 
     test('embed view stays lean and does not render PGN tab content', () => {

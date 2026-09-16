@@ -51,7 +51,12 @@ function analysisSide(model: PyChessModel, context: AnalysisContext) {
     ]);
 }
 
-export function renderEmbedPage(model: PyChessModel, mountBoard: (vnode: VNode) => void, footer: VNode): VNode[] {
+export function renderEmbedPage(
+    model: PyChessModel,
+    mountBoard: (vnode: VNode) => void,
+    footer: VNode,
+    overlay?: VNode,
+): VNode[] {
     const variant = VARIANTS[model.variant];
 
     return [
@@ -78,6 +83,8 @@ export function renderEmbedPage(model: PyChessModel, mountBoard: (vnode: VNode) 
                     h('div.cg-wrap.pocket', [h('div#pocket1.pocketrow')]),
                 ]),
             ]),
+
+            ...(overlay ? [overlay] : []),
         ]),
         h('div.footer', [footer]),
     ];

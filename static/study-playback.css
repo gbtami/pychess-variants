@@ -1,6 +1,6 @@
-/* Shared Study training panel used by the full workspace and compact embeds. */
-:where(.study-app, .embed-app).study-gamebook-playback .analysis-tools > :not(.study-gamebook-play),
-:where(.study-app, .embed-app).study-gamebook-playback :is(#gauge, #btn-controls-top, #move-controls, .analysis-settings),
+/* Study training panel used by the full Study workspace. */
+.study-app.study-gamebook-playback .analysis-tools > :not(.study-gamebook-play),
+.study-app.study-gamebook-playback :is(#gauge, #btn-controls-top, #move-controls, .analysis-settings),
 .study-app.study-gamebook-playback .study-underboard :is(.study-tool-tabs, .study-tool-panel) {
     display: none !important;
 }

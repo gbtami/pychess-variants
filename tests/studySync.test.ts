@@ -97,6 +97,34 @@ describe('Study analysis websocket synchronization', () => {
         expect(ctrl.doSend).not.toHaveBeenCalled();
     });
 
+    test('root-only embed preview blocks moves, navigation, annotations and engine work', () => {
+        const ctrl = makeCtrl();
+        const child = addStudyNodeToAnalysisTree(ctrl.analysisTree, '', e4Node());
+        expect(child).not.toBeUndefined();
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            writable: false,
+            rootOnlyPreview: true,
+            onReloadRequired: jest.fn(),
+        });
+
+        expect(extension.boardInput({ turnColor: 'white' })).toBe(false);
+        expect(extension.beforeMoveApplied({ move: 'e2e4', origin: 'played-move', path: '' })).toBe(false);
+        expect(extension.canActivatePath('StudyNode1', 'user-navigation')).toBe(false);
+        expect(extension.canActivatePath('', 'reset')).toBe(true);
+        expect(extension.isTreeNodeVisible(ctrl.analysisTree.root)).toBe(true);
+        expect(extension.isTreeNodeVisible(ctrl.analysisTree.byPath.get('StudyNode1'))).toBe(false);
+        expect(extension.areTreeNodeAnnotationsVisible(ctrl.analysisTree.root)).toBe(false);
+        expect(extension.allowTreeContextMenu()).toBe(false);
+        expect(extension.allowComputerSearch()).toBe(false);
+        expect(extension.onEvaluation()).toBe(false);
+
+        extension.onPathChanged();
+        expect(ctrl.chessground.setShapes).toHaveBeenLastCalledWith([]);
+    });
+
     test('gamebook preview attempts stay local and do not advance revision or shared position', () => {
         const ctrl = makeCtrl();
         const policy = studySessionPolicy({
