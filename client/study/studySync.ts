@@ -42,6 +42,7 @@ import { renderStudyChapterPgn, type StudyPgnChapterData, type StudyPgnContext }
 import type { StudySessionPolicy } from './studyMode';
 import { StudyConcealController } from './studyConceal';
 import type { StudyGamebookPlayback } from './studyGamebookPlayback';
+import type { StudyPracticeSession } from './studyPractice';
 
 const STUDY_SOCKET_TYPES = new Set([
     'study_user_connected',
@@ -471,6 +472,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     private policy?: StudySessionPolicy;
     private conceal?: StudyConcealController;
     private gamebookPlayback?: StudyGamebookPlayback;
+    private practiceSession?: StudyPracticeSession;
     private suppressLocalPath = false;
     private pendingSharedPosition?: { chapterId: string; path: string };
 
@@ -604,19 +606,28 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         this.gamebookPlayback = playback;
     }
 
+    setPracticeSession(session: StudyPracticeSession | undefined): void {
+        this.practiceSession?.destroy();
+        this.practiceSession = session;
+    }
+
     beforeMoveApplied(move: AnalysisMoveApplication): boolean | void {
+        if (this.practiceSession) return this.practiceSession.beforeMoveApplied(move);
         return this.gamebookPlayback?.beforeMoveApplied(move);
     }
 
     boardInput(context: { turnColor: 'white' | 'black' }): 'white' | 'black' | false {
+        if (this.practiceSession) return this.practiceSession.boardInput(context.turnColor);
         return this.gamebookPlayback?.boardInput(context.turnColor) ?? context.turnColor;
     }
 
     onPositionChanged(change: AnalysisPositionChange): void {
+        this.practiceSession?.onPositionChanged(change);
         this.gamebookPlayback?.onPositionChanged(change);
     }
 
     canActivatePath(path: string, origin: AnalysisNavigationOrigin): boolean {
+        if (this.practiceSession && !this.practiceSession.canActivatePath(path, origin)) return false;
         if (this.gamebookPlayback && !this.gamebookPlayback.canActivatePath(path, origin)) return false;
         return this.conceal?.canActivatePath(path, origin) ?? true;
     }
@@ -636,6 +647,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     }
 
     allowTreeContextMenu(): boolean {
+        if (this.practiceSession && !this.practiceSession.allowTreeContextMenu()) return false;
         if (this.gamebookPlayback && !this.gamebookPlayback.allowTreeContextMenu()) return false;
         return this.conceal?.allowTreeContextMenu() ?? true;
     }
@@ -795,6 +807,8 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     }
 
     onDestroy(): void {
+        this.practiceSession?.destroy();
+        this.practiceSession = undefined;
         this.gamebookPlayback?.destroy();
         this.gamebookPlayback = undefined;
         this.connected = false;
@@ -910,6 +924,14 @@ export class StudyAnalysisExtension implements AnalysisExtension {
             studyId: this.options.studyId,
             chapterId: this.options.chapterId,
         });
+    }
+
+    onEngineLine(line: string): boolean {
+        return this.practiceSession?.onEngineLine(line) ?? false;
+    }
+
+    onComputerSearchAvailabilityChanged(): void {
+        this.practiceSession?.refreshAvailability();
     }
 
     allowComputerSearch(): boolean {

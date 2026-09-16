@@ -62,6 +62,10 @@ export interface AnalysisExtension {
     onPositionChanged?(change: AnalysisPositionChange): void;
     boardInput?(context: AnalysisBoardInputContext): 'white' | 'black' | 'both' | false;
     onEvaluation?(evaluation: AnalysisEvaluationDelivery): boolean | void;
+    /** Consume browser-engine output owned by an extension-specific bounded search. */
+    onEngineLine?(line: string): boolean;
+    /** Re-check extension-owned engine work after permission/readiness changes. */
+    onComputerSearchAvailabilityChanged?(): void;
     allowComputerSearch?(): boolean;
     isTreeNodeVisible?(node: AnalysisTreeNode): boolean;
     isTreeNodeConcealed?(node: AnalysisTreeNode): boolean;

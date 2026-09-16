@@ -1,0 +1,352 @@
+/** @jest-environment jsdom */
+
+import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
+
+jest.mock('../client/i18n', () => ({
+    _: (text: string, ...args: string[]) =>
+        args.reduce((value, arg, index) => value.replace(`%${index + 1}`, arg), text),
+}));
+
+import type { AnalysisController } from '../client/analysis/analysisCtrl';
+import type { AnalysisNavigationOrigin } from '../client/analysis/analysisExtension';
+import type { AnalysisTree, AnalysisTreeNode } from '../client/analysis/analysisTree';
+import { StudyPracticeSession, type StudyPracticeAccess } from '../client/study/studyPractice';
+
+type Color = 'white' | 'black';
+
+type Scenario = {
+    initialTurn: Color;
+    terminalAfter?: number;
+    initialTerminal?: boolean;
+};
+
+let scenario: Scenario;
+
+function opposite(color: Color): Color {
+    return color === 'white' ? 'black' : 'white';
+}
+
+class FakeBoard {
+    private turn: Color;
+    private readonly moves: string[] = [];
+    deleted = false;
+
+    constructor(_variant: string, fen: string) {
+        this.turn = fen.split(' ')[1] === 'b' ? 'black' : scenario.initialTurn;
+    }
+
+    delete(): void {
+        this.deleted = true;
+    }
+
+    isGameOver(): boolean {
+        return Boolean(
+            scenario.initialTerminal ||
+            (scenario.terminalAfter !== undefined && this.moves.length >= scenario.terminalAfter),
+        );
+    }
+
+    result(): string {
+        return this.isGameOver() ? '1-0' : '*';
+    }
+
+    legalMoves(): string {
+        if (this.isGameOver()) return '';
+        if (this.turn === 'white') return this.moves.length === 0 ? 'e2e4 d2d4' : 'g1f3 b1c3';
+        return this.moves.length === 0 ? 'e7e5 d7d5' : 'e7e5 d7d5 g8f6';
+    }
+
+    push(move: string): void {
+        if (!this.legalMoves().split(' ').includes(move)) throw new Error(`illegal ${move}`);
+        this.moves.push(move);
+        this.turn = opposite(this.turn);
+    }
+}
+
+function rootFen(turn: Color): string {
+    return `8/8/8/8/8/8/8/8 ${turn === 'white' ? 'w' : 'b'} - - 0 1`;
+}
+
+function makeRoot(fen: string): AnalysisTreeNode {
+    return {
+        id: 'root',
+        path: '',
+        ply: 0,
+        step: { fen, turnColor: fen.includes(' b ') ? 'black' : 'white', check: false },
+        children: [],
+        mainlinePly: 0,
+    };
+}
+
+function makeHarness(learnerColor: Color, accessRef = { value: { available: true } as StudyPracticeAccess }) {
+    document.body.innerHTML = '<div class="analysis-tools"><div class="ordinary-tools"></div></div>';
+    const commands: string[] = [];
+    const sent: string[] = [];
+    const fen = rootFen(scenario.initialTurn);
+    const root = makeRoot(fen);
+    const tree: AnalysisTree = { root, byPath: new Map([['', root]]), nextId: 1 };
+    const positions = new Map<string, { turn: Color; fen: string }>([['', { turn: scenario.initialTurn, fen }]]);
+    let moveIndex = 0;
+    let session!: StudyPracticeSession;
+
+    const ctrl = {
+        analysisTree: tree,
+        analysisPath: '',
+        steps: [root.step],
+        recordedMainlinePly: 0,
+        turnColor: scenario.initialTurn,
+        fullfen: fen,
+        engineVariant: 'chess',
+        chess960: false,
+        variant: { twoBoards: false },
+        ffish: { Board: FakeBoard },
+        localEngine: true,
+        localAnalysis: false,
+        isEngineReady: true,
+        variantSupportedByFSF: true,
+        uciOk: true,
+        chessground: {
+            cancelPremove: jest.fn(),
+            set: jest.fn(),
+        },
+        fsfPostMessage: (command: string) => commands.push(command),
+        suspendLocalAnalysisForExtension: jest.fn(function (this: { localAnalysis: boolean }) {
+            this.localAnalysis = false;
+        }),
+        isPracticeEngineIdle: () => true,
+        isLocalAnalysisBlockedByAntiCheat: () => false,
+        activateTreePath(path: string, _redraw: boolean, _origin: AnalysisNavigationOrigin) {
+            const position = positions.get(path);
+            if (!position) return false;
+            this.analysisPath = path;
+            this.turnColor = position.turn;
+            this.fullfen = position.fen;
+            return true;
+        },
+        applyAnalysisMove(move: string, origin: 'played-move' | 'automated-reply') {
+            const nextTurn = opposite(this.turnColor);
+            const path = `m${++moveIndex}`;
+            const nextFen = rootFen(nextTurn);
+            const node: AnalysisTreeNode = {
+                id: path,
+                path,
+                ply: moveIndex,
+                step: { move, fen: nextFen, turnColor: nextTurn, check: false },
+                children: [],
+            };
+            tree.byPath.set(path, node);
+            tree.root.children.push(node);
+            this.analysisPath = path;
+            this.turnColor = nextTurn;
+            this.fullfen = nextFen;
+            positions.set(path, { turn: nextTurn, fen: nextFen });
+            sent.push(move);
+            session.onPositionChanged({
+                origin,
+                path,
+                previousPath: '',
+                ply: moveIndex,
+                fen: nextFen,
+                node,
+            });
+            return true;
+        },
+    } as unknown as AnalysisController;
+
+    session = new StudyPracticeSession(ctrl, {
+        initialFen: fen,
+        learnerColor,
+        access: () => accessRef.value,
+        canAnalyse: false,
+    });
+
+    const humanMove = (move: string) => {
+        const allowed = session.beforeMoveApplied({ move, origin: 'played-move', path: ctrl.analysisPath ?? '' });
+        if (!allowed) return false;
+        return ctrl.applyAnalysisMove(move, 'played-move');
+    };
+
+    return { ctrl, session, commands, sent, humanMove, tree, accessRef };
+}
+
+describe('StudyPracticeSession', () => {
+    beforeEach(() => {
+        jest.useFakeTimers();
+        scenario = { initialTurn: 'white' };
+    });
+
+    afterEach(() => {
+        jest.useRealTimers();
+        document.body.replaceChildren();
+    });
+
+    test('white learner starts from a FEN-only root and receives exactly one engine reply', () => {
+        scenario = { initialTurn: 'white' };
+        const { session, commands, sent, humanMove, tree } = makeHarness('white');
+
+        expect(session.state.kind).toBe('human-turn');
+        expect(tree.root.children).toHaveLength(0);
+        expect(humanMove('e2e4')).toBe(true);
+        expect(session.state.kind).toBe('engine-thinking');
+        expect(commands).toContain('position fen 8/8/8/8/8/8/8/8 w - - 0 1 moves e2e4');
+        expect(commands).toContain('go nodes 600000');
+
+        expect(session.onEngineLine('bestmove e7e5')).toBe(true);
+        expect(session.state.kind).toBe('human-turn');
+        expect(sent).toEqual(['e2e4', 'e7e5']);
+        expect(session.attemptHistory.map(entry => entry.by)).toEqual(['human', 'engine']);
+
+        // A duplicate trailing bestmove belongs to the E1 drain, not a second reply.
+        expect(session.onEngineLine('bestmove d7d5')).toBe(true);
+        expect(sent).toEqual(['e2e4', 'e7e5']);
+        session.onEngineLine('readyok');
+        session.destroy();
+    });
+
+    test('black learner waits for the engine to make the root reply first', () => {
+        scenario = { initialTurn: 'white' };
+        const { session, sent, humanMove } = makeHarness('black');
+
+        expect(session.state.kind).toBe('engine-thinking');
+        session.onEngineLine('bestmove e2e4');
+        expect(session.state.kind).toBe('human-turn');
+        expect(sent).toEqual(['e2e4']);
+        expect(humanMove('e7e5')).toBe(true);
+        expect(session.state.kind).toBe('engine-thinking');
+        session.destroy();
+    });
+
+    test('saved authored continuations are discarded from the disposable practice tree', () => {
+        scenario = { initialTurn: 'white' };
+        document.body.innerHTML = '<div class="analysis-tools"></div>';
+        const fen = rootFen('white');
+        const root = makeRoot(fen);
+        const authored: AnalysisTreeNode = {
+            id: 'authored',
+            path: 'authored',
+            ply: 1,
+            step: { move: 'd2d4', fen: rootFen('black'), turnColor: 'black', check: false },
+            children: [],
+            mainlinePly: 1,
+        };
+        root.children.push(authored);
+        const tree: AnalysisTree = {
+            root,
+            byPath: new Map([
+                ['', root],
+                ['authored', authored],
+            ]),
+            nextId: 2,
+        };
+        const ctrl = {
+            analysisTree: tree,
+            analysisPath: '',
+            steps: [root.step, authored.step],
+            recordedMainlinePly: 1,
+            turnColor: 'white',
+            fullfen: fen,
+            engineVariant: 'chess',
+            chess960: false,
+            variant: { twoBoards: false },
+            ffish: { Board: FakeBoard },
+            localEngine: true,
+            localAnalysis: false,
+            isEngineReady: true,
+            variantSupportedByFSF: true,
+            uciOk: true,
+            chessground: { cancelPremove: jest.fn(), set: jest.fn() },
+            fsfPostMessage: jest.fn(),
+            suspendLocalAnalysisForExtension: jest.fn(),
+            isPracticeEngineIdle: () => true,
+            activateTreePath: jest.fn(),
+        } as unknown as AnalysisController;
+        const session = new StudyPracticeSession(ctrl, {
+            initialFen: fen,
+            learnerColor: 'white',
+            access: () => ({ available: true }),
+            canAnalyse: false,
+        });
+
+        expect(tree.root.children).toEqual([]);
+        expect(tree.byPath.has('authored')).toBe(false);
+        expect(ctrl.steps).toHaveLength(1);
+        session.destroy();
+    });
+
+    test('pause cancels engine work, permits history browsing, and resume returns to the live path', () => {
+        scenario = { initialTurn: 'white' };
+        const { session, ctrl, humanMove } = makeHarness('white');
+        humanMove('e2e4');
+        session.onEngineLine('bestmove e7e5');
+        session.onEngineLine('readyok');
+        expect(session.state.kind).toBe('human-turn');
+        expect(session.pause()).toBe(true);
+        expect(session.state.kind).toBe('paused');
+        expect(session.browse(-1)).toBe(true);
+        expect(ctrl.analysisPath).toBe('m1');
+        expect(session.browse(-1)).toBe(true);
+        expect(ctrl.analysisPath).toBe('');
+        expect(session.resume()).toBe(true);
+        expect(ctrl.analysisPath).toBe('m2');
+        expect(session.state.kind).toBe('human-turn');
+        session.destroy();
+    });
+
+    test('reset invalidates the old search and starts a fresh root attempt', () => {
+        scenario = { initialTurn: 'white' };
+        const { session, ctrl, humanMove } = makeHarness('white');
+        humanMove('e2e4');
+        expect(session.state.kind).toBe('engine-thinking');
+        session.reset();
+        expect(ctrl.analysisPath).toBe('');
+        expect(session.attemptHistory).toEqual([]);
+        expect(session.state.kind).toBe('human-turn');
+        // Stale output from the cancelled attempt cannot move the fresh board.
+        session.onEngineLine('bestmove e7e5');
+        expect(session.attemptHistory).toEqual([]);
+        session.onEngineLine('readyok');
+        session.destroy();
+    });
+
+    test('terminal root ends immediately without starting an engine search', () => {
+        scenario = { initialTurn: 'black', initialTerminal: true };
+        const { session, commands } = makeHarness('white');
+        expect(session.state).toEqual({ kind: 'ended', result: '1-0' });
+        expect(commands.some(command => command.startsWith('go '))).toBe(false);
+        session.destroy();
+    });
+
+    test('terminal result after a human move stops before requesting an engine reply', () => {
+        scenario = { initialTurn: 'white', terminalAfter: 1 };
+        const { session, commands, humanMove } = makeHarness('white');
+        expect(humanMove('e2e4')).toBe(true);
+        expect(session.state).toEqual({ kind: 'ended', result: '1-0' });
+        expect(commands.some(command => command.startsWith('go '))).toBe(false);
+        session.destroy();
+    });
+
+    test('anti-cheat revocation during engine thinking stops play and fails closed', () => {
+        scenario = { initialTurn: 'white' };
+        const accessRef = { value: { available: true } as StudyPracticeAccess };
+        const { session, commands, humanMove } = makeHarness('white', accessRef);
+        humanMove('e2e4');
+        expect(session.state.kind).toBe('engine-thinking');
+        accessRef.value = { available: false, reason: 'active-game' };
+        session.refreshAvailability();
+        expect(session.state).toEqual({ kind: 'unavailable', reason: 'active-game' });
+        expect(commands).toContain('stop');
+        expect(commands).toContain('isready');
+        session.destroy();
+    });
+
+    test('destroy during an engine search prevents a late reply from being applied', () => {
+        scenario = { initialTurn: 'white' };
+        const { session, sent, humanMove } = makeHarness('white');
+        humanMove('e2e4');
+        expect(session.state.kind).toBe('engine-thinking');
+        session.destroy();
+        expect(session.onEngineLine('bestmove e7e5')).toBe(false);
+        expect(sent).toEqual(['e2e4']);
+        expect(document.querySelector('.study-practice')).toBeNull();
+    });
+});

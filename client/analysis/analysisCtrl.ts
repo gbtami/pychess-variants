@@ -699,6 +699,7 @@ export class AnalysisController extends GameController {
                 !this.isEngineReady ||
                 !this.variantSupportedByFSF;
         }
+        this.analysisExtension?.onComputerSearchAvailabilityChanged?.();
     }
 
     nnueIni(data?: Uint8Array) {
@@ -1070,6 +1071,7 @@ export class AnalysisController extends GameController {
         if (this.destroyed) return;
         if (this.fsfDebug) console.debug('--->', line);
 
+        if (this.analysisExtension?.onEngineLine?.(line)) return;
         if (this.ongoing) return;
 
         if (line.startsWith('info')) {
@@ -1354,6 +1356,11 @@ export class AnalysisController extends GameController {
             }
         }
     };
+
+    /** True when extension-owned bounded searches may safely take over the shared engine. */
+    isPracticeEngineIdle(): boolean {
+        return !this.awaitingStopReadyok && !this.pendingGoAfterStopReadyok;
+    }
 
     engineStop = () => {
         // Keep the toggle enabled, but still synchronize restart sequencing.
