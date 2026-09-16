@@ -1,4 +1,3 @@
-@import 'study-playback.css';
 :root {
     --main-max-width: auto;
     --ranks-top: 0px;
@@ -18,6 +17,45 @@ body {
     grid-template-columns: minmax(200px, calc(100vh - 2.5rem)) minmax(200px, 1fr);
     grid-template-rows: min-content 1fr;
     grid-template-areas: 'board pocket-top' 'board tools' 'board tools' 'board pocket-bot' 'board move-controls';
+}
+
+.embed-app.study-embed-preview {
+    position: relative;
+}
+.embed-app.study-embed-preview :is(.analysis-tools, #move-controls) {
+    visibility: hidden;
+}
+.embed-app.study-embed-preview :is(#mainboard, .pocket-top, .pocket-bot) {
+    pointer-events: none;
+}
+.study-embed-preview__open {
+    z-index: 10;
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    display: block;
+    width: fit-content;
+    height: fit-content;
+    max-width: calc(100% - 2rem);
+    padding: clamp(.75em, 4vw, 1.5em) clamp(1.25em, 8vw, 3em);
+    border: 0;
+    border-radius: 3px;
+    background: var(--link-color-blue);
+    color: #fff;
+    font: inherit;
+    font-size: 1.5em;
+    text-align: center;
+    text-decoration: none;
+    white-space: normal;
+    overflow-wrap: break-word;
+    box-shadow: 0 2px 10px rgb(0 0 0 / 35%);
+}
+.study-embed-preview__open:hover {
+    filter: brightness(1.1);
+}
+.study-embed-preview__open:focus-visible {
+    outline: 2px solid var(--link-color-blue);
+    outline-offset: 3px;
 }
 .cg-wrap coords.side, .cg-wrap coords.bottom, .cg-wrap coords.top {
     display: none;

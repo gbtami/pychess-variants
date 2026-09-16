@@ -162,6 +162,7 @@ export interface StudySyncOptions {
     writable?: boolean;
     recording?: boolean;
     policy?: StudySessionPolicy;
+    rootOnlyPreview?: boolean;
 }
 
 function record(message: unknown): Record<string, unknown> | undefined {
@@ -612,11 +613,13 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     }
 
     beforeMoveApplied(move: AnalysisMoveApplication): boolean | void {
+        if (this.options.rootOnlyPreview) return false;
         if (this.practiceSession) return this.practiceSession.beforeMoveApplied(move);
         return this.gamebookPlayback?.beforeMoveApplied(move);
     }
 
     boardInput(context: { turnColor: 'white' | 'black' }): 'white' | 'black' | false {
+        if (this.options.rootOnlyPreview) return false;
         if (this.practiceSession) return this.practiceSession.boardInput(context.turnColor);
         return this.gamebookPlayback?.boardInput(context.turnColor) ?? context.turnColor;
     }
@@ -627,12 +630,17 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     }
 
     canActivatePath(path: string, origin: AnalysisNavigationOrigin): boolean {
+        if (this.options.rootOnlyPreview) {
+            if (path === (this.ctrl.analysisPath ?? '')) return true;
+            return origin === 'reset' && path === '';
+        }
         if (this.practiceSession && !this.practiceSession.canActivatePath(path, origin)) return false;
         if (this.gamebookPlayback && !this.gamebookPlayback.canActivatePath(path, origin)) return false;
         return this.conceal?.canActivatePath(path, origin) ?? true;
     }
 
     isTreeNodeVisible(node: AnalysisTreeNode): boolean {
+        if (this.options.rootOnlyPreview) return node.path === '';
         if (this.gamebookPlayback && !this.gamebookPlayback.isTreeNodeVisible(node)) return false;
         return this.conceal?.isTreeNodeVisible(node) ?? true;
     }
@@ -642,11 +650,13 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     }
 
     areTreeNodeAnnotationsVisible(node: AnalysisTreeNode): boolean {
+        if (this.options.rootOnlyPreview) return false;
         if (this.gamebookPlayback && !this.gamebookPlayback.areTreeNodeAnnotationsVisible()) return false;
         return this.conceal?.areTreeNodeAnnotationsVisible(node) ?? true;
     }
 
     allowTreeContextMenu(): boolean {
+        if (this.options.rootOnlyPreview) return false;
         if (this.practiceSession && !this.practiceSession.allowTreeContextMenu()) return false;
         if (this.gamebookPlayback && !this.gamebookPlayback.allowTreeContextMenu()) return false;
         return this.conceal?.allowTreeContextMenu() ?? true;
@@ -760,6 +770,9 @@ export class StudyAnalysisExtension implements AnalysisExtension {
             this.initialTreeLoaded = true;
             this.refreshPreferredMainline();
             this.applyServerEval();
+            if (this.options.rootOnlyPreview && this.ctrl.analysisPath !== '') {
+                this.ctrl.activateTreePath('', true, 'reset');
+            }
             this.restoreCurrentShapes();
             this.notifyAnnotationState();
             updateMovelist(this.ctrl, true, false);
@@ -935,10 +948,12 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     }
 
     allowComputerSearch(): boolean {
+        if (this.options.rootOnlyPreview) return false;
         return this.policy?.tools.computerSearch ?? true;
     }
 
     onEvaluation(): boolean {
+        if (this.options.rootOnlyPreview) return false;
         return this.policy?.tools.evaluationDisplay ?? true;
     }
 
@@ -1242,7 +1257,9 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     private restoreCurrentShapes(): void {
         const node = this.currentNode();
         this.ctrl.chessground.setShapes(
-            this.conceal?.areBoardShapesVisible() === false ? [] : (node?.annotations?.shapes ?? []),
+            this.options.rootOnlyPreview || this.conceal?.areBoardShapesVisible() === false
+                ? []
+                : (node?.annotations?.shapes ?? []),
         );
     }
 
