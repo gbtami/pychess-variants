@@ -638,14 +638,23 @@ Interactive lesson only with D completed.
   pause/browse/resume, writer-only analysis escape, engine/access failure and
   teardown are covered by deterministic frontend tests; stale/duplicate replies are
   rejected by the E1 ownership barrier and no practice move is recorded to Study.
-- [ ] **E3 — Hints and move feedback.** Evaluate parent and resulting position
+- [x] **E3 — Hints and move feedback.** Evaluate parent and resulting position
   with a defined budget before comparing scores. Handle insufficient information
   without inventing a verdict. Add approximate good/inaccuracy/mistake/blunder
   feedback, alternative-best-move explanation, retry-best-move action and escalating
   hints. Cover mate scores, perspective reversal, immediate variant wins/draws,
   promotion/castling aliases and drops. Use variant-aware outcome text.
-  **Done:** deterministic score fixtures and move fixtures verify feedback, while
-  live-engine checks establish that actual output reaches the same path.
+  **Done:** practice evaluates learner-turn positions and, when needed, resulting
+  positions with separate bounded 400k-node searches before comparing fixed-learner
+  winning chances. Exact best-move matches and terminal wins are handled directly;
+  missing/bounded scores produce an explicit ungraded result. Feedback uses the
+  lichess winning-chance thresholds, preserves side-to-move/mate perspective, offers
+  the engine alternative plus a local retry action, and cycles hints from source/drop
+  information to the full move without exposing ordinary PVs. Deterministic fixtures
+  cover thresholds, mates, castling aliases, promotions, drops and variant terminal
+  results; Study session tests feed UCI `info`/`bestmove` lines through E1 and verify
+  the same feedback, retry and hint paths, while a bounded live Fairy-Stockfish WASM
+  search confirms real engine output reaches that adapter/grading path.
 - [ ] **E4 — Browser acceptance and resource bounds.** Verify a real supported
   browser engine, slow initialization, disabled computer permission, active-game
   blocking, engine failure, custom rules, rapid chapter switching and repeat reset.

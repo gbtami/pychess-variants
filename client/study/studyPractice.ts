@@ -1,3 +1,7 @@
+import type * as cg from 'chessgroundx/types';
+import type { DrawShape } from 'chessgroundx/draw';
+import * as util from 'chessgroundx/util';
+
 import type { AnalysisController } from '../analysis/analysisCtrl';
 import type {
     AnalysisMoveApplication,
@@ -7,9 +11,18 @@ import type {
 import {
     AnalysisPracticeEngine,
     type AnalysisPracticeEngineEvent,
+    type AnalysisPracticeSearchOwner,
     type AnalysisPracticeUnavailableReason,
 } from '../analysis/analysisPracticeEngine';
+import { uci2cg } from '../chess';
 import { _ } from '../i18n';
+import {
+    gradeStudyPracticeMove,
+    studyPracticeMovesEquivalent,
+    studyPracticeOutcomeText,
+    type StudyPracticeEvaluation,
+    type StudyPracticeFeedback,
+} from './studyPracticeFeedback';
 
 export type StudyPracticeUnavailableReason =
     | 'computer-disabled'
@@ -29,9 +42,11 @@ export interface StudyPracticeMove {
 export type StudyPracticeState =
     | Readonly<{ kind: 'initializing' }>
     | Readonly<{ kind: 'human-turn' }>
+    | Readonly<{ kind: 'evaluating-move' }>
+    | Readonly<{ kind: 'move-feedback'; feedback: StudyPracticeFeedback }>
     | Readonly<{ kind: 'engine-thinking' }>
     | Readonly<{ kind: 'paused'; liveKind: 'human-turn' | 'engine-thinking'; browseIndex: number }>
-    | Readonly<{ kind: 'ended'; result?: string }>
+    | Readonly<{ kind: 'ended'; result?: string; feedback?: StudyPracticeFeedback }>
     | Readonly<{ kind: 'unavailable'; reason: StudyPracticeUnavailableReason; message?: string }>;
 
 export type StudyPracticeAccess =
@@ -50,11 +65,52 @@ type PracticeBoard = {
     delete(): void;
     isGameOver(claimDraw?: boolean): boolean;
     legalMoves(): string;
+    pop(): void;
     push(move: string): void;
     result(claimDraw?: boolean): string;
+    sanMove(move: string): string;
 };
 
+const PRACTICE_FEEDBACK_NODES = 400_000;
 const PRACTICE_SEARCH_NODES = 600_000;
+
+type PositionEvaluation = StudyPracticeEvaluation & Readonly<{
+    key: string;
+    moves: readonly string[];
+    bestSan?: string;
+}>;
+
+type SearchPurpose =
+    | Readonly<{
+          kind: 'evaluation';
+          key: string;
+          moves: readonly string[];
+          turnColor: 'white' | 'black';
+      }>
+    | Readonly<{ kind: 'reply' }>;
+
+interface PendingGrade {
+    playedMove: string;
+    parentMoves: readonly string[];
+    childMoves: readonly string[];
+    parentTurnColor: 'white' | 'black';
+    childTurnColor: 'white' | 'black';
+    parentPath: string;
+    terminalResult?: string;
+}
+
+function ownerKey(owner: AnalysisPracticeSearchOwner): string {
+    return `${owner.session}:${owner.search}`;
+}
+
+function boardKey(ctrl: AnalysisController, value: string): cg.Key | undefined {
+    if (value.length !== 2) return undefined;
+    const key = value as cg.Key;
+    const [file, rank] = util.key2pos(key);
+    const dimensions = ctrl.chessground.state.dimensions;
+    if (file < 0 || rank < 0 || file >= dimensions.width || rank >= dimensions.height) return undefined;
+    return key;
+}
 
 /**
  * Disposable live-play session for Study "Practice with computer" chapters.
@@ -73,7 +129,14 @@ export class StudyPracticeSession {
     private stateValue: StudyPracticeState = { kind: 'initializing' };
     private readonly history: StudyPracticeMove[] = [];
     private readonly paths: string[] = [''];
+    private readonly evaluations = new Map<string, PositionEvaluation>();
+    private readonly evaluationSearches = new Set<string>();
+    private readonly searchPurposes = new Map<string, SearchPurpose>();
     private livePath = '';
+    private pendingGrade?: PendingGrade;
+    private launchingSearchPurpose?: SearchPurpose;
+    private lastFeedback?: StudyPracticeFeedback;
+    private hintLevel: 0 | 1 | 2 = 0;
     private applyingEngineReply = false;
     private destroyed = false;
 
@@ -158,6 +221,9 @@ export class StudyPracticeSession {
             return;
         }
 
+        const parentMoves = this.history.map(entry => entry.move);
+        const parentPath = change.previousPath;
+
         const legalMoves = this.legalMoves();
         if (!legalMoves.has(move)) {
             this.setUnavailable('engine-error', _('A practice move was rejected by the saved variant rules.'));
@@ -174,12 +240,29 @@ export class StudyPracticeSession {
         this.paths.push(change.path);
         this.livePath = change.path;
 
-        if (this.isTerminal()) {
-            this.finish();
+        if (by === 'engine') {
+            if (this.isTerminal()) {
+                this.finish();
+                return;
+            }
+            if (this.ctrl.turnColor === this.options.learnerColor) this.enterHumanTurn();
+            else this.startEngineReply();
             return;
         }
-        if (this.ctrl.turnColor === this.options.learnerColor) this.setState({ kind: 'human-turn' });
-        else this.startEngineReply();
+
+        this.hintLevel = 0;
+        this.clearHintShapes();
+        this.pendingGrade = {
+            playedMove: move,
+            parentMoves,
+            childMoves: this.history.map(entry => entry.move),
+            parentTurnColor: this.options.learnerColor,
+            childTurnColor: this.ctrl.turnColor,
+            parentPath,
+            ...(this.isTerminal() ? { terminalResult: this.gameResult() } : {}),
+        };
+        this.setState({ kind: 'evaluating-move' });
+        this.continuePendingGrade();
     }
 
     canActivatePath(path: string, origin: AnalysisNavigationOrigin): boolean {
@@ -238,8 +321,15 @@ export class StudyPracticeSession {
             this.finish();
             return;
         }
-        if (this.stateValue.kind === 'paused' || this.stateValue.kind === 'ended') return;
-        if (this.ctrl.turnColor === this.options.learnerColor) this.setState({ kind: 'human-turn' });
+        if (
+            this.stateValue.kind === 'paused' ||
+            this.stateValue.kind === 'ended' ||
+            this.stateValue.kind === 'evaluating-move' ||
+            this.stateValue.kind === 'move-feedback' ||
+            this.stateValue.kind === 'engine-thinking'
+        )
+            return;
+        if (this.ctrl.turnColor === this.options.learnerColor) this.enterHumanTurn();
         else this.startEngineReply();
     }
 
@@ -248,6 +338,8 @@ export class StudyPracticeSession {
         if (this.stateValue.kind !== 'human-turn' && this.stateValue.kind !== 'engine-thinking') return false;
         const liveKind = this.stateValue.kind;
         this.engine.cancel();
+        this.searchPurposes.clear();
+        this.evaluationSearches.clear();
         const browseIndex = Math.max(0, this.paths.indexOf(this.ctrl.analysisPath ?? this.livePath));
         this.setState({ kind: 'paused', liveKind, browseIndex });
         return true;
@@ -260,7 +352,7 @@ export class StudyPracticeSession {
             this.finish();
             return true;
         }
-        if (this.ctrl.turnColor === this.options.learnerColor) this.setState({ kind: 'human-turn' });
+        if (this.ctrl.turnColor === this.options.learnerColor) this.enterHumanTurn();
         else this.startEngineReply();
         return true;
     }
@@ -279,9 +371,79 @@ export class StudyPracticeSession {
         return true;
     }
 
+    hint(): boolean {
+        if (this.destroyed || this.stateValue.kind !== 'human-turn') return false;
+        this.hintLevel = this.hintLevel === 0 ? 1 : this.hintLevel === 1 ? 2 : 0;
+        if (this.hintLevel > 0) this.ensureEvaluation(this.history.map(entry => entry.move), this.ctrl.turnColor);
+        this.syncHintShapes();
+        this.render();
+        return true;
+    }
+
+    continueAfterFeedback(): boolean {
+        if (this.destroyed || this.stateValue.kind !== 'move-feedback') return false;
+        const feedback = this.stateValue.feedback;
+        const terminalResult = this.pendingGrade?.terminalResult;
+        this.lastFeedback = feedback;
+        this.pendingGrade = undefined;
+        if (terminalResult) this.finish(feedback, terminalResult);
+        else this.advanceAfterHumanMove();
+        return true;
+    }
+
+    retryBestMove(): boolean {
+        if (this.destroyed || this.stateValue.kind !== 'move-feedback') return false;
+        const pending = this.pendingGrade;
+        const bestMove = this.stateValue.feedback.bestMove;
+        if (!pending || !bestMove || this.history.length === 0) return false;
+
+        this.engine.beginSession();
+        this.searchPurposes.clear();
+        this.evaluationSearches.clear();
+        try {
+            this.historyBoard.pop();
+        } catch (error) {
+            this.setUnavailable('engine-error', error instanceof Error ? error.message : String(error));
+            return false;
+        }
+
+        this.history.pop();
+        this.paths.pop();
+        this.livePath = pending.parentPath;
+        this.ctrl.activateTreePath(pending.parentPath, true, 'reset');
+        if ((this.ctrl.analysisPath ?? '') !== pending.parentPath) {
+            this.setUnavailable('engine-error', _('Practice could not return to the position before your move.'));
+            return false;
+        }
+
+        const retryMove = this.resolveLegalBestMove(bestMove);
+        if (!retryMove) {
+            this.setUnavailable('engine-error', _('The suggested best move is no longer legal in this position.'));
+            return false;
+        }
+
+        this.pendingGrade = undefined;
+        this.lastFeedback = undefined;
+        this.hintLevel = 0;
+        this.clearHintShapes();
+        this.enterHumanTurn();
+        if (!this.ctrl.applyAnalysisMove(retryMove, 'played-move')) {
+            this.setUnavailable('engine-error', _('The suggested best move could not be applied.'));
+            return false;
+        }
+        return true;
+    }
+
     reset(): void {
         if (this.destroyed) return;
         this.engine.beginSession();
+        this.searchPurposes.clear();
+        this.evaluationSearches.clear();
+        this.evaluations.clear();
+        this.pendingGrade = undefined;
+        this.lastFeedback = undefined;
+        this.hintLevel = 0;
+        this.clearHintShapes();
         this.ctrl.activateTreePath('', true, 'reset');
         this.resetLocalAttemptTree();
         this.historyBoard.delete();
@@ -298,6 +460,7 @@ export class StudyPracticeSession {
         this.destroyed = true;
         this.engine.destroy();
         this.historyBoard.delete();
+        this.clearHintShapes();
         this.panel.remove();
     }
 
@@ -336,15 +499,24 @@ export class StudyPracticeSession {
         }
     }
 
-    private finish(): void {
-        this.engine.cancel();
-        let result: string | undefined;
+    private gameResult(): string | undefined {
         try {
-            result = this.historyBoard.result(true);
+            return this.historyBoard.result(true);
         } catch {
-            result = undefined;
+            return undefined;
         }
-        this.setState({ kind: 'ended', ...(result ? { result } : {}) });
+    }
+
+    private finish(feedback = this.lastFeedback, result = this.gameResult()): void {
+        this.engine.cancel();
+        this.pendingGrade = undefined;
+        this.hintLevel = 0;
+        this.clearHintShapes();
+        this.setState({
+            kind: 'ended',
+            ...(result ? { result } : {}),
+            ...(feedback ? { feedback } : {}),
+        });
     }
 
     private engineReady(): boolean {
@@ -355,6 +527,179 @@ export class StudyPracticeSession {
             !this.ctrl.localAnalysis &&
             this.ctrl.isPracticeEngineIdle()
         );
+    }
+
+    private positionKey(moves: readonly string[]): string {
+        return moves.join('\u0000');
+    }
+
+    private searchOptions() {
+        return [
+            { name: 'UCI_Variant', value: this.ctrl.engineVariant },
+            { name: 'UCI_Chess960', value: this.ctrl.chess960 },
+            { name: 'Use NNUE', value: false },
+        ] as const;
+    }
+
+    private launchSearch(
+        purpose: SearchPurpose,
+        request: Parameters<AnalysisPracticeEngine['search']>[0],
+    ): AnalysisPracticeSearchOwner {
+        this.launchingSearchPurpose = purpose;
+        const owner = this.engine.search(request);
+        this.launchingSearchPurpose = undefined;
+        if (this.engine.isCurrent(owner) && this.stateValue.kind !== 'unavailable') {
+            this.searchPurposes.set(ownerKey(owner), purpose);
+        }
+        return owner;
+    }
+
+    private ensureEvaluation(moves: readonly string[], turnColor: 'white' | 'black'): void {
+        if (this.destroyed || !this.engineReady()) return;
+        const key = this.positionKey(moves);
+        if (this.evaluations.has(key) || this.evaluationSearches.has(key)) return;
+        this.evaluationSearches.add(key);
+        this.launchSearch(
+            { kind: 'evaluation', key, moves: [...moves], turnColor },
+            {
+                initialFen: this.options.initialFen,
+                moves,
+                budget: { type: 'nodes', value: PRACTICE_FEEDBACK_NODES },
+                multiPv: 1,
+                options: this.searchOptions(),
+            },
+        );
+    }
+
+    private evaluationFor(moves: readonly string[]): PositionEvaluation | undefined {
+        return this.evaluations.get(this.positionKey(moves));
+    }
+
+    private enterHumanTurn(): void {
+        if (this.destroyed) return;
+        if (this.stateValue.kind !== 'human-turn') {
+            this.hintLevel = 0;
+            this.clearHintShapes();
+            this.setState({ kind: 'human-turn' });
+        } else {
+            this.render();
+        }
+        this.ensureEvaluation(this.history.map(entry => entry.move), this.ctrl.turnColor);
+    }
+
+    private continuePendingGrade(): void {
+        const pending = this.pendingGrade;
+        if (!pending || this.destroyed) return;
+
+        const parent = this.evaluationFor(pending.parentMoves);
+        if (!parent) {
+            this.ensureEvaluation(pending.parentMoves, pending.parentTurnColor);
+            return;
+        }
+
+        // A completed best-move match needs no numerical comparison. Likewise, an
+        // exact terminal win cannot be improved upon. The pure grader handles both.
+        if (pending.terminalResult) {
+            this.completeGrade(
+                gradeStudyPracticeMove({
+                    learnerColor: this.options.learnerColor,
+                    playedMove: pending.playedMove,
+                    parent,
+                    terminalResult: pending.terminalResult,
+                    ...(parent.bestSan ? { bestSan: parent.bestSan } : {}),
+                }),
+            );
+            return;
+        }
+
+        if (parent.bestMove && studyPracticeMovesEquivalent(parent.bestMove, pending.playedMove)) {
+            this.completeGrade(
+                gradeStudyPracticeMove({
+                    learnerColor: this.options.learnerColor,
+                    playedMove: pending.playedMove,
+                    parent,
+                    ...(parent.bestSan ? { bestSan: parent.bestSan } : {}),
+                }),
+            );
+            return;
+        }
+
+        if (!parent.score || parent.bound) {
+            this.completeGrade(
+                gradeStudyPracticeMove({
+                    learnerColor: this.options.learnerColor,
+                    playedMove: pending.playedMove,
+                    parent,
+                    ...(parent.bestSan ? { bestSan: parent.bestSan } : {}),
+                }),
+            );
+            return;
+        }
+
+        const child = this.evaluationFor(pending.childMoves);
+        if (!child) {
+            this.ensureEvaluation(pending.childMoves, pending.childTurnColor);
+            return;
+        }
+
+        this.completeGrade(
+            gradeStudyPracticeMove({
+                learnerColor: this.options.learnerColor,
+                playedMove: pending.playedMove,
+                parent,
+                child,
+                ...(parent.bestSan ? { bestSan: parent.bestSan } : {}),
+            }),
+        );
+    }
+
+    private completeGrade(feedback: StudyPracticeFeedback): void {
+        if (this.destroyed || !this.pendingGrade) return;
+        this.lastFeedback = feedback;
+        if (
+            feedback.bestMove &&
+            (feedback.verdict === 'inaccuracy' || feedback.verdict === 'mistake' || feedback.verdict === 'blunder')
+        ) {
+            this.setState({ kind: 'move-feedback', feedback });
+            return;
+        }
+
+        const terminalResult = this.pendingGrade.terminalResult;
+        this.pendingGrade = undefined;
+        if (terminalResult) this.finish(feedback, terminalResult);
+        else this.advanceAfterHumanMove();
+    }
+
+    private advanceAfterHumanMove(): void {
+        if (this.isTerminal()) {
+            this.finish();
+            return;
+        }
+        if (this.ctrl.turnColor === this.options.learnerColor) this.enterHumanTurn();
+        else this.startEngineReply();
+    }
+
+    private resolveLegalBestMove(bestMove: string): string | undefined {
+        const legalMoves = this.legalMoves();
+        if (legalMoves.has(bestMove)) return bestMove;
+        return [...legalMoves].find(move => studyPracticeMovesEquivalent(move, bestMove));
+    }
+
+    private bestSanAt(moves: readonly string[], bestMove: string | null): string | undefined {
+        if (!bestMove) return undefined;
+        const board = this.createHistoryBoard();
+        try {
+            for (const move of moves) board.push(move);
+            const legalMoves = new Set(board.legalMoves().split(' ').filter(Boolean));
+            const canonical = legalMoves.has(bestMove)
+                ? bestMove
+                : [...legalMoves].find(move => studyPracticeMovesEquivalent(move, bestMove));
+            return canonical ? board.sanMove(canonical) : undefined;
+        } catch {
+            return undefined;
+        } finally {
+            board.delete();
+        }
     }
 
     private startEngineReply(): void {
@@ -368,29 +713,70 @@ export class StudyPracticeSession {
             this.setState({ kind: 'initializing' });
             return;
         }
+        this.hintLevel = 0;
+        this.clearHintShapes();
         this.setState({ kind: 'engine-thinking' });
-        this.engine.search({
-            initialFen: this.options.initialFen,
-            moves: this.history.map(entry => entry.move),
-            budget: { type: 'nodes', value: PRACTICE_SEARCH_NODES },
-            multiPv: 1,
-            options: [
-                { name: 'UCI_Variant', value: this.ctrl.engineVariant },
-                { name: 'UCI_Chess960', value: this.ctrl.chess960 },
-                { name: 'Use NNUE', value: false },
-            ],
-        });
+        this.launchSearch(
+            { kind: 'reply' },
+            {
+                initialFen: this.options.initialFen,
+                moves: this.history.map(entry => entry.move),
+                budget: { type: 'nodes', value: PRACTICE_SEARCH_NODES },
+                multiPv: 1,
+                options: this.searchOptions(),
+            },
+        );
     }
 
     private onEngineEvent(event: AnalysisPracticeEngineEvent): void {
         if (this.destroyed || !this.engine.isCurrent(event.owner)) return;
+        const key = ownerKey(event.owner);
+        const purpose = this.searchPurposes.get(key) ?? this.launchingSearchPurpose;
+        if (!purpose) return;
+        if (event.type !== 'info') this.searchPurposes.delete(key);
+
         if (event.type === 'unavailable') {
             if (event.reason === 'destroyed') return;
+            if (purpose.kind === 'evaluation') {
+                this.evaluationSearches.delete(purpose.key);
+                if (event.reason === 'timeout') {
+                    this.evaluations.set(purpose.key, {
+                        key: purpose.key,
+                        moves: purpose.moves,
+                        turnColor: purpose.turnColor,
+                    });
+                    this.continuePendingGrade();
+                    this.syncHintShapes();
+                    this.render();
+                    return;
+                }
+            }
             const reason = event.reason === 'permission' ? 'computer-disabled' : event.reason;
             this.setUnavailable(reason, event.message);
             return;
         }
-        if (event.type !== 'bestmove' || this.stateValue.kind !== 'engine-thinking') return;
+        if (event.type !== 'bestmove') return;
+
+        if (purpose.kind === 'evaluation') {
+            this.evaluationSearches.delete(purpose.key);
+            const bestSan = this.bestSanAt(purpose.moves, event.move);
+            const evaluation: PositionEvaluation = {
+                key: purpose.key,
+                moves: purpose.moves,
+                turnColor: purpose.turnColor,
+                bestMove: event.move,
+                ...(event.info?.score ? { score: event.info.score } : {}),
+                ...(event.info?.bound ? { bound: event.info.bound } : {}),
+                ...(bestSan ? { bestSan } : {}),
+            };
+            this.evaluations.set(purpose.key, evaluation);
+            this.continuePendingGrade();
+            this.syncHintShapes();
+            this.render();
+            return;
+        }
+
+        if (this.stateValue.kind !== 'engine-thinking') return;
         if (!event.move) {
             if (this.isTerminal()) this.finish();
             else this.setUnavailable('engine-error', _('The browser engine returned no legal move.'));
@@ -413,6 +799,8 @@ export class StudyPracticeSession {
 
     private setUnavailable(reason: StudyPracticeUnavailableReason, message?: string): void {
         this.engine.cancel();
+        this.hintLevel = 0;
+        this.clearHintShapes();
         this.setState({ kind: 'unavailable', reason, ...(message ? { message } : {}) });
     }
 
@@ -420,6 +808,7 @@ export class StudyPracticeSession {
         if (this.destroyed) return;
         this.stateValue = state;
         this.syncBoardInput();
+        this.syncHintShapes();
         this.render();
     }
 
@@ -430,6 +819,110 @@ export class StudyPracticeSession {
             movable: { color: color === false ? undefined : color },
             premovable: { enabled: false },
         });
+    }
+
+    private currentEvaluation(): PositionEvaluation | undefined {
+        return this.evaluationFor(this.history.map(entry => entry.move));
+    }
+
+    private syncHintShapes(): void {
+        if (this.stateValue.kind !== 'human-turn' || this.hintLevel === 0) {
+            this.clearHintShapes();
+            return;
+        }
+        const bestMove = this.currentEvaluation()?.bestMove;
+        if (!bestMove) {
+            this.clearHintShapes();
+            return;
+        }
+        const canonical = this.resolveLegalBestMove(bestMove) ?? bestMove;
+        const shapes = this.hintShapes(canonical, this.hintLevel);
+        this.ctrl.autoShapes = shapes.length ? [shapes] : [];
+        this.ctrl.chessground.setAutoShapes(shapes);
+    }
+
+    private hintShapes(move: string, level: 1 | 2): DrawShape[] {
+        let converted = uci2cg(move);
+        if (converted.startsWith('+')) converted = converted.slice(1);
+        const at = converted.indexOf('@');
+        if (at >= 0) {
+            const dest = boardKey(this.ctrl, converted.slice(at + 1, at + 3));
+            return dest ? [{ orig: dest, brush: 'paleBlue' }] : [];
+        }
+
+        const primary = converted.split(',', 1)[0];
+        const orig = boardKey(this.ctrl, primary.slice(0, 2));
+        if (!orig) return [];
+        if (level === 1) return [{ orig, brush: 'paleBlue' }];
+        const dest = boardKey(this.ctrl, primary.slice(2, 4));
+        if (!dest) return [{ orig, brush: 'paleBlue' }];
+        const shapes: DrawShape[] = [
+            { orig, dest, brush: 'paleBlue', piece: undefined, modifiers: { lineWidth: 14 } },
+        ];
+        if (converted.includes(',')) {
+            const placement = boardKey(this.ctrl, converted.slice(-2));
+            if (placement) shapes.push({ orig: placement, brush: 'paleBlue' });
+        }
+        return shapes;
+    }
+
+    private clearHintShapes(): void {
+        this.ctrl.autoShapes = [];
+        this.ctrl.chessground.setAutoShapes([]);
+    }
+
+    private hintPieceText(move: string): string {
+        const canonical = this.resolveLegalBestMove(move) ?? move;
+        const converted = uci2cg(canonical.startsWith('+') ? canonical.slice(1) : canonical);
+        const at = converted.indexOf('@');
+        if (at >= 0) {
+            const piece = canonical.slice(0, canonical.indexOf('@'));
+            return piece ? _('Try a %1 drop.', piece) : _('Try a drop.');
+        }
+        const square = converted.slice(0, 2).replace(':', '10');
+        return square ? _('Try the piece on %1.', square) : _('Try another move.');
+    }
+
+    private feedbackTitle(feedback: StudyPracticeFeedback): string {
+        switch (feedback.verdict) {
+            case 'good':
+                return _('Good move');
+            case 'inaccuracy':
+                return _('Inaccuracy');
+            case 'mistake':
+                return _('Mistake');
+            case 'blunder':
+                return _('Blunder');
+            case 'unknown':
+                return _('Move played');
+        }
+    }
+
+    private feedbackMessage(feedback: StudyPracticeFeedback): string {
+        if (feedback.verdict === 'good') return _('Good move.');
+        if (feedback.verdict === 'unknown') return _('There was not enough engine information to grade this move.');
+        return _('Approximate engine feedback: %1.', this.feedbackTitle(feedback));
+    }
+
+    private feedbackBestMessage(feedback: StudyPracticeFeedback): string | undefined {
+        if (!feedback.bestMove) return undefined;
+        const move = feedback.bestSan ?? feedback.bestMove;
+        return feedback.verdict === 'good'
+            ? _('Another strong move was %1.', move)
+            : _('A stronger move was %1.', move);
+    }
+
+    private outcomeMessage(result: string | undefined): string {
+        switch (studyPracticeOutcomeText(result, this.options.learnerColor)) {
+            case 'learner-win':
+                return _('You won.');
+            case 'computer-win':
+                return _('The computer won.');
+            case 'draw':
+                return _('Draw.');
+            case 'game-over':
+                return result ? _('Game over: %1', result) : _('The position is terminal.');
+        }
     }
 
     private render(): void {
@@ -456,17 +949,53 @@ export class StudyPracticeSession {
             button.addEventListener('click', action);
             actions.append(button);
         };
+        const addFeedback = (feedback: StudyPracticeFeedback) => {
+            addText(this.feedbackMessage(feedback));
+            const best = this.feedbackBestMessage(feedback);
+            if (best) addText(best);
+        };
 
         if (state.kind === 'initializing') {
             heading.textContent = _('Starting computer practice');
             addText(_('Waiting for the browser engine…'));
         } else if (state.kind === 'human-turn') {
             heading.textContent = _('Your turn');
+            if (this.lastFeedback) addFeedback(this.lastFeedback);
             addText(_('Play a move on the board.'));
+            if (this.hintLevel > 0) {
+                const current = this.currentEvaluation();
+                if (current?.bestMove) {
+                    addText(
+                        this.hintLevel === 1
+                            ? this.hintPieceText(current.bestMove)
+                            : _('Try %1.', current.bestSan ?? current.bestMove),
+                    );
+                } else if (this.evaluationSearches.has(this.positionKey(this.history.map(entry => entry.move)))) {
+                    addText(_('Analyzing a hint…'));
+                } else {
+                    addText(_('No reliable engine hint is available for this position.'));
+                }
+            }
+            addButton(
+                this.hintLevel === 0 ? _('Get a hint') : this.hintLevel === 1 ? _('Show the move') : _('Hide hint'),
+                () => this.hint(),
+                'button-empty',
+            );
             addButton(_('Pause'), () => this.pause(), 'button-empty');
+            addButton(_('Reset'), () => this.reset(), 'button-empty');
+        } else if (state.kind === 'evaluating-move') {
+            heading.textContent = _('Evaluating your move…');
+            addText(_('Comparing the position before and after your move.'));
+            addButton(_('Reset'), () => this.reset(), 'button-empty');
+        } else if (state.kind === 'move-feedback') {
+            heading.textContent = this.feedbackTitle(state.feedback);
+            addFeedback(state.feedback);
+            if (state.feedback.bestMove) addButton(_('Retry best move'), () => this.retryBestMove());
+            addButton(this.pendingGrade?.terminalResult ? _('Finish') : _('Continue'), () => this.continueAfterFeedback());
             addButton(_('Reset'), () => this.reset(), 'button-empty');
         } else if (state.kind === 'engine-thinking') {
             heading.textContent = _('Computer is thinking…');
+            if (this.lastFeedback) addFeedback(this.lastFeedback);
             addText(_('Your move history stays local to this practice attempt.'));
             addButton(_('Pause'), () => this.pause(), 'button-empty');
             addButton(_('Reset'), () => this.reset(), 'button-empty');
@@ -479,7 +1008,8 @@ export class StudyPracticeSession {
             addButton(_('Reset'), () => this.reset(), 'button-empty');
         } else if (state.kind === 'ended') {
             heading.textContent = _('Practice complete');
-            addText(state.result ? _('Game result: %1', state.result) : _('The position is terminal.'));
+            if (state.feedback) addFeedback(state.feedback);
+            addText(this.outcomeMessage(state.result));
             addButton(_('Play again'), () => this.reset());
             if (this.options.canAnalyse && this.options.onAnalyse)
                 addButton(_('Analysis'), this.options.onAnalyse, 'button-empty');
