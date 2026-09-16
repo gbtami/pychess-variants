@@ -582,13 +582,18 @@ Interactive lesson only with D completed.
   became first child in a locally extended tree.
   **Done:** pure controller tests cover all transitions without real timers or an
   engine search, including empty/final roots and repeated wrong attempts.
-- [ ] **D2 — Lesson view and controlled board input.** Add the lesson panel,
+- [x] **D2 — Lesson view and controlled board input.** Add the lesson panel,
   one-side input, accessible feedback/controls and safe variant move hints. Prevent
   move-tree/PV/chart/menu/keyboard disclosures and preserve author drawings when
   temporary hints are cleared. Integrate Preview/author return and reader Analysis
   after completion. Prevent rapid clicks or premoves from applying multiple replies;
   if premoves are unsupported initially, explicitly disable them during playback.
-  **Done:** complete a lesson by mouse and keyboard on desktop and mobile layouts.
+  **Done:** the dedicated lesson panel now owns learner feedback and controls, restricts
+  board input to the learner side, disables premoves, blocks ordinary tree/navigation
+  disclosures, keeps solution auto-shapes separate from authored drawings, supports
+  variant-board coordinates, author Preview return, and reader Analysis after completion.
+  Focused adapter tests cover mouse/button and keyboard continuation paths plus input,
+  navigation, drawing, and completion guards.
 - [ ] **D3 — Collaboration and variant acceptance.** Test wrong existing variation,
   wrong new move, expected existing move, black learner, opponent-to-move start,
   promotion, drop and nonstandard board geometry. Run simultaneous independent
