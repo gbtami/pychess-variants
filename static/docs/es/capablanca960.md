@@ -1,4 +1,4 @@
-# ![Capablanca960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/caparandom.svg) Capablanca 960
+# ![Caparandom](https://github.com/gbtami/pychess-variants/blob/master/static/icons/caparandom.svg) Caparandom
 
 Capablanca 960 es una variante que combina las reglas del ajedrez Capablanca con la ubicación al azar de las piezas de ajedrez 960. Las mismas reglas se aplican en ambos juegos. Dado que se considera una variante derivada del Capablanca, por favor consulta las reglas de Capablanca en su propia guía. Las reglas de 960 se incluyen a continuación como referencia.
 

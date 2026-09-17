@@ -300,7 +300,7 @@ TRANSLATED_VARIANT_NAMES_ORIG = {
     "janggi": _("Janggi"),
     "minixiangqi": _("Minixiangqi"),
     "capablanca": _("Capablanca"),
-    "capablanca960": _("Capablanca960"),
+    "capablanca960": _("Caparandom"),
     "capahouse": _("Capahouse"),
     "capahouse960": _("Capahouse960"),
     # We support to import/store/analyze these variants

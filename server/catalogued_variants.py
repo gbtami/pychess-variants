@@ -800,7 +800,7 @@ FSF_CATALOGUED_BUILTIN_VARIANTS_CANDIDATES: Mapping[str, Mapping[str, Any]] = {
             "https://en.wikipedia.org/wiki/Capablanca_random_chess",
         ),
         "baseVariant": "capablanca",
-        "reviewNotes": "Shuffle variant; pychess already has Capablanca960-style support.",
+        "reviewNotes": "Shuffle variant; pychess already has first-class Caparandom support.",
     },
     "checkshogi": {
         "displayName": "Check-Shogi",

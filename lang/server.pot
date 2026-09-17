@@ -194,7 +194,7 @@ msgid "Capablanca"
 msgstr ""
 
 #: ../server/deprecated.py:303 ../server/variants.py:155
-msgid "Capablanca960"
+msgid "Caparandom"
 msgstr ""
 
 #: ../server/deprecated.py:304 ../server/variants.py:156

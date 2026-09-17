@@ -1,4 +1,4 @@
-# ![Capablanca960 ikon](https://github.com/gbtami/pychess-variants/blob/master/static/icons/caparandom.svg) Capablanca 960
+# ![Caparandom ikon](https://github.com/gbtami/pychess-variants/blob/master/static/icons/caparandom.svg) Caparandom
 
 Capablanca 960 egy sakkváltozat, ami Capablanca-sakkot kombinálja a Sakk960 (más néven Fischer random sakk) szabályaival (véletlenszerűen összekevert bábuk).
 

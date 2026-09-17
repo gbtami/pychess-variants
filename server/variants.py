@@ -153,7 +153,7 @@ class ServerVariants(Enum):
 
     SHATRANJ = Variant("†", "shatranj", _("Shatranj"), "🐘")
     CAPABLANCA = Variant("c", "capablanca", _("Capablanca"), "P")
-    CAPABLANCA960 = Variant("c", "capablanca", _("Capablanca960"), ",", chess960=True)
+    CAPABLANCA960 = Variant("c", "capablanca", _("Caparandom"), ",", chess960=True)
     CAPAHOUSE = Variant("i", "capahouse", _("Capahouse"), "&")
     CAPAHOUSE960 = Variant("i", "capahouse", _("Capahouse960"), "'", chess960=True)
     GOTHIC = Variant("o", "gothic", _("Gothic"), "P")

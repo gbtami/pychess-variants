@@ -1,4 +1,4 @@
-# ![Capablanca960](https://github.com/gbtami/pychess-variants/blob/master/static/icons/caparandom.svg) 任意制卡帕布兰卡象棋 | Capablanca 960
+# ![Caparandom](https://github.com/gbtami/pychess-variants/blob/master/static/icons/caparandom.svg) 任意制卡帕布兰卡象棋 | Caparandom
 
 任意制卡帕布兰卡象棋（Capablanca 960）为卡帕布兰卡象棋的变种玩法，在原本的规则上结合菲舍尔任意制象棋的规则。您可以在游戏开始时勾选“960模式”来游玩此玩法。
 
