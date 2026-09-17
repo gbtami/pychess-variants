@@ -11,7 +11,7 @@ from variants import catalogued_variant_random_start, is_catalogued_variant
 
 # -*- coding: utf-8 -*-
 from fairy.ataxx import ATAXX_FENS
-from fairy.caparandom import caparandom_rank8
+from fairy.caparandom import caparandom_id_from_rank8, caparandom_rank8
 from fairy.chess960 import CHESS960_FENS
 from fairy.cwda import cwda_engine_variant
 from fairy.jieqi import BLACK_PIECES, RED_PIECES, apply_move_and_transform, make_initial_mapping
@@ -240,7 +240,8 @@ class FairyBoard:
                 if self.variant == "racingkings":
                     return RACINGKINGS_FENS.index(self.initial_fen[12:29])
                 elif self.variant in ("capablanca", "capahouse"):
-                    return -1
+                    rank8 = self.initial_fen.split("/", 1)[0]
+                    return caparandom_id_from_rank8(rank8)
                 else:
                     return CHESS960_FENS.index(self.initial_fen[:8])
             except ValueError:
