@@ -96,9 +96,7 @@ class FairyBoardPosNumTestCase(unittest.TestCase):
     def test_posnum_returns_scharnagl_id_for_caparandom_start(self):
         board = FairyBoard(
             "capablanca",
-            initial_fen=(
-                "aqbbcnnrkr/pppppppppp/10/10/10/10/PPPPPPPPPP/AQBBCNNRKR w - - 0 1"
-            ),
+            initial_fen=("aqbbcnnrkr/pppppppppp/10/10/10/10/PPPPPPPPPP/AQBBCNNRKR w - - 0 1"),
             chess960=True,
         )
         self.assertEqual(1, board.posnum)
@@ -106,9 +104,7 @@ class FairyBoardPosNumTestCase(unittest.TestCase):
     def test_posnum_returns_scharnagl_id_for_capahouse960_start(self):
         board = FairyBoard(
             "capahouse",
-            initial_fen=(
-                "qabbcnnrkr/pppppppppp/10/10/10/10/PPPPPPPPPP/QABBCNNRKR[] w - - 0 1"
-            ),
+            initial_fen=("qabbcnnrkr/pppppppppp/10/10/10/10/PPPPPPPPPP/QABBCNNRKR[] w - - 0 1"),
             chess960=True,
         )
         self.assertEqual(48000, board.posnum)
