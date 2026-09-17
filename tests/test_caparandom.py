@@ -8,7 +8,6 @@ from fairy.caparandom import (
     caparandom_rank8_from_id,
 )
 
-
 _PAWN_PROTECTION_OFFSETS = {
     "k": (-1, 0, 1),
     "q": (-1, 0, 1),
@@ -106,9 +105,8 @@ class TestCaparandom(unittest.TestCase):
 
     def test_invalid_position_id_is_rejected(self):
         for position_id in (0, 48_001):
-            with self.subTest(position_id=position_id):
-                with self.assertRaises(ValueError):
-                    caparandom_rank8_from_id(position_id)
+            with self.subTest(position_id=position_id), self.assertRaises(ValueError):
+                caparandom_rank8_from_id(position_id)
 
     def test_invalid_back_rank_is_rejected(self):
         invalid_ranks = (
@@ -119,9 +117,8 @@ class TestCaparandom(unittest.TestCase):
             "qabbcnnrrk",  # king is not between the rooks
         )
         for rank8 in invalid_ranks:
-            with self.subTest(rank8=rank8):
-                with self.assertRaises(ValueError):
-                    caparandom_id_from_rank8(rank8)
+            with self.subTest(rank8=rank8), self.assertRaises(ValueError):
+                caparandom_id_from_rank8(rank8)
 
 
 if __name__ == "__main__":
