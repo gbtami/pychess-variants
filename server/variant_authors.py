@@ -20,6 +20,7 @@ class VariantAuthor:
     portrait_license_url: str = ""
     portrait_credit_label: str = "Portrait by"
     portrait_note: str = ""
+    portrait_license_unknown: bool = False
     representative_artwork: bool = False
     portrait_contain: bool = False
 
@@ -41,7 +42,7 @@ class VariantAuthor:
 
     @property
     def publishable(self) -> bool:
-        """Show complete records with licensed portraits or sourced representative images."""
+        """Show complete records with licensed or explicitly documented sourced images."""
 
         common_fields = bool(
             self.bio
@@ -52,13 +53,22 @@ class VariantAuthor:
             and self.portrait_credit
         )
         reusable_portrait = bool(self.portrait_license and self.portrait_license_url)
-        return common_fields and (self.representative_artwork or reusable_portrait)
+        documented_unknown_license = bool(
+            self.portrait_license_unknown
+            and self.portrait_note
+            and not self.portrait_license
+            and not self.portrait_license_url
+        )
+        return common_fields and (
+            self.representative_artwork or reusable_portrait or documented_unknown_license
+        )
 
 
 # Keep every identifiable creator credited by the English built-in rules here,
 # even when there is not enough reliable public material for a gallery tile yet.
-# Adding a sourced biography plus either a licensed portrait or explicitly marked
-# representative image automatically makes a record publishable on /authors.
+# Adding a sourced biography plus a licensed portrait, an explicitly documented
+# unknown-license portrait, or a sourced representative image makes a record
+# publishable.
 VARIANT_AUTHORS: tuple[VariantAuthor, ...] = (
     VariantAuthor(
         name="José Raúl Capablanca",
@@ -89,19 +99,17 @@ VARIANT_AUTHORS: tuple[VariantAuthor, ...] = (
             "10×8, and he designed Capablanca Random Chess, now called Caparandom on "
             "PyChess."
         ),
-        portrait="icons/caparandom.svg",
-        portrait_alt="Caparandom variant icon",
+        portrait="images/variant-authors/reinhard-scharnagl.jpg",
+        portrait_alt="Portrait of Reinhard Scharnagl",
         source_url="https://www.chessprogramming.org/Reinhard_Scharnagl",
-        portrait_source_url=(
-            "https://github.com/gbtami/pychess-variants/blob/master/static/icons/caparandom.svg"
-        ),
-        portrait_credit="the PyChess Caparandom variant icon",
-        portrait_credit_label="Representative image from",
+        portrait_source_url=("https://chessprogramming.org/assets/ReinhardScharnagl.jpg"),
+        portrait_credit="Reinhard Scharnagl's former Google+ profile (via Chess Programming Wiki)",
+        portrait_credit_label="Photo sourced from",
         portrait_note=(
-            "Representative Caparandom artwork is used instead of an author portrait."
+            "Chess Programming Wiki attributes this portrait to Scharnagl's former Google+ "
+            "profile. The photographer, copyright holder, and reuse license are unknown."
         ),
-        representative_artwork=True,
-        portrait_contain=True,
+        portrait_license_unknown=True,
     ),
     VariantAuthor(
         name="Bobby Fischer",

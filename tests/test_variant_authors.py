@@ -50,6 +50,10 @@ class VariantAuthorsRegistryTestCase(unittest.TestCase):
             ["Jens Bæk Nielsen"],
         )
         self.assertIn("David Bronstein", public_names)
+        self.assertIn("Reinhard Scharnagl", public_names)
+        self.assertTrue(authors["Reinhard Scharnagl"].portrait_license_unknown)
+        self.assertFalse(authors["Reinhard Scharnagl"].representative_artwork)
+        self.assertFalse(authors["Reinhard Scharnagl"].portrait_license)
         self.assertTrue(authors["V. R. Parton"].representative_artwork)
         self.assertTrue(authors["Jean-Louis Cazaux"].representative_artwork)
         self.assertTrue(authors["Tamiya Katsuya"].representative_artwork)

@@ -1,6 +1,6 @@
 # Chess variant author portraits
 
-These local copies are used by `/authors`. The source and license for each image are also shown in the page's biography dialog.
+These local copies are used by `/authors`. The source and known license status for each image are also shown in the page's biography dialog.
 
 | File | Source | Credit | License |
 | --- | --- | --- | --- |
@@ -11,11 +11,14 @@ These local copies are used by `/authors`. The source and license for each image
 | `christian-freeling.jpg` | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Christian_Freeling.jpg) | Christian Freeling | CC BY-SA 3.0 |
 | `madoka-kitao.jpg` | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:MADOKA_(retouched).JPG) | Unknownspb; retouched by PawełMM | CC BY-SA 4.0 |
 | `miguel-illescas.jpg` | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Miguel_Illescas_C%C3%B3rdoba_2013.jpg) | Przemysław Jahr | CC BY-SA 3.0 |
+| `reinhard-scharnagl.jpg` | [Chess Programming Wiki](https://chessprogramming.org/assets/ReinhardScharnagl.jpg) | Reinhard Scharnagl's former Google+ profile (via Chess Programming Wiki) | Copyright holder and reuse license unknown |
 | `ed-trice.jpg` | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Alexis_Skye_and_Ed_Trice.jpg) | GothicEnthusiast | Public domain |
 | `v-r-parton.jpg` | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Aliceroom3.jpg) | Sir John Tenniel | Public domain |
 | `tim-paulden.jpg` | [Exeter Chess Club](https://www.exeterchessclub.org.uk/content/duckchess2017jpg) | Exeter Chess Club | No license stated on source page |
 
 The downloaded JPEGs were resized and recompressed. Where necessary, they were cropped or placed on a portrait-shaped canvas; no visual content was synthesized. The Parton tile uses representative Alice artwork rather than a portrait because no freely reusable photograph is currently known. The Paulden tile uses the full Exeter Chess Club match photograph rather than identifying or cropping either player.
+
+The Scharnagl portrait is attributed by Chess Programming Wiki to his former Google+ profile, but no photographer, copyright holder, or reuse license has been identified. If the portrait must be removed, [`InnerCastle.png`](https://commons.wikimedia.org/wiki/File:InnerCastle.png), created by Reinhard Scharnagl and available under CC BY-SA 3.0/GFDL, is the documented fallback.
 
 ## Representative variant images
 
