@@ -90,28 +90,6 @@ VARIANT_AUTHORS: tuple[VariantAuthor, ...] = (
         portrait_license_url="https://creativecommons.org/publicdomain/mark/1.0/",
     ),
     VariantAuthor(
-        name="Reinhard Scharnagl",
-        variants=("capablanca960",),
-        bio=(
-            "Reinhard Scharnagl (died 2015) was a German computer-chess programmer "
-            "and the author of the SMIRF chess engine. He was a pioneer of Fischer "
-            "Random Chess (Chess960) and of computer chess on larger boards such as "
-            "10×8, and he designed Capablanca Random Chess, now called Caparandom on "
-            "PyChess."
-        ),
-        portrait="images/variant-authors/reinhard-scharnagl.jpg",
-        portrait_alt="Portrait of Reinhard Scharnagl",
-        source_url="https://www.chessprogramming.org/Reinhard_Scharnagl",
-        portrait_source_url=("https://chessprogramming.org/assets/ReinhardScharnagl.jpg"),
-        portrait_credit="Reinhard Scharnagl's former Google+ profile (via Chess Programming Wiki)",
-        portrait_credit_label="Photo sourced from",
-        portrait_note=(
-            "Chess Programming Wiki attributes this portrait to Scharnagl's former Google+ "
-            "profile. The photographer, copyright holder, and reuse license are unknown."
-        ),
-        portrait_license_unknown=True,
-    ),
-    VariantAuthor(
         name="Bobby Fischer",
         variants=("chess960",),
         bio=(
@@ -162,6 +140,28 @@ VARIANT_AUTHORS: tuple[VariantAuthor, ...] = (
         portrait_credit="Georgios Souleidis",
         portrait_license="CC BY 2.0",
         portrait_license_url="https://creativecommons.org/licenses/by/2.0/",
+    ),
+    VariantAuthor(
+        name="Reinhard Scharnagl",
+        variants=("capablanca960",),
+        bio=(
+            "Reinhard Scharnagl (died 2015) was a German computer-chess programmer "
+            "and the author of the SMIRF chess engine. He was a pioneer of Fischer "
+            "Random Chess (Chess960) and of computer chess on larger boards such as "
+            "10×8, and he designed Capablanca Random Chess, now called Caparandom on "
+            "PyChess."
+        ),
+        portrait="images/variant-authors/reinhard-scharnagl.jpg",
+        portrait_alt="Portrait of Reinhard Scharnagl",
+        source_url="https://www.chessprogramming.org/Reinhard_Scharnagl",
+        portrait_source_url=("https://chessprogramming.org/assets/ReinhardScharnagl.jpg"),
+        portrait_credit="Reinhard Scharnagl's former Google+ profile (via Chess Programming Wiki)",
+        portrait_credit_label="Photo sourced from",
+        portrait_note=(
+            "Chess Programming Wiki attributes this portrait to Scharnagl's former Google+ "
+            "profile. The photographer, copyright holder, and reuse license are unknown."
+        ),
+        portrait_license_unknown=True,
     ),
     VariantAuthor(
         name="Christian Freeling",

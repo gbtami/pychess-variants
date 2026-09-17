@@ -135,6 +135,7 @@ export const translatedVariantDisplayNames = [
 
     _('shatranj'),
     _('capablanca'),
+    _('caparandom'),
     _('capahouse'),
     _('dragon chess'),
     _('s-chess'),

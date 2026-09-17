@@ -36,6 +36,12 @@ test.each([true, false])('community names survive PGN and UI keys with randomSta
     expect(VARIANTS[name].displayName(randomStart)).toBe('SIDEWAYS 960');
 });
 
+test('built-in randomized variants can override their full display name', () => {
+    expect(VARIANTS.capablanca.displayName(false)).toBe('CAPABLANCA');
+    expect(VARIANTS.capablanca.displayName(true)).toBe('CAPARANDOM');
+    expect(VARIANTS.racingkings.displayName(true)).toBe('RACING KINGS1440');
+});
+
 test('site Chess960 retains its separate variant key', () => {
     expect(variantKey('chess', true)).toBe('chess960');
     expect(parsePgnVariantTag('Chess960').variant).toBe('chess');

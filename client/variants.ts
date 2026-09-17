@@ -392,6 +392,7 @@ export interface Variant {
     readonly name: string;
     readonly _displayName: string;
     readonly _display960: string;
+    readonly _displayName960?: string;
     readonly displayName: (chess960?: boolean) => string;
     readonly _tooltip: string;
     readonly tooltip: string;
@@ -490,7 +491,9 @@ export function variant(config: VariantConfig): Variant {
         name: config.name,
         _displayName: config.displayName ?? config.name,
         _display960: config.display960 ?? '960',
+        _displayName960: config.displayName960,
         displayName: function (chess960 = false) {
+            if (chess960 && this._displayName960 !== undefined) return _(this._displayName960).toUpperCase();
             return _(this._displayName).toUpperCase() + (chess960 ? this._display960 : '');
         },
         _tooltip: config.tooltip,
@@ -601,6 +604,8 @@ interface VariantConfig {
     displayName?: string;
     // Display name postfix for variants having randomized start positions (default: '960')
     display960?: string;
+    // Full display name override for randomized starts (default: base display name + display960)
+    displayName960?: string;
     // Tooltip displayed when variant name is hovered
     tooltip: string;
     // Start FEN for use in some client-side calculations
@@ -1503,6 +1508,7 @@ export const VARIANTS: Record<string, Variant> = {
 
     capablanca: variant({
         name: 'capablanca',
+        displayName960: 'caparandom',
         tooltip: 'Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a 10x8 board.',
         startFen: 'rnabqkbcnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNABQKBCNR w KQkq - 0 1',
         chess960: true,
