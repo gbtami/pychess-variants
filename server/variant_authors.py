@@ -80,6 +80,30 @@ VARIANT_AUTHORS: tuple[VariantAuthor, ...] = (
         portrait_license_url="https://creativecommons.org/publicdomain/mark/1.0/",
     ),
     VariantAuthor(
+        name="Reinhard Scharnagl",
+        variants=("capablanca960",),
+        bio=(
+            "Reinhard Scharnagl (died 2015) was a German computer-chess programmer "
+            "and the author of the SMIRF chess engine. He was a pioneer of Fischer "
+            "Random Chess (Chess960) and of computer chess on larger boards such as "
+            "10×8, and he designed Capablanca Random Chess, now called Caparandom on "
+            "PyChess."
+        ),
+        portrait="icons/caparandom.svg",
+        portrait_alt="Caparandom variant icon",
+        source_url="https://www.chessprogramming.org/Reinhard_Scharnagl",
+        portrait_source_url=(
+            "https://github.com/gbtami/pychess-variants/blob/master/static/icons/caparandom.svg"
+        ),
+        portrait_credit="the PyChess Caparandom variant icon",
+        portrait_credit_label="Representative image from",
+        portrait_note=(
+            "Representative Caparandom artwork is used instead of an author portrait."
+        ),
+        representative_artwork=True,
+        portrait_contain=True,
+    ),
+    VariantAuthor(
         name="Bobby Fischer",
         variants=("chess960",),
         bio=(
