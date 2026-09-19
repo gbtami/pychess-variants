@@ -47,3 +47,219 @@
     .study-gamebook-play { padding: .75rem; }
     .study-gamebook-play__actions .button { flex: 1 1 auto; }
 }
+
+/* Lichess-style Study "Practice with computer" layout: keep the normal
+   analysis shell visible and add a compact training box below the move tree. */
+.study-app.study-practice-playback .analysis-tools > :is(.pvbox, #misc-info, .feedback) {
+    display: none !important;
+}
+
+.study-practice {
+    flex: 0 0 auto;
+    min-width: 0;
+    min-height: 135px;
+    border-top: 1px solid var(--border-color);
+    background: var(--bg-color0);
+    user-select: none;
+}
+
+.study-practice__status {
+    min-width: 0;
+}
+
+.study-practice__title {
+    min-height: 30px;
+    padding: 0 7px;
+    background: color-mix(in srgb, var(--bg-color2) 72%, var(--bg-color0));
+    font-size: .9rem;
+    line-height: 30px;
+}
+
+.study-practice.inaccuracy .study-practice__title {
+    background: var(--gold);
+    color: #fff;
+}
+
+.study-practice.mistake .study-practice__title,
+.study-practice.blunder .study-practice__title {
+    background: var(--bad);
+    color: #fff;
+}
+
+.study-practice__feedback {
+    display: flex;
+    min-height: 82px;
+    align-items: center;
+}
+
+.study-practice__player {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    align-items: center;
+    padding: .45rem .8rem;
+}
+
+.study-practice__mark {
+    display: flex;
+    flex: 0 0 64px;
+    width: 64px;
+    height: 64px;
+    margin-inline-end: 10px;
+    align-items: center;
+    justify-content: center;
+    font-size: 64px;
+    line-height: 64px;
+    text-align: center;
+}
+
+.study-practice__mark piece {
+    position: static;
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+.study-practice__mark.off {
+    opacity: .65;
+}
+
+.study-practice__instruction {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    flex-direction: column;
+}
+
+.study-practice__instruction > strong {
+    font-size: 1.2em;
+    font-weight: normal;
+}
+
+.study-practice__detail {
+    display: grid;
+    gap: .12rem;
+    margin-top: .15rem;
+    opacity: .82;
+    overflow-wrap: anywhere;
+}
+
+.study-practice__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem 1rem;
+    margin-top: .3rem;
+    line-height: 1.6;
+}
+
+.study-practice__action,
+.study-practice__best:is(button) {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--link-color);
+    font: inherit;
+    cursor: pointer;
+}
+
+.study-practice__action:hover,
+.study-practice__action:focus-visible,
+.study-practice__best:is(button):hover,
+.study-practice__best:is(button):focus-visible {
+    color: var(--link-color-blue);
+}
+
+.study-practice__action.primary {
+    font-weight: bold;
+}
+
+.study-practice__comment {
+    display: flex;
+    min-width: 0;
+    min-height: 30px;
+    align-items: stretch;
+    background: var(--bg-color2);
+    line-height: 30px;
+    white-space: nowrap;
+}
+
+.study-practice__verdict {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: stretch;
+    margin-inline-end: 10px;
+    font-weight: bold;
+}
+
+.study-practice__verdict::before {
+    width: 30px;
+    margin-inline-end: 7px;
+    color: #fff;
+    text-align: center;
+    font-size: 1.4em;
+    font-weight: normal;
+}
+
+.study-practice__comment.good .study-practice__verdict {
+    color: var(--good);
+}
+
+.study-practice__comment.good .study-practice__verdict::before {
+    background: var(--good);
+    content: '✓';
+    font-size: 1.7em;
+}
+
+.study-practice__comment.inaccuracy .study-practice__verdict {
+    color: var(--gold);
+}
+
+.study-practice__comment.inaccuracy .study-practice__verdict::before {
+    background: var(--gold);
+    content: '?';
+}
+
+.study-practice__comment.mistake .study-practice__verdict,
+.study-practice__comment.blunder .study-practice__verdict {
+    color: var(--bad);
+}
+
+.study-practice__comment.mistake .study-practice__verdict::before,
+.study-practice__comment.blunder .study-practice__verdict::before {
+    background: var(--bad);
+    content: '✗';
+}
+
+.study-practice__comment.unknown .study-practice__verdict::before {
+    background: color-mix(in srgb, var(--font-color) 35%, transparent);
+    content: '•';
+}
+
+.study-practice__best {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 520px) {
+    .study-practice__mark {
+        flex-basis: 48px;
+        width: 48px;
+        height: 48px;
+        font-size: 48px;
+        line-height: 48px;
+    }
+
+    .study-practice__player {
+        padding: .4rem .6rem;
+    }
+
+    .study-practice__comment {
+        white-space: normal;
+    }
+}

@@ -134,7 +134,7 @@ function makeHarness(
         fullfen: fen,
         engineVariant: overrides.engineVariant ?? 'chess',
         chess960: false,
-        variant: { twoBoards: overrides.twoBoards ?? false },
+        variant: { twoBoards: overrides.twoBoards ?? false, kingRoles: ['k-piece'] },
         ffish: { Board: FakeBoard },
         localEngine: overrides.localEngine ?? true,
         localAnalysis: overrides.localAnalysis ?? false,
@@ -282,10 +282,26 @@ describe('StudyPracticeSession', () => {
         session.destroy();
     });
 
+    test('renders the lichess-style compact practice box below the analysis tools', () => {
+        const { session } = makeHarness('white');
+        const panel = document.querySelector<HTMLElement>('.study-practice')!;
+
+        expect(panel.querySelector('.study-practice__title')?.textContent).toBe('Practice with computer');
+        expect(panel.querySelector('.study-practice__feedback')).not.toBeNull();
+        expect(panel.querySelector('.study-practice__mark piece.k-piece.white')).not.toBeNull();
+        expect(panel.querySelector('.study-practice__instruction strong')?.textContent).toBe('Your turn');
+        expect(
+            [...panel.querySelectorAll<HTMLButtonElement>('.study-practice__action')].map(button => button.textContent),
+        ).toEqual(expect.arrayContaining(['Get a hint', 'Pause', 'Reset']));
+        expect(panel.classList.contains('study-gamebook-play')).toBe(false);
+
+        session.destroy();
+    });
+
     test('announces practice state and preserves keyboard focus when controls rerender', async () => {
         const { session } = makeHarness('white');
         const panel = document.querySelector<HTMLElement>('.study-practice')!;
-        const status = panel.querySelector<HTMLElement>('.study-gamebook-play__status')!;
+        const status = panel.querySelector<HTMLElement>('.study-practice__status')!;
 
         expect(panel.getAttribute('role')).toBe('region');
         expect(status.getAttribute('aria-live')).toBe('polite');
@@ -300,7 +316,7 @@ describe('StudyPracticeSession', () => {
         await Promise.resolve();
 
         expect(session.state.kind).toBe('paused');
-        expect(document.activeElement).toBe(panel.querySelector('.study-gamebook-play__actions .button'));
+        expect(document.activeElement).toBe(panel.querySelector('.study-practice__action'));
         expect(document.activeElement?.textContent).toBe('Previous');
 
         session.destroy();
@@ -337,7 +353,7 @@ describe('StudyPracticeSession', () => {
             fullfen: fen,
             engineVariant: 'chess',
             chess960: false,
-            variant: { twoBoards: false },
+            variant: { twoBoards: false, kingRoles: ['k-piece'] },
             ffish: { Board: FakeBoard },
             localEngine: true,
             localAnalysis: false,

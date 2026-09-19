@@ -910,7 +910,7 @@ function syncStudyPlaybackUi(study: StudyPageModel, modeActions: StudyModeAction
     const policy = effectiveStudySessionPolicy(study);
     const app = document.querySelector<HTMLElement>('.study-app');
     app?.classList.toggle('study-conceal-playback', isConcealPlayback(policy));
-    app?.classList.toggle('study-gamebook-playback', isGamebookPlayback(policy) || isPracticePlayback(policy));
+    app?.classList.toggle('study-gamebook-playback', isGamebookPlayback(policy));
     app?.classList.toggle('study-gamebook-preview', policy.session === 'gamebook-preview');
     app?.classList.toggle('study-gamebook-analysis', policy.session === 'gamebook-analysis');
     app?.classList.toggle('study-practice-playback', isPracticePlayback(policy));
@@ -2698,9 +2698,7 @@ export function studyView(model: PyChessModel): VNode[] {
             'study-app': true,
             'has-players': studyHasGamePlayers(study),
             'study-conceal-playback': isConcealPlayback(effectiveStudySessionPolicy(study)),
-            'study-gamebook-playback':
-                isGamebookPlayback(effectiveStudySessionPolicy(study)) ||
-                isPracticePlayback(effectiveStudySessionPolicy(study)),
+            'study-gamebook-playback': isGamebookPlayback(effectiveStudySessionPolicy(study)),
             'study-gamebook-preview': effectiveStudySessionPolicy(study).session === 'gamebook-preview',
             'study-gamebook-analysis': effectiveStudySessionPolicy(study).session === 'gamebook-analysis',
             'study-practice-playback': isPracticePlayback(effectiveStudySessionPolicy(study)),
