@@ -120,6 +120,10 @@
     font-size: 1.55em;
 }
 
+.study-gamebook-play__feedback.good.init {
+    visibility: hidden;
+}
+
 .study-gamebook-play__feedback.play {
     justify-content: flex-start;
     font-size: .8em;
@@ -246,17 +250,6 @@ button.study-gamebook-play__feedback.act:focus-visible {
 .study-gamebook-play__end-action:hover,
 .study-gamebook-play__end-action:focus-visible {
     filter: brightness(1.08);
-}
-
-.study-gamebook-play__inline-action {
-    align-self: flex-start;
-    margin-top: .45rem;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    color: var(--link-color);
-    font: inherit;
-    cursor: pointer;
 }
 
 .study-gamebook-play-underboard {
