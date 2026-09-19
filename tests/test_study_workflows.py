@@ -96,6 +96,7 @@ async def test_study_create_modal_collects_first_chapter_before_creating(aiohttp
             "shareable": "nobody",
             "chapterName": "Atomic opener",
             "variant": "atomic",
+            "mode": "conceal",
         },
         allow_redirects=False,
     )
@@ -114,6 +115,8 @@ async def test_study_create_modal_collects_first_chapter_before_creating(aiohttp
     assert chapter_doc is not None
     assert chapter_doc["name"] == "Atomic opener"
     assert chapter_doc["variant"] == "atomic"
+    assert chapter_doc["mode"] == "conceal"
+    assert chapter_doc["concealPly"] == 0
     assert chapter_doc["initialFen"] == FairyBoard.start_fen("atomic")
     assert response.headers["Location"] == f"/study/{study_doc['_id']}/{chapter_doc['_id']}"
 

@@ -1032,16 +1032,15 @@ export class StudyPracticeSession {
             if (state.feedback) addFeedback(state.feedback);
             addText(this.outcomeMessage(state.result));
             addButton(_('Play again'), () => this.reset());
-            if (this.options.canAnalyse && this.options.onAnalyse)
-                addButton(_('Analysis'), this.options.onAnalyse, 'button-empty');
         } else {
             heading.textContent = _('Practice unavailable');
             addText(state.message ?? this.unavailableMessage(state.reason));
             if (state.reason !== 'drain-timeout')
                 addButton(_('Retry'), () => this.refreshAvailability(), 'button-empty');
-            if (this.options.canAnalyse && this.options.onAnalyse)
-                addButton(_('Analysis'), this.options.onAnalyse, 'button-empty');
         }
+
+        if (this.options.canAnalyse && this.options.onAnalyse)
+            addButton(_('Analysis'), this.options.onAnalyse, 'button-empty');
 
         this.status.append(heading, body, actions);
     }
