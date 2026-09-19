@@ -782,6 +782,13 @@ class TestStudyGUI:
                 await expect(page.locator(".study-practice")).to_contain_text(
                     "Your turn", timeout=20_000
                 )
+                await expect(page.locator(".study-practice__title")).to_have_text(
+                    "Practice with computer"
+                )
+                await expect(page.locator("#ceval")).to_be_visible()
+                await expect(page.locator(".movelist-block")).to_be_visible()
+                await expect(page.locator("#btn-controls-top")).to_be_visible()
+                await expect(page.locator(".study-tool-tabs")).to_be_visible()
                 # Training playback is disposable, but a writable Study member keeps
                 # structural chapter controls just like on Lichess. They can also
                 # leave practice immediately without waiting for the exercise to end.

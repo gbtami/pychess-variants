@@ -150,13 +150,11 @@ export class StudyPracticeSession {
         if (!tools) throw new Error('Computer practice requires the analysis tools panel.');
 
         this.panel = document.createElement('section');
-        // Reuse the already-served lesson-playback layout/styles. Practice has its
-        // own semantic class but needs no additional stylesheet or cascade changes.
-        this.panel.className = 'study-gamebook-play study-practice';
+        this.panel.className = 'study-practice';
         this.panel.setAttribute('aria-label', _('Practice with computer'));
         this.panel.setAttribute('role', 'region');
         this.status = document.createElement('div');
-        this.status.className = 'study-gamebook-play__status';
+        this.status.className = 'study-practice__status';
         this.status.setAttribute('aria-live', 'polite');
         this.status.setAttribute('aria-atomic', 'true');
         this.status.setAttribute('aria-busy', 'false');
@@ -931,23 +929,34 @@ export class StudyPracticeSession {
     private render(): void {
         const state = this.stateValue;
         this.status.replaceChildren();
-        const heading = document.createElement('h2');
-        heading.className = 'study-gamebook-play__title';
-        const body = document.createElement('div');
-        body.className = 'study-gamebook-play__body';
+
+        const title = document.createElement('div');
+        title.className = 'study-practice__title';
+        title.textContent = _('Practice with computer');
+
+        const feedback = document.createElement('div');
+        feedback.className = 'study-practice__feedback';
+        const player = document.createElement('div');
+        player.className = 'study-practice__player';
+        const mark = document.createElement('div');
+        mark.className = 'study-practice__mark';
+        const instruction = document.createElement('div');
+        instruction.className = 'study-practice__instruction';
+        const heading = document.createElement('strong');
+        const detail = document.createElement('div');
+        detail.className = 'study-practice__detail';
         const actions = document.createElement('div');
-        actions.className = 'study-gamebook-play__actions';
+        actions.className = 'study-practice__actions';
 
         const addText = (text: string) => {
-            const paragraph = document.createElement('p');
-            paragraph.className = 'study-gamebook-play__message';
-            paragraph.textContent = text;
-            body.append(paragraph);
+            const line = document.createElement('span');
+            line.textContent = text;
+            detail.append(line);
         };
-        const addButton = (label: string, action: () => void, className = '') => {
+        const addButton = (label: string, action: () => void, primary = false) => {
             const button = document.createElement('button');
             button.type = 'button';
-            button.className = `button${className ? ` ${className}` : ''}`;
+            button.className = `study-practice__action${primary ? ' primary' : ''}`;
             button.textContent = label;
             button.addEventListener('click', event => {
                 const restoreKeyboardFocus = event.detail === 0 || document.activeElement === button;
@@ -957,15 +966,30 @@ export class StudyPracticeSession {
                     !this.destroyed &&
                     !this.panel.contains(document.activeElement)
                 )
-                    this.status.querySelector<HTMLButtonElement>('.study-gamebook-play__actions .button')?.focus();
+                    this.status.querySelector<HTMLButtonElement>('.study-practice__action')?.focus();
             });
             actions.append(button);
         };
-        const addFeedback = (feedback: StudyPracticeFeedback) => {
-            addText(this.feedbackMessage(feedback));
-            const best = this.feedbackBestMessage(feedback);
-            if (best) addText(best);
+        const addTurnPiece = () => {
+            const piece = document.createElement('piece');
+            piece.classList.add(this.ctrl.variant.kingRoles[0] ?? 'k-piece', this.ctrl.turnColor);
+            piece.setAttribute('aria-hidden', 'true');
+            mark.append(piece);
         };
+        const addOffMark = () => {
+            mark.classList.add('off');
+            mark.textContent = '!';
+            mark.setAttribute('aria-hidden', 'true');
+        };
+
+        const commentFeedback =
+            state.kind === 'move-feedback'
+                ? state.feedback
+                : state.kind === 'ended'
+                  ? state.feedback
+                  : this.lastFeedback;
+        this.panel.classList.remove('good', 'inaccuracy', 'mistake', 'blunder', 'unknown');
+        if (commentFeedback) this.panel.classList.add(commentFeedback.verdict);
 
         this.status.setAttribute(
             'aria-busy',
@@ -977,12 +1001,12 @@ export class StudyPracticeSession {
         );
 
         if (state.kind === 'initializing') {
+            addTurnPiece();
             heading.textContent = _('Starting computer practice');
             addText(_('Waiting for the browser engine…'));
         } else if (state.kind === 'human-turn') {
+            addTurnPiece();
             heading.textContent = _('Your turn');
-            if (this.lastFeedback) addFeedback(this.lastFeedback);
-            addText(_('Play a move on the board.'));
             if (this.hintLevel > 0) {
                 const current = this.currentEvaluation();
                 if (current?.bestMove) {
@@ -1000,49 +1024,90 @@ export class StudyPracticeSession {
             addButton(
                 this.hintLevel === 0 ? _('Get a hint') : this.hintLevel === 1 ? _('Show the move') : _('Hide hint'),
                 () => this.hint(),
-                'button-empty',
             );
-            addButton(_('Pause'), () => this.pause(), 'button-empty');
-            addButton(_('Reset'), () => this.reset(), 'button-empty');
+            addButton(_('Pause'), () => this.pause());
+            addButton(_('Reset'), () => this.reset());
         } else if (state.kind === 'evaluating-move') {
+            addTurnPiece();
             heading.textContent = _('Evaluating your move…');
             addText(_('Comparing the position before and after your move.'));
-            addButton(_('Reset'), () => this.reset(), 'button-empty');
+            addButton(_('Reset'), () => this.reset());
         } else if (state.kind === 'move-feedback') {
+            addTurnPiece();
             heading.textContent = this.feedbackTitle(state.feedback);
-            addFeedback(state.feedback);
+            addText(this.feedbackMessage(state.feedback));
             if (state.feedback.bestMove) addButton(_('Retry best move'), () => this.retryBestMove());
-            addButton(this.pendingGrade?.terminalResult ? _('Finish') : _('Continue'), () => this.continueAfterFeedback());
-            addButton(_('Reset'), () => this.reset(), 'button-empty');
+            addButton(
+                this.pendingGrade?.terminalResult ? _('Finish') : _('Continue'),
+                () => this.continueAfterFeedback(),
+                true,
+            );
+            addButton(_('Reset'), () => this.reset());
         } else if (state.kind === 'engine-thinking') {
+            addTurnPiece();
             heading.textContent = _('Computer is thinking…');
-            if (this.lastFeedback) addFeedback(this.lastFeedback);
-            addText(_('Your move history stays local to this practice attempt.'));
-            addButton(_('Pause'), () => this.pause(), 'button-empty');
-            addButton(_('Reset'), () => this.reset(), 'button-empty');
+            addButton(_('Pause'), () => this.pause());
+            addButton(_('Reset'), () => this.reset());
         } else if (state.kind === 'paused') {
+            addOffMark();
             heading.textContent = _('Practice paused');
             addText(_('Browse the current attempt, then resume from the latest position.'));
-            addButton(_('Previous'), () => this.browse(-1), 'button-empty');
-            addButton(_('Next'), () => this.browse(1), 'button-empty');
-            addButton(_('Resume'), () => this.resume());
-            addButton(_('Reset'), () => this.reset(), 'button-empty');
+            addButton(_('Previous'), () => this.browse(-1));
+            addButton(_('Next'), () => this.browse(1));
+            addButton(_('Resume'), () => this.resume(), true);
+            addButton(_('Reset'), () => this.reset());
         } else if (state.kind === 'ended') {
+            addTurnPiece();
             heading.textContent = _('Practice complete');
-            if (state.feedback) addFeedback(state.feedback);
             addText(this.outcomeMessage(state.result));
-            addButton(_('Play again'), () => this.reset());
+            addButton(_('Play again'), () => this.reset(), true);
         } else {
+            addOffMark();
             heading.textContent = _('Practice unavailable');
             addText(state.message ?? this.unavailableMessage(state.reason));
             if (state.reason !== 'drain-timeout')
-                addButton(_('Retry'), () => this.refreshAvailability(), 'button-empty');
+                addButton(_('Retry'), () => this.refreshAvailability(), true);
         }
 
-        if (this.options.canAnalyse && this.options.onAnalyse)
-            addButton(_('Analysis'), this.options.onAnalyse, 'button-empty');
+        if (this.options.canAnalyse && this.options.onAnalyse) addButton(_('Analysis'), this.options.onAnalyse);
 
-        this.status.append(heading, body, actions);
+        instruction.append(heading);
+        if (detail.childNodes.length) instruction.append(detail);
+        if (actions.childNodes.length) instruction.append(actions);
+        player.append(mark, instruction);
+        feedback.append(player);
+        this.status.append(title, feedback);
+
+        if (commentFeedback) {
+            const comment = document.createElement('div');
+            comment.className = `study-practice__comment ${commentFeedback.verdict}`;
+            const verdict = document.createElement('span');
+            verdict.className = 'study-practice__verdict';
+            verdict.textContent = this.feedbackTitle(commentFeedback);
+            comment.append(verdict);
+
+            if (commentFeedback.verdict === 'unknown') {
+                const message = document.createElement('span');
+                message.className = 'study-practice__best';
+                message.textContent = this.feedbackMessage(commentFeedback);
+                comment.append(message);
+            }
+
+            const best = this.feedbackBestMessage(commentFeedback);
+            if (best) {
+                const bestMove = document.createElement(
+                    state.kind === 'move-feedback' && commentFeedback.bestMove ? 'button' : 'span',
+                );
+                bestMove.className = 'study-practice__best';
+                bestMove.textContent = best;
+                if (bestMove instanceof HTMLButtonElement) {
+                    bestMove.type = 'button';
+                    bestMove.addEventListener('click', () => this.retryBestMove());
+                }
+                comment.append(bestMove);
+            }
+            this.status.append(comment);
+        }
     }
 
     private unavailableMessage(reason: StudyPracticeUnavailableReason): string {
