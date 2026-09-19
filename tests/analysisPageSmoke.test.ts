@@ -5,6 +5,8 @@ import { addOrSelectChild, createAnalysisTree, mainlinePathAtPly } from '../clie
 import { patch } from '../client/document';
 import { Step } from '../client/messages';
 import { updateMovelist } from '../client/movelist';
+import { StudyConcealController } from '../client/study/studyConceal';
+import { studySessionPolicy } from '../client/study/studyMode';
 import { PyChessModel, StudyPageModel } from '../client/types';
 
 jest.useFakeTimers();
@@ -191,6 +193,7 @@ describe('analysis page smoke coverage', () => {
                 underboard: h('div.study-underboard', 'Study notes'),
                 mountBoard,
                 ongoing: false,
+                toolsAfterMoves: h('div.study-gamebook-edit', 'Lesson authoring'),
             }),
         );
 
@@ -200,6 +203,9 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('.study-underboard')).not.toBeNull();
         expect(root.querySelector('#mainboard')).not.toBeNull();
         expect(root.querySelector('#movelist')).not.toBeNull();
+        expect(root.querySelector('.analysis-tools > .movelist-block + .study-gamebook-edit')?.textContent).toBe(
+            'Lesson authoring',
+        );
         expect(root.querySelector('#move-controls')).not.toBeNull();
         expect(root.querySelector('.analysis-settings')).not.toBeNull();
         expect(root.querySelector('#pgntext')).toBeNull();
@@ -287,6 +293,15 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('#roundchat')).toBeNull();
         expect([...root.querySelectorAll('button')].some(button => button.textContent === 'Add to Study')).toBe(false);
         expect(root.querySelector('dialog#study-new-chapter .study-side__new-chapter')).not.toBeNull();
+        const newChapterForm = root.querySelector<HTMLFormElement>(
+            'dialog#study-new-chapter .study-side__new-chapter',
+        )!;
+        expect(newChapterForm.querySelector<HTMLSelectElement>('select[name="orientation"]')?.value).toBe('white');
+        expect(
+            [...newChapterForm.querySelectorAll<HTMLOptionElement>('select[name="mode"] option')].map(
+                option => option.value,
+            ),
+        ).toEqual(['normal', 'practice', 'conceal', 'gamebook']);
         expect(root.querySelector('dialog#study-members')).toBeNull();
         const writerRow = root.querySelector<HTMLElement>('[data-study-member="writer"]')!;
         const writerConfigButton = writerRow.querySelector<HTMLButtonElement>('[data-study-member-config-button]')!;
@@ -320,7 +335,13 @@ describe('analysis page smoke coverage', () => {
         expect(secondChapterSettings.querySelector<HTMLSelectElement>('select[name="orientation"]')?.value).toBe(
             'black',
         );
-        expect(secondChapterSettings.querySelector<HTMLSelectElement>('select[name="mode"]')?.disabled).toBe(true);
+        const chapterMode = secondChapterSettings.querySelector<HTMLSelectElement>('select[name="mode"]')!;
+        expect(chapterMode.disabled).toBe(false);
+        expect(chapterMode.value).toBe('normal');
+        expect([...chapterMode.options].map(option => option.value)).toEqual(['normal', 'practice', 'conceal', 'gamebook']);
+        expect(
+            secondChapterSettings.querySelector('.study-chapter-orientation .study-dialog__help')?.textContent,
+        ).toContain('learner side');
         expect(secondChapterSettings.querySelector<HTMLSelectElement>('select[name="description"]')?.value).toBe('');
         expect(
             secondChapterSettings.querySelector('.study-dialog__actions button[form="chapter-settings-form-ChAp0002"]')
@@ -339,6 +360,10 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('under-board .study-underboard')).not.toBeNull();
         expect(root.querySelector('under-board .study-tool-tabs > .study-mode--sync')).not.toBeNull();
         expect(root.querySelector('under-board .study-tool-tabs > .study-mode--write')).not.toBeNull();
+        expect(root.querySelector('#study-tab-lesson')).toBeNull();
+        expect(root.querySelector<HTMLButtonElement>('.study-gamebook-preview-toggle')?.hidden).toBe(true);
+        expect(root.querySelector('.analysis-tools > .study-gamebook-edit')).not.toBeNull();
+        expect(root.querySelector<HTMLElement>('.analysis-tools > .study-gamebook-edit')?.hidden).toBe(true);
         expect(root.querySelector('#study-tab-tags')?.getAttribute('aria-selected')).toBe('true');
         expect(root.querySelector<HTMLButtonElement>('.study-like')?.getAttribute('aria-pressed')).toBe('true');
         expect(root.querySelector('.study-like__count')?.textContent).toBe('1');
@@ -685,6 +710,48 @@ describe('analysis page smoke coverage', () => {
         const link = root.querySelector<HTMLAnchorElement>('.footer .gamelink')!;
         expect(link.href).toContain('/study/StUdY001/ChAp0001');
         expect(link.textContent).toBe('Shared ideas • Shared line');
+
+        const lessonStudy: StudyPageModel = {
+            ...study,
+            chapter: { ...study.chapter, mode: 'gamebook' },
+            chapters: [{ ...study.chapters[0], mode: 'gamebook' }],
+        };
+        expect(root.querySelector('.study-embed-preview')).toBeNull();
+        expect(root.querySelector('.study-embed-preview__open')).toBeNull();
+
+        const lessonRoot = renderNodes(
+            studyEmbedView(makeModel({ gameId: '', embed: true, status: 0, study: lessonStudy })),
+        );
+        expect(lessonRoot.querySelector('.embed-app')?.classList.contains('study-embed-preview')).toBe(true);
+        expect(lessonRoot.querySelector('.embed-app')?.classList.contains('study-embed-gamebook')).toBe(true);
+        const start = lessonRoot.querySelector<HTMLAnchorElement>('.study-embed-preview__open')!;
+        expect(start.textContent).toBe('Start');
+        expect(start.href).toContain('/study/StUdY001/ChAp0001');
+        expect(lessonRoot.querySelector('.study-gamebook-play')).toBeNull();
+
+        const practiceStudy: StudyPageModel = {
+            ...study,
+            chapter: { ...study.chapter, mode: 'practice' },
+            chapters: [{ ...study.chapters[0], mode: 'practice' }],
+        };
+        const practiceRoot = renderNodes(
+            studyEmbedView(makeModel({ gameId: '', embed: true, status: 0, study: practiceStudy })),
+        );
+        expect(practiceRoot.querySelector('.embed-app')?.classList.contains('study-embed-preview')).toBe(true);
+        expect(practiceRoot.querySelector('.embed-app')?.classList.contains('study-embed-gamebook')).toBe(false);
+        expect(practiceRoot.querySelector('.study-embed-preview__open')?.textContent).toBe('Open study');
+        expect(practiceRoot.querySelector('.study-gamebook-play')).toBeNull();
+
+        const concealStudy: StudyPageModel = {
+            ...study,
+            chapter: { ...study.chapter, mode: 'conceal', concealPly: 3 },
+            chapters: [{ ...study.chapters[0], mode: 'conceal' }],
+        };
+        const concealRoot = renderNodes(
+            studyEmbedView(makeModel({ gameId: '', embed: true, status: 0, study: concealStudy })),
+        );
+        expect(concealRoot.querySelector('.embed-app')?.classList.contains('study-embed-preview')).toBe(true);
+        expect(concealRoot.querySelector('.study-embed-preview__open')?.textContent).toBe('Open study');
     });
 
     test('embed view stays lean and does not render PGN tab content', () => {
@@ -1181,5 +1248,155 @@ describe('analysis tree movelist gating', () => {
         expect(menu?.textContent).toContain('Convert to variation');
         expect(menu?.textContent).toContain('Copy main line PGN');
         expect(menu?.textContent).toContain('Delete from here');
+    });
+});
+
+describe('Study conceal reader rendering', () => {
+    test('hidden SAN, forks and annotations stay out of the rendered move tree until played', () => {
+        document.body.innerHTML = '<div id="movelist"></div>';
+        const steps = [
+            makeStep('start w - - 0 1', undefined, 'white'),
+            makeStep('s1 b - - 0 1', 'e2e4', 'black', 'e4'),
+            makeStep('s2 w - - 0 1', 'e7e5', 'white', 'e5'),
+            makeStep('s3 b - - 0 1', 'g1f3', 'black', 'Nf3'),
+        ];
+        const tree = createAnalysisTree(steps);
+        const e4 = tree.root.children[0];
+        const e5 = e4.children[0];
+        e5.annotations = {
+            shapes: [],
+            nags: [1],
+            comments: [{ id: 'secret', author: 'owner', text: 'Secret continuation' }],
+        };
+        addOrSelectChild(tree, e4.path, makeStep('sicilian w - - 0 1', 'c7c5', 'white', 'c5'), false);
+
+        const host = { analysisTree: tree, analysisPath: e4.path };
+        const conceal = new StudyConcealController(
+            host,
+            1,
+            studySessionPolicy({
+                mode: 'conceal',
+                canWrite: false,
+                computerAllowed: true,
+                savedRecording: true,
+                savedSynchronization: false,
+                activeGame: false,
+            }),
+        );
+        const ctrl = {
+            steps,
+            status: -1,
+            result: '*',
+            ply: 1,
+            plyVari: 0,
+            vmovelist: document.getElementById('movelist'),
+            variant: { name: 'chess' },
+            fog: false,
+            mycolor: 'white',
+            spectator: true,
+            analysisTree: tree,
+            analysisExtension: {
+                isTreeNodeVisible: (node: any) => conceal.isTreeNodeVisible(node),
+                areTreeNodeAnnotationsVisible: (node: any) => conceal.areTreeNodeAnnotationsVisible(node),
+            },
+            hasAnalysisTree: () => true,
+            isTreeInlineNotation: () => false,
+            isTreeDisclosureMode: () => false,
+            getTreeActivePath: () => host.analysisPath,
+            getTreeSelectedChildPath: () => undefined,
+            activateTreePath: () => undefined,
+        } as any;
+
+        updateMovelist(ctrl, true, false, false);
+        expect(document.getElementById('movelist')!.textContent).toContain('e4');
+        expect(document.getElementById('movelist')!.textContent).not.toContain('e5');
+        expect(document.getElementById('movelist')!.textContent).not.toContain('c5');
+
+        host.analysisPath = e5.path;
+        updateMovelist(ctrl, true, false, false);
+        expect(document.getElementById('movelist')!.textContent).toContain('e5');
+        expect(document.getElementById('movelist')!.textContent).not.toContain('Nf3');
+        expect(document.getElementById('movelist')!.textContent).not.toContain('c5');
+        expect(document.getElementById('movelist')!.textContent).not.toContain('Secret continuation');
+        expect(document.querySelector('#movelist glyph')).toBeNull();
+    });
+});
+
+describe('Study conceal mode shell', () => {
+    function concealStudy(canWrite: boolean, isOwner: boolean): StudyPageModel {
+        return {
+            id: 'StUdY001',
+            name: 'Concealed ideas',
+            owner: 'owner',
+            visibility: 'unlisted',
+            isOwner,
+            canWrite,
+            canClone: true,
+            canLike: true,
+            liked: false,
+            likes: 0,
+            topics: [],
+            maxTopics: 30,
+            topicMinLength: 2,
+            topicMaxLength: 50,
+            members: { owner: 'write', ...(canWrite ? { tester: 'write' as const } : {}) },
+            maxMembers: 30,
+            sharedChapter: 'ChAp0001',
+            sharedPath: '',
+            roomSnapshotToken: 'room-snapshot',
+            chapter: {
+                id: 'ChAp0001',
+                name: 'Hidden line',
+                revision: 1,
+                snapshotToken: 'chapter-snapshot',
+                order: 1,
+                orientation: 'white',
+                mode: 'conceal',
+                concealPly: 1,
+                variant: 'chess',
+                chess960: false,
+                initialFen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+                variantIni: null,
+                createdAt: '2026-09-14T12:00:00+00:00',
+                description: '',
+                tags: {},
+                serverEval: null,
+                tree: { nodes: [] },
+            },
+            chapters: [
+                {
+                    id: 'ChAp0001',
+                    name: 'Hidden line',
+                    order: 1,
+                    orientation: 'white',
+                    mode: 'conceal',
+                    concealPly: 1,
+                },
+            ],
+        };
+    }
+
+    test('reader shell keeps the ordinary Study chrome while the move tree conceals future moves', () => {
+        const study = concealStudy(false, false);
+        const root = renderNodes(studyView(makeModel({ gameId: '', status: 0, study })));
+        const app = root.querySelector('.study-app')!;
+
+        expect(app.classList.contains('study-conceal-playback')).toBe(true);
+        expect(root.querySelector('.study-conceal-status')).toBeNull();
+        expect(root.querySelector('.study-mode--write')).toBeNull();
+        expect(root.querySelector('#study-tab-serverEval')).not.toBeNull();
+        expect(root.querySelector('#study-tab-export')).not.toBeNull();
+    });
+
+    test('author shell relies on faded concealed moves instead of a separate reveal-status card', () => {
+        const study = concealStudy(true, false);
+        const root = renderNodes(studyView(makeModel({ gameId: '', status: 0, study })));
+        const app = root.querySelector('.study-app')!;
+
+        expect(app.classList.contains('study-conceal-playback')).toBe(false);
+        expect(root.querySelector('.study-conceal-status')).toBeNull();
+        expect(root.querySelector('.study-mode--write')).not.toBeNull();
+        expect(root.querySelector('#study-tab-comments')).not.toBeNull();
+        expect(root.querySelector('#study-tab-glyphs')).not.toBeNull();
     });
 });

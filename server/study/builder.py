@@ -19,7 +19,13 @@ from variants import (
 )
 
 from study.annotations import StudyAnnotations, StudyComment, canonical_tags
-from study.models import StudySource
+from study.models import (
+    StudyChapterMode,
+    StudySource,
+    study_chapter_mode,
+    study_chapter_mode_enabled,
+    study_conceal_ply,
+)
 from study.tree import StudyTree, StudyTreeNode
 from study.variant import (
     StudyVariantCapacityError,
@@ -41,11 +47,26 @@ class StudyChapterDraft:
     orientation: StudyOrientation = "white"
     chess960: bool = False
     variant_ini: str | None = None
+    mode: StudyChapterMode = "normal"
+    conceal_ply: int | None = None
     root: StudyTree = field(default_factory=StudyTree)
     name: str | None = None
     source: StudySource = field(default_factory=StudySource)
     description: str = ""
     tags: Mapping[str, str] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        try:
+            mode = study_chapter_mode(self.mode)
+            conceal_ply = study_conceal_ply(mode, self.conceal_ply, self.root)
+        except ValueError as exc:
+            raise StudyChapterBuildError(str(exc)) from exc
+        if not study_chapter_mode_enabled(mode):
+            raise StudyChapterBuildError("Study chapter mode is not enabled")
+        if self.root.has_gamebook and not study_chapter_mode_enabled("gamebook"):
+            raise StudyChapterBuildError("Interactive lesson data is not enabled")
+        object.__setattr__(self, "mode", mode)
+        object.__setattr__(self, "conceal_ply", conceal_ply)
 
 
 class StudyChapterBuilder:
@@ -61,6 +82,8 @@ class StudyChapterBuilder:
         chess960: bool = False,
         name: str | None = None,
         orientation: StudyOrientation = "white",
+        mode: StudyChapterMode = "normal",
+        conceal_ply: int | None = None,
     ) -> StudyChapterDraft:
         variant_ini = await self._variant_snapshot(variant, chess960)
         with study_variant_context(self.app_state, variant, variant_ini) as options:
@@ -81,10 +104,19 @@ class StudyChapterBuilder:
             initial_fen=initial_fen,
             orientation=orientation,
             variant_ini=variant_ini,
+            mode=mode,
+            conceal_ply=conceal_ply,
             name=name,
         )
 
-    async def from_game(self, game_id: str, *, name: str | None = None) -> StudyChapterDraft:
+    async def from_game(
+        self,
+        game_id: str,
+        *,
+        name: str | None = None,
+        mode: StudyChapterMode = "normal",
+        conceal_ply: int | None = None,
+    ) -> StudyChapterDraft:
         game_id = game_id.strip()
         if not game_id:
             raise StudyChapterBuildError("Game ID is required")
@@ -162,6 +194,8 @@ class StudyChapterBuilder:
             initial_fen=initial_fen,
             orientation="white",
             variant_ini=variant_ini,
+            mode=mode,
+            conceal_ply=conceal_ply,
             root=StudyTree(nodes, root_clocks=self._step_clocks(raw_steps[0])),
             name=name or default_name,
             source=StudySource("game", game_id),
@@ -178,6 +212,8 @@ class StudyChapterBuilder:
         variant_ini: str | None = None,
         name: str | None = None,
         orientation: StudyOrientation = "white",
+        mode: StudyChapterMode = "normal",
+        conceal_ply: int | None = None,
         description: str = "",
         tags: Mapping[str, str] | None = None,
     ) -> StudyChapterDraft:
@@ -258,6 +294,8 @@ class StudyChapterBuilder:
             initial_fen=initial_fen,
             orientation=orientation,
             variant_ini=snapshot,
+            mode=mode,
+            conceal_ply=conceal_ply,
             root=root,
             name=name,
             source=StudySource("import"),
@@ -275,6 +313,8 @@ class StudyChapterBuilder:
         game_id: str | None = None,
         name: str | None = None,
         orientation: StudyOrientation = "white",
+        mode: StudyChapterMode = "normal",
+        conceal_ply: int | None = None,
         tags: Mapping[str, str] | None = None,
     ) -> StudyChapterDraft:
         source_game = await self._analysis_source_game(game_id, variant, chess960)
@@ -328,6 +368,8 @@ class StudyChapterBuilder:
             initial_fen=sanitized_fen,
             orientation=orientation,
             variant_ini=variant_ini,
+            mode=mode,
+            conceal_ply=conceal_ply,
             root=root,
             name=name,
             source=source,
@@ -498,6 +540,7 @@ class StudyChapterBuilder:
                     annotations=StudyChapterBuilder._canonical_annotation_authors(
                         submitted.annotations, comment_author
                     ),
+                    gamebook=submitted.gamebook,
                 )
                 rebuilt[node.id] = node
                 moves = parent_moves + (node.move,)
@@ -510,6 +553,7 @@ class StudyChapterBuilder:
             root_annotations=StudyChapterBuilder._canonical_annotation_authors(
                 tree.root_annotations, comment_author
             ),
+            root_gamebook=tree.root_gamebook,
             root_clocks=tree.root_clocks,
         )
 

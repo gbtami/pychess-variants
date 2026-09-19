@@ -3,6 +3,8 @@ import path from 'path';
 
 import { beforeAll, describe, expect, test } from '@jest/globals';
 
+import { decodePgnUtf8Base64 } from '../client/pgn';
+
 import {
     parseStudyChapterExportData,
     renderStudyChapterPgn,
@@ -39,6 +41,7 @@ function chapter(overrides: Partial<StudyPgnChapterData> = {}): StudyPgnChapterD
         chess960: false,
         initialFen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
         orientation: 'white',
+        mode: 'normal',
         description: 'Plans\nwith detail',
         tags: { Event: 'Custom event', Result: '1-0', Variant: 'wrong', FEN: 'wrong' },
         variantIni: '[myvariant:chess]\nmaxRank = 8',
@@ -112,6 +115,51 @@ describe('Study PGN export', () => {
 
         expect(pgn).toContain('{Root note} {[%csl Ge4]} {[%pynag 3]}');
         expect(pgn).toContain('1. e4! {King pawn} {[%cal Re2e4]} (1. d4?!) e5 1-0');
+    });
+
+    test('exports versioned lesson metadata without exposing brace or newline text to PGN syntax', () => {
+        const data = chapter({ mode: 'gamebook' });
+        data.tree.rootGamebook = { hint: 'Find } the idea\nwith Unicode ✓' };
+        data.tree.nodes[0].gamebook = { deviation: 'Not this } move\ntry the center' };
+
+        const pgn = renderStudyChapterPgn(study, data);
+
+        expect(pgn).toContain('[PyChessStudyVersion "1"]');
+        expect(pgn).toContain('[PyChessChapterMode "gamebook"]');
+        expect(pgn).toContain('[ChapterMode "gamebook"]');
+        expect(pgn).not.toContain('Find } the idea');
+        const payloads = [...pgn.matchAll(/\[%pygamebook\s+([^\]]+)\]/g)].map(match =>
+            JSON.parse(decodePgnUtf8Base64(match[1])),
+        );
+        expect(payloads).toEqual([
+            { hint: 'Find } the idea\nwith Unicode ✓' },
+            { deviation: 'Not this } move\ntry the center' },
+        ]);
+    });
+
+    test('exports every teaching mode and preserves the conceal reveal boundary', () => {
+        const practice = renderStudyChapterPgn(study, chapter({ mode: 'practice' }));
+        expect(practice).toContain('[PyChessChapterMode "practice"]');
+        expect(practice).not.toContain('[PyChessConcealPly ');
+
+        const conceal = renderStudyChapterPgn(study, chapter({ mode: 'conceal', concealPly: 3 }));
+        expect(conceal).toContain('[PyChessChapterMode "conceal"]');
+        expect(conceal).toContain('[PyChessConcealPly "3"]');
+
+        const normal = renderStudyChapterPgn(study, chapter({ mode: 'normal', concealPly: undefined }));
+        expect(normal).toContain('[PyChessChapterMode "normal"]');
+        expect(normal).not.toContain('[PyChessConcealPly ');
+    });
+
+    test('keeps lesson metadata when a chapter is switched back to normal mode', () => {
+        const data = chapter({ mode: 'normal' });
+        data.tree.rootGamebook = { hint: 'Preserved lesson draft' };
+        const pgn = renderStudyChapterPgn(study, data);
+
+        expect(pgn).toContain('[PyChessStudyVersion "1"]');
+        expect(pgn).toContain('[PyChessChapterMode "normal"]');
+        expect(pgn).not.toContain('[ChapterMode "gamebook"]');
+        expect(pgn).toContain('[%pygamebook ');
     });
 
     test('preserves result, clocks and evaluations with compatible PGN directives', () => {
@@ -188,6 +236,15 @@ describe('Study PGN export', () => {
     test('parses the lightweight server export DTO', () => {
         const raw = chapter();
         expect(parseStudyChapterExportData(raw)).toEqual(raw);
+        expect(parseStudyChapterExportData({ ...raw, mode: 'conceal', concealPly: 1 })).toEqual({
+            ...raw,
+            mode: 'conceal',
+            concealPly: 1,
+        });
+        expect(() => parseStudyChapterExportData({ ...raw, mode: 'unknown' })).toThrow('Invalid Study export mode');
+        expect(() => parseStudyChapterExportData({ ...raw, mode: 'normal', concealPly: 0 })).toThrow(
+            'Invalid Study export conceal boundary',
+        );
         expect(() => parseStudyChapterExportData({ ...raw, tags: { Event: 42 } })).toThrow('Invalid Study export tags');
     });
 

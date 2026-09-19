@@ -48,7 +48,7 @@ from study.storage import (
     study_search_page,
     topic_studies_page,
 )
-from study.tree import StudyTree, StudyTreeNode
+from study.tree import StudyGamebook, StudyTree, StudyTreeNode
 
 
 class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
@@ -373,6 +373,22 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
             initial_fen=FairyBoard.start_fen("chess"),
             name="Second line",
             orientation="black",
+            mode="conceal",
+            conceal_ply=1,
+            root=StudyTree(
+                {
+                    "StudyNode1": StudyTreeNode(
+                        id="StudyNode1",
+                        parent_id=None,
+                        order=0,
+                        move="e2e4",
+                        fen="after-e4",
+                        turn_color="black",
+                        gamebook=StudyGamebook(deviation="Node lesson"),
+                    )
+                },
+                root_gamebook=StudyGamebook(hint="Root lesson"),
+            ),
             tags={"Chapter": "Two"},
         )
         second = await add_chapter_from_draft(cast(Any, self.app_state), study, second_draft)
@@ -419,12 +435,67 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(doc["variant"], original.variant)
             self.assertEqual(doc["initialFen"], original.initial_fen)
             self.assertEqual(doc["orientation"], original.orientation)
+            self.assertEqual(doc["mode"], original.mode)
+            self.assertEqual(
+                doc.get("concealPly"),
+                0 if original.mode == "conceal" else original.conceal_ply,
+            )
             self.assertEqual(doc.get("variantIni"), original.variant_ini)
             self.assertEqual(doc.get("description", ""), original.description)
             self.assertEqual(doc.get("tags", {}), dict(original.tags))
             self.assertEqual(doc.get("source", "scratch"), original.source.encode())
             self.assertEqual(doc["root"], original.root.to_document())
             self.assertEqual(doc["revision"], 0)
+
+    async def test_disabled_mode_gate_blocks_clone_and_copy_without_touching_source(self) -> None:
+        source, first = await create_study_with_chapter(cast(Any, self.app_state), "owner")
+        lesson_root = StudyTree(root_gamebook=StudyGamebook(hint="Preserve me"))
+        lesson = replace(first, mode="gamebook", root=lesson_root)
+        await self.db.study_chapter.update_one(
+            {"_id": first.id},
+            {"$set": {"mode": "gamebook", "root": lesson_root.to_document()}},
+        )
+
+        with patch("study.models.STUDY_ENABLED_CHAPTER_MODES", ("normal",)):
+            with self.assertRaisesRegex(StudyStorageError, "not enabled"):
+                await clone_study(cast(Any, self.app_state), source, "cloner")
+            self.assertEqual(await self.db.study.count_documents({"owner": "cloner"}), 0)
+            self.assertEqual(await self.db.study_chapter.count_documents({"owner": "cloner"}), 0)
+
+            with self.assertRaisesRegex(StudyStorageError, "not enabled"):
+                await add_chapter(cast(Any, self.app_state), source, lesson)
+
+        stored = await self.db.study_chapter.find_one({"_id": first.id})
+        self.assertIsNotNone(stored)
+        assert stored is not None
+        self.assertEqual(stored["mode"], "gamebook")
+        self.assertEqual(stored["root"]["_"]["g"], {"h": "Preserve me"})
+
+    async def test_add_chapter_preserves_mode_and_resets_conceal_progress(self) -> None:
+        study, first = await create_study_with_chapter(cast(Any, self.app_state), "owner")
+        main = StudyTreeNode(
+            id="StudyNode1",
+            parent_id=None,
+            order=0,
+            move="e2e4",
+            fen="after-e4",
+            turn_color="black",
+        )
+        concealed = replace(
+            first,
+            mode="conceal",
+            conceal_ply=1,
+            root=StudyTree({main.id: main}),
+        )
+
+        added = await add_chapter(cast(Any, self.app_state), study, concealed)
+
+        self.assertEqual(added.mode, "conceal")
+        self.assertEqual(added.conceal_ply, 0)
+        stored = await self.db.study_chapter.find_one({"_id": added.id})
+        assert stored is not None
+        self.assertEqual(stored["mode"], "conceal")
+        self.assertEqual(stored["concealPly"], 0)
 
     async def test_study_list_chapter_names_previews_first_four_in_order(self) -> None:
         study, first = await create_study_with_chapter(cast(Any, self.app_state), "owner")
@@ -462,6 +533,7 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
                     "name": "Chapter 1",
                     "order": 1,
                     "orientation": "white",
+                    "mode": "normal",
                     "descriptionPinned": False,
                 },
                 {
@@ -469,6 +541,7 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
                     "name": "Sicilian",
                     "order": 2,
                     "orientation": "white",
+                    "mode": "normal",
                     "descriptionPinned": False,
                 },
                 {
@@ -476,6 +549,7 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
                     "name": "Third line",
                     "order": 3,
                     "orientation": "black",
+                    "mode": "normal",
                     "descriptionPinned": True,
                 },
             ],
@@ -498,6 +572,7 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
             fen="fen-1",
             turn_color="black",
             annotations=StudyAnnotations(nags=(1,)),
+            gamebook=StudyGamebook(deviation="Remove node lesson"),
             clocks=(298000, 300000),
         )
         tree = StudyTree(
@@ -505,6 +580,7 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
             root_annotations=StudyAnnotations(
                 comments=(StudyComment("Comment001", "owner", "Root note"),)
             ),
+            root_gamebook=StudyGamebook(hint="Remove root lesson"),
             root_clocks=(300000, 300000),
         )
         chapter = replace(chapter, root=tree)
@@ -519,13 +595,21 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
         assert loaded is not None
         self.assertTrue(loaded.root.root_annotations.empty)
         self.assertTrue(all(node.annotations.empty for node in loaded.root.nodes.values()))
+        self.assertTrue(loaded.root.root_gamebook.empty)
+        self.assertTrue(loaded.root.nodes[main.id].gamebook.empty)
         self.assertEqual(loaded.root.root_clocks, (300000, 300000))
         self.assertEqual(loaded.root.nodes[main.id].clocks, (298000, 300000))
 
     async def test_clear_chapter_variations_keeps_first_child_recursively(self) -> None:
         study, chapter = await create_study_with_chapter(cast(Any, self.app_state), "owner")
         main = StudyTreeNode(
-            id="MainNode01", parent_id=None, order=0, move="e2e4", fen="fen-1", turn_color="black"
+            id="MainNode01",
+            parent_id=None,
+            order=0,
+            move="e2e4",
+            fen="fen-1",
+            turn_color="black",
+            gamebook=StudyGamebook(hint="Mainline hint"),
         )
         root_variation = StudyTreeNode(
             id="RootVar001", parent_id=None, order=1, move="d2d4", fen="fen-2", turn_color="black"
@@ -537,6 +621,7 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
             move="e7e5",
             fen="fen-3",
             turn_color="white",
+            gamebook=StudyGamebook(deviation="Mainline fallback"),
         )
         side = StudyTreeNode(
             id="SideNode01",
@@ -548,13 +633,15 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
         )
         tree = StudyTree(
             {node.id: node for node in (main, root_variation, continuation, side)},
+            root_gamebook=StudyGamebook(hint="Root hint"),
             root_clocks=(300000, 300000),
         )
-        chapter = replace(chapter, root=tree)
+        chapter = replace(chapter, root=tree, mode="conceal", conceal_ply=2)
         variation_path = f"{main.id}.{side.id}"
         study = replace(study, current_path=variation_path)
         await self.db.study_chapter.update_one(
-            {"_id": chapter.id}, {"$set": {"root": tree.to_document()}}
+            {"_id": chapter.id},
+            {"$set": {"root": tree.to_document(), "mode": "conceal", "concealPly": 2}},
         )
         await self.db.study.update_one({"_id": study.id}, {"$set": {"currentPath": variation_path}})
 
@@ -564,7 +651,14 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
         loaded = await load_owned_chapter(cast(Any, self.app_state), study.id, chapter.id, "owner")
         assert loaded is not None
         self.assertEqual(set(loaded.root.nodes), {main.id, continuation.id})
+        self.assertEqual(loaded.root.root_gamebook, StudyGamebook(hint="Root hint"))
+        self.assertEqual(loaded.root.nodes[main.id].gamebook, StudyGamebook(hint="Mainline hint"))
+        self.assertEqual(
+            loaded.root.nodes[continuation.id].gamebook,
+            StudyGamebook(deviation="Mainline fallback"),
+        )
         self.assertEqual(loaded.root.root_clocks, (300000, 300000))
+        self.assertEqual(loaded.conceal_ply, 2)
         study_doc = await self.db.study.find_one({"_id": study.id})
         assert study_doc is not None
         self.assertEqual(study_doc.get("currentPath"), main.id)

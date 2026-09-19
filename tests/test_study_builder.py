@@ -73,9 +73,24 @@ class StudyChapterBuilderTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(custom.initial_fen, fen)
         self.assertTrue(custom.chess960)
 
+    async def test_disabled_mode_gate_rejects_new_mode_and_hidden_lesson_import(self) -> None:
+        root_fen = FairyBoard.start_fen("chess")
+        with patch("study.models.STUDY_ENABLED_CHAPTER_MODES", ("normal",)):
+            with self.assertRaisesRegex(StudyChapterBuildError, "mode is not enabled"):
+                await self.builder.blank_or_fen(variant="chess", mode="practice")
+
+            with self.assertRaisesRegex(StudyChapterBuildError, "lesson data is not enabled"):
+                await self.builder.from_import(
+                    variant="chess",
+                    initial_fen=root_fen,
+                    tree_payload={"nodes": [], "rootGamebook": {"hint": "Hidden draft"}},
+                    mode="normal",
+                )
+
     async def test_analysis_tree_is_replayed_authoritatively(self) -> None:
         root_fen = FairyBoard.start_fen("chess")
         submitted = {
+            "rootGamebook": {"hint": "Root lesson"},
             "rootAnnotations": {
                 "shapes": [{"orig": "e4", "brush": "blue"}],
                 "comments": [{"id": "Comment001", "author": "spoofed", "text": "Root note"}],
@@ -91,6 +106,7 @@ class StudyChapterBuilderTestCase(unittest.IsolatedAsyncioTestCase):
                     "turnColor": "white",
                     "check": True,
                     "san": "fake-san",
+                    "gamebook": {"deviation": "Node lesson"},
                     "eval": {"cp": 35},
                     "annotations": {
                         "shapes": [{"orig": "e4", "dest": "e5", "brush": "red"}],
@@ -143,6 +159,8 @@ class StudyChapterBuilderTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual([n.id for n in draft.root.children_of(None)], ["Client0001", "Client0003"])
         self.assertEqual(draft.root.root_annotations.comments[0].text, "Root note")
         self.assertEqual(draft.root.root_annotations.comments[0].author, "owner")
+        self.assertEqual(draft.root.root_gamebook.hint, "Root lesson")
+        self.assertEqual(first.gamebook.deviation, "Node lesson")
         self.assertEqual(first.annotations.comments[0].text, "Node note")
         self.assertEqual(first.annotations.comments[0].author, "owner")
         self.assertEqual(first.annotations.nags, (3,))

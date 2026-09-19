@@ -6,6 +6,7 @@ from study.annotations import StudyAnnotations, StudyComment, StudyShape
 from study.tree import (
     STUDY_NODE_ID_LENGTH,
     STUDY_TREE_ROOT_KEY,
+    StudyGamebook,
     StudyTree,
     StudyTreeNode,
     StudyTurnColor,
@@ -30,6 +31,7 @@ def make_node(
     check: bool = False,
     force_variation: bool = False,
     annotations: StudyAnnotations | None = None,
+    gamebook: StudyGamebook | None = None,
     eval_score: dict[str, int] | None = None,
     clocks: tuple[int | float, int | float] | None = None,
 ) -> StudyTreeNode:
@@ -45,6 +47,7 @@ def make_node(
         san_san="e4",
         force_variation=force_variation,
         annotations=annotations or StudyAnnotations(),
+        gamebook=gamebook or StudyGamebook(),
         eval_score=eval_score,
         clocks=clocks,
     )
@@ -96,16 +99,23 @@ class StudyTreeTestCase(unittest.TestCase):
                     annotations=node_annotations,
                     eval_score={"cp": 42},
                     clocks=(298000, 300000),
+                    gamebook=StudyGamebook(hint="Node hint", deviation="Try another move"),
                 )
             },
             root_annotations=root_annotations,
+            root_gamebook=StudyGamebook(hint="Root hint"),
             root_clocks=(300000, 300000),
         )
 
         doc = tree.to_document()
         self.assertEqual(doc[STUDY_TREE_ROOT_KEY]["a"]["n"], [1, 3])  # type: ignore[index]
         self.assertEqual(doc[STUDY_TREE_ROOT_KEY]["k"], [300000, 300000])  # type: ignore[index]
+        self.assertEqual(doc[STUDY_TREE_ROOT_KEY]["g"], {"h": "Root hint"})  # type: ignore[index]
         self.assertIn("a", doc[ROOT_A])  # type: ignore[operator]
+        self.assertEqual(
+            doc[ROOT_A]["g"],  # type: ignore[index]
+            {"h": "Node hint", "d": "Try another move"},
+        )
         self.assertEqual(doc[ROOT_A]["e"], {"cp": 42})  # type: ignore[index]
         self.assertEqual(doc[ROOT_A]["k"], [298000, 300000])  # type: ignore[index]
         self.assertEqual(StudyTree.from_document(doc), tree)
@@ -113,8 +123,22 @@ class StudyTreeTestCase(unittest.TestCase):
         payload = tree.to_payload()
         self.assertEqual(payload["rootAnnotations"]["nags"], [1, 3])  # type: ignore[index]
         self.assertEqual(payload["rootClocks"], [300000, 300000])
+        self.assertEqual(payload["rootGamebook"], {"hint": "Root hint"})
+        self.assertEqual(
+            payload["nodes"][0]["gamebook"],  # type: ignore[index]
+            {"hint": "Node hint", "deviation": "Try another move"},
+        )
         self.assertEqual(payload["nodes"][0]["eval"], {"cp": 42})  # type: ignore[index]
         self.assertEqual(StudyTree.from_payload(payload), tree)
+
+    def test_gamebook_text_uses_comment_sanitization_and_empty_values_remove_fields(self) -> None:
+        gamebook = StudyGamebook(hint="  hello\x00 world  ", deviation="   ")
+        self.assertEqual(gamebook.hint, "hello world")
+        self.assertIsNone(gamebook.deviation)
+        self.assertEqual(gamebook.to_payload(), {"hint": "hello world"})
+
+        with self.assertRaisesRegex(ValueError, "too long"):
+            StudyGamebook(hint="x" * 4_001)
 
     def test_payload_round_trip_and_stable_path_resolution(self) -> None:
         tree = StudyTree(

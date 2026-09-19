@@ -17,6 +17,11 @@ export interface AnalysisAnnotations {
     nags: number[];
 }
 
+export interface AnalysisGamebook {
+    hint?: string;
+    deviation?: string;
+}
+
 export interface AnalysisTreeNode {
     // Stable per-parent id segment used to build dotted paths like `01.0a.0b`.
     id: string;
@@ -33,6 +38,8 @@ export interface AnalysisTreeNode {
     mainlinePly?: number;
     // Study annotations and server-generated game analysis comments/NAGs.
     annotations?: AnalysisAnnotations;
+    // Study interactive-lesson metadata. Ordinary analysis leaves this undefined.
+    gamebook?: AnalysisGamebook;
     // Persisted server evaluation attached to a Study tree node. This is separate
     // from step.ceval, which can also hold transient local-engine analysis.
     eval?: Ceval;

@@ -1,8 +1,11 @@
 import { decodePgnUtf8Base64, parsePgnVariantTag } from '../pgn';
+import type { StudyChapterMode } from '../types';
 import {
     newStudyNodeId,
+    parseStudyGamebook,
     type StudyAnnotationsDto,
     type StudyEvalDto,
+    type StudyGamebookDto,
     type StudyShapeDto,
     type StudyTreeDto,
 } from './studyTree';
@@ -63,6 +66,8 @@ export interface StudyPgnImportChapter {
     chess960: boolean;
     initialFen: string;
     orientation: 'white' | 'black';
+    mode: StudyChapterMode;
+    concealPly?: number;
     description: string;
     tags: Record<string, string>;
     tree: StudyTreeDto;
@@ -92,6 +97,10 @@ const INTERNAL_TAGS = new Set([
     'ChapterURL',
     'Orientation',
     'PyChessVariant',
+    'PyChessStudyVersion',
+    'PyChessChapterMode',
+    'PyChessConcealPly',
+    'ChapterMode',
     'PyChessChess960',
     'PyChessVariantIniEncoding',
     'PyChessVariantIni',
@@ -174,9 +183,68 @@ function addUniqueShape(shapes: StudyShapeDto[], shape: StudyShapeDto): void {
 
 interface ParsedPgnComments {
     annotations?: StudyAnnotationsDto;
+    gamebook?: StudyGamebookDto;
     whiteEval?: StudyEvalDto;
     clock?: number;
     clocks?: [number, number];
+}
+
+// Only interpret opaque lesson comments when their version tag opts into the
+// PyChess extension. Without it, [%pygamebook ...] remains an ordinary comment.
+const PYCHESS_STUDY_PGN_VERSION = '1';
+const STUDY_CHAPTER_MODES = new Set<StudyChapterMode>(['normal', 'practice', 'conceal', 'gamebook']);
+
+function chapterTeaching(
+    tags: Record<string, string>,
+): { mode: StudyChapterMode; concealPly?: number; lessonExtension: boolean } {
+    const version = tags['PyChessStudyVersion'];
+    if (version !== undefined && version !== PYCHESS_STUDY_PGN_VERSION) {
+        throw new StudyPgnImportError(`Unsupported PyChess Study PGN version: ${version}.`);
+    }
+    const rawMode = tags['PyChessChapterMode'];
+    if (rawMode !== undefined && version !== PYCHESS_STUDY_PGN_VERSION) {
+        throw new StudyPgnImportError('PyChessChapterMode requires [PyChessStudyVersion "1"].');
+    }
+    if (rawMode !== undefined && !STUDY_CHAPTER_MODES.has(rawMode as StudyChapterMode)) {
+        throw new StudyPgnImportError(`Invalid PyChess chapter mode: ${rawMode}.`);
+    }
+    const compatible = tags['ChapterMode'];
+    if (compatible !== undefined && compatible !== 'gamebook') {
+        throw new StudyPgnImportError(`Unsupported ChapterMode: ${compatible}.`);
+    }
+    const mode = (rawMode as StudyChapterMode | undefined) ?? (compatible === 'gamebook' ? 'gamebook' : 'normal');
+    if (compatible === 'gamebook' && mode !== 'gamebook') {
+        throw new StudyPgnImportError('ChapterMode conflicts with PyChessChapterMode.');
+    }
+    const rawConcealPly = tags['PyChessConcealPly'];
+    if (rawConcealPly !== undefined && version !== PYCHESS_STUDY_PGN_VERSION) {
+        throw new StudyPgnImportError('PyChessConcealPly requires [PyChessStudyVersion "1"].');
+    }
+    if (rawConcealPly !== undefined && mode !== 'conceal') {
+        throw new StudyPgnImportError('PyChessConcealPly is only valid for concealed chapters.');
+    }
+    if (rawConcealPly !== undefined && !/^(?:0|[1-9]\d*)$/.test(rawConcealPly.trim())) {
+        throw new StudyPgnImportError('Invalid PyChess conceal boundary.');
+    }
+    const concealPly = rawConcealPly === undefined ? undefined : Number(rawConcealPly);
+    if (concealPly !== undefined && !Number.isSafeInteger(concealPly)) {
+        throw new StudyPgnImportError('Invalid PyChess conceal boundary.');
+    }
+    return {
+        mode,
+        ...(mode === 'conceal' ? { concealPly: concealPly ?? 0 } : {}),
+        lessonExtension: version === PYCHESS_STUDY_PGN_VERSION,
+    };
+}
+
+function parseGamebookDirective(encoded: string): StudyGamebookDto {
+    let raw: unknown;
+    try {
+        raw = JSON.parse(decodePgnUtf8Base64(encoded.trim()));
+        return parseStudyGamebook(raw);
+    } catch {
+        throw new StudyPgnImportError('Invalid PyChess lesson metadata in PGN comment.');
+    }
 }
 
 function parsePgnClock(value: string): number | undefined {
@@ -215,7 +283,11 @@ function evalForTurn(whiteEval: StudyEvalDto | undefined, turnColor: 'white' | '
     return undefined;
 }
 
-function commentsFromPgn(comments: readonly string[], rawNags: readonly number[] = []): ParsedPgnComments {
+function commentsFromPgn(
+    comments: readonly string[],
+    rawNags: readonly number[] = [],
+    lessonExtension = false,
+): ParsedPgnComments {
     const shapes: StudyShapeDto[] = [];
     const nags: number[] = [];
     for (const raw of rawNags) {
@@ -226,6 +298,7 @@ function commentsFromPgn(comments: readonly string[], rawNags: readonly number[]
     let whiteEval: StudyEvalDto | undefined;
     let clock: number | undefined;
     let clocks: [number, number] | undefined;
+    let gamebook: StudyGamebookDto | undefined;
     const visibleComments: string[] = [];
     for (const original of comments) {
         let text = original;
@@ -267,6 +340,16 @@ function commentsFromPgn(comments: readonly string[], rawNags: readonly number[]
             clocks = parsed;
             return '';
         });
+        if (lessonExtension) {
+            text = text.replace(/\[%pygamebook\s+([^\]]+)\]/gi, (_full, body: string) => {
+                if (gamebook) throw new StudyPgnImportError('Duplicate PyChess lesson metadata on one position.');
+                gamebook = parseGamebookDirective(body);
+                return '';
+            });
+            if (/\[%pygamebook\b/i.test(text)) {
+                throw new StudyPgnImportError('Malformed PyChess lesson metadata in PGN comment.');
+            }
+        }
         const cleaned = text.trim();
         if (cleaned) visibleComments.push(cleaned);
     }
@@ -278,6 +361,7 @@ function commentsFromPgn(comments: readonly string[], rawNags: readonly number[]
     };
     return {
         ...(annotations.shapes.length || annotations.comments.length || annotations.nags.length ? { annotations } : {}),
+        ...(gamebook ? { gamebook } : {}),
         ...(whiteEval ? { whiteEval } : {}),
         ...(clock !== undefined ? { clock } : {}),
         ...(clocks ? { clocks } : {}),
@@ -377,6 +461,7 @@ function normalizeChildren(
     nodes: StudyTreeDto['nodes'],
     path: string,
     parentClocks: ClockState = [undefined, undefined],
+    lessonExtension = false,
 ): void {
     for (let order = 0; order < parsedChildren.length; order++) {
         const parsed = parsedChildren[order];
@@ -387,7 +472,7 @@ function normalizeChildren(
             const id = newStudyNodeId();
             const fen = board.fen();
             const turnColor = turnColorFromFen(fen);
-            const parsedComments = commentsFromPgn(parsed.comments ?? [], parsed.nags ?? []);
+            const parsedComments = commentsFromPgn(parsed.comments ?? [], parsed.nags ?? [], lessonExtension);
             const clockState: ClockState = parsedComments.clocks ? [...parsedComments.clocks] : [...parentClocks];
             if (!parsedComments.clocks && parsedComments.clock !== undefined) {
                 const mover = turnColor === 'black' ? 0 : 1;
@@ -411,10 +496,11 @@ function normalizeChildren(
                 san: resolved.san,
                 sanSAN: resolved.san,
                 ...(parsedComments.annotations ? { annotations: parsedComments.annotations } : {}),
+                ...(parsedComments.gamebook ? { gamebook: parsedComments.gamebook } : {}),
                 ...(evalScore ? { eval: evalScore } : {}),
                 ...(clocks ? { clocks } : {}),
             });
-            normalizeChildren(board, parsed.children ?? [], id, nodes, location, clockState);
+            normalizeChildren(board, parsed.children ?? [], id, nodes, location, clockState, lessonExtension);
         } finally {
             board.pop();
         }
@@ -424,6 +510,7 @@ function normalizeChildren(
 function normalizeGame(engine: StudyPgnEngine, game: ParsedStudyPgnGame, index: number): StudyPgnImportChapter {
     const tags = { ...game.tags };
     const { variant, chess960 } = resolveVariant(tags);
+    const teaching = chapterTeaching(tags);
     const variantIni = decodeExtension(tags, 'PyChessVariantIni');
     const description = decodeExtension(tags, 'PyChessChapterDescription') ?? '';
     const runtimeVariant = variantIni ? snapshotRuntimeVariant(engine, variant, variantIni) : variant;
@@ -435,7 +522,7 @@ function normalizeGame(engine: StudyPgnEngine, game: ParsedStudyPgnGame, index: 
         const initialFen = board.fen();
         if (!initialFen) throw new StudyPgnImportError(`Unable to initialize PGN variant ${variant}.`);
         const nodes: StudyTreeDto['nodes'] = [];
-        const rootComments = commentsFromPgn(game.comments ?? []);
+        const rootComments = commentsFromPgn(game.comments ?? [], [], teaching.lessonExtension);
         normalizeChildren(
             board,
             game.children,
@@ -443,6 +530,7 @@ function normalizeGame(engine: StudyPgnEngine, game: ParsedStudyPgnGame, index: 
             nodes,
             '',
             rootComments.clocks ? [...rootComments.clocks] : [undefined, undefined],
+            teaching.lessonExtension,
         );
         return {
             name: chapterName(tags, index),
@@ -450,11 +538,14 @@ function normalizeGame(engine: StudyPgnEngine, game: ParsedStudyPgnGame, index: 
             chess960,
             initialFen,
             orientation: tags['Orientation']?.trim().toLowerCase() === 'black' ? 'black' : 'white',
+            mode: teaching.mode,
+            ...(teaching.mode === 'conceal' ? { concealPly: teaching.concealPly ?? 0 } : {}),
             description,
             tags: canonicalTags(tags),
             tree: {
                 nodes,
                 ...(rootComments.annotations ? { rootAnnotations: rootComments.annotations } : {}),
+                ...(rootComments.gamebook ? { rootGamebook: rootComments.gamebook } : {}),
                 ...(rootComments.clocks ? { rootClocks: rootComments.clocks } : {}),
             },
             ...(variantIni ? { variantIni } : {}),

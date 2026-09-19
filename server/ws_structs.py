@@ -150,6 +150,13 @@ class StudyClearAnnotationsIn(StudyMutationIn):
     path: str
 
 
+class StudySetGamebookIn(StudyMutationIn):
+    type: Literal["study_set_gamebook"]
+    path: str
+    field: Literal["hint", "deviation"]
+    value: str
+
+
 class StudySetDescriptionIn(StudyMutationIn):
     type: Literal["study_set_description"]
     description: str
@@ -165,6 +172,14 @@ class StudySetPositionIn(WsInboundStruct):
     studyId: str
     chapterId: str
     path: str
+    expectedRevision: int | None = None
+
+
+class StudyResetConcealIn(WsInboundStruct):
+    type: Literal["study_reset_conceal"]
+    studyId: str
+    chapterId: str
+    expectedRevision: int
 
 
 class StudyRequestAnalysisIn(WsInboundStruct):
@@ -189,9 +204,11 @@ STUDY_TYPED_DECODERS: dict[str, msgspec.json.Decoder] = {
     "study_set_comment": msgspec.json.Decoder(type=StudySetCommentIn),
     "study_set_nags": msgspec.json.Decoder(type=StudySetNagsIn),
     "study_clear_annotations": msgspec.json.Decoder(type=StudyClearAnnotationsIn),
+    "study_set_gamebook": msgspec.json.Decoder(type=StudySetGamebookIn),
     "study_set_description": msgspec.json.Decoder(type=StudySetDescriptionIn),
     "study_set_tags": msgspec.json.Decoder(type=StudySetTagsIn),
     "study_set_position": msgspec.json.Decoder(type=StudySetPositionIn),
+    "study_reset_conceal": msgspec.json.Decoder(type=StudyResetConcealIn),
     "study_request_analysis": msgspec.json.Decoder(type=StudyRequestAnalysisIn),
     "study_sync_chapter": msgspec.json.Decoder(type=StudySyncChapterIn),
 }

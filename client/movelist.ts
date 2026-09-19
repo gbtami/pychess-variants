@@ -18,6 +18,7 @@ type TreeCtrl = GameController & {
     isTreeDisclosureMode?: () => boolean;
     getTreeActivePath?: () => string;
     activateTreePath?: (path: string) => void;
+    activateTreePly?: (ply: number) => void;
     activateTreeMainlinePly?: (ply: number) => void;
     getTreeSelectedChildPath?: () => string | undefined;
     toggleTreeCollapsed?: (path: string) => void;
@@ -58,6 +59,22 @@ interface ParsedTreeMove {
         text: string;
         cls: MoveGlyphClass;
     };
+}
+
+function treeNodeVisible(ctrl: TreeCtrl, node: AnalysisTreeNode): boolean {
+    return ctrl.analysisExtension?.isTreeNodeVisible?.(node) !== false;
+}
+
+function treeNodeConcealed(ctrl: TreeCtrl, node: AnalysisTreeNode): boolean {
+    return ctrl.analysisExtension?.isTreeNodeConcealed?.(node) === true;
+}
+
+function treeNodeAnnotationsVisible(ctrl: TreeCtrl, node: AnalysisTreeNode): boolean {
+    return ctrl.analysisExtension?.areTreeNodeAnnotationsVisible?.(node) !== false;
+}
+
+function visibleTreeChildren(ctrl: TreeCtrl, node: AnalysisTreeNode): AnalysisTreeNode[] {
+    return node.children.filter(child => treeNodeVisible(ctrl, child));
 }
 
 function treeDiscloseState(node: AnalysisTreeNode): TreeDiscloseState {
@@ -138,9 +155,15 @@ export function selectMove(ctrl: GameController, ply: number, _plyVari = 0): voi
     const treeCtrl = asTreeCtrl(ctrl);
     if (treeCtrl) {
         if (ply < 0) return;
-        ctrl.goPly(ply, 0);
-        updateMovelist(ctrl, true, false);
-        scrollToPly(ctrl);
+        if (treeCtrl.analysisExtension) {
+            treeCtrl.activateTreePly?.(ply);
+        } else {
+            // Keep ordinary analysis navigation byte-for-byte in spirit: without an
+            // extension, browsing a shallower ply must not replace the selected tree line.
+            ctrl.goPly(ply, 0);
+            updateMovelist(ctrl, true, false);
+            scrollToPly(ctrl);
+        }
         return;
     }
 
@@ -307,9 +330,14 @@ export function createMovelistButtons(ctrl: GameController) {
 
 // Like lila's treeView: comments interrupt the mainline columns, and flow
 // with variations. Text stays plain text, including imported PGN annotations.
-function renderTreeComments(node: AnalysisTreeNode): VNode[] {
+function renderTreeComments(ctrl: TreeCtrl, node: AnalysisTreeNode): VNode[] {
+    if (!treeNodeAnnotationsVisible(ctrl, node)) return [];
     return (node.annotations?.comments ?? []).map(comment =>
-        h('comment.tree-comment', { attrs: { title: comment.author } }, comment.text),
+        h(
+            'comment.tree-comment',
+            { class: { conceal: treeNodeConcealed(ctrl, node) }, attrs: { title: comment.author } },
+            comment.text,
+        ),
     );
 }
 
@@ -368,7 +396,8 @@ function renderTreeMove(
                 selected: path === ctrl.getTreeSelectedChildPath?.(),
                 recorded,
                 theoretical,
-                branchpoint: node.children.length > 1,
+                conceal: treeNodeConcealed(ctrl, node),
+                branchpoint: visibleTreeChildren(ctrl, node).length > 1,
                 sideline: !isMainline,
                 'tree-node': true,
                 mainline: isMainline,
@@ -386,7 +415,7 @@ function renderTreeMove(
         [
             disclosureButton,
             prefix ? h('index', prefix) : undefined,
-            ...renderTreeMoveText(move, node.annotations?.nags),
+            ...renderTreeMoveText(move, treeNodeAnnotationsVisible(ctrl, node) ? node.annotations?.nags : undefined),
             evalNode,
         ],
     );
@@ -447,7 +476,7 @@ function renderTreeBranch(
                 currentParentDisclose,
             ),
         );
-        out.push(...renderTreeComments(currentNode));
+        out.push(...renderTreeComments(ctrl, currentNode));
         if (currentParentDisclose !== 'collapsed') {
             currentBranchSiblings.forEach(sideline => {
                 out.push(
@@ -460,9 +489,10 @@ function renderTreeBranch(
         }
 
         currentParentPath = currentNode.path;
-        currentParentDisclose = treeDiscloseState(currentNode);
-        currentBranchSiblings = currentNode.children.slice(1);
-        current = currentNode.children[0];
+        const visibleChildren = visibleTreeChildren(ctrl, currentNode);
+        currentParentDisclose = treeDiscloseState({ ...currentNode, children: visibleChildren });
+        currentBranchSiblings = visibleChildren.slice(1);
+        current = visibleChildren[0];
         isFirst = false;
     }
 
@@ -472,12 +502,13 @@ function renderTreeBranch(
 function renderTreeMovelist(ctrl: TreeCtrl): VNode[] {
     const root = ctrl.analysisTree!.root;
     const rootTurnColor = root.step.turnColor;
-    const moves: VNode[] = renderTreeComments(root);
-    const mainline = root.children[0];
-    const rootDisclose = treeDiscloseState(root);
+    const moves: VNode[] = treeNodeVisible(ctrl, root) ? renderTreeComments(ctrl, root) : [];
+    const rootChildren = visibleTreeChildren(ctrl, root);
+    const mainline = rootChildren[0];
+    const rootDisclose = treeDiscloseState({ ...root, children: rootChildren });
     if (mainline)
         moves.push(
-            ...renderTreeBranch(ctrl, mainline, root.children.slice(1), false, rootTurnColor, true, '', rootDisclose),
+            ...renderTreeBranch(ctrl, mainline, rootChildren.slice(1), false, rootTurnColor, true, '', rootDisclose),
         );
     return moves;
 }
@@ -496,28 +527,35 @@ interface TreeColumnArgs {
     flowInline?: boolean;
 }
 
-function hasBranching(node: AnalysisTreeNode, depth: number): boolean {
-    if (node.children.length > 1) return true;
+function hasBranching(ctrl: TreeCtrl, node: AnalysisTreeNode, depth: number): boolean {
+    const children = visibleTreeChildren(ctrl, node);
+    if (children.length > 1) return true;
     if (depth <= 1) return false;
-    return node.children.some(child => hasBranching(child, depth - 1));
+    return children.some(child => hasBranching(ctrl, child, depth - 1));
 }
 
-function isParentheticalVariation(node: AnalysisTreeNode): boolean {
+function isParentheticalVariation(ctrl: TreeCtrl, node: AnalysisTreeNode): boolean {
     // Match the Lichess heuristic closely: only keep a variation inline when there
     // is a single secondary branch and that branch is not itself heavily branching.
-    const second = node.children[1];
-    const third = node.children[2];
-    return third === undefined && second !== undefined && !hasBranching(second, 6);
+    const children = visibleTreeChildren(ctrl, node);
+    const second = children[1];
+    const third = children[2];
+    return third === undefined && second !== undefined && !hasBranching(ctrl, second, 6);
 }
 
-function nextTreeColumnArgs(node: AnalysisTreeNode, args: TreeColumnArgs, isMainline = false): TreeColumnArgs {
+function nextTreeColumnArgs(
+    ctrl: TreeCtrl,
+    node: AnalysisTreeNode,
+    args: TreeColumnArgs,
+    isMainline = false,
+): TreeColumnArgs {
     return {
         isMainline,
         rootTurnColor: args.rootTurnColor,
         parentNode: node,
         parentPath: node.path,
         parentDisclose: args.parentDisclose,
-        parenthetical: isParentheticalVariation(node),
+        parenthetical: isParentheticalVariation(ctrl, node),
         firstInVariation: false,
         flowInline: args.flowInline,
     };
@@ -566,7 +604,8 @@ function renderTreeColumnMove(
                 selected: path === ctrl.getTreeSelectedChildPath?.(),
                 recorded,
                 theoretical,
-                branchpoint: node.children.length > 1,
+                conceal: treeNodeConcealed(ctrl, node),
+                branchpoint: visibleTreeChildren(ctrl, node).length > 1,
                 sideline: !isMainline,
                 'tree-node': true,
                 mainline: isMainline,
@@ -581,7 +620,11 @@ function renderTreeColumnMove(
                 },
             },
         },
-        [disclosureButton, ...renderTreeMoveText(move, node.annotations?.nags), evalNode],
+        [
+            disclosureButton,
+            ...renderTreeMoveText(move, treeNodeAnnotationsVisible(ctrl, node) ? node.annotations?.nags : undefined),
+            evalNode,
+        ],
     );
 }
 
@@ -589,7 +632,7 @@ function renderTreeLineSequence(ctrl: TreeCtrl, nodes: AnalysisTreeNode[], args:
     // Column mode still reuses inline fragments inside a sideline row. The split between
     // `renderTreeLineSequence` and `renderTreeVariationLines` is what lets us switch
     // between "same flowing row" and "start a new branch row" at each branching point.
-    const [child, ...siblings] = nodes;
+    const [child, ...siblings] = nodes.filter(node => treeNodeVisible(ctrl, node));
     if (!child) return [];
 
     const currentParentDisclose = args.parentDisclose;
@@ -608,7 +651,7 @@ function renderTreeLineSequence(ctrl: TreeCtrl, nodes: AnalysisTreeNode[], args:
         ),
     );
 
-    moves.push(...renderTreeComments(child));
+    moves.push(...renderTreeComments(ctrl, child));
 
     if (currentParentDisclose !== 'collapsed' && (args.parenthetical || args.flowInline) && siblings.length > 0) {
         moves.push(renderTreeVariationLines(ctrl, siblings, args));
@@ -616,13 +659,14 @@ function renderTreeLineSequence(ctrl: TreeCtrl, nodes: AnalysisTreeNode[], args:
 
     if (child.children.length > 0) {
         const childArgs = {
-            ...nextTreeColumnArgs(child, args, false),
-            parentDisclose: treeDiscloseState(child),
+            ...nextTreeColumnArgs(ctrl, child, args, false),
+            parentDisclose: treeDiscloseState({ ...child, children: visibleTreeChildren(ctrl, child) }),
         };
-        if (args.flowInline || child.children.length < 2 || childArgs.parenthetical) {
-            moves.push(...renderTreeLineSequence(ctrl, child.children, childArgs));
+        const visibleChildren = visibleTreeChildren(ctrl, child);
+        if (args.flowInline || visibleChildren.length < 2 || childArgs.parenthetical) {
+            moves.push(...renderTreeLineSequence(ctrl, visibleChildren, childArgs));
         } else {
-            moves.push(renderTreeVariationLines(ctrl, child.children, childArgs));
+            moves.push(renderTreeVariationLines(ctrl, visibleChildren, childArgs));
         }
     }
 
@@ -634,6 +678,7 @@ function renderTreeLineSequence(ctrl: TreeCtrl, nodes: AnalysisTreeNode[], args:
 }
 
 function renderTreeVariationLines(ctrl: TreeCtrl, lines: AnalysisTreeNode[], args: TreeColumnArgs): VNode {
+    lines = lines.filter(node => treeNodeVisible(ctrl, node));
     // Only direct sibling alternatives become separate rows in column mode.
     // Once inside one of those rows, deeper sub-variations continue inline so the
     // row wraps naturally at panel boundaries like a long notation string.
@@ -670,7 +715,7 @@ function renderTreeVariationLines(ctrl: TreeCtrl, lines: AnalysisTreeNode[], arg
 function renderTreeColumnNodes(ctrl: TreeCtrl, nodes: AnalysisTreeNode[], args: TreeColumnArgs): VNode[] {
     // Top-level column mode preserves the traditional "move number / white / black"
     // rhythm, but hands side branches off to `interrupt -> lines -> line` blocks.
-    const [child, ...siblings] = nodes;
+    const [child, ...siblings] = nodes.filter(node => treeNodeVisible(ctrl, node));
     const out: VNode[] = [];
     if (!child) return out;
 
@@ -688,23 +733,24 @@ function renderTreeColumnNodes(ctrl: TreeCtrl, nodes: AnalysisTreeNode[], args: 
 
     out.push(renderTreeColumnMove(ctrl, child.path, child, args.isMainline, args.parentPath, currentParentDisclose));
 
-    const comments = renderTreeComments(child);
+    const comments = renderTreeComments(ctrl, child);
     if (currentParentDisclose !== 'collapsed' && (siblings.length > 0 || comments.length > 0)) {
         if (isWhiteMove) out.push(h('move.empty', '...'));
         out.push(
             h('interrupt', [...comments, ...(siblings.length ? [renderTreeVariationLines(ctrl, siblings, args)] : [])]),
         );
-        if (isWhiteMove && child.children.length > 0) {
+        if (isWhiteMove && visibleTreeChildren(ctrl, child).length > 0) {
             out.push(h('index', `${Math.ceil(child.ply / 2)}`));
             out.push(h('move.empty', '...'));
         }
     }
 
-    if (child.children.length > 0) {
+    const visibleChildren = visibleTreeChildren(ctrl, child);
+    if (visibleChildren.length > 0) {
         out.push(
-            ...renderTreeColumnNodes(ctrl, child.children, {
-                ...nextTreeColumnArgs(child, args, true),
-                parentDisclose: treeDiscloseState(child),
+            ...renderTreeColumnNodes(ctrl, visibleChildren, {
+                ...nextTreeColumnArgs(ctrl, child, args, true),
+                parentDisclose: treeDiscloseState({ ...child, children: visibleTreeChildren(ctrl, child) }),
             }),
         );
     }
@@ -714,21 +760,22 @@ function renderTreeColumnNodes(ctrl: TreeCtrl, nodes: AnalysisTreeNode[], args: 
 
 function renderTreeColumnMovelist(ctrl: TreeCtrl): VNode[] {
     const root = ctrl.analysisTree!.root;
-    const comments = renderTreeComments(root);
+    const comments = treeNodeVisible(ctrl, root) ? renderTreeComments(ctrl, root) : [];
     const moves: VNode[] = comments.length ? [h('interrupt', comments)] : [];
+    const rootChildren = visibleTreeChildren(ctrl, root);
 
-    if (root.step.turnColor === 'black' && root.children[0]) {
+    if (root.step.turnColor === 'black' && rootChildren[0]) {
         moves.push(h('index', '1'));
         moves.push(h('move.empty', '...'));
     }
 
     moves.push(
-        ...renderTreeColumnNodes(ctrl, root.children, {
+        ...renderTreeColumnNodes(ctrl, rootChildren, {
             isMainline: true,
             rootTurnColor: root.step.turnColor,
             parentNode: root,
             parentPath: '',
-            parentDisclose: treeDiscloseState(root),
+            parentDisclose: treeDiscloseState({ ...root, children: rootChildren }),
             firstInVariation: false,
             flowInline: false,
         }),
@@ -742,7 +789,7 @@ function renderTreeContextMenu(ctrl: TreeCtrl): VNode | undefined {
     if (!menu) return undefined;
 
     const current = ctrl.getTreeNodeAtPath?.(menu.path);
-    if (!current) return undefined;
+    if (!current || !treeNodeVisible(ctrl, current)) return undefined;
 
     const onMainline =
         (ctrl.pathIsTreeMainline?.(menu.path) ?? true) && !(ctrl.pathIsTreeForcedVariation?.(menu.path) ?? false);

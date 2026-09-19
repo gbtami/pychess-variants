@@ -1,4 +1,5 @@
 @import 'analysis.css';
+@import 'study-playback.css';
 
 /* Adapted from lila ui/analyse/css/study: chapter list, tool tabs, and
    underboard panels. Use PyChess theme tokens and variant board geometry. */
@@ -632,6 +633,35 @@
 .study-tool-tabs { display: flex; align-items: stretch; padding-top: 5px; border-bottom: 1px solid var(--border-color); }
 .study-tool-tabs button[role='tab'] { position: relative; flex: 1; min-height: 2.8rem; font-size: 1.2rem; border-bottom: 2px solid transparent; }
 .study-tool-tabs button[role='tab'][aria-selected='true'] { color: var(--rusty); border-bottom-color: var(--rusty); }
+
+.study-gamebook-preview-toggle {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+    min-width: 6.6rem;
+    padding: .45rem .65rem;
+    border: 0;
+    border-left: 1px solid var(--border-color);
+    border-radius: 0;
+    background: transparent;
+    color: var(--font-color);
+    font: inherit;
+    cursor: pointer;
+}
+.study-gamebook-preview-toggle[hidden] { display: none; }
+.study-gamebook-preview-toggle:hover,
+.study-gamebook-preview-toggle:focus-visible { background: var(--bg-color2); color: var(--link-color-blue); }
+.study-gamebook-preview-toggle__icon {
+    display: inline-block;
+    width: 1.2em;
+    height: 1.2em;
+    background: currentColor;
+    -webkit-mask: url('images/study/eye.svg') center / contain no-repeat;
+    mask: url('images/study/eye.svg') center / contain no-repeat;
+}
+
 /* Tag icon from lila public/images/svg-icons/tag.svg (AGPL-3.0). */
 .study-tag-icon { display: inline-block; width: 1.1em; height: 1.1em; background: currentColor; mask: url('images/study/tag.svg') center / contain no-repeat; vertical-align: middle; }
 .study-tool-count { font-size: .7rem; margin-left: .2rem; vertical-align: super; }
@@ -654,6 +684,7 @@
 @keyframes study-server-eval-spin { to { transform: rotate(360deg); } }
 .study-underboard__title { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin: 0 0 .7rem; font-size: 1.2rem; overflow-wrap: anywhere; }
 .study-underboard__name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.study-underboard__mode { margin-inline-start: .5rem; padding: .12rem .4rem; border-radius: 999px; background: color-mix(in srgb, var(--font-color) 10%, transparent); font-size: .72em; font-weight: normal; vertical-align: .08em; }
 .study-topics {
     display: flex;
     flex-wrap: wrap;
@@ -699,6 +730,79 @@
 .study-underboard { container-type: inline-size; }
 #study-panel-comments, #study-panel-glyphs { padding: 0; }
 #study-panel-comments { background: transparent; }
+
+/* Interactive lesson authoring panel, adapted from lila's gamebook editor. */
+.study-gamebook-edit {
+    display: flex;
+    flex: 0 1 auto;
+    flex-direction: column;
+    min-height: 0;
+    overflow-y: auto;
+    border-top: 1px solid var(--border-color);
+    background: var(--bg-color2);
+    line-height: 1.35;
+}
+.study-gamebook-edit[hidden] { display: none; }
+.study-gamebook-edit__field { display: flex; flex-direction: column; }
+.study-gamebook-edit__legend {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    min-height: 3.5em;
+    padding: 0;
+    border: 0;
+    border-bottom: 1px solid var(--border-color);
+    border-radius: 0;
+    background: transparent;
+    color: var(--font-color);
+    font: inherit;
+    text-align: left;
+}
+button.study-gamebook-edit__legend { cursor: pointer; }
+.study-gamebook-edit__legend-icon {
+    display: flex;
+    flex: 0 0 1.8em;
+    align-items: center;
+    justify-content: center;
+    width: 1.8em;
+    opacity: .7;
+}
+.study-gamebook-edit__legend p {
+    display: flex;
+    flex: 1 1 100%;
+    align-items: center;
+    margin: 0;
+    padding: 8px 10px;
+}
+.study-gamebook-edit__legend.todo .study-gamebook-edit__legend-icon {
+    background: var(--bad);
+    color: #fff;
+}
+.study-gamebook-edit__legend.done .study-gamebook-edit__legend-icon { background: var(--good); }
+.study-gamebook-edit__legend.clickable:hover,
+.study-gamebook-edit__legend.clickable:focus-visible {
+    background: var(--link-color-blue);
+    color: #fff;
+}
+.study-gamebook-edit__legend.clickable:hover .study-gamebook-edit__legend-icon,
+.study-gamebook-edit__legend.clickable:focus-visible .study-gamebook-edit__legend-icon { opacity: .95; }
+.study-gamebook-edit textarea {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: .65rem .75rem;
+    border: 0;
+    border-bottom: 1px solid var(--border-color);
+    border-radius: 0;
+    background: var(--bg-color0);
+    color: var(--font-color);
+    font: inherit;
+    resize: vertical;
+}
+.study-gamebook-edit__field--hint textarea { min-height: 7em; }
+.study-gamebook-edit textarea:focus { outline: 2px solid var(--link-color-blue); outline-offset: -2px; }
+
 .study-annotations__comments { display: grid; gap: .4rem; }
 .study-annotations__comment-input { min-height: 5rem; }
 /* Like lila's glyph panel, wrap whole groups instead of their labels. */
@@ -868,6 +972,7 @@
 .study-dialog__form { display: grid; gap: 1.35rem; }
 .study-dialog__field { display: grid; gap: .45rem; min-width: 0; font-weight: bold; }
 .study-dialog__field input, .study-dialog__field select { font-weight: normal; }
+.study-dialog__help { font-size: .82em; font-weight: normal; line-height: 1.3; opacity: .72; }
 .study-dialog__split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.35rem; }
 .study-dialog select:disabled { opacity: .8; cursor: not-allowed; }
 .study-dialog__secondary-actions {
@@ -1243,4 +1348,17 @@
     .study-dialog form.study-invite__form { display: grid; }
     .study-topic-editor__limits { align-items: flex-start; }
     .study-dialog .study-invite__form .button { width: 100%; }
+}
+
+.study-gamebook-status-container:empty { display: none; }
+.study-gamebook-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    margin-top: .5rem;
+    padding: .65rem .8rem;
+    border-radius: 4px;
+    background: var(--bg-color0);
+    box-shadow: var(--base-shadow);
 }
