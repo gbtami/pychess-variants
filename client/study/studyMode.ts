@@ -6,7 +6,6 @@ export type StudySessionMode =
     | 'normal-analysis'
     | 'conceal-author'
     | 'conceal-reader'
-    | 'conceal-preview'
     | 'gamebook-author'
     | 'gamebook-play'
     | 'gamebook-preview'
@@ -135,7 +134,7 @@ function normalizedSession(input: StudySessionPolicyInput): SessionShape {
     }
 
     if (input.mode === 'conceal') {
-        if (input.canWrite && override !== 'preview') {
+        if (input.canWrite) {
             return {
                 session: 'conceal-author',
                 override: null,
@@ -148,15 +147,14 @@ function normalizedSession(input: StudySessionPolicyInput): SessionShape {
                 ordinaryAnalysisTools: true,
             };
         }
-        const preview = input.canWrite && override === 'preview';
         return {
-            session: preview ? 'conceal-preview' : 'conceal-reader',
-            override: preview ? 'preview' : null,
+            session: 'conceal-reader',
+            override: null,
             training: false,
-            preview,
-            startPath: preview ? 'root' : input.savedSynchronization ? 'shared-or-root' : 'root',
+            preview: false,
+            startPath: input.savedSynchronization ? 'shared-or-root' : 'root',
             authoring: false,
-            synchronization: preview ? false : input.savedSynchronization,
+            synchronization: input.savedSynchronization,
             fullTree: false,
             ordinaryAnalysisTools: false,
         };

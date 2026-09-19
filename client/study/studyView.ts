@@ -783,8 +783,6 @@ type StudyModeActions = {
     setDescription: (description: string) => void;
     settleWrites: () => Promise<boolean>;
     resetConcealment: () => Promise<void>;
-    enterConcealPreview: () => Promise<void>;
-    leaveConcealPreview: () => Promise<void>;
     enterGamebookPreview: () => Promise<void>;
     leaveGamebookPreview: () => Promise<void>;
     enterGamebookAnalysis: () => Promise<void>;
@@ -912,18 +910,16 @@ function syncStudyPlaybackUi(study: StudyPageModel, modeActions: StudyModeAction
     const policy = effectiveStudySessionPolicy(study);
     const app = document.querySelector<HTMLElement>('.study-app');
     app?.classList.toggle('study-conceal-playback', isConcealPlayback(policy));
-    app?.classList.toggle('study-conceal-preview', policy.session === 'conceal-preview');
     app?.classList.toggle('study-gamebook-playback', isGamebookPlayback(policy) || isPracticePlayback(policy));
     app?.classList.toggle('study-gamebook-preview', policy.session === 'gamebook-preview');
     app?.classList.toggle('study-gamebook-analysis', policy.session === 'gamebook-analysis');
     app?.classList.toggle('study-practice-playback', isPracticePlayback(policy));
     app?.classList.toggle('study-practice-analysis', policy.session === 'practice-analysis');
-    if (isConcealPlayback(policy) || isGamebookPlayback(policy) || isPracticePlayback(policy)) {
+    if (isGamebookPlayback(policy) || isPracticePlayback(policy)) {
         const selected = document.querySelector<HTMLButtonElement>('[data-study-tab][aria-selected="true"]');
         if (selected && selected.dataset.studyTab !== 'tags') selectStudyTab('tags');
     }
     refreshStudyModeButtons(study);
-    updateStudyConcealStatus(study, modeActions);
     updateStudyGamebookStatus(study, modeActions);
 }
 
@@ -1358,7 +1354,6 @@ function studySide(study: StudyPageModel, model: PyChessModel, modeActions: Stud
 type StudyTab = 'tags' | 'comments' | 'glyphs' | 'serverEval' | 'export';
 
 function selectStudyTab(tab: string, focus = false): void {
-    if (document.querySelector('.study-app.study-conceal-playback') && tab !== 'tags') tab = 'tags';
     const requested = document.querySelector<HTMLButtonElement>(`[data-study-tab="${tab}"]`);
     if (requested?.hidden) tab = 'tags';
     document.querySelectorAll<HTMLButtonElement>('[data-study-tab]').forEach(button => {
@@ -1713,46 +1708,6 @@ function updateStudyPlayerIdentities(study: StudyPageModel, orientation: 'white'
     if (bottom) patch(toVNode(bottom), studyPlayerIdentity(study, studyPlayerColorAt(study, 'bottom', orientation)));
 }
 
-function studyConcealStatus(study: StudyPageModel, modeActions: StudyModeActions): VNode {
-    const policy = effectiveStudySessionPolicy(study);
-    if (study.chapter.mode !== 'conceal') return h('div.study-conceal-status-container');
-
-    const concealPly = study.chapter.concealPly ?? 0;
-    if (policy.session === 'conceal-author') {
-        return h('div.study-conceal-status-container', [
-            h('div.study-conceal-status', [
-                h('span', _('Moves after ply %1 are hidden from readers.', String(concealPly))),
-                h(
-                    'button.button.button-empty.study-conceal-preview',
-                    { attrs: { type: 'button' }, on: { click: () => void modeActions.enterConcealPreview() } },
-                    _('Preview'),
-                ),
-            ]),
-        ]);
-    }
-    if (policy.session === 'conceal-preview') {
-        return h('div.study-conceal-status-container', [
-            h('div.study-conceal-status', [
-                h('span', _('Previewing this chapter as a reader. Your moves are local and are not saved.')),
-                h(
-                    'button.button.button-empty.study-conceal-return',
-                    { attrs: { type: 'button' }, on: { click: () => void modeActions.leaveConcealPreview() } },
-                    _('Return to analysis'),
-                ),
-            ]),
-        ]);
-    }
-    return h('div.study-conceal-status-container', [
-        h('div.study-conceal-status', _('Next moves are hidden. Play moves on the board to explore.')),
-    ]);
-}
-
-function updateStudyConcealStatus(study: StudyPageModel, modeActions?: StudyModeActions): void {
-    if (!modeActions) return;
-    const current = document.querySelector<HTMLElement>('.study-conceal-status-container');
-    if (current) patch(toVNode(current), studyConcealStatus(study, modeActions));
-}
-
 function studyGamebookStatus(study: StudyPageModel, modeActions: StudyModeActions): VNode {
     const policy = effectiveStudySessionPolicy(study);
     if (study.chapter.mode === 'gamebook' && policy.session === 'gamebook-analysis') {
@@ -1799,7 +1754,6 @@ export function updateStudyUnderboardChapter(
     const shareLinks = document.querySelector<HTMLElement>('.study-share__links');
     if (shareLinks) patch(toVNode(shareLinks), studyShareLinks(study, model));
     syncStudyPinnedDescriptionUi(study, modeActions);
-    updateStudyConcealStatus(study, modeActions);
     updateStudyGamebookStatus(study, modeActions);
     updateStudyServerEvalContent(study, modeActions);
     const preview = document.querySelector<HTMLButtonElement>('.study-gamebook-preview-toggle');
@@ -1823,7 +1777,6 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions
     ];
     return h('div.study-underboard', [
         studyPinnedChapterComment(study, modeActions),
-        studyConcealStatus(study, modeActions),
         studyGamebookStatus(study, modeActions),
         h('nav.study-tool-tabs', { attrs: { role: 'tablist', 'aria-label': _('Study tools') } }, [
             ...studyModeButtons(study, modeActions),
@@ -2240,7 +2193,6 @@ function runStudyGround(
                     study.chapter.revision = revision;
                     const preview = study.chapters.find(chapter => chapter.id === study.chapter.id);
                     if (preview) preview.concealPly = concealPly;
-                    updateStudyConcealStatus(study, modeActions);
                 },
                 onSharedPositionChanged: (chapterId, path) => {
                     const changed = study.sharedChapter !== chapterId || study.sharedPath !== path;
@@ -2356,25 +2308,6 @@ function runStudyGround(
         modeActions.resetConcealment = async () => {
             if (!(await modeActions.settleWrites())) return;
             extension.resetConcealment();
-        };
-        modeActions.enterConcealPreview = async () => {
-            if (study.chapter.mode !== 'conceal' || !study.canWrite || policy.preview) return;
-            if (!(await modeActions.settleWrites())) return;
-            study.modeOverride = 'preview';
-            policy = effectiveStudySessionPolicy(study);
-            extension.setPolicy(policy);
-            sideVNode = patch(sideVNode, studySide(study, model, modeActions));
-            syncStudyPlaybackUi(study, modeActions);
-            await navigation?.reload();
-        };
-        modeActions.leaveConcealPreview = async () => {
-            if (policy.session !== 'conceal-preview') return;
-            if (!(await modeActions.settleWrites())) return;
-            // Keep the old extension restricted until the authoritative chapter has
-            // replaced all local exploratory nodes. The remount then derives the
-            // author policy from the unchanged saved REC/SYNC preferences.
-            study.modeOverride = null;
-            await navigation?.reload();
         };
         modeActions.enterGamebookPreview = async () => {
             if (study.chapter.mode !== 'gamebook' || !study.canWrite || policy.preview) return;
@@ -2743,8 +2676,6 @@ export function studyView(model: PyChessModel): VNode[] {
         setDescription: () => {},
         settleWrites: async () => true,
         resetConcealment: async () => {},
-        enterConcealPreview: async () => {},
-        leaveConcealPreview: async () => {},
         enterGamebookPreview: async () => {},
         leaveGamebookPreview: async () => {},
         enterGamebookAnalysis: async () => {},
@@ -2767,7 +2698,6 @@ export function studyView(model: PyChessModel): VNode[] {
             'study-app': true,
             'has-players': studyHasGamePlayers(study),
             'study-conceal-playback': isConcealPlayback(effectiveStudySessionPolicy(study)),
-            'study-conceal-preview': effectiveStudySessionPolicy(study).session === 'conceal-preview',
             'study-gamebook-playback':
                 isGamebookPlayback(effectiveStudySessionPolicy(study)) ||
                 isPracticePlayback(effectiveStudySessionPolicy(study)),

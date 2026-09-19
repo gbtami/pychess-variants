@@ -60,7 +60,7 @@ function fixture() {
     };
 }
 
-function policy(canWrite: boolean, override: 'preview' | null = null) {
+function policy(canWrite: boolean) {
     return studySessionPolicy({
         mode: 'conceal',
         canWrite,
@@ -68,7 +68,6 @@ function policy(canWrite: boolean, override: 'preview' | null = null) {
         savedRecording: true,
         savedSynchronization: true,
         activeGame: false,
-        override,
     });
 }
 
@@ -108,7 +107,7 @@ describe('Study conceal presentation controller', () => {
         expect(conceal.areTreeNodeAnnotationsVisible(e5)).toBe(true);
     });
 
-    test('author sees the full tree with unrevealed content marked, while Preview uses reader policy', () => {
+    test('author sees the full tree with unrevealed content marked', () => {
         const { tree, e4, e5, c5 } = fixture();
         const host = { analysisTree: tree, analysisPath: e4.path };
         const conceal = new StudyConcealController(host, 1, policy(true));
@@ -120,10 +119,5 @@ describe('Study conceal presentation controller', () => {
         expect(conceal.isTreeNodeConcealed(c5)).toBe(true);
         expect(conceal.allowTreeContextMenu()).toBe(true);
         expect(conceal.areBoardShapesVisible()).toBe(true);
-
-        conceal.setPolicy(policy(true, 'preview'));
-        expect(conceal.isTreeNodeVisible(e5)).toBe(false);
-        expect(conceal.allowTreeContextMenu()).toBe(false);
-        expect(conceal.areBoardShapesVisible()).toBe(false);
     });
 });

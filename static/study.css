@@ -662,30 +662,6 @@
     mask: url('images/study/eye.svg') center / contain no-repeat;
 }
 
-.study-conceal-status-container:empty { display: none; }
-.study-conceal-status {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: .75rem;
-    margin-top: .5rem;
-    padding: .65rem .8rem;
-    border-radius: 4px;
-    background: var(--bg-color0);
-    box-shadow: var(--base-shadow);
-}
-.study-app.study-conceal-playback :is(
-    #study-tab-comments,
-    #study-tab-glyphs,
-    #study-tab-serverEval,
-    #study-tab-export,
-    #study-panel-comments,
-    #study-panel-glyphs,
-    #study-panel-serverEval,
-    #study-panel-export,
-    .study-annotations__tags,
-    .study-desc .contrib
-) { display: none !important; }
 /* Tag icon from lila public/images/svg-icons/tag.svg (AGPL-3.0). */
 .study-tag-icon { display: inline-block; width: 1.1em; height: 1.1em; background: currentColor; mask: url('images/study/tag.svg') center / contain no-repeat; vertical-align: middle; }
 .study-tool-count { font-size: .7rem; margin-left: .2rem; vertical-align: super; }
