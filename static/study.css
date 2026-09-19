@@ -658,9 +658,6 @@
     .study-annotations__tags,
     .study-desc .contrib
 ) { display: none !important; }
-.study-app.study-conceal-preview :is(.study-side__more, .study-chapter__edit, .study-side__add) {
-    display: none !important;
-}
 /* Tag icon from lila public/images/svg-icons/tag.svg (AGPL-3.0). */
 .study-tag-icon { display: inline-block; width: 1.1em; height: 1.1em; background: currentColor; mask: url('images/study/tag.svg') center / contain no-repeat; vertical-align: middle; }
 .study-tool-count { font-size: .7rem; margin-left: .2rem; vertical-align: super; }
@@ -1311,7 +1308,4 @@
     border-radius: 4px;
     background: var(--bg-color0);
     box-shadow: var(--base-shadow);
-}
-.study-app.study-gamebook-preview :is(.study-side__more, .study-chapter__edit, .study-side__add) {
-    display: none !important;
 }

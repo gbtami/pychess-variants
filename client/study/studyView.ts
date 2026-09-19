@@ -1135,7 +1135,9 @@ function studyMembersSide(study: StudyPageModel, model: PyChessModel): VNode {
 
 function studySide(study: StudyPageModel, model: PyChessModel, modeActions: StudyModeActions): VNode {
     const chapter = study.chapter;
-    const canWrite = effectiveStudySessionPolicy(study).canPersistEdits;
+    // Lichess keeps structural chapter management tied to Study membership,
+    // even while a writable member is in a disposable training/playback session.
+    const canManageChapters = study.canWrite;
     const activeTab = study.sideTab ?? 'chapters';
     const memberCount = Object.keys(study.members).length;
     return h('div.study-side', [
@@ -1153,7 +1155,7 @@ function studySide(study: StudyPageModel, model: PyChessModel, modeActions: Stud
                           [icon('bars')],
                       ),
                   ]
-                : [h('span.study-side__readonly', canWrite ? _('Contributor') : _('Read only'))]),
+                : [h('span.study-side__readonly', study.canWrite ? _('Contributor') : _('Read only'))]),
         ]),
         h(
             'section#study-side-panel-chapters.study-side__panel',
@@ -1184,7 +1186,7 @@ function studySide(study: StudyPageModel, model: PyChessModel, modeActions: Stud
                                     h('span.study-chapter__name', item.name),
                                 ],
                             ),
-                            ...(canWrite
+                            ...(canManageChapters
                                 ? [
                                       h(
                                           'button.study-icon-button.study-chapter__edit',
@@ -1203,7 +1205,7 @@ function studySide(study: StudyPageModel, model: PyChessModel, modeActions: Stud
                         ]),
                     ),
                 ),
-                ...(canWrite
+                ...(canManageChapters
                     ? [
                           h(
                               'button.study-side__add',
@@ -1246,7 +1248,7 @@ function studySide(study: StudyPageModel, model: PyChessModel, modeActions: Stud
                   ]),
               ]
             : []),
-        ...(canWrite
+        ...(canManageChapters
             ? [
                   studyTopicsDialog(study),
                   ...study.chapters.map(item =>

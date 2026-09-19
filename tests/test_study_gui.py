@@ -782,6 +782,15 @@ class TestStudyGUI:
                 await expect(page.locator(".study-practice")).to_contain_text(
                     "Your turn", timeout=20_000
                 )
+                # Training playback is disposable, but a writable Study member keeps
+                # structural chapter controls just like on Lichess. They can also
+                # leave practice immediately without waiting for the exercise to end.
+                await expect(
+                    page.get_by_role("button", name="Edit chapter: Engine practice")
+                ).to_be_visible()
+                await expect(
+                    page.get_by_role("button", name="Analysis", exact=True)
+                ).to_be_visible()
                 assert await page.evaluate("localStorage.getItem('localAnalysis')") == "true"
 
                 await page.get_by_role("button", name="Get a hint").click()

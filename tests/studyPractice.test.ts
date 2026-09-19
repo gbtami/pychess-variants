@@ -106,6 +106,8 @@ type HarnessOverrides = Partial<{
     uciOk: boolean;
     twoBoards: boolean;
     practiceEngineIdle: boolean;
+    canAnalyse: boolean;
+    onAnalyse: () => void;
 }>;
 
 function makeHarness(
@@ -194,7 +196,8 @@ function makeHarness(
         initialFen: fen,
         learnerColor,
         access: () => accessRef.value,
-        canAnalyse: false,
+        canAnalyse: overrides.canAnalyse ?? false,
+        ...(overrides.onAnalyse ? { onAnalyse: overrides.onAnalyse } : {}),
     });
 
     const humanMove = (move: string) => {
@@ -262,6 +265,20 @@ describe('StudyPracticeSession', () => {
         finishEvaluation('e7e5');
         expect(humanMove('e7e5')).toBe(true);
         expect(session.state.kind).toBe('engine-thinking');
+        session.destroy();
+    });
+
+    test('writer can leave computer practice for analysis immediately', () => {
+        const onAnalyse = jest.fn();
+        const { session } = makeHarness('white', undefined, { canAnalyse: true, onAnalyse });
+        const analysis = [...document.querySelectorAll<HTMLButtonElement>('.study-practice button')].find(
+            button => button.textContent === 'Analysis',
+        );
+
+        expect(session.state.kind).toBe('human-turn');
+        expect(analysis).toBeDefined();
+        analysis?.click();
+        expect(onAnalyse).toHaveBeenCalledTimes(1);
         session.destroy();
     });
 

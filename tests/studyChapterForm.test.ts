@@ -79,6 +79,17 @@ test('analysis mode help follows the newly selected completed mode', () => {
     );
 });
 
+test('Hide next moves submits the conceal mode value', () => {
+    mount(studyChapterCreateForm('/study', 'chess', false));
+
+    const form = document.querySelector<HTMLFormElement>('form.study-side__new-chapter')!;
+    const mode = form.querySelector<HTMLSelectElement>('select[name="mode"]')!;
+    mode.value = 'conceal';
+    mode.dispatchEvent(new Event('change', { bubbles: true }));
+
+    expect(new FormData(form).get('mode')).toBe('conceal');
+});
+
 test('orientation field labels the selected learner side', () => {
     document.body.innerHTML = '<div id="root"></div>';
     patch(document.getElementById('root')!, studyChapterOrientationField('white'));
