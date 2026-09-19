@@ -263,6 +263,7 @@ describe('Study interactive lesson playback adapter', () => {
         ctrl.turnColor = wrong.step.turnColor;
         playback.onPositionChanged(position(wrong));
         expect(document.querySelector('.study-gamebook-play__feedback.bad')?.textContent).toContain('Retry');
+        expect(document.querySelector('.study-gamebook-play__feedback.bad .icon-refresh')).not.toBeNull();
         expect(document.querySelector('.study-gamebook-play__comment-content')?.textContent).toContain(
             'Try a different central move.',
         );
@@ -277,6 +278,7 @@ describe('Study interactive lesson playback adapter', () => {
         ctrl.turnColor = e4.step.turnColor;
         playback.onPositionChanged(position(e4));
         expect(document.querySelector('.study-gamebook-play__feedback.good')?.textContent).toContain('Next');
+        expect(document.querySelector('.study-gamebook-play__feedback.good .icon-play')).not.toBeNull();
         expect(document.body.textContent).not.toContain('Analysis');
 
         document.querySelector<HTMLButtonElement>('.study-gamebook-play__feedback.good')?.click();
@@ -288,14 +290,51 @@ describe('Study interactive lesson playback adapter', () => {
         ctrl.analysisPath = nf3.path;
         ctrl.turnColor = nf3.step.turnColor;
         playback.onPositionChanged(position(nf3));
-        expect(document.querySelector('.study-gamebook-play__feedback.end')?.textContent).toContain('Play again');
+        const end = document.querySelector<HTMLElement>('.study-gamebook-play__feedback.end')!;
+        expect(end.textContent).toContain('Play again');
+        expect(end.querySelector('.study-gamebook-play__end-action.retry .icon-refresh')).not.toBeNull();
         expect(document.body.textContent).not.toContain('Next chapter');
         const analysis = [...document.querySelectorAll<HTMLButtonElement>('.study-gamebook-play button')].find(
             button => button.textContent === 'Analysis',
         );
         expect(analysis).toBeDefined();
+        expect(analysis?.querySelector('.icon-microscope')).not.toBeNull();
         analysis?.click();
         expect(onAnalyse).toHaveBeenCalledTimes(1);
+
+        playback.destroy();
+    });
+
+    test('matches lichess icon treatment for completed lesson actions', () => {
+        const ctrl = makeCtrl();
+        const nextChapter = jest.fn();
+        const analyse = jest.fn();
+        const playback = new StudyGamebookPlayback(ctrl, {
+            chapterId: 'chapter-icons',
+            orientation: 'white',
+            preview: false,
+            canAnalyse: true,
+            hasNextChapter: true,
+            onNextChapter: nextChapter,
+            onAnalyse: analyse,
+        });
+
+        const e4 = ctrl.analysisTree!.byPath.get('e4')!;
+        ctrl.analysisPath = e4.path;
+        ctrl.turnColor = e4.step.turnColor;
+        playback.onPositionChanged(position(e4));
+        document.querySelector<HTMLButtonElement>('.study-gamebook-play__feedback.good')?.click();
+        jest.runOnlyPendingTimers();
+
+        const nf3 = ctrl.analysisTree!.byPath.get('e4.e5.nf3')!;
+        ctrl.analysisPath = nf3.path;
+        ctrl.turnColor = nf3.step.turnColor;
+        playback.onPositionChanged(position(nf3));
+
+        const end = document.querySelector<HTMLElement>('.study-gamebook-play__feedback.end')!;
+        expect(end.querySelector('.study-gamebook-play__end-action.next .icon-play')).not.toBeNull();
+        expect(end.querySelector('.study-gamebook-play__end-action.retry .icon-refresh')).not.toBeNull();
+        expect(end.querySelector('.study-gamebook-play__end-action.analyse .icon-microscope')).not.toBeNull();
 
         playback.destroy();
     });

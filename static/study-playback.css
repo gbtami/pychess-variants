@@ -205,7 +205,11 @@ button.study-gamebook-play__feedback.act:focus-visible {
 }
 
 .study-gamebook-play__end-action {
+    display: flex;
     flex: 1 1 100%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     padding: .5em;
     border: 0;
     background: color-mix(in srgb, var(--link-color-blue) 80%, var(--bg-color0));
@@ -215,6 +219,24 @@ button.study-gamebook-play__feedback.act:focus-visible {
     line-height: 1.2;
     cursor: pointer;
     transition: filter 150ms ease;
+}
+
+.study-gamebook-play__end-action > [class^='icon-'],
+.study-gamebook-play__end-action > [class*=' icon-'] {
+    margin: .5em 0;
+    font-size: 2.2em;
+    line-height: 1;
+}
+
+.study-gamebook-play__feedback-text {
+    display: inline-flex;
+    align-items: center;
+    gap: .35em;
+}
+
+.study-gamebook-play-button.solution > [class^='icon-'],
+.study-gamebook-play-button.solution > [class*=' icon-'] {
+    margin-inline-end: .3em;
 }
 
 .study-gamebook-play__end-action:not(:first-child) {

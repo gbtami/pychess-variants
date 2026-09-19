@@ -256,6 +256,13 @@ export class StudyGamebookPlayback {
         this.ctrl.chessground.setAutoShapes([]);
     }
 
+    private actionIcon(name: string): HTMLElement {
+        const icon = document.createElement('i');
+        icon.className = `icon-${name}`;
+        icon.setAttribute('aria-hidden', 'true');
+        return icon;
+    }
+
     private actionButton(label: string, action: () => void, className: string): HTMLButtonElement {
         const button = document.createElement('button');
         button.type = 'button';
@@ -327,9 +334,8 @@ export class StudyGamebookPlayback {
                 () => this.controller.retry(),
                 'study-gamebook-play__feedback act bad',
             );
-            const icon = document.createElement('span');
-            icon.className = 'study-gamebook-play__feedback-icon';
-            icon.textContent = '↻';
+            const icon = this.actionIcon('refresh');
+            icon.classList.add('study-gamebook-play__feedback-icon');
             retry.prepend(icon);
             return retry;
         }
@@ -342,7 +348,7 @@ export class StudyGamebookPlayback {
             );
             const text = document.createElement('span');
             text.className = 'study-gamebook-play__feedback-text';
-            text.textContent = `▶ ${_('Next')}`;
+            text.append(this.actionIcon('play'), document.createTextNode(_('Next')));
             const key = document.createElement('kbd');
             key.textContent = 'space';
             next.replaceChildren(text, key);
@@ -353,19 +359,29 @@ export class StudyGamebookPlayback {
             const end = document.createElement('div');
             end.className = 'study-gamebook-play__feedback end';
             if (this.options.hasNextChapter) {
-                end.append(
-                    this.actionButton(
-                        _('Next chapter'),
-                        () => this.controller.nextChapter(),
-                        'study-gamebook-play__end-action',
-                    ),
+                const nextChapter = this.actionButton(
+                    _('Next chapter'),
+                    () => this.controller.nextChapter(),
+                    'study-gamebook-play__end-action next',
                 );
+                nextChapter.prepend(this.actionIcon('play'));
+                end.append(nextChapter);
             }
-            end.append(
-                this.actionButton(_('Play again'), () => this.controller.replay(), 'study-gamebook-play__end-action'),
+            const replay = this.actionButton(
+                _('Play again'),
+                () => this.controller.replay(),
+                'study-gamebook-play__end-action retry',
             );
+            replay.prepend(this.actionIcon('refresh'));
+            end.append(replay);
             if (this.options.canAnalyse && this.options.onAnalyse) {
-                end.append(this.actionButton(_('Analysis'), this.options.onAnalyse, 'study-gamebook-play__end-action'));
+                const analysis = this.actionButton(
+                    _('Analysis'),
+                    this.options.onAnalyse,
+                    'study-gamebook-play__end-action analyse',
+                );
+                analysis.prepend(this.actionIcon('microscope'));
+                end.append(analysis);
             }
             return end;
         }
@@ -441,7 +457,7 @@ export class StudyGamebookPlayback {
                 () => this.controller.viewSolution(),
                 'study-gamebook-play-button solution',
             );
-            solution.prepend(document.createTextNode('▶ '));
+            solution.prepend(this.actionIcon('play'));
             this.playButtons.append(solution);
         }
         if (this.options.preview && this.options.onReturnToEditor) {
