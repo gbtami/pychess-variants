@@ -79,6 +79,10 @@ function makeCtrl(tree = lessonTree()) {
         analysisPath: '',
         turnColor: 'white',
         autoShapes: [],
+        variant: {
+            kingRoles: ['k-piece'],
+            colors: { first: 'white', second: 'black' },
+        },
         chessground: {
             state: { dimensions: { width: 8, height: 8 } },
             set,
@@ -118,7 +122,8 @@ function position(node: AnalysisTreeNode, origin: 'played-move' | 'automated-rep
 
 describe('Study interactive lesson playback adapter', () => {
     beforeEach(() => {
-        document.body.innerHTML = '<div class="analysis-tools"></div>';
+        document.body.innerHTML =
+            '<div class="analysis-tools"></div><div class="study-underboard"><div class="study-gamebook-play-buttons" hidden></div></div>';
         jest.useFakeTimers();
     });
 
@@ -151,8 +156,14 @@ describe('Study interactive lesson playback adapter', () => {
         hint.click();
         await Promise.resolve();
 
-        expect(document.activeElement).toBe(panel.querySelector('.study-gamebook-play__actions .button'));
-        expect(document.activeElement?.textContent).toBe('Hide hint');
+        expect(document.activeElement).toBe(panel.querySelector('.study-gamebook-play__hint'));
+        expect(document.activeElement?.getAttribute('aria-label')).toBe('Hide hint');
+        expect(panel.querySelector<HTMLImageElement>('.study-gamebook-play__mascot')?.src).toContain(
+            '/static/images/study/octopus.svg',
+        );
+        expect(panel.querySelector('.study-gamebook-play__title')?.textContent).toBe('Your turn');
+        expect(panel.querySelector('.study-gamebook-play__message')?.textContent).toContain('white');
+        expect(document.querySelector('.study-gamebook-play-buttons')?.textContent).toContain('View the solution');
 
         playback.destroy();
     });
@@ -198,8 +209,8 @@ describe('Study interactive lesson playback adapter', () => {
             hasNextChapter: false,
         });
 
-        const solution = [...document.querySelectorAll<HTMLButtonElement>('.study-gamebook-play button')].find(
-            button => button.textContent === 'View the solution',
+        const solution = [...document.querySelectorAll<HTMLButtonElement>('.study-gamebook-play-buttons button')].find(
+            button => button.textContent?.includes('View the solution'),
         );
         solution?.click();
         expect(ctrl.chessground.setAutoShapes).toHaveBeenLastCalledWith([
@@ -225,9 +236,9 @@ describe('Study interactive lesson playback adapter', () => {
             canAnalyse: false,
             hasNextChapter: false,
         });
-        const dropSolution = [...document.querySelectorAll<HTMLButtonElement>('.study-gamebook-play button')].find(
-            button => button.textContent === 'View the solution',
-        );
+        const dropSolution = [
+            ...document.querySelectorAll<HTMLButtonElement>('.study-gamebook-play-buttons button'),
+        ].find(button => button.textContent?.includes('View the solution'));
         dropSolution?.click();
         expect(dropCtrl.chessground.setAutoShapes).toHaveBeenLastCalledWith([
             expect.objectContaining({ orig: 'j:', brush: 'paleGreen' }),
@@ -251,10 +262,13 @@ describe('Study interactive lesson playback adapter', () => {
         ctrl.analysisPath = wrong.path;
         ctrl.turnColor = wrong.step.turnColor;
         playback.onPositionChanged(position(wrong));
-        expect(document.querySelector('.study-gamebook-play__title')?.textContent).toBe('Try again');
+        expect(document.querySelector('.study-gamebook-play__feedback.bad')?.textContent).toContain('Retry');
+        expect(document.querySelector('.study-gamebook-play__comment-content')?.textContent).toContain(
+            'Try a different central move.',
+        );
         expect(playback.beforeMoveApplied({ move: 'c2c4', origin: 'played-move', path: wrong.path })).toBe(false);
 
-        document.querySelector<HTMLButtonElement>('.study-gamebook-play__actions .button')?.click();
+        document.querySelector<HTMLButtonElement>('.study-gamebook-play__feedback.bad')?.click();
         expect(ctrl.activateTreePath).toHaveBeenCalledWith('', true, 'reset');
         expect(document.querySelector('.study-gamebook-play__title')?.textContent).toBe('Your turn');
 
@@ -262,10 +276,10 @@ describe('Study interactive lesson playback adapter', () => {
         ctrl.analysisPath = e4.path;
         ctrl.turnColor = e4.step.turnColor;
         playback.onPositionChanged(position(e4));
-        expect(document.querySelector('.study-gamebook-play__title')?.textContent).toBe('Good move');
+        expect(document.querySelector('.study-gamebook-play__feedback.good')?.textContent).toContain('Next');
         expect(document.body.textContent).not.toContain('Analysis');
 
-        document.querySelector<HTMLButtonElement>('.study-gamebook-play__actions .button')?.click();
+        document.querySelector<HTMLButtonElement>('.study-gamebook-play__feedback.good')?.click();
         jest.runOnlyPendingTimers();
         expect(ctrl.applyAnalysisMove).toHaveBeenCalledWith('e7e5', 'automated-reply');
         expect(document.querySelector('.study-gamebook-play__title')?.textContent).toBe('Your turn');
@@ -274,7 +288,7 @@ describe('Study interactive lesson playback adapter', () => {
         ctrl.analysisPath = nf3.path;
         ctrl.turnColor = nf3.step.turnColor;
         playback.onPositionChanged(position(nf3));
-        expect(document.querySelector('.study-gamebook-play__title')?.textContent).toBe('Lesson complete');
+        expect(document.querySelector('.study-gamebook-play__feedback.end')?.textContent).toContain('Play again');
         expect(document.body.textContent).not.toContain('Next chapter');
         const analysis = [...document.querySelectorAll<HTMLButtonElement>('.study-gamebook-play button')].find(
             button => button.textContent === 'Analysis',
@@ -330,7 +344,7 @@ describe('Study interactive lesson playback adapter', () => {
         expect(event.defaultPrevented).toBe(true);
         expect(ctrl.activateTreePath).toHaveBeenCalledWith('', true, 'reset');
         expect(playback.canActivatePath('e4', 'user-navigation')).toBe(false);
-        expect(document.body.textContent).toContain('Return to lesson editor');
+        expect(document.querySelector('.study-gamebook-play-buttons')?.textContent).toContain('Preview');
 
         playback.destroy();
     });

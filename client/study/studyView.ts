@@ -1748,8 +1748,9 @@ export function updateStudyUnderboardChapter(
     model: PyChessModel,
     modeActions?: StudyModeActions,
 ): void {
-    const title = document.querySelector<HTMLElement>('.study-underboard__title');
-    if (title) patch(toVNode(title), studyMetadataTitle(study));
+    document.querySelectorAll<HTMLElement>('.study-underboard__title').forEach(title => {
+        patch(toVNode(title), studyMetadataTitle(study));
+    });
 
     const shareLinks = document.querySelector<HTMLElement>('.study-share__links');
     if (shareLinks) patch(toVNode(shareLinks), studyShareLinks(study, model));
@@ -1776,6 +1777,10 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions
             : []),
     ];
     return h('div.study-underboard', [
+        h('div.study-gamebook-play-underboard', [
+            h('div.study-gamebook-play-buttons', { attrs: { hidden: 'true' } }),
+            studyMetadataTitle(study),
+        ]),
         studyPinnedChapterComment(study, modeActions),
         studyGamebookStatus(study, modeActions),
         h('nav.study-tool-tabs', { attrs: { role: 'tablist', 'aria-label': _('Study tools') } }, [
