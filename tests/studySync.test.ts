@@ -1899,11 +1899,16 @@ test('conceal reader extension blocks hidden navigation until play or reveal', (
         savedSynchronization: false,
         activeGame: false,
     });
+    const visibleShape = { orig: 'e4', dest: 'e5', brush: 'red' as const };
+    const visible = {
+        ...e4Node(),
+        annotations: { shapes: [visibleShape], comments: [], nags: [] },
+    };
     const extension = new StudyAnalysisExtension(ctrl, {
         studyId: 'study001',
         chapterId: 'chapter1',
         revision: 0,
-        tree: { nodes: [e4Node(), e5] },
+        tree: { nodes: [visible, e5] },
         concealPly: 1,
         policy,
         writable: false,
@@ -1911,14 +1916,15 @@ test('conceal reader extension blocks hidden navigation until play or reveal', (
     });
     extension.onInitialBoardLoaded();
     ctrl.analysisPath = 'StudyNode1';
+    extension.onPathChanged();
     const hidden = ctrl.analysisTree.byPath.get('StudyNode1.StudyNode2');
 
+    expect(ctrl.chessground.setShapes).toHaveBeenLastCalledWith([visibleShape]);
     expect(hidden).toBeDefined();
     expect(extension.isTreeNodeVisible(hidden)).toBe(false);
     expect(extension.canActivatePath(hidden.path, 'user-navigation')).toBe(false);
     expect(extension.canActivatePath(hidden.path, 'played-move')).toBe(true);
     expect(extension.allowTreeContextMenu()).toBe(false);
-    expect(ctrl.chessground.setShapes).toHaveBeenLastCalledWith([]);
 
     extension.onSocketMessage('study_conceal', {
         type: 'study_conceal',

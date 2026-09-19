@@ -82,7 +82,9 @@ later position on the preferred mainline advances the shared reveal boundary; pu
 side variations or moving backward does not. **Hide moves again** resets the boundary
 and shared position to the chapter root. Like lichess, contributors stay in the normal
 Study authoring shell: unrevealed continuation moves are faded in the move tree, while
-readers simply do not see them. There is no separate conceal-mode status/preview panel.
+readers simply do not see them. Drawings on the currently visible position remain
+visible to readers, matching lichess live-coaching behavior. There is no separate
+conceal-mode status/preview panel.
 
 #### Interactive lesson authoring
 

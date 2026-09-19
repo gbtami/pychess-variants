@@ -1384,7 +1384,7 @@ describe('Study conceal mode shell', () => {
         expect(app.classList.contains('study-conceal-playback')).toBe(true);
         expect(root.querySelector('.study-conceal-status')).toBeNull();
         expect(root.querySelector('.study-mode--write')).toBeNull();
-        expect(root.querySelector('#study-tab-serverEval')).not.toBeNull();
+        expect(root.querySelector<HTMLButtonElement>('#study-tab-serverEval')?.hidden).toBe(true);
         expect(root.querySelector('#study-tab-export')).not.toBeNull();
     });
 

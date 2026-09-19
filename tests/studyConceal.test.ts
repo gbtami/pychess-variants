@@ -84,6 +84,7 @@ describe('Study conceal presentation controller', () => {
         expect(conceal.isTreeNodeVisible(c5)).toBe(false);
         expect(conceal.canActivatePath(e5.path, 'user-navigation')).toBe(false);
         expect(conceal.canActivatePath(e5.path, 'played-move')).toBe(true);
+        expect(conceal.areBoardShapesVisible()).toBe(true);
 
         host.analysisPath = e5.path;
         expect(conceal.isTreeNodeVisible(e5)).toBe(true);
