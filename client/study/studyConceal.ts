@@ -82,7 +82,11 @@ export class StudyConcealController {
     }
 
     areBoardShapesVisible(): boolean {
-        return !isConcealPlayback(this.policy);
+        // Lichess concealment hides future move-tree content, not the drawings
+        // attached to the position the reader is currently viewing. Those
+        // arrows/circles are useful during live coaching and are already safe
+        // once the position itself has been revealed (or explicitly shared).
+        return true;
     }
 
     allowTreeContextMenu(): boolean {

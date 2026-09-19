@@ -915,9 +915,16 @@ function syncStudyPlaybackUi(study: StudyPageModel, modeActions: StudyModeAction
     app?.classList.toggle('study-gamebook-analysis', policy.session === 'gamebook-analysis');
     app?.classList.toggle('study-practice-playback', isPracticePlayback(policy));
     app?.classList.toggle('study-practice-analysis', policy.session === 'practice-analysis');
+    const selected = document.querySelector<HTMLButtonElement>('[data-study-tab][aria-selected="true"]');
+    const serverEval = document.querySelector<HTMLButtonElement>('#study-tab-serverEval');
+    const hideServerEval = !policy.tools.evaluationDisplay && !policy.tools.serverAnalysis;
+    if (serverEval) serverEval.hidden = hideServerEval;
     if (isGamebookPlayback(policy) || isPracticePlayback(policy)) {
-        const selected = document.querySelector<HTMLButtonElement>('[data-study-tab][aria-selected="true"]');
         if (selected && selected.dataset.studyTab !== 'tags') selectStudyTab('tags');
+    } else if (hideServerEval && selected?.dataset.studyTab === 'serverEval') {
+        // Conceal readers cannot use evaluation surfaces. Do not leave them on
+        // an empty tool panel when changing from a normal chapter.
+        selectStudyTab('tags');
     }
     refreshStudyModeButtons(study);
     updateStudyGamebookStatus(study, modeActions);
@@ -1763,6 +1770,8 @@ export function updateStudyUnderboardChapter(
 
 function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions: StudyModeActions): VNode {
     const defaultTab: StudyTab = 'tags';
+    const policy = effectiveStudySessionPolicy(study);
+    const hideServerEval = !policy.tools.evaluationDisplay && !policy.tools.serverAnalysis;
     const tabs: [StudyTab, string, VNode | string][] = [
         ['tags', _('PGN tags'), h('i.study-tag-icon', { attrs: { 'aria-hidden': 'true' } })],
         ...(study.canWrite
@@ -1798,6 +1807,7 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions
                             'aria-selected': tab === defaultTab ? 'true' : 'false',
                             tabindex: tab === defaultTab ? 0 : -1,
                             'data-study-tab': tab,
+                            ...(tab === 'serverEval' && hideServerEval ? { hidden: true } : {}),
                         },
                         on: {
                             click: () => {
@@ -1805,7 +1815,10 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions
                                 if (tab === 'serverEval') modeActions.showServerAnalysis();
                             },
                             keydown: event => {
-                                const available = tabs;
+                                const available = tabs.filter(([key]) => {
+                                    const button = document.getElementById(`study-tab-${key}`);
+                                    return !(button instanceof HTMLButtonElement) || !button.hidden;
+                                });
                                 const index = available.findIndex(([key]) => key === tab);
                                 let next: number;
                                 if (event.key === 'ArrowRight') next = (index + 1) % available.length;
