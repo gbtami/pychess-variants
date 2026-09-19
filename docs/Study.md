@@ -4,11 +4,11 @@ Study adds persistent chapters, annotations, sharing, and collaboration to PyChe
 single-board analysis. It reuses the ordinary analysis board, move tree, navigation,
 and engine tools through an optional analysis extension.
 
-This is the implementation reference and remaining-feature inventory, consolidated on
-2026-09-10 against PyChess `ad17d527c`. It replaces the phased roadmap and repeated
-review reports. Their detailed plans, reproductions, and findings remain in Git history.
-Update this document when behavior changes; possible future features below are not
-commitments or a release schedule.
+This is the implementation reference and remaining-feature inventory, updated on
+2026-09-19 after the chapter analysis-mode rollout. It replaces the phased roadmap and
+repeated review reports as the description of shipped behavior. Their detailed plans,
+reproductions, and findings remain in Git history. Update this document when behavior
+changes; possible future features below are not commitments or a release schedule.
 
 ## Implemented behavior
 
@@ -50,6 +50,95 @@ work. Fishnet jobs remain in memory: after a server restart, saved partial resul
 remain visible, but unfinished work is no longer pending and can be requested again
 after the cooldown. Historical custom-variant analysis uses the saved rules snapshot
 in its worker payload.
+
+### Chapter analysis modes
+
+Every chapter has an **Analysis mode**. New/edit chapter dialogs offer the deployed
+subset of four schema-supported modes, and **Orientation / learner side** explicitly
+chooses which color the learner controls in the training modes.
+
+| Mode | Reader/player behavior | Contributor behavior |
+| --- | --- | --- |
+| Normal analysis | Full tree, navigation and ordinary allowed analysis tools | Normal REC/SYNC collaboration and persistent edits |
+| Practice with computer | Disposable game against the browser engine from the chapter root | Same practice player by default; writers may leave practice for ordinary analysis |
+| Hide next moves | Only the revealed prefix is visible; legal board exploration is local | Full tree plus reveal status, reader preview and **Hide moves again** reset |
+| Interactive lesson | Scripted mainline playback with feedback, hints and solution reveal | Full lesson editor plus a local **Preview** mode |
+
+Training/preview sessions never overwrite the user's saved REC/SYNC preferences. They
+turn persistence/shared navigation off locally as needed, and returning to ordinary
+analysis reloads the authoritative chapter before restoring the saved behavior.
+
+#### Hide next moves
+
+Concealment stores `concealPly`, the number of preferred-mainline moves revealed from
+the chapter's own root. This intentionally differs from lichess's absolute FEN ply,
+so a custom FEN's move number does not affect what is hidden. A new concealed chapter
+starts at depth 0.
+
+Readers can move backward through already revealed positions and can try one legal
+board move from their current position without first seeing its SAN. That exploration
+is browser-local and disappears when they leave/reload it. A contributor publishing a
+later position on the preferred mainline advances the shared reveal boundary; publishing
+side variations or moving backward does not. **Hide moves again** resets the boundary
+and shared position to the chapter root. Contributors can use **Preview** to see the
+reader experience without saving preview moves.
+
+#### Interactive lesson authoring
+
+Interactive lessons treat the preferred mainline as the answer script. The chapter
+orientation is the learner's color. To author one:
+
+1. Select **Interactive lesson** and choose the learner side with chapter orientation.
+2. Build the expected sequence as the preferred mainline. If the opponent moves first,
+   put that scripted move on the mainline before the learner's first prompt.
+3. Use ordinary position comments for introduction text, explanations after opponent
+   moves, and feedback after the learner finds the expected move.
+4. At learner-turn positions, optionally add a **Hint**. On the expected learner move,
+   optionally add a **Fallback wrong-answer explanation** for other moves.
+5. Add variations from a learner position when a particular wrong move needs its own
+   ordinary comment. Promote the intended answer to the preferred mainline.
+6. Use **Preview** before publishing. Preview starts at the root and remains local.
+
+Playback accepts the preferred-mainline move as the scripted correct answer. Wrong
+moves get a move-specific variation comment when present, otherwise the fallback
+explanation, and can be retried. The player can toggle the authored hint, reveal the
+solution, continue/replay, and advance to the next chapter. Contributors can return to
+the lesson editor; readers may enter ordinary analysis only after completing the lesson.
+Author edits received during an attempt freeze/reload the disposable player rather than
+mixing an old script with the new authoritative chapter.
+
+Only one preferred answer is currently accepted at each learner prompt. Supporting
+multiple accepted answers is a separate future feature; authored side variations are
+wrong-answer/explanation branches, not additional correct solutions.
+
+#### Practice with computer
+
+Practice starts a disposable game from the chapter root; saved chapter continuations do
+not become the opponent's script. The learner controls the saved orientation and the
+browser engine controls the opposite color. The runtime keeps a separate full-history
+rules board for legality, repetition-sensitive outcomes and variant results, while all
+attempt moves remain local and absent from Study persistence/shared navigation.
+
+The page reuses the existing Fairy-Stockfish browser worker rather than starting a
+second worker. Learner-position feedback/hints use bounded 400,000-node searches and
+the computer reply uses a bounded 600,000-node search, one owned search at a time.
+Search ownership is drained through `bestmove` plus `isready`/`readyok` before another
+position is started, with independent wall-clock limits and stale-result rejection.
+Ordinary infinite local analysis and practice do not run concurrently.
+
+Move feedback is intentionally approximate for variants: **good**, **inaccuracy**,
+**mistake** and **blunder** use the same winning-chance-loss thresholds as the inspected
+lichess implementation. Exact best-move matches and terminal outcomes are handled
+directly; missing/bounded scores are reported as ungraded instead of inventing a
+verdict. Hints escalate from a source piece/drop indication to the full move, and a
+negative verdict can offer the stronger move plus **Retry best move**.
+
+Practice requires the viewer's computer-analysis permission, no conflicting active
+eligible live game, and a variant supported by the browser Fairy-Stockfish instance.
+Saved custom rules are passed to the browser engine. Two-board variants are explicitly
+unsupported, and engine/permission/time-out failures show an unavailable state rather
+than falling back to server Fishnet work. A failed engine drain barrier fails closed
+until the page is remounted.
 
 ### Visibility, permissions, and collaboration
 
@@ -98,6 +187,14 @@ topics. Topic pages show public popular topics and personal shortcuts derived fr
 owned/member Studies. Share tools provide Study/chapter links, chapter embeds, and
 chapter/whole-Study PGN downloads.
 
+Study embeds are intentionally lightweight. Normal-analysis chapters keep the ordinary
+interactive embedded viewer. Non-Normal chapters are locked to a root-position preview:
+Interactive lessons show **Start**, while Practice and Hide-next-moves show **Open
+study**, all opening the full Study in a new tab. The iframe does not instantiate lesson
+playback, Practice engine work, answer-bearing tree navigation, annotations, or computer
+search. This is close to lichess's gamebook embed behavior and deliberately extends the
+root-only lock to the other training modes for disclosure/resource safety.
+
 ## PGN and interchange
 
 ### Export
@@ -121,15 +218,18 @@ PyChess also writes ignorable extensions for data ordinary PGN cannot fully expr
 | `PyChessVariantIniEncoding=base64`, `PyChessVariantIni` | Exact UTF-8 custom-rule snapshot |
 | `PyChessChapterDescriptionEncoding=base64`, `PyChessChapterDescription` | Exact UTF-8 chapter description |
 | `PyChessStudyVersion=1`, `PyChessChapterMode` | Versioned Study teaching extension and exact chapter analysis mode |
+| `PyChessConcealPly` | Root-relative reveal boundary for Hide-next-moves chapters |
 | `ChapterMode=gamebook` | Compatibility marker for interactive lessons; it does not contain the lesson text by itself |
 | `[%pygamebook BASE64]` | UTF-8 JSON containing a position's optional lesson `hint` / `deviation` text |
 | `[%pynag ...]` | Root-position NAGs |
 | `[%pyclocks whiteMs,blackMs]` | Both clock values, including root clocks and sub-second precision |
 
 The teaching extension is intentionally opaque to ordinary PGN software. Other programs
-may ignore or discard the PyChess tags/directives, so lossless lesson round-tripping is
-only guaranteed when the versioned PyChess extension is preserved. `ChapterMode=gamebook`
+may ignore or discard the PyChess tags/directives, so lossless mode/lesson round-tripping
+is only guaranteed when the versioned PyChess extension is preserved. `ChapterMode=gamebook`
 alone is only a compatibility hint and is not a lossless lesson interchange format.
+Practice attempts, lesson attempts and reader conceal exploration are disposable runtime
+state and are never exported as authored chapter moves.
 
 ### Import: core implemented, raw-text workflow missing
 
@@ -152,6 +252,9 @@ comments, NAGs, and multiple-game support, followed by the UI integration.
 | --- | --- |
 | Shared analysis host, tree, context, extension | [analysisCtrl.ts](../client/analysis/analysisCtrl.ts), [analysisTreeCtrl.ts](../client/analysis/analysisTreeCtrl.ts), [analysisContext.ts](../client/analysis/analysisContext.ts), [analysisExtension.ts](../client/analysis/analysisExtension.ts) |
 | Study page, tools, chapter navigation | [studyView.ts](../client/study/studyView.ts), [chapterNavigation.ts](../client/study/chapterNavigation.ts), [studyChapterForm.ts](../client/study/studyChapterForm.ts) |
+| Chapter mode policy and concealment | [studyMode.ts](../client/study/studyMode.ts), [studyConceal.ts](../client/study/studyConceal.ts) |
+| Interactive lesson authoring/playback | [studyGamebook.ts](../client/study/studyGamebook.ts), [studyGamebookEdit.ts](../client/study/studyGamebookEdit.ts), [studyGamebookPlayback.ts](../client/study/studyGamebookPlayback.ts) |
+| Computer practice and bounded engine protocol | [studyPractice.ts](../client/study/studyPractice.ts), [studyPracticeFeedback.ts](../client/study/studyPracticeFeedback.ts), [analysisPracticeEngine.ts](../client/analysis/analysisPracticeEngine.ts) |
 | Lists and Add to Study | [studyIndex.ts](../client/study/studyIndex.ts), [addToStudy.ts](../client/study/addToStudy.ts) |
 | Client persistence adapter and synchronization | [studyTree.ts](../client/study/studyTree.ts), [studySync.ts](../client/study/studySync.ts) |
 | HTTP routes and authorization | [routes.py](../server/routes.py), [views/study.py](../server/views/study.py), [permissions.py](../server/study/permissions.py) |
@@ -208,6 +311,22 @@ change through `STUDY_CREATION_CREDITS_PER_24H`, `STUDY_CLONE_CREATION_COST`,
 `STUDY_ANALYSIS_MAX_PER_DAY`, and `STUDY_ANALYSIS_MAX_PER_WEEK`. Failed creation, clone,
 or queue admission rolls its claimed budget entry back.
 
+Computer Practice is a separate client-side resource path: it never creates Fishnet
+jobs and reuses the page-global browser engine with bounded searches. Repeated reset,
+chapter switch and teardown dispose transient rules boards/search ownership; after exit,
+Practice emits no further bounded-search work. The engine adapter also caps arbitrary
+callers at one million nodes, 10 seconds movetime, depth 30, MultiPV 3 and a 12-second
+wall-clock search limit by default.
+
+`STUDY_ENABLED_CHAPTER_MODES` is a comma-separated deployment gate over
+`normal,practice,conceal,gamebook`. It defaults to all four and always keeps `normal`
+as an escape hatch. The switch gates **new entry** into a mode: existing chapters in a
+disabled mode remain readable/playable and preserving edits remain schema-aware, while
+new chapters, imports, copies/clones and mode transitions cannot introduce disabled
+mode data. For rollback, keep this schema-preserving server deployed and narrow the
+variable (for example to `normal`) rather than deploying code from before analysis-mode
+support. No eager migration/backfill is required.
+
 Untrusted embedded rules and their imported positions/trees are validated outside
 the serving process. Historical rules admitted to the main native engine registry
 have a separate configurable cap of 256 snapshots per process. Native registrations
@@ -223,23 +342,30 @@ the Study lock to cover writes that completed during erasure discovery.
 
 ## Relationship to lichess
 
-The design and original reviews used lila, most recently local snapshot `39deb036f3`,
-as their comparison baseline. This is a comparison with that inspected implementation,
-not a claim of parity with today's lichess deployment.
+The original architecture and analysis-mode work used lila as the behavioral reference,
+including the supplied 2026-09-19 source snapshot. This is source-level comparison, not
+a claim of pixel-perfect parity with the current lichess deployment.
 
 The shared principles are an analysis host extended by Study, separate Study/chapter
 documents, incremental edits, serialized writes, independent recording/following,
-membership and feature permissions, and reload-based recovery from inconsistent state.
+membership/feature permissions, chapter-level Normal/Practice/Conceal/Gamebook modes,
+and reload-based recovery from inconsistent state.
 
-| Area | PyChess adaptation or difference |
+| Area | PyChess adaptation or deliberate difference |
 | --- | --- |
 | Runtime and sequencing | Python/aiohttp with process-local asyncio locks instead of lila's Scala sequencing infrastructure |
 | Tree identity | Opaque IDs accommodate Fairy-Stockfish move encodings instead of lichess's compact move-derived IDs; duplicate moves require reconciliation |
 | Variant persistence | Immutable custom-rule snapshots preserve historical catalogued/user-defined variants |
-| PGN | Browser-generated downloads and normalized import DTOs; raw PGN import UI and lichess-style server PGN/API routes are absent |
+| Learner side | Saved chapter orientation explicitly selects the learner color for both Practice and Interactive lesson instead of copying all lila orientation heuristics |
+| Conceal boundary | Root-relative preferred-mainline depth; lila stores an absolute ply initialized from the FEN/root ply |
+| Computer Practice | Bounded browser Fairy-Stockfish with variant-aware full-history legality/outcomes; no tablebase/mastery integration and no Fishnet fallback |
+| Interactive lesson | Preferred mainline supplies one accepted answer per prompt; side variations provide wrong-answer explanations, not multiple accepted solutions |
+| Embeds | Normal is interactive; every non-Normal PyChess embed is root-only. Lichess specially locks gamebook embeds with a **Start** link; PyChess applies the same safety model to Practice/Conceal too |
+| PGN | Browser-generated downloads plus versioned PyChess mode/lesson/conceal extensions; lila's PGN dump only emits `ChapterMode=gamebook` for these chapter modes |
 | Discovery | Bounded prefix search; personal topic shortcuts derived from memberships/ownership instead of a separate topic-preference collection |
 | Explorer | Permission is stored/evaluated, but PyChess has no opening explorer UI and hides its setting |
-| Product scope | Ordinary collaborative analysis is implemented; lesson modes, relay, and other optional features below remain absent |
+| Practice courses | Chapter Practice is implemented, but lichess's separate `/practice` curriculum/course progression is not |
+| Public API / relay | Internal Study HTTP/WS behavior is implemented; full lichess Study API and Broadcast/relay are separate product work |
 
 ## Remaining features and decisions
 
@@ -249,51 +375,49 @@ PyChess will implement them all or reproduce every lichess workflow.
 | Feature | Current gap / next decision |
 | --- | --- |
 | Raw PGN import | Complete parser adapter and paste/upload UI; the normalization/validation core already exists |
+| Multiple accepted lesson answers | Interactive lesson currently accepts only the preferred-mainline move at each prompt |
+| Practice courses | No lichess-style `/practice` curriculum, exercise goals/progress, mastery option or tablebase-backed course integration |
 | Chapter reordering | Persisted order exists, but there is no user-facing reorder action or route |
 | Chapter search | Study discovery searches chapter metadata; chapter-local results/navigation remain absent |
 | Board previews / multiboard overview | Lightweight chapter metadata exists; visual chapter-board overview remains absent |
 | Collaborator presence/activity | Rooms track sockets for delivery and access control; no presence/activity UI |
-| Practice with computer | No practice chapter mode |
-| Concealment and interactive lessons/gamebook | No hidden-next-move behavior, lesson progression, hints, or deviation messages |
 | Opening explorer | Requires an explorer feature for PyChess before Study permission integration becomes useful |
 | Study chat | No Study chat channel or chat permission UI |
 | GIF export and staff picks | Optional sharing/curation additions |
 | Full public API parity | Existing internal HTTP/WS operations do not provide the complete lichess Study API |
 | Broadcast/relay | A separate substantial product decision, not a dependency of ordinary Study |
-| Two-board chapters | Requires persisted two-board state and move sequencing plus integration with the separate two-board analysis controller |
+| Two-board chapters | Study chapters remain single-board; supporting two-board state/move sequencing would require integration with the separate two-board analysis controller |
 
 Remaining engineering/rollout follow-up should be tracked separately from optional
 product scope:
 
 - Review Study-specific reporting/moderation needs for public comments and descriptions.
   Account-erasure integration is implemented; a dedicated Study reporting workflow is absent.
-- Keep the Study browser acceptance scenarios aligned with the current creation
-  dialogs. The stale two-stage-creation scenarios have been updated and the Study GUI
-  module is part of the web-test workflow.
-- Measure production resource use and verify visual behavior across themes, viewports,
-  and representative variant families when assessing rollout readiness. The source
-  review did not establish those results.
+- Keep browser acceptance scenarios aligned with the current chapter dialogs and mode
+  behavior, including the root-only training embeds.
+- Measure production resource use and verify rendered behavior across themes, viewports,
+  and representative variant families during rollout. Source/tests establish resource
+  bounds and lifecycle invariants, not production memory/CPU measurements.
+- If a future schema migration becomes necessary, snapshot representative production
+  chapters first. The current analysis-mode rollout requires no eager backfill.
 
 ## Review status and verification
 
-The final follow-up reviewed fixes through `7a576880e` and assessed all five findings
-from its preceding review as addressed: imported evaluation loss, description revision
-broadcasts, Study-wide snapshot reconciliation, whole-Study deletion races, and comment
-erasure races. Earlier fixes covered atomic websocket authorization, chapter sequencing,
-native snapshot admission, duplicate-move reconciliation, chapter broadcasts, PGN
-result/clock preservation, and membership capability refresh.
-
-Those reports are historical evidence. The last follow-up was source-only and found
-no additional actionable defect within its scope; it did not certify all runtime,
-browser, engine, or production behavior. No previously reported defect is carried
-forward here as still open without new evidence.
+The original Study review series and the later analysis-mode plan are historical evidence,
+not independent certification of every production environment. The analysis-mode work
+completed the staged common-mode, concealment, lesson author/player, bounded Practice,
+interaction, and deployment-compatibility tasks recorded in
+[Study-Analysis-Mode-TODO.md](Study-Analysis-Mode-TODO.md).
 
 Existing tests live in `tests/test_study_*.py`, `tests/study*.test.ts`, and
-`tests/addToStudy.test.ts`. They cover models/storage, permissions, import/export,
-tree mutations, synchronization/navigation, Fishnet integration, account erasure,
-and browser workflows. Select checks for future changes using
-[AGENTS.md](../AGENTS.md) and the
-[pychess-testing skill](../.agents/skills/pychess-testing/SKILL.md).
+`tests/addToStudy.test.ts`. In addition to models/storage, permissions, import/export,
+tree mutations, synchronization/navigation, Fishnet integration and account erasure,
+they now cover mode policy, conceal disclosure, lesson authoring/playback/collaboration,
+Practice engine ownership/feedback/lifecycle, real Fairy-Stockfish WASM searches across
+multiple variant families, deployment gates, and Study browser workflows.
 
-This consolidation checked source and documentation consistency only. It introduced
-no application changes and did not rerun application tests or browser suites.
+The browser acceptance suite is the place to validate rendered behavior and lifecycle in
+an environment that permits localhost Chromium. Source/unit checks alone cannot prove
+computed styling, focus behavior or browser-worker teardown on every deployment.
+Select checks for future changes using [AGENTS.md](../AGENTS.md) and the
+[pychess-testing skill](../.agents/skills/pychess-testing/SKILL.md).

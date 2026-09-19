@@ -1,11 +1,13 @@
 # Study chapter analysis modes: reference and implementation plan
 
-Status: planned; no application behavior implemented by this document.
+Status: complete; A–F are implemented. Current shipped behavior is consolidated in
+[Study.md](Study.md).
 
 Prepared on 2026-09-14 against PyChess `8da156c730b059cc2ff2ba7f25a00c38ee953aee`
 and the clean local `/home/tami/lila` checkout at
-`39deb036f366f06b3149024728b5039846856455`. Read together with
-[Study.md](Study.md), which describes the deployed feature's existing architecture.
+`39deb036f366f06b3149024728b5039846856455`. Implementation completed on
+2026-09-19; read this historical plan together with [Study.md](Study.md), which
+describes the deployed feature's existing architecture.
 These findings come from source inspection, not a live lichess comparison or a
 production audit. References below pin lila to the inspected revision.
 
@@ -716,10 +718,18 @@ prototyped early; ship practice only after E2–E4. C/D do not depend on E.
   keep this schema-aware server and narrow `STUDY_ENABLED_CHAPTER_MODES` (for example
   to `normal`) rather than deploying code from before analysis-mode support. Snapshot
   representative production chapters before any future bulk schema migration.
-- [ ] **F3 — Update feature documentation.** Move shipped behavior into
+- [x] **F3 — Update feature documentation.** Move shipped behavior into
   [Study.md](Study.md), mark completed tasks here, record remaining deliberate lila
   differences and unsupported variants, and add author-facing lesson instructions.
   Keep `/practice` courses, multiple accepted answers and raw PGN UI tracked separately.
+  **Done:** `Study.md` now documents all four shipped chapter modes, fixed learner-side
+  semantics, root-relative conceal reveal/reset behavior, the Interactive lesson author
+  workflow/playback contract, bounded browser-engine Practice and its unsupported/failure
+  cases, lightweight non-Normal embeds, versioned PGN teaching/conceal extensions, the
+  `STUDY_ENABLED_CHAPTER_MODES` rollout/rollback gate, and the remaining deliberate lila
+  differences. `/practice` curriculum/progress, multiple accepted lesson answers and the
+  raw recursive PGN paste/upload workflow remain explicit future work rather than hidden
+  behind the completed mode rollout.
 
 ## 5. Verification matrix and commands
 
@@ -777,6 +787,7 @@ when selected, include the pytest-only Simul suite and use the documented shards
 in a Python 3.13 sandbox. Tournament coverage is needed only where shared changes
 can affect it.
 
-This document itself changes no runtime code or rendered application. Its validation
-is source/reference and Markdown/diff review; implementation and browser test results
-must be recorded with the individual future tasks.
+F3 changes documentation only. Runtime and browser test results remain recorded with
+the individual implementation tasks above; the final documentation closeout requires
+source/reference consistency, Markdown generation and diff review rather than rerunning
+the application suites unchanged by this step.
