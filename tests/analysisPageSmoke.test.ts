@@ -1376,26 +1376,27 @@ describe('Study conceal mode shell', () => {
         };
     }
 
-    test('reader shell advertises concealed exploration and activates playback restrictions', () => {
+    test('reader shell keeps the ordinary Study chrome while the move tree conceals future moves', () => {
         const study = concealStudy(false, false);
         const root = renderNodes(studyView(makeModel({ gameId: '', status: 0, study })));
         const app = root.querySelector('.study-app')!;
 
         expect(app.classList.contains('study-conceal-playback')).toBe(true);
-        expect(app.classList.contains('study-conceal-preview')).toBe(false);
-        expect(root.querySelector('.study-conceal-status')?.textContent).toContain('Next moves are hidden');
-        expect(root.querySelector('.study-conceal-preview')).toBeNull();
+        expect(root.querySelector('.study-conceal-status')).toBeNull();
         expect(root.querySelector('.study-mode--write')).toBeNull();
+        expect(root.querySelector('#study-tab-serverEval')).not.toBeNull();
+        expect(root.querySelector('#study-tab-export')).not.toBeNull();
     });
 
-    test('author shell shows reveal state and offers reader Preview without restricting author tools', () => {
+    test('author shell relies on faded concealed moves instead of a separate reveal-status card', () => {
         const study = concealStudy(true, false);
         const root = renderNodes(studyView(makeModel({ gameId: '', status: 0, study })));
         const app = root.querySelector('.study-app')!;
 
         expect(app.classList.contains('study-conceal-playback')).toBe(false);
-        expect(root.querySelector('.study-conceal-status')?.textContent).toContain('Moves after ply 1 are hidden');
-        expect(root.querySelector<HTMLButtonElement>('.study-conceal-preview')?.textContent).toBe('Preview');
+        expect(root.querySelector('.study-conceal-status')).toBeNull();
         expect(root.querySelector('.study-mode--write')).not.toBeNull();
+        expect(root.querySelector('#study-tab-comments')).not.toBeNull();
+        expect(root.querySelector('#study-tab-glyphs')).not.toBeNull();
     });
 });

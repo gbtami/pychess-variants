@@ -8,7 +8,7 @@ interface StudyConcealHost {
 }
 
 export function isConcealPlayback(policy: StudySessionPolicy): boolean {
-    return policy.session === 'conceal-reader' || policy.session === 'conceal-preview';
+    return policy.session === 'conceal-reader';
 }
 
 function pathContains(outerPath: string, innerPath: string): boolean {

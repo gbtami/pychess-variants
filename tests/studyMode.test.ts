@@ -107,22 +107,6 @@ describe('Study effective session policy', () => {
         expect(result.canFollowSharedPosition).toBe(false);
     });
 
-    test('conceal Preview uses reader visibility without changing saved collaboration preferences', () => {
-        expectSavedPreferencesUntouched('conceal', 'preview', { recording: false, synchronization: false });
-        const result = policy('conceal', { override: 'preview' });
-
-        expect(result).toMatchObject({
-            session: 'conceal-preview',
-            override: 'preview',
-            preview: true,
-            startPath: 'root',
-            canPersistEdits: false,
-            canPublishSharedPosition: false,
-            canFollowSharedPosition: false,
-            tools: { fullTree: false },
-        });
-    });
-
     test('interactive lesson contributors author with their saved REC/SYNC preferences', () => {
         const result = policy('gamebook');
 

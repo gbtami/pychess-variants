@@ -61,7 +61,7 @@ chooses which color the learner controls in the training modes.
 | --- | --- | --- |
 | Normal analysis | Full tree, navigation and ordinary allowed analysis tools | Normal REC/SYNC collaboration and persistent edits |
 | Practice with computer | Disposable game against the browser engine from the chapter root | Same practice player by default; writers may leave practice for ordinary analysis |
-| Hide next moves | Only the revealed prefix is visible; legal board exploration is local | Full tree plus reveal status, reader preview and **Hide moves again** reset |
+| Hide next moves | Only the revealed/current line is visible; legal board exploration is local | Full tree with unrevealed moves faded, plus **Hide moves again** reset |
 | Interactive lesson | Scripted mainline playback with feedback, hints and solution reveal | Full lesson editor plus a local **Preview** mode |
 
 Training/preview sessions never overwrite the user's saved REC/SYNC preferences. They
@@ -80,8 +80,9 @@ board move from their current position without first seeing its SAN. That explor
 is browser-local and disappears when they leave/reload it. A contributor publishing a
 later position on the preferred mainline advances the shared reveal boundary; publishing
 side variations or moving backward does not. **Hide moves again** resets the boundary
-and shared position to the chapter root. Contributors can use **Preview** to see the
-reader experience without saving preview moves.
+and shared position to the chapter root. Like lichess, contributors stay in the normal
+Study authoring shell: unrevealed continuation moves are faded in the move tree, while
+readers simply do not see them. There is no separate conceal-mode status/preview panel.
 
 #### Interactive lesson authoring
 
