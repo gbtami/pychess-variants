@@ -340,7 +340,7 @@ export class StudyGamebookPlayback {
             return retry;
         }
 
-        if (state.kind === 'correct-feedback') {
+        if (state.kind === 'correct-feedback' || (state.kind === 'opponent-wait' && state.waitingForContinue)) {
             const next = this.actionButton(
                 _('Next'),
                 () => this.controller.continue(),
@@ -401,18 +401,13 @@ export class StudyGamebookPlayback {
             heading.textContent = _('Your turn');
             detail.textContent = _('Find the best move for %1.', this.turnColorLabel());
         } else if (state.kind === 'opponent-wait') {
-            heading.textContent = state.waitingForContinue ? _('Continue the lesson') : _('Opponent is moving…');
-            detail.textContent = state.waitingForContinue ? _('Continue when you are ready.') : '';
-            if (state.waitingForContinue) {
-                const button = this.actionButton(
-                    _('Continue'),
-                    () => this.controller.continue(),
-                    'study-gamebook-play__inline-action',
-                );
-                instruction.append(heading, detail, button);
-                feedback.append(instruction);
-                return feedback;
-            }
+            // Lichess keeps the transient authored reply visually quiet: after a
+            // correct learner move it briefly shows "Good move", and an initial
+            // opponent move advances without flashing a large status message.
+            feedback.classList.add('good');
+            if (state.path === '') feedback.classList.add('init');
+            feedback.textContent = _('Good move');
+            return feedback;
         } else {
             heading.textContent = _('Lesson unavailable');
             detail.textContent = _('This chapter does not contain a playable interactive lesson yet.');

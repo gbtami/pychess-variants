@@ -305,6 +305,62 @@ describe('Study interactive lesson playback adapter', () => {
         playback.destroy();
     });
 
+    test('keeps automatic opponent replies visually quiet like lichess', () => {
+        const tree = lessonTree();
+        tree.byPath.get('e4')!.annotations = { comments: [], nags: [], shapes: [] };
+        const ctrl = makeCtrl(tree);
+        const playback = new StudyGamebookPlayback(ctrl, {
+            chapterId: 'chapter-quiet-reply',
+            orientation: 'white',
+            preview: false,
+            canAnalyse: false,
+            hasNextChapter: false,
+        });
+
+        const e4 = ctrl.analysisTree!.byPath.get('e4')!;
+        ctrl.analysisPath = e4.path;
+        ctrl.turnColor = e4.step.turnColor;
+        playback.onPositionChanged(position(e4));
+
+        const feedback = document.querySelector<HTMLElement>('.study-gamebook-play__feedback.info.good')!;
+        expect(feedback.textContent).toBe('Good move');
+        expect(document.body.textContent).not.toContain('Opponent is moving');
+        expect(document.body.textContent).not.toContain('Continue the lesson');
+
+        playback.destroy();
+    });
+
+    test('uses the standard Next action when an opponent reply is preceded by a comment', () => {
+        const root = node('root', '', 0, undefined, 'black', 'Black moves first.');
+        const e5 = node('e5', 'e5', 1, 'e7e5', 'white', 'Now respond.');
+        const nf3 = node('nf3', 'e5.nf3', 2, 'g1f3', 'black');
+        root.children = [e5];
+        e5.children = [nf3];
+        const tree: AnalysisTree = {
+            root,
+            byPath: new Map([
+                ['', root],
+                ['e5', e5],
+                ['e5.nf3', nf3],
+            ]),
+            nextId: 1,
+        };
+        const ctrl = makeCtrl(tree);
+        const playback = new StudyGamebookPlayback(ctrl, {
+            chapterId: 'chapter-commented-reply',
+            orientation: 'white',
+            preview: false,
+            canAnalyse: false,
+            hasNextChapter: false,
+        });
+
+        expect(document.querySelector('.study-gamebook-play__comment-content')?.textContent).toBe('Black moves first.');
+        expect(document.querySelector('.study-gamebook-play__feedback.good')?.textContent).toContain('Next');
+        expect(document.body.textContent).not.toContain('Continue the lesson');
+
+        playback.destroy();
+    });
+
     test('matches lichess icon treatment for completed lesson actions', () => {
         const ctrl = makeCtrl();
         const nextChapter = jest.fn();
