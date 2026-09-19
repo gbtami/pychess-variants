@@ -19,7 +19,13 @@ from variants import (
 )
 
 from study.annotations import StudyAnnotations, StudyComment, canonical_tags
-from study.models import StudyChapterMode, StudySource, study_chapter_mode, study_conceal_ply
+from study.models import (
+    StudyChapterMode,
+    StudySource,
+    study_chapter_mode,
+    study_chapter_mode_enabled,
+    study_conceal_ply,
+)
 from study.tree import StudyTree, StudyTreeNode
 from study.variant import (
     StudyVariantCapacityError,
@@ -55,6 +61,10 @@ class StudyChapterDraft:
             conceal_ply = study_conceal_ply(mode, self.conceal_ply, self.root)
         except ValueError as exc:
             raise StudyChapterBuildError(str(exc)) from exc
+        if not study_chapter_mode_enabled(mode):
+            raise StudyChapterBuildError("Study chapter mode is not enabled")
+        if self.root.has_gamebook and not study_chapter_mode_enabled("gamebook"):
+            raise StudyChapterBuildError("Interactive lesson data is not enabled")
         object.__setattr__(self, "mode", mode)
         object.__setattr__(self, "conceal_ply", conceal_ply)
 

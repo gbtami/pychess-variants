@@ -3,6 +3,7 @@ import { initStudyIndex } from '../client/study/studyIndex';
 
 describe('Study index creation dialogs', () => {
     beforeEach(() => {
+        document.body.removeAttribute('data-study-enabled-modes');
         document.body.innerHTML = `
             <button type="button" data-study-new-open>New study</button>
             <dialog id="study-new-dialog">
@@ -53,6 +54,14 @@ describe('Study index creation dialogs', () => {
         closeButton.click();
         expect(close).toHaveBeenCalledTimes(1);
         expect(document.activeElement).toBe(openButton);
+    });
+
+    test('deployment mode bootstrap limits first-chapter entry options', () => {
+        document.body.setAttribute('data-study-enabled-modes', '["normal","conceal"]');
+        initStudyIndex();
+
+        const mode = document.querySelector<HTMLSelectElement>('#study-first-chapter-form select[name="mode"]')!;
+        expect([...mode.options].map(option => option.value)).toEqual(['normal', 'conceal']);
     });
 
     test('Start opens the first-chapter dialog without submitting the Study settings form', () => {

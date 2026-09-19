@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -28,7 +29,36 @@ _VISIBILITIES = frozenset(("private", "unlisted", "public"))
 _MEMBER_ROLES = frozenset(("read", "write"))
 _SOURCE_KINDS = frozenset(("scratch", "game", "study", "import"))
 _ORIENTATIONS = frozenset(("white", "black"))
-_CHAPTER_MODES = frozenset(("normal", "practice", "conceal", "gamebook"))
+STUDY_CHAPTER_MODES: tuple[StudyChapterMode, ...] = ("normal", "practice", "conceal", "gamebook")
+_CHAPTER_MODES = frozenset(STUDY_CHAPTER_MODES)
+
+
+def _configured_study_chapter_modes(raw: str | None) -> tuple[StudyChapterMode, ...]:
+    """Return the chapter modes authors may newly select on this deployment.
+
+    Readers and existing chapters always support every schema-known mode. This
+    switch is deliberately only an entry gate so a production rollback can stop
+    new lesson/practice data without making already stored chapters unreadable.
+    """
+
+    if raw is None or not raw.strip():
+        return STUDY_CHAPTER_MODES
+
+    requested = {part.strip() for part in raw.split(",") if part.strip()}
+    unknown = requested - _CHAPTER_MODES
+    if unknown:
+        values = ", ".join(sorted(unknown))
+        raise RuntimeError(f"Unknown STUDY_ENABLED_CHAPTER_MODES value(s): {values}")
+
+    # Normal analysis is the schema baseline and the escape hatch from a disabled
+    # training mode, so never allow an operator setting to remove it.
+    requested.add("normal")
+    return tuple(mode for mode in STUDY_CHAPTER_MODES if mode in requested)
+
+
+STUDY_ENABLED_CHAPTER_MODES = _configured_study_chapter_modes(
+    os.getenv("STUDY_ENABLED_CHAPTER_MODES")
+)
 _USER_SELECTIONS = frozenset(("nobody", "owner", "contributor", "member", "everyone"))
 
 
@@ -54,6 +84,14 @@ def study_chapter_mode(value: object) -> StudyChapterMode:
     if not isinstance(value, str) or value not in _CHAPTER_MODES:
         raise ValueError(f"Unknown Study chapter mode: {value!r}")
     return cast(StudyChapterMode, value)
+
+
+def study_enabled_chapter_modes() -> tuple[StudyChapterMode, ...]:
+    return STUDY_ENABLED_CHAPTER_MODES
+
+
+def study_chapter_mode_enabled(mode: StudyChapterMode) -> bool:
+    return mode in STUDY_ENABLED_CHAPTER_MODES
 
 
 def study_conceal_ply(

@@ -73,6 +73,20 @@ class StudyChapterBuilderTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(custom.initial_fen, fen)
         self.assertTrue(custom.chess960)
 
+    async def test_disabled_mode_gate_rejects_new_mode_and_hidden_lesson_import(self) -> None:
+        root_fen = FairyBoard.start_fen("chess")
+        with patch("study.models.STUDY_ENABLED_CHAPTER_MODES", ("normal",)):
+            with self.assertRaisesRegex(StudyChapterBuildError, "mode is not enabled"):
+                await self.builder.blank_or_fen(variant="chess", mode="practice")
+
+            with self.assertRaisesRegex(StudyChapterBuildError, "lesson data is not enabled"):
+                await self.builder.from_import(
+                    variant="chess",
+                    initial_fen=root_fen,
+                    tree_payload={"nodes": [], "rootGamebook": {"hint": "Hidden draft"}},
+                    mode="normal",
+                )
+
     async def test_analysis_tree_is_replayed_authoritatively(self) -> None:
         root_fen = FairyBoard.start_fen("chess")
         submitted = {

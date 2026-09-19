@@ -33,6 +33,8 @@ from study.models import (
     StudyChapter,
     StudyChapterMode,
     study_chapter_mode,
+    study_chapter_mode_enabled,
+    study_enabled_chapter_modes,
     study_topic,
     study_user_selection,
     study_visibility,
@@ -151,6 +153,7 @@ def _study_context(context: ViewContext) -> None:
     context["view_css"] = "study.css"
     context["title"] = "Studies • PyChess"
     context["study_preview_nb_members"] = STUDY_PREVIEW_NB_MEMBERS
+    context["study_enabled_modes"] = json_dumps(list(study_enabled_chapter_modes()))
 
 
 def _positive_page(value: str | None) -> int:
@@ -375,6 +378,8 @@ def _chapter_teaching_from_input(
         mode = study_chapter_mode(data.get("mode", default_mode))
     except ValueError as exc:
         raise StudyChapterBuildError("Invalid Study chapter mode") from exc
+    if not study_chapter_mode_enabled(mode):
+        raise StudyChapterBuildError("Study chapter mode is not enabled")
     raw_conceal_ply = data.get("concealPly")
     if raw_conceal_ply is None or raw_conceal_ply == "":
         return mode, None
@@ -884,6 +889,7 @@ async def _populate_study_chapter_context(
             "canClone": (not user.anon and not user.bot and can_clone_study(study, user.username)),
             "canShare": can_share_study(study, viewer),
             "canEmbed": can_embed_study(study),
+            "enabledModes": list(study_enabled_chapter_modes()),
             "features": {
                 "computer": can_use_study_computer(study, viewer),
                 "explorer": can_use_study_explorer(study, viewer),

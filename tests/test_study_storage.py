@@ -447,6 +447,30 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(doc["root"], original.root.to_document())
             self.assertEqual(doc["revision"], 0)
 
+    async def test_disabled_mode_gate_blocks_clone_and_copy_without_touching_source(self) -> None:
+        source, first = await create_study_with_chapter(cast(Any, self.app_state), "owner")
+        lesson_root = StudyTree(root_gamebook=StudyGamebook(hint="Preserve me"))
+        lesson = replace(first, mode="gamebook", root=lesson_root)
+        await self.db.study_chapter.update_one(
+            {"_id": first.id},
+            {"$set": {"mode": "gamebook", "root": lesson_root.to_document()}},
+        )
+
+        with patch("study.models.STUDY_ENABLED_CHAPTER_MODES", ("normal",)):
+            with self.assertRaisesRegex(StudyStorageError, "not enabled"):
+                await clone_study(cast(Any, self.app_state), source, "cloner")
+            self.assertEqual(await self.db.study.count_documents({"owner": "cloner"}), 0)
+            self.assertEqual(await self.db.study_chapter.count_documents({"owner": "cloner"}), 0)
+
+            with self.assertRaisesRegex(StudyStorageError, "not enabled"):
+                await add_chapter(cast(Any, self.app_state), source, lesson)
+
+        stored = await self.db.study_chapter.find_one({"_id": first.id})
+        self.assertIsNotNone(stored)
+        assert stored is not None
+        self.assertEqual(stored["mode"], "gamebook")
+        self.assertEqual(stored["root"]["_"]["g"], {"h": "Preserve me"})
+
     async def test_add_chapter_preserves_mode_and_resets_conceal_progress(self) -> None:
         study, first = await create_study_with_chapter(cast(Any, self.app_state), "owner")
         main = StudyTreeNode(

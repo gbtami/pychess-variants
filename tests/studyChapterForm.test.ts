@@ -5,6 +5,7 @@ import {
     studyChapterCreateForm,
     studyChapterModeField,
     studyChapterOrientationField,
+    studyEnabledModesFromJson,
 } from '../client/study/studyChapterForm';
 
 function mount(vnode: ReturnType<typeof studyChapterCreateForm> | ReturnType<typeof studyChapterModeField>) {
@@ -29,6 +30,28 @@ test('chapter creation exposes learner orientation and every completed analysis 
     expect(document.querySelector('.study-chapter-mode .study-dialog__help')?.textContent).toContain(
         'complete chapter tree',
     );
+});
+
+
+test('deployment mode gate hides disabled entry modes but keeps an existing disabled mode editable', () => {
+    mount(studyChapterModeField('normal', ['normal', 'conceal']));
+    let mode = document.querySelector<HTMLSelectElement>('select[name="mode"]')!;
+    expect([...mode.options].map(option => option.value)).toEqual(['normal', 'conceal']);
+
+    mount(studyChapterModeField('practice', ['normal']));
+    mode = document.querySelector<HTMLSelectElement>('select[name="mode"]')!;
+    expect(mode.value).toBe('practice');
+    expect([...mode.options].map(option => option.value)).toEqual(['normal', 'practice']);
+    expect(document.querySelector('.study-chapter-mode .study-dialog__help')?.textContent).toContain(
+        'disabled for new chapters right now',
+    );
+});
+
+test('enabled mode bootstrap is tolerant of an older server while enforcing normal as the escape hatch', () => {
+    expect(studyEnabledModesFromJson(null)).toEqual(['normal', 'practice', 'conceal', 'gamebook']);
+    expect(studyEnabledModesFromJson('["gamebook","conceal"]')).toEqual(['normal', 'conceal', 'gamebook']);
+    expect(studyEnabledModesFromJson('["training"]')).toEqual(['normal']);
+    expect(studyEnabledModesFromJson('not-json')).toEqual(['normal', 'practice', 'conceal', 'gamebook']);
 });
 
 test('computer practice is exposed with its completed-mode help text', () => {
