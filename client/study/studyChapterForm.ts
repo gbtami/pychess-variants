@@ -47,25 +47,27 @@ function studyChapterModeOptions(
         {
             value: 'normal',
             label: _('Normal analysis'),
-            description: _('Show the complete chapter tree and the usual analysis tools.'),
+            description: _('Explore and annotate the full move tree with the usual analysis tools.'),
             available: enabled.has('normal'),
         },
         {
             value: 'practice',
             label: _('Practice with computer'),
-            description: _('Play the saved position against the computer.'),
+            description: _(
+                "Play from the chapter's starting position against the computer. The saved moves do not control the computer's replies.",
+            ),
             available: enabled.has('practice'),
         },
         {
             value: 'conceal',
             label: _('Hide next moves'),
-            description: _('Hide unrevealed continuations while the learner explores the position.'),
+            description: _('Hide unrevealed moves from viewers while the presenter advances the chapter.'),
             available: enabled.has('conceal'),
         },
         {
             value: 'gamebook',
             label: _('Interactive lesson'),
-            description: _('Guide the learner through the authored main line with feedback and hints.'),
+            description: _('Let viewers solve the authored main line with hints and feedback.'),
             available: enabled.has('gamebook'),
         },
     ];

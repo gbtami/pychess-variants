@@ -28,7 +28,7 @@ test('chapter creation exposes learner orientation and every completed analysis 
     expect(mode.value).toBe('normal');
     expect([...mode.options].map(option => option.value)).toEqual(['normal', 'practice', 'conceal', 'gamebook']);
     expect(document.querySelector('.study-chapter-mode .study-dialog__help')?.textContent).toContain(
-        'complete chapter tree',
+        'full move tree',
     );
 });
 
@@ -62,7 +62,7 @@ test('computer practice is exposed with its completed-mode help text', () => {
     expect(mode.value).toBe('practice');
     expect([...mode.options].map(option => option.value)).toEqual(['normal', 'practice', 'conceal', 'gamebook']);
     expect(document.querySelector('.study-chapter-mode .study-dialog__help')?.textContent).toContain(
-        'Play the saved position against the computer',
+        "starting position against the computer. The saved moves do not control the computer's replies",
     );
 });
 
@@ -75,7 +75,13 @@ test('analysis mode help follows the newly selected completed mode', () => {
     mode.dispatchEvent(new Event('change', { bubbles: true }));
 
     expect(document.querySelector('.study-chapter-mode .study-dialog__help')?.textContent).toContain(
-        'Hide unrevealed continuations',
+        'Hide unrevealed moves from viewers while the presenter advances the chapter',
+    );
+
+    mode.value = 'gamebook';
+    mode.dispatchEvent(new Event('change', { bubbles: true }));
+    expect(document.querySelector('.study-chapter-mode .study-dialog__help')?.textContent).toContain(
+        'Let viewers solve the authored main line with hints and feedback',
     );
 });
 
