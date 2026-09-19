@@ -43,7 +43,6 @@ export type StudyPracticeState =
     | Readonly<{ kind: 'initializing' }>
     | Readonly<{ kind: 'human-turn' }>
     | Readonly<{ kind: 'evaluating-move' }>
-    | Readonly<{ kind: 'move-feedback'; feedback: StudyPracticeFeedback }>
     | Readonly<{ kind: 'engine-thinking' }>
     | Readonly<{ kind: 'paused'; liveKind: 'human-turn' | 'engine-thinking'; browseIndex: number }>
     | Readonly<{ kind: 'ended'; result?: string; feedback?: StudyPracticeFeedback }>
@@ -99,6 +98,11 @@ interface PendingGrade {
     terminalResult?: string;
 }
 
+interface PracticeRetry {
+    parentPath: string;
+    bestMove: string;
+}
+
 function ownerKey(owner: AnalysisPracticeSearchOwner): string {
     return `${owner.session}:${owner.search}`;
 }
@@ -134,6 +138,7 @@ export class StudyPracticeSession {
     private readonly searchPurposes = new Map<string, SearchPurpose>();
     private livePath = '';
     private pendingGrade?: PendingGrade;
+    private lastRetry?: PracticeRetry;
     private launchingSearchPurpose?: SearchPurpose;
     private lastFeedback?: StudyPracticeFeedback;
     private hintLevel: 0 | 1 | 2 = 0;
@@ -253,6 +258,8 @@ export class StudyPracticeSession {
 
         this.hintLevel = 0;
         this.clearHintShapes();
+        this.lastFeedback = undefined;
+        this.lastRetry = undefined;
         this.pendingGrade = {
             playedMove: move,
             parentMoves,
@@ -270,7 +277,22 @@ export class StudyPracticeSession {
         if (this.destroyed) return false;
         if (origin === 'played-move' || origin === 'automated-reply') return true;
         if (origin === 'reset') return path === '' || path === this.livePath || this.stateValue.kind === 'paused';
-        return this.stateValue.kind === 'paused' && this.paths.includes(path);
+        if (origin !== 'user-navigation' || !this.paths.includes(path)) return false;
+        if (this.stateValue.kind === 'paused') return true;
+        if (this.stateValue.kind === 'human-turn' || this.stateValue.kind === 'engine-thinking') {
+            this.pause();
+            return true;
+        }
+        if (this.stateValue.kind === 'ended') {
+            const browseIndex = Math.max(0, this.paths.indexOf(this.ctrl.analysisPath ?? this.livePath));
+            this.setState({
+                kind: 'paused',
+                liveKind: this.ctrl.turnColor === this.options.learnerColor ? 'human-turn' : 'engine-thinking',
+                browseIndex,
+            });
+            return true;
+        }
+        return false;
     }
 
     allowTreeContextMenu(): boolean {
@@ -326,7 +348,6 @@ export class StudyPracticeSession {
             this.stateValue.kind === 'paused' ||
             this.stateValue.kind === 'ended' ||
             this.stateValue.kind === 'evaluating-move' ||
-            this.stateValue.kind === 'move-feedback' ||
             this.stateValue.kind === 'engine-thinking'
         )
             return;
@@ -381,38 +402,29 @@ export class StudyPracticeSession {
         return true;
     }
 
-    continueAfterFeedback(): boolean {
-        if (this.destroyed || this.stateValue.kind !== 'move-feedback') return false;
-        const feedback = this.stateValue.feedback;
-        const terminalResult = this.pendingGrade?.terminalResult;
-        this.lastFeedback = feedback;
-        this.pendingGrade = undefined;
-        if (terminalResult) this.finish(feedback, terminalResult);
-        else this.advanceAfterHumanMove();
-        return true;
-    }
-
     retryBestMove(): boolean {
-        if (this.destroyed || this.stateValue.kind !== 'move-feedback') return false;
-        const pending = this.pendingGrade;
-        const bestMove = this.stateValue.feedback.bestMove;
-        if (!pending || !bestMove || this.history.length === 0) return false;
+        if (this.destroyed || !this.lastRetry || this.history.length === 0) return false;
+        const { parentPath, bestMove } = this.lastRetry;
+        const parentIndex = this.paths.indexOf(parentPath);
+        if (parentIndex < 0 || this.history.length <= parentIndex) return false;
 
         this.engine.beginSession();
         this.searchPurposes.clear();
         this.evaluationSearches.clear();
-        try {
-            this.historyBoard.pop();
-        } catch (error) {
-            this.setUnavailable('engine-error', error instanceof Error ? error.message : String(error));
-            return false;
+        while (this.history.length > parentIndex) {
+            try {
+                this.historyBoard.pop();
+            } catch (error) {
+                this.setUnavailable('engine-error', error instanceof Error ? error.message : String(error));
+                return false;
+            }
+            this.history.pop();
+            this.paths.pop();
         }
 
-        this.history.pop();
-        this.paths.pop();
-        this.livePath = pending.parentPath;
-        this.ctrl.activateTreePath(pending.parentPath, true, 'reset');
-        if ((this.ctrl.analysisPath ?? '') !== pending.parentPath) {
+        this.livePath = parentPath;
+        this.ctrl.activateTreePath(parentPath, true, 'reset');
+        if ((this.ctrl.analysisPath ?? '') !== parentPath) {
             this.setUnavailable('engine-error', _('Practice could not return to the position before your move.'));
             return false;
         }
@@ -425,6 +437,7 @@ export class StudyPracticeSession {
 
         this.pendingGrade = undefined;
         this.lastFeedback = undefined;
+        this.lastRetry = undefined;
         this.hintLevel = 0;
         this.clearHintShapes();
         this.enterHumanTurn();
@@ -443,6 +456,7 @@ export class StudyPracticeSession {
         this.evaluations.clear();
         this.pendingGrade = undefined;
         this.lastFeedback = undefined;
+        this.lastRetry = undefined;
         this.hintLevel = 0;
         this.clearHintShapes();
         this.ctrl.activateTreePath('', true, 'reset');
@@ -656,16 +670,12 @@ export class StudyPracticeSession {
 
     private completeGrade(feedback: StudyPracticeFeedback): void {
         if (this.destroyed || !this.pendingGrade) return;
+        const pending = this.pendingGrade;
         this.lastFeedback = feedback;
-        if (
-            feedback.bestMove &&
-            (feedback.verdict === 'inaccuracy' || feedback.verdict === 'mistake' || feedback.verdict === 'blunder')
-        ) {
-            this.setState({ kind: 'move-feedback', feedback });
-            return;
-        }
-
-        const terminalResult = this.pendingGrade.terminalResult;
+        this.lastRetry = feedback.bestMove
+            ? { parentPath: pending.parentPath, bestMove: feedback.bestMove }
+            : undefined;
+        const terminalResult = pending.terminalResult;
         this.pendingGrade = undefined;
         if (terminalResult) this.finish(feedback, terminalResult);
         else this.advanceAfterHumanMove();
@@ -872,18 +882,6 @@ export class StudyPracticeSession {
         this.ctrl.chessground.setAutoShapes([]);
     }
 
-    private hintPieceText(move: string): string {
-        const canonical = this.resolveLegalBestMove(move) ?? move;
-        const converted = uci2cg(canonical.startsWith('+') ? canonical.slice(1) : canonical);
-        const at = converted.indexOf('@');
-        if (at >= 0) {
-            const piece = canonical.slice(0, canonical.indexOf('@'));
-            return piece ? _('Try a %1 drop.', piece) : _('Try a drop.');
-        }
-        const square = converted.slice(0, 2).replace(':', '10');
-        return square ? _('Try the piece on %1.', square) : _('Try another move.');
-    }
-
     private feedbackTitle(feedback: StudyPracticeFeedback): string {
         switch (feedback.verdict) {
             case 'good':
@@ -908,9 +906,7 @@ export class StudyPracticeSession {
     private feedbackBestMessage(feedback: StudyPracticeFeedback): string | undefined {
         if (!feedback.bestMove) return undefined;
         const move = feedback.bestSan ?? feedback.bestMove;
-        return feedback.verdict === 'good'
-            ? _('Another strong move was %1.', move)
-            : _('A stronger move was %1.', move);
+        return feedback.verdict === 'good' ? _('Another strong move was %1.', move) : _('Best was %1.', move);
     }
 
     private outcomeMessage(result: string | undefined): string {
@@ -982,12 +978,7 @@ export class StudyPracticeSession {
             mark.setAttribute('aria-hidden', 'true');
         };
 
-        const commentFeedback =
-            state.kind === 'move-feedback'
-                ? state.feedback
-                : state.kind === 'ended'
-                  ? state.feedback
-                  : this.lastFeedback;
+        const commentFeedback = state.kind === 'ended' ? state.feedback : this.lastFeedback;
         this.panel.classList.remove('good', 'inaccuracy', 'mistake', 'blunder', 'unknown');
         if (commentFeedback) this.panel.classList.add(commentFeedback.verdict);
 
@@ -1007,60 +998,28 @@ export class StudyPracticeSession {
         } else if (state.kind === 'human-turn') {
             addTurnPiece();
             heading.textContent = _('Your turn');
-            if (this.hintLevel > 0) {
-                const current = this.currentEvaluation();
-                if (current?.bestMove) {
-                    addText(
-                        this.hintLevel === 1
-                            ? this.hintPieceText(current.bestMove)
-                            : _('Try %1.', current.bestSan ?? current.bestMove),
-                    );
-                } else if (this.evaluationSearches.has(this.positionKey(this.history.map(entry => entry.move)))) {
-                    addText(_('Analyzing a hint…'));
-                } else {
-                    addText(_('No reliable engine hint is available for this position.'));
-                }
-            }
             addButton(
-                this.hintLevel === 0 ? _('Get a hint') : this.hintLevel === 1 ? _('Show the move') : _('Hide hint'),
+                this.hintLevel === 0
+                    ? _('Get a hint')
+                    : this.hintLevel === 1
+                      ? _('See best move')
+                      : _('Hide best move'),
                 () => this.hint(),
             );
-            addButton(_('Pause'), () => this.pause());
-            addButton(_('Reset'), () => this.reset());
         } else if (state.kind === 'evaluating-move') {
             addTurnPiece();
-            heading.textContent = _('Evaluating your move…');
-            addText(_('Comparing the position before and after your move.'));
-            addButton(_('Reset'), () => this.reset());
-        } else if (state.kind === 'move-feedback') {
-            addTurnPiece();
-            heading.textContent = this.feedbackTitle(state.feedback);
-            addText(this.feedbackMessage(state.feedback));
-            if (state.feedback.bestMove) addButton(_('Retry best move'), () => this.retryBestMove());
-            addButton(
-                this.pendingGrade?.terminalResult ? _('Finish') : _('Continue'),
-                () => this.continueAfterFeedback(),
-                true,
-            );
-            addButton(_('Reset'), () => this.reset());
+            heading.textContent = _('Computer is thinking…');
         } else if (state.kind === 'engine-thinking') {
             addTurnPiece();
             heading.textContent = _('Computer is thinking…');
-            addButton(_('Pause'), () => this.pause());
-            addButton(_('Reset'), () => this.reset());
         } else if (state.kind === 'paused') {
             addOffMark();
-            heading.textContent = _('Practice paused');
-            addText(_('Browse the current attempt, then resume from the latest position.'));
-            addButton(_('Previous'), () => this.browse(-1));
-            addButton(_('Next'), () => this.browse(1));
-            addButton(_('Resume'), () => this.resume(), true);
-            addButton(_('Reset'), () => this.reset());
+            heading.textContent = _('You browsed away');
+            addButton(_('Resume practice'), () => this.resume(), true);
         } else if (state.kind === 'ended') {
             addTurnPiece();
-            heading.textContent = _('Practice complete');
+            heading.textContent = state.result === '1-0' || state.result === '0-1' ? _('Checkmate') : _('Draw');
             addText(this.outcomeMessage(state.result));
-            addButton(_('Play again'), () => this.reset(), true);
         } else {
             addOffMark();
             heading.textContent = _('Practice unavailable');
@@ -1078,7 +1037,15 @@ export class StudyPracticeSession {
         feedback.append(player);
         this.status.append(title, feedback);
 
-        if (commentFeedback) {
+        if (state.kind === 'evaluating-move') {
+            const comment = document.createElement('div');
+            comment.className = 'study-practice__comment waiting';
+            const wait = document.createElement('span');
+            wait.className = 'study-practice__wait';
+            wait.textContent = _('Evaluating your move…');
+            comment.append(wait);
+            this.status.append(comment);
+        } else if (commentFeedback) {
             const comment = document.createElement('div');
             comment.className = `study-practice__comment ${commentFeedback.verdict}`;
             const verdict = document.createElement('span');
@@ -1095,9 +1062,7 @@ export class StudyPracticeSession {
 
             const best = this.feedbackBestMessage(commentFeedback);
             if (best) {
-                const bestMove = document.createElement(
-                    state.kind === 'move-feedback' && commentFeedback.bestMove ? 'button' : 'span',
-                );
+                const bestMove = document.createElement(this.lastRetry ? 'button' : 'span');
                 bestMove.className = 'study-practice__best';
                 bestMove.textContent = best;
                 if (bestMove instanceof HTMLButtonElement) {

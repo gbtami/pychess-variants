@@ -801,8 +801,8 @@ class TestStudyGUI:
                 assert await page.evaluate("localStorage.getItem('localAnalysis')") == "true"
 
                 await page.get_by_role("button", name="Get a hint").click()
-                await expect(page.locator(".study-practice")).to_contain_text(
-                    re.compile(r"Try the piece on|No reliable engine hint"), timeout=20_000
+                await expect(page.get_by_role("button", name="See best move")).to_be_visible(
+                    timeout=20_000
                 )
                 await expect(page.locator(".pvbox")).not_to_be_visible()
 

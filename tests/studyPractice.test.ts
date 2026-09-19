@@ -292,14 +292,14 @@ describe('StudyPracticeSession', () => {
         expect(panel.querySelector('.study-practice__instruction strong')?.textContent).toBe('Your turn');
         expect(
             [...panel.querySelectorAll<HTMLButtonElement>('.study-practice__action')].map(button => button.textContent),
-        ).toEqual(expect.arrayContaining(['Get a hint', 'Pause', 'Reset']));
+        ).toEqual(['Get a hint']);
         expect(panel.classList.contains('study-gamebook-play')).toBe(false);
 
         session.destroy();
     });
 
-    test('announces practice state and preserves keyboard focus when controls rerender', async () => {
-        const { session } = makeHarness('white');
+    test('announces the automatic evaluation transition without adding manual continue controls', () => {
+        const { session, humanMove, finishEvaluation } = makeHarness('white');
         const panel = document.querySelector<HTMLElement>('.study-practice')!;
         const status = panel.querySelector<HTMLElement>('.study-practice__status')!;
 
@@ -308,16 +308,13 @@ describe('StudyPracticeSession', () => {
         expect(status.getAttribute('aria-atomic')).toBe('true');
         expect(status.getAttribute('aria-busy')).toBe('false');
 
-        const pause = [...panel.querySelectorAll<HTMLButtonElement>('button')].find(
-            button => button.textContent === 'Pause',
-        )!;
-        pause.focus();
-        pause.click();
-        await Promise.resolve();
-
-        expect(session.state.kind).toBe('paused');
-        expect(document.activeElement).toBe(panel.querySelector('.study-practice__action'));
-        expect(document.activeElement?.textContent).toBe('Previous');
+        finishEvaluation('e2e4', 0);
+        expect(humanMove('d2d4')).toBe(true);
+        expect(session.state.kind).toBe('evaluating-move');
+        expect(status.getAttribute('aria-busy')).toBe('true');
+        expect(panel.querySelector('.study-practice__instruction strong')?.textContent).toBe('Computer is thinking…');
+        expect(panel.querySelector('.study-practice__wait')?.textContent).toBe('Evaluating your move…');
+        expect(panel.textContent).not.toContain('Continue');
 
         session.destroy();
     });
@@ -405,6 +402,27 @@ describe('StudyPracticeSession', () => {
         session.destroy();
     });
 
+    test('using the move controls pauses practice implicitly and offers the lichess-style resume action', () => {
+        scenario = { initialTurn: 'white' };
+        const { session, ctrl, humanMove, finishEvaluation } = makeHarness('white');
+        finishEvaluation('e2e4');
+        humanMove('e2e4');
+        session.onEngineLine('bestmove e7e5');
+        session.onEngineLine('readyok');
+        expect(session.state.kind).toBe('human-turn');
+
+        expect(session.canActivatePath('m1', 'user-navigation')).toBe(true);
+        ctrl.activateTreePath('m1', true, 'user-navigation');
+        expect(session.state.kind).toBe('paused');
+        expect(document.querySelector('.study-practice__instruction strong')?.textContent).toBe('You browsed away');
+        expect(document.querySelector('.study-practice__action')?.textContent).toBe('Resume practice');
+
+        expect(session.resume()).toBe(true);
+        expect(ctrl.analysisPath).toBe('m2');
+        expect(session.state.kind).toBe('human-turn');
+        session.destroy();
+    });
+
     test('reset invalidates the old search and starts a fresh root attempt', () => {
         scenario = { initialTurn: 'white' };
         const { session, ctrl, humanMove, finishEvaluation } = makeHarness('white');
@@ -442,7 +460,7 @@ describe('StudyPracticeSession', () => {
         session.destroy();
     });
 
-    test('actual UCI score output produces negative feedback and retry replaces the disposable move', () => {
+    test('negative feedback advances automatically and its best-move link can retry after the computer reply', () => {
         scenario = { initialTurn: 'white' };
         const { session, sent, humanMove, finishEvaluation } = makeHarness('white');
         finishEvaluation('e2e4', 0);
@@ -452,17 +470,18 @@ describe('StudyPracticeSession', () => {
         session.onEngineLine('info depth 16 multipv 1 score cp 200 nodes 400000 time 1000 pv e7e5');
         session.onEngineLine('bestmove e7e5');
 
-        expect(session.state.kind).toBe('move-feedback');
-        if (session.state.kind === 'move-feedback') {
-            expect(session.state.feedback.verdict).toBe('blunder');
-            expect(session.state.feedback.bestMove).toBe('e2e4');
-            expect(session.state.feedback.bestSan).toBe('e2e4');
-        }
-        expect(document.querySelector('.study-practice')?.textContent).toContain('A stronger move was e2e4.');
+        expect(session.state.kind).toBe('engine-thinking');
+        expect(document.querySelector('.study-practice')?.textContent).toContain('Blunder');
+        expect(document.querySelector('.study-practice')?.textContent).toContain('Best was e2e4.');
+        expect(document.querySelector('.study-practice')?.textContent).not.toContain('Continue');
 
         session.onEngineLine('readyok');
+        expect(session.onEngineLine('bestmove e7e5')).toBe(true);
+        expect(session.state.kind).toBe('human-turn');
+        expect(sent).toEqual(['d2d4', 'e7e5']);
+
         expect(session.retryBestMove()).toBe(true);
-        expect(sent).toEqual(['d2d4', 'e2e4']);
+        expect(sent).toEqual(['d2d4', 'e7e5', 'e2e4']);
         expect(session.attemptHistory.map(entry => entry.move)).toEqual(['e2e4']);
         expect(session.state.kind).toBe('engine-thinking');
         session.destroy();
@@ -488,19 +507,20 @@ describe('StudyPracticeSession', () => {
         const { session, ctrl, finishEvaluation } = makeHarness('white');
 
         expect(session.hint()).toBe(true);
-        expect(document.querySelector('.study-practice')?.textContent).toContain('Analyzing a hint…');
+        expect(document.querySelector('.study-practice__action')?.textContent).toBe('See best move');
         finishEvaluation('e2e4');
         expect(ctrl.autoShapes).toEqual([[{ orig: 'e2', brush: 'paleBlue' }]]);
-        expect(document.querySelector('.study-practice')?.textContent).toContain('Try the piece on e2.');
+        expect(document.querySelector('.study-practice')?.textContent).not.toContain('Try the piece on e2.');
 
         expect(session.hint()).toBe(true);
         expect(ctrl.autoShapes).toEqual([
             [{ orig: 'e2', dest: 'e4', brush: 'paleBlue', piece: undefined, modifiers: { lineWidth: 14 } }],
         ]);
-        expect(document.querySelector('.study-practice')?.textContent).toContain('Try e2e4.');
+        expect(document.querySelector('.study-practice__action')?.textContent).toBe('Hide best move');
 
         expect(session.hint()).toBe(true);
         expect(ctrl.autoShapes).toEqual([]);
+        expect(document.querySelector('.study-practice__action')?.textContent).toBe('Get a hint');
         session.destroy();
     });
 
@@ -514,9 +534,8 @@ describe('StudyPracticeSession', () => {
         finishEvaluation('P@e4');
 
         expect(ctrl.autoShapes).toEqual([[{ orig: 'e4', brush: 'paleBlue' }]]);
-        expect(document.querySelector('.study-practice')?.textContent).toContain('Try a P drop.');
         expect(session.hint()).toBe(true);
-        expect(document.querySelector('.study-practice')?.textContent).toContain('Try P@e4.');
+        expect(document.querySelector('.study-practice__action')?.textContent).toBe('Hide best move');
         session.destroy();
     });
 
