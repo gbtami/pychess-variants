@@ -403,11 +403,10 @@ product scope:
 
 ## Review status and verification
 
-The original Study review series and the later analysis-mode plan are historical evidence,
-not independent certification of every production environment. The analysis-mode work
-completed the staged common-mode, concealment, lesson author/player, bounded Practice,
-interaction, and deployment-compatibility tasks recorded in
-[Study-Analysis-Mode-TODO.md](Study-Analysis-Mode-TODO.md).
+This document is the maintained source of truth for shipped Study behavior. The completed
+analysis-mode implementation history is preserved in Git rather than in a separate finished
+TODO document. The source and tests establish the implemented contracts, but they are not
+independent certification of every production environment.
 
 Existing tests live in `tests/test_study_*.py`, `tests/study*.test.ts`, and
 `tests/addToStudy.test.ts`. In addition to models/storage, permissions, import/export,
