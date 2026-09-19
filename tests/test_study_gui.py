@@ -653,9 +653,11 @@ class TestStudyGUI:
                 ).to_have_count(1)
                 assert await shared_path() != ""
 
-                # The embedded reader receives the same reveal broadcast while
-                # remaining a control-free reader surface.
-                await expect(embed_page.locator("#movelist")).to_contain_text("e4")
+                # Compact embeds intentionally stay root-only for non-Normal
+                # chapters, like the lightweight lila Study embed. The reveal is
+                # available after opening the full Study, not inside the iframe.
+                await expect(embed_page.locator("#movelist")).not_to_contain_text("e4")
+                await expect(embed_page.get_by_role("link", name="Open study")).to_be_visible()
 
                 # Presenting back to root does not un-reveal the already presented
                 # move. SYNC-on viewers follow back while the global boundary remains.

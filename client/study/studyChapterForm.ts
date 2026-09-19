@@ -157,22 +157,23 @@ function syncHiddenInput(form: HTMLFormElement, sync?: () => boolean): void {
     if (input) input.value = sync() ? '1' : '0';
 }
 
-export function settleStudyFormSubmit(event: SubmitEvent, beforeSubmit: () => Promise<boolean>): void {
+export function settleStudyFormSubmit(
+    event: SubmitEvent,
+    beforeSubmit: () => Promise<boolean>,
+    beforeNativeSubmit?: () => void,
+): void {
     const form = event.currentTarget as HTMLFormElement;
-    if (form.dataset.studySettled === 'true') {
-        delete form.dataset.studySettled;
-        return;
-    }
     event.preventDefault();
     if (form.dataset.studySettling === 'true' || !form.reportValidity()) return;
     form.dataset.studySettling = 'true';
-    const submitter = event.submitter instanceof HTMLElement ? event.submitter : undefined;
     void beforeSubmit()
         .then(proceed => {
-            if (!proceed || !form.isConnected) return;
-            form.dataset.studySettled = 'true';
-            if (submitter instanceof HTMLButtonElement) form.requestSubmit(submitter);
-            else form.requestSubmit();
+            if (!proceed || !form.isConnected || !form.reportValidity()) return;
+            beforeNativeSubmit?.();
+            // requestSubmit() would re-enter the Snabbdom submit listener. After the
+            // asynchronous Study writes have settled we only need the native navigation;
+            // validation has run again and these forms have no named submitter value to preserve.
+            form.submit();
         })
         .finally(() => {
             delete form.dataset.studySettling;
@@ -200,7 +201,10 @@ export function studyChapterCreateForm(
                           submit: (event: SubmitEvent) => {
                               const form = event.currentTarget as HTMLFormElement;
                               syncHiddenInput(form, options.sync);
-                              if (options.beforeSubmit) settleStudyFormSubmit(event, options.beforeSubmit);
+                              if (options.beforeSubmit)
+                                  settleStudyFormSubmit(event, options.beforeSubmit, () =>
+                                      syncHiddenInput(form, options.sync),
+                                  );
                           },
                       },
                   }

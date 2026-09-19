@@ -115,16 +115,38 @@ test('chapter creation waits for pending Study writes before allowing native sub
     mount(studyChapterCreateForm('/study/StUdY001/chapter', 'chess', false, { beforeSubmit }));
     const form = document.querySelector<HTMLFormElement>('form.study-side__new-chapter')!;
     form.reportValidity = jest.fn(() => true);
-    form.requestSubmit = jest.fn();
+    form.submit = jest.fn();
 
     const event = new SubmitEvent('submit', { bubbles: true, cancelable: true });
     expect(form.dispatchEvent(event)).toBe(false);
     expect(beforeSubmit).toHaveBeenCalledTimes(1);
-    expect(form.requestSubmit).not.toHaveBeenCalled();
+    expect(form.submit).not.toHaveBeenCalled();
 
     release(true);
     await Promise.resolve();
     await Promise.resolve();
 
-    expect(form.requestSubmit).toHaveBeenCalledTimes(1);
+    expect(form.submit).toHaveBeenCalledTimes(1);
+});
+
+test('chapter creation refreshes shared-sync state immediately before native submission', async () => {
+    let sync = false;
+    mount(
+        studyChapterCreateForm('/study/StUdY001/chapter', 'chess', false, {
+            sync: () => sync,
+            beforeSubmit: async () => true,
+        }),
+    );
+    const form = document.querySelector<HTMLFormElement>('form.study-side__new-chapter')!;
+    form.reportValidity = jest.fn(() => true);
+    form.submit = jest.fn();
+
+    const event = new SubmitEvent('submit', { bubbles: true, cancelable: true });
+    expect(form.dispatchEvent(event)).toBe(false);
+    sync = true;
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(new FormData(form).get('sync')).toBe('1');
+    expect(form.submit).toHaveBeenCalledTimes(1);
 });
