@@ -390,6 +390,9 @@ describe('Study interactive lesson deterministic playback', () => {
         const { ctrl, actions } = controller(tree);
 
         expect(ctrl.replay()).toBe(false);
+        expect(ctrl.backToStart()).toBe(true);
+        expect(actions.goToPath).toHaveBeenCalledWith('');
+        expect(ctrl.state.kind).toBe('prompt');
         expect(ctrl.nextChapter()).toBe(false);
         expect(ctrl.gradeLearnerMove('e2e4')).toBe('correct');
         expect(ctrl.state.kind).toBe('complete');

@@ -230,14 +230,19 @@ export class StudyGamebookPlayController {
         return true;
     }
 
-    replay(): boolean {
-        if (this.destroyed || this._state.kind !== 'complete') return false;
+    backToStart(): boolean {
+        if (this.destroyed) return false;
         this.invalidateDelayed();
         this.scriptIndex = 0;
         this.wrongAttempts = 0;
         this.actions.goToPath('');
         this.enterCurrentPosition(true);
         return true;
+    }
+
+    replay(): boolean {
+        if (this.destroyed || this._state.kind !== 'complete') return false;
+        return this.backToStart();
     }
 
     nextChapter(): boolean {

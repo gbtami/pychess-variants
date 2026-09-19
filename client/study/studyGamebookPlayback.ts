@@ -46,6 +46,7 @@ export class StudyGamebookPlayback {
     private readonly controller: StudyGamebookPlayController;
     private readonly panel: HTMLElement;
     private readonly status: HTMLElement;
+    private readonly playButtons?: HTMLElement;
     private applyingScriptedMove = false;
     private destroyed = false;
     private scriptReloadPending = false;
@@ -71,6 +72,9 @@ export class StudyGamebookPlayback {
         this.status.setAttribute('aria-busy', 'false');
         this.panel.append(this.status);
         tools.append(this.panel);
+
+        this.playButtons = document.querySelector<HTMLElement>('.study-gamebook-play-buttons') ?? undefined;
+        if (this.playButtons) this.playButtons.hidden = false;
 
         // A queued premove could otherwise become a second learner move immediately
         // after an authored reply. D2 deliberately disables premoves for playback.
@@ -114,6 +118,7 @@ export class StudyGamebookPlayback {
             if (move) this.controller.gradeLearnerMove(move);
         }
         this.syncBoardInput();
+        this.renderPlayButtons(this.controller.state);
     }
 
     boardInput(turnColor: 'white' | 'black'): 'white' | 'black' | false {
@@ -145,13 +150,24 @@ export class StudyGamebookPlayback {
         this.clearSolutionShapes();
         this.syncBoardInput();
         this.status.replaceChildren();
-        const heading = document.createElement('h2');
+        this.renderPlayButtons();
+
+        const floor = document.createElement('div');
+        floor.className = 'study-gamebook-play__floor';
+        const feedback = document.createElement('div');
+        feedback.className = 'study-gamebook-play__feedback info';
+        const instruction = document.createElement('div');
+        instruction.className = 'study-gamebook-play__instruction';
+        const heading = document.createElement('strong');
         heading.className = 'study-gamebook-play__title';
         heading.textContent = _('Lesson updated');
-        const message = document.createElement('p');
+        const message = document.createElement('em');
         message.className = 'study-gamebook-play__message';
         message.textContent = _('Reloading the latest lesson…');
-        this.status.append(heading, message);
+        instruction.append(heading, message);
+        feedback.append(instruction);
+        floor.append(feedback, this.mascot());
+        this.status.append(floor);
     }
 
     onShapesChanged(): void {
@@ -167,6 +183,10 @@ export class StudyGamebookPlayback {
         this.controller.destroy();
         document.removeEventListener('keydown', this.onKeyDown, true);
         this.clearSolutionShapes();
+        if (this.playButtons) {
+            this.playButtons.replaceChildren();
+            this.playButtons.hidden = true;
+        }
         this.panel.remove();
     }
 
@@ -184,6 +204,7 @@ export class StudyGamebookPlayback {
         if (this.destroyed) return;
         this.playbackState = state;
         this.render(state);
+        this.renderPlayButtons(state);
         this.syncBoardInput();
         this.syncSolutionShapes(state);
     }
@@ -235,85 +256,203 @@ export class StudyGamebookPlayback {
         this.ctrl.chessground.setAutoShapes([]);
     }
 
-    private render(state: StudyGamebookPlayState): void {
-        this.status.replaceChildren();
-        const heading = document.createElement('h2');
+    private actionButton(label: string, action: () => void, className: string): HTMLButtonElement {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = className;
+        button.textContent = label;
+        button.addEventListener('click', event => {
+            const restoreKeyboardFocus = event.detail === 0 || document.activeElement === button;
+            action();
+            if (restoreKeyboardFocus && !this.destroyed && !this.panel.contains(document.activeElement)) {
+                this.panel.querySelector<HTMLButtonElement>('button')?.focus();
+            }
+        });
+        return button;
+    }
+
+    private comment(state: StudyGamebookPlayState): HTMLElement | undefined {
+        const content = state.comment ?? (state.kind === 'prompt' ? _('What would you play?') : undefined);
+        if (!content && state.kind !== 'complete') return undefined;
+
+        const comment = document.createElement('div');
+        comment.className = 'study-gamebook-play__comment';
+        const text = document.createElement('div');
+        text.className = 'study-gamebook-play__comment-content';
+        text.textContent = content ?? _('You completed this lesson.');
+        comment.append(text);
+
+        if (state.kind === 'prompt' && state.hint) {
+            if (state.hintVisible) comment.classList.add('hinted');
+            const hint = this.actionButton(
+                state.hintVisible ? state.hint : _('Get a hint'),
+                () => this.controller.toggleHint(),
+                `study-gamebook-play__hint${state.hintVisible ? ' shown' : ''}`,
+            );
+            hint.setAttribute('aria-label', state.hintVisible ? _('Hide hint') : _('Get a hint'));
+            comment.append(hint);
+        }
+        return comment;
+    }
+
+    private turnPiece(): HTMLElement {
+        const mark = document.createElement('div');
+        mark.className = 'study-gamebook-play__mark';
+        const piece = document.createElement('piece');
+        piece.classList.add(this.ctrl.variant.kingRoles[0] ?? 'k-piece', this.ctrl.turnColor);
+        piece.setAttribute('aria-hidden', 'true');
+        mark.append(piece);
+        return mark;
+    }
+
+    private mascot(): HTMLImageElement {
+        const mascot = document.createElement('img');
+        mascot.className = 'study-gamebook-play__mascot';
+        mascot.width = 120;
+        mascot.height = 120;
+        mascot.src = '/static/images/study/octopus.svg';
+        mascot.alt = '';
+        mascot.setAttribute('aria-hidden', 'true');
+        return mascot;
+    }
+
+    private turnColorLabel(): string {
+        return _(this.ctrl.turnColor === 'white' ? this.ctrl.variant.colors.first : this.ctrl.variant.colors.second);
+    }
+
+    private feedback(state: StudyGamebookPlayState): HTMLElement {
+        if (state.kind === 'wrong-feedback') {
+            const retry = this.actionButton(
+                _('Retry'),
+                () => this.controller.retry(),
+                'study-gamebook-play__feedback act bad',
+            );
+            const icon = document.createElement('span');
+            icon.className = 'study-gamebook-play__feedback-icon';
+            icon.textContent = '↻';
+            retry.prepend(icon);
+            return retry;
+        }
+
+        if (state.kind === 'correct-feedback') {
+            const next = this.actionButton(
+                _('Next'),
+                () => this.controller.continue(),
+                'study-gamebook-play__feedback act good',
+            );
+            const text = document.createElement('span');
+            text.className = 'study-gamebook-play__feedback-text';
+            text.textContent = `▶ ${_('Next')}`;
+            const key = document.createElement('kbd');
+            key.textContent = 'space';
+            next.replaceChildren(text, key);
+            return next;
+        }
+
+        if (state.kind === 'complete') {
+            const end = document.createElement('div');
+            end.className = 'study-gamebook-play__feedback end';
+            if (this.options.hasNextChapter) {
+                end.append(
+                    this.actionButton(
+                        _('Next chapter'),
+                        () => this.controller.nextChapter(),
+                        'study-gamebook-play__end-action',
+                    ),
+                );
+            }
+            end.append(
+                this.actionButton(_('Play again'), () => this.controller.replay(), 'study-gamebook-play__end-action'),
+            );
+            if (this.options.canAnalyse && this.options.onAnalyse) {
+                end.append(this.actionButton(_('Analysis'), this.options.onAnalyse, 'study-gamebook-play__end-action'));
+            }
+            return end;
+        }
+
+        const feedback = document.createElement('div');
+        feedback.className = 'study-gamebook-play__feedback info';
+        const instruction = document.createElement('div');
+        instruction.className = 'study-gamebook-play__instruction';
+        const heading = document.createElement('strong');
         heading.className = 'study-gamebook-play__title';
-        const body = document.createElement('div');
-        body.className = 'study-gamebook-play__body';
-        const actions = document.createElement('div');
-        actions.className = 'study-gamebook-play__actions';
-
-        const addText = (text: string, className = 'study-gamebook-play__message') => {
-            const paragraph = document.createElement('p');
-            paragraph.className = className;
-            paragraph.textContent = text;
-            body.append(paragraph);
-        };
-        const addButton = (label: string, action: () => void, className = '') => {
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.className = `button${className ? ` ${className}` : ''}`;
-            button.textContent = label;
-            button.addEventListener('click', event => {
-                const restoreKeyboardFocus = event.detail === 0 || document.activeElement === button;
-                action();
-                if (
-                    restoreKeyboardFocus &&
-                    !this.destroyed &&
-                    !this.panel.contains(document.activeElement)
-                )
-                    this.status.querySelector<HTMLButtonElement>('.study-gamebook-play__actions .button')?.focus();
-            });
-            actions.append(button);
-        };
-
-        this.status.setAttribute(
-            'aria-busy',
-            String(state.kind === 'opponent-wait' && !state.waitingForContinue),
-        );
+        const detail = document.createElement('em');
+        detail.className = 'study-gamebook-play__message';
 
         if (state.kind === 'prompt') {
+            feedback.classList.add('play');
+            feedback.append(this.turnPiece());
             heading.textContent = _('Your turn');
-            if (state.comment) addText(state.comment);
-            else addText(_('Find the best move.'));
-            if (state.hintVisible && state.hint) addText(state.hint, 'study-gamebook-play__hint');
-            if (state.hint)
-                addButton(state.hintVisible ? _('Hide hint') : _('Show hint'), () => this.controller.toggleHint());
-            addButton(_('View the solution'), () => this.controller.viewSolution(), 'button-empty');
-        } else if (state.kind === 'wrong-feedback') {
-            heading.textContent = _('Try again');
-            addText(state.comment ?? _('That is not the move. Try another move.'));
-            addButton(_('Retry'), () => this.controller.retry());
-        } else if (state.kind === 'correct-feedback') {
-            heading.textContent = _('Good move');
-            if (state.comment) addText(state.comment);
-            addButton(_('Continue'), () => this.controller.continue());
+            detail.textContent = _('Find the best move for %1.', this.turnColorLabel());
         } else if (state.kind === 'opponent-wait') {
             heading.textContent = state.waitingForContinue ? _('Continue the lesson') : _('Opponent is moving…');
-            if (state.comment) addText(state.comment);
-            if (state.waitingForContinue) addButton(_('Continue'), () => this.controller.continue());
-        } else if (state.kind === 'complete') {
-            heading.textContent = _('Lesson complete');
-            if (state.comment) addText(state.comment);
-            addButton(_('Replay'), () => this.controller.replay(), 'button-empty');
-            if (this.options.hasNextChapter) addButton(_('Next chapter'), () => this.controller.nextChapter());
-            if (this.options.canAnalyse && this.options.onAnalyse)
-                addButton(_('Analysis'), this.options.onAnalyse, 'button-empty');
+            detail.textContent = state.waitingForContinue ? _('Continue when you are ready.') : '';
+            if (state.waitingForContinue) {
+                const button = this.actionButton(
+                    _('Continue'),
+                    () => this.controller.continue(),
+                    'study-gamebook-play__inline-action',
+                );
+                instruction.append(heading, detail, button);
+                feedback.append(instruction);
+                return feedback;
+            }
         } else {
             heading.textContent = _('Lesson unavailable');
-            addText(_('This chapter does not contain a playable interactive lesson yet.'));
+            detail.textContent = _('This chapter does not contain a playable interactive lesson yet.');
         }
 
+        instruction.append(heading, detail);
+        feedback.append(instruction);
+        return feedback;
+    }
+
+    private render(state: StudyGamebookPlayState): void {
+        this.status.replaceChildren();
+        this.status.setAttribute('aria-busy', String(state.kind === 'opponent-wait' && !state.waitingForContinue));
+
+        const comment = this.comment(state);
+        if (comment) this.status.append(comment);
+
+        const floor = document.createElement('div');
+        floor.className = 'study-gamebook-play__floor';
+        floor.append(this.feedback(state), this.mascot());
+        this.status.append(floor);
+    }
+
+    private renderPlayButtons(state?: StudyGamebookPlayState): void {
+        if (!this.playButtons) return;
+        this.playButtons.replaceChildren();
+        this.playButtons.hidden = !state;
+        if (!state) return;
+
+        if ((this.ctrl.analysisPath ?? '') !== '') {
+            const back = this.actionButton(
+                _('Back'),
+                () => this.controller.backToStart(),
+                'study-gamebook-play-button back',
+            );
+            back.prepend(document.createTextNode('‹ '));
+            this.playButtons.append(back);
+        }
+        if (state.kind === 'prompt') {
+            const solution = this.actionButton(
+                _('View the solution'),
+                () => this.controller.viewSolution(),
+                'study-gamebook-play-button solution',
+            );
+            solution.prepend(document.createTextNode('▶ '));
+            this.playButtons.append(solution);
+        }
         if (this.options.preview && this.options.onReturnToEditor) {
-            addButton(_('Return to lesson editor'), this.options.onReturnToEditor, 'button-empty');
+            const preview = this.actionButton(
+                _('Preview'),
+                this.options.onReturnToEditor,
+                'study-gamebook-play-button preview active',
+            );
+            preview.prepend(document.createTextNode('◉ '));
+            this.playButtons.append(preview);
         }
-
-        const shortcut = document.createElement('p');
-        shortcut.className = 'study-gamebook-play__shortcut';
-        shortcut.textContent = _('Keyboard: Space continues or retries when available.');
-        body.append(shortcut);
-        this.status.append(heading, body, actions);
     }
 
     private readonly onKeyDown = (event: KeyboardEvent): void => {
