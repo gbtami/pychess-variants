@@ -38,7 +38,7 @@ function node(
 }
 
 function fixture() {
-    const tree = analysisTreeFromStudy(rootStep(), {
+    return analysisTreeFromStudy(rootStep(), {
         rootGamebook: { hint: 'Root hint' },
         nodes: [
             node('StudyNode1', null, 0, 'e4', 'black', { deviation: 'Fallback after e4' }),
@@ -47,74 +47,73 @@ function fixture() {
             node('StudyNode4', null, 1, 'd4', 'black'),
         ],
     });
-    return tree;
 }
 
-function render(path = '', preview = false) {
+function render(path = '', orientation: 'white' | 'black' = 'white') {
     const root = document.createElement('div');
     const saveGamebook = jest.fn();
     const editComment = jest.fn();
-    const togglePreview = jest.fn();
-    const editor = new StudyGamebookEditor(root, { saveGamebook, editComment, togglePreview });
+    const navigateToParent = jest.fn();
+    const editor = new StudyGamebookEditor(root, { saveGamebook, editComment, navigateToParent });
     const tree = fixture();
-    editor.update({ tree, path, orientation: 'white', preview });
-    return { root, editor, tree, saveGamebook, editComment, togglePreview };
+    editor.update({ tree, path, orientation });
+    return { root, editor, tree, saveGamebook, editComment, navigateToParent };
 }
 
 describe('Study gamebook author editor', () => {
-    test('shows learner guidance, keyboard labels and saves hint for the captured position', () => {
+    test('matches the lila-style initial learner guidance and saves the root hint', () => {
         const { root, editor, saveGamebook } = render();
 
-        expect(root.textContent).toContain('Interactive lesson script');
-        expect(root.querySelector('.study-gamebook-edit__keys')?.getAttribute('aria-label')).toContain(
-            'left and right arrows',
+        expect(root.textContent).toContain('Help the player find the initial move, with a comment.');
+        expect(root.textContent).toContain('Optional, on-demand hint for the player:');
+        expect(root.querySelector('.study-gamebook-edit__header')).toBeNull();
+        const hint = root.querySelector<HTMLTextAreaElement>(
+            'textarea[aria-label="Optional, on-demand hint for the player:"]',
         );
-        const hint = root.querySelector<HTMLTextAreaElement>('textarea[aria-label="Optional hint"]');
         expect(hint?.value).toBe('Root hint');
-        expect(root.textContent).toContain('Help the learner find the initial move');
 
         hint!.value = 'Look at the center';
         hint!.dispatchEvent(new Event('input', { bubbles: true }));
-        editor.update({ tree: fixture(), path: 'StudyNode1', orientation: 'white', preview: false });
+        editor.update({ tree: fixture(), path: 'StudyNode1', orientation: 'white' });
         expect(saveGamebook).toHaveBeenCalledWith('hint', 'Look at the center', '');
     });
 
-    test('places fallback deviation on the intended child and links comments for correct feedback', () => {
+    test('shows correct-move reflection and fallback wrong-answer guidance', () => {
         const { root, editComment } = render('StudyNode1');
 
-        expect(root.textContent).toContain('learner just played the expected move');
-        expect(root.querySelector<HTMLTextAreaElement>('textarea[aria-label="Fallback wrong-answer explanation"]')?.value).toBe(
+        expect(root.textContent).toContain("You may reflect on the player's correct move");
+        expect(root.querySelector<HTMLTextAreaElement>('textarea[aria-label="When any other wrong move is played:"]')?.value).toBe(
             'Fallback after e4',
         );
-        expect(root.textContent).toContain('variations from the previous position');
-        root.querySelector<HTMLButtonElement>('.study-gamebook-edit__comment')?.click();
+        expect(root.textContent).not.toContain('Add variation moves');
+        root.querySelector<HTMLButtonElement>('.study-gamebook-edit__legend.clickable')?.click();
         expect(editComment).toHaveBeenCalledTimes(1);
+    });
+
+    test('offers the lila-style add-variation shortcut when no wrong-answer variation exists', () => {
+        const { root, navigateToParent } = render('StudyNode1.StudyNode2.StudyNode3');
+
+        const addVariation = [...root.querySelectorAll<HTMLButtonElement>('.study-gamebook-edit__legend.clickable')].find(
+            button => button.textContent?.includes('Add variation moves'),
+        );
+        expect(addVariation).toBeDefined();
+        addVariation!.click();
+        expect(navigateToParent).toHaveBeenCalledWith('StudyNode1.StudyNode2.StudyNode3');
     });
 
     test('uses ordinary comments for a specific wrong-answer variation', () => {
         const { root } = render('StudyNode4');
 
-        expect(root.textContent).toContain('wrong-answer variation');
-        expect(root.textContent).toContain('Explain why this specific move is wrong');
+        expect(root.textContent).toContain('Explain why this move is wrong in a comment.');
+        expect(root.textContent).toContain('Or promote it as the main line if it is the right move.');
         expect(root.querySelector('textarea')).toBeNull();
     });
 
-    test('warns for an empty script and for a script ending after an opponent move', () => {
-        const emptyRoot = document.createElement('div');
-        const emptyEditor = new StudyGamebookEditor(emptyRoot, {
-            editComment: () => {},
-            saveGamebook: () => {},
-            togglePreview: () => {},
-        });
-        emptyEditor.update({ tree: analysisTreeFromStudy(rootStep(), { nodes: [] }), path: '', orientation: 'white', preview: false });
-        expect(emptyRoot.textContent).toContain('This lesson has no moves yet');
-        expect(emptyRoot.textContent).toContain('No expected learner continuation');
+    test('shows opponent-first guidance when the lesson starts with the opponent to move', () => {
+        const { root } = render('', 'black');
 
-        const oneMove = analysisTreeFromStudy(rootStep(), {
-            nodes: [node('StudyNode1', null, 0, 'e4', 'black')],
-        });
-        emptyEditor.update({ tree: oneMove, path: 'StudyNode1', orientation: 'black', preview: false });
-        expect(emptyRoot.textContent).toContain('This lesson ends after an opponent move');
+        expect(root.textContent).toContain('Introduce the interactive lesson with a comment.');
+        expect(root.textContent).toContain("Put the opponent's first move on the board.");
     });
 
     test('forced-variation display flags never redefine the authored correct script', () => {
@@ -125,21 +124,11 @@ describe('Study gamebook author editor', () => {
         expect(gamebookPathIsMainline(tree, expected.path)).toBe(true);
         const editor = new StudyGamebookEditor(root, {
             editComment: () => {},
+            navigateToParent: () => {},
             saveGamebook: () => {},
-            togglePreview: () => {},
         });
-        editor.update({ tree, path: expected.path, orientation: 'white', preview: false });
-        expect(root.textContent).not.toContain('wrong-answer variation');
-        expect(root.textContent).toContain('learner just played the expected move');
-    });
-
-    test('Preview is explicit and preview state promises unsaved local attempts', () => {
-        const { root, togglePreview } = render();
-        root.querySelector<HTMLButtonElement>('.study-gamebook-edit__preview')?.click();
-        expect(togglePreview).toHaveBeenCalledTimes(1);
-
-        const preview = render('', true);
-        expect(preview.root.textContent).toContain('Preview moves are not saved');
-        expect(preview.root.textContent).toContain('Return to lesson editor');
+        editor.update({ tree, path: expected.path, orientation: 'white' });
+        expect(root.textContent).not.toContain('Explain why this move is wrong');
+        expect(root.textContent).toContain("You may reflect on the player's correct move");
     });
 });

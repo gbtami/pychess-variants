@@ -634,6 +634,34 @@
 .study-tool-tabs button[role='tab'] { position: relative; flex: 1; min-height: 2.8rem; font-size: 1.2rem; border-bottom: 2px solid transparent; }
 .study-tool-tabs button[role='tab'][aria-selected='true'] { color: var(--rusty); border-bottom-color: var(--rusty); }
 
+.study-gamebook-preview-toggle {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+    min-width: 6.6rem;
+    padding: .45rem .65rem;
+    border: 0;
+    border-left: 1px solid var(--border-color);
+    border-radius: 0;
+    background: transparent;
+    color: var(--font-color);
+    font: inherit;
+    cursor: pointer;
+}
+.study-gamebook-preview-toggle[hidden] { display: none; }
+.study-gamebook-preview-toggle:hover,
+.study-gamebook-preview-toggle:focus-visible { background: var(--bg-color2); color: var(--link-color-blue); }
+.study-gamebook-preview-toggle__icon {
+    display: inline-block;
+    width: 1.2em;
+    height: 1.2em;
+    background: currentColor;
+    -webkit-mask: url('images/study/eye.svg') center / contain no-repeat;
+    mask: url('images/study/eye.svg') center / contain no-repeat;
+}
+
 .study-conceal-status-container:empty { display: none; }
 .study-conceal-status {
     display: flex;
@@ -727,28 +755,77 @@
 #study-panel-comments, #study-panel-glyphs { padding: 0; }
 #study-panel-comments { background: transparent; }
 
-.study-gamebook-edit { display: grid; gap: .7rem; line-height: 1.4; }
-.study-gamebook-edit p { margin: 0; }
-.study-gamebook-edit__header { display: flex; align-items: baseline; justify-content: space-between; gap: .8rem; }
-.study-gamebook-edit__title { font-weight: 600; }
-.study-gamebook-edit__keys { display: inline-flex; align-items: center; gap: .2rem; font-size: .8rem; opacity: .72; }
-.study-gamebook-edit__keys kbd {
-    min-width: 1.5rem;
-    padding: .05rem .3rem;
-    border: 1px solid var(--border-color);
-    border-radius: 3px;
+/* Interactive lesson authoring panel, adapted from lila's gamebook editor. */
+.study-gamebook-edit {
+    display: flex;
+    flex: 0 1 auto;
+    flex-direction: column;
+    min-height: 0;
+    overflow-y: auto;
+    border-top: 1px solid var(--border-color);
     background: var(--bg-color2);
-    text-align: center;
+    line-height: 1.35;
+}
+.study-gamebook-edit[hidden] { display: none; }
+.study-gamebook-edit__field { display: flex; flex-direction: column; }
+.study-gamebook-edit__legend {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    min-height: 3.5em;
+    padding: 0;
+    border: 0;
+    border-bottom: 1px solid var(--border-color);
+    border-radius: 0;
+    background: transparent;
+    color: var(--font-color);
     font: inherit;
+    text-align: left;
 }
-.study-gamebook-edit__warning {
-    padding: .55rem .65rem;
-    border-left: 3px solid var(--bad);
-    background: color-mix(in srgb, var(--bad) 10%, transparent);
+button.study-gamebook-edit__legend { cursor: pointer; }
+.study-gamebook-edit__legend-icon {
+    display: flex;
+    flex: 0 0 1.8em;
+    align-items: center;
+    justify-content: center;
+    width: 1.8em;
+    opacity: .7;
 }
-.study-gamebook-edit__field { display: grid; gap: .2rem; font-weight: 600; }
-.study-gamebook-edit__field textarea { margin: 0; font-weight: 400; }
-.study-gamebook-edit__comment, .study-gamebook-edit__preview { justify-self: start; }
+.study-gamebook-edit__legend p {
+    display: flex;
+    flex: 1 1 100%;
+    align-items: center;
+    margin: 0;
+    padding: 8px 10px;
+}
+.study-gamebook-edit__legend.todo .study-gamebook-edit__legend-icon {
+    background: var(--bad);
+    color: #fff;
+}
+.study-gamebook-edit__legend.done .study-gamebook-edit__legend-icon { background: var(--good); }
+.study-gamebook-edit__legend.clickable:hover,
+.study-gamebook-edit__legend.clickable:focus-visible {
+    background: var(--link-color-blue);
+    color: #fff;
+}
+.study-gamebook-edit__legend.clickable:hover .study-gamebook-edit__legend-icon,
+.study-gamebook-edit__legend.clickable:focus-visible .study-gamebook-edit__legend-icon { opacity: .95; }
+.study-gamebook-edit textarea {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: .65rem .75rem;
+    border: 0;
+    border-bottom: 1px solid var(--border-color);
+    border-radius: 0;
+    background: var(--bg-color0);
+    color: var(--font-color);
+    font: inherit;
+    resize: vertical;
+}
+.study-gamebook-edit__field--hint textarea { min-height: 7em; }
+.study-gamebook-edit textarea:focus { outline: 2px solid var(--link-color-blue); outline-offset: -2px; }
 
 .study-annotations__comments { display: grid; gap: .4rem; }
 .study-annotations__comment-input { min-height: 5rem; }

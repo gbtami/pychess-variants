@@ -14,6 +14,7 @@ export type AnalysisPageParts = {
     ongoing: boolean;
     boardTop?: VNode;
     boardBottom?: VNode;
+    toolsAfterMoves?: VNode | VNode[];
 };
 
 /**
@@ -44,7 +45,7 @@ export function renderAnalysisPage(model: PyChessModel, parts: AnalysisPageParts
                     h('div.cg-wrap.pocket', [h('div#pocket0.pocketrow')]),
                 ]),
             ]),
-            analysisTools(isOngoingGame),
+            analysisTools(isOngoingGame, parts.toolsAfterMoves),
             analysisSettings.view(variant),
             h('div#move-controls'),
             h('div.pocket-bot', [
@@ -58,7 +59,8 @@ export function renderAnalysisPage(model: PyChessModel, parts: AnalysisPageParts
     ];
 }
 
-export function analysisTools(isOngoingGame: boolean = false) {
+export function analysisTools(isOngoingGame: boolean = false, afterMoves?: VNode | VNode[]) {
+    const afterMovesNodes = afterMoves ? (Array.isArray(afterMoves) ? afterMoves : [afterMoves]) : [];
     return h('div.analysis-tools', [
         isOngoingGame
             ? ''
@@ -80,6 +82,7 @@ export function analysisTools(isOngoingGame: boolean = false) {
               ]),
         isOngoingGame ? '' : h('div.pvbox', [h('div#pv1'), h('div#pv2'), h('div#pv3'), h('div#pv4'), h('div#pv5')]),
         h('div.movelist-block', [h('div#movelist')]),
+        ...afterMovesNodes,
         h('div#misc-info', [h('div#misc-infow'), h('div#misc-info-center'), h('div#misc-infob')]),
         isOngoingGame
             ? ''
