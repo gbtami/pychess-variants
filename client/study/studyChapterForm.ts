@@ -8,6 +8,7 @@ export interface StudyChapterCreateFormOptions {
     chapterName?: string;
     orientation?: 'white' | 'black';
     mode?: StudyChapterMode;
+    enabledModes?: readonly StudyChapterMode[];
     sync?: () => boolean;
     beforeSubmit?: () => Promise<boolean>;
 }
@@ -19,31 +20,53 @@ type StudyChapterModeOption = {
     available: boolean;
 };
 
-function studyChapterModeOptions(): StudyChapterModeOption[] {
+const STUDY_CHAPTER_MODE_ORDER: readonly StudyChapterMode[] = ['normal', 'practice', 'conceal', 'gamebook'];
+
+export function studyEnabledModesFromJson(raw: string | null): StudyChapterMode[] {
+    if (!raw) return [...STUDY_CHAPTER_MODE_ORDER];
+    try {
+        const parsed: unknown = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return [...STUDY_CHAPTER_MODE_ORDER];
+        const enabled = new Set<StudyChapterMode>(['normal']);
+        for (const value of parsed) {
+            if (typeof value === 'string' && STUDY_CHAPTER_MODE_ORDER.includes(value as StudyChapterMode))
+                enabled.add(value as StudyChapterMode);
+        }
+        return STUDY_CHAPTER_MODE_ORDER.filter(mode => enabled.has(mode));
+    } catch {
+        return [...STUDY_CHAPTER_MODE_ORDER];
+    }
+}
+
+function studyChapterModeOptions(
+    enabledModes: readonly StudyChapterMode[] = STUDY_CHAPTER_MODE_ORDER,
+): StudyChapterModeOption[] {
+    const enabled = new Set(enabledModes);
+    enabled.add('normal');
     return [
         {
             value: 'normal',
             label: _('Normal analysis'),
             description: _('Show the complete chapter tree and the usual analysis tools.'),
-            available: true,
+            available: enabled.has('normal'),
         },
         {
             value: 'practice',
             label: _('Practice with computer'),
             description: _('Play the saved position against the computer.'),
-            available: true,
+            available: enabled.has('practice'),
         },
         {
             value: 'conceal',
             label: _('Hide next moves'),
             description: _('Hide unrevealed continuations while the learner explores the position.'),
-            available: true,
+            available: enabled.has('conceal'),
         },
         {
             value: 'gamebook',
             label: _('Interactive lesson'),
             description: _('Guide the learner through the authored main line with feedback and hints.'),
-            available: true,
+            available: enabled.has('gamebook'),
         },
     ];
 }
@@ -52,19 +75,25 @@ export function studyChapterModeLabel(mode: StudyChapterMode): string {
     return studyChapterModeOptions().find(option => option.value === mode)?.label ?? _('Normal analysis');
 }
 
-function studyChapterModeHelp(mode: StudyChapterMode): string {
-    const current = studyChapterModeOptions().find(option => option.value === mode);
+function studyChapterModeHelp(
+    mode: StudyChapterMode,
+    enabledModes: readonly StudyChapterMode[] = STUDY_CHAPTER_MODE_ORDER,
+): string {
+    const current = studyChapterModeOptions(enabledModes).find(option => option.value === mode);
     if (!current) return '';
     return current.available
         ? current.description
         : _(
-              'This chapter uses %1, which is not available in the player yet. You can switch it back to Normal analysis.',
+              '%1 is disabled for new chapters right now. Existing chapter data is preserved; you can switch back to Normal analysis.',
               current.label,
           );
 }
 
-export function studyChapterModeField(mode: StudyChapterMode = 'normal'): VNode {
-    const options = studyChapterModeOptions();
+export function studyChapterModeField(
+    mode: StudyChapterMode = 'normal',
+    enabledModes: readonly StudyChapterMode[] = STUDY_CHAPTER_MODE_ORDER,
+): VNode {
+    const options = studyChapterModeOptions(enabledModes);
     const available = options.filter(option => option.available || option.value === mode);
     return h('label.study-dialog__field.study-chapter-mode', [
         h('span', _('Analysis mode')),
@@ -78,7 +107,11 @@ export function studyChapterModeField(mode: StudyChapterMode = 'normal'): VNode 
                         const help = select
                             .closest('.study-chapter-mode')
                             ?.querySelector<HTMLElement>('.study-dialog__help');
-                        if (help) help.textContent = studyChapterModeHelp(select.value as StudyChapterMode);
+                        if (help)
+                            help.textContent = studyChapterModeHelp(
+                                select.value as StudyChapterMode,
+                                enabledModes,
+                            );
                     },
                 },
             },
@@ -92,7 +125,7 @@ export function studyChapterModeField(mode: StudyChapterMode = 'normal'): VNode 
                 ),
             ),
         ),
-        h('small.study-dialog__help', studyChapterModeHelp(mode)),
+        h('small.study-dialog__help', studyChapterModeHelp(mode, enabledModes)),
     ]);
 }
 
@@ -192,7 +225,7 @@ export function studyChapterCreateForm(
             ]),
             chess960 ? h('input', { attrs: { type: 'hidden', name: 'chess960', value: '1' } }) : '',
             studyChapterOrientationField(options.orientation ?? 'white'),
-            studyChapterModeField(mode),
+            studyChapterModeField(mode, options.enabledModes),
             chapterField('fen', _('FEN (optional)')),
             chapterField('gameId', _('Game ID (optional)'), '', 12),
             h('div.study-dialog__actions.study-dialog__actions--submit-only', [

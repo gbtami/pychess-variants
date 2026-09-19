@@ -149,7 +149,7 @@ function chapterSettingsForm(
             ),
             h('div.study-dialog__split', [
                 studyChapterOrientationField(chapter.orientation),
-                studyChapterModeField(chapter.mode),
+                studyChapterModeField(chapter.mode, study.enabledModes),
             ]),
             dialogField(
                 _('Pinned chapter comment'),
@@ -1315,6 +1315,7 @@ function studySide(study: StudyPageModel, model: PyChessModel, modeActions: Stud
                           model.chess960 === 'True',
                           {
                               orientation: study.chapter.orientation,
+                              enabledModes: study.enabledModes,
                               sync: () => Boolean(study.sticky),
                               beforeSubmit: modeActions.settleWrites,
                           },

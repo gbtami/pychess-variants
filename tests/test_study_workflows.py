@@ -828,6 +828,114 @@ async def test_chapter_modes_round_trip_through_create_page_preview_and_export(
 
 
 @pytest.mark.asyncio
+async def test_deployment_mode_gate_blocks_new_entry_but_preserves_existing_training_data(
+    aiohttp_client,
+) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    owner = "study_rollout_owner"
+    await _insert_user(app_state, owner)
+    study, gamebook = await create_study_from_draft(
+        app_state,
+        owner,
+        await StudyChapterBuilder(app_state, owner).blank_or_fen(variant="chess"),
+    )
+    concealed = await add_chapter(app_state, study, gamebook, name="Concealed")
+    await app_state.db.study_chapter.update_one(
+        {"_id": gamebook.id},
+        {"$set": {"mode": "gamebook", "root._.g": {"h": "Keep this lesson hint"}}},
+    )
+    await app_state.db.study_chapter.update_one(
+        {"_id": concealed.id},
+        {"$set": {"mode": "conceal", "concealPly": 0}},
+    )
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie(owner)})
+
+    with patch("study.models.STUDY_ENABLED_CHAPTER_MODES", ("normal",)):
+        page = await client.get(
+            f"/study/{study.id}/{gamebook.id}", headers={"Accept": "application/json"}
+        )
+        assert page.status == 200
+        payload = await page.json()
+        assert payload["study"]["enabledModes"] == ["normal"]
+        assert payload["study"]["chapter"]["mode"] == "gamebook"
+        assert payload["study"]["chapter"]["tree"]["rootGamebook"] == {
+            "hint": "Keep this lesson hint"
+        }
+
+        blocked_create = await client.post(
+            f"/study/{study.id}/chapter",
+            data={"chapterName": "No practice", "variant": "chess", "mode": "practice"},
+            allow_redirects=False,
+        )
+        assert blocked_create.status == 400
+
+        # An older client has no mode field at all. It must still create the
+        # schema baseline rather than depending on the new selector.
+        legacy_create = await client.post(
+            f"/study/{study.id}/chapter",
+            data={"chapterName": "Legacy normal", "variant": "chess"},
+            allow_redirects=False,
+        )
+        assert legacy_create.status == 302
+        legacy_id = legacy_create.headers["Location"].rsplit("/", 1)[-1]
+        legacy_doc = await app_state.db.study_chapter.find_one({"_id": legacy_id})
+        assert legacy_doc is not None
+        assert legacy_doc["mode"] == "normal"
+
+        # Older edit forms only submit the fields they know. Existing mode and
+        # lesson/conceal data must survive those preserving writes while entry is off.
+        legacy_gamebook_edit = await client.post(
+            f"/study/{study.id}/{gamebook.id}/edit",
+            data={"name": "Renamed lesson", "orientation": "black"},
+            allow_redirects=False,
+        )
+        assert legacy_gamebook_edit.status == 302
+        stored_gamebook = await app_state.db.study_chapter.find_one({"_id": gamebook.id})
+        assert stored_gamebook is not None
+        assert stored_gamebook["mode"] == "gamebook"
+        assert stored_gamebook["root"]["_"]["g"] == {"h": "Keep this lesson hint"}
+
+        legacy_conceal_edit = await client.post(
+            f"/study/{study.id}/{concealed.id}/edit",
+            data={"name": "Renamed conceal", "orientation": "white"},
+            allow_redirects=False,
+        )
+        assert legacy_conceal_edit.status == 302
+        stored_conceal = await app_state.db.study_chapter.find_one({"_id": concealed.id})
+        assert stored_conceal is not None
+        assert stored_conceal["mode"] == "conceal"
+        assert stored_conceal["concealPly"] == 0
+
+        blocked_transition = await client.post(
+            f"/study/{study.id}/{legacy_id}/edit",
+            data={"name": "Legacy normal", "orientation": "white", "mode": "gamebook"},
+            allow_redirects=False,
+        )
+        assert blocked_transition.status == 400
+
+        # A disabled existing mode remains a valid value on a preserving newer
+        # form, and Normal is always available as the rollback escape hatch.
+        same_mode = await client.post(
+            f"/study/{study.id}/{gamebook.id}/edit",
+            data={"name": "Renamed lesson", "orientation": "black", "mode": "gamebook"},
+            allow_redirects=False,
+        )
+        assert same_mode.status == 302
+        switch_back = await client.post(
+            f"/study/{study.id}/{gamebook.id}/edit",
+            data={"name": "Renamed lesson", "orientation": "black", "mode": "normal"},
+            allow_redirects=False,
+        )
+        assert switch_back.status == 302
+        restored = await app_state.db.study_chapter.find_one({"_id": gamebook.id})
+        assert restored is not None
+        assert restored["mode"] == "normal"
+        assert restored["root"]["_"]["g"] == {"h": "Keep this lesson hint"}
+
+
+@pytest.mark.asyncio
 async def test_chapter_mode_edit_reloads_room_is_idempotent_and_requires_write_access(
     aiohttp_client,
 ) -> None:

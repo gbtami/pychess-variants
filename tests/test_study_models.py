@@ -18,6 +18,7 @@ from study.models import (
     Study,
     StudyChapter,
     StudySource,
+    _configured_study_chapter_modes,
     make_chapter,
     make_study,
     study_search_query_tokens,
@@ -28,6 +29,19 @@ from study.tree import StudyTree, StudyTreeNode
 
 
 class StudySchemaTestCase(unittest.TestCase):
+    def test_enabled_chapter_modes_config_is_staged_and_always_keeps_normal(self) -> None:
+        self.assertEqual(
+            _configured_study_chapter_modes(None),
+            ("normal", "practice", "conceal", "gamebook"),
+        )
+        self.assertEqual(
+            _configured_study_chapter_modes("gamebook, conceal"),
+            ("normal", "conceal", "gamebook"),
+        )
+        self.assertEqual(_configured_study_chapter_modes("normal"), ("normal",))
+        with self.assertRaisesRegex(RuntimeError, "STUDY_ENABLED_CHAPTER_MODES"):
+            _configured_study_chapter_modes("normal,training")
+
     def test_owner_only_mvp_schema(self) -> None:
         self.assertIn("study", COLLECTIONS_BY_NAME)
         self.assertIn("study_chapter", COLLECTIONS_BY_NAME)

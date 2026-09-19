@@ -34,6 +34,7 @@ from study.models import (
     make_chapter,
     make_study,
     study_chapter_mode,
+    study_chapter_mode_enabled,
     study_member_role,
     study_search_query_tokens,
     study_search_tokens,
@@ -980,6 +981,10 @@ async def clone_study(
             if chapter_count > STUDY_MAX_CHAPTERS:
                 raise StudyStorageError(f"A Study can have at most {STUDY_MAX_CHAPTERS} chapters")
             original = StudyChapter.from_document(doc)
+            if not study_chapter_mode_enabled(original.mode) or (
+                original.root.has_gamebook and not study_chapter_mode_enabled("gamebook")
+            ):
+                raise StudyStorageError("Study contains a chapter mode that is not enabled")
             chapter = await make_chapter(
                 app_state.db.study_chapter,
                 study_id=cloned.id,
@@ -1156,6 +1161,10 @@ async def add_chapter(
     *,
     name: str | None = None,
 ) -> StudyChapter:
+    if not study_chapter_mode_enabled(source_chapter.mode) or (
+        source_chapter.root.has_gamebook and not study_chapter_mode_enabled("gamebook")
+    ):
+        raise StudyStorageError("Study chapter mode is not enabled")
     count = await app_state.db.study_chapter.count_documents({"studyId": study.id})
     if count >= STUDY_MAX_CHAPTERS:
         raise StudyStorageError(f"A Study can have at most {STUDY_MAX_CHAPTERS} chapters")
@@ -1451,6 +1460,9 @@ async def edit_chapter_metadata(
         next_mode = chapter.mode if mode is None else study_chapter_mode(mode)
     except ValueError as exc:
         raise StudyStorageError("Invalid Study chapter mode") from exc
+
+    if next_mode != chapter.mode and not study_chapter_mode_enabled(next_mode):
+        raise StudyStorageError("Study chapter mode is not enabled")
 
     if next_mode == "conceal":
         if conceal_ply is None or conceal_ply == "":

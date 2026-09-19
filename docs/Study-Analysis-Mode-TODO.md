@@ -694,7 +694,7 @@ prototyped early; ship practice only after E2–E4. C/D do not depend on E.
   including the conceal reveal boundary through the versioned `PyChessConcealPly`
   extension; lesson metadata remains versioned and local attempts remain absent. All
   new user-facing strings continue through the translation helper.
-- [ ] **F2 — Deployment compatibility.** Deploy tolerant readers/preserving writers
+- [x] **F2 — Deployment compatibility.** Deploy tolerant readers/preserving writers
   before enabling creation of new mode/lesson data. Test documents without the new
   fields and an existing client submitting older forms. Plan an enabled-modes switch
   for staged exposure; do not use a pre-support server as a routine rollback once
@@ -702,6 +702,20 @@ prototyped early; ship practice only after E2–E4. C/D do not depend on E.
   Rollback should disable feature entry while keeping the schema-preserving code.
   Snapshot representative chapters before any future bulk migration; this design
   requires no eager production backfill.
+  **Done:** `STUDY_ENABLED_CHAPTER_MODES` is a comma-separated deployment gate over
+  `normal,practice,conceal,gamebook`; it defaults to all shipped modes and always
+  retains Normal as the escape hatch. Disabled modes stay readable/playable when
+  already stored, and preserving edits may keep their current mode, but new chapter,
+  analysis/import, mode-transition, copy and clone paths cannot create disabled mode
+  data. Disabling gamebook also rejects newly imported hidden lesson metadata even
+  when its chapter mode is Normal. The server advertises the enabled set to both the
+  Study page and first-chapter dialog so UI exposure matches the authoritative gate.
+  Compatibility tests cover pre-mode documents, legacy create/edit forms with no
+  `mode` field, preserved lesson/conceal data, and switching an existing disabled
+  chapter back to Normal. No migration or eager backfill is required. For rollback,
+  keep this schema-aware server and narrow `STUDY_ENABLED_CHAPTER_MODES` (for example
+  to `normal`) rather than deploying code from before analysis-mode support. Snapshot
+  representative production chapters before any future bulk schema migration.
 - [ ] **F3 — Update feature documentation.** Move shipped behavior into
   [Study.md](Study.md), mark completed tasks here, record remaining deliberate lila
   differences and unsupported variants, and add author-facing lesson instructions.

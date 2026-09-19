@@ -60,6 +60,7 @@ export type StudyPageModel = {
     canClone: boolean;
     canShare?: boolean;
     canEmbed?: boolean;
+    enabledModes?: StudyChapterMode[];
     features?: {
         computer: boolean;
         explorer: boolean;

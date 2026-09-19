@@ -401,6 +401,12 @@ class StudyTree:
     def count(self) -> int:
         return len(self.nodes)
 
+    @property
+    def has_gamebook(self) -> bool:
+        return not self.root_gamebook.empty or any(
+            not node.gamebook.empty for node in self.nodes.values()
+        )
+
     def children_of(self, parent_id: str | None) -> tuple[StudyTreeNode, ...]:
         return tuple(
             sorted(

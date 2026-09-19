@@ -1,5 +1,5 @@
 import { patch } from '../document';
-import { studyChapterCreateForm } from './studyChapterForm';
+import { studyChapterCreateForm, studyEnabledModesFromJson } from './studyChapterForm';
 
 const STUDY_SETTING_FIELDS = ['name', 'visibility', 'computer', 'explorer', 'cloneable', 'shareable'] as const;
 
@@ -14,11 +14,16 @@ export function initStudyIndex(): void {
     const chapterFormMount = document.querySelector<HTMLElement>('#study-first-chapter-form-mount');
     const openButton = document.querySelector<HTMLButtonElement>('[data-study-new-open]');
     const settingsForm = document.querySelector<HTMLFormElement>('#study-create-form');
+    const enabledModes = studyEnabledModesFromJson(document.body.getAttribute('data-study-enabled-modes'));
     if (!dialog || !chapterDialog || !chapterFormMount || !openButton || !settingsForm) return;
 
     const chapterForm = patch(
         chapterFormMount,
-        studyChapterCreateForm('/study', 'chess', false, { id: 'study-first-chapter-form', chapterName: 'Chapter 1' }),
+        studyChapterCreateForm('/study', 'chess', false, {
+            id: 'study-first-chapter-form',
+            chapterName: 'Chapter 1',
+            enabledModes,
+        }),
     ).elm as HTMLFormElement;
     const nameInput = dialog.querySelector<HTMLInputElement>('input[name="name"]');
     const chapterNameInput = chapterForm.querySelector<HTMLInputElement>('input[name="chapterName"]');
