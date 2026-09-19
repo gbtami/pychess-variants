@@ -138,8 +138,12 @@ Move feedback is intentionally approximate for variants: **good**, **inaccuracy*
 **mistake** and **blunder** use the same winning-chance-loss thresholds as the inspected
 lichess implementation. Exact best-move matches and terminal outcomes are handled
 directly; missing/bounded scores are reported as ungraded instead of inventing a
-verdict. Hints escalate from a source piece/drop indication to the full move, and a
-negative verdict can offer the stronger move plus **Retry best move**.
+verdict. Like lichess, grading does not stop the game for a separate confirmation step:
+the computer reply continues automatically and the verdict stays in the compact feedback
+strip. A best-move suggestion remains clickable so the learner can jump back and retry it
+even after the computer has replied. Hints escalate on the board from a source piece/drop
+indication to the full move; the practice box only changes its **Get a hint** / **See best
+move** / **Hide best move** action instead of duplicating the hint as explanatory text.
 
 Practice requires the viewer's computer-analysis permission, no conflicting active
 eligible live game, and a variant supported by the browser Fairy-Stockfish instance.

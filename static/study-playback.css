@@ -464,6 +464,11 @@ button.study-gamebook-play__feedback.act:focus-visible {
     white-space: nowrap;
 }
 
+.study-practice__wait {
+    padding-inline-start: 15px;
+    opacity: .78;
+}
+
 .study-practice__verdict {
     display: flex;
     flex: 0 0 auto;
