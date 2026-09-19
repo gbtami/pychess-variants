@@ -193,6 +193,7 @@ describe('analysis page smoke coverage', () => {
                 underboard: h('div.study-underboard', 'Study notes'),
                 mountBoard,
                 ongoing: false,
+                toolsAfterMoves: h('div.study-gamebook-edit', 'Lesson authoring'),
             }),
         );
 
@@ -202,6 +203,9 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('.study-underboard')).not.toBeNull();
         expect(root.querySelector('#mainboard')).not.toBeNull();
         expect(root.querySelector('#movelist')).not.toBeNull();
+        expect(root.querySelector('.analysis-tools > .movelist-block + .study-gamebook-edit')?.textContent).toBe(
+            'Lesson authoring',
+        );
         expect(root.querySelector('#move-controls')).not.toBeNull();
         expect(root.querySelector('.analysis-settings')).not.toBeNull();
         expect(root.querySelector('#pgntext')).toBeNull();
@@ -356,6 +360,10 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('under-board .study-underboard')).not.toBeNull();
         expect(root.querySelector('under-board .study-tool-tabs > .study-mode--sync')).not.toBeNull();
         expect(root.querySelector('under-board .study-tool-tabs > .study-mode--write')).not.toBeNull();
+        expect(root.querySelector('#study-tab-lesson')).toBeNull();
+        expect(root.querySelector<HTMLButtonElement>('.study-gamebook-preview-toggle')?.hidden).toBe(true);
+        expect(root.querySelector('.analysis-tools > .study-gamebook-edit')).not.toBeNull();
+        expect(root.querySelector<HTMLElement>('.analysis-tools > .study-gamebook-edit')?.hidden).toBe(true);
         expect(root.querySelector('#study-tab-tags')?.getAttribute('aria-selected')).toBe('true');
         expect(root.querySelector<HTMLButtonElement>('.study-like')?.getAttribute('aria-pressed')).toBe('true');
         expect(root.querySelector('.study-like__count')?.textContent).toBe('1');
