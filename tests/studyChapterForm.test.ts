@@ -13,7 +13,7 @@ function mount(vnode: ReturnType<typeof studyChapterCreateForm> | ReturnType<typ
     patch(document.getElementById('root')!, vnode);
 }
 
-test('chapter creation exposes learner orientation and every completed analysis mode', () => {
+test('chapter creation exposes learner orientation and the staged default analysis modes', () => {
     mount(
         studyChapterCreateForm('/study/StUdY001/chapter', 'chess', false, {
             orientation: 'black',
@@ -26,7 +26,7 @@ test('chapter creation exposes learner orientation and every completed analysis 
     );
     const mode = document.querySelector<HTMLSelectElement>('select[name="mode"]')!;
     expect(mode.value).toBe('normal');
-    expect([...mode.options].map(option => option.value)).toEqual(['normal', 'practice', 'conceal', 'gamebook']);
+    expect([...mode.options].map(option => option.value)).toEqual(['normal', 'gamebook']);
     expect(document.querySelector('.study-chapter-mode .study-dialog__help')?.textContent).toContain(
         'full move tree',
     );
@@ -48,15 +48,18 @@ test('deployment mode gate hides disabled entry modes but keeps an existing disa
 });
 
 test('enabled mode bootstrap is tolerant of an older server while enforcing normal as the escape hatch', () => {
-    expect(studyEnabledModesFromJson(null)).toEqual(['normal', 'practice', 'conceal', 'gamebook']);
+    expect(studyEnabledModesFromJson(null)).toEqual(['normal', 'gamebook']);
     expect(studyEnabledModesFromJson('["gamebook","conceal"]')).toEqual(['normal', 'conceal', 'gamebook']);
     expect(studyEnabledModesFromJson('["training"]')).toEqual(['normal']);
-    expect(studyEnabledModesFromJson('not-json')).toEqual(['normal', 'practice', 'conceal', 'gamebook']);
+    expect(studyEnabledModesFromJson('not-json')).toEqual(['normal', 'gamebook']);
 });
 
 test('computer practice is exposed with its completed-mode help text', () => {
     document.body.innerHTML = '<div id="root"></div>';
-    patch(document.getElementById('root')!, studyChapterModeField('practice'));
+    patch(
+        document.getElementById('root')!,
+        studyChapterModeField('practice', ['normal', 'practice', 'conceal', 'gamebook']),
+    );
 
     const mode = document.querySelector<HTMLSelectElement>('select[name="mode"]')!;
     expect(mode.value).toBe('practice');

@@ -21,12 +21,13 @@ type StudyChapterModeOption = {
 };
 
 const STUDY_CHAPTER_MODE_ORDER: readonly StudyChapterMode[] = ['normal', 'practice', 'conceal', 'gamebook'];
+const STUDY_DEFAULT_ENABLED_MODES: readonly StudyChapterMode[] = ['normal', 'gamebook'];
 
 export function studyEnabledModesFromJson(raw: string | null): StudyChapterMode[] {
-    if (!raw) return [...STUDY_CHAPTER_MODE_ORDER];
+    if (!raw) return [...STUDY_DEFAULT_ENABLED_MODES];
     try {
         const parsed: unknown = JSON.parse(raw);
-        if (!Array.isArray(parsed)) return [...STUDY_CHAPTER_MODE_ORDER];
+        if (!Array.isArray(parsed)) return [...STUDY_DEFAULT_ENABLED_MODES];
         const enabled = new Set<StudyChapterMode>(['normal']);
         for (const value of parsed) {
             if (typeof value === 'string' && STUDY_CHAPTER_MODE_ORDER.includes(value as StudyChapterMode))
@@ -34,12 +35,12 @@ export function studyEnabledModesFromJson(raw: string | null): StudyChapterMode[
         }
         return STUDY_CHAPTER_MODE_ORDER.filter(mode => enabled.has(mode));
     } catch {
-        return [...STUDY_CHAPTER_MODE_ORDER];
+        return [...STUDY_DEFAULT_ENABLED_MODES];
     }
 }
 
 function studyChapterModeOptions(
-    enabledModes: readonly StudyChapterMode[] = STUDY_CHAPTER_MODE_ORDER,
+    enabledModes: readonly StudyChapterMode[] = STUDY_DEFAULT_ENABLED_MODES,
 ): StudyChapterModeOption[] {
     const enabled = new Set(enabledModes);
     enabled.add('normal');
@@ -79,7 +80,7 @@ export function studyChapterModeLabel(mode: StudyChapterMode): string {
 
 function studyChapterModeHelp(
     mode: StudyChapterMode,
-    enabledModes: readonly StudyChapterMode[] = STUDY_CHAPTER_MODE_ORDER,
+    enabledModes: readonly StudyChapterMode[] = STUDY_DEFAULT_ENABLED_MODES,
 ): string {
     const current = studyChapterModeOptions(enabledModes).find(option => option.value === mode);
     if (!current) return '';
@@ -93,7 +94,7 @@ function studyChapterModeHelp(
 
 export function studyChapterModeField(
     mode: StudyChapterMode = 'normal',
-    enabledModes: readonly StudyChapterMode[] = STUDY_CHAPTER_MODE_ORDER,
+    enabledModes: readonly StudyChapterMode[] = STUDY_DEFAULT_ENABLED_MODES,
 ): VNode {
     const options = studyChapterModeOptions(enabledModes);
     const available = options.filter(option => option.available || option.value === mode);

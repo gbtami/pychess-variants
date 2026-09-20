@@ -331,8 +331,10 @@ callers at one million nodes, 10 seconds movetime, depth 30, MultiPV 3 and a 12-
 wall-clock search limit by default.
 
 `STUDY_ENABLED_CHAPTER_MODES` is a comma-separated deployment gate over
-`normal,practice,conceal,gamebook`. It defaults to all four and always keeps `normal`
-as an escape hatch. The switch gates **new entry** into a mode: existing chapters in a
+`normal,practice,conceal,gamebook`. It defaults to `normal,gamebook` so Normal analysis
+and Interactive lesson can be rolled out first, and it always keeps `normal` as an
+escape hatch. Set the variable explicitly to enable Practice with computer and/or Hide
+next moves later. The switch gates **new entry** into a mode: existing chapters in a
 disabled mode remain readable/playable and preserving edits remain schema-aware, while
 new chapters, imports, copies/clones and mode transitions cannot introduce disabled
 mode data. For rollback, keep this schema-preserving server deployed and narrow the

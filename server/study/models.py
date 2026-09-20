@@ -30,6 +30,7 @@ _MEMBER_ROLES = frozenset(("read", "write"))
 _SOURCE_KINDS = frozenset(("scratch", "game", "study", "import"))
 _ORIENTATIONS = frozenset(("white", "black"))
 STUDY_CHAPTER_MODES: tuple[StudyChapterMode, ...] = ("normal", "practice", "conceal", "gamebook")
+STUDY_DEFAULT_ENABLED_CHAPTER_MODES: tuple[StudyChapterMode, ...] = ("normal", "gamebook")
 _CHAPTER_MODES = frozenset(STUDY_CHAPTER_MODES)
 
 
@@ -42,7 +43,7 @@ def _configured_study_chapter_modes(raw: str | None) -> tuple[StudyChapterMode, 
     """
 
     if raw is None or not raw.strip():
-        return STUDY_CHAPTER_MODES
+        return STUDY_DEFAULT_ENABLED_CHAPTER_MODES
 
     requested = {part.strip() for part in raw.split(",") if part.strip()}
     unknown = requested - _CHAPTER_MODES
