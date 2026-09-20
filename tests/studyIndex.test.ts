@@ -3,6 +3,7 @@ import { initStudyIndex } from '../client/study/studyIndex';
 
 describe('Study index creation dialogs', () => {
     beforeEach(() => {
+        document.body.removeAttribute('data-study-enabled-modes');
         document.body.innerHTML = `
             <button type="button" data-study-new-open>New study</button>
             <dialog id="study-new-dialog">
@@ -55,6 +56,14 @@ describe('Study index creation dialogs', () => {
         expect(document.activeElement).toBe(openButton);
     });
 
+    test('deployment mode bootstrap limits first-chapter entry options', () => {
+        document.body.setAttribute('data-study-enabled-modes', '["normal","conceal"]');
+        initStudyIndex();
+
+        const mode = document.querySelector<HTMLSelectElement>('#study-first-chapter-form select[name="mode"]')!;
+        expect([...mode.options].map(option => option.value)).toEqual(['normal', 'conceal']);
+    });
+
     test('Start opens the first-chapter dialog without submitting the Study settings form', () => {
         const dialog = document.querySelector<HTMLDialogElement>('#study-new-dialog')!;
         const chapterDialog = document.querySelector<HTMLDialogElement>('#study-first-chapter-dialog')!;
@@ -75,6 +84,10 @@ describe('Study index creation dialogs', () => {
         expect(document.activeElement).toBe(chapterName);
         expect(chapterName.value).toBe('Chapter 1');
         expect(chapterForm.querySelector<HTMLSelectElement>('select[name="variant"]')?.value).toBe('chess');
+        expect(chapterForm.querySelector<HTMLSelectElement>('select[name="orientation"]')?.value).toBe('white');
+        const mode = chapterForm.querySelector<HTMLSelectElement>('select[name="mode"]')!;
+        expect(mode.value).toBe('normal');
+        expect([...mode.options].map(option => option.value)).toEqual(['normal', 'gamebook']);
         expect(chapterForm.querySelector<HTMLInputElement>('input[name="name"]')?.value).toBe("owner's Study");
         expect(chapterForm.querySelector<HTMLInputElement>('input[name="visibility"]')?.value).toBe('private');
         expect(chapterForm.querySelector<HTMLInputElement>('input[name="computer"]')?.value).toBe('everyone');

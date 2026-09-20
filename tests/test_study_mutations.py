@@ -275,6 +275,48 @@ class StudyMutationServiceTestCase(unittest.IsolatedAsyncioTestCase):
             [node.id for node in chapter.root.children_of(None)], [d4.node.id, e4.node.id]
         )
 
+    async def test_conceal_boundary_clamps_when_mainline_is_promoted_or_deleted(self) -> None:
+        e4 = await self._add("e2e4", 0)
+        assert e4.path is not None
+        e5 = await self._add("e7e5", 1, e4.path)
+        c5 = await self._add("c7c5", 2, e4.path)
+        assert e5.path is not None and c5.path is not None
+        await self.db.study_chapter.update_one(
+            {"_id": CHAPTER_ID},
+            {"$set": {"mode": "conceal", "concealPly": 2}},
+        )
+
+        promoted = await self.service.promote_variation(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            path=c5.path,
+            to_mainline=False,
+            expected_revision=3,
+        )
+        self.assertEqual(promoted.status, "ok")
+        self.assertTrue(promoted.conceal_changed)
+        self.assertEqual(promoted.conceal_ply, 1)
+        self.assertEqual((await self._chapter()).conceal_ply, 1)
+
+        # Reveal the new second ply, then remove it. Deletion keeps only the still
+        # unchanged first mainline move revealed.
+        await self.db.study_chapter.update_one(
+            {"_id": CHAPTER_ID},
+            {"$set": {"concealPly": 2}},
+        )
+        deleted = await self.service.delete_node(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            path=c5.path,
+            expected_revision=4,
+        )
+        self.assertEqual(deleted.status, "ok")
+        self.assertTrue(deleted.conceal_changed)
+        self.assertEqual(deleted.conceal_ply, 1)
+        self.assertEqual((await self._chapter()).conceal_ply, 1)
+
     async def test_force_variation_keeps_only_one_marker(self) -> None:
         e4 = await self._add("e2e4", 0)
         d4 = await self._add("d2d4", 1)
@@ -394,46 +436,60 @@ class StudyMutationServiceTestCase(unittest.IsolatedAsyncioTestCase):
             expected_revision=0,
         )
         self.assertEqual(shaped.revision, 1)
+        lesson = await self.service.set_gamebook(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            path="",
+            field_name="hint",
+            value="Lesson hint",
+            expected_revision=1,
+        )
+        self.assertEqual(lesson.revision, 2)
 
         cleared = await self.service.clear_annotations(
             study_id=STUDY_ID,
             chapter_id=CHAPTER_ID,
             username=OWNER,
             path="",
-            expected_revision=1,
+            expected_revision=2,
         )
         self.assertTrue(cleared.changed)
-        self.assertEqual(cleared.revision, 2)
+        self.assertEqual(cleared.revision, 3)
         assert cleared.annotations is not None
+        assert cleared.gamebook is not None
         self.assertTrue(cleared.annotations.empty)
+        self.assertTrue(cleared.gamebook.empty)
 
         description = await self.service.set_description(
             study_id=STUDY_ID,
             chapter_id=CHAPTER_ID,
             username=OWNER,
             description="  Line one\r\nLine two  ",
-            expected_revision=2,
+            expected_revision=3,
         )
         self.assertEqual(description.description, "Line one\nLine two")
-        self.assertEqual(description.revision, 3)
+        self.assertEqual(description.revision, 4)
 
         tags = await self.service.set_tags(
             study_id=STUDY_ID,
             chapter_id=CHAPTER_ID,
             username=OWNER,
             tags={"Site": " PyChess ", "Event": " Study test ", "Empty": "  "},
-            expected_revision=3,
+            expected_revision=4,
         )
         self.assertEqual(tags.tags, {"Event": "Study test", "Site": "PyChess"})
-        self.assertEqual(tags.revision, 4)
+        self.assertEqual(tags.revision, 5)
 
         chapter = await self._chapter()
         self.assertTrue(chapter.root.root_annotations.empty)
+        self.assertTrue(chapter.root.root_gamebook.empty)
         self.assertEqual(chapter.description, "Line one\nLine two")
         self.assertEqual(chapter.tags, {"Event": "Study test", "Site": "PyChess"})
         raw = await self.db.study_chapter.find_one({"_id": CHAPTER_ID})
         assert raw is not None
         self.assertNotIn("a", raw["root"]["_"])
+        self.assertNotIn("g", raw["root"]["_"])
         raw_study = await self.db.study.find_one({"_id": STUDY_ID})
         assert raw_study is not None
         self.assertIn("line", raw_study["searchTokens"])
@@ -489,6 +545,118 @@ class StudyMutationServiceTestCase(unittest.IsolatedAsyncioTestCase):
         chapter = await self._chapter()
         self.assertEqual(chapter.revision, 1)
         self.assertEqual(chapter.root.count(), 1)
+
+    async def test_gamebook_field_mutations_merge_without_overwriting_other_metadata(self) -> None:
+        added = await self._add("e2e4", 0)
+        assert added.path is not None
+
+        hint = await self.service.set_gamebook(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            path="",
+            field_name="hint",
+            value="  Look at the center  ",
+            expected_revision=1,
+        )
+        self.assertEqual(hint.status, "ok")
+        self.assertTrue(hint.changed)
+        self.assertEqual(hint.gamebook.to_payload(), {"hint": "Look at the center"})  # type: ignore[union-attr]
+
+        # Room sequencing may accept a contributor operation created against the
+        # previous revision. Field-specific writes must merge instead of replacing
+        # the whole gamebook object.
+        rebasing = StudyMutationService(cast(Any, self.app_state), allow_stale_revision=True)
+        deviation = await rebasing.set_gamebook(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            path="",
+            field_name="deviation",
+            value="Try the mainline move",
+            expected_revision=1,
+        )
+        self.assertEqual(deviation.status, "ok")
+        chapter = await self._chapter()
+        self.assertEqual(
+            chapter.root.root_gamebook.to_payload(),
+            {"hint": "Look at the center", "deviation": "Try the mainline move"},
+        )
+
+        node_hint = await rebasing.set_gamebook(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            path=added.path,
+            field_name="hint",
+            value="Develop quickly",
+            expected_revision=chapter.revision,
+        )
+        self.assertEqual(node_hint.status, "ok")
+        chapter = await self._chapter()
+        self.assertEqual(chapter.root.node_at_path(added.path).gamebook.hint, "Develop quickly")  # type: ignore[union-attr]
+
+        # An unrelated tree edit must retain root and node lesson metadata.
+        unrelated = await rebasing.add_node(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            parent_path="",
+            move="d2d4",
+            expected_revision=chapter.revision,
+        )
+        self.assertEqual(unrelated.status, "ok")
+        chapter = await self._chapter()
+        self.assertEqual(chapter.root.root_gamebook.hint, "Look at the center")
+        self.assertEqual(chapter.root.node_at_path(added.path).gamebook.hint, "Develop quickly")  # type: ignore[union-attr]
+
+    async def test_gamebook_deleted_target_requests_reload_and_empty_text_removes_field(
+        self,
+    ) -> None:
+        added = await self._add("e2e4", 0)
+        assert added.path is not None
+        set_hint = await self.service.set_gamebook(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            path=added.path,
+            field_name="hint",
+            value="Hint",
+            expected_revision=1,
+        )
+        self.assertEqual(set_hint.revision, 2)
+        cleared = await self.service.set_gamebook(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            path=added.path,
+            field_name="hint",
+            value="   ",
+            expected_revision=2,
+        )
+        self.assertEqual(cleared.gamebook.to_payload(), {})  # type: ignore[union-attr]
+        chapter = await self._chapter()
+        self.assertTrue(chapter.root.node_at_path(added.path).gamebook.empty)  # type: ignore[union-attr]
+
+        deleted = await self.service.delete_node(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            path=added.path,
+            expected_revision=3,
+        )
+        self.assertEqual(deleted.revision, 4)
+        missing = await self.service.set_gamebook(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            path=added.path,
+            field_name="deviation",
+            value="Too late",
+            expected_revision=4,
+        )
+        self.assertEqual(missing.status, "reload")
+        self.assertEqual(missing.reason, "invalid_path")
 
     def test_catalogued_snapshot_restores_current_active_definition(self) -> None:
         snapshot = "[studycustom:chess]\ncustomPiece1 = a:KN\n"

@@ -9,7 +9,7 @@ from collections.abc import Collection, Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Literal, cast
 
-from study.annotations import StudyAnnotations
+from study.annotations import StudyAnnotations, canonical_comment_text
 from study.constants import STUDY_MAX_NODES_PER_CHAPTER
 
 StudyTurnColor = Literal["white", "black"]
@@ -19,6 +19,68 @@ STUDY_TREE_ROOT_KEY = "_"
 _NODE_ID_ALPHABET = string.ascii_letters + string.digits
 _NODE_ID_RE = re.compile(rf"^[A-Za-z0-9]{{{STUDY_NODE_ID_LENGTH}}}$")
 _TURN_COLORS = frozenset(("white", "black"))
+
+
+@dataclass(frozen=True, slots=True)
+class StudyGamebook:
+    """Optional lesson-only text attached to one Study position.
+
+    Hint belongs to the position before the learner move; deviation belongs to the
+    expected child and is used as fallback feedback for a wrong move. Keep this data
+    separate from ordinary comments so authoring/playback can distinguish semantics
+    without rewriting annotation authors or ordering.
+    """
+
+    hint: str | None = None
+    deviation: str | None = None
+
+    def __post_init__(self) -> None:
+        hint = None if self.hint is None else canonical_comment_text(self.hint) or None
+        deviation = (
+            None if self.deviation is None else canonical_comment_text(self.deviation) or None
+        )
+        object.__setattr__(self, "hint", hint)
+        object.__setattr__(self, "deviation", deviation)
+
+    @property
+    def empty(self) -> bool:
+        return self.hint is None and self.deviation is None
+
+    def to_document(self) -> dict[str, object]:
+        doc: dict[str, object] = {}
+        if self.hint is not None:
+            doc["h"] = self.hint
+        if self.deviation is not None:
+            doc["d"] = self.deviation
+        return doc
+
+    @classmethod
+    def from_document(cls, doc: Mapping[str, object]) -> StudyGamebook:
+        unexpected = set(doc) - {"h", "d"}
+        if unexpected:
+            raise ValueError("Study gamebook record contains unsupported fields")
+        return cls(
+            hint=_optional_str(doc, "h", context="Study gamebook"),
+            deviation=_optional_str(doc, "d", context="Study gamebook"),
+        )
+
+    def to_payload(self) -> dict[str, object]:
+        payload: dict[str, object] = {}
+        if self.hint is not None:
+            payload["hint"] = self.hint
+        if self.deviation is not None:
+            payload["deviation"] = self.deviation
+        return payload
+
+    @classmethod
+    def from_payload(cls, payload: Mapping[str, object]) -> StudyGamebook:
+        unexpected = set(payload) - {"hint", "deviation"}
+        if unexpected:
+            raise ValueError("Study gamebook payload contains unsupported fields")
+        return cls(
+            hint=_optional_str(payload, "hint", context="Study gamebook payload"),
+            deviation=_optional_str(payload, "deviation", context="Study gamebook payload"),
+        )
 
 
 def is_study_node_id(value: object) -> bool:
@@ -102,6 +164,7 @@ class StudyTreeNode:
     san_san: str | None = None
     force_variation: bool = False
     annotations: StudyAnnotations = field(default_factory=StudyAnnotations)
+    gamebook: StudyGamebook = field(default_factory=StudyGamebook)
     eval_score: Mapping[str, int] | None = None
     clocks: tuple[int | float, int | float] | None = None
 
@@ -150,6 +213,8 @@ class StudyTreeNode:
             doc["v"] = True
         if not self.annotations.empty:
             doc["a"] = self.annotations.to_document()
+        if not self.gamebook.empty:
+            doc["g"] = self.gamebook.to_document()
         if self.eval_score is not None:
             doc["e"] = dict(self.eval_score)
         if self.clocks is not None:
@@ -184,6 +249,9 @@ class StudyTreeNode:
         raw_annotations = doc.get("a", {})
         if not isinstance(raw_annotations, Mapping):
             raise TypeError(f"{context} field 'a' must be a mapping")
+        raw_gamebook = doc.get("g", {})
+        if not isinstance(raw_gamebook, Mapping):
+            raise TypeError(f"{context} field 'g' must be a mapping")
 
         return cls(
             id=node_id,
@@ -197,6 +265,7 @@ class StudyTreeNode:
             san_san=_optional_str(doc, "ss", context=context),
             force_variation=raw_force,
             annotations=StudyAnnotations.from_document(raw_annotations),
+            gamebook=StudyGamebook.from_document(raw_gamebook),
             eval_score=_canonical_eval_score(doc.get("e"), context=f"{context} field 'e'"),
             clocks=_canonical_clocks(doc.get("k"), context=f"{context} field 'k'"),
         )
@@ -219,6 +288,8 @@ class StudyTreeNode:
             payload["forceVariation"] = True
         if not self.annotations.empty:
             payload["annotations"] = self.annotations.to_payload()
+        if not self.gamebook.empty:
+            payload["gamebook"] = self.gamebook.to_payload()
         if self.eval_score is not None:
             payload["eval"] = dict(self.eval_score)
         if self.clocks is not None:
@@ -243,6 +314,9 @@ class StudyTreeNode:
         raw_annotations = payload.get("annotations", {})
         if not isinstance(raw_annotations, Mapping):
             raise TypeError(f"{context} field 'annotations' must be a mapping")
+        raw_gamebook = payload.get("gamebook", {})
+        if not isinstance(raw_gamebook, Mapping):
+            raise TypeError(f"{context} field 'gamebook' must be a mapping")
 
         return cls(
             id=_required_str(payload, "id", context=context),
@@ -256,6 +330,7 @@ class StudyTreeNode:
             san_san=_optional_str(payload, "sanSAN", context=context),
             force_variation=raw_force,
             annotations=StudyAnnotations.from_payload(raw_annotations),
+            gamebook=StudyGamebook.from_payload(raw_gamebook),
             eval_score=_canonical_eval_score(
                 payload.get("eval"), context=f"{context} field 'eval'"
             ),
@@ -274,6 +349,7 @@ class StudyTree:
 
     nodes: Mapping[str, StudyTreeNode] = field(default_factory=dict)
     root_annotations: StudyAnnotations = field(default_factory=StudyAnnotations)
+    root_gamebook: StudyGamebook = field(default_factory=StudyGamebook)
     root_clocks: tuple[int | float, int | float] | None = None
 
     def __post_init__(self) -> None:
@@ -324,6 +400,12 @@ class StudyTree:
 
     def count(self) -> int:
         return len(self.nodes)
+
+    @property
+    def has_gamebook(self) -> bool:
+        return not self.root_gamebook.empty or any(
+            not node.gamebook.empty for node in self.nodes.values()
+        )
 
     def children_of(self, parent_id: str | None) -> tuple[StudyTreeNode, ...]:
         return tuple(
@@ -386,6 +468,8 @@ class StudyTree:
         root_record: dict[str, object] = {}
         if not self.root_annotations.empty:
             root_record["a"] = self.root_annotations.to_document()
+        if not self.root_gamebook.empty:
+            root_record["g"] = self.root_gamebook.to_document()
         if self.root_clocks is not None:
             root_record["k"] = list(self.root_clocks)
         doc: dict[str, object] = {STUDY_TREE_ROOT_KEY: root_record}
@@ -401,7 +485,10 @@ class StudyTree:
         raw_root_annotations = raw_root.get("a", {})
         if not isinstance(raw_root_annotations, Mapping):
             raise TypeError("Study tree root annotation record must be a mapping")
-        unexpected_root_keys = set(raw_root) - {"a", "k"}
+        raw_root_gamebook = raw_root.get("g", {})
+        if not isinstance(raw_root_gamebook, Mapping):
+            raise TypeError("Study tree root gamebook record must be a mapping")
+        unexpected_root_keys = set(raw_root) - {"a", "g", "k"}
         if unexpected_root_keys:
             raise ValueError("Study tree root record contains unsupported fields")
         root_annotations = StudyAnnotations.from_document(raw_root_annotations)
@@ -416,7 +503,12 @@ class StudyTree:
             if not isinstance(raw_node, Mapping):
                 raise TypeError(f"Study node {node_id!r} must be a mapping")
             nodes[node_id] = StudyTreeNode.from_document(node_id, raw_node)
-        return cls(nodes, root_annotations=root_annotations, root_clocks=root_clocks)
+        return cls(
+            nodes,
+            root_annotations=root_annotations,
+            root_gamebook=StudyGamebook.from_document(raw_root_gamebook),
+            root_clocks=root_clocks,
+        )
 
     def to_payload(self) -> dict[str, object]:
         # Payload order is deterministic and topological, but consumers must use the
@@ -436,6 +528,8 @@ class StudyTree:
         payload: dict[str, object] = {"nodes": [node.to_payload() for node in ordered]}
         if not self.root_annotations.empty:
             payload["rootAnnotations"] = self.root_annotations.to_payload()
+        if not self.root_gamebook.empty:
+            payload["rootGamebook"] = self.root_gamebook.to_payload()
         if self.root_clocks is not None:
             payload["rootClocks"] = list(self.root_clocks)
         return payload
@@ -444,11 +538,14 @@ class StudyTree:
     def from_payload(cls, payload: Mapping[str, object]) -> StudyTree:
         raw_nodes = payload.get("nodes")
         raw_root_annotations = payload.get("rootAnnotations", {})
+        raw_root_gamebook = payload.get("rootGamebook", {})
         raw_root_clocks = _canonical_clocks(
             payload.get("rootClocks"), context="Study tree payload field 'rootClocks'"
         )
         if not isinstance(raw_root_annotations, Mapping):
             raise TypeError("Study tree payload field 'rootAnnotations' must be a mapping")
+        if not isinstance(raw_root_gamebook, Mapping):
+            raise TypeError("Study tree payload field 'rootGamebook' must be a mapping")
         if not isinstance(raw_nodes, Sequence) or isinstance(raw_nodes, (str, bytes)):
             raise TypeError("Study tree payload field 'nodes' must be a list")
         nodes: dict[str, StudyTreeNode] = {}
@@ -462,5 +559,6 @@ class StudyTree:
         return cls(
             nodes,
             root_annotations=StudyAnnotations.from_payload(raw_root_annotations),
+            root_gamebook=StudyGamebook.from_payload(raw_root_gamebook),
             root_clocks=raw_root_clocks,
         )

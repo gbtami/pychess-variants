@@ -31,6 +31,10 @@ from study.constants import (
 from study.models import (
     Study,
     StudyChapter,
+    StudyChapterMode,
+    study_chapter_mode,
+    study_chapter_mode_enabled,
+    study_enabled_chapter_modes,
     study_topic,
     study_user_selection,
     study_visibility,
@@ -149,6 +153,7 @@ def _study_context(context: ViewContext) -> None:
     context["view_css"] = "study.css"
     context["title"] = "Studies • PyChess"
     context["study_preview_nb_members"] = STUDY_PREVIEW_NB_MEMBERS
+    context["study_enabled_modes"] = json_dumps(list(study_enabled_chapter_modes()))
 
 
 def _positive_page(value: str | None) -> int:
@@ -364,6 +369,31 @@ def _form_bool(value: object) -> bool:
     return str(value or "").lower() in {"1", "true", "yes", "on"}
 
 
+def _chapter_teaching_from_input(
+    data: Mapping[str, object],
+    *,
+    default_mode: StudyChapterMode = "normal",
+) -> tuple[StudyChapterMode, int | None]:
+    try:
+        mode = study_chapter_mode(data.get("mode", default_mode))
+    except ValueError as exc:
+        raise StudyChapterBuildError("Invalid Study chapter mode") from exc
+    if not study_chapter_mode_enabled(mode):
+        raise StudyChapterBuildError("Study chapter mode is not enabled")
+    raw_conceal_ply = data.get("concealPly")
+    if raw_conceal_ply is None or raw_conceal_ply == "":
+        return mode, None
+    if isinstance(raw_conceal_ply, bool):
+        raise StudyChapterBuildError("Invalid Study conceal boundary")
+    try:
+        conceal_ply = int(raw_conceal_ply)
+    except (TypeError, ValueError) as exc:
+        raise StudyChapterBuildError("Invalid Study conceal boundary") from exc
+    if str(conceal_ply) != str(raw_conceal_ply).strip():
+        raise StudyChapterBuildError("Invalid Study conceal boundary")
+    return mode, conceal_ply
+
+
 async def _draft_from_form(
     builder: StudyChapterBuilder,
     data: Any,
@@ -371,10 +401,16 @@ async def _draft_from_form(
     fallback_variant: str = "chess",
     fallback_chess960: bool = False,
 ) -> StudyChapterDraft:
+    mode, conceal_ply = _chapter_teaching_from_input(data)
     game_id = str(data.get("gameId") or "").strip()
     chapter_name = str(data.get("chapterName") or "").strip() or None
     if game_id:
-        return await builder.from_game(game_id, name=chapter_name)
+        return await builder.from_game(
+            game_id,
+            name=chapter_name,
+            mode=mode,
+            conceal_ply=conceal_ply,
+        )
 
     variant = str(data.get("variant") or fallback_variant).strip() or fallback_variant
     fen = str(data.get("fen") or "").strip() or None
@@ -388,6 +424,8 @@ async def _draft_from_form(
         chess960=chess960,
         name=chapter_name,
         orientation=orientation,
+        mode=mode,
+        conceal_ply=conceal_ply,
     )
 
 
@@ -427,6 +465,7 @@ def _chapter_export_payload(chapter: StudyChapter) -> dict[str, object]:
         "chess960": chapter.chess960,
         "initialFen": chapter.initial_fen,
         "orientation": chapter.orientation,
+        "mode": chapter.mode,
         "description": "" if chapter.description == "-" else chapter.description,
         "tags": dict(chapter.tags),
         "createdAt": chapter.created_at.isoformat(),
@@ -434,6 +473,8 @@ def _chapter_export_payload(chapter: StudyChapter) -> dict[str, object]:
     }
     if chapter.variant_ini is not None:
         payload["variantIni"] = chapter.variant_ini
+    if chapter.conceal_ply is not None:
+        payload["concealPly"] = chapter.conceal_ply
     return payload
 
 
@@ -848,6 +889,7 @@ async def _populate_study_chapter_context(
             "canClone": (not user.anon and not user.bot and can_clone_study(study, user.username)),
             "canShare": can_share_study(study, viewer),
             "canEmbed": can_embed_study(study),
+            "enabledModes": list(study_enabled_chapter_modes()),
             "features": {
                 "computer": can_use_study_computer(study, viewer),
                 "explorer": can_use_study_explorer(study, viewer),
@@ -877,6 +919,8 @@ async def _populate_study_chapter_context(
                 "snapshotToken": chapter_snapshot_token(chapter),
                 "order": chapter.order,
                 "orientation": chapter.orientation,
+                "mode": chapter.mode,
+                **({"concealPly": chapter.conceal_ply} if chapter.conceal_ply is not None else {}),
                 "variant": chapter.variant,
                 "chess960": chapter.chess960,
                 "initialFen": chapter.initial_fen,
@@ -1028,6 +1072,7 @@ async def study_from_analysis(request: web.Request) -> web.StreamResponse:
         raw_tags = data.get("tags")
         if raw_tags is not None and not isinstance(raw_tags, Mapping):
             raise StudyChapterBuildError("Analysis PGN tags are invalid")
+        mode, conceal_ply = _chapter_teaching_from_input(data)
         draft = await StudyChapterBuilder(app_state, user.username).from_analysis(
             variant=str(data.get("variant") or "chess"),
             initial_fen=str(data.get("initialFen") or ""),
@@ -1038,6 +1083,8 @@ async def study_from_analysis(request: web.Request) -> web.StreamResponse:
             orientation="black"
             if str(data.get("orientation") or "").lower() == "black"
             else "white",
+            mode=mode,
+            conceal_ply=conceal_ply,
             tags=cast(Mapping[str, str], raw_tags) if raw_tags is not None else None,
         )
         destination_id = str(data.get("studyId") or "").strip()
@@ -1163,6 +1210,13 @@ async def study_import_pgn(request: web.Request) -> web.StreamResponse:
             )
 
         try:
+            mode, conceal_ply = _chapter_teaching_from_input(raw)
+        except StudyChapterBuildError as exc:
+            return web.json_response(
+                {"ok": False, "error": f"Imported chapter {index}: {exc}"}, status=400
+            )
+
+        try:
             drafts.append(
                 await builder.from_import(
                     variant=raw_variant,
@@ -1172,6 +1226,8 @@ async def study_import_pgn(request: web.Request) -> web.StreamResponse:
                     variant_ini=cast(str | None, raw_snapshot),
                     name=raw_name.strip() or None if raw_name is not None else None,
                     orientation=cast(StudyOrientation, raw_orientation),
+                    mode=mode,
+                    conceal_ply=conceal_ply,
                     description=raw_description,
                     tags=cast(Mapping[str, str], raw_tags),
                 )
@@ -1483,11 +1539,31 @@ async def study_chapter_edit(request: web.Request) -> web.StreamResponse:
                 name=data.get("name"),
                 orientation=data.get("orientation", chapter.orientation),
                 pinned_description=data.get("description") if "description" in data else None,
+                mode=data.get("mode") if "mode" in data else None,
+                conceal_ply=data.get("concealPly") if "concealPly" in data else None,
             )
             updated_chapter = await load_chapter(app_state, study.id, chapter.id)
             if updated_chapter is None:
                 raise StudyStorageError("Study chapter disappeared while editing metadata")
-            if updated_chapter.revision != chapter.revision:
+            teaching_changed = (
+                updated_chapter.mode != chapter.mode
+                or updated_chapter.conceal_ply != chapter.conceal_ply
+            )
+            orientation_changed = updated_chapter.orientation != chapter.orientation
+            reload_required = teaching_changed or orientation_changed
+            metadata_changed = (
+                updated_chapter.name != chapter.name
+                or orientation_changed
+                or updated_chapter.description != chapter.description
+                or teaching_changed
+            )
+            if teaching_changed:
+                await broadcast_study_reload(app_state, study.id, reason="chapter_mode_changed")
+            elif orientation_changed:
+                await broadcast_study_reload(
+                    app_state, study.id, reason="chapter_orientation_changed"
+                )
+            elif updated_chapter.revision != chapter.revision:
                 await broadcast_study_chapter_content(
                     app_state,
                     study.id,
@@ -1495,7 +1571,8 @@ async def study_chapter_edit(request: web.Request) -> web.StreamResponse:
                     updated_chapter.revision,
                     updated_chapter.description,
                 )
-            await broadcast_study_chapters(app_state, study.id)
+            if metadata_changed and not reload_required:
+                await broadcast_study_chapters(app_state, study.id)
     except StudyStorageError as exc:
         raise web.HTTPBadRequest(text=str(exc)) from exc
     raise web.HTTPFound(f"/study/{study.id}/{chapter.id}")

@@ -1,0 +1,561 @@
+/* Interactive lesson playback, adapted from lila's gamebook play view. */
+.study-app.study-gamebook-playback .analysis-tools > :not(.study-gamebook-play),
+.study-app.study-gamebook-playback :is(#gauge, #btn-controls-top, #move-controls, .analysis-settings),
+.study-app.study-gamebook-playback .study-underboard :is(.study-tool-tabs, .study-tool-panel) {
+    display: none !important;
+}
+
+.study-app.study-gamebook-playback .analysis-tools {
+    justify-content: flex-end;
+    background: transparent;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: visible;
+}
+
+.study-gamebook-play {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+    flex-direction: column;
+    justify-content: flex-end;
+    overflow-wrap: anywhere;
+}
+
+.study-gamebook-play__status {
+    display: flex;
+    min-height: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.study-gamebook-play__comment {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+    position: relative;
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    background: var(--bg-color0);
+    box-shadow: var(--base-shadow);
+    font-size: 1.05em;
+}
+
+.study-gamebook-play__comment::after {
+    position: absolute;
+    right: 20%;
+    bottom: -8px;
+    width: 15px;
+    height: 15px;
+    border-right: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-color0);
+    content: '';
+    transform: skew(45deg) rotate(45deg);
+    z-index: 1;
+}
+
+.study-gamebook-play__comment.hinted::after {
+    background: var(--link-color-blue);
+}
+
+.study-gamebook-play__comment-content {
+    z-index: 2;
+    min-height: 2.5em;
+    padding: 1em;
+    overflow-y: auto;
+}
+
+.study-gamebook-play__hint {
+    z-index: 2;
+    margin: 0;
+    padding: .8em 1em;
+    border: 0;
+    border-radius: 0 0 3px 3px;
+    background: transparent;
+    color: var(--link-color);
+    font: inherit;
+    font-size: 1rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+.study-gamebook-play__hint.shown {
+    background: var(--link-color-blue);
+    color: #fff;
+    font-size: .9em;
+}
+
+.study-gamebook-play__floor {
+    display: flex;
+    flex: 0 0 8rem;
+    margin-top: 1em;
+}
+
+/* Lila mascot asset: public/images/mascot/octopus.svg (AGPL-3.0). */
+.study-gamebook-play__mascot {
+    flex: 0 0 8rem;
+    width: 8rem;
+    height: 8rem;
+    margin-inline-start: 1em;
+}
+
+.study-gamebook-play__feedback {
+    display: flex;
+    flex: 1 1 100%;
+    height: 8rem;
+    min-width: 0;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 3px;
+    font: inherit;
+    text-align: center;
+}
+
+.study-gamebook-play__feedback.info {
+    background: transparent;
+    font-size: 1.55em;
+}
+
+.study-gamebook-play__feedback.good.init {
+    visibility: hidden;
+}
+
+.study-gamebook-play__feedback.play {
+    justify-content: flex-start;
+    font-size: .8em;
+    text-align: left;
+}
+
+.study-gamebook-play__mark {
+    flex: 0 0 64px;
+    width: 64px;
+    height: 64px;
+    margin-inline: 10px;
+}
+
+.study-gamebook-play__mark piece {
+    position: static;
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+.study-gamebook-play__instruction {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+}
+
+.study-gamebook-play__instruction > strong {
+    font-size: 1.5em;
+}
+
+.study-gamebook-play__instruction > * {
+    display: block;
+}
+
+.study-gamebook-play__message {
+    margin-top: .12rem;
+    font-style: normal;
+    opacity: .82;
+}
+
+button.study-gamebook-play__feedback.act {
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+    cursor: pointer;
+    opacity: .88;
+    transition: opacity 150ms ease;
+}
+
+button.study-gamebook-play__feedback.act:hover,
+button.study-gamebook-play__feedback.act:focus-visible {
+    opacity: 1;
+}
+
+.study-gamebook-play__feedback.bad {
+    background: var(--bad);
+    font-size: 1.8em;
+}
+
+.study-gamebook-play__feedback.good {
+    background: var(--good);
+    font-size: 1.8em;
+}
+
+.study-gamebook-play__feedback-icon {
+    margin-bottom: .3rem;
+    font-size: 1.45em;
+    line-height: 1;
+}
+
+.study-gamebook-play__feedback kbd {
+    margin-top: .5rem;
+    font-size: 1rem;
+}
+
+.study-gamebook-play__feedback.end {
+    flex-flow: row;
+    align-items: stretch;
+    overflow: hidden;
+}
+
+.study-gamebook-play__end-action {
+    display: flex;
+    flex: 1 1 100%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: .5em;
+    border: 0;
+    background: color-mix(in srgb, var(--link-color-blue) 80%, var(--bg-color0));
+    color: #fff;
+    font: inherit;
+    font-size: 1.05em;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: filter 150ms ease;
+}
+
+.study-gamebook-play__end-action > [class^='icon-'],
+.study-gamebook-play__end-action > [class*=' icon-'] {
+    margin: .5em 0;
+    font-size: 2.2em;
+    line-height: 1;
+}
+
+.study-gamebook-play__feedback-text {
+    display: inline-flex;
+    align-items: center;
+    gap: .35em;
+}
+
+.study-gamebook-play-button.solution > [class^='icon-'],
+.study-gamebook-play-button.solution > [class*=' icon-'] {
+    margin-inline-end: .3em;
+}
+
+.study-gamebook-play__end-action:not(:first-child) {
+    border-left: 1px solid rgb(255 255 255 / 30%);
+}
+
+.study-gamebook-play__end-action:hover,
+.study-gamebook-play__end-action:focus-visible {
+    filter: brightness(1.08);
+}
+
+.study-gamebook-play-underboard {
+    display: none;
+}
+
+.study-app.study-gamebook-playback .study-gamebook-play-underboard {
+    display: block;
+}
+
+.study-gamebook-play-buttons {
+    display: flex;
+    min-height: 2.35rem;
+    align-items: stretch;
+    justify-content: flex-end;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.study-gamebook-play-buttons[hidden] {
+    display: none;
+}
+
+.study-gamebook-play-button {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    padding: .35rem .65rem;
+    border: 0;
+    border-radius: 3px 3px 0 0;
+    background: transparent;
+    color: var(--font-color);
+    font: inherit;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.study-gamebook-play-button + .study-gamebook-play-button {
+    margin-inline-start: .4rem;
+}
+
+.study-gamebook-play-button:hover,
+.study-gamebook-play-button:focus-visible,
+.study-gamebook-play-button.active {
+    background: var(--bg-color2);
+    color: var(--link-color-blue);
+}
+
+.study-gamebook-play-underboard > .study-underboard__title {
+    margin: 0;
+    padding: .45rem .6rem;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-color0);
+    box-shadow: var(--base-shadow);
+    font-size: 1rem;
+}
+
+@media (max-width: 799px) {
+    .study-gamebook-play {
+        min-height: 14rem;
+        padding: .75rem;
+    }
+}
+
+@media (max-width: 520px) {
+    .study-gamebook-play__mascot {
+        flex-basis: 6rem;
+        width: 6rem;
+        height: 6rem;
+        margin-inline-start: .5rem;
+    }
+
+    .study-gamebook-play__floor,
+    .study-gamebook-play__feedback {
+        min-height: 6rem;
+        height: 6rem;
+    }
+
+    .study-gamebook-play__mark {
+        flex-basis: 48px;
+        width: 48px;
+        height: 48px;
+    }
+
+    .study-gamebook-play-button {
+        padding-inline: .45rem;
+        font-size: .9em;
+    }
+}
+
+/* Lichess-style Study "Practice with computer" layout: keep the normal
+   analysis shell visible and add a compact training box below the move tree. */
+.study-app.study-practice-playback .analysis-tools > :is(.pvbox, #misc-info, .feedback) {
+    display: none !important;
+}
+
+.study-practice {
+    flex: 0 0 auto;
+    min-width: 0;
+    min-height: 135px;
+    border-top: 1px solid var(--border-color);
+    background: var(--bg-color0);
+    user-select: none;
+}
+
+.study-practice__status {
+    min-width: 0;
+}
+
+.study-practice__title {
+    min-height: 30px;
+    padding: 0 7px;
+    background: color-mix(in srgb, var(--bg-color2) 72%, var(--bg-color0));
+    font-size: .9rem;
+    line-height: 30px;
+}
+
+.study-practice.inaccuracy .study-practice__title {
+    background: var(--gold);
+    color: #fff;
+}
+
+.study-practice.mistake .study-practice__title,
+.study-practice.blunder .study-practice__title {
+    background: var(--bad);
+    color: #fff;
+}
+
+.study-practice__feedback {
+    display: flex;
+    min-height: 82px;
+    align-items: center;
+}
+
+.study-practice__player {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    align-items: center;
+    padding: .45rem .8rem;
+}
+
+.study-practice__mark {
+    display: flex;
+    flex: 0 0 64px;
+    width: 64px;
+    height: 64px;
+    margin-inline-end: 10px;
+    align-items: center;
+    justify-content: center;
+    font-size: 64px;
+    line-height: 64px;
+    text-align: center;
+}
+
+.study-practice__mark piece {
+    position: static;
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+.study-practice__mark.off {
+    opacity: .65;
+}
+
+.study-practice__instruction {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    flex-direction: column;
+}
+
+.study-practice__instruction > strong {
+    font-size: 1.2em;
+    font-weight: normal;
+}
+
+.study-practice__detail {
+    display: grid;
+    gap: .12rem;
+    margin-top: .15rem;
+    opacity: .82;
+    overflow-wrap: anywhere;
+}
+
+.study-practice__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem 1rem;
+    margin-top: .3rem;
+    line-height: 1.6;
+}
+
+.study-practice__action,
+.study-practice__best:is(button) {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--link-color);
+    font: inherit;
+    cursor: pointer;
+}
+
+.study-practice__action:hover,
+.study-practice__action:focus-visible,
+.study-practice__best:is(button):hover,
+.study-practice__best:is(button):focus-visible {
+    color: var(--link-color-blue);
+}
+
+.study-practice__action.primary {
+    font-weight: bold;
+}
+
+.study-practice__comment {
+    display: flex;
+    min-width: 0;
+    min-height: 30px;
+    align-items: stretch;
+    background: var(--bg-color2);
+    line-height: 30px;
+    white-space: nowrap;
+}
+
+.study-practice__wait {
+    padding-inline-start: 15px;
+    opacity: .78;
+}
+
+.study-practice__verdict {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: stretch;
+    margin-inline-end: 10px;
+    font-weight: bold;
+}
+
+.study-practice__verdict::before {
+    width: 30px;
+    margin-inline-end: 7px;
+    color: #fff;
+    text-align: center;
+    font-size: 1.4em;
+    font-weight: normal;
+}
+
+.study-practice__comment.good .study-practice__verdict {
+    color: var(--good);
+}
+
+.study-practice__comment.good .study-practice__verdict::before {
+    background: var(--good);
+    content: '✓';
+    font-size: 1.7em;
+}
+
+.study-practice__comment.inaccuracy .study-practice__verdict {
+    color: var(--gold);
+}
+
+.study-practice__comment.inaccuracy .study-practice__verdict::before {
+    background: var(--gold);
+    content: '?';
+}
+
+.study-practice__comment.mistake .study-practice__verdict,
+.study-practice__comment.blunder .study-practice__verdict {
+    color: var(--bad);
+}
+
+.study-practice__comment.mistake .study-practice__verdict::before,
+.study-practice__comment.blunder .study-practice__verdict::before {
+    background: var(--bad);
+    content: '✗';
+}
+
+.study-practice__comment.unknown .study-practice__verdict::before {
+    background: color-mix(in srgb, var(--font-color) 35%, transparent);
+    content: '•';
+}
+
+.study-practice__best {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 520px) {
+    .study-practice__mark {
+        flex-basis: 48px;
+        width: 48px;
+        height: 48px;
+        font-size: 48px;
+        line-height: 48px;
+    }
+
+    .study-practice__player {
+        padding: .4rem .6rem;
+    }
+
+    .study-practice__comment {
+        white-space: normal;
+    }
+}

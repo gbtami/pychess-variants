@@ -12,7 +12,7 @@ from mongomock_motor import AsyncMongoMockClient
 from study.analysis import merge_study_server_analysis, request_study_server_analysis
 from study.models import Study, StudyChapter
 from study.mutations import StudyMutationService
-from study.tree import StudyTree
+from study.tree import StudyGamebook, StudyTree
 
 STUDY_ID = "study001"
 CHAPTER_ID = "chapter1"
@@ -212,13 +212,15 @@ class StudyServerAnalysisTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(started.status, "started")
         work_id, work = next(iter(self.app_state.fishnet_works.items()))
 
+        # Fairyfishnet analyses from the final position backwards. Progress is
+        # cumulative: completed rows form a stable suffix and pending rows stay null.
         partial = [
-            {"score": {"cp": 18}, "depth": 14},
-            {"score": {"cp": -12}, "depth": 14},
             None,
             None,
             None,
             None,
+            {"score": {"cp": 35}, "depth": 18},
+            {"score": {"cp": 15}, "depth": 18},
         ]
         await merge_study_server_analysis(cast(Any, self.app_state), work_id, work, partial)
 
@@ -226,8 +228,10 @@ class StudyServerAnalysisTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertIsNotNone(chapter.server_eval)
         assert chapter.server_eval is not None
         self.assertFalse(chapter.server_eval.done)
-        self.assertEqual(chapter.server_eval.analysis[0], {"s": {"cp": 18}, "d": 14})
-        self.assertEqual(chapter.server_eval.analysis[1], {"s": {"cp": -12}, "d": 14})
+        self.assertIsNone(chapter.server_eval.analysis[0])
+        self.assertIsNone(chapter.server_eval.analysis[3])
+        self.assertEqual(chapter.server_eval.analysis[4], {"s": {"cp": 35}, "d": 18})
+        self.assertEqual(chapter.server_eval.analysis[5], {"s": {"cp": 15}, "d": 18})
         self.assertIn(work_id, self.app_state.fishnet_works)
 
         complete = [
@@ -282,6 +286,29 @@ class StudyServerAnalysisTestCase(unittest.IsolatedAsyncioTestCase):
             expected_revision=c5.revision,
         )
         self.assertEqual(human_comment.status, "ok")
+        assert human_comment.revision is not None
+
+        root_hint = await self.service.set_gamebook(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            path="",
+            field_name="hint",
+            value="Keep the root hint",
+            expected_revision=human_comment.revision,
+        )
+        self.assertEqual(root_hint.status, "ok")
+        assert root_hint.revision is not None
+        node_deviation = await self.service.set_gamebook(
+            study_id=STUDY_ID,
+            chapter_id=CHAPTER_ID,
+            username=OWNER,
+            path=e5_path,
+            field_name="deviation",
+            value="Keep the node fallback",
+            expected_revision=root_hint.revision,
+        )
+        self.assertEqual(node_deviation.status, "ok")
 
         started = await self._request()
         self.assertEqual(started.status, "started")
@@ -307,6 +334,8 @@ class StudyServerAnalysisTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(mainline[2].eval_score, {"cp": -380})
 
         e5 = mainline[1]
+        self.assertEqual(chapter.root.root_gamebook, StudyGamebook(hint="Keep the root hint"))
+        self.assertEqual(e5.gamebook, StudyGamebook(deviation="Keep the node fallback"))
         self.assertIn(4, e5.annotations.nags)
         self.assertTrue(any(comment.text == "Human note" for comment in e5.annotations.comments))
         generated = [comment for comment in e5.annotations.comments if comment.author == "PyChess"]
