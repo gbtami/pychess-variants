@@ -379,6 +379,35 @@ class RequestLobbyTestCase(AioHTTPTestCase):
         self.assertIn(f'data-variant="{name}"', text)
         self.assertRegex(text, r'data-catalogued-variants="[^"]*editor-catalogued-test[^"]*"')
 
+    async def test_rules_page_preloads_accessible_unlisted_catalogued_variant(self):
+        name = "rules-unlisted-catalogued-test"
+        app_state = get_app_state(self.app)
+        app_state.catalogued_variants[name] = {
+            "name": name,
+            "displayName": "Rules unlisted catalogued test",
+            "ini": f"[{name}:shogi]\nmaxFile = 10\nmaxRank = 10\n",
+            "baseVariant": "shogi",
+            "startFen": "10/10/10/10/10/10/10/10/10/10 w - - 0 1",
+            "width": 10,
+            "height": 10,
+            "pieces": ["k", "p"],
+            "kingRoles": ["k"],
+            "promotionType": "shogi",
+            "promotionRoles": ["p"],
+            "promotionOrder": ["+"],
+            "author": "author",
+            "visibility": "unlisted",
+            "enabled": True,
+            "archived": False,
+        }
+        register_catalogued_server_variant(name, "Rules unlisted catalogued test")
+        self.addCleanup(unregister_catalogued_server_variant, name)
+
+        resp = await self.client.request("GET", f"/variants/{name}")
+        self.assertEqual(resp.status, 200)
+        text = await resp.text()
+        self.assertRegex(text, rf'data-catalogued-variants="[^"]*{name}[^"]*"')
+
     async def test_games_unknown_variant_is_normalized(self):
         resp = await self.client.request("GET", "/games/notavariant")
         self.assertEqual(resp.status, 200)

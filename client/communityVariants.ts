@@ -7,6 +7,12 @@ import { VARIANTS } from './variants';
 
 type ChessgroundFactory = typeof Chessground;
 type MiniBoardResizeBinder = typeof bindMiniBoardResize;
+type CataloguedStartBoardMount = {
+    chessground: ReturnType<ChessgroundFactory>;
+    unbindResize: ReturnType<MiniBoardResizeBinder>;
+};
+
+const cataloguedStartBoardMounts = new WeakMap<HTMLElement, CataloguedStartBoardMount>();
 
 function mountCataloguedStartBoard(
     preview: HTMLElement,
@@ -23,7 +29,7 @@ function mountCataloguedStartBoard(
     if (variant.ui.boardMark) preview.classList.add(variant.ui.boardMark);
     if (variant.pocket) {
         preview.classList.add('with-pockets');
-        preview.style.setProperty('--catalogued-board-files', String(variant.board.dimensions.width));
+        preview.style.setProperty('--catalogued-board-ranks', String(variant.board.dimensions.height));
     }
 
     const boardWrap = document.createElement('div');
@@ -47,16 +53,27 @@ function mountCataloguedStartBoard(
             pocketRoles: variant.pocket?.roles,
             animation: { enabled: false },
         });
-        bindResize(chessground);
+        const unbindResize = bindResize(chessground);
+        cataloguedStartBoardMounts.set(preview, { chessground, unbindResize });
         preview.dataset.chessgroundMounted = 'true';
     } catch (error) {
         boardWrap.remove();
         preview.classList.remove(variant.boardFamily, variant.pieceFamily);
         preview.classList.remove('with-pockets');
-        preview.style.removeProperty('--catalogued-board-files');
+        preview.style.removeProperty('--catalogued-board-ranks');
         if (variant.ui.boardMark) preview.classList.remove(variant.ui.boardMark);
         console.warn(`Failed to render the ${variant.name} starting position`, error);
     }
+}
+
+function disposeCataloguedStartBoard(preview: HTMLElement): void {
+    const mount = cataloguedStartBoardMounts.get(preview);
+    if (!mount) return;
+
+    mount.unbindResize();
+    mount.chessground.destroy();
+    cataloguedStartBoardMounts.delete(preview);
+    delete preview.dataset.chessgroundMounted;
 }
 
 export function mountCataloguedStartBoards(
@@ -128,7 +145,9 @@ async function favoriteVariant(button: HTMLButtonElement): Promise<void> {
 
         const page = document.querySelector<HTMLElement>('.community-variants-page');
         if (page?.dataset.favoritesOnly === '1' && !savedFavorite) {
-            button.closest('.community-variant-card')?.remove();
+            const card = button.closest('.community-variant-card');
+            card?.querySelectorAll<HTMLElement>('.catalogued-start-board-preview').forEach(disposeCataloguedStartBoard);
+            card?.remove();
         }
     } catch (err) {
         const message = err instanceof Error ? err.message : _('Failed to update favorite');

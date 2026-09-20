@@ -1,13 +1,16 @@
+import json
 import os
 
 import aiohttp_jinja2
 from aiohttp import web
 from catalogued_variants import (
+    catalogued_variant_client_doc_for_name,
     catalogued_variant_rule_context,
     community_catalogued_variants_page,
     find_catalogued_variant_doc,
 )
 from fairy.cwda import cwda_betza_diagram_groups
+from json_utils import json_dumps
 from pychess_global_app_state_utils import get_app_state
 from typing_defs import ViewContext
 from variants import VARIANT_ICONS, VARIANTS
@@ -76,6 +79,15 @@ async def variants(request: web.Request) -> ViewContext:
         return context
 
     if catalogued_doc is not None:
+        catalogued_client_doc = catalogued_variant_client_doc_for_name(
+            app_state, variant, user.username if not user.anon else None
+        )
+        if catalogued_client_doc is not None:
+            catalogued_variants = json.loads(str(context.get("catalogued_variants") or "[]"))
+            if not any(item.get("name") == variant for item in catalogued_variants):
+                catalogued_variants.append(catalogued_client_doc)
+                context["catalogued_variants"] = json_dumps(catalogued_variants)
+
         context["catalogued_variant"] = catalogued_variant_rule_context(catalogued_doc)
         context["title"] = f"{context['catalogued_variant']['displayName']} • PyChess"
         return context

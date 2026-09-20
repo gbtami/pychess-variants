@@ -628,7 +628,7 @@ div.guide .catalogued-variant-rules h1 {
 }
 
 .catalogued-start-board-preview.with-pockets {
-    padding-block: calc(100% / var(--catalogued-board-files, 8));
+    padding-block: calc(var(--cg-height) / var(--catalogued-board-ranks, 8));
 }
 
 .catalogued-start-board-figure figcaption {
