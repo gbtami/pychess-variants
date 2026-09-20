@@ -414,7 +414,7 @@ describe('Study analysis websocket synchronization', () => {
         });
 
         extension.onInitialBoardLoaded();
-        for (const path of [...ctrl.analysisTree.byPath.keys()]) if (path) ctrl.analysisTree.byPath.delete(path);
+        for (const path of ctrl.analysisTree.byPath.keys()) if (path) ctrl.analysisTree.byPath.delete(path);
         ctrl.analysisTree.root.children = [];
         ctrl.steps.splice(1);
 

@@ -6,6 +6,7 @@ import time
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
+from unittest.mock import patch
 
 import pytest
 import test_logger
@@ -15,6 +16,7 @@ from playwright.async_api import Error as PlaywrightError
 from playwright.async_api import async_playwright, expect
 from pychess_global_app_state_utils import get_app_state
 from study.builder import StudyChapterBuilder
+from study.models import STUDY_CHAPTER_MODES
 from study.storage import (
     add_chapter_from_draft,
     create_study_from_draft,
@@ -31,6 +33,11 @@ test_logger.init_test_logger()
 
 @pytest.mark.asyncio
 class TestStudyGUI:
+    @pytest.fixture(autouse=True)
+    def _enable_all_study_modes(self):
+        with patch("study.models.STUDY_ENABLED_CHAPTER_MODES", STUDY_CHAPTER_MODES):
+            yield
+
     async def _launch_browser(self, playwright):
         try:
             return await playwright.chromium.launch(headless=True)

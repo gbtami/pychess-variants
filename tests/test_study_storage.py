@@ -11,7 +11,7 @@ from fairy import FairyBoard
 from mongomock_motor import AsyncMongoMockClient
 from study.annotations import StudyAnnotations, StudyComment
 from study.builder import StudyChapterDraft
-from study.models import StudySource
+from study.models import STUDY_CHAPTER_MODES, StudySource
 from study.storage import (
     StudyStorageError,
     add_chapter,
@@ -53,6 +53,11 @@ from study.tree import StudyGamebook, StudyTree, StudyTreeNode
 
 class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self) -> None:
+        self.mode_gate = patch(
+            "study.models.STUDY_ENABLED_CHAPTER_MODES", STUDY_CHAPTER_MODES
+        )
+        self.mode_gate.start()
+        self.addCleanup(self.mode_gate.stop)
         self.client = AsyncMongoMockClient(tz_aware=True)
         self.db = self.client["pychess-test"]
         self.app_state = SimpleNamespace(db=self.db)

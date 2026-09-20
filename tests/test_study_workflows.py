@@ -16,6 +16,7 @@ from mongomock_motor import AsyncMongoMockClient
 from pychess_global_app_state_utils import get_app_state
 from study import storage as study_storage
 from study.builder import StudyChapterBuilder
+from study.models import STUDY_CHAPTER_MODES
 from study.sequencer import sequence_study
 from study.storage import (
     add_chapter,
@@ -28,6 +29,12 @@ from views import study as study_views
 from server import make_app
 
 test_logger.init_test_logger()
+
+
+@pytest.fixture(autouse=True)
+def _enable_all_study_modes():
+    with patch("study.models.STUDY_ENABLED_CHAPTER_MODES", STUDY_CHAPTER_MODES):
+        yield
 
 
 async def _insert_user(app_state, username: str) -> None:
