@@ -53,9 +53,7 @@ from study.tree import StudyGamebook, StudyTree, StudyTreeNode
 
 class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self) -> None:
-        self.mode_gate = patch(
-            "study.models.STUDY_ENABLED_CHAPTER_MODES", STUDY_CHAPTER_MODES
-        )
+        self.mode_gate = patch("study.models.STUDY_ENABLED_CHAPTER_MODES", STUDY_CHAPTER_MODES)
         self.mode_gate.start()
         self.addCleanup(self.mode_gate.stop)
         self.client = AsyncMongoMockClient(tz_aware=True)
