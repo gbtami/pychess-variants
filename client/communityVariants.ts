@@ -1,40 +1,106 @@
 import { _ } from './i18n';
-import { BOARD_FAMILIES, VARIANTS } from './variants';
+import { Chessground } from 'chessgroundx/chessground';
 
-function applyCataloguedBoardPreviews(): void {
-    document.querySelectorAll<SVGSVGElement>('.catalogued-start-board-svg').forEach(svg => {
-        if (svg.querySelector('.catalogued-start-board-theme')) return;
+import { boardSettings } from './boardSettings';
+import { bindMiniBoardResize } from './miniBoard';
+import { VARIANTS } from './variants';
 
-        const variantName = svg.closest<HTMLElement>('[data-variant]')?.dataset.variant;
-        const variant = variantName ? VARIANTS[variantName] : undefined;
-        if (!variant || variant.hasBoard || variant.boardFamily.startsWith('catalogued')) return;
+type ChessgroundFactory = typeof Chessground;
+type MiniBoardResizeBinder = typeof bindMiniBoardResize;
+type CataloguedStartBoardMount = {
+    chessground: ReturnType<ChessgroundFactory>;
+    unbindResize: ReturnType<MiniBoardResizeBinder>;
+};
 
-        const boardImage = BOARD_FAMILIES[variant.boardFamily]?.boardCSS[0];
-        if (!boardImage) return;
+const cataloguedStartBoardMounts = new WeakMap<HTMLElement, CataloguedStartBoardMount>();
 
-        const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-        image.classList.add('catalogued-start-board-theme');
-        image.setAttribute('x', '0');
-        image.setAttribute('y', '0');
-        image.setAttribute('width', svg.getAttribute('width') ?? '100%');
-        image.setAttribute('height', svg.getAttribute('height') ?? '100%');
-        image.setAttribute('preserveAspectRatio', 'none');
-        image.setAttribute('href', `/static/images/board/${boardImage}`);
+function mountCataloguedStartBoard(
+    preview: HTMLElement,
+    createChessground: ChessgroundFactory,
+    bindResize: MiniBoardResizeBinder,
+): void {
+    if (preview.dataset.chessgroundMounted === 'true') return;
 
-        const squares = svg.querySelectorAll('.catalogued-start-board-square');
-        image.addEventListener(
-            'error',
-            () => {
-                image.remove();
-                squares.forEach(square => square.removeAttribute('visibility'));
-            },
-            { once: true },
-        );
-        const title = svg.querySelector(':scope > title');
-        if (title?.nextSibling) svg.insertBefore(image, title.nextSibling);
-        else svg.prepend(image);
-        squares.forEach(square => square.setAttribute('visibility', 'hidden'));
-    });
+    const variantName = preview.dataset.variant;
+    const variant = variantName ? VARIANTS[variantName] : undefined;
+    if (!variant?.startFen) return;
+
+    preview.classList.add(variant.boardFamily, variant.pieceFamily);
+    if (variant.ui.boardMark) preview.classList.add(variant.ui.boardMark);
+    if (variant.pocket) {
+        preview.classList.add('with-pockets');
+        preview.style.setProperty('--catalogued-board-ranks', String(variant.board.dimensions.height));
+    }
+
+    const boardWrap = document.createElement('div');
+    boardWrap.classList.add('cg-wrap', variant.board.cg, 'mini');
+    if (preview instanceof HTMLAnchorElement) boardWrap.setAttribute('aria-hidden', 'true');
+    else {
+        boardWrap.setAttribute('role', 'img');
+        boardWrap.setAttribute('aria-label', preview.dataset.label || _('Default starting position'));
+    }
+    preview.appendChild(boardWrap);
+
+    try {
+        boardSettings.updateScopedBoardStyle(variant, boardWrap);
+        boardSettings.updateScopedPieceStyle(variant, boardWrap, variant.startFen);
+        const chessground = createChessground(boardWrap, {
+            fen: variant.startFen,
+            dimensions: variant.board.dimensions,
+            coordinates: false,
+            viewOnly: true,
+            addDimensionsCssVarsTo: preview,
+            pocketRoles: variant.pocket?.roles,
+            animation: { enabled: false },
+        });
+        const unbindResize = bindResize(chessground);
+        cataloguedStartBoardMounts.set(preview, { chessground, unbindResize });
+        preview.dataset.chessgroundMounted = 'true';
+    } catch (error) {
+        boardWrap.remove();
+        preview.classList.remove(variant.boardFamily, variant.pieceFamily);
+        preview.classList.remove('with-pockets');
+        preview.style.removeProperty('--catalogued-board-ranks');
+        if (variant.ui.boardMark) preview.classList.remove(variant.ui.boardMark);
+        console.warn(`Failed to render the ${variant.name} starting position`, error);
+    }
+}
+
+function disposeCataloguedStartBoard(preview: HTMLElement): void {
+    const mount = cataloguedStartBoardMounts.get(preview);
+    if (!mount) return;
+
+    mount.unbindResize();
+    mount.chessground.destroy();
+    cataloguedStartBoardMounts.delete(preview);
+    delete preview.dataset.chessgroundMounted;
+}
+
+export function mountCataloguedStartBoards(
+    assetURL = '',
+    createChessground: ChessgroundFactory = Chessground,
+    bindResize: MiniBoardResizeBinder = bindMiniBoardResize,
+): void {
+    boardSettings.assetURL = assetURL;
+    const previews = document.querySelectorAll<HTMLElement>('.catalogued-start-board-preview');
+    if (!('IntersectionObserver' in window)) {
+        previews.forEach(preview => mountCataloguedStartBoard(preview, createChessground, bindResize));
+        return;
+    }
+
+    const observer = new IntersectionObserver(
+        entries => {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) return;
+                const preview = entry.target;
+                if (!(preview instanceof HTMLElement)) return;
+                observer.unobserve(preview);
+                mountCataloguedStartBoard(preview, createChessground, bindResize);
+            });
+        },
+        { rootMargin: '256px 0px' },
+    );
+    previews.forEach(preview => observer.observe(preview));
 }
 
 function setFavoriteButton(button: HTMLButtonElement, favorite: boolean): void {
@@ -79,7 +145,9 @@ async function favoriteVariant(button: HTMLButtonElement): Promise<void> {
 
         const page = document.querySelector<HTMLElement>('.community-variants-page');
         if (page?.dataset.favoritesOnly === '1' && !savedFavorite) {
-            button.closest('.community-variant-card')?.remove();
+            const card = button.closest('.community-variant-card');
+            card?.querySelectorAll<HTMLElement>('.catalogued-start-board-preview').forEach(disposeCataloguedStartBoard);
+            card?.remove();
         }
     } catch (err) {
         const message = err instanceof Error ? err.message : _('Failed to update favorite');
@@ -91,8 +159,8 @@ async function favoriteVariant(button: HTMLButtonElement): Promise<void> {
     }
 }
 
-export function initCommunityVariantFavorites(): void {
-    applyCataloguedBoardPreviews();
+export function initCommunityVariantFavorites(assetURL = ''): void {
+    mountCataloguedStartBoards(assetURL);
     const page = document.querySelector('.community-variants-page');
     if (!page) return;
 

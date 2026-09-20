@@ -8,11 +8,14 @@
     {% for section in catalogued_variant.ruleSummary.sections %}
     <section class="catalogued-rule-section{% if section.kind %} catalogued-rule-section--{{ section.kind }}{% endif %}">
         <h3>{{ section.title }}</h3>
-        {% if section.kind == "boardSetup" and catalogued_variant.startBoardPreview %}
+        {% if section.kind == "boardSetup" and catalogued_variant.startFen %}
         <figure class="catalogued-start-board-figure">
-            <div class="catalogued-start-board-preview" data-variant="{{ catalogued_variant.name }}">
-                {{ catalogued_variant.startBoardPreview.svg | safe }}
-            </div>
+            <div
+                class="catalogued-start-board-preview"
+                data-variant="{{ catalogued_variant.name }}"
+                data-label="{% trans %}Default starting position{% endtrans %}"
+                style="--catalogued-board-ratio: {{ catalogued_variant.width }} / {{ catalogued_variant.height }}"
+            ></div>
             <figcaption>{% trans %}Default starting position{% endtrans %}</figcaption>
         </figure>
         {% endif %}
