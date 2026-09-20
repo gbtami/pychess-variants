@@ -22,7 +22,6 @@ from catalogued_betza import (
     _cached_catalogued_betza_diagrams,
     _cached_piece_diagram_definitions,
 )
-from catalogued_board import _cached_start_board_svg
 from catalogued_rules import _cached_catalogued_rule_summary
 from clock import Clock
 from const import STARTED, reserved
@@ -118,7 +117,6 @@ CACHE_FUNCTIONS = (
     ("catalogued_betza_svg", _cached_betza_svg),
     ("catalogued_betza_definitions", _cached_piece_diagram_definitions),
     ("catalogued_betza_diagrams", _cached_catalogued_betza_diagrams),
-    ("catalogued_start_board_svg", _cached_start_board_svg),
     ("catalogued_rule_summary", _cached_catalogued_rule_summary),
     ("jieqi_square_to_index", square_to_index),
     ("jieqi_index_to_square", index_to_square),

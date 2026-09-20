@@ -412,7 +412,7 @@ function start() {
     });
 
     maybeShowGameCategoryIntro();
-    initCommunityVariantFavorites();
+    initCommunityVariantFavorites(model.assetURL);
     initVariantAuthors();
     initStudyIndex();
 
