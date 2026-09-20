@@ -449,7 +449,7 @@ describe('Study analysis websocket synchronization', () => {
             }),
         ).toBe(true);
         expect(ctrl.analysisTree.root.children.map((node: any) => node.id)).toEqual(['LocalTry01']);
-        expect(ctrl.steps[1].ceval).toBeUndefined();
+        expect(ctrl.analysisTree.root.children[0].step.ceval).toBeUndefined();
         expect(changed).toHaveBeenCalledWith(expect.objectContaining({ done: true }));
 
         const remoteNode: StudyTreeNodeDto = {

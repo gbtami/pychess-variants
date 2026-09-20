@@ -8,6 +8,8 @@ import {
     studyEnabledModesFromJson,
 } from '../client/study/studyChapterForm';
 
+const ALL_STUDY_MODES = ['normal', 'practice', 'conceal', 'gamebook'] as const;
+
 function mount(vnode: ReturnType<typeof studyChapterCreateForm> | ReturnType<typeof studyChapterModeField>) {
     document.body.innerHTML = '<div id="root"></div>';
     patch(document.getElementById('root')!, vnode);
@@ -71,7 +73,7 @@ test('computer practice is exposed with its completed-mode help text', () => {
 
 test('analysis mode help follows the newly selected completed mode', () => {
     document.body.innerHTML = '<div id="root"></div>';
-    patch(document.getElementById('root')!, studyChapterModeField('normal'));
+    patch(document.getElementById('root')!, studyChapterModeField('normal', ALL_STUDY_MODES));
 
     const mode = document.querySelector<HTMLSelectElement>('select[name="mode"]')!;
     mode.value = 'conceal';
@@ -89,7 +91,7 @@ test('analysis mode help follows the newly selected completed mode', () => {
 });
 
 test('Hide next moves submits the conceal mode value', () => {
-    mount(studyChapterCreateForm('/study', 'chess', false));
+    mount(studyChapterCreateForm('/study', 'chess', false, { enabledModes: ALL_STUDY_MODES }));
 
     const form = document.querySelector<HTMLFormElement>('form.study-side__new-chapter')!;
     const mode = form.querySelector<HTMLSelectElement>('select[name="mode"]')!;
