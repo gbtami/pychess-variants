@@ -399,6 +399,85 @@ describe('Study analysis websocket synchronization', () => {
         expect(changed).toHaveBeenCalledWith(expect.objectContaining({ done: true }));
     });
 
+    test('keeps authoritative Study updates out of an active disposable practice tree', () => {
+        const ctrl = makeCtrl();
+        ctrl.tree = { loadAnalysisTree: jest.fn((tree: unknown) => (ctrl.analysisTree = tree)) };
+        const reload = jest.fn();
+        const changed = jest.fn();
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            tree: { nodes: [e4Node()] },
+            onServerEvalChanged: changed,
+            onReloadRequired: reload,
+        });
+
+        extension.onInitialBoardLoaded();
+        for (const path of [...ctrl.analysisTree.byPath.keys()]) if (path) ctrl.analysisTree.byPath.delete(path);
+        ctrl.analysisTree.root.children = [];
+        ctrl.steps.splice(1);
+
+        const localAttempt: StudyTreeNodeDto = {
+            ...e4Node(),
+            id: 'LocalTry01',
+            move: 'd2d4',
+            fen: 'd4 b - - 0 1',
+            san: 'd4',
+            sanSAN: 'd4',
+        };
+        const localNode = addStudyNodeToAnalysisTree(ctrl.analysisTree, '', localAttempt)!;
+        ctrl.steps.push(localNode.step);
+        ctrl.analysisPath = localNode.path;
+        extension.setPracticeSession({ destroy: jest.fn() } as any);
+
+        expect(
+            extension.onSocketMessage('study_analysis_progress', {
+                type: 'study_analysis_progress',
+                studyId: 'study001',
+                chapterId: 'chapter1',
+                tree: { nodes: [e4Node()] },
+                serverEval: {
+                    path: 'StudyNode1',
+                    done: true,
+                    requestedAt: '2026-09-20T12:00:00+00:00',
+                    analysis: [
+                        { s: { cp: 12 }, d: 18 },
+                        { s: { cp: 20 }, d: 18 },
+                    ],
+                },
+            }),
+        ).toBe(true);
+        expect(ctrl.analysisTree.root.children.map((node: any) => node.id)).toEqual(['LocalTry01']);
+        expect(ctrl.steps[1].ceval).toBeUndefined();
+        expect(changed).toHaveBeenCalledWith(expect.objectContaining({ done: true }));
+
+        const remoteNode: StudyTreeNodeDto = {
+            ...e4Node(),
+            id: 'StudyNode2',
+            move: 'c2c4',
+            fen: 'c4 b - - 0 1',
+            san: 'c4',
+            sanSAN: 'c4',
+        };
+        expect(
+            extension.onSocketMessage('study_add_node', {
+                type: 'study_add_node',
+                studyId: 'study001',
+                chapterId: 'chapter1',
+                clientOpId: 'RemoteAdd',
+                revision: 1,
+                changed: true,
+                parentPath: '',
+                path: 'StudyNode2',
+                node: remoteNode,
+            }),
+        ).toBe(true);
+        expect(extension.revision).toBe(1);
+        expect(ctrl.analysisTree.root.children.map((node: any) => node.id)).toEqual(['LocalTry01']);
+        expect(reload).not.toHaveBeenCalled();
+    });
+
     test('requests Study server analysis only for a connected writable client', () => {
         const ctrl = makeCtrl();
         const extension = new StudyAnalysisExtension(ctrl, {

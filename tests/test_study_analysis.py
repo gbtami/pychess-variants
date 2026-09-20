@@ -212,13 +212,15 @@ class StudyServerAnalysisTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(started.status, "started")
         work_id, work = next(iter(self.app_state.fishnet_works.items()))
 
+        # Fairyfishnet analyses from the final position backwards. Progress is
+        # cumulative: completed rows form a stable suffix and pending rows stay null.
         partial = [
-            {"score": {"cp": 18}, "depth": 14},
-            {"score": {"cp": -12}, "depth": 14},
             None,
             None,
             None,
             None,
+            {"score": {"cp": 35}, "depth": 18},
+            {"score": {"cp": 15}, "depth": 18},
         ]
         await merge_study_server_analysis(cast(Any, self.app_state), work_id, work, partial)
 
@@ -226,8 +228,10 @@ class StudyServerAnalysisTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertIsNotNone(chapter.server_eval)
         assert chapter.server_eval is not None
         self.assertFalse(chapter.server_eval.done)
-        self.assertEqual(chapter.server_eval.analysis[0], {"s": {"cp": 18}, "d": 14})
-        self.assertEqual(chapter.server_eval.analysis[1], {"s": {"cp": -12}, "d": 14})
+        self.assertIsNone(chapter.server_eval.analysis[0])
+        self.assertIsNone(chapter.server_eval.analysis[3])
+        self.assertEqual(chapter.server_eval.analysis[4], {"s": {"cp": 35}, "d": 18})
+        self.assertEqual(chapter.server_eval.analysis[5], {"s": {"cp": 15}, "d": 18})
         self.assertIn(work_id, self.app_state.fishnet_works)
 
         complete = [

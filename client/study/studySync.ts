@@ -1068,19 +1068,26 @@ export class StudyAnalysisExtension implements AnalysisExtension {
                 this.requestReload('invalid_server_analysis');
                 return true;
             }
-            if (studyTree && this.initialTreeLoaded) {
+            const practiceOwnsTree = Boolean(this.practiceSession);
+            if (studyTree && this.initialTreeLoaded && !practiceOwnsTree) {
                 const tree = this.ctrl.analysisTree;
                 if (!tree || !mergeStudyTreeIntoAnalysisTree(tree, studyTree)) {
                     this.requestReload('invalid_server_analysis_tree');
                     return true;
                 }
                 this.refreshPreferredMainline();
-            } else if (studyTree) {
+            } else if (studyTree && !this.initialTreeLoaded) {
                 this.options.tree = studyTree;
             }
             this.serverEval = serverEval;
-            this.applyServerEval();
-            this.ctrl.refreshPgnView?.();
+            // Lichess practice owns a disposable local tree whose authored Study
+            // continuations are removed before play. Keep authoritative Fishnet
+            // snapshots out of that attempt tree; leaving practice reloads the
+            // chapter and restores the canonical tree and its server analysis.
+            if (!practiceOwnsTree) {
+                this.applyServerEval();
+                this.ctrl.refreshPgnView?.();
+            }
             this.options.onServerEvalChanged?.(serverEval);
             return true;
         }
@@ -1476,6 +1483,31 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     private applyRemoteMutation(type: StudyMutationType, data: Record<string, unknown>): void {
         if (!data.changed || data.revision !== this.currentRevision + 1) {
             this.requestReload('revision_mismatch');
+            return;
+        }
+        if (this.practiceSession) {
+            // Practice follows lichess's disposable-tree model: collaborative Study
+            // edits may advance the authoritative revision, but they must not be
+            // merged into the local game attempt. Writers leave practice through a
+            // full chapter reload, which picks up every skipped canonical mutation.
+            if (type === 'study_set_description') {
+                if (typeof data.description !== 'string') {
+                    this.requestReload('invalid_remote_description');
+                    return;
+                }
+                this.description = data.description;
+                this.notifyAnnotationState();
+            } else if (type === 'study_set_tags') {
+                const tags = asStringRecord(data.tags);
+                if (!tags) {
+                    this.requestReload('invalid_tags_ack');
+                    return;
+                }
+                this.tags = tags;
+                this.notifyAnnotationState();
+            }
+            this.currentRevision = data.revision as number;
+            if (typeof data.concealPly === 'number') this.updateConcealPly(data.concealPly, this.currentRevision);
             return;
         }
         const tree = this.ctrl.analysisTree;
