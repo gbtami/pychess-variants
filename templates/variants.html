@@ -63,7 +63,7 @@
     </p>
     <div class="community-variants-list">
         {% for item in community_variants.variants %}
-        <section class="community-variant-card{% if item.startBoardPreview %} community-variant-card--with-preview{% endif %}{% if item.favorite %} community-variant-card--favorite{% endif %}" data-variant="{{ item.name }}">
+        <section class="community-variant-card{% if item.hasStartBoard %} community-variant-card--with-preview{% endif %}{% if item.favorite %} community-variant-card--favorite{% endif %}" data-variant="{{ item.name }}">
             <div class="community-variant-card-head">
                 <div class="community-variant-card-title">
                     <h2><a{% if item.system %} class="community-variant-fsf-title"{% endif %} href="{{ home }}/variants/{{ item.name }}">{% if item.system %}<img class="community-variant-fsf-icon" src="/static/images/Fairy-Stockfish.webp" width="64" height="64" alt="" aria-hidden="true">{% endif %}{{ item.displayName }}</a></h2>
@@ -116,10 +116,15 @@
                     <a class="button catalogued-action-secondary" href="{{ home }}/variants/{{ item.name }}">{% trans %}Rules{% endtrans %}</a>
                 </p>
             </div>
-            {% if item.startBoardPreview %}
-            <a class="community-variant-card-preview" href="{{ home }}/variants/{{ item.name }}" aria-label="{% trans name=item.displayName %}View {{ name }} rules{% endtrans %}">
-                {{ item.startBoardPreview.svg | safe }}
-            </a>
+            {% if item.hasStartBoard %}
+            <a
+                class="community-variant-card-preview catalogued-start-board-preview"
+                data-variant="{{ item.name }}"
+                data-label="{% trans name=item.displayName %}{{ name }} default starting position{% endtrans %}"
+                style="--catalogued-board-ratio: {{ item.width }} / {{ item.height }}"
+                href="{{ home }}/variants/{{ item.name }}"
+                aria-label="{% trans name=item.displayName %}View {{ name }} rules{% endtrans %}"
+            ></a>
             {% endif %}
         </section>
         {% endfor %}

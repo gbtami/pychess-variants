@@ -17,7 +17,6 @@ from urllib.parse import unquote, urlparse
 import aiohttp_session
 from aiohttp import web
 from catalogued_betza import catalogued_betza_diagrams, catalogued_betza_pieces
-from catalogued_board import catalogued_start_board_preview
 from catalogued_rules import catalogued_random_start, catalogued_rule_summary
 from compress import MAX_COMPRESSED_BOARD_HEIGHT, MAX_COMPRESSED_BOARD_WIDTH
 from const import ANON_PREFIX, STARTED, T_STARTED
@@ -3288,7 +3287,6 @@ def catalogued_variant_rule_context(doc: Mapping[str, Any]) -> dict[str, Any]:
         "visibility": _catalogued_visibility(doc),
         "ruleSummary": catalogued_rule_summary(doc),
         "customPieceDiagrams": catalogued_betza_diagrams(doc),
-        "startBoardPreview": catalogued_start_board_preview(doc),
     }
 
 
@@ -3928,7 +3926,7 @@ async def community_catalogued_variants_page(
                 "favoriteCount": max(0, int(doc.get("favoriteCount") or 0)),
                 "updatedAt": doc.get("updatedAt"),
                 "favorite": name in favorite_names,
-                "startBoardPreview": catalogued_start_board_preview(doc),
+                "hasStartBoard": bool(doc.get("startFen")),
             }
         )
 

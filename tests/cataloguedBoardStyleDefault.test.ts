@@ -1,7 +1,9 @@
-import { afterEach, expect, test } from '@jest/globals';
+import { afterEach, expect, jest, test } from '@jest/globals';
+import type { Api } from 'chessgroundx/api';
+import { Chessground } from 'chessgroundx/chessground';
 
 import { boardSettings } from '../client/boardSettings';
-import { initCommunityVariantFavorites } from '../client/communityVariants';
+import { mountCataloguedStartBoards } from '../client/communityVariants';
 import {
     BOARD_FAMILIES,
     CataloguedVariantClientDocument,
@@ -16,10 +18,12 @@ const variantNames = [
     'testmakrukboardoverride',
     'testboarddimensionfallback',
     'testcustomboardoverride',
+    'testcustomboardpreview',
     'testshogiboardpreview',
     'testyarishogiboardoverride',
     'testclientvariantboarddefault',
 ];
+const originalIntersectionObserver = window.IntersectionObserver;
 
 function register(meta: CataloguedVariantClientDocument) {
     registerCataloguedVariant(meta);
@@ -28,6 +32,7 @@ function register(meta: CataloguedVariantClientDocument) {
 
 afterEach(() => {
     document.body.textContent = '';
+    document.head.querySelectorAll<HTMLElement>('[id*="catalogued-test"]').forEach(element => element.remove());
     variantNames.forEach(name => {
         const variant = VARIANTS[name];
         unregisterCataloguedVariant(name);
@@ -35,6 +40,8 @@ afterEach(() => {
         delete boardSettings.settings[`${name}-board`];
         if (variant?.boardFamily.startsWith('catalogued')) delete localStorage[`${variant.boardFamily}-board`];
     });
+    if (originalIntersectionObserver) window.IntersectionObserver = originalIntersectionObserver;
+    else Reflect.deleteProperty(window, 'IntersectionObserver');
 });
 
 test('catalogued variants inherit a dimension-compatible board family from their base variant', () => {
@@ -154,8 +161,89 @@ test('uploaded custom boards retain priority while preserving the selected fallb
     expect(variant.boardFamily).toBe('makruk8x8');
 });
 
+test('rules and community previews mount read-only Chessgrounds with the detected styles', () => {
+    register({
+        name: 'testshogiboardpreview',
+        displayName: 'Test Shogi Board Preview',
+        ini: '[testshogiboardpreview:shogi]',
+        baseVariant: 'shogi',
+        startFen: '9/9/9/9/9/9/9/9/9 w - - 0 1',
+        width: 9,
+        height: 9,
+        pieces: ['k', 'p'],
+        kingRoles: ['k'],
+        pocketRoles: ['p'],
+        captureToHand: true,
+    });
+    document.body.innerHTML = `
+        <div class="catalogued-start-board-preview" data-variant="testshogiboardpreview"></div>`;
 
-test('rules and community mini-boards use the detected built-in board image', () => {
+    const createChessground = jest.fn(() => ({ state: {} }) as Api) as unknown as typeof Chessground;
+    const bindResize = jest.fn(() => () => undefined);
+
+    mountCataloguedStartBoards('/static', createChessground, bindResize);
+
+    const preview = document.querySelector<HTMLElement>('.catalogued-start-board-preview');
+    const boardWrap = preview?.querySelector<HTMLElement>('.cg-wrap');
+    expect(preview?.dataset.chessgroundMounted).toBe('true');
+    expect(preview?.classList.contains('shogi9x9')).toBe(true);
+    expect(preview?.classList.contains('shogi')).toBe(true);
+    expect(preview?.classList.contains('with-pockets')).toBe(true);
+    expect(preview?.style.getPropertyValue('--catalogued-board-files')).toBe('9');
+    expect(preview?.dataset.boardVariant).toBe('testshogiboardpreview');
+    expect(preview?.dataset.pieceVariant).toBe('testshogiboardpreview');
+    expect(preview?.style.getPropertyValue('--board-image')).toBe('url(/static/images/board/shogi.svg)');
+    expect(boardWrap?.classList.contains('cg-576')).toBe(true);
+    expect(boardWrap?.classList.contains('mini')).toBe(true);
+    expect(createChessground).toHaveBeenCalledWith(
+        boardWrap,
+        expect.objectContaining({
+            fen: '9/9/9/9/9/9/9/9/9 w - - 0 1',
+            dimensions: { width: 9, height: 9 },
+            coordinates: false,
+            viewOnly: true,
+            addDimensionsCssVarsTo: preview,
+            pocketRoles: VARIANTS.testshogiboardpreview.pocket?.roles,
+            animation: { enabled: false },
+        }),
+    );
+    expect(bindResize).toHaveBeenCalledTimes(1);
+});
+
+test('pocket variants render both pocket rows around the starting board', () => {
+    register({
+        name: 'testshogiboardpreview',
+        displayName: 'Test Shogi Pocket Preview',
+        ini: '[testshogiboardpreview:shogi]',
+        baseVariant: 'shogi',
+        startFen: '9/9/9/9/9/9/9/9/9[Pp] w - - 0 1',
+        width: 9,
+        height: 9,
+        pieces: ['k', 'p'],
+        kingRoles: ['k'],
+        pocketRoles: ['p'],
+        captureToHand: true,
+    });
+    document.body.innerHTML = `
+        <div class="catalogued-start-board-preview" data-variant="testshogiboardpreview"></div>`;
+    let chessground: Api | undefined;
+    const createChessground = ((element, config) => {
+        chessground = Chessground(element, config);
+        return chessground;
+    }) as typeof Chessground;
+
+    mountCataloguedStartBoards('/static', createChessground, jest.fn(() => () => undefined));
+
+    expect(document.querySelector('pockettop.pocket.top piece[data-color="black"]')?.getAttribute('data-nb')).toBe(
+        '1',
+    );
+    expect(
+        document.querySelector('pocketbottom.pocket.bottom piece[data-color="white"]')?.getAttribute('data-nb'),
+    ).toBe('1');
+    chessground?.destroy();
+});
+
+test('a catalogue preview is mounted only once', () => {
     register({
         name: 'testshogiboardpreview',
         displayName: 'Test Shogi Board Preview',
@@ -168,17 +256,83 @@ test('rules and community mini-boards use the detected built-in board image', ()
         kingRoles: ['k'],
     });
     document.body.innerHTML = `
-        <div data-variant="testshogiboardpreview">
-            <svg class="catalogued-start-board-svg" width="216" height="216">
-                <title>Default starting position</title>
-                <rect class="catalogued-start-board-square" />
-            </svg>
-        </div>`;
+        <div class="catalogued-start-board-preview" data-variant="testshogiboardpreview"></div>`;
+    const createChessground = jest.fn(() => ({ state: {} }) as Api) as unknown as typeof Chessground;
+    const bindResize = jest.fn(() => () => undefined);
 
-    initCommunityVariantFavorites();
+    mountCataloguedStartBoards('/static', createChessground, bindResize);
+    mountCataloguedStartBoards('/static', createChessground, bindResize);
 
-    const image = document.querySelector<SVGImageElement>('.catalogued-start-board-theme');
-    const square = document.querySelector<SVGRectElement>('.catalogued-start-board-square');
-    expect(image?.getAttribute('href')).toBe('/static/images/board/shogi.svg');
-    expect(square?.getAttribute('visibility')).toBe('hidden');
+    expect(createChessground).toHaveBeenCalledTimes(1);
+    expect(document.querySelectorAll('.cg-wrap')).toHaveLength(1);
+});
+
+test('off-screen catalogue previews wait until they approach the viewport', () => {
+    register({
+        name: 'testshogiboardpreview',
+        displayName: 'Test Shogi Board Preview',
+        ini: '[testshogiboardpreview:shogi]',
+        baseVariant: 'shogi',
+        startFen: '9/9/9/9/9/9/9/9/9 w - - 0 1',
+        width: 9,
+        height: 9,
+        pieces: ['k'],
+        kingRoles: ['k'],
+    });
+    document.body.innerHTML = `
+        <div class="catalogued-start-board-preview" data-variant="testshogiboardpreview"></div>`;
+    const preview = document.querySelector<HTMLElement>('.catalogued-start-board-preview')!;
+    const createChessground = jest.fn(() => ({ state: {} }) as Api) as unknown as typeof Chessground;
+    const bindResize = jest.fn(() => () => undefined);
+    const observe = jest.fn();
+    const unobserve = jest.fn();
+    let callback: IntersectionObserverCallback = () => undefined;
+    window.IntersectionObserver = jest.fn(intersectionCallback => {
+        callback = intersectionCallback;
+        return { observe, unobserve } as unknown as IntersectionObserver;
+    }) as unknown as typeof IntersectionObserver;
+
+    mountCataloguedStartBoards('/static', createChessground, bindResize);
+    expect(observe).toHaveBeenCalledWith(preview);
+    expect(createChessground).not.toHaveBeenCalled();
+
+    callback([{ isIntersecting: true, target: preview } as IntersectionObserverEntry], {} as IntersectionObserver);
+
+    expect(unobserve).toHaveBeenCalledWith(preview);
+    expect(createChessground).toHaveBeenCalledTimes(1);
+});
+
+test('uploaded board and piece CSS are loaded for starting-position previews', () => {
+    register({
+        name: 'testcustomboardpreview',
+        displayName: 'Test Custom Board Preview',
+        ini: '[testcustomboardpreview:chess]',
+        baseVariant: 'chess',
+        startFen: '4k3/8/8/8/8/8/8/4K3 w - - 0 1',
+        width: 8,
+        height: 8,
+        pieces: ['k'],
+        kingRoles: ['k'],
+        hasBoard: true,
+        boardRevision: 'board-r1',
+        hasPieceSet: true,
+        pieceSetRevision: 'piece-r2',
+    });
+    document.body.innerHTML = `
+        <a class="catalogued-start-board-preview" data-variant="testcustomboardpreview"></a>`;
+    const createChessground = jest.fn(() => ({ state: {} }) as Api) as unknown as typeof Chessground;
+    const bindResize = jest.fn(() => () => undefined);
+
+    mountCataloguedStartBoards('/static', createChessground, bindResize);
+
+    const preview = document.querySelector<HTMLElement>('.catalogued-start-board-preview');
+    expect(preview?.classList.contains('piece-style-catalogued-testcustomboardpreview-custom')).toBe(true);
+    expect(preview?.dataset.boardVariant).toBe('testcustomboardpreview');
+    expect(preview?.querySelector('.cg-wrap')?.getAttribute('aria-hidden')).toBe('true');
+    expect(document.getElementById('board-set-catalogued-testcustomboardpreview')?.getAttribute('href')).toBe(
+        '/api/catalogued-variants/testcustomboardpreview/board-css.css?v=board-r1',
+    );
+    expect(
+        document.getElementById('piece-set-catalogued-testcustomboardpreview-custom-piece-r2')?.getAttribute('href'),
+    ).toBe('/api/catalogued-variants/testcustomboardpreview/piece-css.css?v=piece-r2');
 });
