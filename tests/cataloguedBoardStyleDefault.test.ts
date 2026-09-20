@@ -189,7 +189,7 @@ test('rules and community previews mount read-only Chessgrounds with the detecte
     expect(preview?.classList.contains('shogi9x9')).toBe(true);
     expect(preview?.classList.contains('shogi')).toBe(true);
     expect(preview?.classList.contains('with-pockets')).toBe(true);
-    expect(preview?.style.getPropertyValue('--catalogued-board-files')).toBe('9');
+    expect(preview?.style.getPropertyValue('--catalogued-board-ranks')).toBe('9');
     expect(preview?.dataset.boardVariant).toBe('testshogiboardpreview');
     expect(preview?.dataset.pieceVariant).toBe('testshogiboardpreview');
     expect(preview?.style.getPropertyValue('--board-image')).toBe('url(/static/images/board/shogi.svg)');
