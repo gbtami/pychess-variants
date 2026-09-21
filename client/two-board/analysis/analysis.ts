@@ -237,7 +237,16 @@ export function analysisView(model: PyChessModel): VNode[] {
             ...(isAnalysisBoard
                 ? [{ label: _('Variant'), parts: [{ content: [variantSelector(model)] }] }]
                 : [
-                      { label: _('Info'), parts: [{ content: [gameInfoView.placeholder()] }] },
+                      {
+                          label: _('Info'),
+                          /* The spectator list, in the same home the round page gives it and for
+                             the reasons recorded there. This page cannot even receive one — it
+                             opens no websocket at all — so the placeholder is here for parity
+                             rather than for content, and it costs a template nothing now. */
+                          parts: [
+                              { content: [gameInfoView.placeholder(), h('spectators#spectators')] },
+                          ],
+                      },
                       { label: _('Chat'), parts: [{ content: [h('div#roundchat')] }] },
                   ]),
         /* MOVE TIMES IS A GAME'S TAB, not this page's. The blank board has no recorded game
@@ -467,54 +476,46 @@ export function analysisView(model: PyChessModel): VNode[] {
                     gaugeOwn,
                     boardLabel(ownBoard),
                 ]),
-                /* THE PARTNER'S BOARD AND THE TOOLS AS ONE GROUP, which is the round page's
-                   `.bug-right-column`, reused here for the reason that page introduced it:
-                   portrait needs the two as a single block so the tools can sit in the space
-                   the small partner board leaves beside it, instead of taking a full-width row
-                   of their own between the two boards and pushing the player's board off the
-                   screen.
+                /* THE PARTNER'S STACK AND THE TOOLS, siblings of the viewer's stack. They were
+                   wrapped in `div.partner-and-tools` — the round page's element, reused here —
+                   until every mode dissolved it. Landscape always did, with `display: contents`;
+                   portrait was the last mode to keep it as a box, and when it stopped, an element
+                   with no box anywhere was a level of nesting nothing read. Both pages lost it
+                   together, as they gained it together. */
+                // The stack IS the panel — `panelClass` put `.bug-partner-stack` on the wrapper
+                // rather than inside it, so nothing gained a level and the grid area it has
+                // always occupied is still declared on the same element.
+                toolsTabs.panel(PARTNER_BOARD_TAB, 0),
+                /* Derived from the declarations above, so a tab can be added, made
+                   conditional, or gain a part without a second list to keep in step. The
+                   board's tab is index 0 and mounted above, so the slice starts at 1 and the
+                   widget is asked for `t + 1`.
+                   Every tab but the board's: that one is mounted above, in the column, which is
+                   the whole point of a detached tab — the widget says whether a part is shown,
+                   never where.
 
-                   The landscape modes dissolve this wrapper with `display: contents`, so the
-                   partner stack and the tools go on being independent columns of the app's grid
-                   exactly as before. Each mode dissolves the container it does not want — the
-                   same trick, and the same wording, as the round page. */
-                h('div.bug-right-column', [
-                    // The stack IS the panel — `panelClass` put `.bug-partner-stack` on the wrapper
-                    // rather than inside it, so nothing gained a level and the grid area it has
-                    // always occupied is still declared on the same element.
-                    toolsTabs.panel(PARTNER_BOARD_TAB, 0),
-                    /* Derived from the declarations above, so a tab can be added, made
-                       conditional, or gain a part without a second list to keep in step. The
-                       board's tab is index 0 and mounted above, so the slice starts at 1 and the
-                       widget is asked for `t + 1`.
-                       Every tab but the board's: that one is mounted above, in the column, which is
-                       the whole point of a detached tab — the widget says whether a part is shown,
-                       never where.
+                   A TAB OF SEVERAL PARTS IS MOUNTED AS ONE GROUP, and the group is the grid
+                   item its single panel used to be. Two items assigned the same named area do
+                   not stack, they OVERLAP, so parts that still share a home have to be one
+                   item — and the group takes the area the panel took in every home this page
+                   has, which is why declaring the parts moves nothing on screen.
 
-                       A TAB OF SEVERAL PARTS IS MOUNTED AS ONE GROUP, and the group is the grid
-                       item its single panel used to be. Two items assigned the same named area do
-                       not stack, they OVERLAP, so parts that still share a home have to be one
-                       item — and the group takes the area the panel took in every home this page
-                       has, which is why declaring the parts moves nothing on screen.
-
-                       The element is the PAGE'S, not the widget's: the widget builds no container
-                       around a tab's parts, deliberately, because that container is exactly what a
-                       mode wanting one part elsewhere has to dissolve. The round page's
-                       `.bug-presets-group` is the same element with its default the other way
-                       round — dissolved everywhere, a box only in zone B, where two preset rows
-                       must be one item to span both boards. Here the box is the default because
-                       all three parts are still in the column together; the mode that relocates
-                       one of them is what will dissolve it. */
-                    h('div.bug-parts', [
-                        ...toolPanels.slice(PARTNER_BOARD_TAB + 1).map((panel, index) => {
-                            const t = index + PARTNER_BOARD_TAB + 1;
-                            const parts = panel.parts.map((_part, p) => toolsTabs.panel(t, p));
-                            return parts.length === 1 ? parts[0] : h('div.bug-tool-group', parts);
-                        }),
-                        toolsTabs.tabList(),
-                    ]),
+                   The element is the PAGE'S, not the widget's: the widget builds no container
+                   around a tab's parts, deliberately, because that container is exactly what a
+                   mode wanting one part elsewhere has to dissolve. The round page's
+                   `.bug-presets-group` is the same element with its default the other way
+                   round — dissolved everywhere, a box only in zone B, where two preset rows
+                   must be one item to span both boards. Here the box is the default because
+                   all three parts are still in the column together; the mode that relocates
+                   one of them is what will dissolve it. */
+                h('div.bug-parts', [
+                    ...toolPanels.slice(PARTNER_BOARD_TAB + 1).map((panel, index) => {
+                        const t = index + PARTNER_BOARD_TAB + 1;
+                        const parts = panel.parts.map((_part, p) => toolsTabs.panel(t, p));
+                        return parts.length === 1 ? parts[0] : h('div.bug-tool-group', parts);
+                    }),
+                    toolsTabs.tabList(),
                 ]),
-                h('under-left#spectators'),
             ],
         ),
     ];

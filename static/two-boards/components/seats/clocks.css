@@ -1,0 +1,193 @@
+/* THE CLOCKS — the digits, their box, and the hurry state.
+   ------------------------------------------------------------------------------------
+   A ROUND-PAGE COMPONENT in effect: the analysis page draws no clock, and what little it has
+   here is the seat furniture a clock leaves behind.
+
+   What belongs here: the clock's own size and the two font ratios it is drawn at — one for the
+   ordinary form, one for `hurry` — and the box the digits sit in. What does not: where in the
+   strip the clock sits, which is `strips.css`, and the strip's own height, which is a number in
+   `properties.css`. */
+
+.round-app.bug .clock-wrap {
+    /* The height above the name: all of it, and no more. `1 1 auto` was not enough
+       — a flex item's automatic minimum is its content, so the clock kept its
+       natural 39.2px and pushed the 16.5px name past the strip's 50px, where the
+       strip's own `overflow: hidden` cut it in half. Basis zero and a zero minimum
+       make the name the fixed part and the clock the part that gives way. */
+    flex: 1 1 0%;
+    min-height: 0;
+    /* the full width of the column, with the digits still ending at its trailing
+       edge — that is the block's own `row-reverse` below, not this */
+    align-self: stretch;
+    /* the digits sit in the middle of the room they now have rather than clinging
+       to one edge of it */
+    align-items: center;
+    /* row-reverse on both boards, so the digits end at the strip's trailing edge
+       and the difference indicator sits over the leading digit. Board B carried
+       this globally already; board A had it in short landscape only. */
+    flex-direction: row-reverse;
+    /* main-start is the visual right edge under row-reverse, so this is what
+       anchors the digits there. They no longer compete with the name for width —
+       the name has its own line beneath — so this is only about where the digits
+       sit within the clock's own box. */
+    justify-content: flex-start;
+    font-size: var(--bug-clock-fs);
+    /* THE ROOM THE CLOCK HAS. Third in the priority order and last to be served: the
+       pocket is never reduced, the name takes the width the pocket leaves when it is
+       inside the strip, and what is left over is this box.
+
+       `size` rather than `inline-size` because the clock is bounded on both axes — its
+       digits are as tall as their font and about 3.3 times as wide — and a clock sized
+       from width alone would be six times too tall for the strip. Both of this box's
+       axes come from outside it: the width from `align-self: stretch`, the height from
+       `flex: 1 1 0%` against a column whose height is the strip's. */
+    container-type: size;
+}
+/* AS LARGE AS THE ROOM ALLOWS, WHICH IS WHAT THE CAPABILITY ALREADY ASKED FOR AND
+   `calc(var(--bug-seat-sq) * 0.2)` never delivered. That expression sized the clock from
+   the BOARD, so it was blind to its own box: 65.1 x 19.2 in a space 194 x 49 once the
+   name had left the strip entirely, and 105 wide in a 218.7px slot with the name below
+   it. `.clock-wrap` stretched; the digits did not.
+
+   Two terms, whichever is smaller:
+     92cqb — the height. `line-height: 1` below makes the digits' box exactly their font
+             size, so the block axis converts one-to-one; 92 rather than 100 keeps the
+             difference indicator's border off the strip's edge.
+     22cqi — the width. Five digits run about 3.3 times the font size, but a clock under
+             ten seconds shows tenths and runs about 4.4, so the divisor is the WIDE form.
+             Sizing to the narrow one would make the clock jump at 0:09.9, and the
+             capability forbids reserving that width by any other means. */
+/* THE DIGITS ARE THE CLOCK. site.css gives `.clock-time.min` a `padding-left: 12px` and
+   `.clock-time.sec` a `padding-right: 12px` — 24px that does not scale, inside a box whose
+   every other dimension does. Two things went wrong because of it.
+
+   It broke an alignment this page had explicitly asked for. `3c.7` of the seat-strip work set
+   out to make the username end where the clock's digits end, and measured the mismatch as 0 —
+   but it measured against the clock's BOX. The digits sit 12px inside that box, so the real
+   mismatch was 12px the whole time: name row ending at 749.1, digits at 737.1.
+
+   And it made the clock's width `24 + ratio x font` rather than a clean multiple, so no `cqi`
+   coefficient could express the fit — the constant is 23% of a small partner clock's width and
+   12% of a desktop one. Removing it is what lets the coefficient below be exact.
+
+   Not for the difference indicator, which was the other candidate: that is anchored at the
+   clock's leading edge and overlaps the first digit by design, 21.4px against a 12px pad.
+
+   site.css is untouched; the single-board round page keeps its spacing. */
+.round-app.bug .clock-time.min { padding-left: 0; }
+.round-app.bug .clock-time.sec { padding-right: 0; }
+/* AS LARGE AS THE ROOM ALLOWS, IN BOTH AXES, AND NEVER LARGER THAN THE WIDEST FORM WILL FIT.
+
+   THE RATIO IS THE WHOLE OF THE WIDTH BOUND, so it is written as a division by it rather than as
+   a coefficient. A coefficient states no claim and cannot be checked; `100cqi / 3.5` says exactly
+   what it is — the box divided by how many font-sizes wide the longest thing in it gets.
+
+   `--bug-clock-widest` is MEASURED, and measuring the wrong form is what this replaces. The
+   comment here used to argue that the widest displayable form is `0:09.9` at 2.82, and that
+   `59:59.9` at 3.40 was unreachable "since tenths appear only under ten seconds, so the minutes
+   field is a single digit by then". The minutes field is never a single digit. `printTime()` in
+   client/clock.ts pads it unconditionally — `mins = (minutes < 10 ? '0' : '') + minutes` — so the
+   form under ten seconds is `00:09.9`, seven glyphs, and it measures the same 3.40 that was
+   called impossible. The old `32cqi` was 1/3.1, about 9% too generous, and the last ten seconds
+   of a desktop game drew 193.7px of digits into a box of 183.03.
+
+   Measured on the live page at 1914x827, font 57.04px: `60:00` and `09:59` are 2.56, `00:09.9`
+   and `59:59.9` are 3.40. `.clock-time.byo` is not in any of these: it carries the increment and
+   site.css hides it with `.clock-time.byo:not(.byoyomi)`, and bughouse never sets the byoyomi
+   class, so it cannot appear. A variant family that did show it would widen every form here.
+
+   Each ratio is ABOVE its measurement BECAUSE THE TWO ERRORS ARE NOT SYMMETRIC. A ratio above the
+   measurement costs a slightly smaller clock at the moment the width binds; a ratio below it puts
+   digits outside the strip. Both carry about 3% of headroom for that reason.
+
+   TWO RATIOS, BECAUSE THE PAGE ALREADY KNOWS WHICH FORM IS ON SCREEN. `.clock` is given a `hurry`
+   class by client/clock.ts under `time < HURRY && this.byoyomiPeriod === 0`, and printTime() decides
+   tenths under `millis < HURRY && this.byoyomiPeriod === 0` — the same constant, operands and guard,
+   so the class is an exact CSS-side predicate for "the wide form is showing". Bounding for the
+   widest form at ALL times was costing 4.75px of a 57.04px clock for the whole of every game to make
+   room for its last ten seconds; the bound now follows the form actually displayed.
+
+   This is not the text measuring itself. Nothing here reads a rendered width: there are two
+   constants and a class that already existed. Measuring text to fit a font would be the loop this
+   file exists to avoid — the font would set the width and the width would set the font.
+
+   AND IT CANNOT OSCILLATE, which is what makes two states as safe as one. `.clock-wrap` is
+   `container-type: size`, so its dimensions come from outside it and its contents cannot influence
+   them. A font derived from `cqi`/`cqb` of that box can never change the box, in either state, so
+   there is nothing to converge and nothing to guard.
+
+   The size change lands where a change already happens: site.css gives `.clock.hurry` a background
+   of MistyRose, or #502826 in the dark theme, so the ten-second boundary is already a deliberate
+   visual event. With an increment the clock can rise back above ten seconds, the class clears and
+   the size returns — the bound follows the form in both directions, which is the rule working
+   rather than an edge case.
+
+   BOTH TERMS STAY, and which one binds is an outcome rather than a decision. The height binds
+   wherever the strip is shallow — portrait and short landscape, by a wide margin, in BOTH states, so
+   those modes cannot see this at all. On the desktop the width binds under tenths at 52.29 and the
+   height binds the rest of the time at 57.04. The capability's rule that height should bind where
+   the strip has height to give was written against a width bound too pessimistic to be real; these
+   are the true constraints, one per form. */
+.round-app.bug .clock {
+    /* 60:00 and 09:59, both measured at 2.56 */
+    --bug-clock-widest: 2.65;
+    font-size: min(92cqb, calc(100cqi / var(--bug-clock-widest)));
+}
+.round-app.bug .clock.hurry {
+    /* 00:09.9 and 59:59.9, both measured at 3.40 — the form under ten seconds */
+    --bug-clock-widest: 3.5;
+}
+/* The digits' box, not their size. `.clock` is 2.9em of the wrap, so at a 10px wrap
+   it draws at 29px in a line box of 39.2 — taller than the 33.5 the clock has above
+   the name, which put 2.8px of leading over the name's row and 2.8px past the top of
+   the strip, where the strip's `overflow: hidden` took it. Nothing showed, because
+   leading is empty, but the boxes overlapped. `line-height: 1` makes the box the
+   glyphs and the overlap goes away without changing what is drawn. */
+.round-app.bug .clock {
+    line-height: 1;
+}
+/* the difference matters more than the clock digit it covers */
+.round-app.bug .clock-difference {
+    font-size: 1.5em;
+}
+@media (aspect-ratio <= 9/16) {
+        .clock-wrap {
+          flex-direction: row-reverse;
+        }
+      .clock-wrap{
+        align-self: end;
+      }
+}
+.clock-wrap.bug {
+  flex-direction: row-reverse;
+}
+.clock-difference {
+  font-size: 1em;
+  font-weight: bold;
+  line-height: 1;
+  padding: 0.1em 0.3em;
+  color: var(--font-color);
+  background-color: var(--bg-color0);
+}
+.clock-difference.negative {
+  color: var(--bad);
+}
+.clock-difference.positive {
+  color: var(--good);
+}
+/* Last on the first line and pushed to its end. `order` as well as the margin:
+   the block's misc slot is a sibling now that the block has dissolved, and it
+   followed the clock, leaving the clock 19.4px short of the trailing edge. */
+/* Descendant, not child. `display: contents` makes the clock a flex ITEM of the
+   strip but leaves it a DOM child of the block it came from, and `>` matches the
+   DOM — so the child form silently matched nothing and the clock sat wherever it
+   fell. `margin-left: auto` is what returns it to the trailing edge now that the
+   block's own `row-reverse` has dissolved with the block. */
+.round-app.bug.own-name-outside .own-seat .clock-wrap,
+.round-app.bug.partner-name-outside .partner-seat .clock-wrap {
+    margin-left: auto;
+}
+.round-app.bug.own-name-outside .own-seat .clock-wrap,
+.round-app.bug.partner-name-outside .partner-seat .clock-wrap {
+    align-self: stretch;
+}

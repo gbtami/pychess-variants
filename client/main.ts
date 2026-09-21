@@ -205,7 +205,7 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
         case 'tv':
         case 'round':
             if (twoBoards) {
-                return h('div#main-wrap.bug', [h('main.round.bug', bugRoundView(model))]);
+                return h('main#main-wrap.bug', bugRoundView(model));
             } else {
                 return h('div#main-wrap', [h('main.round', roundView(model))]);
             }
@@ -213,7 +213,7 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
             return h('div', model.study ? studyEmbedView(model) : embedView(model));
         case 'analysis':
             if (twoBoards) {
-                return h('div#main-wrap.bug', bugAnalysisView(model));
+                return h('main#main-wrap.bug', bugAnalysisView(model));
             } else {
                 return h('div#main-wrap', analysisView(model));
             }

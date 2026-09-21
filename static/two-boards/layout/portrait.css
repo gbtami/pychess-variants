@@ -1,0 +1,327 @@
+/* PORTRAIT — the partner board over the viewer's own, with the tools beside the partner's.
+   ------------------------------------------------------------------------------------
+   `@media (aspect-ratio <= 9/16)`. The one mode that is not two boards side by side: a merged
+   column on top — the partner stack in one track, the tools in the other — and the viewer's own
+   board across the full width below it. `.partner-and-tools` is a real grid here, which is what
+   the `drop-*` templates in this file swap between. */
+
+/* Both sides of the merge changed this hunk, and each change is kept: the fork widened
+   the query (portrait applies at every width now, not only under 800px, because this
+   page's portrait mode is a real layout rather than a phone fallback), and upstream
+   scoped the selector to `.round-app.bug` so it stops matching info-wraps on other
+   pages. Taking either side alone would have thrown away the other's fix. */
+
+/* PORTRAIT, BUILT LIKE THE ROUND PAGE'S.
+   ------------------------------------------------------------------------------------
+   What this replaces: three full-width rows — partner stack, then tools, then the player's
+   own stack — which is the arrangement the round page abandoned and for the same reasons.
+   The partner board is square and a fifth of the viewport, so a full-width row for it wastes
+   everything to its right; the tools then took a whole row of their own between the two
+   boards; and the player's own board, the one thing a reader is looking at, was pushed to
+   1030px down an 835px viewport. Measured rows: 240 / 268 / 511.
+
+   The round page's answer, reused: the partner board and the tools are ONE block that takes
+   the region above, and inside it the tools occupy the space beside the small board rather
+   than below it. The player's own stack is the last row and sits flush on the bottom edge.
+   `.partner-and-tools` is that block — the round page's element, its class, and its
+   `grid-area: stack` / `align-self: start` rules for the stack inside it apply unchanged. */
+
+/* Both sides of the merge changed this hunk, and each change is kept: the fork widened
+   the query (portrait applies at every width now, not only under 800px, because this
+   page's portrait mode is a real layout rather than a phone fallback), and upstream
+   scoped the selector to `.round-app.bug` so it stops matching info-wraps on other
+   pages. Taking either side alone would have thrown away the other's fix. *//* PORTRAIT, BUILT LIKE THE ROUND PAGE'S.
+   ------------------------------------------------------------------------------------
+   What this replaces: three full-width rows — partner stack, then tools, then the player's
+   own stack — which is the arrangement the round page abandoned and for the same reasons.
+   The partner board is square and a fifth of the viewport, so a full-width row for it wastes
+   everything to its right; the tools then took a whole row of their own between the two
+   boards; and the player's own board, the one thing a reader is looking at, was pushed to
+   1030px down an 835px viewport. Measured rows: 240 / 268 / 511.
+
+   The round page's answer, reused: the partner board and the tools are ONE block that takes
+   the region above, and inside it the tools occupy the space beside the small board rather
+   than below it. The player's own stack is the last row and sits flush on the bottom edge.
+   `.partner-and-tools` is that block — the round page's element, its class, and its
+   `grid-area: stack` / `align-self: start` rules for the stack inside it apply unchanged. */
+@media (aspect-ratio <= 9/16) {
+    .analysis-app.bug {
+        display: grid;
+        /* FIVE ROWS, TWO COLUMNS — the merged column's four rows and the player's own block
+           beneath them, in one grid. The partner stack spans the four; the own stack spans the
+           two columns. `minmax(0, 1fr)` on the first is where the slack goes, so the own block
+           stays flush with the bottom of the viewport whatever the two boards work out to, and
+           the three `auto` rows are their content's height.
+
+           This is the landscape shape with one column fewer. There the viewer's board is a
+           column beside the partner's; here it is a row beneath, so it spans instead. Every
+           other name is the same, which is the point of stating it here rather than inside a
+           box of its own. */
+        grid-template-columns: calc(var(--bug-portrait-partner-sq) * 8) minmax(0, 1fr);
+        grid-template-rows: minmax(0, 1fr) auto auto auto min-content;
+        grid-template-areas: 'stack    zoneTools1'
+                             'stack    zoneTools2'
+                             'stack    zoneTools3'
+                             'stack    zoneTools4'
+                             'ownstack ownstack';
+        row-gap: 0;
+        /* The app is exactly the width the full-width board can draw, and the sub-square
+           remainder is spent OUTSIDE it — on the app rather than on any box within it, so
+           every child starts at the same x and the leftover falls in the page margins where
+           nobody reads it as a gap. The round page's rule, verbatim. */
+        width: calc(var(--bug-portrait-sq) * 8);
+        margin-inline: auto;
+        row-gap: 0;
+    }
+    /* NO RESTATEMENT FOR THIS PAGE ANY MORE. It needed one while portrait kept the merged
+       column as a real box: `toolsPlacement` put the drop class on the app, the shared rule was
+       keyed to the column, and the two stopped meeting — measured, the tab list back at 219px in
+       its own column instead of 384px full width. With the column dissolved both pages key their
+       drop templates to the app, together, further down this block. `zoneTools2`/`zoneTools3`
+       hold nothing on this page and rows with no items collapse to zero, which is why one set of
+       templates serves both. */
+    /* NOTHING else for this page. Portrait's merged column is the round page's declaration for
+       declaration, and this mode's own unscoped `.partner-and-tools` block below already states
+       the two track widths and the zero gap for both pages. The block that stood here restated
+       all of it and renamed the areas, which is what stopped anything dropping. */
+    /* Its content height, not the height of the row it spans. Stretched — the default for a
+       grid item — it would measure the full column and the space beside a small board would
+       never exist. The round page states this globally; restated because the analysis rules
+       above set an area on the same element. */
+    /* NO EVAL GAUGE IN PORTRAIT, which is what makes the width above exact. The stack is
+       otherwise board PLUS gauge — 8.31 squares against an app of 8 — and the overflow has
+       nowhere to go once the body stops scrolling. The gauge is also the part that survives
+       being dropped: the partner's was 6.2px wide at this size, unreadable as a bar, and the
+       engine's evaluation is a number in the Moves tab regardless. The round page has no
+       gauge at all, so this is also what "follow the round page" means here. */
+    .analysis-app.bug .bug-own-stack,
+    .analysis-app.bug .bug-partner-stack {
+        grid-template-columns: calc(var(--bug-stack-sq) * 8);
+    }
+}
+
+@media (aspect-ratio <= 9/16) {
+
+    /* Portrait does NOT merge the columns — it keeps its own single-column-plus-
+       tools arrangement, and its areas still name clockB-top, boardPartner,
+       clockB-bot and tools directly. That is no longer how this mode works: portrait
+       uses the merged column like the landscape modes, so the wrapper is a real box
+       here too and only its widths are stated below. */
+    .round-app.bug {
+        /* The partner column is sized from the VIEWPORT, never from --cg-width-a.
+           chessgroundx writes --cg-width-a from the measured width of board A,
+           and board A is placed in this very column, so the previous rule
+
+             calc((var(--cg-width-a) / var(--files)) * var(--pocketLength))
+
+           was circular — and zero is a stable fixed point. Board A rendered 0
+           wide (with all 33 pieces present, so purely a sizing failure) and all
+           eight pockets collapsed with it, which makes bughouse unplayable: you
+           cannot drop a piece without a pocket. Measured 386x835: --cg-width-a
+           0px against a healthy --cg-width-b 389.33px.
+
+           The partner board is a fifth of the window height and, being square,
+           that is its width too — but expressed as the device-pixel-aligned
+           square that client/two-board/squareUnit.ts publishes, not as a bare
+           20vh. Reserving a rounder number than the board can occupy is what
+           leaves a line between a board and the pocket beneath it. Deliberately
+           no fallback: if the property is missing the track must break loudly
+           rather than silently regain the slack. */
+        /* Two columns, but only the partner's rows use the second one. The partner
+           board is a fifth of the viewport height and square, so it leaves most of
+           the width beside it empty — that is where the tools panel goes, rather
+           than taking a row of its own below everything and pushing the page past
+           the fold. Your own block spans both columns underneath. */
+        /* One column. The two-column form existed only to put the tools beside the
+           partner board, and the merged column does that inside itself now. With one
+           column, "the player's own board is full width" is structural rather than
+           something each area has to spell out. */
+        grid-template-columns: minmax(0, 1fr);
+
+        /* The app is exactly the width the full-width board can draw, and the
+           sub-square remainder is spent OUTSIDE it. `--bug-portrait-sq` is this
+           project's own copy of chessgroundx's quantisation, so the two agree by
+           construction rather than by luck; see squareUnit.ts.
+
+           On the app rather than on the board's own box, because this is the
+           smallest box that contains both the player's stack and the partner's
+           column. Sized lower down, the own stack would be centred in the app
+           while the partner column still started at its left edge, and the two
+           boards would disagree by the half-remainder — trading a 2px gap between
+           a board and its pocket for a 1px step between the two boards. Every
+           child then starts at the same x and the leftover has nowhere to fall
+           except the page margins, which is where nobody reads it as a gap.
+
+           Chessgroundx pins `cg-container` to the RIGHT of its wrap whenever the
+           board it computed is narrower, so leftover inside any of these boxes
+           shows as a gap down the left — 12px of it while the board's bounds were
+           stale, and 2px once they were correct. */
+        width: calc(var(--bug-portrait-sq) * 8);
+        margin-inline: auto;
+
+        /* FIVE ROWS, TWO COLUMNS — the merged column's four rows and the player's own block
+           beneath them, in one grid. The partner stack spans the four; the own stack spans the
+           two columns. `minmax(0, 1fr)` on the first is where the slack goes, so the own block
+           stays flush with the bottom of the viewport whatever the two boards work out to, and
+           the three `auto` rows are their content's height.
+
+           This is the landscape shape with one column fewer. There the viewer's board is a
+           column beside the partner's; here it is a row beneath, so it spans instead. Every
+           other name is the same, which is the point of stating it here rather than inside a
+           box of its own. */
+        grid-template-columns: calc(var(--bug-portrait-partner-sq) * 8) minmax(0, 1fr);
+        grid-template-rows: minmax(0, 1fr) auto auto auto min-content;
+        grid-template-areas: 'stack    zoneTools1'
+                             'stack    zoneTools2'
+                             'stack    zoneTools3'
+                             'stack    zoneTools4'
+                             'ownstack ownstack';
+        row-gap: 0;
+        column-gap: 0;
+    }
+
+    /* Each board is exactly the square unit for its axis, times the file count.
+       NOT `width: 100%` with an aspect-ratio: `cg-board` is position:absolute and
+       so contributes no layout height, which means this box is sized purely by
+       CSS while chessgroundx quantises the board it paints inside it down to whole
+       device pixels per file. Any difference between the two is a visible band —
+       measured 4.66px between the board and the pocket below it at 386x835.
+       Sizing the box from the same quantised unit makes the difference zero.
+
+       This comment used to close after that paragraph and then run on for seven
+       more lines to a second terminator, which left everything between them and
+       the selector below reading as one invalid selector — so the rule below lost
+       both its declarations. It had therefore never applied, and nothing showed
+       for it, because the box it sizes was an inline box that ignores a width
+       anyway — see `display` below. Two faults hiding each other. (A comment
+       cannot quote a terminator: CSS ends the comment at the first one, which is
+       how this file grew the fault in the first place.)
+
+       Keyed by ROLE, not by `#mainboard`/`#bugboard`. Those are board A and board
+       B, and twoBoardCtrl swaps which of them holds the `board` area per player —
+       so sizing by id would hand a board-A player the partner's size on their own
+       board. See roundControls.markRoles.
+
+       `display: block` is load-bearing, not tidying. `selection` is an unknown
+       element with no display of its own, so it is an INLINE box, and a width does
+       not apply to an inline box at all — this one took 386 from its block child
+       while the board inside drew 384. Chessgroundx pins its container to the
+       right of any slack, so the 2px landed down the left, where it reads as the
+       board and the pocket above it not lining up. The same trap is documented on
+       `.cg-wrap.pocket` further down this file; it was fixed there and left here.
+
+       Both boards are aligned to the LEFT edge of the app rather than centred
+       inside it, so the small partner board lines up with the full-width board
+       beneath it. The sub-square remainder is spent on the app itself, which is
+       the one box containing both of them — see `.round-app.bug` above. */
+    /* `display: block` is no longer set here — it is set once for every mode on the stack
+       children near the top of this file, where the comment explaining the inline-box trap
+       now lives. */
+
+    /* The panel takes the height left after the boards and strips and scrolls its
+       own content, so the page itself does not scroll. min-height:0 is what lets
+       a grid item shrink below its content at all.
+
+       The body prefix is for specificity, not decoration. The top-level
+       `.bug-round-tools` rule further down this file sets `overflow: hidden`, and
+       at equal specificity the later rule wins — so without the prefix this
+       `overflow-y` was silently reset and the column could not scroll. It only
+       showed once the presets grew tall enough to need it: the column's content
+       then forced the grid's slack row from 148px to 233px and pushed the page
+       past the fold. Same trap as the short-landscape wrapper rule. */
+    /* Portrait no longer keeps a tools block of its own: the parts are placed
+       individually by the merged column, as in the landscape modes, which is what
+       lets one of them take the space under the partner board. The rules that used
+       to stack them in a flex column went with it. */
+    /* PORTRAIT SIZES ITS PRESET BUTTONS BY THE SAME RULE AS EVERY OTHER MODE, so there is
+       nothing here any more.
+
+       There used to be `--bug-preset-btn: max(floor, (100vw - 32px) / 10)` on this element: a
+       tenth of the viewport, on the reasoning that ten buttons is the most a row ever holds and
+       the viewport does not move when a part drops. `publishPresetSize()` did not exist then. It
+       does now, it runs in portrait like everywhere else — the value it published was sitting
+       here all along, shadowed, because a declaration on `.chatpresets` beats an inherited one
+       from the column.
+
+       And the two disagreed, with the viewport rule wrong. Portrait puts the presets in a column
+       BESIDE the partner stack, not across the page: measured at 274x830, that column is 106.7px
+       and a tenth of the viewport gave 24.2px buttons, so each five-button set drew 133px and
+       overflowed its panel by 26.3px. The published value, 18.9px, filled the column to 106.7px
+       exactly. The premise the rule was measured from — that a preset row spans the screen —
+       stopped being true when portrait's parts were merged into the column. */
+
+    /* THE DROPPED ARRANGEMENTS, in the order parts leave the strip beside the board: the tab
+       bar first, then the presets from the bottom up. A dropped part spans BOTH columns — it
+       does not merely move under the partner board, it widens to the full width and sits under
+       whatever is still beside the board above it.
+
+       Keyed to the APP, as the landscape modes key theirs, because the classes are on the app:
+       `toolsPlacement` puts them on the element whose template they swap, and with the merged
+       column dissolved that element is the app. The same rules lived on `.partner-and-tools`
+       while it had a box. */
+    :is(.round-app, .analysis-app).bug.drop-tools4 {
+        grid-template-areas: 'stack      zoneTools1'
+                             'stack      zoneTools2'
+                             'stack      zoneTools3'
+                             'zoneTools4 zoneTools4'
+                             'ownstack   ownstack';
+    }
+    :is(.round-app, .analysis-app).bug.drop-tools4.drop-tools3 {
+        grid-template-areas: 'stack      zoneTools1'
+                             'stack      zoneTools2'
+                             'zoneTools3 zoneTools3'
+                             'zoneTools4 zoneTools4'
+                             'ownstack   ownstack';
+    }
+    :is(.round-app, .analysis-app).bug.drop-tools4.drop-tools3.drop-tools2 {
+        grid-template-areas: 'stack      zoneTools1'
+                             'zoneTools2 zoneTools2'
+                             'zoneTools3 zoneTools3'
+                             'zoneTools4 zoneTools4'
+                             'ownstack   ownstack';
+    }
+
+    /* Pockets carry the same rule short landscape settled on: a pocket piece is
+       exactly one board square, and the CELL it sits in is 0.8 of a square, so the
+       pieces sit closer together than they would on the board. The row's height is
+       what sizes the piece; the cell width is what spaces them.
+
+       0.8 is the spacing constant, not the width. With this variant's five slots
+       it happens to come to four board squares — half the width of an 8-file board
+       — but a variant with a different --pocketLength keeps the spacing and takes
+       whatever width that implies, which is why the length stays a multiplier.
+
+       Sized from the board's OWN measured width rather than from the published
+       units, because the units are keyed by role (yours / your partner's) while
+       these selectors are keyed by board identity (A / B) — and twoBoardCtrl swaps
+       which board holds the `board` area per player, so the two do not correspond.
+       `--cg-width-a` is chessgroundx's own quantised measurement of board A, so it
+       is exact; and reading it here is not the forbidden self-reference, because a
+       pocket does not sit in the track it is sizing itself from. */
+    /* ONE SCALE PER SEAT. Both strips are the same arrangement — pocket, name,
+       clock, in a row above or below their board — differing only in scale: the
+       partner's board is a fifth of the viewport height, your own is the full
+       width, so their squares differ by roughly half. Every strip parameter is a
+       fraction of its OWN board's square, so the two blocks are proportionally
+       identical at different sizes.
+
+       Keyed by ROLE, not by board identity, and inherited down to the pocket
+       inside the strip. That is what markSeatRoles() is for: `.bug` means board B,
+       so it is the partner's strip for a board-A player and the player's own for a
+       board-B player. Inheriting from the strip also removes the need to name
+       --cg-width-a/b per pocket, which had the same identity-vs-role mismatch. */
+}
+
+@media (aspect-ratio <= 9/16) {
+  .round-app.bug .info-wrap0 {
+    flex-direction: column-reverse;
+    grid-area: clock-top;
+    justify-self: flex-end;
+    justify-content: right;
+  }
+  .round-app.bug .info-wrap1 {
+    grid-area: clock-bot;
+    justify-self: flex-end;
+    justify-content: right;
+  }
+}

@@ -1,0 +1,205 @@
+/* THE ENGINE BOX, AND WHAT IT DRAWS — the panel, the two scores, the variations, the gauges.
+   ------------------------------------------------------------------------------------
+   What belongs here: the engine panel's own inside — `.engine-side` and its score and info
+   rows, `.infoBug`, the pv columns and a borrowed line, the Multiple-lines row — and the EVAL
+   GAUGES, which hang off the stacks but are the engine's output and disappear with it.
+
+   What does not: WHERE the panel goes. `drop-tools3`, `tools-below`, `tools-lastresort` and the
+   grid areas they name are the arrangement's, in `layout/`. Nor `--bug-part-min-w`'s value for
+   this part, which is a number and lives with the other numbers in `properties.css`. */
+
+    /* THE GAUGES ARE NOT A PHONE'S BUSINESS TO HIDE. A FOREIGN BREAKPOINT WAS HIDING THEM.
+       ------------------------------------------------------------------------------------
+       `analysis.css` ends its gauge block with
+
+           @media (max-width: 799px) and (orientation: portrait) { #gauge, #gaugePartner
+               { display: none } }
+
+       which is the single-board page's rule for a phone held upright, and it reaches this page
+       because this page loads that stylesheet. Its `orientation: portrait` is the VIEWPORT's
+       aspect — taller than wide — while every mode decision here is made on `aspect-ratio > 9/16`.
+       The two disagree over a whole band of shapes: measured at 701x829, aspect 0.846, this file
+       is in LANDSCAPE and both stacks reserve their gauge column — 16.5px in the own stack, 8.5px
+       in the partner's, the 0.31 of `8.31` — while that rule had already set both gauges to
+       `display: none`. Two empty slivers and no gauges, in a mode whose width formula is paying
+       for them.
+
+       So the gauges are re-asserted for THIS page, in this file's own landscape. Portrait here
+       hides them itself — see the `aspect-ratio <= 9/16` block, which also drops the column, so
+       the width stays exact — and that rule still wins there because this one is scoped to
+       landscape and cannot reach it. It is the second time that exact query has reached across:
+       `--movelist-max-height` was the first, and the note on `.analysis-app.bug .movelist-block`
+       records it. */
+    .analysis-app.bug #gauge,
+    .analysis-app.bug #gaugePartner {
+        display: block;
+    }
+@media (aspect-ratio <= 9/16) {
+        .analysis-app.bug #gauge,
+        .analysis-app.bug #gaugePartner {
+            display: none;
+        }
+}
+.analysis-app.bug .bug-own-stack > #gauge,
+.analysis-app.bug .bug-own-stack > #gaugePartner,
+.analysis-app.bug .bug-partner-stack > #gauge,
+.analysis-app.bug .bug-partner-stack > #gaugePartner {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: stretch;
+    height: auto;
+}
+/* The gauge fills the column the stack gave it, so the ratio is written once per stack
+   above rather than repeated here. `width` is overridden because analysis.css pins both
+   gauges to a flat `--gauge-gap`. */
+.analysis-app.bug .bug-own-stack > #gauge,
+.analysis-app.bug .bug-own-stack > #gaugePartner,
+.analysis-app.bug .bug-partner-stack > #gauge,
+.analysis-app.bug .bug-partner-stack > #gaugePartner {
+    width: 100%;
+}
+/* THE ENGINE BOX. Measured intrinsics at a 14px font: min-content 147.7px, max-content 276.7px.
+   The binding row is not the PV lines — those carry `min-width: 0` and ellipsis and will shrink to
+   nothing — it is the Multiple-lines row: the label, the slider, and the readout side by side. 19ch
+   is 152px there, just clear of the 147.7 its own content asks for.
+
+   The height is the header alone — switch, both scores, the engine's name — which is what the box
+   measures with the engine off (44px). With the engine on it grows: 62px at one line, 119px at
+   three. So this is the floor, and the cascade charges whichever is larger, the floor or what the
+   box actually measures. */
+.analysis-app.bug .analysis-engine-panel {
+    --bug-part-min-w: 19ch;
+    --bug-part-min-h: 3.2em;
+}
+/* EACH BOARD'S NUMBERS AS A COLUMN: evaluation on top, the depth it was reached at under it.
+   The two columns flank the engine's name and share the row's spare width equally, so the pair
+   reads left-to-right in the same order as the boards and the PV columns below.
+
+   `score` needs its flex reset. analysis.css pins it to `flex: 0 0 75px`, which was a WIDTH while
+   the score was a direct child of the row; inside a column that basis becomes a HEIGHT, and a
+   22px number was being given a 75px tall box. */
+.analysis-app.bug .engine-side {
+    /* `auto`, not a 0 basis: each column asks for the width its longest reading needs, and the
+       engine's name gives way. With a 0 basis the name kept its content width and the columns
+       split the remainder — 36px each, which is narrower than the word "knodes/s". */
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    justify-content: center;
+}
+.analysis-app.bug .engine-side score {
+    flex: 0 0 auto;
+    padding-left: 0;
+    align-self: center;
+}
+/* Dim and small on purpose: the depth qualifies the score above it rather than competing with
+   it, and under the alternating ladder one of the two is always the older reading. */
+.analysis-app.bug .engine-side info {
+    font-size: 0.78em;
+    line-height: 1.25;
+    text-align: center;
+    color: var(--text-dim-color);
+}
+/* Depth on one line, speed on the next, each unbroken. They are two readings, not a sentence:
+   left to wrap, a single phrase broke wherever it ran out — measured as "Depth", "17/18," and
+   "1362 knodes/s" across three ragged lines, and the panel 97px tall. Nowrap is what makes each
+   column ASK for a sensible width above, and it brought the panel to 70px. */
+.analysis-app.bug .engine-side info > span {
+    display: block;
+    white-space: nowrap;
+}
+/* THE NUMBERS COME FIRST, the engine's name second. `div.info, div.infoBug` in analysis.css is
+   `flex: 1 1 auto`, so the name grew to its content and the two number columns — basis 0 — were
+   left with what remained: measured at 159px of a 284px panel for the name against 36px for each
+   side, which is what forced the depth to wrap three ways. */
+.analysis-app.bug .engine .infoBug {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    /* Slightly smaller than the readings it sits between. It is a label — which engine, running
+       where — and it was taking 159px of a 284px panel while the numbers took 36px each. */
+    font-size: 0.85em;
+    line-height: 1.3;
+}
+/* TWO COLUMNS OF PRINCIPAL VARIATIONS, ONE PER BOARD.
+   Left column is the own stack's board, right is the partner's — the order `pvPanel()` builds
+   them in — so each column stands under the board it evaluates and neither needs a heading to
+   say which it is. Position is the label.
+
+   `1fr 1fr` rather than auto columns: the two lists must stay the same width whatever they hold,
+   or the column that happens to be evaluating a quiet position would steal room from the other
+   every slice, and the whole panel would jitter at the ladder's pace. `min-width: 0` is what
+   lets a long variation be clipped by its own column instead of widening the grid. */
+.analysis-app.bug .pvcolumns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 1px;
+    background-color: var(--border-color);
+}
+.analysis-app.bug .pvcol {
+    min-width: 0;
+    background-color: var(--bg-color0);
+}
+/* A DROP OF A PIECE NOBODY HOLDS YET. The engine searches these because in bughouse the piece
+   arrives from the partner's board, so the line is real but conditional: it says "if my partner
+   sends me a queen". Only the PIECE is marked — the square it would go to is not in doubt. */
+.analysis-app.bug .pv-borrowed {
+    color: var(--bad);
+    font-weight: bold;
+}
+/* Each line clips rather than wraps. A wrapped variation makes its row taller than the row
+   beside it, and the two columns stop being readable as a pair — the fifth line of one lands
+   against the fourth of the other. Clipped, every row is one line tall in both columns. */
+.analysis-app.bug .pvcol div.pv {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+/* THE ONE ENGINE SETTING, UNDER THE LINES IT CONTROLS.
+   `div.labelled` (site.css) already makes this a space-between row; what it does not do is
+   survive a 284px tools column, where the two-word label wrapped and the row stood 54px tall —
+   as much as three PV lines, to control how many PV lines there are.
+
+   So the label is allowed to shrink and the track is what gives way: `flex` on the input lets it
+   take whatever the label and the readout leave, and the readout is pinned by its content so the
+   `N / 5` never wraps mid-value. Nothing here needs a minimum track width — a slider two
+   centimetres wide with five stops is still a slider. */
+.analysis-app.bug .pvbox .multipv-setting {
+    gap: 1ch;
+    padding: 0.4em 0.5em;
+    border-bottom: 1px solid var(--border-color);
+}
+.analysis-app.bug .pvbox .multipv-setting label {
+    white-space: nowrap;
+    flex: 0 0 auto;
+    /* The site's `label` carries 8px of vertical padding, which is what a settings drawer wants
+       and this row does not: it made a 19px label 35px tall and the row 47px. */
+    padding: 0;
+}
+.analysis-app.bug .pvbox .multipv-setting input[type='range'] {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin-right: 0;
+}
+.analysis-app.bug .pvbox .multipv-setting .multipv_range_value {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+/* NOTHING MIRRORS THE CLOCKS ANY MORE. `.anal-clock.bug { left: 0; right: initial }` used
+   to pull board B's clocks to its LEFT edge, which was right for the old layout: the two
+   boards were pinned to opposite edges of the page with everything else between them, so
+   each board's clocks faced inward, toward the reader.
+
+   Adjacent boards have no inward. The clocks keep analysis.css's `right: 0` in both stacks,
+   so they sit under the same corner of every board and the eye finds them in one place.
+
+   The class this hung on is board IDENTITY — `.bug` is board B whoever played on it — so it
+   also put the clocks on the wrong side for a board-B player, whose board B is the LEFT
+   stack here. Deleting it fixes that case as well, and it is the same identity-versus-role
+   trap the pockets and the boards each hit in their turn. */
+#gaugePartner {
+    grid-area: gaugePartner;
+}

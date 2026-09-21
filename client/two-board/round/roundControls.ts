@@ -305,7 +305,7 @@ export function swapSeatStripsForSwitch(views: RoundSeatViews): void {
 // NOT twoBoardCtrl's switchBoardElements(), which swaps the two boards' inline
 // grid-area. That works only while both boards are children of one grid, which is
 // still true on the analysis page and is why that function stays as it is. On this
-// page the right column is `.bug-right-column`, so the two boards are in different
+// page the right column is `.partner-and-tools`, so the two boards are in different
 // containers and an inline area naming the other column's track resolves against a
 // grid that does not define it — the board is then auto-placed. Position is the
 // whole of the state now, and the stylesheet reads it with `>` selectors.

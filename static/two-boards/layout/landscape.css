@@ -1,0 +1,647 @@
+/* THE ARRANGEMENT BOTH LANDSCAPE MODES SHARE — the zones, the homes, and what drops where.
+   ------------------------------------------------------------------------------------
+   `@media (aspect-ratio > 9/16)`: the vocabulary tall and short landscape both speak. Zone A is
+   the band the shorter partner board frees; zone B is the full width under both boards; a HOME
+   says where the tools sit — beside the boards, below them, in the band, or in the board's own
+   column as a last resort — and a `drop-*` class says a part has left the tools column for one
+   of the two zones. The templates those classes swap between are here, and so is the order the
+   parts leave in. */
+
+/* THE ROUND PAGE'S LANDSCAPE ARRANGEMENTS, SHARED BY BOTH LANDSCAPE MODES.
+   ------------------------------------------------------------------------------------
+   These were inside the tall-landscape block, which is where the flat grid was built. Short
+   landscape has now been flattened onto the same template, so they belong to both: the two modes
+   differ in the HEIGHT they have to spend, not in how the parts are arranged in it.
+
+   Nothing here mentions a mode. Every track is a published square and every arrangement is one of
+   the `--bug-zones-*` values, both of which already account for the header being hidden in one
+   mode and present in the other — `availableStackHeight()` measures it rather than assuming it. */
+
+/* Landscape: main board, its gauge, other board, its gauge, tools.
+   ONE rule for both landscape modes — the round page splits desktop from short landscape
+   because its vertical budget differs, and this page has no such split to make yet. */
+
+/* THE ROUND PAGE'S LANDSCAPE ARRANGEMENTS, SHARED BY BOTH LANDSCAPE MODES.
+   ------------------------------------------------------------------------------------
+   These were inside the tall-landscape block, which is where the flat grid was built. Short
+   landscape has now been flattened onto the same template, so they belong to both: the two modes
+   differ in the HEIGHT they have to spend, not in how the parts are arranged in it.
+
+   Nothing here mentions a mode. Every track is a published square and every arrangement is one of
+   the `--bug-zones-*` values, both of which already account for the header being hidden in one
+   mode and present in the other — `availableStackHeight()` measures it rather than assuming it. *//* Landscape: main board, its gauge, other board, its gauge, tools.
+   ONE rule for both landscape modes — the round page splits desktop from short landscape
+   because its vertical budget differs, and this page has no such split to make yet. */
+@media (aspect-ratio > 9/16) {
+    /* THE ZONE VOCABULARY, WRITTEN ONCE FOR BOTH PAGES.
+       ------------------------------------------------------------------------------------
+       Every landscape arrangement either page can be in, as a value rather than as a rule, so
+       that the round page and the analysis page cannot drift into meaning different things by
+       the same area name. They did drift: this page used to declare three rows — one zoneA and
+       one zoneB — and spell `drop-tools4` while meaning by it what the round page means by
+       `drop-tools4-b`. The class is chosen in toolsPlacement.ts against zone A's test or zone
+       B's, so a page whose names disagree asks one zone's question and answers it in the
+       other's space. Measured at 996x730: zone B correctly refused a 31.5px tab list into
+       3.3px of room while zone A dropped it anyway, and it was drawn across board A's pocket.
+
+       Read them as pictures of the strip beside the boards emptying from the bottom up:
+
+         strip   every part still beside the board, on its own row
+         a4      the bottom row widened to take the space the PARTNER board frees
+         a34     the bottom two widened; a234 the bottom three
+         a3      the bottom row's part has gone to zone B, the one above it to zone A
+         a23     the same, one row further up
+
+       The names are positions, never occupants — `zoneTools4` is "the fourth row beside the
+       board", and what sits there is the round page's tab bar and this page's tab list. Both
+       pages therefore state the same three rules about it: its slot, its zone A home, its zone
+       B home. A page with fewer parts simply leaves rows empty, and an empty row collapses.
+
+       Defined on both apps in EVERY landscape mode, because the two pages consume them in
+       different ones — the round page's flat grid is the tall-landscape block, and this page
+       makes no such split. A variable nothing references costs nothing where it is unused. */
+    /* WHERE THE TOOLS LIVE, chosen in squareUnit.ts before either board is sized and published as
+       one of these classes. `tools-beside` is the arrangement that has always existed — three
+       columns, the tools in the third — and needs no rule of its own beyond being the default.
+
+       THE OTHER THREE ARE TWO-COLUMN LAYOUTS. The third track collapses to nothing rather than
+       being removed, so both pages keep one `grid-template-columns` declaration each and only the
+       track's value changes: the round page's is written from the published squares and this
+       page's from the stacks themselves, and neither has to be restated per home. */
+
+    /* SHORT LANDSCAPE REACHES BOTH EDGES: the tools take what the boards leave, rather than a
+       share of the viewport.
+       `20vw` is a share, and two boards sized from the HEIGHT do not leave exactly that much —
+       measured, 183px of tools beside 329+329 of boards in a 915px viewport, with 44px claimed by
+       no track at all and centred as margins by `#main-wrap`'s `place-content`. The same gap is
+       21px at 844 and 34px at 800. Nothing else moves when the track takes it: the boards are
+       sized from the viewport, not from this track, and the width lands on the chat and the preset
+       rows, which is where the room was wanted.
+       ONLY WHERE THE TOOLS ARE A COLUMN — the other homes set this track to zero above, and only
+       in short landscape, where the boards are height-capped and the leftover is therefore the
+       layout's to give rather than a board's to grow into. */
+    @media (height < 600px) {
+    }
+
+    .analysis-app.bug {
+        display: grid;
+        /* THE TRACKS ONLY. This page's rows and areas are stated further down this block, with
+           `--bug-zones-strip` and the drop templates that replace it — look there, not here.
+
+           A `grid-template-areas: 'ownstack rightcol'` and a `grid-template-rows: minmax(0, 1fr)`
+           used to stand in this rule. Both were dead: the same selector restates both fifty lines
+           below, in the same media block, so the later rule won every time. The areas line was
+           worse than dead, because it described TWO columns beside a `grid-template-columns` that
+           declares three — a fossil of the arrangement this page had before its parts were placed
+           individually, left where a reader would take it for the current shape. */
+        /* Three tracks: each board sized by its own stack, then the tools taking what is left
+           up to this mode's cap. The stacks size themselves from `--bug-stack-sq`, so no board
+           width is written here — the track only has to ask the stack how wide it already is.
+
+           `min-content`, NOT `auto`, and the difference is the whole rule that the boards take
+           priority over the tools. Both stacks carry `min-width: 0` so that a shrinking board
+           can never widen the page; that also makes an `auto` track's floor ZERO rather than the
+           item's min-content, because `auto` minimums use the item's automatic minimum size and
+           `min-width: 0` is exactly what overrides it. So the two board tracks became fully
+           shrinkable while the tools track's `20vw` maximum was honoured first: measured at
+           996x730, tracks came back 455.9 | 282.6 | 199.2 with the own stack's own tracks summing
+           to 554 — board A overflowed its column by 98px, `overflow: visible`, and painted over
+           board B. An explicit `min-content` track function is not the automatic minimum size and
+           `min-width` does not reach it, so the board keeps its width and the tools take what is
+           left — 554 | 282.6 | 101, the round page's bargain, reached without restating the
+           board's arithmetic the way that page has to. */
+        grid-template-columns: min-content min-content var(--bug-tools-track);
+        column-gap: 2vmin;
+        grid-row-gap: 0;
+        justify-content: center;
+        align-content: start;
+    }
+    /* The merged column's own two tracks, which is nearly all this page states about it:
+       `grid-area: partnerAndTools`, `display: grid`, the zero minimums and the clipping all come
+       from the shared `.partner-and-tools` rule the round page already carries, and the
+       round page's own landscape block states exactly these two tracks and nothing more.
+
+       The AREAS are re-stated because they are the second real difference: the round page's
+       parts are a chat panel, two preset rows and a tab bar, placed individually so that
+       `toolsPlacement.ts` can drop them under a shrunken board; this page has one tools
+       block holding its own tab list, so its column is a single row of two areas. */
+    /* Only the two track widths, which is all the round page's landscape block states too. The
+       areas, the rows, the zero minimums and the clipping come from the shared
+       `.partner-and-tools` rule. The gauge's share of the stack track is the one real difference. */
+    /* ONE GRID FOR THE WHOLE PAGE, which is what lets a part move between the boards and the
+       space under them.
+       ------------------------------------------------------------------------------------
+       `.partner-and-tools` is DISSOLVED here, so the partner stack, the tab panels and the tab
+       list stop being its children and become grid items of the app alongside the own stack —
+       `.bug-parts` already does the same for its own children. Every arrangeable thing is then a
+       sibling in one grid, and an area name is all it takes to move one.
+
+       A "drop zone" is therefore an AREA, not an element. Nothing is reparented and no JS moves
+       DOM: `toolsPlacement` toggles a class and the template below decides where a part lands.
+
+       THE OWN BOARD IS A COLUMN NOW, which it never was: it used to sit outside the merged
+       column entirely. That is what makes a row spanning under BOTH boards expressible, and it is
+       why the placement test will have to consider the own board's height too. */
+    /* THE AREAS ARE NAMED FOR WHERE THEY ARE, NOT FOR WHAT SITS IN THEM.
+       ------------------------------------------------------------------------------------
+       A part's home is not a property of the part: the tab list is in the tools column now and
+       under both boards a moment later, and tomorrow it may be the preset rows instead. Naming a
+       cell `tablist` is only true until something else lands in it.
+
+       The regions and their names are the SHARED ONES, declared as `--bug-zones-*` at the top
+       of this block — see the note there. This page has two parts where the round page has
+       four, so it leaves rows 2 and 3 of the strip empty and an empty row collapses; what it
+       does not do any more is invent a shorter vocabulary of its own.
+
+       The boards keep `ownstack` and `stack`: they are not zones, they are the two fixed items
+       everything else arranges around, and those names are shared with the round page.
+
+       WHY A SLOT PER ROW rather than one `zoneTools` holding every part. Two items assigned the
+       same named area do not stack, they OVERLAP — measured, identical rectangles. A named area
+       is one rectangle and holds one item. */
+    .analysis-app.bug {
+        grid-template-areas: var(--bug-zones-strip);
+        /* The first row absorbs the slack; the rest are their content's height, which is zero
+           for the rows this page has no part for. Two `1fr` rows split the height evenly and
+           drew a five-button bar 276px tall.
+
+           THE BOARD ROW IS BOUNDED, as the round page's is, and that is what `minmax(0, 1fr)`
+           buys: `min-content` let the row take whatever the merged column's content wanted —
+           invisible while the tools sat in one fixed area that could not grow, and the second
+           thing to fail once they were placed individually. A definite height is what lets a
+           panel scroll inside the column instead of pushing the row past the viewport.
+
+           There is no row under these: no `uleft`, because the spectator placeholder that
+           claimed it sits inside the Info tab now, and no `uboard`, because the chart and
+           FEN & PGN are tabs of the tools panel. Nothing is mounted under the boards. */
+        grid-template-rows: minmax(0, 1fr) auto auto auto auto auto;
+    }
+    /* Higher specificity than the unscoped `.bug-parts > [role=...]` assignments further down the
+       file, so these win wherever they sit relative to them.
+
+       THE SAME SLOT THE ROUND PAGE GIVES THE SAME PART. Its tab panels take `zoneTools1`, the row
+       that absorbs the slack, because only the selected one is displayed and whichever is showing
+       should have the height. Its tab strip takes `zoneTools4`, the bottom of the strip, and drops
+       from there to `zoneA4` and then to `zoneB2`. This page's tab list IS that strip — same part,
+       same three rules — so the two pages now differ in which slots are OCCUPIED and in nothing
+       else. */
+    /* A GROUP STANDS WHERE THE PANEL IT REPLACES STOOD, in this home and in every one below.
+       The Moves tab is three parts now — see `analysis.ts` — and parts that still share a home
+       are mounted inside `.bug-tool-group`, which is therefore the grid item that tab's single
+       panel was. Every rule that places a panel places the group too, which is what makes
+       fragmenting the tab a change that moves nothing. */
+    /* THE MOVES TAB'S THREE PARTS, ONE PER ROW — and the row each one gets is decided by the DROP
+       ORDER, not by taste.
+       ------------------------------------------------------------------------------------
+       Zone A grows UPWARDS from the bottom: the partner stack is drawn from the top of the rows
+       it spans, so a zone A slot can only be taken from the last row it does not need —
+       `--bug-zones-a4`, then `a34`, then `a234`, replacing `zoneTools4`, then `3`, then `2`, and
+       never `zoneTools1`. A part's row is therefore its PLACE IN THE QUEUE: the first to leave
+       must be in row 4, and whatever never leaves must be in row 1.
+
+       So the column reads move list, controls, engine, tab strip, and the queue is the same list
+       backwards: the strip goes first (it always has), then the ENGINE BOX, then the controls.
+       Engine before controls is the decision — it is the taller of the two, so moving it frees
+       the most for the move list, which is the part that actually wants the height.
+
+       The MOVE LIST holds row 1 and never drops. That is not a preference either: row 1 is the
+       only row no template takes, and the list is the one part that would be useless in a band
+       four squares tall. It keeps `zoneTools1`'s `1fr` and the scroll that comes with it. */
+    /* The three fragments' slots are stated once for every mode in `layout/shared.css` now, beside
+       the dissolution that makes them grid items at all. They were here, and portrait therefore had
+       neither: its parts stayed inside the group, its `zoneTools2` and `zoneTools3` were empty and
+       zero-high, and the drop classes the cascade put on the app had nothing to move. */
+    /* THE GROUP IS DISSOLVED WHERE THE PARTS ARE PLACED INDIVIDUALLY, which is this home and only
+       this home. `.bug-presets-group`'s rule, for `.bug-presets-group`'s reason: an element with
+       no box forms no obstacle, so each part is a grid item of the app and an area name is all it
+       takes to move one. It becomes a real box again in the homes below, where every part shares
+       ONE area and a named area holds one item. */
+    /* TWO CLASS FAMILIES, ONE PER REGION, AND THEY MEAN THE SAME THING IN EVERY HOME:
+       `drop-<part>` says that part is in ZONE A, `drop-<part>-b` says it is in ZONE B. The AREAS
+       are the same in every home too — engine `zoneA2`, controls `zoneA3` once both are in the
+       band — so only the home's default differs and a part cannot mean two things. The engine box
+       alone keeps `zoneA3`, which is the row its template has; see the pair's rule below.
+
+       ZONE A, IN THE ORDER THE PARTS LEAVE. Each class is cumulative — `toolsPlacement.ts` only
+       sets `drop-tools3` once `drop-tools4` is on — so the template and the areas can be stated
+       per combination without a matrix. */
+    .analysis-app.bug.drop-tools4.drop-tools3 {
+        grid-template-areas: var(--bug-zones-a34);
+    }
+    .analysis-app.bug.drop-tools3 .bug-tool-group > .analysis-engine-panel {
+        grid-area: zoneA3;
+    }
+    .analysis-app.bug.drop-tools4.drop-tools3.drop-tools2 {
+        grid-template-areas: var(--bug-zones-a234);
+    }
+    /* THE ENGINE BOX ON TOP, THE BUTTON ROW UNDER IT, ONCE BOTH ARE IN THE BAND — the same rule
+       as in the home below, and the reason this pair is the one place where a part's area is not
+       the same in every combination. The parts drop in the order tablist, engine, controls and
+       each new one takes the next row UP, which would put the button row above the engine box;
+       these two rules put it back. With the engine box alone the rule above stands and it takes
+       `zoneA3`, which is the only band row the `a34` template has for it. */
+    .analysis-app.bug.drop-tools3.drop-tools2 .bug-tool-group > .analysis-engine-panel {
+        grid-area: zoneA2;
+    }
+    .analysis-app.bug.drop-tools2 .bug-tool-group > .analysis-controls-panel {
+        grid-area: zoneA3;
+    }
+    /* ZONE B IS THE FALLBACK, AND ONLY FOR THE ENGINE BOX. Where zone A is too small — most often
+       because the two boards are the same size and there is no band at all — the full-width row
+       under both boards can still take it. zoneB2 is the strip's, so the engine takes zoneB1 and
+       the controls have no zone B row: with the strip and the engine already there, a third row
+       would cost the boards more height than the buttons are worth. Where the tools' HOME is
+       already zone B — `tools-below` — none of this applies: the whole panel is there and the
+       parts are one box again. */
+    .analysis-app.bug.drop-tools3-b .bug-tool-group > .analysis-engine-panel {
+        grid-area: zoneB1;
+    }
+    /* DROPPED, in the round page's two stages. `drop-tools4` is decided by zone A's test in
+       toolsPlacement.ts and `drop-tools4-b` by zone B's, so each class must land its part in the
+       zone whose question was asked. This page spelled only the first and routed it to a zone-B
+       row, which is the disagreement the shared vocabulary above exists to prevent: measured at
+       996x730 with board A at full zoom, zone B correctly refused a 31.5px tab list into the
+       3.3px left under a 666.7px stack, zone A had the 266.9px board B frees and dropped it
+       anyway, and the list was drawn across board A's pocket with `--bug-boards-h` still
+       claiming the whole budget.
+
+       Zone A first: there is room under the SHORTER board long before there is room under both. */
+    .analysis-app.bug.drop-tools4 .bug-parts > [role='tablist'] {
+        grid-area: zoneA4;
+    }
+    /* Zone B keeps the base template: the part leaves row 4 for row 6, and the row it vacates
+       collapses on its own. The round page's `drop-tools4-b` states no template either, for
+       exactly this reason. */
+    .analysis-app.bug.drop-tools4-b .bug-parts > [role='tablist'] {
+        grid-area: zoneB2;
+    }
+    /* THE TWO-COLUMN HOMES on this page. Two parts, so zone B's second row and zone A's lower
+       slots stay empty and collapse.
+
+       THE BOARD TRACKS STOP BEING `min-content` HERE, and must. This page sizes them from the
+       stacks themselves so that the gauge is counted without the arithmetic being restated — which
+       is right while a board is the only thing in its column. In these homes the tools share a
+       board's column, and a `min-content` track takes the widest of everything in it: measured at
+       682x647 in zone A, the tab strip's 240px min-content widened the partner's 221.6px column
+       and pushed the app 8px past the viewport. `min-width: 0` does not reach a `min-content`
+       track — the same trap the boards themselves hit — so the track has to be stated as a length.
+       8.31 is the stack's own width in squares: eight files and the gauge's 0.31. */
+    .analysis-app.bug:is(.tools-below, .tools-lastresort) {
+        grid-template-columns: calc(var(--bug-tall-sq-a) * 8.31) calc(var(--bug-tall-sq-b) * 8.31) 0;
+    }
+
+    /* THE TOOLS' HOMES PLACE THEIR PARTS INDIVIDUALLY TOO, and the two regions are used at once.
+       ------------------------------------------------------------------------------------
+       Until now a home took the whole panel as one box: everything in `zoneB1`, or everything in
+       `zoneA2`. That wastes the region it is not using. The band under the partner board and the
+       full-width row under both boards are both there in both homes, and the parts want different
+       things from them — the move LIST wants width and height, the engine box and the button row
+       want neither and read fine in a narrow band.
+
+       So each home has a default for every part, and `toolsPlacement.ts` may move the two fragments
+       to the other region when it has room. Zone B's rows are the same order in both homes — list,
+       controls, engine, strip — so a part means the same thing wherever it lands. */
+    .analysis-app.bug.tools-below .bug-tool-group > .analysis-moves-panel {
+        grid-area: zoneB1;
+    }
+    .analysis-app.bug.tools-below .bug-tool-group > .analysis-controls-panel {
+        grid-area: zoneB2;
+    }
+    .analysis-app.bug.tools-below .bug-tool-group > .analysis-engine-panel {
+        grid-area: zoneB3;
+    }
+    /* AND UP INTO THE BAND, which is the swap: with the list holding the full-width row, the band
+       beside the partner board is free, and a fragment there costs the boards nothing at all. The
+       engine box goes first — it frees the most from the row the list is in.
+
+       THE ENGINE BOX IS ABOVE THE BUTTON ROW WHEREVER THE TWO SHARE THE BAND — Nikolay's rule,
+       2026-09-19, and it is about these two parts only, not about the band in general. It holds
+       whether the move list is beside them in the tools column or below them in zone B, so it is
+       stated once per home rather than derived from the order in which they drop. Which row each
+       takes when it is alone does not matter here: an empty band row collapses, so a lone part is
+       at the bottom of the band either way. */
+    .analysis-app.bug.tools-below.drop-tools3 .bug-tool-group > .analysis-engine-panel {
+        grid-area: zoneA2;
+    }
+    .analysis-app.bug.tools-below.drop-tools2 .bug-tool-group > .analysis-controls-panel {
+        grid-area: zoneA3;
+    }
+    /* The `align-self: start` the two parts carried here is gone with the row sizing that made it
+       necessary. It existed because the band's rows were handed the own stack's leftover and the
+       parts stretched into it — a 40px button row drawn 88px tall, the engine box 122 against its
+       74 — so they changed size with the leftover rather than with their content. The rows are now
+       each their own part's height, so there is nothing left to stretch into and nothing to pack
+       against: see the note on `grid-template-rows` above. */
+    .analysis-app.bug.tools-below .bug-parts > [role='tablist'] {
+        grid-area: zoneB2;
+    }
+
+    /* THE LAST RESORT: THE TOOLS TAKE THE BOARD'S COLUMN, AND THE BOARD TAKES ITS TURN IN IT.
+       ------------------------------------------------------------------------------------
+       Reached only where nothing else fits — no column beside the boards, no band below them, and
+       a zone A too small to hold a part. All that is left is the right board's own column, so the
+       tools go there and the partner's board becomes a TAB: the strip guarantees exactly one of
+       them is displayed, which is what lets them share one area without a rule about who wins.
+       NO NEW AREA IS DECLARED, only a new occupant for `stack`. The template and rows are zone
+       A's, shared above, because the tab strip still needs a zone A to sit in — and `toolsHome()`
+       will not choose this home unless there is one. */
+    .analysis-app.bug.tools-lastresort .bug-parts > [role='tabpanel'],
+    .analysis-app.bug.tools-lastresort .bug-parts > .bug-tool-group,
+    .analysis-app.bug.tools-lastresort .bug-parts .chatpresets-panel-1,
+    .analysis-app.bug.tools-lastresort .bug-parts .chatpresets-panel-2,
+    .analysis-app.bug.tools-lastresort .bug-parts > .bug-presets-group,
+    .analysis-app.bug.tools-lastresort .bug-parts > .bug-gameover {
+        grid-area: stack;
+    }
+    /* The strip itself is the one thing that must stay visible while any of them is, so it is the
+       one thing that does NOT share the column. */
+
+    /* The tab strip flows on into zone B — full width under both boards, where it sits in every
+       other arrangement — leaving the whole of zone A to the panel above it. */
+    /* THE STRIP IS ITS CONTENT, NOT ITS ROW, WHEREVER IT SITS IN THE BAND.
+       ------------------------------------------------------------------------------------
+       And this one had teeth: `toolsPlacement` decides whether the strip can move to zone B by
+       measuring it, and in the last resort the bar was STRETCHED to fill `zoneA2` — measured on
+       the round page at 701x744, a 264px bar whose content is about 75. Zone B had 124px of room,
+       the test read `124 >= 264`, and the strip stayed in a 220px column with four tabs in it
+       while the full width under both boards went unused. Packed to the top, the same test reads
+       `124 >= 75` and the strip goes where it can be read. */
+    .round-app.bug.tools-lastresort .bug-parts > .bug-round-tools-bar,
+    .analysis-app.bug.tools-lastresort .bug-parts > [role='tablist'] {
+        align-self: start;
+    }
+    /* THE LAST RESORT'S STRIP GOES TO ZONE B TOO, when zone B can hold it. The tools have taken
+       the partner board's column there, so the strip's alternative is a column one board wide;
+       zone B is both boards wide and costs the boards only the strip's own height. `strip-in-zoneb`
+       is the same class and the same test as in the band home — it is computed for every placed
+       home — so this is a missing pair of rules rather than a new decision. */
+    .round-app.bug.tools-lastresort.strip-in-zoneb .bug-parts > .bug-round-tools-bar {
+        grid-area: zoneB1;
+    }
+    .analysis-app.bug.tools-lastresort.strip-in-zoneb .bug-parts > [role='tablist'] {
+        grid-area: zoneB1;
+    }
+
+}
+
+@media (aspect-ratio > 9/16) {
+
+    /* THE RULES BELOW NAME BOTH PAGES BECAUSE THEY ARE ONE RULE.
+       ------------------------------------------------------------------------------------
+       Eight of them were written twice until 2026-09-19 — once under `.round-app.bug`, once under
+       `.analysis-app.bug`, with declarations that matched to the character. 189 lines of this
+       file, and the cost was not the lines: on the morning zone A's row sizing changed, the same
+       thirty-line explanation had to be edited in both copies, and nothing but care kept them
+       saying the same thing. They are the shape `seatNamePlacement.ts` had before that same day —
+       one question answered twice — one level down.
+
+       `:is()` TAKES THE SPECIFICITY OF ITS MOST SPECIFIC ARGUMENT, so naming both pages costs
+       nothing: `:is(.round-app, .analysis-app).bug.tools-below` is (0,3,0), exactly what
+       `.round-app.bug.tools-below` was. The survey confirmed it — 264 rows, no change.
+
+       A rule that is genuinely one page's still says so. What is here is what both pages mean. */
+    /* THE APP IS AS TALL AS ITS CONTENT, in both landscape modes. `toolsPlacement` publishes the
+       taller stack plus whatever zone B holds, capped at the budget; without it the app grows to
+       whatever its rows want and the page scrolls, which neither mode may do. Measured in short
+       landscape before this was shared: rows totalling 739 in a 503px viewport.
+
+       THE `body` PREFIX IS HOW THIS RULE KEEPS WINNING, and the split is why it needs one. It ties
+       at (0,2,0) with short landscape's own `.analysis-app.bug { height: 100% }`, whose comment
+       says in as many words that it wins by being "later in the file than the shared landscape
+       block". That was true of one file. Split, this block is `layout/landscape.css` and that one
+       is `layout/short-landscape.css`, which loads AFTER it — so the tie reversed and the analysis
+       app took `100%` of the budget instead of its content's height: measured 390px of stack
+       against 393 at 393x852 and 411 against 412 at 412x915, on `C4` in short landscape. The
+       prefix makes it (0,2,1) and the outcome no longer depends on which file loads first.
+       Found by comparing SCREENSHOTS between the runs — no check changed, because a 3px stack is
+       not a finding; the pixels are. */
+    body[data-variant='bughouse'] :is(.round-app, .analysis-app).bug {
+        height: var(--bug-app-content-h, 100%);
+    }
+
+    /* WHICH SLOT EACH PART OCCUPIES BESIDE THE BOARD is not stated here any more, because it is
+       stated once for every mode in `layout/shared.css`: tab panel to `zoneTools1`, the preset
+       rows and the end-of-game controls to `zoneTools2`/`zoneTools3`, the tools bar and the tab
+       list to `zoneTools4`.
+
+       Five rules stood here saying exactly that, at a specificity chosen to beat those shared
+       assignments — which they had to, while portrait named the same four slots `chat / p1 / p2 /
+       tablist` and the shared rules spoke that vocabulary. One vocabulary later, they said what
+       they were overriding. The drop rules below are unaffected: they are more specific than
+       either form and move a part OUT of its slot, which is a different statement.
+
+       What remains on this page is only what genuinely differs: the Moves tab's three parts,
+       placed one per row below, because `.bug-tool-group` dissolves here and its children become
+       the grid items that its single panel was. */
+
+    /* THE DROPPED ARRANGEMENTS, in the order parts leave the strip beside the board: the tab
+       bar first, then the presets from the bottom up. A dropped part's row widens to zoneAN —
+       the partner board's column plus the tools — which is exactly the span it had before
+       this page was flattened, so nothing about the dropped look changes here.
+
+       The classes are on the APP rather than on `.partner-and-tools` because the element whose
+       template they swap has to be the element they sit on, and that is the app now.
+       toolsPlacement.ts puts them wherever it measures, which is the same element by
+       construction — see the note there about `display: contents` measuring zero. */
+    :is(.round-app, .analysis-app).bug.drop-tools4 {
+        grid-template-areas: var(--bug-zones-a4);
+    }
+    .round-app.bug.drop-tools4.drop-tools3 {
+        grid-template-areas: var(--bug-zones-a34);
+    }
+    .round-app.bug.drop-tools4.drop-tools3.drop-tools2 {
+        grid-template-areas: var(--bug-zones-a234);
+    }
+    .round-app.bug.drop-tools4 .bug-parts > .bug-round-tools-bar {
+        grid-area: zoneA4;
+    }
+
+    /* ZONE B FILLS FROM THE BOTTOM, TAB BAR FIRST.
+
+       The bar is the cheapest thing to move — one row of 40px against the presets' two — so it
+       is what zone B can afford first, and toolsPlacement.ts only offers the presets the zone
+       once the bar is already in it. The bar takes the LOWER slot and the presets land above
+       it, which leaves the bar where it has always been: last, under everything.
+
+       What this replaces looked like a swap: the bar dropped into zone A, beside the partner
+       board, while the presets jumped past it to the full width below — so on the way down the
+       two traded places instead of filling one after the other. */
+    .round-app.bug.drop-tools4-b .bug-parts > .bug-round-tools-bar {
+        grid-area: zoneB2;
+    }
+
+    /* The presets still in zone A while the bar has already gone to zone B.
+
+       THE BAR'S EMPTIED SLOT MOVES UP, above the zone A rows rather than below them, and that
+       is not cosmetic: a named area must be a single filled RECTANGLE, so leaving `zoneTools4`
+       at the bottom put `stack` in rows 1-2 and again in row 4 with a spanning row between.
+       Non-rectangular, so the whole declaration was invalid and dropped — the default template
+       applied, `zoneA3` named nothing, its panel fell into an implicit column, and partsWidth
+       read that trailing 0px track as the tools width. The button then shrank to its floor,
+       which made zone B look affordable, which moved the presets, which made it unaffordable
+       again: the layout oscillated between the two every frame.
+
+       The row is empty either way — the bar is in zone B — so putting it above costs nothing
+       and keeps every area a rectangle.
+
+       AND BOTH PAGES NEED IT, which is why these two name both. They read `.round-app` alone
+       until now, and the analysis page reached the same combination — its tab list in zone B,
+       its engine box asked into `zoneA3` — with no template that declares a `zoneA3`. The base
+       `--bug-zones-strip` stayed in force, the engine box fell into an implicit column exactly
+       as described above, and the page oscillated exactly as described above: measured on the
+       analysis page at 904x686 with board A at 72.375 and board B at 99.5, the engine box
+       alternating `zoneA3` at 62x134 with `zoneB1` at 904x75, forever.
+
+       The slot numbers mean the same thing on both pages — 4 the strip, 3 the engine box or the
+       second preset row, 2 the controls — so this was one rule wearing one page's name. The
+       fix for the round page dates from the note above; the analysis page never got it. */
+    :is(.round-app, .analysis-app).bug.drop-tools4-b.drop-tools3 {
+        grid-template-areas: var(--bug-zones-a3);
+    }
+    :is(.round-app, .analysis-app).bug.drop-tools4-b.drop-tools3.drop-tools2 {
+        grid-template-areas: var(--bug-zones-a23);
+    }
+    .round-app.bug.drop-tools4-b.drop-tools3 .bug-parts .chatpresets-panel-2,
+    .round-app.bug.drop-tools4-b.drop-tools3 .bug-parts .round-controls-panel {
+        grid-area: zoneA3;
+    }
+    .round-app.bug.drop-tools4-b.drop-tools3.drop-tools2 .bug-parts .chatpresets-panel-1,
+    .round-app.bug.drop-tools4-b.drop-tools3.drop-tools2 .bug-parts > .bug-gameover {
+        grid-area: zoneA2;
+    }
+    .round-app.bug.drop-tools4.drop-tools3 .bug-parts .chatpresets-panel-2,
+    .round-app.bug.drop-tools4.drop-tools3 .bug-parts .round-controls-panel {
+        grid-area: zoneA3;
+    }
+    .round-app.bug.drop-tools4.drop-tools3.drop-tools2 .bug-parts .chatpresets-panel-1,
+    .round-app.bug.drop-tools4.drop-tools3.drop-tools2 .bug-parts > .bug-gameover {
+        grid-area: zoneA2;
+    }
+
+    /* THE TWO-COLUMN HOMES. The drop classes above arrange the tools INSIDE their column; these
+       arrange them when there is no column — see `toolsHome()` in squareUnit.ts, which chooses
+       between them from the viewport before either board is sized. `toolsPlacement` clears the
+       drop classes outside `tools-beside`, so the two sets of rules never apply at once. */
+    :is(.round-app, .analysis-app).bug.tools-below {
+        grid-template-areas: var(--bug-zones-below);
+        /* THE BOARD ROW IS ITS CONTENT, and the band takes what is left.
+           `calc(var(--bug-tall-sq-a) * 10)` was tried and is wrong: a stack is ten rows of board
+           and pocket PLUS whatever its seat strips take, and `own-name-outside` gives the username
+           a line of its own. Measured at 627x835 with a 40px square: the row came to 400 and the
+           stack to 457, so the stack was drawn 57px over the band and the chat was behind the
+           clock. The ten-row figure is what the boards are SIZED from, not what they occupy.
+
+           The band is therefore the slack — `TOOLS_MIN_ROWS` squares at full zoom, by construction,
+           and more once a board is zoomed down, since the boards give back what they stop using. */
+        /* Seven rows: the board row, TWO zone A rows — what the band takes when the move list
+           has the full-width row below — and four zone B rows.
+
+           THE ZONE A PAIR ARE `minmax(min-content, 0)`, AND THE `0` IS THE POINT. `min-content`
+           alone was not enough. The own stack SPANS the board row and both band rows, and grid
+           hands a spanning item's leftover to every spanned row whose MAX sizing function is
+           intrinsic — equally, and `min-content` is intrinsic. Measured on the analysis page at
+           768x1024, an own stack of 590 over rows of 295 + 40 + 75: each of the three rows was
+           given 60px it had no content for, so the band's two parts were drawn 60px apart with
+           another 60 below them; on the round page at 768x1024 an EMPTY band row was 55px tall.
+           A definite max takes the pair out of that distribution while `min-content` keeps each
+           row at its own part's height, and an empty one collapses to nothing. The leftover then
+           lands in the board row above, under the partner board, where it is the empty part of
+           zone A and reads as such — and the parts finish flush with the bottom of the own stack,
+           which is where zone B begins. Chromium and Firefox agree, at three own-stack sizes.
+
+           THAT IS ZONE A'S RULE AND NOT THIS HOME'S: whatever the band holds stacks at its
+           BOTTOM, with the slack above it, one part or several. The homes beside the boards
+           already do it another way — their first row is `minmax(0, 1fr)` and takes the slack by
+           being flexible — which is why this home is the only one that had to be told. */
+        grid-template-rows: min-content minmax(min-content, 0) minmax(min-content, 0) minmax(0, 1fr) min-content min-content min-content;
+    }
+    :is(.round-app, .analysis-app).bug.tools-below .bug-parts > [role='tabpanel'] {
+        grid-area: zoneB1;
+    }
+    .round-app.bug.tools-below .bug-parts .chatpresets-panel-1,
+    .round-app.bug.tools-below .bug-parts > .bug-gameover {
+        grid-area: zoneB2;
+    }
+    /* THE END-OF-GAME CONTROLS PREFER ZONE A when it can hold them: a fixed block of buttons
+       neither needs the full width nor loses anything in a narrow column, and moving it out of
+       zone B leaves the panel below the rest of the band. `toolsPlacement` measures zone A —
+       beside the own board, under the partner's — and sets this class when the block fits. */
+    .round-app.bug.tools-below.drop-gameover-a .bug-parts > .bug-gameover {
+        grid-area: zoneA2;
+    }
+    .round-app.bug.tools-below .bug-parts .chatpresets-panel-2,
+    .round-app.bug.tools-below .bug-parts .round-controls-panel {
+        grid-area: zoneB3;
+    }
+    .round-app.bug.tools-below .bug-parts > .bug-round-tools-bar {
+        grid-area: zoneB4;
+    }
+
+    :is(.round-app, .analysis-app).bug.tools-lastresort {
+        grid-template-areas: var(--bug-zones-zonea);
+        /* THE PANEL'S ROW TAKES THE SLACK, as `zoneTools1` does beside the boards. With every part
+           row `auto`, none of them absorbs it and the own stack — which spans all five rows —
+           distributes the leftover among them, EMPTY ONES INCLUDED: measured on the analysis page,
+           rows 2-5 came to 253px while the panel and the tab strip used 144, the other 109 going
+           to two rows with nothing in them.
+
+           AND IN THIS HOME THE PANEL'S ROW IS `stack`, NOT `zoneA2`. The slack sat on row 2
+           because this template was shared with the `tools-zonea` home, where row 2 held the
+           panel; here row 2 holds the TAB STRIP and `stack` holds everything else — every tools
+           panel and the partner board, taking its turn as a tab. So the strip was handed all of
+           it: measured at 820x640, `zoneA2` 540px tall around a 40px strip while the panel above
+           it had 40, and at 100xmin 300px against a 31px strip. Both are in the survey, eleven
+           rows of it, and every one of them is this row.
+
+           The strip's row is `min-content` for the same reason it is packed to the top — see
+           `align-self: start` above: what `toolsPlacement` measures to decide whether zone B can
+           take it has to be the strip, not the row it was given. */
+        grid-template-rows: minmax(0, 1fr) min-content minmax(0, auto) minmax(0, auto) min-content min-content min-content min-content;
+    }
+
+    /* THE LAST RESORT: THE TOOLS TAKE THE BOARD'S COLUMN, AND THE BOARD TAKES ITS TURN IN IT.
+       ------------------------------------------------------------------------------------
+       Reached only where nothing else fits — no column beside the boards, no band below them, and
+       a zone A too small to hold a part. All that is left is the right board's own column, so the
+       tools go there and the partner's board becomes a TAB: the strip guarantees exactly one of
+       them is displayed, which is what lets them share one area without a rule about who wins.
+       NO NEW AREA IS DECLARED, only a new occupant for `stack`. The template and rows are zone
+       A's, shared above, because the tab strip still needs a zone A to sit in — and `toolsHome()`
+       will not choose this home unless there is one.
+
+       WHAT SHARES `stack` IS THE TABS, AND ONLY THE TABS. A tab strip displays exactly one of
+       its tabs, so those may share one rectangle; the parts that are NOT tabs may not, and this
+       rule gave the whole panel to `stack` regardless. The preset rows are the Chat tab's parts
+       1 and 2, the controls are the Moves tab's part 1, and the game-over panel is shown beside
+       whichever tab is selected — every one of them a SIBLING of the part above it, drawn at the
+       same 328x540 rectangle and on top of it. Measured at 820x640: the chat input under two
+       rows of preset buttons, and REMATCH, NEW OPPONENT and ANALYSIS BOARD under the move list.
+       It also put the move controls across the move list's first row, which no check caught.
+
+       So the siblings take a band row each, in the slot order they have beside the boards —
+       `zoneTools2` and `zoneTools3` are these same two parts — and the strip keeps the last slot.
+       An unoccupied band row is a zero-height row, so the Moves tab's empty `zoneA3` costs it
+       nothing and the strip stays directly under the panel. */
+    .round-app.bug.tools-lastresort .bug-parts > [role='tabpanel'],
+    .round-app.bug.tools-lastresort .bug-parts > .bug-presets-group {
+        grid-area: stack;
+    }
+    /* Both of these outrank the `[role='tabpanel']` rule above on specificity rather than on
+       order — five classes to four classes and an attribute — and `.round-controls-panel` needs
+       to, because it IS a tab panel and a direct child. The preset panels are neither: they sit
+       inside `.bug-presets-group`, which the child combinator above does not reach. */
+    .round-app.bug.tools-lastresort .bug-parts .chatpresets-panel-1,
+    .round-app.bug.tools-lastresort .bug-parts > .bug-gameover {
+        grid-area: zoneA3;
+    }
+    .round-app.bug.tools-lastresort .bug-parts .chatpresets-panel-2,
+    .round-app.bug.tools-lastresort .bug-parts .round-controls-panel {
+        grid-area: zoneA4;
+    }
+    /* The strip itself is the one thing that must stay visible while any of them is, so it is the
+       one thing that does NOT share the column. */
+    :is(.round-app, .analysis-app).bug.tools-lastresort .bug-parts > .bug-round-tools-bar,
+    :is(.round-app, .analysis-app).bug.tools-lastresort .bug-parts > [role='tablist'] {
+        grid-area: zoneA5;
+    }
+}

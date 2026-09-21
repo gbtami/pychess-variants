@@ -1,0 +1,495 @@
+/* EVERY `--bug-*` VALUE, AND THE REGISTRATIONS THAT MAKE THEM READABLE FROM JAVASCRIPT.
+   ------------------------------------------------------------------------------------
+   One file so that a name can be looked up in one place, and so that two names for the same
+   quantity are visible side by side. Nothing here draws anything: these rules declare numbers
+   and the `@property` registrations that let `getComputedStyle` hand them back as lengths
+   instead of as the text they were written as.
+
+   MOVED VERBATIM FIRST, in file order. The grouping this file is meant to have — what
+   `squareUnit.ts` publishes, what `toolsPlacement.ts` publishes, what a part declares for the
+   placement code to read, and what the stylesheet computes from the others — is the next step,
+   with its own survey run, because reordering declarations can change which one wins. */
+
+/* THE MAP — every `--bug-*` name, what it is, and where its value comes from.
+   ==========================================================================================
+   GROUPED HERE RATHER THAN REORDERED BELOW, and the reason is load-bearing: seven of these
+   names are declared MORE THAN ONCE — `--bug-stack-allow` eight times, `--bug-stack-sq` six,
+   `--bug-coord-room` five, `--bug-tools-track` three, `--bug-coord-gap`, `--bug-sq` and
+   `--bug-own-sq` twice — once per mode, and the one that applies is the one whose selector and
+   media query match. Sorting the file into groups would reorder those and change which wins.
+   So the declarations stay in the order they were written and the grouping is stated here.
+
+   AND THE FILE HOLDS 27 OF THE 48 NAMES. The rest have no CSS declaration at all: `squareUnit.ts`
+   writes 8 and `toolsPlacement.ts` 7 straight onto the app's style attribute, so looking one of
+   those up in the stylesheet finds nothing. They are listed here with the module that writes them.
+
+   PUBLISHED BY `squareUnit.ts` — written on every resize; in no declaration below.
+
+     --bug-tall-sq-a / -b      each column's square in tall landscape, after the zoom
+     --bug-tall-allow-a / -b   the same at FULL zoom: what the column is ALLOWED, not drawing
+     --bug-sq / --bug-sq-b     the two squares in short landscape, which has no zoom
+     --bug-portrait-sq         the own board's square in portrait: the full width over eight
+     --bug-portrait-partner-sq the partner board's, which is what the tools' track is left of
+     --bug-app-h               the app's height: the viewport less the header, measured
+     --bug-tall-sq             the square before a column is named — the height's answer alone
+
+   PUBLISHED BY `toolsPlacement.ts` — written after it has arranged the parts.
+
+     --bug-preset-btn          the size a preset button is drawn at, between the two below
+     --bug-preset-btn-min/-max its floor (0.55 of a square) and its ceiling (one square)
+     --bug-preset-gap          the pitch between buttons, and `-gap-min` its floor
+     --bug-preset-align        how a short row sits in its track: centred, or spread
+     --bug-preset-row-gap      the space between the two preset rows
+     --bug-boards-h            the taller stack's height, which zone B begins under
+     --bug-app-content-h       what the app may be: the boards plus whatever zone B holds
+     --bug-controls-labels     1 when draw and resign have room for their words, else 0
+     --bug-chat-min-lines      messages the chat is owed before the presets may grow
+     --bug-chat-msg-advance    what one message costs, top of one to the top of the next
+
+   DECLARED BY A PART, FOR THE PLACEMENT CODE TO READ — the only direction that runs the other
+   way. Registered with `@property` so `getComputedStyle` returns pixels rather than the token.
+
+     --bug-part-min-w / -h     what a part needs before it may be dropped into a zone
+
+   COMPUTED HERE, FROM THE ABOVE — arithmetic the stylesheet does for itself.
+
+     --bug-stack-sq            this stack's square, whichever column it is
+     --bug-stack-allow         this stack's square at full zoom: its ceiling
+     --bug-coord-room          10 x (allow - sq): the height a zoomed-down board gave back
+     --bug-coord-overhang      how far the file labels hang below the board
+     --bug-coord-capped        the room, clamped to what the labels can use
+     --bug-coord-floor         12px, under which a gap is not worth having
+     --bug-coord-fits          the floor as arithmetic: 0 below it, 1 at or above
+     --bug-coord-gap           the gap actually taken — capped x fits
+     --bug-coord-lead          the space a label leads with
+     --bug-name-fs / -fs-max   the username's size and its 16.8px ceiling
+     --bug-strip-h             a seat strip's height: one square
+     --bug-tools-track         the width the tools column is given
+     --bug-own-sq              the viewer's own square, for the parts that size against it
+     --bug-chart-inverted      1 when the chart's panel is taller than wide (@property)
+
+   THE ARRANGEMENT'S VOCABULARY — values that are TEMPLATES, not numbers. Only `layout/` reads
+   them, and they may belong there rather than here; left with the other custom properties for
+   now because moving them is a cascade change, not a move.
+
+     --bug-zones-strip / -a4 / -a34 / -a234 / -a3 / -a23 / -below / -zonea
+
+   TWO NAMES FOR ONE QUANTITY — carried forward for the renaming, NOT merged here, because
+   merging is a behaviour change:
+
+     --bug-sq = --bug-stack-sq      both `var(--bug-tall-sq-a)` in tall landscape
+     --bug-sq-b = --bug-stack-sq    both `var(--bug-tall-sq-b)` in the partner's column
+     `--bug-stack-sq` is the per-stack alias of whichever column's square applies, so the pair
+     is not redundancy but indirection — worth keeping only if the indirection is used. It is:
+     `seatNamePlacement.ts` and the coordinate arithmetic read the stack's name without caring
+     which column they are on.
+   ========================================================================================== */
+
+/* Registered, and the registration is load-bearing twice over.
+   `getComputedStyle` hands back an unregistered custom property UNRESOLVED — `parseFloat`
+   of "clamp(0px, ...)" is NaN — and seatNamePlacement has to read this number to know how
+   much height the coordinate labels have claimed before it decides whether a name may take
+   a line.
+   And a style query compares an unregistered property as TOKENS, so
+   `style(--bug-coord-gap: 0px)` would never match the clamp() that computes to zero.
+   Registered, it is compared as a computed length and matches. That query is how the
+   coordinates switch to sitting on the squares, so without this declaration the switch
+   silently never fires.
+   The length initial value also means every element that sets nothing reserves nothing.
+
+   Every mode sets it, through the shared rule below — including the two that always
+   resolve to zero. That is the point: no mode is named, each supplies its own room. */
+@property --bug-coord-gap {
+    syntax: '<length>';
+    inherits: true;
+    initial-value: 0px;
+}
+/* THE ANALYSIS PAGE'S NAME DECISION, registered for the same second reason as the gap
+   above: a style query compares an unregistered property as TOKENS, so `style(--bug-name-
+   outside: 1)` would never match the `min(1, round(down, ...))` that computes to 1.
+   Registered as a number, it is compared as a computed value and matches.
+
+   Initial value 0 — a stack that supplies no room reserves no line, which is what makes
+   portrait and full zoom keep their names inside the strip without either being named. */
+/* WHICH WAY THE MOVE-TIMES CHART IS DRAWN, decided here and carried out by
+   `trackChartOrientation()` in movetimeChart.ts. Registered for the same reason as the two
+   above: unregistered, `getComputedStyle` hands the value back as an unresolved token.
+
+   The RULE lives in CSS because it is a question about a box, and the boxes are what this
+   file decides — the panel is tall and narrow in portrait's tools column and wide and short
+   in a landscape one, so the answer follows the layout rather than being a second opinion
+   about it. Only the ACT of re-rendering needs script: `inverted` is a Highcharts render
+   option that transposes axes, bar direction, tooltip anchoring and hit areas, and no
+   stylesheet can reach that. A `transform: rotate(90deg)` would turn the picture on its
+   side, labels and pointer geometry included, which is a different thing entirely.
+
+   Initial value 0 — horizontal. A panel whose tab is not selected has `display: none` and
+   so no principal box, which makes it no container at all and leaves this at its initial
+   value. That is also what makes showing the tab work: the box goes from nothing to real,
+   the observer fires, and the answer is computed for the first time against a real size. */
+@property --bug-chart-inverted {
+    syntax: '<number>';
+    inherits: true;
+    initial-value: 0;
+}
+/* THE USERNAME'S CEILING, AND THE ONE SIZE ON THIS PAGE THAT IS NOT DERIVED FROM A BOARD.
+   16.8px is what a single-board round page draws a username at: `round-player0` is
+   `font-size: 1.2em` in site.css over an `html` of 14px, measured on the live page at
+   1276 wide — 16.8px computed, in a 50px line box. Every other variant on this site uses
+   that size and it reads well, so it is the right ceiling here too.
+
+   One constant, in every mode and for both seats. A username's readable size is not a
+   property of a chessboard: sizing it from the square gave 7.21px on a seat whose row was
+   165.3px wide with nothing else on it, and 16.74px on its neighbour, for no reason other
+   than that one board was smaller than the other. The pocket must match its board because
+   it sits pieces on squares; a name must be legible. */
+/* ROOM UNDER A BOARD FOR ITS FILE LABELS, AND WHAT HAPPENS WHEN THERE IS NONE.
+   ---------------------------------------------------------------------------
+   The labels are absolutely positioned and hang below the board by --files-bottom, which
+   lands them on the seat strip beneath. Where the mode has height to spare, that height is
+   spent pushing the strip clear of them instead; where it has none, they go back to sitting
+   on the squares, which is what the two mobile modes have always done.
+
+   The overhang is read from --files-bottom rather than written as 16px, so it follows the
+   labels. Read HERE, one level above the stacks that override --files-bottom, which is what
+   keeps it from being a var() cycle: at this element --files-bottom is still the :root value.
+
+   The floor exists because a 4px label is not a small label, it is an unreadable one. Short
+   landscape's spare height is only its quantisation remainder — 4.3px measured at 1276x351 —
+   and a gap that size would buy nothing while costing the strip its room. Below the floor the
+   gap is not merely small, it is ZERO, so the room goes back to the strip and the labels move
+   onto the squares.
+
+   TUNED, not guessed. The label is 0.75 of the gap, so the floor is really a decision about
+   the smallest letter worth putting outside the board, and the honest comparison is against
+   what replaces it: an internal label is 0.3 of a square, measured 18.3px on a 61px square.
+   At a floor of 8 the last external label is 6px, which loses that comparison badly — the
+   labels would be getting smaller in order to stay outside, when going inside would make them
+   three times the size. At 12 the smallest external label is 9px and still reads, and anything
+   under it goes internal and gets bigger rather than smaller. Measured across the ramp by
+   driving --bug-coord-room directly: 16 -> 12px label, 14 -> 10.5, 12 -> 9, 10 -> 7.5, 8 -> 6. */
+/* BOTH TWO-BOARD PAGES, one treatment. Everything about coordinates in this file — these two
+   numbers, the on-the-squares rules near the end, the parity colouring and the `not style()`
+   block that puts the labels back outside — is written once and selected for both app roots.
+
+   It was scoped to the round page alone until 2026-08-29, which left the analysis page computing
+   `--bug-coord-gap` and then ignoring it: measured 0px at 100% zoom on a 1276x551 window, the
+   round page's signal for "no room, draw them on the squares", while its files sat at
+   `bottom: -16px` outside the board at chessground's own 0.8 opacity and 11.9px.
+
+   Widened rather than copied, deliberately. The colouring below is sixteen selectors that pair
+   each label with the square it sits on; a second copy under the other app class would be the
+   same body of rules with no mechanism keeping the two in step. */
+:is(.round-app, .analysis-app).bug {
+    --bug-name-fs-max: 16.8px;
+}
+:is(.round-app, .analysis-app).bug {
+    --bug-coord-overhang: calc(-1 * var(--files-bottom));
+    --bug-coord-floor: 12px;
+}
+/* The rule, written once, against a room each mode supplies for itself.
+   A mode that sets no room gets the 0px default and its labels sit on the squares — which is
+   how portrait and short landscape keep their present appearance without being named.
+
+   `--bug-coord-fits` is the floor as arithmetic rather than as a branch: the capped room over
+   the floor, rounded down and capped at 1, is 0 below the floor and 1 at or above it. It
+   multiplies the gap to nothing in the first case and leaves it alone in the second, so ONE
+   variable carries the whole answer — which is what lets the style query ask one question. */
+.bug-own-stack, .bug-partner-stack {
+    --bug-coord-room: 0px;
+    --bug-coord-capped: clamp(0px, var(--bug-coord-room), var(--bug-coord-overhang));
+    --bug-coord-fits: min(1, round(down, var(--bug-coord-capped) / var(--bug-coord-floor), 1));
+    --bug-coord-gap: calc(var(--bug-coord-capped) * var(--bug-coord-fits));
+}
+@media (aspect-ratio > 9/16) {
+        :is(.round-app, .analysis-app).bug {
+            --bug-tools-track: minmax(0, 20vw);
+        }
+        :is(.round-app, .analysis-app).bug:is(.tools-below, .tools-lastresort) {
+            --bug-tools-track: 0;
+        }
+}
+@media (aspect-ratio > 9/16) {
+    @media (height < 600px) {
+                :is(.round-app, .analysis-app).bug.tools-beside {
+                    --bug-tools-track: minmax(0, 1fr);
+                }
+}
+}
+@media (aspect-ratio > 9/16) {
+        :is(.round-app, .analysis-app).bug {
+            /* TOOLS BELOW: the boards keep a row of their own and every part goes beneath them, each
+               spanning the FULL WIDTH of both boards. That width is the whole reason for this home —
+               a part put in one of the board columns gets that board's width and no more, which was
+               the first form of this template and left the chat at the left board's width with the tab
+               bar stranded beside it. Rows with no occupant collapse, so the analysis page's two parts
+               take two rows and the round page's four take four. The bar goes LAST, under everything,
+               which is where it sits in every other arrangement.
+
+               ZONE A IS DECLARED HERE TOO, though nothing is placed in it in this home. Both zones
+               exist in every arrangement: zone A is the space the shorter stack frees, beside the own
+               board and above zone B, and stating it keeps the geometry the same picture whichever
+               home is in force. It also leaves the door open for a part narrow enough to prefer it
+               while the rest are below — which the placement code can already express. Empty, its row
+               is zero and costs nothing. */
+            --bug-zones-below: 'ownstack stack'
+                               'ownstack zoneA2'
+                               'ownstack zoneA3'
+                               'zoneB1   zoneB1'
+                               'zoneB2   zoneB2'
+                               'zoneB3   zoneB3'
+                               'zoneB4   zoneB4';
+            /* TOOLS IN ZONE A: the parts go under the RIGHT board, in the space it frees by being
+               smaller than the left. The own stack spans the zone A rows, which is what makes that
+               space exist; the parts stack because the region is narrow — four squares wherever the
+               right board is on its floor — and stacking is the only way to use a tall narrow box.
+
+               ZONE B IS DECLARED HERE TOO, and in every arrangement. It is the full width below BOTH
+               boards whether or not anything is in it, and zone A stops where it begins: the own stack
+               spans rows 1-4 and zone B is what follows, so the boundary is the bottom of the taller
+               stack by construction rather than by arithmetic. An empty zone B is a zero-height zone B,
+               not an absent one — the first version of this template simply had no zone B rows, and
+               zone A's panel grew straight through the space where zone B should have started. */
+            --bug-zones-zonea: 'ownstack stack'
+                               'ownstack zoneA2'
+                               'ownstack zoneA3'
+                               'ownstack zoneA4'
+                               'ownstack zoneA5'
+                               'zoneB1   zoneB1'
+                               'zoneB2   zoneB2'
+                               'zoneB3   zoneB3';
+        }
+        :is(.round-app, .analysis-app).bug {
+            --bug-zones-strip: 'ownstack stack zoneTools1'
+                               'ownstack stack zoneTools2'
+                               'ownstack stack zoneTools3'
+                               'ownstack stack zoneTools4'
+                               'zoneB1   zoneB1 zoneB1'
+                               'zoneB2   zoneB2 zoneB2';
+            --bug-zones-a4: 'ownstack stack  zoneTools1'
+                            'ownstack stack  zoneTools2'
+                            'ownstack stack  zoneTools3'
+                            'ownstack zoneA4 zoneA4'
+                            'zoneB1   zoneB1  zoneB1'
+                            'zoneB2   zoneB2  zoneB2';
+            --bug-zones-a34: 'ownstack stack  zoneTools1'
+                             'ownstack stack  zoneTools2'
+                             'ownstack zoneA3 zoneA3'
+                             'ownstack zoneA4 zoneA4'
+                             'zoneB1   zoneB1  zoneB1'
+                             'zoneB2   zoneB2  zoneB2';
+            --bug-zones-a234: 'ownstack stack  zoneTools1'
+                              'ownstack zoneA2 zoneA2'
+                              'ownstack zoneA3 zoneA3'
+                              'ownstack zoneA4 zoneA4'
+                              'zoneB1   zoneB1  zoneB1'
+                              'zoneB2   zoneB2  zoneB2';
+            /* THE EMPTIED SLOT MOVES UP, above the zone A rows rather than below them, and that is
+               not cosmetic: a named area must be a single filled RECTANGLE, so leaving `zoneTools4`
+               at the bottom put `stack` in rows 1-2 and again in row 4 with a spanning row between.
+               Non-rectangular, so the whole declaration was invalid and dropped — see the round
+               page's note on the oscillation that followed. */
+            --bug-zones-a3: 'ownstack stack  zoneTools1'
+                            'ownstack stack  zoneTools2'
+                            'ownstack stack  zoneTools4'
+                            'ownstack zoneA3 zoneA3'
+                            'zoneB1   zoneB1  zoneB1'
+                            'zoneB2   zoneB2  zoneB2';
+            --bug-zones-a23: 'ownstack stack  zoneTools1'
+                             'ownstack stack  zoneTools4'
+                             'ownstack zoneA2 zoneA2'
+                             'ownstack zoneA3 zoneA3'
+                             'zoneB1   zoneB1  zoneB1'
+                             'zoneB2   zoneB2  zoneB2';
+        }
+}
+/* EACH STACK KNOWS ITS OWN SQUARE, and everything inside it is sized from that one
+   variable: the board column, the gauge column and the pockets alike.
+
+   Declared on the STACK, which is what makes it usable by the pockets below. The stacks are
+   keyed by ROLE — yours, your partner's — while the pockets inside them are keyed by board
+   IDENTITY: `.pocket-top` is board A's pocket whichever stack board A ended up in, and this
+   page puts a board-B player's board B in the own stack. Inheriting the square from the
+   container is what lets the two agree without either knowing the other's mapping. It is
+   the move `.own-seat` / `.partner-seat` make on the round page, for the same reason. */
+.analysis-app.bug .bug-own-stack { --bug-stack-sq: var(--bug-tall-sq-a); --bug-stack-allow: var(--bug-tall-allow-a); }
+.analysis-app.bug .bug-partner-stack { --bug-stack-sq: var(--bug-tall-sq-b); --bug-stack-allow: var(--bug-tall-allow-b); }
+@media (aspect-ratio <= 9/16) {
+        /* THE VIEWER'S OWN BOARD IS ALWAYS AT ITS CAP HERE, so it publishes one.
+           ------------------------------------------------------------------------------
+           `--bug-stack-allow` is a board's square AT FULL ZOOM, and `seatNamePlacement`
+           reads it as the room the stack has: ten of them is the tallest stack that board
+           can draw, so at full zoom the answer is exactly its own height and a username
+           cannot afford a line of its own. Portrait published none, for the stated reason
+           that its stacks are sized from WIDTH rather than from a zoom — but the own
+           board's square IS the full width over eight files, and there is no slider on it.
+           It is at its cap by construction, in the same way both boards are in short
+           landscape. Not publishing it said the opposite.
+
+           What the fallback did instead was ask the grid for the rows the stack spans, and
+           the own stack's row in portrait is `min-content` — the stack's own height. So the
+           room reported already contained the line whenever the line was there: once out,
+           always out. Measured on an iPhone SE 2/3, 375x667: both names outside, the own
+           stack 506px where ten squares is 465 and the partner's 197 where ten squares is
+           165, for a total of 703px in a 667px viewport. The partner stack was handed the
+           161px its tools needed beside it and painted 36px over the board below.
+
+           THE PARTNER BOARD STILL PUBLISHES NONE, deliberately. Its stack shares its rows
+           with the tools, so when the tools are taller than the stack there is real room
+           beside it and the name should take its line — which is what the fallback answers
+           correctly. Only the own board is at a cap it can never be below. */
+        .bug-own-stack {
+            --bug-stack-allow: var(--bug-portrait-sq);
+        }
+        .analysis-app.bug .bug-own-stack { --bug-stack-sq: var(--bug-portrait-sq); }
+        .analysis-app.bug .bug-partner-stack { --bug-stack-sq: var(--bug-portrait-partner-sq); }
+}
+/* THE SEAT STRIPS: a pocket beside its player bar, one at each end of each board.
+   ------------------------------------------------------------------------------------
+   The round page's elements, class for class — `.seat-strip0` / `.seat-strip1` for which
+   end of the board, `.own-seat` / `.partner-seat` for whose board — so the strip skeleton
+   above and the whole of the name's sizing machinery apply here with no second copy. The
+   analysis strip simply has one fewer occupant: there is no clock in it, because this
+   page's clocks are absolutely positioned overlays on the board itself.
+
+   Every parameter comes from --bug-stack-sq, so a strip is one square of the board it
+   belongs to and the name's floor is the same fraction of a square the round page uses.
+   --bug-name-fs is only a FLOOR: the size that actually renders is `10cqi` capped at
+   --bug-name-fs-max, read from the room the name has rather than from the square. */
+.analysis-app.bug .bug-own-stack,
+.analysis-app.bug .bug-partner-stack {
+    --bug-strip-h: var(--bug-stack-sq);
+    --bug-name-fs: calc(var(--bug-stack-sq) * 0.218);
+}
+/* WHAT EACH ARRANGEABLE PART NEEDS, DECLARED WHERE ITS CONTENT IS STYLED.
+   ------------------------------------------------------------------------------------
+   `toolsPlacement.ts` reads these to decide whether a part fits a zone, and reads nothing else:
+   there is no minimum written in the TypeScript. See `declaredMin()` there for why they are
+   custom properties rather than `min-width`/`min-height` — a real minimum would bind the layout,
+   and every part here is allowed to be clipped in a column too narrow for it.
+
+   REGISTERED, so they compute to pixels. An unregistered property hands JS back the token it was
+   written as; with `syntax: '<length>'` the browser resolves `ch`, `em` and `calc()` at
+   computed-value time. The initial value of 0 is what makes a part that declares nothing behave
+   exactly as it did before this existed. */
+@property --bug-part-min-w {
+    syntax: '<length>';
+    inherits: false;
+    initial-value: 0px;
+}
+@property --bug-part-min-h {
+    syntax: '<length>';
+    inherits: false;
+    initial-value: 0px;
+}
+/* THE MOVE CONTROLS. Six buttons, and min-content equals max-content — 100.8px, measured — because
+   nothing in the row wraps or shrinks. This page's buttons are NOT the round page's: those are
+   `calc(var(--bug-own-sq) * 2 / 3)` and scale with the board, while `#btn-controls-top` takes
+   `site.css`'s `height: 40px` and `font-size: 1em`, so the row is a font-and-pixel quantity and
+   `ch` is the honest unit for it. 13ch is 104px, just clear of the 100.8.
+
+   RE-MEASURE IF THE ROW CHANGES: a seventh button, or a label, moves this number and nothing here
+   will notice. The probe is `width: min-content` on the panel and read its box. */
+.analysis-app.bug .analysis-controls-panel {
+    --bug-part-min-w: 13ch;
+    --bug-part-min-h: 40px;
+}
+@media (aspect-ratio > 9/16) and (height < 600px) {
+        :is(.round-app, .analysis-app).bug {
+            --bug-sq: var(--bug-tall-sq-a);
+            --bug-sq-b: var(--bug-tall-sq-b);
+        }
+        .analysis-app.bug .bug-own-stack {
+            --bug-stack-sq: var(--bug-sq);
+            --bug-stack-allow: var(--bug-tall-allow-a);
+        }
+        .analysis-app.bug .bug-partner-stack {
+            --bug-stack-sq: var(--bug-sq-b);
+            --bug-stack-allow: var(--bug-tall-allow-b);
+        }
+        /* EVERYTHING IN THE PARTNER'S STACK FOLLOWS ITS OWN SQUARE. The pocket cell, the strip
+           height, the clock and name type are all derived from `--bug-sq` a few rules above, and a
+           narrowed board with a full-width pocket beneath it is exactly the mismatch this file
+           spends its comments preventing. Rebinding the name inside the stack makes every derived
+           value follow with no second copy of any formula — and it is scoped to the subtree, so
+           the app's own tracks, which must stay on the left board's unit, are untouched. */
+        .bug-partner-stack {
+            --bug-sq: var(--bug-sq-b);
+        }
+        .bug-own-stack {
+            --bug-stack-allow: var(--bug-tall-allow-a);
+            --bug-coord-room: calc(10 * var(--bug-tall-allow-a) - 10 * var(--bug-tall-sq-a));
+        }
+        .bug-partner-stack {
+            --bug-stack-allow: var(--bug-tall-allow-b);
+            --bug-coord-room: calc(10 * var(--bug-tall-allow-b) - 10 * var(--bug-tall-sq-b));
+        }
+}
+@media (aspect-ratio > 9/16) and (height >= 600px) {
+        .bug-own-stack {
+            --bug-stack-allow: var(--bug-tall-allow-a);
+            --bug-coord-room: calc(10 * var(--bug-tall-allow-a) - 10 * var(--bug-tall-sq-a));
+        }
+        .bug-partner-stack {
+            --bug-stack-allow: var(--bug-tall-allow-b);
+            --bug-coord-room: calc(10 * var(--bug-tall-allow-b) - 10 * var(--bug-tall-sq-b));
+        }
+}
+@media (aspect-ratio <= 9/16) {
+        .bug-round-tools-bar {
+            --bug-controls-labels: 0;
+        }
+}
+/* THE PLAYER'S OWN BOARD SQUARE, as a value CSS can use. --cg-width-a and -b are
+   board IDENTITY, and which of them is the viewer's own depends on the switch —
+   the same role-versus-identity problem the pockets had. markRoles() already puts
+   `own-board` on whichever board that is, so `:has()` turns that class into a
+   value here, without JavaScript measuring anything or a third source of truth.
+   It stays correct through a switch because the class does. */
+.round-app.bug:has(#mainboard.own-board) {
+  --bug-own-sq: calc(var(--cg-width-a) / var(--files));
+}
+.round-app.bug:has(#bugboard.own-board) {
+  --bug-own-sq: calc(var(--cg-width-b) / var(--files));
+}
+@container not style(--bug-coord-gap: 0px) {
+        /* THE DISTANCE FROM A BOARD TO ITS OWN LABELS, and the one number the ranks now turn on.
+
+           MEASURED, not chosen. There is no declared gap under a board: the file labels' box is FLUSH
+           with the bottom edge — `bottom` is -1 * the gap and `height` is the gap, so the box's top
+           edge is the board's edge exactly — and all the air you see is the line box, `line-height:
+           normal` over type at 0.75 of the gap. Measured in a replica driven by this stylesheet at
+           dpr 1.5, the ink of a file letter sits this far below the board:
+
+               gap 16px (font 12px)     b d f h  2.00px      a c e g  5.00px
+               gap 15px (font 11.25px)           3.00px               5.00px
+               gap 14px (font 10.5px)            3.33px               5.33px
+               gap 13px (font 9.75px)            2.00px               4.00px
+               gap 12px (font 9px)               2.33px               4.33px
+
+           2px is the ascender distance at a 16px gap, and both halves of that are deliberate. The gap
+           is 16 in practice: the room is about --bug-app-h * (1 - zoom), which comes to 6.96px at full
+           zoom — below --bug-coord-floor, so no external label at all — and past 16 within about 2% of
+           the slider, so the 12-15 band is a sliver nobody sits in. The ASCENDERS are the reference
+           because they are the MINIMUM the files show, and minimal is what is wanted; matching a c e g
+           would stand the rank digits 5px off, visibly further out than the file letters that reach
+           highest.
+
+           The files are deliberately NOT changed to declare this same 2px. It could be done, but only
+           by moving the one thing on this page that already looks right in order to describe it, and
+           by spending the reserved gap differently — the box height IS the room the layout set aside,
+           so taking a lead out of it makes the letters smaller. The dependency runs one way, files to
+           constant, and this comment is where that is recorded. */
+        .round-app.bug .cg-wrap {
+            --bug-coord-lead: 2px;
+        }
+        /* Files sit IN the gap, at the gap's size — the box as well as the type, or a full-size
+           letter in a part-size box is a clipped letter. --files-bottom is kept in step so that
+           anything else reading it sees the same answer.
+
+           0.75 of the gap reproduces the natural 0.85em almost exactly at the full 16px overhang
+           (11.9px against 12), so a board with room to spare looks as it always has. */
+        .round-app.bug .cg-wrap {
+            --files-bottom: calc(-1 * var(--bug-coord-gap));
+        }
+}

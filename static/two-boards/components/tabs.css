@@ -1,0 +1,516 @@
+/* THE TAB STRIP, THE TOOLS BAR AND THE END-OF-GAME BLOCK.
+   ------------------------------------------------------------------------------------
+   One file because they are one row of furniture: the strip and its tabs, the bar that holds
+   the strip beside draw and resign, those buttons and their labels and their two confirming
+   states, the panel a tab opens, and the block that replaces the presets once the game has a
+   result.
+
+   What belongs here: how they are DRAWN — the tab's padding and its truncation, the button's
+   size and colour, when a control shows its label, the panel's own height and direction against
+   `site.css`. What does not: WHERE any of them goes. `drop-tools4`, `tools-*`, `strip-in-zoneb`
+   and the grid areas they name are the arrangement's, in `layout/`. */
+
+/* THE STRIP CLIPS, AND EACH PART NOW HAS TO SAY SO ITSELF.
+   ------------------------------------------------------------------------------------
+   `.partner-and-tools` carried `overflow: hidden` and `min-width: 0` for exactly this, and the
+   flat grid dissolves that element — `display: contents` has no box, so its overflow applies to
+   nothing and its former children are grid items with none of their own.
+
+   Nothing noticed while the app's board tracks were `auto`, because the tools took their width
+   from the BOARDS and their content always fitted. Once the boards hold their width — which is
+   the whole of "boards take priority over the tools" — the tools column is whatever is left, and
+   at 996x523 that is 110.8px against a five-tab bar: measured, the last tab reached x=1027 and
+   the ENGINE's multipv value x=1021, so the page itself scrolled 31px sideways. The column
+   yielding its width is the bargain; the page widening is not, and it is the one thing the
+   `minmax(0, 20vw)` cap was chosen to prevent.
+
+   The cost is honest and worth stating: a tab clipped at this width cannot be clicked. The way
+   back is the way this page already offers — zoom a board down and the whole bar drops to zoneA4
+   or zoneB2, where it has the width of both boards and every tab fits. */
+.analysis-app.bug .bug-parts > [role='tabpanel'],
+.analysis-app.bug .bug-parts > .bug-tool-group,
+.analysis-app.bug .bug-parts > [role='tablist'] {
+    min-width: 0;
+    overflow: hidden;
+}
+/* AND THE TABS THEMSELVES SHRINK RATHER THAN THE BAR LOSING ITS ENDS.
+   `site.css` makes a tab `flex: 1 1 0`, which shares the bar equally whenever the bar is wide
+   enough — but a flex item's automatic minimum size is its MIN-CONTENT, so each tab still holds
+   its whole label and the row overflows once five of them do not fit. The bar is
+   `justify-content: center`, so that overflow leaves at BOTH ends: at 996x523 the clip above cut
+   "Moves" in half at the left as well as "FEN & PGN" at the right, and a tab you cannot see the
+   start of reads as a rendering fault rather than as a narrow column.
+
+   `min-width: 0` lets each tab shrink instead, so all five stay present and clickable with their
+   labels truncated — the same trade the round page makes when `labelControls()` drops its button
+   labels rather than dropping the buttons. */
+.analysis-app.bug .bug-parts > [role='tablist'] > [role='tab'] {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+/* THE PANELS ARE COLUMNS. The tab widget sets `display: flex` on a panel and nothing
+   else, so without this they lay their children out in a ROW: measured with #ceval taking
+   301px of a 284px panel and the movelist squeezed to a width of ZERO, which is why the
+   Moves tab looked empty apart from the engine header. */
+.analysis-app.bug .bug-parts > [role='tabpanel'],
+.analysis-app.bug .bug-parts > .bug-tool-group,
+.analysis-app.bug .bug-tool-group > [role='tabpanel'] {
+    flex-flow: column;
+    min-width: 0;
+    /* THE PANEL TAKES THE HEIGHT ITS ROW GIVES IT, and this has to be said on THIS page only.
+       `site.css` gives every `div[role=tabpanel]` `height: var(--panel-height)`; the round page
+       never loads `analysis.css`, so that variable is undefined there, the declaration is invalid
+       at computed-value time, and height falls back to `auto` — which is why that page has never
+       needed this and why its own comment warns against "fixing" the site.css rule. This page
+       defines `--panel-height: 240px`, so the height is real.
+
+       It stayed hidden while `.bug-parts` was a flex column, because `flex: 1 1 auto` grew the
+       panel past its own height. A grid item has no flex to do that: the third thing to fail. */
+    height: auto;
+}
+/* EACH PART TAKES ITS CONTENT, AND THE RECORD TAKES THE REST — the relationship the five
+   children of the single panel had through `.movelist-block { flex: 1 }`, restated one level up
+   now that three of them are panels in their own right.
+
+   `height: auto` is not decoration: `site.css` pins every `div[role=tabpanel]` to
+   `--panel-height`, and `analysis.css` defines it (240px) on this page, so a part that does not
+   release it is 240px tall whatever it holds. The shared analysis rule above states it for the
+   parts as well as for the group, which is why it is not repeated here. */
+.analysis-app.bug .bug-tool-group > [role='tabpanel'] {
+    flex: 0 0 auto;
+    overflow: hidden;
+}
+/* FEN & PGN tab panel: mirrors analysis.css's #panel-4 rule for the single-board
+   page, keyed by class instead of id since two-board's panel ids are generated */
+.fenpgn-panel {
+    font-size: 0.9em;
+    flex-flow: column;
+}
+/* The bar shares one row between the tablist and the game controls. It takes its
+   natural height in the column, and clips: once the tablist has given up all it
+   can and the controls still do not fit, the overflow has to be cut off here
+   rather than widening the grid — this column yielding is what keeps both boards
+   on screen, and nothing added to it may reverse that. */
+/* `.bug-offer-dialog` used to be here, holding #offer-dialog in a `toolsB` row that
+   spanned both columns below the boards. It was the last survivor of an element that
+   had already been renamed once for outliving its job — it was `.bug-round-tools-part`
+   when it wrapped the movelist and the rest of the tools — and it has now outlived the
+   second one. An offer is a look on the control that made it: the draw button turns
+   green to be accepted, the rematch button is replaced in place by an accept/decline
+   pair. Nothing was left for a strip to hold, so the element, its row, and the `toolsB`
+   area in all three templates went together.
+   THE LOOKS THEMSELVES are further down, beside the buttons they belong to: search
+   `#draw.draw-offered`, `#resign.resign-confirm` and `button.rematch.accept`. */
+/* The tools column IS the tab widget (client/two-board/common/tabs.ts), not a box
+   around one, so `.bug-round-tools` above still supplies grid-area and the flex
+   column; only what the widget itself needs is added here.
+
+   Sizing comes from the container in both axes. The zero minimums are what let
+   the column be driven to nothing: a flex item's automatic minimum size would
+   otherwise hold the widget, its panels and its labels open, and this column
+   yielding is precisely what keeps both boards on screen at narrow widths.
+
+   Nothing here sets a height. `site.css` gives every tabpanel
+   `height: var(--panel-height)`, but that variable is defined only in
+   `analysis.css`, which this page does not load — the declaration is therefore
+   invalid at computed-value time and height falls back to `auto`, which is what
+   this layout wants. If a fixed height is ever wanted here, set the variable;
+   do not change the rule in site.css, which the analysis page depends on.
+
+   The movelist block used to be pinned to board B's height by a rule on the element
+   that ended its life as `.bug-offer-dialog` (now removed entirely), back when that
+   element wrapped the tools panel's parts. That selector no longer matches now that the movelist is a
+   panel's child, and a fixed height is the opposite of what a panel wants, so it
+   is gone; `.round-app.bug .movelist-block`'s `flex: 1` still applies and fills
+   the panel. */
+/* `.bug-round-tools` is the page's own element (round.ts) and carries the column
+   itself; the widget contributes only #round-tabs-tablist and one panel per tab
+   part inside it. Keyed by class rather than by an id, so `round-tabs` names one
+   thing: the widget's id prefix. */
+.bug-round-tools-bar {
+    flex: 0 0 auto;
+    display: flex;
+    /* Wraps rather than squeezing. Side by side is a wide-column arrangement; in a
+       narrow column the controls' fixed width would eat most of the row and leave
+       the tablist unreadable. Measured on a 697x382 phone landscape, where the
+       column is 74.33px: sharing the row gave the tablist 23.67px — 7.89px per
+       label — where wrapping gives it the full 74.33 and 24.77 per label, which is
+       what mobile had before the controls moved here. The second row costs 40px of
+       the column's height, which the panel gives up.
+
+       Content-driven rather than a breakpoint: the tablist's flex-basis below is
+       what decides. Where the column can hold that basis plus the controls they
+       stay on one line; where it cannot, the controls wrap beneath. */
+    flex-flow: row wrap;
+    align-items: center;
+    min-width: 0;
+    overflow: hidden;
+}
+/* In the bar the tablist is the part that yields: it takes the width the controls
+   leave, and `min-width: 0` lets it shrink past its labels, which already clip.
+   The 120px basis is the width below which three labels stop being readable, and
+   is therefore also the point at which the bar wraps instead. */
+#round-tabs-tablist {
+    flex: 1 1 120px;
+    min-width: 0;
+}
+/* The controls neither grow into spare width nor shrink under pressure. At the
+   narrowest widths they are clipped by the bar at their natural size — a cut-off
+   button is still recognisable and still clickable where it is drawn, where one
+   scaled to a few pixels would be neither. */
+.bug-round-tools-bar > #game-controls,
+.bug-round-tools-bar > .btn-controls {
+    flex: 0 0 auto;
+}
+/* Each button is two thirds of a board square rather than the width of its glyph,
+   which left draw at 20px and resign at 29px. These are targets a player reaches
+   for under time pressure, so the size is stated rather than inherited from a
+   symbol. `site.css` gives them `flex: 1`, which would share the row instead —
+   overridden here so the pair is a fixed 2 x (2/3) squares wide.
+
+   The square is taken from the board chessgroundx actually rendered, not from
+   --bug-sq. Those agree in short landscape — both were 54.67 when measured —
+   because that mode sizes its boards as 8 x --bug-sq. They do not agree anywhere
+   else: --bug-sq is defined as a tenth of the viewport height, and the
+   `min-height: 600px` mode sizes its boards from 30vw instead, where --bug-sq
+   measured 91.33 against a real square of 40.67. Buttons keyed to --bug-sq came
+   out 60.89 wide there — 2.25x too large, taking 60% of a 203px column. */
+.bug-round-tools-bar .btn-controls button {
+    /* THE ICON CARRIES THE STATED WIDTH, not the button. The button used to be
+       `flex: 0 0 calc(var(--bug-own-sq) * 2 / 3)` and that is still exactly what it comes
+       out as while the label is hidden — the label is then zero wide and the icon is the
+       whole content. What moving it inwards buys is that a shown label makes the button
+       wider by the label's width and by NOTHING ELSE, which is what lets the fit test in
+       toolsPlacement.ts subtract it back off and ask the same question in both states. A
+       button that also changed its padding would answer differently depending on its own
+       answer, which is the shape that had this page flickering. */
+    flex: 0 0 auto;
+    min-width: 0;
+    /* A `button` does not inherit the page's font — the UA gives it its own, which came out
+       13.33px Arial against the tabs' 14px system stack sitting right beside it. The label has
+       to read as one of the row's words, not as a control's caption, so the font comes from
+       the bar like everything else in it. */
+    font: inherit;
+    /* THE ICON AND ITS LABEL CENTRE ON EACH OTHER, which inline layout cannot do here.
+
+       The button's line box is set by a 25.2px glyph, and an inline-block `<i>` takes that
+       glyph's baseline as its own — so `vertical-align: middle` on the label aligned it to a
+       baseline sitting near the bottom of the icon's box rather than to the box. Measured in
+       tall landscape: the icon centred on the bar's centre line at 706.7 and the label at
+       711.9, while the tab text it shares the row with sat at 705.8. Six pixels is not much
+       to look at and is plainly wrong to read — the row has one line of words in it and one
+       of them was low.
+
+       A flex row centres the two on their boxes, and the button being the bar's full height
+       then puts the label on the same centre line as the tabs. Nothing here distributes free
+       space: the button is `flex: 0 0 auto`, so it is exactly as wide as the icon and label
+       make it. */
+    display: flex;
+    align-items: center;
+}
+/* --bug-own-sq, not --cg-width-a: the latter is board A whoever is playing on it, so a
+   viewer whose own board is B sized these from the PARTNER's board. Measured in portrait
+   with the boards that way round: two thirds of the partner's 20.7px square gave 13.8px
+   buttons — unusable, and the reason they looked starved of space next to a tab list that
+   had taken 339.8 of 367.3.
+
+   The flag glyph is wider than this box, as it has always been — 28.79 against 27.11 — and
+   still overhangs it rather than widening the pair unequally. */
+.bug-round-tools-bar .btn-controls button > i {
+    display: inline-block;
+    width: calc(var(--bug-own-sq) * 2 / 3);
+    text-align: center;
+}
+/* WHETHER LABELS ARE ON OFFER AT ALL, published for toolsPlacement.ts to read rather than
+   worked out a second time there.
+
+   PORTRAIT NEVER LABELS THEM. The bar is a phone's width, and the room the fit test finds
+   is room the row has better uses for — the two icons are understood without captions, and
+   the words would be the first thing in the way when anything else has to go in that row.
+   That is a decision about the mode, so it is stated here, where the mode already lives,
+   and not as arithmetic that happens to come out against them at these widths.
+
+   Read rather than re-derived, for the same reason `owner()` asks the element how it is
+   displayed instead of asking which mode is on: one call site works in every mode and
+   cannot disagree with the stylesheet about which of them is in force. */
+.bug-round-tools-bar {
+    --bug-controls-labels: 1;
+}
+/* THE LABEL, PRESENT BUT UNMEASURED-WIDTH until there is room for both.
+   ------------------------------------------------------------------------------------
+   Hidden by width rather than by `display: none`, because the decision needs to know what
+   it WOULD take: a `display: none` element reports a zero `scrollWidth` and the question
+   could never be asked. Clipped to nothing, it still reports the width it wants.
+
+   The leading space is padding rather than margin so that it lives INSIDE the clipped box:
+   as margin it would widen the button by 0.35em even while the label showed nothing, and
+   the two states would then differ by more than the label itself. */
+.bug-round-tools-bar .control-label {
+    /* inline-block, because an INLINE element reports `scrollWidth: 0` whatever it contains —
+       so the width the label wants, which is the whole basis of the decision, read as nothing
+       and the labels showed wherever they were asked to. */
+    display: inline-block;
+    max-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+}
+/* BOTH SPACES ARE INLINE CONTENT, not padding, and that is the whole point of them being
+   pseudo-elements: the leading one separates the label from its icon, the trailing one
+   separates the pair of buttons.
+
+   PADDING CANNOT BE CLIPPED. It was padding first, and `max-width: 0` does not remove it —
+   the used width becomes the padding's own 17.49px, the clip region is the padding box, and
+   the text starts after the leading padding: 12.6px of `Draw` showed through a label that was
+   supposed to be hidden, which is exactly the trailing padding's width. Resign, having none,
+   stayed invisible and hid the bug.
+
+   As content they are inside the box that `max-width: 0` collapses, so they cost nothing at
+   all when the label is hidden — and they are inside the width the fit test measures, so the
+   space between the buttons is accounted for without the test having to know it exists. As
+   margin, or as a `column-gap` on the strip, they would be neither: still there while the
+   labels were hidden, and a term the calculation would have to add by hand. */
+.bug-round-tools-bar .control-label::before {
+    content: '';
+    display: inline-block;
+    width: 0.35em;
+}
+/* Trailing space only where there is another button after it — the last one is against the
+   end of the bar and wants nothing there. */
+.bug-round-tools-bar .btn-controls button:not(:last-child) .control-label::after {
+    content: '';
+    display: inline-block;
+    width: 0.9em;
+}
+/* No `.round-app.bug` prefix: the class goes on whichever element owns the arrangement, which
+   is the app where the column has been flattened and the column itself everywhere else — so a
+   selector naming one of them silently misses in the other. `.bug-round-tools-bar` in the
+   selector is what scopes this to bughouse; the owner is not. */
+.controls-labelled .bug-round-tools-bar .control-label {
+    max-width: none;
+}
+/* The open panel takes the height the tablist bar leaves. This used to be the job
+   of a #round-tabs-tabpanels element between the column and the panels, which the
+   widget no longer builds: a tab's parts are mounted individually so that a later
+   layout can put one of them somewhere else entirely. `.bug-round-tools` is
+   already `display: flex; flex-flow: column`, so the panels are now its direct
+   flex items and claim that height themselves — only one is ever displayed, so
+   only one ever claims it.
+
+   The zero minimums are not tidiness. A flex item's automatic minimum size would
+   hold the panel, its content and its labels open, and this column being able to
+   yield to nothing is precisely what keeps both boards on screen at narrow
+   widths. */
+.bug-parts > [role='tabpanel'] {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+    /* both axes stated together: giving only overflow-y would compute overflow-x
+       from visible to auto, and the panel would grow a horizontal scrollbar as
+       soon as its content is wider than the column — which the Info panel's
+       game-info is, at roughly 170px of min-content */
+    overflow: hidden auto;
+}
+#round-tabs-tablist > [role='tab'] {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+}
+/* The end-of-game controls: rematch, a new opponent, the analysis board.
+
+   They take the area the presets vacate — the two never coexist, since the presets
+   are hidden by the same result that renders these — so they inherit the presets'
+   place in the drop order and move under a shrunken board exactly as those did.
+
+   Wrapping flex items, not a column: each button sits beside the next where the
+   width allows and stacks where it does not, which is what the preset sets do. The
+   element is empty until there is a result, and an empty flex box is zero tall, so
+   it costs nothing while the game is on.
+
+   This element wears no class from site.css. It briefly wore `btn-controls after`
+   for the button styling, and that brought `grid-area: game-controls` — which threw
+   it out of the column entirely, measured at x=1731 — and `flex-flow: column
+   nowrap`, at a specificity this file then had to out-rank with a four-class
+   selector. The styling is restated below instead, and nothing here argues with
+   another stylesheet. */
+/* WHILE THE GAME IS ON THIS ELEMENT MUST NOT CATCH A CLICK.
+   It shares `grid-area: zoneTools2` with the first preset panel on purpose — the end-of-game
+   controls take the place the presets vacate, and `.game-over .chatpresets` hides them at
+   the same moment. But sharing a cell means overlapping in it, and a grid item stretches
+   to its cell whether or not it has anything in it. So for the whole game this element is
+   an invisible, empty box lying across all ten buttons of the first preset group, and
+   `document.elementFromPoint()` on any of them returned `DIV.bug-gameover`, not the
+   button. The second group is in `zoneTools3` and was never affected, which is exactly how the
+   symptom presented: the first ten dead, the second ten fine.
+
+   `pointer-events` rather than `display: none`, deliberately. It fails safe: if the
+   `game-over` class were ever not applied, the end-of-game buttons would still be drawn
+   and merely unclickable, where `display: none` would make them vanish entirely. */
+.round-app.bug:not(.game-over) .bug-parts > .bug-gameover {
+    pointer-events: none;
+}
+.bug-parts > .bug-gameover {
+    grid-area: zoneTools2;
+    display: flex;
+    /* A COLUMN that wraps. Stacked is the arrangement these want — three wide text
+       buttons read as a list — so the main axis is vertical and one sits above the
+       next. Wrapping is the fallback and only the fallback: a second column appears
+       when the height it is given will not hold three, which is the "if needed"
+       part. It is the mirror of the preset sets, which want to pair and stack only
+       when they must. */
+    flex-flow: column wrap;
+    /* Both, and they do different jobs. `align-items` makes a button fill its
+       column; `align-content` makes the column itself fill the element rather than
+       shrink to the widest button — without it the buttons came out 115.4px inside
+       a 220.7px space. When the fallback does put them in two columns, the same
+       pair splits the width evenly between them. */
+    align-items: stretch;
+    align-content: stretch;
+    gap: 4px;
+    min-width: 0;
+}
+/* The button styling this element used to inherit from site.css's `.btn-controls`,
+   stated here instead. Six declarations, against a class that also carried
+   `grid-area: game-controls` and `flex-flow: column nowrap` — the area threw the
+   element out of the column entirely and the flow was the stacking these buttons
+   must not be fixed in. `flex: 1 1 auto` rather than site.css's `flex: 1`, so a
+   button keeps its text's width instead of being forced to an equal share. */
+/* CLEAR OF THE TAB PART ABOVE — without it the top button sits flush against the chat's bottom
+   edge — AND ONLY WHERE THERE IS A BUTTON TO CLEAR. This was `margin-top` on the panel itself, and
+   while a game is on that panel is empty and paints nothing; but a grid item's MARGIN BOX is what
+   sizes an `auto` track, so the empty panel went on reserving its eight pixels. Measured at 412x915
+   in portrait: an 8px row between the tools panel and the tab strip, holding an element 0px tall,
+   in a band the move-list controls were 51px short of being able to use.
+   Keyed on `.game-over`, the same signal the pointer-events rule above uses. */
+.round-app.bug.game-over .bug-parts > .bug-gameover {
+    margin-top: 8px;
+}
+/* A CONTROLS PANEL LAYS ITS ROW ACROSS ITSELF. The panel is a flex container and, with no
+   direction stated, a ROW one — so its single child, the button row, sat at content width and the
+   buttons divided that instead of the panel. Measured at 412x915 with the part correctly dropped
+   full width: a 411px panel with a 103px row of 17px buttons inside it, which is the opposite of
+   what dropping is for. A column container stretches the child across the cross axis, and
+   `site.css` already gives each button `flex: 1` to divide it.
+   The analysis page has never had this: `tabs.css` gives its panels `flex-flow: column` a few
+   rules above, scoped to that page. */
+.round-app.bug .bug-parts > .round-controls-panel {
+    flex-flow: column;
+}
+.bug-gameover > button {
+    /* 0 0 auto, not 1 1 auto: the main axis is vertical here, so a growing button
+       would grow TALLER rather than wider. The width comes from align-items above.
+       A child combinator, deliberately: it keeps this rule off anything a future part
+       might nest inside this element. */
+    flex: 0 0 auto;
+    height: 40px;
+    border: none;
+    color: var(--font-color);
+    background-color: var(--bg-color0);
+}
+.bug-gameover > button:not([disabled]):hover {
+    color: #fff;
+    background-color: var(--green-hover);
+    /* Same gradient trap as the accept state above: without this, hovering the rematch
+       button showed no colour change at all, because site.css's `button.rematch`
+       background shorthand kept painting over it. */
+    background-image: none;
+}
+/* THE ACCEPT STATE: the draw button, unchanged but green.
+   --green-switch, not --green-hover. The hover green is what EVERY button on this page
+   turns when the pointer is over it, so reusing it would make "a draw is offered to you"
+   indistinguishable from "your pointer is here" — and it differs per theme (#89b25b light,
+   #537c23 dark) while this state must read the same in both. --green-switch (#629924) is
+   defined once for both themes and already means affirmative elsewhere on the site.
+
+   Colour is doing real work here: it is the ONLY thing separating "offer a draw" from
+   "end the game now", on a button that takes one press with no confirmation. Nothing else
+   about the button may change — `.bug-round-tools-bar .btn-controls button` sizes these at
+   two thirds of a board square precisely because they are reached for under time pressure,
+   and a state that moved or resized the target would undo that. So this rule sets colour
+   and nothing else, and the hover below only deepens it rather than reverting to the
+   shared hover green.
+
+   Known limitation, stated rather than hidden: a player who cannot distinguish this green
+   sees an ordinary draw button that ends the game. That is this page's standing
+   accessibility debt showing up in a new place, not a new decision. */
+/* AN OFFER IS A LOOK ON THE CONTROL THAT MADE IT.
+   ------------------------------------------------------------------------------------
+   These replace `#offer-dialog`, the full-width strip that used to draw a draw or
+   rematch prompt below both boards — an answer nowhere near the question. Two states,
+   both on buttons that already exist.
+
+   THE PENDING STATE COSTS NOTHING HERE. A button whose offer is outstanding is rendered
+   `disabled`, and site.css already dims a disabled button's icon (`button[disabled] i`)
+   and withholds the hover colour (`:not([disabled]):hover`). So "I have offered" is the
+   site's own idiom for an inert control rather than a look invented for this page, and
+   there is no rule below for it — deliberately, and stated so nobody adds one. */
+.round-app.bug .btn-controls button#draw.draw-offered {
+    background-color: var(--green-switch);
+    color: #fff;
+}
+.round-app.bug .btn-controls button#draw.draw-offered:hover {
+    background-color: var(--green-hover);
+    color: #fff;
+}
+/* THE ARMED RESIGN STATE, and why it is not just a red background.
+   ------------------------------------------------------------------------------------
+   This is the partner of a player who has asked to resign. Pressing it ENDS THE GAME.
+   Pressing the SAME button at rest only asks. Same glyph, same size, same place — so the
+   only thing standing between "ask my partner" and "we lose" is how the button looks, and
+   a player who misreads it resigns when they meant to ask.
+
+   That is why colour cannot carry this alone. Roughly one man in twelve has some red-green
+   deficiency, and the button beside this one goes green to end the game a different way.
+   The inset ring is the second signal: it survives greyscale, it survives any colour
+   deficiency, and it costs no layout — `box-shadow` paints inside the border box, so the
+   button stays exactly two thirds of a board square, which is the one thing the tools bar
+   rule will not give up.
+
+   Note this is NOT about telling the flag from the ½ — those glyphs already differ. It is
+   about telling ARMED from AT REST on one button whose meaning changes between them.
+
+   The red is stated rather than taken from a variable: `--red-text` is Crimson, a text
+   colour, and there is no red background token on this site. Chosen to sit clearly darker
+   than --green-switch in luminance as well as differing in hue, so the two lit states do
+   not read as the same button in greyscale either. */
+.round-app.bug .btn-controls button#resign.resign-confirm {
+    background-color: #a02c2c;
+    color: #fff;
+    box-shadow: inset 0 0 0 2px #ffd9d9;
+}
+.round-app.bug .btn-controls button#resign.resign-confirm:hover {
+    background-color: #c23a3a;
+    color: #fff;
+}
+/* THE REMATCH CONTROL: one button, three labels.
+   ACCEPT REMATCH is green for the same reason the draw control's answerable state is —
+   green here means "this press ends the waiting" — and it is the same --green-switch, so
+   the page has one affirmative colour rather than two that nearly match.
+
+   No non-colour signal is needed on this one, unlike the resign control. This is a WIDE
+   TEXT button whose label changes with its state: REMATCH, CANCEL REMATCH, ACCEPT
+   REMATCH. The words carry the meaning and the colour only reinforces it, where on the
+   icon buttons the colour was carrying it alone.
+
+   The `.rematch-answer` pair that used to live here is gone. It held ACCEPT and DECLINE
+   side by side, and DECLINE did nothing that not pressing ACCEPT did not already do —
+   while the thing genuinely missing, a way for the offerer to take the offer back, had no
+   control at all. The middle state is that control now. */
+.bug-gameover > button.rematch.accept {
+    background-color: var(--green-switch);
+    /* LOAD-BEARING, and the reason the green was invisible at first. site.css:1519 gives
+       `button.rematch` a `background` SHORTHAND — `var(--rematch)`, a linear-gradient —
+       so setting background-color alone leaves that gradient painted on top of it and the
+       button stays grey. Measured: computed backgroundColor was rgb(98,153,36) while the
+       button rendered dark, because backgroundImage was still the gradient.
+       This is also why `.bug-gameover > button:hover`'s green below was never visible on
+       the rematch button, which nobody had noticed. */
+    background-image: none;
+    color: #fff;
+}
+.bug-gameover > button.rematch.accept:not([disabled]):hover {
+    background-color: var(--green-hover);
+    background-image: none;
+    color: #fff;
+}

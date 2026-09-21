@@ -1,0 +1,199 @@
+/* THE SEAT STRIP — the row above and below each board, and what it holds.
+   ------------------------------------------------------------------------------------
+   What belongs here: the strip itself — its height, its direction, the order its three pieces
+   read in, the overflow that clips what hangs out of it — and the wrap that holds the clock and
+   the name. What does not: the pieces themselves, which have files of their own beside this
+   one, and where a strip sits in the stack, which is `layout/`'s. */
+
+/* A seat strip is one seat's furniture as a single grid item: its pocket beside
+   its clock and name. Every layout below places strips and nothing smaller, which
+   is what lets flip and switch have exactly one kind of thing to move.
+
+   The pocket and the seat block keep the grid-area declarations they carry from
+   site.css; those are simply ignored now that both are flex children rather than
+   grid items, so the single-board round page is unaffected by them. */
+
+/* A seat strip is one seat's furniture as a single grid item: its pocket beside
+   its clock and name. Every layout below places strips and nothing smaller, which
+   is what lets flip and switch have exactly one kind of thing to move.
+
+   The pocket and the seat block keep the grid-area declarations they carry from
+   site.css; those are simply ignored now that both are flex children rather than
+   grid items, so the single-board round page is unaffected by them. */
+.seat-strip0, .seat-strip1 {
+  display: flex;
+  flex-direction: row;
+  /* Bottom-aligned, which is also what keeps the name clear of the file labels
+     overhanging below a board. A mode that turns the strip on its side restores
+     centring, because on a column strip this axis is the horizontal one. */
+  align-items: flex-end;
+  min-width: 0;
+}
+/* the name is the only thing that absorbs a change in the strip's width */
+.seat-strip0 > .info-wrap0, .seat-strip1 > .info-wrap1 {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+/* --- what a strip looks like inside, stated once for every mode -------------
+ *
+ * A mode chooses only three things about a strip: where it sits (the grid-area
+ * above), how big it is (--bug-strip-h, and the two font parameters), and which
+ * axis it runs on (flex-direction, which portrait overrides for board B). The
+ * order the three pieces read in — pocket, name, clock — and which of them
+ * absorbs slack is the same everywhere, which is the point of decision 1b.
+ *
+ * Scoped to the two apps rather than to the elements themselves. It was
+ * `.round-app.bug` alone while the analysis page had no player bars of its own and
+ * had to be left as it was; it has them now, wants exactly this treatment, and the
+ * NAME half of this block is written `:is(.round-app, .analysis-app).bug` so there
+ * is one copy of it rather than two to keep in step. `:is()` takes the specificity
+ * of its most specific argument, so those rules still weigh (0,2,0) — unchanged for
+ * the round page, and still enough to out-specify the page-wide
+ * `main.bug round-player0`. What stays round-only is what names a round-only
+ * element: the clock, the seat block, the strip's own arrangement.
+ * That scope also out-specifies the page-wide
+ * `main.bug round-player0` below (0,2,1 against 0,1,2), which is why the fixed
+ * 0.7vw and 48px there are overridden here rather than deleted — deleting them
+ * would change the analysis page too.
+ *
+ * Defaults are the unsized case, so a mode that sets nothing keeps whatever it
+ * had: --bug-strip-h falls back to auto, and an undefined font parameter makes
+ * its declaration invalid at computed-value time, which leaves the size
+ * inherited exactly as it was before a parameter existed.
+ */
+:is(.round-app, .analysis-app).bug .seat-strip0, :is(.round-app, .analysis-app).bug .seat-strip1 {
+    height: var(--bug-strip-h, auto);
+    overflow: hidden;
+}
+/* The seat block's own children are clock, name, misc-info, and they STACK: the
+   clock takes the height above and the name one line beneath it, both across the
+   whole width the pocket leaves.
+
+   They used to share that width in a row, and the clock won it. `flex: 0 0 auto`
+   takes its natural width first and the name absorbs the shortfall, which on a
+   400px strip meant a 250px pocket, a 122.5px clock and 27.5px of name — an
+   initial, not a name. Nothing is shared in a column, so both get all 150.
+
+   `flex-direction` on this element is inert in the popped-out state, where it is
+   `display: contents` and lays out nothing; the rules below have to hold in both
+   states and are written for that. */
+.round-app.bug .info-wrap0, .round-app.bug .info-wrap1 {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    justify-content: flex-start;
+    height: var(--bug-strip-h, auto);
+    overflow: hidden;
+    /* THE WIDTH THE POCKET LEAVES, TAKEN FROM THE STRIP RATHER THAN FROM THE CONTENTS.
+       This box had no width rule at all: as `flex: 0 1 auto` it was sized by its
+       children's intrinsic width, which used to work because the clock and the name
+       reported real widths.
+
+       They no longer do. `.clock-wrap` is now `container-type: size` and
+       `.player-data` is `container-type: inline-size`, and a containment context
+       contributes ZERO intrinsic width to its parent — so this box collapsed to 6.3px
+       in a 437.3px strip, taking the clock down to a 1.375px font and the name to a
+       zero-width `player`. Both children then read their `cqi` from a box that had
+       already collapsed, which is the circularity containment exists to forbid, one
+       level up from where it was declared.
+
+       It surfaced only after a flip, because the strip's line had already been laid
+       out with real widths and nothing forced a re-layout until the blocks moved.
+       That is the trap: a collapse whose cause is a stylesheet and whose trigger is
+       an unrelated interaction some time later.
+
+       `flex: 1 1 0%` makes the width come from the strip — the parent — which is what
+       inline-size containment requires of its container, and it is also what the
+       capability asks for in words: the name takes the full width the pocket leaves. */
+    flex: 1 1 0%;
+    min-width: 0;
+}
+/* A STRIP ABOVE ITS BOARD IS THE MIRROR OF ONE BELOW IT.
+   The clock belongs against the board and the name on the outside, so a top strip
+   reads name-then-clock and a bottom strip clock-then-name. The column above is the
+   bottom strip's order; this reverses it for the top one.
+
+   `.seat-strip0` IS the marker, and it needs no maintenance: it is what assigns
+   `grid-area: clock-top` / `clockB-top`, so a strip's class is what puts it on its
+   side of the board. The DOM moves do not touch it — a flip swaps the blocks INSIDE
+   the strips, and a switch swaps top strips with top strips between the columns.
+   Verified on the page in portrait and tall landscape: every `seat-strip0` above its
+   board, every `seat-strip1` below.
+
+   The block's third child, the misc slot, is empty and rides along at the far end. */
+.round-app.bug .seat-strip0 .info-wrap0,
+.round-app.bug .seat-strip0 .info-wrap1 {
+    flex-direction: column-reverse;
+}
+@media (aspect-ratio <= 9/16) {
+        /* The player's own strips run above and below a full-width board, so they lay
+           their contents in a row: the pocket sets the strip's height and the name and
+           clock ride beside it. Stacked, each strip cost the pocket's height PLUS the
+           name/clock block — 91px against 57px — and portrait has no such height to
+           spare. The partner's strips are not matched by this selector and keep the
+           stacked treatment, which is what their narrow column needs. */
+        .seat-strip0.bug, .seat-strip1.bug {
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .own-seat {
+          --bug-seat-sq: var(--bug-portrait-sq);
+        }
+        .partner-seat {
+          --bug-seat-sq: var(--bug-portrait-partner-sq);
+          /* The partner block is the width of the partner board, so the strip lines up
+             with the board it describes rather than spanning a width the board does not
+             occupy. Left-aligned with it, and with the full-width board below. */
+          width: calc(var(--bug-portrait-partner-sq) * 8);
+        }
+        .own-seat, .partner-seat {
+          --bug-strip-h: var(--bug-seat-sq);
+          /* Same 0.8 spacing short landscape settled on: the piece is one board square
+             and the cell it sits in is 0.8 of one, so pieces sit closer together than
+             they do on the board. --pocketLength stays a multiplier, so a variant with
+             a different number of slots keeps the spacing and takes the width it needs. */
+          --bug-pocket-sq: calc(var(--bug-seat-sq) * 0.8);
+          /* The same fractions short landscape uses, but WITHOUT its `max(…, 0.85em)`
+             floor. The floor keeps a name legible when a strip is large; here it would
+             break the proportions of the partner block, which is deliberately small.
+             Nikolay's call: keep the proportions even where the type gets very small. */
+          --bug-clock-fs: calc(var(--bug-seat-sq) * 0.2);
+          --bug-name-fs: calc(var(--bug-seat-sq) * 0.218);
+        }
+}
+@media (aspect-ratio > 9/16) {
+        /* EVERY PER-BOARD PARAMETER IS KEYED TO ITS OWN SEAT, in both landscape modes.
+           ------------------------------------------------------------------------------------
+           A custom property substitutes at the element that DECLARES it, so anything written as a
+           fraction of `--bug-sq` on the APP resolves against the LEFT board and is inherited by both
+           stacks — a partner stack that rebinds `--bug-sq` afterwards cannot change a value already
+           computed. Short landscape declared four of them that way and its partner board wore the
+           left board's furniture: a 50px strip on a 32.67px square, and a 200px pocket on a board
+           261px wide. Declared per seat, each board's furniture follows its own square. */
+        .own-seat {
+            --bug-seat-sq: var(--bug-tall-sq-a);
+        }
+        .partner-seat {
+            --bug-seat-sq: var(--bug-tall-sq-b);
+        }
+        .own-seat, .partner-seat {
+            --bug-strip-h: var(--bug-seat-sq);
+            --bug-clock-fs: calc(var(--bug-seat-sq) * 0.2);
+            /* No floor. The floor made the name the one part of the furniture that did NOT scale,
+               which is the opposite of what these modes are for. */
+            --bug-name-fs: calc(var(--bug-seat-sq) * 0.218);
+            --bug-pocket-sq: calc(var(--bug-seat-sq) * 0.8);
+        }
+}
+/* The right board and its two strips as one unit. Block flow stacks them —
+   strip, board, strip — which is all the arrangement they need; the strips are
+   themselves flex rows and the board is a block. The group exists so the board
+   can be ONE thing for the parts to arrange around: three siblings floated
+   individually would line up side by side instead of stacking. */
+.bug-partner-stack > .seat-strip0,
+.bug-partner-stack > .seat-strip1,
+.bug-partner-stack > selection {
+    width: 100%;
+}

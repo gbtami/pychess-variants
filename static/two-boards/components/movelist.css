@@ -1,0 +1,188 @@
+/* THE MOVE LIST — the record, a move in it, and the chat a move carries.
+   ------------------------------------------------------------------------------------
+   What belongs here: `#movelist` and `move-bug` on both pages, the counter cells, the active
+   move, the status line, and the popup a move with chat opens — that popup lives nowhere else
+   and is positioned against a move, so it is the list's affordance rather than the chat's.
+   The block that holds the list is here too, with the release of `site.css`'s
+   `--movelist-max-height` and `analysis.css`'s portrait pin, both of which would otherwise
+   leave the list a scrap of the panel it is in.
+
+   What does not: the control buttons under the list. They are a part of their own that the
+   layout moves independently — `.btn-controls` is drawn in `tabs.css` with the bar it belongs
+   to, and placed by `layout/`. */
+
+/* The movelist fills what the engine panel and the controls leave, the same relationship
+   `.round-app.bug .movelist-block` has inside the round page's Moves panel.
+
+   THE HEIGHT PAIR IS THE LOAD-BEARING HALF, not the flex. analysis.css pins this element to
+   `--movelist-max-height` (8rem) under `max-width: 799px and (orientation: portrait)` — a
+   single-board rule that reaches this page too. Releasing `flex` alone left both height
+   declarations standing, so the block grew to nothing: measured 97.2px of movelist in a
+   313.6px panel with 73px of it simply empty below the move controls. The round page never
+   hits this because its movelist is not inside `.movelist-block` under that query. */
+.analysis-app.bug .movelist-block {
+    flex: 1;
+    min-height: 0;
+    height: auto;
+    max-height: none;
+}
+/* site.css pins #movelist to `--movelist-max-height` (8rem), which is a scrap of a panel
+   this tall. Released here exactly as the round page releases it. */
+.analysis-app.bug #movelist {
+    height: 100%;
+    max-height: unset;
+}
+/* THE TOOLS CLIP RATHER THAN PUSH THE PAGE.
+   -----------------------------------------------------------------------------------------
+   The boards come first — `squareUnit.ts` promises the tools only half a square of the left
+   board — so this column can end up narrower than the movelist's own content wants. A flex
+   item's `min-width` is `auto`, meaning it refuses to go below min-content, so it did not
+   shrink: it overhung its track and the PAGE scrolled sideways instead, measured 43px at
+   996x649 with a 31px track and a 101px movelist.
+
+   `min-width: 0` is the same bargain the tools column makes everywhere else in this file
+   (`.analysis-app.bug .bug-parts`, and the `minmax(0, max-content)` on the parts track): what
+   does not fit is clipped, and the page's own width is never negotiable. An unusable tools
+   column is a deliberate outcome here; a horizontally scrolling page is not. */
+.round-app.bug .movelist-block,
+.round-app.bug .movelist-block #movelist {
+  flex: 1;
+  min-width: 0;
+}
+@media (aspect-ratio <= 9/16) {
+      .round-app.bug #movelist {
+        font-size: 1.1em;
+      }
+}
+@media (min-width: 800px) {
+      .round-app.bug #movelist {
+        font-size: 0.68vw; /*  magic number that looks good and resizes itself with container */
+      }
+}
+.round-app.bug #movelist {
+  display: flex;
+  height: 100%;
+  max-height: unset;
+  overflow-y: auto;
+  flex-flow: row wrap;
+  position: relative;
+  line-height: 1.7;
+  align-items: center;
+  align-content: flex-start;
+  background: var(--bg-color0);
+}
+move-bug.active {
+  font-weight: bold;
+}
+/* FOUR PAIRS PER ROW, AND THE ARITHMETIC HAS TO CANCEL EXACTLY.
+   -----------------------------------------------------------------------------------------
+   A row is four counter+move pairs — the four seats in the order they moved, which is what
+   aligns the two boards — so each pair is 25% and the pair splits into a fixed counter and
+   whatever is left. Written as `counter + (25% - counter)`, the counters cancel and the four
+   pairs sum to exactly 100%.
+
+   THE UNIT IS `em`, NOT `ch`, AND THAT IS THE WHOLE FIX. `ch` is the width of a "0" in the
+   element's OWN face, and a move cell is not always in the counter's face: `.theoretical`
+   moves — every move on the blank analysis board, and every explored line on a real game —
+   are italic. Measured at 10.7179px: `3ch` is 18.3755px upright and 17.7009px italic, so an
+   italic cell claimed `25% - 17.70` beside a counter that really took 18.38. The 0.675px
+   difference three times over is 2.02px, against a 255.2px container — and the fourth pair's
+   move wrapped to the next row while its counter stayed behind. Exactly the row this layout
+   exists to keep whole.
+
+   Every cell carries the same font-SIZE (only the face differs), so `em` is identical on both
+   sides of the subtraction and cannot drift the way `ch` did. It is one variable used twice
+   for the same reason: two copies of a number that must agree is how they stop agreeing. */
+move-bug {
+    line-height: 1.9em;
+    float: left;
+    flex: 0 0 calc(25% - var(--bug-move-counter-w, 1.72em));
+    max-width: calc(25% - var(--bug-move-counter-w, 1.72em));
+    padding-left: 6px;
+    box-sizing: border-box;
+    justify-content: center;
+    white-space: nowrap;
+}
+/* THE MOVELIST FITS ITS BOX BY SIZING THE TYPE TO THE BOX, not by clipping what does not fit.
+   -----------------------------------------------------------------------------------------
+   A row is four `25% - 3ch` cells, so how much of a move fits is decided by the ratio between
+   the container's width and the font — and `1ch` is a font unit, so the counter's `3ch` grows
+   with the type and takes the growth out of the cell beside it. Measured on the analysis page's
+   247px panel at the inherited 15.4px: cell 35.4px against `Qxg6+` needing 47.2px plus 6px of
+   padding. An 18px shortfall, in a cell that gets SMALLER as the font gets bigger.
+
+   `cqi` is what closes it. One percent of the container's INLINE CONTENT BOX — which excludes a
+   vertical scrollbar — so the character budget per cell is the same at every width, and the
+   moment a scrollbar appears and takes 8px the type follows it down. That is the resize this
+   needs, and it needs no JavaScript and no second measurement: the browser does it as part of
+   layout, which is also why it cannot get out of step the way a measured value would.
+
+   4.2 is measured, not chosen. At the same 247px panel it gives a 10.7px cell font with 7.1px
+   spare on a six-character move (`Ngxf7+`) and still holds a seven-character one; 4.5 leaves
+   only 3.2px and fails at seven; 5.5 overflows this game's own moves.
+
+   `min(…, 16px)` caps the growth. The ratio holds at every width, so a wide movelist would
+   otherwise keep scaling up long past the point where the cell is roomy — the cap is about the
+   type looking right, never about fitting.
+
+   The padding goes with it: 6px was a constant beside a length that scales, so at a small font it
+   was eating a fifth of the cell. In `ch` it is the same fraction of a character at every size. */
+.round-app.bug #movelist,
+.analysis-app.bug #movelist {
+    container-type: inline-size;
+    --bug-move-counter-w: 1.72em;
+}
+.round-app.bug move-bug,
+.analysis-app.bug move-bug {
+    font-size: min(4.2cqi, 16px);
+    padding-left: 0.4ch;
+}
+move-bug.haschat {
+    background-image: url('icons/bugchatmove.svg');
+  background-size: 1em 1em;
+   background-repeat: no-repeat;
+  background-position: right;
+
+}
+.bugchatpopup {
+  list-style-type: none;
+  display: none;
+  min-width: 12rem;
+  border-left: 2px solid #3692e7;
+  border-radius: 0 3px 3px 3px;
+  text-align: left;
+  box-shadow: var(--base-shadow);
+  z-index: 1000;
+  min-height: unset;
+  flex: 0 0 100%;
+  max-width: 100%;
+}
+move-bug.active + .bugchatpopup {
+  display: block;
+}
+/* A RESULT LINE MUST WRAP, whatever the names are.
+   -----------------------------------------------------------------------------------------
+   `movelist.ts` appends this block to the movelist at game over, and it holds the teams:
+   "Invalid move • Test-KnibisFers+Test-FersAmazon won". Two usernames joined by `+` with no
+   space is ONE token to the line breaker, and with `overflow-wrap: normal` it cannot be
+   broken anywhere — measured min-content 121px against a 107px column, which the movelist's
+   `overflow-y: auto` then turned into a horizontal scrollbar (a non-visible overflow on one
+   axis forces the other to `auto`).
+
+   Widening the column fixes today's numbers — see the wrapper rule above — but not the class
+   of failure: a long enough pair of names overflows any width. `anywhere` breaks the token
+   instead, and is preferred to `break-word` because it also lets the line box shrink, so the
+   block reports a min-content width the column can actually satisfy. */
+.round-app.bug #movelist .status,
+.analysis-app.bug #movelist .status {
+    overflow-wrap: anywhere;
+}
+move-bug.counter {
+    color: Gray;
+    /* The same length the cell beside it subtracts — see `move-bug` above. 1.72em is the
+       3ch this used to be, measured in the upright face the counters are always drawn in. */
+    flex: 0 0 var(--bug-move-counter-w, 1.72em);
+    padding-left: 0px;
+    background-color: var(--bg-color2);
+    text-align: center;
+}

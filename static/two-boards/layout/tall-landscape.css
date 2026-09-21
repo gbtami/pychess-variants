@@ -1,0 +1,286 @@
+/* TALL LANDSCAPE — the one mode with a zoom, and the only one where a board gives height back.
+   ------------------------------------------------------------------------------------
+   `@media (aspect-ratio > 9/16) and (height >= 600px)`. What is here is what only this mode
+   states: the tracks its two boards and the tools column take, and what changes when a reader
+   zooms a board down and the space it stops using becomes somewhere to put something. */
+
+@media (aspect-ratio > 9/16) and (height >= 600px) {
+    /* AS TALL AS ITS CONTENT, not as tall as the pinned wrapper — the same declaration the round
+       page's block above makes, for the same reason. The first row absorbs the slack, so an app
+       stretched to the wrapper hands the tools panel every pixel the boards did not use: measured
+       at 996x730 with both boards at 60%, a 639px panel beside a 460px board.
+
+       `height: 100%` is kept as the fallback, which is what this rule was, so the frame before
+       anything has been measured is unchanged. */
+    .analysis-app.bug {
+        height: var(--bug-app-content-h, 100%);
+    }
+    /* This mode sets no strip parameters: its rows are min-content, so the strip
+       sizes to its contents, and the name falls back to the shared 0.85em floor
+       rather than the 0.7vw it used to inherit. The mirrored justify-content pair
+       that used to sit here went with the mirror itself — both boards now read
+       pocket, name, clock, so there is nothing left to mirror. */
+    .round-app.bug {
+        /* No --board-scaleA/B here any more, deliberately. Every track that used
+           them multiplied a quantised unit by a zoom fraction, which is exactly what
+           un-quantises it; the zoom now enters before the flooring, in
+           client/two-board/squareUnit.ts, and arrives as --bug-tall-sq-a / -b with
+           the scale already inside it. Re-introducing a scale variable here would
+           re-introduce the defect, because the only thing left to multiply is a
+           number that is already final. */
+        grid-row-gap: 2vmin;
+        /* One column per board, and the two boards adjacent: a player compares
+           them constantly, so nothing sits in the gap between them and the tools
+           column moves to their right.
+
+           A board is eight of its column's own square, and that square already has
+           the column's zoom in it. Each column keeps its own unit, so the two
+           sliders stay independent.
+
+           The tools column is a flat fifth of the viewport and deliberately does
+           NOT scale with zoom — its width is about reading chat and move lists,
+           not board geometry. This is a change: the track it replaces was
+           pocket-derived from --cg-width-a and therefore grew with the board. The
+           cost is that at low zoom the panel is proportionally dominant.
+
+           `move-controls` and `uboard` are gone: measured on the live page, of
+           the ten areas this template declared only eight had an occupant.
+           #move-controls now lives inside the Moves panel with the movelist block,
+           and under-board is a sibling of the round app rather than a child.
+
+           toolsB is gone too, and with it the last of the areas that held nothing
+           worth a track. It carried #offer-dialog — the draw and rematch prompt —
+           in a full-width row below both boards, which drew an offer's answer
+           nowhere near the control that asked for it. An offer is now a look the
+           control itself wears, so the element and its row went together. */
+        /* Height-derived, not width-derived. --bug-tall-sq-a is the same ten-row
+           square short landscape uses, measured over the viewport less the header,
+           so at full zoom the stack — pocket row, board, pocket row — fills exactly
+           the height the app is given and the board is as large as it can be. The
+           board row stays min-content so a board scaled below full zoom shrinks its
+           own row instead of leaving a band between itself and its pockets.
+
+           THE RULE FOR EVERY TRACK THAT SIZES A BOARD, in this mode and the other
+           two: the track is a published unit times the file count, and NOTHING is
+           multiplied into it afterwards. A published unit is a whole number of
+           device pixels per square, which is what makes chessgroundx's own flooring
+           a no-op on it — the track and the board then agree exactly. Multiply it
+           by anything that is not itself whole and the board floors the product
+           again, keeps the difference, and pins itself to the RIGHT of what is
+           left; the pocket above it is laid out from the LEFT, so the whole
+           remainder opens between the two and reads as panels that do not line up.
+
+           That is not a rounding error. The loss is up to eight device pixels — a
+           whole square's worth — and this track lost 6.39 of them: `* 8 *
+           var(--board-scaleA)` on a 76px unit at zoom 80 asked for 60.8 device
+           pixels per square, got 60, and handed a 486.39 track to a 480 board.
+           The zoom now enters before the flooring, in squareUnit.ts.
+
+           A unit is also only as good as the box it is written on: a width does
+           not apply to an inline box at all, which is how portrait kept a 2px
+           version of the same gap for as long as it has existed. See `.own-board`
+           in the portrait block. */
+        /* Two columns. The second is `max-content` — the right board and the tools
+           together, which is what .partner-and-tools holds — rather than a board
+           track and a tools track. A grid track is sized by its widest item and
+           never by two items side by side, so the merge cannot be expressed as two
+           separately placed items; the wrapper is what makes the sum available. */
+        /* minmax(0, max-content), not bare max-content. The second column holds a
+           wrapping flex column, and a wrap that spills one part into an extra
+           column would otherwise widen the app past the viewport — seen at 117px
+           over. Capped, the page cannot overflow however the parts wrap; the column
+           clips instead, which is the same bargain the tools column always made. */
+        /* THREE TRACKS, NOT TWO. The merged column's own two tracks — board B, then the tools
+           — are stated here instead, because that column is dissolved below and its children
+           are grid items of this app now. The same two numbers, one level up: nothing about
+           the widths changes. What changes is that a row can now span from the LEFT board's
+           edge to the tools' right edge, which is the whole point of zone B. */
+        grid-template-columns: calc(var(--bug-tall-sq-a) * 8)
+                               calc(var(--bug-tall-sq-b) * 8)
+                               var(--bug-tools-track);
+        column-gap: 2vmin;
+        /* No row gap: the pockets are meant to sit flush against the board, and a
+           gap here is the same leftover that shows as a line between them. */
+        grid-row-gap: 0;
+        /* Every row explicit. The board row was `min-content`, meaning to let a
+           board below full zoom shrink its own row — but min-content is indefinite
+           and resolves against the board in it, while that board's height comes
+           back from the row. That is the circular sizing the layout spec forbids,
+           and unlike the zero fixed point it runs the other way: the boards grew
+           to 1528px and 1312px in an 827px viewport, one pass at a time.
+
+           Sized from the LARGER of the two scales, because one row carries both
+           boards. At equal zoom — the normal case, and the default — this is
+           exactly eight squares and the stack is exactly ten.
+
+           ONE row now, where there were two. The second held only #offer-dialog and
+           is gone with it — worth recording that as `auto` it had stretched to 17.4px
+           and put the app 60px past the viewport it had just been pinned to, so an
+           empty row here was never free. */
+        /* All three of board A's rows scale with board A, so its stack stays exactly
+           ten of ITS OWN squares whatever the zoom. Left at the unscaled unit the
+           strip rows would keep a full-size board's height under a reduced board and
+           show as a band between the board and its pockets.
+
+           No `max(scaleA, scaleB)` on the board row any more. That was needed when
+           both boards shared this row; board B now lives inside .partner-and-tools,
+           which spans these rows as one item and sizes itself, so this row carries
+           board A alone and taking the larger of the two only inflated it. */
+        /* The leftover below full zoom — 156.96px at 80% zoom in a 767px app, measured —
+           is spent by the two stacks: the coordinate gap takes what the labels need and
+           `seatNamePlacement` sees only what is left when it decides whether a username
+           may have its own line. That ordering is deliberate and one-way; the gap is
+           computed from this mode's height and its own square, neither of which depends
+           on a name, so a name can never move the gap.
+
+           This paragraph described five rows and a `reservedGap` in seatNamePlacement.
+           The template has two rows and that identifier never existed. */
+        /* Two rows: the viewer's stack, and the tools strip under it. The stack was
+           three rows — one per strip and one for the board — which is what a
+           container does for the partner's stack without any rows at all. `1fr` so
+           the stack has the height to arrange itself in, rather than being measured
+           by tracks that had to be told how tall a strip becomes when a name leaves
+           it. */
+        /* ONE ROW PER TOOLS PART, PLUS ZONE B. The first absorbs the slack — it is the chat's
+           row, and the chat is the part that takes whatever the others leave. The rest are
+           their content's height. Both stacks span rows 1-4, so the boards keep exactly the
+           height they have today while zone B is empty, and give some of it up when it is
+           not, which is what a row under both boards has to cost. */
+        grid-template-rows: minmax(0, 1fr) auto auto auto auto auto;
+        /* THE APP IS AS TALL AS ITS CONTENT, not as tall as the viewport — the taller board
+           plus whatever zone B holds, published by toolsPlacement.ts. Stretched to the viewport
+           it handed every unused pixel to the `1fr` row above, so the chat ran far past the
+           boards and the buttons under them sat below a band of nothing.
+
+           The fallback is the full height, which is what this was before, so the page is
+           correct on the frame before anything has been measured. */
+        height: var(--bug-app-content-h, 100%);
+        /* The coordinate gap is no longer set here. It was a length assigned in this one
+           block and read by nothing, beside a comment describing a minmax() row this
+           template does not have. Both are gone; the gap is now computed once at the top
+           of this file from the room each mode declares, and this mode declares its room
+           on the two stacks below. */
+        /* NAMED FOR WHERE THEY ARE, NOT FOR WHAT SITS IN THEM — the analysis page's rule,
+           now shared. `zoneToolsN` is the strip beside the board on row N; `zoneAN` is that
+           same row widened to take the space the PARTNER board frees; `zoneB` is the full
+           width under BOTH boards. A part on row N sits in one of the first two, and the drop
+           classes below choose which.
+
+           One slot per ROW rather than one `zoneTools` for all of them, because a named area
+           is one rectangle and holds one item: two parts given the same name OVERLAP, which
+           is measured and is why the analysis page numbers its slots too. */
+        grid-template-areas: var(--bug-zones-strip);
+    }
+    /* The merged second column: the right board's stack floated left, the tab parts
+       and the bar arranging themselves in what is left of it.
+
+       `flow-root` rather than `grid`. A grid would place the parts in tracks, which
+       is what the old tools container did one level down, and tracks are exactly
+       what makes the space under a shrunken board unreachable. Floated, the stack
+       is an obstacle of a definite size: a part sits beside it while there is room
+       beside it, and once the float has ended — which is what happens as soon as
+       the board is scaled down — the parts below it have the column's full width.
+
+       The float is contained rather than escaping, which is the whole reason for
+       `flow-root` over a plain block. */
+    /* DISSOLVED. Its two tracks are the app's now, and its children — the partner board's
+       stack and every tools part — are grid items of the app, placed by the areas above.
+
+       This is the one structural change, and it is what zone B needs: a row under BOTH
+       boards can only be spanned by an item of the grid that owns both board columns. While
+       the parts were nested one level down, the widest a dropped part could ever be was the
+       merged column, which is the partner board plus the tools and never the left board.
+
+       The analysis page already dissolves this same element for the same reason; this makes
+       the two pages the same shape rather than two shapes that happen to look alike.
+
+       `display: contents` is the whole rule. It has no box, so its `overflow: hidden` and
+       its own tracks stop applying — which is why they are stated on the app above, and why
+       partsWidth.ts reads the app's last track when this element reports no tracks at all. */
+    /* The round page's part placements and arrangements are shared by both landscape modes
+       now — see the block after this one. */
+
+    /* ZONE B: the presets take the full width under BOTH boards.
+
+       The roomiest home they have, and the only one wide enough for a single row, so
+       toolsPlacement.ts tries it first and falls back to zone A. The group is the grid item
+       here and the two panels are its children.
+
+       WRAPPING CHOOSES THE SHAPE. Each panel is ten buttons wide; either two of them fit the
+       row or they do not, and flex wrap answers that on its own — one row of twenty when zone
+       B is wide enough, two rows of ten when it is not. Nothing measures, and there is no
+       state to keep in step. */
+    .round-app.bug.drop-presets-b .bug-presets-group {
+        grid-area: zoneB1;
+        display: flex;
+        flex-wrap: wrap;
+        /* ONE GAP EVERYWHERE, so a paired row reads as a single row of twenty rather than two
+           blocks that happen to be adjacent. The join used to be computed as "the leftover of a
+           row of twenty" — a different number from the gap inside each set, and one that came
+           from the published button size. The buttons now share their row through flexible
+           tracks, so the join is simply the pitch. */
+        column-gap: var(--bug-preset-gap, var(--bug-preset-gap-min));
+        row-gap: var(--bug-preset-row-gap);
+    }
+
+    /* THE TELLS LEAD AND THE PIECE REQUESTS FOLLOW, in every arrangement. This used to apply only
+       to the single row, which meant the same two blocks read in one order paired and the other
+       order stacked; one order everywhere is the simpler rule and the one a reader can learn.
+       `order` rather than `row-reverse`, which would also flip what the alignment means. */
+    .round-app.bug .bug-parts .chatpresets-panel-1 {
+        order: 1;
+    }
+
+    /* Same policy as short landscape — see the comment there for the 0.6, for why the
+       size comes from the column, and for why the selector carries `.round-app.bug`.
+       This mode's track is literally `20vw`, so `--bug-parts-w` could have been written
+       as a vw expression here; it is not, so that one rule covers both modes and neither
+       can drift from the track it is supposed to follow. */
+    /* The GROUP carries it as well, so that the panels inside it can state a width in terms of
+       the button — which is what zone B needs and what a panel beside the board never did,
+       being stretched by its grid row instead. Declared, not inherited from `.chatpresets`:
+       properties inherit downwards and the group is above the parts, not below them. */
+
+    /* Keyed on the APP, not on the merged column. This mode flattens the page, so the column
+       is dissolved and toolsPlacement.ts puts the drop classes on the app instead — the
+       element whose template they swap. Short landscape keeps the column and keeps the other
+       form; the two selectors can never match the same element. */
+    /* Each seat's furniture is sized from ITS OWN board, the way portrait already
+       does it with --bug-seat-sq. Sharing one unit across all four seats is what
+       left a 35%-zoom board with a full-size board's furniture: a strip 2.9 of its
+       own squares tall, and a clock of 136.7px against a 208px board — 70% of the
+       whole board's width, which is what crushed that seat's username to 5.8px.
+
+       Own maps to unit A and partner to unit B because the units belong to the
+       COLUMNS, not to the boards: --bug-tall-sq-a is the left column's and the
+       viewer's own board is always the one in the left column, which is exactly what
+       markRoles() marks. A switch moves the boards between columns and re-marks the
+       roles, so the pairing holds.
+
+       The unit is taken whole rather than multiplied by anything, for the same
+       reason the board tracks are — see the rule stated on .round-app.bug above.
+       A strip one square tall is one square of the board beneath it exactly.
+
+       Derived from the published units, never from --cg-width-a/b. Those are what
+       chessgroundx measured for a board sitting in a track this value helps size —
+       the circular sizing the layout spec forbids, and which in this file has already
+       produced both a collapse to 0x0 and a runaway to 1528px. */
+    /* THIS MODE'S SPARE HEIGHT, per column, which is what the coordinate gap is drawn from.
+       The stack is exactly ten of its column's squares — pocket row, board, pocket row — and
+       the app is --bug-app-h, so whatever the two differ by is height nothing has claimed.
+       At full zoom that is only the quantisation remainder, measured 6.96px in a 767px app,
+       which is below the floor and therefore no gap at all: full zoom looks as it always has.
+       Lower zooms leave far more — 66.96px at 91%, 156.96 at 80% — and the labels take the
+       16 they want.
+
+       Per COLUMN, keyed exactly as the units are, so two boards at different zooms get
+       different gaps and neither is affected by the other's. */
+    /* Against each column's ALLOWANCE — its own square at full zoom — rather than the app's
+       height. At full zoom that is zero spare by construction, which is the rule: a board at
+       100% keeps its coordinates and its username inside, whatever the width had to do to its
+       square. Zooming out is then the only thing that creates room, which is what this gap was
+       always for. */
+
+    /* The per-seat parameters are shared by both landscape modes now — see the block below. */
+
+}

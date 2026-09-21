@@ -1,0 +1,123 @@
+/* THE POCKETS — the pieces a player holds, at each end of a stack.
+   ------------------------------------------------------------------------------------
+   What belongs here: how a pocket is drawn and sized against its board's square, on both
+   pages and in every mode. What does not: which end of which stack it sits at, which is the
+   strip's business, and the grid areas the strips occupy, which are `layout/`'s. */
+
+/* THE POCKETS, one board square per piece.
+   ------------------------------------------------------------------------------------
+   Nothing on this page sized them before, and the three modes failed in three different
+   ways — which is why only one of them looked passable.
+
+   DESKTOP LANDSCAPE was right by accident. The round page's `.pocket-top .twoboards .pocket`
+   is not scoped to `.round-app`, so it reaches this page too, and the `--cg-width-a` it reads
+   is written by chessgroundx and therefore defined here.
+
+   SHORT LANDSCAPE hit that rule's other copy, whose `--bug-pocket-sq` is declared on
+   `.round-app.bug` and so is missing here. The width was invalid at computed-value time and
+   dropped, leaving `width: auto` — which inside a definite eight-square column is a pocket
+   as wide as the whole board.
+
+   PORTRAIT matched no rule at all and fell through to extensions.css, which sizes a pocket
+   from `--cg-width` / `--cg-height`. The two-board page never writes those; it writes the
+   `-a` / `-b` pair. So the HEIGHT was dropped too, and a pocket with no height is a pocket
+   nobody can see.
+
+   Sized from --bug-stack-sq, not from --cg-width-a/-b. Both would be legal — a pocket does
+   not sit in the track it sizes itself from, so reading chessgroundx's measurement here is
+   not the forbidden self-reference — but the board column above IS `--bug-stack-sq * 8`, so
+   taking the pocket from the same variable makes a pocket piece exactly one board square BY
+   CONSTRUCTION, rather than by two independently derived numbers happening to agree.
+
+   A CELL IS A WHOLE SQUARE, not the round page's 0.8. That 0.8 is compaction and its reason
+   is stated where it is declared: a round-page pocket shares its row with a name and a clock
+   and has to leave them room. Here the pocket has the row to itself, so all three modes get
+   the uncompacted geometry — which is the one desktop was already showing. */
+.analysis-app.bug .bug-own-stack .twoboards .pocket,
+.analysis-app.bug .bug-partner-stack .twoboards .pocket {
+    width: calc(var(--pocketLength) * var(--bug-stack-sq));
+    height: var(--bug-stack-sq);
+    --fs: var(--bug-stack-sq);
+    font-size: var(--fs);
+}
+/* The wrapper is `display: inline` in extensions.css, and an inline box does two things
+   here: a width does not apply to it at all, and it generates a LINE BOX whose leading shows
+   as a band between a board and the pocket against it. The round page blockifies it in two
+   of its three modes for exactly this; stated once here for all three. Also more specific
+   than the rule above, which matches this element too — `.cg-wrap` carries `.pocket` as well
+   as the inner element does. */
+.analysis-app.bug .bug-own-stack .twoboards .cg-wrap.pocket,
+.analysis-app.bug .bug-partner-stack .twoboards .cg-wrap.pocket {
+    display: block;
+    width: max-content;
+}
+.seat-strip0 > .pocket-top, .seat-strip0 > .pocket-top-partner,
+.seat-strip1 > .pocket-bot, .seat-strip1 > .pocket-bot-partner {
+  flex: 0 0 auto;
+}
+@media (aspect-ratio <= 9/16) {
+        .round-app.bug .twoboards .pocket {
+          width: calc(var(--pocketLength) * var(--bug-pocket-sq));
+          height: var(--bug-seat-sq);
+          --fs: var(--bug-seat-sq);
+          font-size: var(--fs);
+        }
+        /* Only the inner element carries the variant's real role count — chessgroundx
+           writes --pocketLength on it, and the .cg-wrap.pocket above would fall back to
+           the global default of 5 and mis-size any variant that differs.
+
+           `display: block` is load-bearing, not tidying. The wrap is an inline box by
+           default, which means two things: a sizing property does not apply to it at
+           all, so max-content was inert; and it generates a LINE BOX, whose leading
+           showed up as a gap between a board and its pocket. Measured while the strip
+           was rotated: inline gave a 48.67px wrapper and a 28px gap, block 20.67px
+           and 0. Kept now the strips are horizontal again — the wrapper should be the
+           pocket's size in either arrangement. */
+        .round-app.bug .twoboards .cg-wrap.pocket {
+          display: block;
+          width: max-content;
+        }
+}
+@media (aspect-ratio > 9/16) and (height < 600px) {
+        .pocket-top .twoboards .pocket, .pocket-bot .twoboards .pocket {
+          width: calc(var(--pocketLength) * var(--bug-pocket-sq));
+          height: var(--bug-sq);
+          --fs: calc(var(--cg-height-a) / var(--ranks));
+          font-size: var(--fs);
+        }
+        .pocket-top-partner .twoboards .pocket, .pocket-bot-partner .twoboards .pocket {
+          width: calc(var(--pocketLength) * var(--bug-pocket-sq));
+          height: var(--bug-sq);
+          --fs: calc(20px / var(--ranks));
+          font-size: var(--fs);
+        }
+        /* Only the inner element carries the variant's real role count — chessgroundx
+           writes --pocketLength on it. The .cg-wrap.pocket above it would fall back to
+           the global default of 5, so it shrink-wraps instead of being sized. */
+        .round-app.bug .twoboards .cg-wrap.pocket {
+          width: max-content;
+        }
+}
+@media (aspect-ratio > 9/16) and (height >= 600px) {
+        .pocket-top .twoboards .pocket, .pocket-bot .twoboards .pocket {
+          width: calc(var(--pocketLength) * (var(--cg-width-a) / var(--files)));
+          height: calc(var(--cg-height-a) / var(--ranks));
+          --fs: calc(var(--cg-height-a) / var(--ranks));
+          font-size: var(--fs);
+        }
+        .pocket-top-partner .twoboards .pocket, .pocket-bot-partner .twoboards .pocket {
+          width: calc(var(--pocketLength) * (var(--cg-width-b) / var(--files)));
+          height: calc(var(--cg-height-b) / var(--ranks));
+          --fs: calc(var(--cg-height-b) / var(--ranks));
+          font-size: var(--fs);
+        }
+}
+/* *****************************************************************************************
+ * extensions.css
+ ******************************************************************************************* */
+.round-app.bug .pocket.top {
+  margin-bottom: unset;
+}
+.round-app.bug .pocket.bottom {
+  margin-top: unset;
+}

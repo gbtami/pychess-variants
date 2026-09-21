@@ -1,0 +1,39 @@
+/* THE MOVE-TIME CHART, and the shape of the panel it is drawn in.
+   ------------------------------------------------------------------------------------
+   Here because the chart is its own thing: it shares the analysis page with the engine box
+   and nothing else — its own container query, its own inverted form, `movetimeChart.ts`
+   behind it. What is NOT here: `--bug-chart-inverted`'s registration, which lives with every
+   other property in `properties.css`; this file only sets it. */
+
+/* THE CHART FOLLOWS THE SHAPE OF ITS PANEL.
+   ------------------------------------------------------------------------------------
+   `container-type: size` is doing two jobs. It is what lets the aspect-ratio query below
+   ask about this box at all — and it is what makes the whole arrangement incapable of
+   looping. A size container's dimensions come from OUTSIDE it, so nothing the chart draws
+   can change the box, and the box is the only input to the answer. There is no feedback
+   path to terminate, which is why nothing here needs a guard.
+
+   The chart fills the panel rather than keeping analysis.css's flat `height: 240px`. That
+   height was written for a chart in a full-width row under the board; here the panel is a
+   tab of the tools column, and a chart that only ever used 240px of a 312px panel is the
+   reason the vertical form has room to be worth switching to. */
+.analysis-app.bug .chart-container {
+    container-type: size;
+    container-name: movechart;
+}
+.analysis-app.bug #chart-movetime {
+    width: 100%;
+    height: 100%;
+}
+/* Taller than wide gets the vertical form. The threshold is 1 rather than something tuned:
+   the question is literally which axis has more room for the plies to run along. */
+@container movechart (aspect-ratio < 1) {
+    .analysis-app.bug #chart-movetime {
+        --bug-chart-inverted: 1;
+    }
+}
+@container movechart (aspect-ratio >= 1) {
+    .analysis-app.bug #chart-movetime {
+        --bug-chart-inverted: 0;
+    }
+}

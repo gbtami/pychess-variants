@@ -363,7 +363,7 @@ class BoardSettings {
                 // this scale, so the unit has to be republished before the board
                 // is measured against it. Arithmetic, not a measurement — see
                 // setBoardZoom().
-                if (boardName) setBoardZoom(boardName, zoom);
+                if (boardName) setBoardZoom(boardName, zoomSettings.value);
 
                 // Analysis needs to zoom analysisChart and movetimeChart as well
                 if ('chartFunctions' in this.ctrl && this.ctrl.chartFunctions) {
