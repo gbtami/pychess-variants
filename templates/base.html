@@ -18,12 +18,6 @@
         <link rel="stylesheet" href={{ static("blog-cards.css") }}>
         <link rel="stylesheet" href={{ static("flatpickr.css") }}>
         <link rel="stylesheet" href={{ static("reconnecting.css") }}>
-        {# THE TWO-BOARD STYLESHEETS, IN CASCADE ORDER — see openspec/changes/split-bughouse-stylesheet.
-           The order is the design, not an accident: the values first, then what the page around the
-           app does, then the arrangement per mode, then the parts that sit in it. A rule that needs
-           to win a tie says so with its own selector; nothing here may depend on this order alone.
-           `bughouse-lobby.css` last, and it is not part of this at all: the seek and team UI that
-           was in `bughouse.css` because the variant's name was on the file. #}
         <link rel="stylesheet" href={{ static("two-boards/properties.css") }}>
         <link rel="stylesheet" href={{ static("two-boards/page-shell.css") }}>
         <link rel="stylesheet" href={{ static("two-boards/layout/shared.css") }}>
