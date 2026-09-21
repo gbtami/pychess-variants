@@ -354,12 +354,6 @@ class BoardSettings {
             // `minZoomPercent()`. Clamped here rather than on the stored value: the setting is
             // the user's standing preference, and a window they resize should not silently
             // rewrite it. What is clamped is what this window draws with.
-            // THE RAW SETTING GOES TO `setBoardZoom`, the clamped one only to the stylesheet. The
-            // floor belongs to the window and is re-applied on every publish; handing the clamped
-            // value back as the preference makes it a ratchet — a tablet's 47% floor becomes what
-            // this reader is taken to have asked for, and a desktop whose floor is 40% can never
-            // give the boards back down to it. Measured: 35px and 41px on a 1920x955 desktop
-            // reached by resizing from a tablet, where a fresh load gives 35 and 35.
             const zoom = boardName ? clampZoom(boardName, zoomSettings.value) : zoomSettings.value;
             const el = document.querySelector('.cg-wrap') as HTMLElement;
             if (el) {
