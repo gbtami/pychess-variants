@@ -65,10 +65,6 @@
         {% for item in community_variants.variants %}
         <section class="community-variant-card{% if item.hasStartBoard %} community-variant-card--with-preview{% endif %}{% if item.favorite %} community-variant-card--favorite{% endif %}" data-variant="{{ item.name }}">
             <div class="community-variant-card-head">
-                <div class="community-variant-card-title">
-                    <h2><a{% if item.system %} class="community-variant-fsf-title"{% endif %} href="{{ home }}/variants/{{ item.name }}">{% if item.system %}<img class="community-variant-fsf-icon" src="/static/images/Fairy-Stockfish.webp" width="64" height="64" alt="" aria-hidden="true">{% endif %}{{ item.displayName }}</a></h2>
-                    {% if not item.system %}<code>{{ item.name }}</code>{% endif %}
-                </div>
                 {% if community_variants.canFavorite %}
                 <button
                     type="button"
@@ -81,6 +77,10 @@
                 {% else %}
                 <span class="community-variant-favorite community-variant-favorite-disabled" title="{% trans %}Sign in to favorite variants{% endtrans %}" aria-hidden="true">♡</span>
                 {% endif %}
+                <div class="community-variant-card-title">
+                    <h2><a{% if item.system %} class="community-variant-fsf-title"{% endif %} href="{{ home }}/variants/{{ item.name }}">{% if item.system %}<img class="community-variant-fsf-icon" src="/static/images/Fairy-Stockfish.webp" width="64" height="64" alt="" aria-hidden="true">{% endif %}{{ item.displayName }}</a></h2>
+                    {% if not item.system %}<code>{{ item.name }}</code>{% endif %}
+                </div>
             </div>
             <div class="community-variant-card-main">
                 {% if item.description %}<p>{{ item.description }}</p>{% endif %}
