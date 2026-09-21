@@ -1,0 +1,51 @@
+/* BUGHOUSE RULES THAT ARE NOT ABOUT THE TWO-BOARD PAGES — the seek and team UI in the lobby,
+   the join button, the waiting state, and the game-list rows. They were in `bughouse.css`
+   because the variant's name was on the file; they have nothing to do with the round and
+   analysis layouts and so did not follow them into `two-boards/`. */
+
+.bugseekteam1 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  grid-row: 1/3;
+}
+
+.bugseekteam2 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  grid-row: 4/6;
+}
+
+.bugseekteam1 div,
+.bugseekteam2 div {
+  color: #878787;
+}
+
+.bug-join-button {
+  background-color: var(--bg-color2);
+  border: none;
+  color: var(--font-color);
+  text-align: center;
+  text-decoration: none;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: var(--base-shadow);
+  border-radius: 3px;
+}
+
+.bug-join-button:hover {
+  background-color: var(--bg-color1);
+}
+
+.bugwaiting {
+  color: var(--bug-waiting);
+}
+
+player.bug {
+    text-align: center;
+}
+
+.versus.bug {
+    line-height: 100%;
+}

@@ -1,0 +1,480 @@
+/* THE BOARDS AND THE STACKS THEY SIT IN — and the coordinates around them.
+   ------------------------------------------------------------------------------------
+   A stack is a strip, eight rows of board and a strip, which is the ten `squareUnit.ts`
+   divides every height by. This file is the board's half of that: the board box itself, the
+   chessground wrapper inside it, the files and ranks and the gap that lets them leave the
+   board when a zoomed-down board has height to spare.
+
+   What belongs here: how a board is drawn at the square it has been given. What does not: the
+   square itself and the coordinate gap's arithmetic, which are numbers in `properties.css`;
+   the strips at either end, which are `seats/`; and where a stack sits, which is `layout/`. */
+
+/* The gap itself: the board's box carries it, so the strip below is pushed and the board is
+   not resized. On the board box rather than on a grid row because the two stacks live in
+   different containers — the viewer's in the app's grid, the partner's in .partner-and-tools —
+   and a row could only ever have served one of them.
+
+   `display: block` is load-bearing here, not tidying, and for the second time in this file.
+   `selection` is an unknown element with no display of its own, so it is an INLINE box, and a
+   vertical margin on an inline box does NOTHING — the gap computed to a correct 16px, the
+   margin was set, and the strip did not move a pixel. The portrait block already blockified
+   these two for the same underlying reason (a width does not apply to an inline box either);
+   stated once here for every mode instead, since the trap is the element's, not the layout's. */
+.bug-own-stack > selection, .bug-partner-stack > selection {
+    display: block;
+    margin-bottom: var(--bug-coord-gap);
+}
+/* THE RESIZE HANDLE FOLLOWS THE MODE, NOT THE VIEWPORT WIDTH.
+   ------------------------------------------------------------------------------------
+   The handle exists to drag a board's zoom, so it belongs exactly where zoom reaches the
+   board — which is tall landscape and nowhere else. Short landscape and portrait size their
+   boards from `--bug-sq` and `--bug-portrait-sq` with no zoom scale anywhere in the
+   expression, so there is nothing for a drag to change: cgCtrl.ts's handler would write the
+   Zoom setting, `setBoardZoom` would republish, and every track would come back the same. A
+   control that visibly does nothing is worse than an absent one.
+
+   WHAT THIS REPLACES was two half-rules that happened to agree most of the time. site.css
+   shows `cg-resize` under `@media (min-width: 799.3px)` — a WIDTH test, which is not the
+   question — and short landscape then hid it again by hand. Portrait was never stated at all;
+   it escaped only by being 386px wide on the harness, so a portrait tablet would have shown a
+   dead handle. And the width test failed in the other direction too: measured at 682x647,
+   which IS tall landscape and does honour zoom, the handle vanished because the window had
+   crossed 799.3px — the mode that most needs the control was the one that lost it, and with no
+   handle and boards too large for the viewport the only way back was the settings panel.
+
+   `display: none` rather than `visibility` or opacity: a display-none element takes no pointer
+   events, so the control is gone rather than merely invisible.
+
+   THE GEOMETRY IS RESTATED, and only because site.css keeps it INSIDE that width query — the
+   positioning, the size and the two pseudo-element strokes all disappear below 799.3px along
+   with the display. Setting `display: block` alone would leave a static, zero-sized box in
+   flow. Restated here it is scoped to the bughouse apps, so the rest of the site keeps site.css
+   rule for rule.
+
+   One thing the handle does NOT honour, worth knowing before trusting it as the whole control:
+   its drag clamps to 0..100 (`cgCtrl.ts`), not to `minZoomPercent()`, so it can drive the
+   stored setting below the layout's floor. `setBoardZoom` clamps on the way to the boards, so
+   nothing is drawn too small — the drag simply stops having an effect while the slider would
+   have stopped moving. */
+:is(.round-app, .analysis-app).bug cg-resize {
+    display: none;
+}
+@media (aspect-ratio > 9/16) and (height >= 600px) {
+        :is(.round-app, .analysis-app).bug cg-resize {
+            display: block;
+            position: absolute;
+            right: -9px;
+            bottom: -9px;
+            width: 22px;
+            height: 22px;
+            cursor: nwse-resize;
+            z-index: 10;
+        }
+        :is(.round-app, .analysis-app).bug cg-resize::before,
+        :is(.round-app, .analysis-app).bug cg-resize::after {
+            background: #000;
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 1px;
+            left: 0;
+        }
+        :is(.round-app, .analysis-app).bug cg-resize::before {
+            width: 5px;
+            transform: translate(7px, 8px) rotate(-45deg);
+        }
+        :is(.round-app, .analysis-app).bug cg-resize::after {
+            transform: translate(1px, 6px) rotate(-45deg);
+        }
+        :is(.round-app, .analysis-app).bug cg-resize:hover {
+            border-radius: 50%;
+            background: hsla(22, 100%, 42%, 0.5);
+        }
+        /* ONLY THE HANDLE BEING DRAGGED. `site.css` hangs the dragging look off `body.resizing`, which
+           matches every handle on the page: harmless where there is one board, and wrong here, where
+           both corners lit up green whichever one was grabbed. `cgCtrl.ts` now marks the handle
+           itself; the body class stays, because it also suppresses text selection and that does have
+           to be page-wide. The first rule undoes the shared one for the handle that is NOT being
+           dragged — it is more specific than `.resizing cg-resize`, and narrower than the `:hover`
+           rule above, which keeps working. */
+        body.resizing :is(.round-app, .analysis-app).bug cg-resize {
+            border-radius: 0;
+            background: none;
+        }
+        body.resizing :is(.round-app, .analysis-app).bug cg-resize.resizing {
+            border-radius: 50%;
+            background: hsla(88, 62%, 37%, 0.5);
+        }
+}
+@media (aspect-ratio > 9/16) {
+        /* THE SPECTATOR LIST IS NOT HIDDEN HERE ANY MORE, because it is no longer in the way.
+           ------------------------------------------------------------------------------------
+           What stood here: `<under-left id="spectators">` was a child of the app on this page and
+           asked for `grid-area: uleft`, an area this template stopped naming when the page was
+           flattened. An item whose named area does not exist is AUTO-PLACED, and auto-placement
+           past the last explicit column MINTS IMPLICIT ONES. The cost was not those tracks, which
+           are 0px wide, but their GAPS: measured at 997x750, five columns where three were
+           declared, four `column-gap`s at 15px instead of two, and the extra 30px came off the
+           only track that yields — leaving the tools 6.55px against the 34.3px half-square they
+           are promised. An empty, invisible element had eaten the whole guarantee before either
+           board was asked to give anything up.
+
+           Hiding it was the round page's answer and this page copied it. Both are gone: the
+           placeholder is a child of the Info tab's panel now, laid out by the panel and named by
+           no template, so there is nothing to hide and nothing to auto-place. */
+}
+@media (aspect-ratio <= 9/16) {
+        .analysis-app.bug .bug-partner-stack {
+            align-self: start;
+        }
+        /* AND NO BOARD LETTER, for the same reason and by the same arithmetic. The letter lives in
+           the gauge's column; portrait declares a ONE-column stack, so leaving it placed at
+           `grid-column: 2` creates an implicit second track and the stack stops being exactly its
+           eight squares — measured as an "A" at x=388 in a 386px viewport, i.e. off the screen,
+           dragging the pinned layout wider than the mode allows.
+
+           Portrait therefore has no answer to "which board is this" yet. It cannot reuse the
+           landscape one: there is no gauge column to sit under, and the strip rows are full — the
+           own stack's bottom strip is 5 squares of pocket plus a player bar that runs to the right
+           edge, with nothing spare. Anything that fits has to overlap the board or the strip, which
+           is a decision about portrait rather than a detail of this label. */
+        .analysis-app.bug .bug-own-stack > .board-label,
+        .analysis-app.bug .bug-partner-stack > .board-label {
+            display: none;
+        }
+}
+/* A STACK IS A TWO-COLUMN GRID HERE: pocket / board / pocket down the first column, and
+   the gauge parked in the SECOND column on the board's row.
+
+   Scoped to the analysis page on purpose. The round page's stacks are block flow — "strip,
+   board, strip, in block flow" — and that is load-bearing there; this only reshapes them
+   where a gauge has to be placed.
+
+   The gauge needs no height of its own. Sitting in the board's row it stretches to exactly
+   the board, which is the whole reason for putting it inside: as a sibling of the stack it
+   spanned all three rows and overhung the board by a pocket at each end — measured 550.17px
+   against a 438.55px board.
+
+   The 0.31 is measured, not chosen: the gauge was a flat `--gauge-gap: 17px` from site.css
+   against a 54.8203px square on p1, and 16.99 / 54.8203 = 0.30994. Fixing it as a RATIO is
+   what makes the gauge follow the board through zoom and viewport changes, where a constant
+   px would drift further from the board's proportions at every step. */
+.analysis-app.bug .bug-own-stack,
+.analysis-app.bug .bug-partner-stack {
+    display: grid;
+    grid-auto-rows: auto;
+    justify-content: start;
+}
+/* Neither stack places its own contents with areas any more: both are containers
+   whose children stack in block flow, strip then board then strip, which is the whole
+   of the arrangement they need. The areas that used to do this for the viewer's own
+   board — clock-top, board, clock-bot — are gone with the rows that carried them. */
+.bug-own-stack, .bug-partner-stack {
+    min-width: 0;
+}
+@media (aspect-ratio <= 9/16) {
+        .own-board {
+            width: calc(var(--bug-portrait-sq) * 8);
+            height: calc(var(--bug-portrait-sq) * 8);
+        }
+        .partner-board {
+            width: calc(var(--bug-portrait-partner-sq) * 8);
+            height: calc(var(--bug-portrait-partner-sq) * 8);
+        }
+        under-left {
+            display: flex;
+        }
+}
+@media (aspect-ratio > 9/16) and (height < 600px) {
+        /* When the viewport is too narrow for everything, the chat is what gives way
+           — never the boards. A grid item's automatic minimum size is its min-content,
+           and this one's presets grid holds that at ~196px, which is enough to push
+           the whole grid wider than the viewport. The app is centred, so that overflow
+           spills equally to both sides and the left board's first files fall off the
+           screen entirely — with `body { overflow: hidden }` above, they cannot even be
+           scrolled to. Dropping the floor lets the 1fr track take only what is left,
+           so both boards keep their full width and stay on screen, and the boards are
+           centred exactly as before whenever there is room to spare.
+
+           Measured on an iPhone SE landscape viewport (667x375, the tightest phone
+           tried): the grid was 782px against 665 with board A at x=-59; after this it
+           fits exactly, board A sits at x=0, and the chat takes the whole shortfall.
+           An iPhone 14 (844x390) never reaches the floor and is unaffected. */
+        under-left {
+            display: none;
+        }
+        /* A board's file labels overhang below it into the strip. Lift the board so
+           they paint over the pocket and clock rather than under them; the boards' own
+           boxes end above the strip, so nothing else is covered. They never take
+           pointer events, so a drag begun on a letter still reaches the pocket piece
+           beneath — stated here rather than relied on from chessground.css. */
+        .bug-own-stack > selection#mainboard, .bug-own-stack > selection#bugboard {
+            z-index: 2;
+        }
+        :is(.round-app, .analysis-app).bug .cg-wrap coords {
+            pointer-events: none;
+        }
+}
+@media (aspect-ratio > 9/16) and (height >= 600px) {
+        /* THE SPECTATOR STRIP IS GONE FROM THIS GRID, so the rule that hid it is too.
+           It used to sit in an auto row of the `main.round.bug` shell and take its height off the app's
+           `1fr` before the app saw it — measured at 49.6px, which left the app 717.41px of its
+           767 and put the seat strips 43px past its own bottom edge. Every mode hid it, which
+           is what made a spectator list unreachable in the one mode with room for it.
+           "Giving it a home inside the tools column would settle it" is what the note here used
+           to say, and that is what happened: it is a child of the Info tab's panel now. */
+}
+:is(.round-app, .analysis-app).bug .bug-partner-stack {
+    overflow: visible;
+    /* AND ITS HEIGHT IS ITS CONTENT, for the same reason and from the same stylesheet: `site.css`
+       gives every `div[role=tabpanel]` `height: var(--panel-height)`, `analysis.css` defines that
+       as 240px on this page, and this element is a tab panel. So the stack was pinned to 240 while
+       its content came to 267 — measured: the lower seat strip at y=300 with the box ending at 300,
+       and the board's letter under it.
+       `overflow: auto` had been hiding it: the 27px became a scrollbar rather than an overlap, and
+       releasing the overflow above is what made it visible — the strip, the pocket and the clock
+       drawn over the tab bar in the last resort. The other panels escape this through
+       `.analysis-app.bug .bug-parts > [role='tabpanel'] { height: auto }`, which cannot reach this
+       one: the board's part is mounted in the column, not inside `.bug-parts`. */
+    height: auto;
+}
+/* ===========================================================================================
+   COORDINATES — ON THE SQUARES BY DEFAULT, OUTSIDE THE BOARD WHEN THERE IS ROOM
+
+   This is the DEFAULT treatment, deliberately, and the polarity is the whole point of it
+   being written this way round. The condition is still "has this board been given room",
+   asked once as a style query — but it selects the treatment that needs the query to be
+   UNDERSTOOD, not the one that needs it to be ignored.
+
+   A browser that does not support `@container style()` skips the block at the end of this
+   file and keeps everything here: coordinates on the squares, in every mode, at every zoom.
+   That is a degraded desktop — it loses labels outside the board and keeps an unused band
+   under each one — but every label is present and readable. Written the other way round, the
+   same browser would keep the OUTSIDE treatment everywhere, and since the gap is zero wherever
+   there is no room, `calc(0px * 0.75)` would render every coordinate at zero: they would
+   simply vanish on phones, which is where they matter most.
+
+   The failure of a missing feature should be the feature not helping, never the page losing
+   something it had before the feature existed.
+   =========================================================================================== */
+/* ---------------------------------------------------------------------------
+   COORDINATES INSIDE THE SQUARES — WHEREVER THERE IS NO ROOM OUTSIDE
+
+   Asked as a question about room, not about which layout this is. The gap above resolves
+   to exactly zero when the mode has no spare height, or too little of it to be worth a
+   legible label, and that is the whole condition: a board with somewhere to put its
+   labels keeps them outside, a board without puts them on the squares.
+
+   This used to be a media query listing portrait and short landscape by name. It no
+   longer needs to: their stacks are exactly ten squares of their own unit, so their room
+   is the quantisation remainder, which is below the floor and resolves to zero. They
+   reach this block by arithmetic. The desktop mode reaches it too, at full zoom, where
+   its own remainder is 6.96px — which is the behaviour this change exists to add, and
+   the reason the list had to go rather than merely grow a third entry.
+
+   Buying room, not a change of house style: a label sits outside the board wherever the
+   room for it exists.
+
+   `style()` compares the COMPUTED value, which only holds because --bug-coord-gap is
+   registered with @property at the top of this file. Unregistered it would be compared as
+   tokens, `clamp(...)` would never equal `0px`, and this block would silently never
+   apply.
+
+   Rank and file labels are absolutely positioned and placed by four variables that
+   `extensions.css` sets negative at :root (--ranks-right: -15px, --files-bottom:
+   -16px), so by default they hang off the board's edges. Setting them to zero puts them
+   on the board instead. The gutters that separate the boards STAY — they are wanted for
+   their own sake, not only as room for labels.
+
+   Scoped to this page rather than changed at :root, because every board on the site
+   reads those variables: lobby, analysis, editor, puzzles. analysis.css and embed.css
+   already override a subset the same way.
+
+   The size follows the board's own square rather than the page, so a label keeps its
+   proportion on a board at any zoom. Paired identity-to-identity — #mainboard with
+   --cg-width-a — because a board switch moves the ROLE between elements while these
+   two always describe the same board.
+
+   The colour is the other square's colour: a label on a dark square is drawn in the
+   light square's colour and the other way round. --cg-light and --cg-dark are
+   published by boardColors.ts beside --board-image, extracted from the theme's own
+   image. No outline or shadow: with the two colours coming from the board itself the
+   contrast is already there, and an outline on an 8px glyph reads as a smudge.
+   --------------------------------------------------------------------------- */
+/* ===========================================================================================
+   ...AND OUTSIDE THE BOARD WHEREVER ONE HAS BEEN GIVEN ROOM
+
+   Everything here undoes the block above for a board whose gap is not zero. It restores
+   chessground's own treatment by hand rather than by reverting to it, because a plain
+   override cannot be un-done — `revert` goes to the user agent, not to the earlier author
+   rule, and this file declares no cascade layers. Each value below is therefore chessground.css's
+   own, copied deliberately; if that file changes one, this has to follow.
+
+   `not style(...)` rather than a second value to match, because the gap is a continuum: it is
+   any length from the floor to the overhang, and a style query can only test one exact value.
+   Zero is the one value with a meaning of its own, so the question is asked about zero and
+   answered in the negative here. --bug-coord-gap is registered with @property at the top of
+   this file, which is what makes the comparison a computed length rather than a token match.
+   =========================================================================================== */
+/* ---------------------------------------------------------------------------
+   A NAME THAT HAS LEFT ITS STRIP
+
+   Two things change once the name is on a line of its own, and both are about the
+   room that leaving created.
+   --------------------------------------------------------------------------- */
+:is(.round-app, .analysis-app).bug .cg-wrap coords {
+    /* also un-hides them on phones, where chessground.css hides them outright for want
+       of anywhere to put them — inside the squares there is somewhere */
+    display: flex;
+    opacity: 1;
+}
+:is(.round-app, .analysis-app).bug .cg-wrap coords.side {
+    right: 0px;
+    width: auto;
+}
+:is(.round-app, .analysis-app).bug .cg-wrap coords.bottom {
+    bottom: 0px;
+    height: auto;
+}
+:is(.round-app, .analysis-app).bug .cg-wrap coords coord {
+    font-weight: 700;
+    line-height: 1;
+    padding: 1px 2px;
+}
+/* Files sit in the bottom-left corner of their square, ranks against the right edge. */
+:is(.round-app, .analysis-app).bug .cg-wrap coords.bottom coord {
+    text-align: left;
+}
+:is(.round-app, .analysis-app).bug .cg-wrap coords.side coord {
+    text-align: right;
+    /* the desktop nudge that centred a label against a board edge; inside the square it
+       is placed by its own box */
+    transform: none;
+}
+:is(.round-app, .analysis-app).bug #mainboard coords coord {
+    font-size: calc(var(--cg-width-a) / 8 * 0.3);
+}
+:is(.round-app, .analysis-app).bug #bugboard coords coord {
+    font-size: calc(var(--cg-width-b) / 8 * 0.3);
+}
+/* A label takes the OTHER square's colour, so it always contrasts with what it sits on.
+   Which child sits on which colour follows from the direction the row or column is laid
+   out in, and chessgroundx already encodes that in these exact selectors — mirrored here
+   rather than re-derived, so the two cannot disagree.
+
+   Screen parity is orientation-independent on an 8x8 board: flipping maps (f,r) to
+   (9-f,9-r), and 18 minus a number keeps its parity, so the top-left square is light
+   whichever way the board faces. Only the DOM direction matters, which is why these
+   pair with `forward`/`backward` and not with which colour is at the bottom.
+
+   This is scoped to a page whose boards are always 8x8. An odd-sized board would need
+   the opposite mapping on one axis. */
+/* THE ONE THING STILL ASKED IN THE POSITIVE DIRECTION, and for a reason worth stating.
+   These colours only make sense on a label that is ON a square: they paint it in the OTHER
+   square's colour so it always contrasts with what it sits on. A label out in the gap has no
+   square under it and wants the page's own colour, which it gets by these simply not applying.
+
+   Gated positively rather than undone in the block below because undoing them is not available
+   at a sane cost: the parity selectors carry five classes each, so a restoring rule would have
+   to repeat all sixteen of them to outrank the ones it is undoing.
+
+   The failure mode stays safe. A browser that ignores this block leaves the labels inheriting
+   the page colour on their squares — lower contrast than intended, still perfectly visible —
+   which is the same bargain the rest of this treatment makes. */
+@container style(--bug-coord-gap: 0px) {
+            /* Files laid out in DOM order: first child is leftmost, on a dark square. */
+        :is(.round-app, .analysis-app).bug coords.bottom.forward coord:nth-child(odd),
+        :is(.round-app, .analysis-app).bug coords.bottom.backward.black coord:nth-child(odd),
+        /* Files laid out reversed: first child is rightmost, on a light square. */
+        :is(.round-app, .analysis-app).bug coords.bottom.backward coord:nth-child(even),
+        :is(.round-app, .analysis-app).bug coords.bottom.forward.black coord:nth-child(even),
+        /* Ranks running top-down: first child is topmost, on a dark square. */
+        :is(.round-app, .analysis-app).bug coords.side.backward coord:nth-child(odd),
+        :is(.round-app, .analysis-app).bug coords.side.forward.black coord:nth-child(odd),
+        /* Ranks running bottom-up: first child is lowest, on a light square. */
+        :is(.round-app, .analysis-app).bug coords.side.forward coord:nth-child(even),
+        :is(.round-app, .analysis-app).bug coords.side.backward.black coord:nth-child(even) {
+            color: var(--cg-light, #f0d9b5);
+        }
+        :is(.round-app, .analysis-app).bug coords.bottom.forward coord:nth-child(even),
+        :is(.round-app, .analysis-app).bug coords.bottom.backward.black coord:nth-child(even),
+        :is(.round-app, .analysis-app).bug coords.bottom.backward coord:nth-child(odd),
+        :is(.round-app, .analysis-app).bug coords.bottom.forward.black coord:nth-child(odd),
+        :is(.round-app, .analysis-app).bug coords.side.backward coord:nth-child(even),
+        :is(.round-app, .analysis-app).bug coords.side.forward.black coord:nth-child(even),
+        :is(.round-app, .analysis-app).bug coords.side.forward coord:nth-child(odd),
+        :is(.round-app, .analysis-app).bug coords.side.backward.black coord:nth-child(odd) {
+            color: var(--cg-dark, #b58863);
+        }
+}
+@container not style(--bug-coord-gap: 0px) {
+        /* chessground.css's own 0.8; the block above raises it to 1 to un-hide labels on a phone. */
+        :is(.round-app, .analysis-app).bug .cg-wrap coords {
+            opacity: 0.8;
+        }
+        /* Ranks sit against the board they name, at that same distance.
+
+           ANCHORED TO THE BOARD, which is the whole of this change. chessground.css anchors this
+           element by its RIGHT edge (`right: var(--ranks-right)`, -15px) inside a fixed 12px box and
+           then pushes the digit to the far end of it with `text-align: right` — three values that must
+           agree to arrive at a distance. They agreed on 9.979px from the board the digit names and
+           1.5px from the board it does not, measured at 1914x825. `left: 100%` IS the board's right
+           edge, so adding the lead to it states the wanted distance directly and nothing else
+           contributes to it.
+
+           `right: auto` is required, not tidying: leave chessground's anchor in place and both edges
+           are constrained, which makes the width below inert.
+
+           `width: max-content` retires the 12px. The box becomes exactly as wide as the digit in it —
+           measured 5.021px against a 5.014px advance — so no slack remains for an alignment to push a
+           digit across, and no constant remains that could drift from the file placement beside it.
+
+           This page no longer positions from --ranks-right. It is left at its :root value, which every
+           other board on the site still reads. */
+        :is(.round-app, .analysis-app).bug .cg-wrap coords.side {
+            left: calc(100% + var(--bug-coord-lead));
+            right: auto;
+            width: max-content;
+        }
+        :is(.round-app, .analysis-app).bug .cg-wrap coords.bottom {
+            bottom: var(--files-bottom);
+            height: var(--bug-coord-gap);
+            text-align: center;
+        }
+        /* The in-square placement undone: no padding crowding the glyph, chessground's own weight
+           and line box back. */
+        :is(.round-app, .analysis-app).bug .cg-wrap coords coord {
+            font-weight: bold;
+            line-height: normal;
+            padding: 0;
+        }
+        :is(.round-app, .analysis-app).bug .cg-wrap coords.bottom coord {
+            text-align: center;
+        }
+        /* `left`, where chessground.css has `right`. Right alignment inside the fixed 12px box was the
+           last of the three things putting the digit 9.979px from its own board and 1.5px from its
+           neighbour; with `max-content` above there is no slack for it to act on anyway, so this is
+           belt-and-braces on an 8x8 board where every rank digit is one width. Declared so the intent
+           survives a board with a two-character rank.
+
+           The transform is the nudge that centres a rank label against the board's edge.
+           chessground.css applies it under `(min-width: 800px) and (min-height: 500px)`, and it is
+           restored unconditionally here because this block cannot be reached outside those bounds: a
+           gap needs spare height, which only the tall landscape mode has, and that mode is a subset of
+           both. Stated so the assumption is visible rather than silently relied upon. */
+        :is(.round-app, .analysis-app).bug .cg-wrap coords.side coord {
+            text-align: left;
+            transform: translateY(39%);
+        }
+        /* The type, per board and per axis. Id-scoped because the rules it has to outrank are —
+           they read --cg-width-a/b, which are board identity — and a class-only selector would
+           lose to them however many classes it carried. */
+        :is(.round-app, .analysis-app).bug #mainboard coords.side coord,
+        :is(.round-app, .analysis-app).bug #bugboard coords.side coord {
+            font-size: 0.85em;
+        }
+        :is(.round-app, .analysis-app).bug #mainboard coords.bottom coord,
+        :is(.round-app, .analysis-app).bug #bugboard coords.bottom coord {
+            font-size: calc(var(--bug-coord-gap) * 0.75);
+        }
+}

@@ -2,31 +2,43 @@ import { notifyOnToolsHomeChange, toolsMinWidth } from '../squareUnit';
 /**
  * Which arrangement the merged second column is in.
  *
- * The column holds the partner board's stack and the tools' parts. Four
- * arrangements, in the order things leave the strip beside the board:
+ * The column holds the partner board's stack and the tools' parts, in the four
+ * slots `zoneTools1..4` — the SAME four the landscape modes place beside the
+ * board, occupant for occupant. Portrait used to name them `chat / p1 / p2 /
+ * tablist`; one vocabulary now, so a slot means the same thing in every mode and
+ * the drop rules below are not portrait-only rules in portrait-only words.
  *
- *   (none)                stack | chat        everything stays beside the board
- *                         stack | p1
- *                         stack | p2
- *                         stack | tablist
+ * Four arrangements, in the order things leave the strip beside the board:
  *
- *   drop-tablist          stack | chat        the tab bar spans the full width,
- *                         stack | p1          under both the board and the parts
- *                         stack | p2          above it
- *                         tablist tablist
+ *   (none)                stack | zoneTools1   everything stays beside the board
+ *                         stack | zoneTools2
+ *                         stack | zoneTools3
+ *                         stack | zoneTools4
  *
- *   + drop-p2             stack | chat        the second preset part follows
- *                         stack | p1
- *                         p2 p2
- *                         tablist tablist
+ *   drop-tools4           stack | zoneTools1   the tab bar spans the full width,
+ *                         stack | zoneTools2   under both the board and the parts
+ *                         stack | zoneTools3   above it
+ *                         zoneTools4 zoneTools4
  *
- *   + drop-p1             stack | chat        and then the first
- *                         p1 p1
- *                         p2 p2
- *                         tablist tablist
+ *   + drop-tools3         stack | zoneTools1   the next part up follows
+ *                         stack | zoneTools2
+ *                         zoneTools3 zoneTools3
+ *                         zoneTools4 zoneTools4
  *
- * The chat never moves. It sits beside the board in every arrangement and takes
- * whatever height the others leave, which is what "fills the column" means here.
+ *   + drop-tools2         stack | zoneTools1   and then the one above that
+ *                         zoneTools2 zoneTools2
+ *                         zoneTools3 zoneTools3
+ *                         zoneTools4 zoneTools4
+ *
+ * THE CLASSES NAME THE SLOT THAT WIDENS, not the part that moved into it. They used to name the
+ * part — `drop-tablist`, `drop-p2`, `drop-p1` on the round page and `drop-tablist`, `drop-engine`,
+ * `drop-controls` on the analysis page — which is two sets of names for one set of slots, so every
+ * rule about a slot had to be written twice, once per page. The parts differ and the slots do not:
+ * whatever a page puts in `zoneTools3`, `drop-tools3` is what widens it.
+ *
+ * `zoneTools1` never moves. It sits beside the board in every arrangement and
+ * takes whatever height the others leave — the chat on the round page, the move
+ * list on the analysis page — which is what "fills the column" means here.
  *
  * A dropped preset part is wider, and being wider it is SHORTER: its two sets of
  * five buttons stop stacking and share a row. So dropping only makes the decision
@@ -45,18 +57,18 @@ import { notifyOnToolsHomeChange, toolsMinWidth } from '../squareUnit';
  * board and nothing ever widened.
  */
 
-/* The element that OWNS the arrangement: the one whose `grid-template-areas` the classes swap,
+const STACK = '.bug-partner-stack';
+/* THE ELEMENT THAT OWNS THE ARRANGEMENT: the one whose `grid-template-areas` the classes swap,
    and therefore the one whose height decides what fits. The two must be the same element or the
    test measures one box and the placement changes another.
 
-   The round page's merged column is a real box and owns its own areas. The analysis page dissolves
-   that column so every part is a grid item of the APP, which is where its areas live — and a
+   It is the app, on both pages, in every mode. There used to be a `.partner-and-tools` wrapper
+   holding the partner's stack and the tools, and the `container` parameter existed because that
+   wrapper was a real box on the round page and dissolved on the analysis page — and a
    `display: contents` element has no box at all: `clientHeight` reads 0, `available` is 0, and
-   nothing can ever drop. Silently, with no error. Hence a parameter rather than a constant. */
-const ROUND_CONTAINER = '.bug-right-column';
-const STACK = '.bug-partner-stack';
-/* The two pages' root elements. Only used to find the owner when the container named above
-   has been dissolved — an app is never `display: contents`, so this is where the walk stops. */
+   nothing can ever drop, silently and with no error. Every mode dissolved it in the end and the
+   element is gone; `owner()` survives it, because `.bug-parts` is still `display: contents` and
+   a caller may yet pass something inside it. */
 const APP = '.round-app.bug, .analysis-app.bug';
 /* Zone B's occupant and the second stack it has to clear. The group is `display: contents`
    until it lands there, so it is never measured — the panels inside it are. Asking the group
@@ -150,7 +162,7 @@ const TAB = '[role="tab"]';
 /**
  * The element that actually owns the arrangement, which is not always the one named.
  *
- * Tall landscape flattens the round page: `.bug-right-column` becomes `display: contents` so
+ * Tall landscape flattens the round page: the tools' parts become grid items of the app, so
  * that a row can span both boards, and a dissolved element has no box — `clientHeight` reads
  * 0, `available` is 0, and nothing could ever drop. Silently, with no error. Its children are
  * grid items of the APP there, and the app is what holds the template the classes swap.
@@ -210,13 +222,16 @@ function declaredMin(el: HTMLElement): { width: number; height: number } {
    it has no chat and no presets. Everything else in this file is the same for both: what a part
    costs once dropped, the cumulative test, the classes, and the observer. */
 export const ROUND_DROPPABLE: Droppable = [
-    ['.bug-round-tools-bar', 'drop-tablist'],
-    ['.chatpresets-panel-2', 'drop-p2'],
+    ['.bug-round-tools-bar', 'drop-tools4'],
+    // Two elements share this slot and never coexist either: the second preset set while the Chat
+    // tab is showing, the move-list buttons while the Moves tab is. Whichever is displayed is the
+    // one whose height decides — `heightOf` counts only what is laid out.
+    ['.chatpresets-panel-2, .round-controls-panel', 'drop-tools3'],
     // Two elements share this area and never coexist: the first preset part while
     // the game is on, the end-of-game controls once it is not. Whichever is showing
     // is the one whose height decides, so the selector matches both and the heights
     // are summed — the other contributes nothing because it is not displayed.
-    ['.chatpresets-panel-1, .bug-gameover', 'drop-p1'],
+    ['.chatpresets-panel-1, .bug-gameover', 'drop-tools2'],
 ];
 
 /**
@@ -340,7 +355,70 @@ function zoneBHeight(app: HTMLElement): number {
  * placement: a row that moves to zone A or zone B keeps its buttons and simply re-wraps, which
  * is the whole point of fixing the size rather than letting each box dictate one.
  */
-function publishPresetSize(app: HTMLElement, region: { width: number; height: number }): void {
+/**
+ * What a preset panel would be in a region this wide: the button size that width allows, whether
+ * the two sets pair into one row of ten, and the padding a set adds around its buttons.
+ *
+ * THE FLOOR DECIDES WHETHER TEN IS AN OPTION AT ALL. `--bug-preset-btn-min` is a tap target, so a
+ * width that can only fit ten by going under it does not get ten — the panel keeps two rows of
+ * five and the region is not bought with buttons too small to hit.
+ */
+interface PresetFit {
+    button: number;
+    pairs: boolean;
+    pad: number;
+}
+
+function presetFitAt(app: HTMLElement, region: number): PresetFit | null {
+    let width = region;
+    const set = app.querySelector<HTMLElement>(SET);
+    if (set === null || !(width > 0)) return null;
+
+    const floor = resolvedLength(set, PRESET_FLOOR);
+    const ceiling = resolvedLength(set, PRESET_CEILING);
+    const gap = resolvedLength(set, PRESET_GAP_FLOOR) || 3;
+    const clamp = (size: number) => (ceiling > 0 ? Math.min(size, ceiling) : size);
+
+    // What a set adds around its buttons — measured from the set drawn now against the size
+    // published for it, so the answer follows the stylesheet rather than restating its padding.
+    const pad = Math.max(0, set.getBoundingClientRect().height - resolvedLength(set, PRESET_SIZE));
+
+    /* AND WHAT THE PANEL ADDS AROUND ITS ROW, which is the difference between the region a panel
+       is GIVEN and the width its buttons can actually use: the panel's own padding, and the flex
+       row's inside that. Sizing from the region alone overstates it by a pixel or two, and a
+       pixel is the whole margin here — ten buttons that want 410.4px of a 410px row do not pair,
+       so the panel keeps two rows of five and the drop it was charged for buys nothing.
+       Measured where the row is drawn now, so it needs no knowledge of the stylesheet. */
+    const flex = app.querySelector<HTMLElement>(PRESETS_FLEX);
+    const panel = flex?.closest<HTMLElement>('.chatpresets-panel');
+    let chrome = 0;
+    if (flex !== null && panel != null) {
+        const style = getComputedStyle(flex);
+        const usable =
+            flex.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+        chrome = Math.max(0, panel.getBoundingClientRect().width - usable);
+    }
+    width -= chrome;
+
+    /* A SECOND PIXEL OF SLACK FOR THE PAIRED ROW, and it is not superstition. `publishPresetGap`
+       decides how many buttons share a row by the same arithmetic, against the width of the flex
+       row as it is actually drawn — a measurement this one predicts rather than reads. Predicting
+       it to the pixel is not possible, and being a pixel over is not a near miss: the row falls
+       back to five, the panel keeps two rows, and the drop that was charged for one row buys
+       nothing. Measured at 412x915: ten buttons wanting 410.4px of a 410px row. */
+    const paired = SET_COLUMNS * PANEL_SETS;
+    const byTen = (width - 2 * FIT_SLACK - (paired - 1) * gap) / paired;
+    if (byTen >= floor) return { button: clamp(byTen), pairs: true, pad };
+
+    const byFive = (width - FIT_SLACK - (SET_COLUMNS - 1) * gap) / SET_COLUMNS;
+    return { button: Math.max(floor, clamp(byFive)), pairs: false, pad };
+}
+
+function publishPresetSize(
+    app: HTMLElement,
+    region: { width: number; height: number },
+    cap: number = Infinity,
+): number {
     // Resolved against a SET, not the app: the floor and the two pitches are declared on the
     // preset elements, so asking the app for them returns nothing.
     const set = app.querySelector<HTMLElement>(SET) ?? app;
@@ -366,6 +444,17 @@ function publishPresetSize(app: HTMLElement, region: { width: number; height: nu
     // the floor rather than a ceiling that has dropped below it.
     if (ceiling > 0) best = Math.max(floor, Math.min(best, ceiling));
 
+    /* AND NEVER BIGGER THAN THE OTHER REGION'S ANSWER. A panel that drops gets a row ten buttons
+       wide; one that stays keeps two rows of five in the strip. One size is published for both, so
+       it is the SMALLER of what the two regions allow — the larger fits only the region that
+       produced it, and mixed is the normal arrangement, not an edge case.
+
+       ONLY DOWNWARDS, and before the `widest` cap below rather than after it. That cap is allowed
+       to take the size UNDER the floor on purpose — see its note — and a cap of mine that reapplied
+       the floor undid it: measured, three landscape rows grew their buttons instead of shrinking
+       them and the row spilled out of the strip on both sides. */
+    if (Number.isFinite(cap)) best = Math.min(best, cap);
+
     /* AND NEVER WIDER THAN THE TRACK THE SET SITS IN — the one bound that outranks the floor.
      *
      * A set is `SET_COLUMNS` fixed tracks of this size; it cannot shrink to fit and it is centred,
@@ -384,7 +473,7 @@ function publishPresetSize(app: HTMLElement, region: { width: number; height: nu
      *
      * Which element this is called with depends on the arrangement — the app in one mode, the right
      * column in another — and a value left on the inner one SHADOWS the outer for everything inside
-     * it. Measured after a walk across viewports: the app carried 61px, `.bug-right-column` still
+     * it. Measured after a walk across viewports: the app carried 61px, `.partner-and-tools` still
      * carried 46.67px from an arrangement that had ended, every set resolved 46.67, and the gap
      * `publishPresetGap()` computed from it was 31.48px against the 15.56 the row wanted — a row
      * spaced for a button twice the size, which is the compacted block a reviewer sees. It survived
@@ -392,10 +481,16 @@ function publishPresetSize(app: HTMLElement, region: { width: number; height: nu
      *
      * So the stale copies go when the new one is written. The size is one number for the page.
      */
+    publishButton(app, best);
+    return best;
+}
+
+/** One size, on the app and nowhere under it. */
+function publishButton(app: HTMLElement, size: number): void {
     for (const carrier of app.querySelectorAll<HTMLElement>('[style*="--bug-preset-btn"]')) {
         carrier.style.removeProperty(PRESET_SIZE);
     }
-    app.style.setProperty(PRESET_SIZE, `${best}px`);
+    app.style.setProperty(PRESET_SIZE, `${size}px`);
 }
 
 /** Publishes ONE gap for every preset button on the page, the smallest any row can afford.
@@ -484,6 +579,81 @@ function resolvedLength(context: HTMLElement, property: string): number {
 }
 
 /** The taller of the two stacks, which is the height everything else is charged against. */
+/**
+ * The height the TOOLS' OWN REGION has — the rows of the grid in force whose cells name a slot a
+ * tools part can occupy.
+ *
+ * WHY NOT THE BUDGET, which is what this replaced. `--bug-app-h` is the viewport less the header:
+ * the height the whole page has to spend, boards included. The tools never get that and have not
+ * for a long time — their region follows the boards, which follow the zoom, and in portrait it is
+ * only the block beside the partner board with the viewer's whole board below it. Sizing preset
+ * buttons against the budget told them they had the height of a region that does not exist, so
+ * `min(byWidth, byHeight)` never bound on height and the width alone decided.
+ *
+ * `zoneTools*` and `zoneA*` together, because they are the same region seen in two drop states:
+ * a part in the strip beside the board and a part widened under it occupy rows of the same block.
+ * Counting both makes the answer stable as parts drop, which a measurement feeding a decision
+ * about dropping had better be. `zoneB*` is deliberately excluded: a full-width row under both
+ * boards is a different region with a different width, and what belongs there is its own question.
+ *
+ * Read from the resolved template, so it needs no mode test: `getComputedStyle` gives the row
+ * heights in used pixels and the areas as quoted row strings, and the two line up index for index.
+ */
+function toolsRegionHeight(app: HTMLElement): number {
+    const style = getComputedStyle(app);
+    const heights = style.gridTemplateRows.split(/\s+/).map(parseFloat);
+    const rows = (style.gridTemplateAreas.match(/"[^"]*"/g) ?? []).map(row =>
+        row.slice(1, -1).trim().split(/\s+/),
+    );
+    if (rows.length === 0 || rows.length !== heights.length) return NaN;
+
+    const gap = parseFloat(style.rowGap) || 0;
+    let total = 0;
+    let counted = 0;
+    rows.forEach((cells, i) => {
+        if (!cells.some(cell => cell.startsWith('zoneTools') || cell.startsWith('zoneA'))) return;
+        total += heights[i];
+        counted += 1;
+    });
+    return counted > 0 ? total + (counted - 1) * gap : NaN;
+}
+
+/**
+ * The width a part gets WHEN IT DROPS: the partner's column plus the tools', with the gap between
+ * them, read from the resolved template.
+ *
+ * Every drop template merges the two — `'ownstack zoneA4 zoneA4'` in landscape, `'zoneTools4
+ * zoneTools4'` in portrait — so a dropped part never has only the board's width. The cascade used
+ * to test a part's declared minimum against the PARTNER STACK's width alone, which is the width it
+ * has while it is still in the strip beside the board, and refused parts that would have had
+ * half the page.
+ *
+ * Zone B is wider again, adding the viewer's board's column. That is a different region with its
+ * own question and is not what this answers.
+ */
+function toolsRegionWidth(app: HTMLElement): number {
+    const style = getComputedStyle(app);
+    const widths = style.gridTemplateColumns.split(/\s+/).map(parseFloat);
+    const rows = (style.gridTemplateAreas.match(/"[^"]*"/g) ?? []).map(row =>
+        row.slice(1, -1).trim().split(/\s+/),
+    );
+    if (rows.length === 0 || widths.length === 0) return NaN;
+
+    const wanted = new Set<number>();
+    for (const cells of rows) {
+        cells.forEach((cell, i) => {
+            if (cell === 'stack' || cell.startsWith('zoneTools') || cell.startsWith('zoneA')) {
+                wanted.add(i);
+            }
+        });
+    }
+    const columns = [...wanted].filter(i => i < widths.length);
+    if (columns.length === 0) return NaN;
+
+    const gap = parseFloat(style.columnGap) || 0;
+    return columns.reduce((total, i) => total + widths[i], 0) + (columns.length - 1) * gap;
+}
+
 function tallestStack(app: HTMLElement): number {
     const stacks = [app.querySelector<HTMLElement>(OWN_STACK), app.querySelector<HTMLElement>(STACK)];
     return Math.max(...stacks.map(el => el?.getBoundingClientRect().height ?? 0));
@@ -558,17 +728,24 @@ function place(container: HTMLElement, droppable: Droppable): void {
     //
     // Cleared rather than merely skipped, because these classes persist on the element across a
     // resize: the home can change under a arrangement that was correct a moment ago.
-    // ONLY WHERE THE CASCADE GOVERNS. `squareUnit.ts` publishes a home for every viewport, but only
-    // the flattened landscape template has the zones to honour it — short landscape and portrait
-    // keep arrangements of their own and place their parts by the drop classes below.
+    // ONLY WHERE THE CASCADE GOVERNS. `squareUnit.ts` publishes a home for every viewport, but a
+    // home the template cannot honour is a label: only a grid with full-width rows under BOTH
+    // boards can put a part anywhere but the strip beside one of them.
     //
-    // `flattened` asks the template, not the class: that is the same test the zone B logic already
-    // uses, and it is true of exactly the modes that have a zone B to move anything into. Gating on
-    // the class instead would have been a live hazard — short landscape computes a home from
-    // `--bug-tall-sq-a`, a variable it never draws with, so an unlucky viewport could have cleared
-    // its drop classes and returned with nothing to replace them.
-    const flattened = getComputedStyle(column).gridTemplateAreas.includes('zoneB');
-    if (flattened && !column.classList.contains('tools-beside')) {
+    // `hasZoneB` ASKS THE TEMPLATE, not the mode and not the home class. It was called `flattened`
+    // when the question was whether the merged column had been dissolved — every mode dissolves it
+    // now, so the old name says nothing. What it tests has not changed: does the grid being placed
+    // into name a zone B, which is a fact about the template in force and true of exactly the modes
+    // whose `drop-*-b` rules exist. Portrait names no such area; both landscape modes do.
+    //
+    // It says nothing about ROOM. Whether a zone B has height for anything is
+    // `budgetForZones(app) - tallestStack(app)`, asked separately wherever a part is charged.
+    //
+    // Reading the stylesheet rather than the home class was deliberate and stays so: short
+    // landscape computes a home from `--bug-tall-sq-a`, a variable it never draws with, so gating
+    // on the class could have cleared its drop classes and returned with nothing to replace them.
+    const hasZoneB = getComputedStyle(column).gridTemplateAreas.includes('zoneB');
+    if (hasZoneB && !column.classList.contains('tools-beside')) {
         // The parts whose only home is the tools column — the strip, the round page's presets —
         // have no place in these arrangements, so their classes go. The FRAGMENTS keep theirs: the
         // cascade below decides them for this home, and clearing them here would make every pass
@@ -577,7 +754,7 @@ function place(container: HTMLElement, droppable: Droppable): void {
             if (zoneBClassName !== undefined) continue;
             column.classList.remove(className);
         }
-        column.classList.remove('drop-tablist-b', 'drop-presets-b');
+        column.classList.remove('drop-tools4-b', 'drop-presets-b');
 
         // The heights still have to be published, and they are simpler here than in the column
         // case: the app is the whole budget, and the boards get all of it except where the tools
@@ -634,47 +811,38 @@ function place(container: HTMLElement, droppable: Droppable): void {
            row and an engine box, while the full width under both boards held nothing but the tab
            strip.
 
-           So the home decides where the MOVE LIST goes — the band in `tools-zonea`, the full-width
-           row in `tools-below` — and the two fragments are then offered the OTHER region, one at a
-           time, while it has room. Every fragment that moves hands its height to the list.
+           So the move LIST holds the full-width row, which is the home's own — `tools-below` is
+           the only home left that has one — and the two fragments are then offered the BAND, one
+           at a time, while it has room. Every fragment that moves hands its height to the list,
+           and the part that frees the most of the list's row goes first: the engine box before
+           the controls, which is the `droppable` order.
 
-           THE ORDER IS OPPOSITE IN THE TWO DIRECTIONS, and that is not an inconsistency:
-
-             into the BAND, which costs the boards nothing, the part that frees the most from the
-             list's row goes first — the engine box before the controls, the `droppable` order;
-
-             into ZONE B, which takes its height from both boards, the CHEAPEST goes first — the
-             40px button row before the 74px engine box, the same list backwards.
+           THIS USED TO RUN BOTH WAYS. The `tools-zonea` home put the list in the BAND and offered
+           the fragments zone B, cheapest first — the 40px button row before the 74px engine box —
+           because a zone B row costs both boards its height where a band row costs nothing. That
+           home is gone (see `arrangement()`), and with it the only direction in which a fragment
+           moved DOWN into zone B from a placed home. The remaining direction never reverses, so
+           the region a part is offered no longer depends on which home asked.
 
            A fragment is an entry with a zone B class; the tab strip has none, because its own
            two homes are decided above by `strip-in-zoneb`. */
         const fragments = droppable.filter(([, , zoneBClassName]) => zoneBClassName !== undefined);
-        const inBand = column.classList.contains('tools-zonea');
         const lastResort = column.classList.contains('tools-lastresort');
-        const zoneBRoom = budgetForZones(column) - tallestStack(column);
-        // What zone B already owes the boards: the strip, where it has just been given a row there.
-        let regionUsed = inBand && column.classList.contains('strip-in-zoneb') ? stripHeight : 0;
         let bandUsed = 0;
-        for (const [selector, zoneAClassName, zoneBClassName] of inBand
-            ? [...fragments].reverse()
-            : fragments) {
+        for (const [selector, zoneAClassName, zoneBClassName] of fragments) {
             const el = column.querySelector<HTMLElement>(selector);
             const min = el ? declaredMin(el) : { width: 0, height: 0 };
             const need = el ? Math.max(heightOf(column, selector), min.height) : 0;
             const fits =
                 el !== null &&
                 !lastResort &&
-                (inBand
-                    ? regionUsed + need <= zoneBRoom
-                    : zoneA.width >= min.width && bandUsed + need <= zoneA.height);
-            // The class for the region it is moving TO; the other is cleared, so a part is never
-            // claimed by two regions after a home change.
-            column.classList.toggle(inBand ? (zoneBClassName as string) : zoneAClassName, fits);
-            column.classList.toggle(inBand ? zoneAClassName : (zoneBClassName as string), false);
-            if (fits) {
-                if (inBand) regionUsed += need;
-                else bandUsed += need;
-            }
+                zoneA.width >= min.width &&
+                bandUsed + need <= zoneA.height;
+            // Zone B's class is cleared either way, so a part is never claimed by two regions
+            // after a home change.
+            column.classList.toggle(zoneAClassName, fits);
+            column.classList.toggle(zoneBClassName as string, false);
+            if (fits) bandUsed += need;
         }
 
         const gameover = column.querySelector<HTMLElement>('.bug-gameover');
@@ -724,19 +892,18 @@ function place(container: HTMLElement, droppable: Droppable): void {
     // measuring the box these decisions resize would make every answer depend on the last one,
     // and the two would chase each other forever. Where the column is a real box it is not
     // resized by any of this and can be measured directly.
-    // ASK THE TEMPLATE, NOT THE CONTAINER. This used to test whether the NAMED container had
-    // been dissolved — true on the round page, whose container is `.bug-right-column`, and never
-    // on the analysis page, which names the app itself. So the analysis page skipped zone B in
-    // every mode and never published the heights below: measured at 996x730 with a zoomed-out
-    // pair, a 639px tools panel beside a 460px board.
+    // THE BUDGET IS THE BUDGET, IN EVERY MODE. `--bug-app-h` is the viewport less the header and
+    // `squareUnit.ts` publishes it unconditionally, so there is nothing to gate: a mode either
+    // gets a number or it does not, and `clientHeight` is the fallback for the second case alone.
     //
-    // What actually matters is whether the grid being placed into HAS a zone B, which is a fact
-    // about the template in force and true of exactly the modes whose `drop-*-b` rules exist.
-    // Portrait and short landscape name no such area and are therefore untouched, which is the
-    // property the old test was reaching for by proxy.
-    const budget = flattened ? parseFloat(getComputedStyle(column).getPropertyValue(BUDGET)) : NaN;
+    // It used to be gated on `hasZoneB`, which is a fact about the template and has nothing to do
+    // with whether a published height can be trusted. The cost fell on portrait, the one mode the
+    // gate excluded: it measured its container instead, and when the merged column was dissolved
+    // that container became the app — three times taller than the box it replaced. The preset
+    // button went from height-limited to width-limited on the strength of it.
+    const budget = parseFloat(getComputedStyle(column).getPropertyValue(BUDGET));
     const available = Number.isFinite(budget) ? budget : column.clientHeight;
-    const stackHeight = stack.getBoundingClientRect().height;
+    const partnerStackHeight = stack.getBoundingClientRect().height;
 
     // Zone B first — see `zoneB`. The classes go on the same element as every other
     // arrangement class, which is the one whose template they swap.
@@ -745,22 +912,22 @@ function place(container: HTMLElement, droppable: Droppable): void {
     // exists at all. A row under BOTH boards needs the two stacks to be rows of one grid, which
     // is what `display: contents` on the column achieves and what its stylesheet block — the
     // same one that carries every `drop-*-b` rule — is scoped to. Everywhere else the boards are
-    // not in one grid: portrait stacks them as `rightcol` over `ownstack`, so the row a part
+    // not in one grid: portrait stacks them as `partnerAndTools` over `ownstack`, so the row a part
     // would drop into is under the TOP board only, which is what zone A already is.
     //
     // Asked anyway, it answered about a layout that is not on the page — `.bug-own-stack` is
     // outside the column there, so the taller stack was the partner's board alone — and then
-    // claimed the tools bar for a `drop-tablist-b` no rule matches. The bar stayed beside the
-    // board AND the zone A loop below skipped it as already taken, so `drop-tablist` never went
-    // on, and with it the `.drop-tablist.drop-p2` chain that drops the presets. Nothing moved in
+    // claimed the tools bar for a `drop-tools4-b` no rule matches. The bar stayed beside the
+    // board AND the zone A loop below skipped it as already taken, so `drop-tools4` never went
+    // on, and with it the `.drop-tools4.drop-tools3` chain that drops the presets. Nothing moved in
     // portrait or short landscape at any width.
-    const group = flattened ? column.querySelector<HTMLElement>(PRESETS_GROUP) : null;
+    const group = hasZoneB ? column.querySelector<HTMLElement>(PRESETS_GROUP) : null;
     const b =
-        flattened && droppable.length > 0
+        hasZoneB && droppable.length > 0
             ? zoneB(column, group, available, tallestStack(column), droppable[0][0])
             : { bar: false, presets: false, oneRow: false, tallest: 0, cost: 0 };
 
-    column.classList.toggle('drop-tablist-b', b.bar);
+    column.classList.toggle('drop-tools4-b', b.bar);
     column.classList.toggle('drop-presets-b', b.presets);
 
     // Each part drops only if every part before it in the order has dropped too,
@@ -781,20 +948,39 @@ function place(container: HTMLElement, droppable: Droppable): void {
     // above the bottom of the right stack, and the button was drawn over that board's pocket and
     // clock. `max(0, ...)` is the whole correction — a negative difference is not a small space,
     // it is no space.
-    const ownHeight = column.querySelector<HTMLElement>(OWN_STACK)?.getBoundingClientRect().height ?? 0;
-    const zoneA = Math.max(0, ownHeight - stackHeight);
+    // THE BAND IS WHAT THE TOOLS' REGION HAS LEFT OVER THE PARTNER STACK, in every mode.
+    //
+    // It used to be `ownStackHeight - partnerStackHeight`: how much shorter the partner stack is
+    // than the viewer's. That is the band only while the two stacks share a ROW, which is
+    // landscape's geometry and not portrait's — there the viewer's board is BELOW, so the
+    // difference is the height of the board being played on, and every part dropped into a band
+    // that was never there.
+    //
+    // `toolsRegionHeight - partnerStackHeight` is the same number wherever the stacks do share a
+    // row, because the tools' rows then span the board row and the taller stack sets its height.
+    // Where they do not, it is still the right question: how much of the tools' own block is not
+    // needed by the partner's stack. Nothing about the mode is asked.
+    const zoneA = Math.max(0, toolsRegionHeight(column) - partnerStackHeight);
 
-    // Beside the boards the presets' region is the tools strip: as tall as the app, as wide as
-    // the last track. Published BEFORE the drop cascade below, because the cascade charges parts
-    // by their height and that height is now a consequence of this number.
+    // THE PRESETS' REGION IS THE TOOLS' OWN, in both dimensions: as wide as the last track, as
+    // tall as the rows the tools' slots occupy. The height used to be the BUDGET — the viewport
+    // less the header — which is the page's allowance and never the tools'. Their region follows
+    // the boards and the boards follow the zoom; in portrait it is the block beside the partner
+    // board, with the viewer's whole board below it and none of that height theirs to use.
+    //
+    // Published BEFORE the drop cascade below, because the cascade charges parts by their height
+    // and that height is a consequence of this number.
     const toolsTrack = getComputedStyle(column)
         .gridTemplateColumns.split(/\s+/)
         .filter(track => track.endsWith('px'))
         .map(parseFloat);
-    publishPresetSize(column, {
-        width: toolsTrack.length > 0 ? toolsTrack[toolsTrack.length - 1] : column.clientWidth,
-        height: Number.isFinite(budget) ? budget : column.clientHeight,
-    });
+    const toolsRegion = toolsRegionHeight(column);
+    const stripWidth = toolsTrack.length > 0 ? toolsTrack[toolsTrack.length - 1] : column.clientWidth;
+    const regionHeight = Number.isFinite(toolsRegion)
+        ? toolsRegion
+        : Number.isFinite(budget)
+          ? budget
+          : column.clientHeight;
 
     // Each part drops only if every part before it in the order has dropped too, and the parts
     // dropped so far still fit the space the right board freed. Cumulative, so they leave from
@@ -803,7 +989,35 @@ function place(container: HTMLElement, droppable: Droppable): void {
     // partner stack's width: zone A is the band under that stack, spanning its column and the
     // tools' — see the templates. A part whose content cannot be drawn in that width is not
     // helped by a band that is tall enough.
-    const zoneAWidth = stack.getBoundingClientRect().width;
+    // AND ITS WIDTH IS THE MERGED REGION'S, for the reason `toolsRegionWidth` gives: a dropped
+    // part spans the partner's column and the tools' together. The partner stack's width is what
+    // the part has BEFORE it drops, so testing a declared minimum against it refused parts that
+    // would have landed in something twice as wide.
+    const zoneAWidth = toolsRegionWidth(column) || stack.getBoundingClientRect().width;
+
+    /* ONE BUTTON SIZE, THE SMALLER OF THE TWO REGIONS' ANSWERS.
+       ----------------------------------------------------------------------------------------
+       A preset panel sits in one of two places: the strip beside the board, five buttons to a row
+       and two rows; or a dropped row spanning the partner's column and the tools', where ten share
+       one row. One size is published for the whole page, so it has to suit both — and the smaller
+       answer suits both, while the larger fits only the region that produced it.
+
+       MIXED IS NORMAL AND WANTED. One panel dropped and paired while the other keeps its two rows
+       of five is the common portrait arrangement, and the transitional one in landscape while the
+       partner board is being zoomed out. Taking the minimum is what makes it expressible with a
+       single size; nothing here has to choose between the panels.
+
+       And it breaks the circle the old order was caught in. The size no longer depends on what
+       drops — it is a function of the two WIDTHS, both known before any decision — so a part can
+       be charged what it would really cost in the row it would land in. */
+    const wideFit = presetFitAt(column, zoneAWidth);
+    const presetButton = publishPresetSize(
+        column,
+        { width: stripWidth, height: regionHeight },
+        wideFit !== null && wideFit.pairs ? wideFit.button : Infinity,
+    );
+    const droppedPanelHeight =
+        wideFit !== null && wideFit.pairs ? presetButton + wideFit.pad : undefined;
 
     let zoneAUsed = 0;
     let previousDropped: boolean = true;
@@ -811,7 +1025,19 @@ function place(container: HTMLElement, droppable: Droppable): void {
         // The plain measured height. It used to be adjusted for the fact that a part's height
         // followed its width and therefore its placement — a loop that no longer exists, because
         // the preset size is settled from the tools' spare HEIGHT before any of this runs.
-        const height = heightOf(column, selector);
+        // WHAT IT WOULD COST WHERE IT WOULD LAND. `heightOf` measures a part where it is now, and
+        // for a preset panel that is two rows of five in the strip — while a dropped panel is one
+        // row of ten, at a size that is already settled above. Charging the measurement refused
+        // drops that would have fitted easily: measured at 412x915, 52.8 charged against a 50.8
+        // remainder for a row that would really have been 43.
+        const displayed = [...column.querySelectorAll<HTMLElement>(selector)].find(
+            part => part.offsetParent !== null,
+        );
+        const isPresetPanel = displayed?.querySelector(SET) != null;
+        const height =
+            isPresetPanel && droppedPanelHeight !== undefined
+                ? droppedPanelHeight
+                : heightOf(column, selector);
         // Zone B has already taken this part, so zone A must not claim it as well. Its height
         // is still charged there: zone B is a row of the same grid and costs the boards the
         // same space wherever in it the row sits.
@@ -843,6 +1069,8 @@ function place(container: HTMLElement, droppable: Droppable): void {
         previousDropped = drops || inZoneB;
     }
 
+
+
     // ZONE B IS THE FALLBACK, FOR THE PARTS THAT ASK FOR IT — a third entry in the `Droppable`
     // tuple, so a part opts in by naming the class that puts it there and every other part is
     // untouched.
@@ -859,8 +1087,29 @@ function place(container: HTMLElement, droppable: Droppable): void {
         const inZoneA = column.classList.contains(className);
         const need = el ? Math.max(heightOf(column, selector), declaredMin(el).height) : 0;
         const fits =
-            flattened && el !== null && !inZoneA && zoneBUsed + need <= available - b.tallest;
+            hasZoneB && el !== null && !inZoneA && zoneBUsed + need <= available - b.tallest;
         column.classList.toggle(zoneBClassName, fits);
+
+        // AND THE STYLESHEET GETS A VETO, because a part asking for zone B is not the same as a
+        // home that has a row to give it. The analysis page's controls panel declares
+        // `drop-tools2-b`, and NO RULE ANYWHERE MATCHES IT — see `layout/landscape.css`: the
+        // strip and the engine box are already in zone B, and a third row there costs the boards
+        // more height than a row of buttons is worth. (One rule did match it, in the `tools-zonea`
+        // home; that home and its rule are both gone, so the class is now inert everywhere.) So
+        // the class went on, nothing matched it, the part stayed in the strip, and its height was
+        // charged to the boards anyway.
+        //
+        // Measured on the analysis page at minimum zoom: the app was pinned 40px taller than
+        // `tallestStack + zoneB`, and the 40 came out as dead space under the TALLER board —
+        // which then read, to anything measuring the region, as a band that could hold something.
+        //
+        // The computed area is the honest answer and the same one `zoneBHeight()` already trusts:
+        // if the part did not land in a zone B row, the home declined it, so take the class back
+        // off and charge nothing.
+        if (fits && el !== null && !getComputedStyle(el).gridArea.startsWith('zoneB')) {
+            column.classList.toggle(zoneBClassName, false);
+            continue;
+        }
         if (fits) zoneBUsed += need;
     }
 
@@ -876,7 +1125,7 @@ function place(container: HTMLElement, droppable: Droppable): void {
     // height, and publishing the old figure would leave them claiming space that is spoken for.
     // Every term still comes from measurements taken BEFORE any class was toggled, so nothing here
     // reads a layout this pass produced.
-    if (flattened && b.tallest > 0) {
+    if (hasZoneB && b.tallest > 0) {
         column.style.setProperty(CONTENT_HEIGHT, `${Math.min(available, b.tallest + zoneBUsed)}px`);
         column.style.setProperty(BOARDS_HEIGHT, `${available - zoneBUsed}px`);
     }
@@ -926,7 +1175,7 @@ function labelControls(app: HTMLElement): void {
     //
     // The class comes back off rather than being left set-but-inert. A class that says a
     // thing the page is not doing is the shape of bug this file has already produced once —
-    // `drop-tablist-b` sat on an element no rule matched, and the arrangement it claimed to
+    // `drop-tools4-b` sat on an element no rule matched, and the arrangement it claimed to
     // have made had not happened.
     if (getComputedStyle(bar).getPropertyValue(CONTROLS_LABELS).trim() === '0') {
         app.classList.remove('controls-labelled');
@@ -939,7 +1188,7 @@ function labelControls(app: HTMLElement): void {
     // text, which is spending the tab row to caption two buttons. Dropped into zone A or zone B
     // the bar is most of the page and the room is genuinely spare, which is the case these
     // labels are for.
-    const dropped = app.classList.contains('drop-tablist') || app.classList.contains('drop-tablist-b');
+    const dropped = app.classList.contains('drop-tools4') || app.classList.contains('drop-tools4-b');
     if (!dropped) {
         app.classList.remove('controls-labelled');
         return;
@@ -999,7 +1248,7 @@ function placeStandingTab(): void {
 
 export function trackToolsPlacement(
     droppable: Droppable,
-    container: string = ROUND_CONTAINER,
+    container: string = APP,
     onSettled?: () => void,
 ): void {
     const column = document.querySelector<HTMLElement>(container);
@@ -1042,7 +1291,31 @@ export function trackToolsPlacement(
     // resizes when the mode does — observe both, so neither kind of change is missed.
     observer.observe(owner(column));
     if (owner(column) !== column) observer.observe(column);
-    for (const selector of [STACK, ...droppable.map(([selector]) => selector)]) {
+    /* BOTH STACKS, because this file reads both and only watched one.
+       ------------------------------------------------------------------------------------
+       `place()` measures the own stack — see the zone A band, which is what the own stack has
+       that the partner's does not — and the tools' region is a sum of grid rows the own stack
+       spans. So the own stack's height is an input here. It was not observed, and the partner's
+       was.
+
+       What writes it is another module. `seatNamePlacement` decides whether a username is drawn
+       inside its stack or outside it, and publishes `own-name-outside` / `partner-name-outside`;
+       moving a name out makes its stack shorter. Nothing else reports that: in portrait the app
+       is pinned to the viewport, a part changing rows resizes nothing, and the partner stack need
+       not move at all.
+
+       Measured arriving at a 390x844 phone from the 820x640 window where the tools are in their
+       last resort: `toolsPlacement` ran with `partner-name-outside` already set and
+       `own-name-outside` not yet, read a 357.281px region, sized the preset button at 36.00px and
+       dropped the second preset row. `seatNamePlacement` then set `own-name-outside`, the own
+       stack lost its username's line, the region became 315.656px — 41.625px less — and the
+       button should have been 31.98px with the row kept. No observer here watched anything that
+       had changed, so the pass that would have noticed never ran and the wrong arrangement
+       stood. Every other route to that viewport reached the right answer because some unrelated
+       resize happened to fire a pass after the class landed.
+
+       This is the existing rule applied, not a new one: observe what you read. */
+    for (const selector of [OWN_STACK, STACK, ...droppable.map(([selector]) => selector)]) {
         for (const el of owner(column).querySelectorAll<HTMLElement>(selector)) observer.observe(el);
     }
 }

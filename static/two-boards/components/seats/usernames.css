@@ -1,0 +1,329 @@
+/* THE USERNAME — its size, its truncation, and whether it gets a line of its own.
+   ------------------------------------------------------------------------------------
+   The one file in `seats/` with a module behind it: `seatNamePlacement.ts` measures whether the
+   stack can afford the extra line and sets `own-name-outside` / `partner-name-outside` on the
+   app, for BOTH pages since 2026-09-19. The rules here are what those two classes mean, and
+   what a name looks like when it stays in the row instead.
+
+   What belongs here: the name's font ceiling, its nowrap and ellipsis, the presence dot and the
+   rating beside it, and the two arrangements. What does not: the decision, which is measured in
+   TypeScript, and the room it is measured against, which `properties.css` publishes. */
+
+/* The name absorbs the width the pocket leaves. The shared rule says `flex: 0 0 auto`,
+   which is right where the name is an item of a COLUMN — the round page's seat block —
+   and wrong here, where it is an item of the strip's own row and would take only its
+   text's width. */
+.analysis-app.bug .seat-strip0 > round-player0,
+.analysis-app.bug .seat-strip1 > round-player1 {
+    flex: 1 1 auto;
+}
+/* THE NAME GOES TO THE END OF THE STRIP THE BOARD IS NOT ON, which is the round page's
+   rule — clock against the board, name on the outside — reaching the same arrangement
+   from the other direction. There the clock is IN the strip and the order of a column
+   settles it. Here the clock is an absolute overlay pinned to the board's edge, so it
+   lands in the strip's band nearest the board and the name has to leave that end alone.
+
+   It was `align-self: stretch` from the shared rule, which put the name at the TOP of
+   both strips. Harmless above a board, where the clock hangs at the strip's lower edge —
+   and a collision below one, where the clock is at the strip's upper edge: measured with
+   the bottom name's text box running to x=553.7 under a clock starting at x=536.5, in the
+   same 553-571 band. The top strip keeps the top; only the bottom one moves. */
+.analysis-app.bug .seat-strip0 > round-player0 {
+    align-self: flex-start;
+}
+.analysis-app.bug .seat-strip1 > round-player1 {
+    align-self: flex-end;
+}
+:is(.round-app, .analysis-app).bug round-player0, :is(.round-app, .analysis-app).bug round-player1 {
+    /* One line at the end of the column, sized by its content rather than by what
+       is left over — there is nothing to share with now that the clock is above
+       it rather than beside it. */
+    flex: 0 0 auto;
+    min-width: 0;
+    /* not the 48px of `main.bug round-player0`, which exceeds a one-square strip */
+    height: auto;
+    /* the full width of the column; `flex-end` here used to mean the bottom of a
+       row, and in a column it would mean the right-hand edge */
+    align-self: stretch;
+    /* The size itself is set on `.player-data` below, which is where the container
+       that measures the room lives. Never vw: this page is routinely used in a
+       quarter-tiled window, where the 0.7vw it used to inherit renders under 7px. */
+    line-height: 1.15;
+    /* One line, truncated. A name that wrapped inside a one-square strip came out
+       as two clipped fragments with the second cut mid-word by `break-all`, which
+       reads as damage rather than as a long name. The full name stays in the DOM
+       either way. The text sits in an inner block, so the truncation itself is on
+       `.player-data` below — on this element it would govern nothing. */
+    white-space: nowrap;
+    word-break: normal;
+    max-height: none;
+    overflow: hidden;
+    display: block;
+    padding: 0 0 0 0.35em;
+    background: none;
+}
+/* Where the name's text actually lives. `round-player0` is a wrapper; putting the
+   truncation here is what makes it happen — the same reason the popped-out state
+   sets `nowrap` on this element and not on its parent.
+
+   A row, so that the name can end at the trailing edge under the clock's digits and
+   the presence dot can follow it. The markup is
+   `i-side` then `player > (a.user-link, rating)`, with the dot first; `order` moves
+   it after the name without touching the DOM, which flip and switch both move. */
+:is(.round-app, .analysis-app).bug .player-data {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.25em;
+    white-space: nowrap;
+    overflow: hidden;
+    min-width: 0;
+    /* THE ROOM THE NAME HAS, AND THE THING ITS SIZE IS READ FROM.
+       This box is the name's slot in both arrangements — the full strip when the name
+       has a row of its own, and what the pocket leaves when it does not — so making it
+       the query container means one rule covers both without asking which it is in.
+
+       Its width comes from its parent (a block-level flex container fills
+       `round-player0`), which is what `inline-size` containment requires. Putting the
+       container on `round-player0` instead would NOT work: it is a flex item with
+       `flex-basis: auto`, so containment would zero its content contribution and it
+       would stop wrapping onto a line of its own. */
+    container-type: inline-size;
+    /* `.player-data` carries `2px 6px` from site.css, and both halves are wrong here.
+
+       The 6px left the presence dot inside an edge the clock's digits sit flush
+       against. The 2px top and bottom is the strip's ENTIRE fixed term: measured at
+       exactly 4.00px on two seats whose squares differ by a factor of 2.3, and the
+       whole of why the strip looked like a proportion plus a constant. Without it the
+       contents are already proportional — 0.4987 of a square against 0.5008 — so the
+       reserved name row is one line box at a known size and nothing else.
+
+       site.css is not touched; the override is scoped to this page, the way the
+       coordinate gutter and the body margin already are. */
+    padding: 0 0 0 0.35em;
+}
+/* THE SIZE: grow up to the cap where there is room, below it where there is not.
+
+   `cqi` is 1% of `.player-data`'s inline size, so this is the room the name actually
+   has, in both arrangements, with no measuring and no observer — which is what this
+   page's standing rule requires. 10cqi comes from the case that has to work: portrait's
+   partner row is 165.3px wide and should reach the cap, and 16.8 / 1.653 = 10.16.
+
+   The floor is what the old rule produced, which Nikolay accepts at the bottom end —
+   but taken through `min()` first, because a floor above the cap would win the clamp
+   outright and the ceiling would silently stop applying on a large enough board
+   (`--bug-name-fs` passes 16.8px once a square passes 77px).
+
+   Stated on both children, not on the container: a font-size on `.player-data` would be
+   the basis for its own `cqi`, and a length that feeds the query it is derived from is
+   the circularity this file has been bitten by twice. */
+:is(.round-app, .analysis-app).bug .player-data > player,
+:is(.round-app, .analysis-app).bug .player-data > i-side {
+    font-size: clamp(
+        min(var(--bug-name-fs, 0.85em), var(--bug-name-fs-max)),
+        10cqi,
+        var(--bug-name-fs-max)
+    );
+}
+/* The name and its rating are what gives way when there is not enough room; the
+   ellipsis belongs on this box because this is the one holding the text.
+
+   The rating is inside `player`, so it inherits the size above and there is no second
+   rule to keep in step when bughouse starts carrying one. */
+:is(.round-app, .analysis-app).bug .player-data > player {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+/* The link states `white-space: break-spaces` itself, which beats anything inherited
+   from the boxes around it — so the name went on wrapping to two lines inside a box
+   that had been told not to. Measured: a 25.1px name in a strip that had 16.5px for
+   it. `nowrap` has to be said here, on the element holding the text.
+
+   `font-size: inherit` for the same class of reason, and it is what makes the cap
+   real: site.css gives `.user-link` a `0.8em` of its own below 800px, which reapplied
+   itself under the capped size and drew the name at 13.44px while the presence dot
+   beside it — inheriting cleanly — sat at the full 16.8px. A multiplier the cap cannot
+   see is the same defect as the `* 2` that was just removed, one floor down. */
+:is(.round-app, .analysis-app).bug .player-data a.user-link,
+:is(.round-app, .analysis-app).bug .player-data rating {
+    white-space: nowrap;
+    font-size: inherit;
+}
+/* After the name, not before it. */
+:is(.round-app, .analysis-app).bug .player-data > i-side {
+    order: 1;
+    flex: 0 0 auto;
+}
+/* The same inversion for a name that has left the strip: it leaves upwards from a top
+   strip. The strip is a wrapping row in that state, so being first is what puts the
+   name on the line above the pocket and the clock. */
+.round-app.bug.own-name-outside .own-seat.seat-strip0 round-player0,
+.round-app.bug.own-name-outside .own-seat.seat-strip0 round-player1,
+.round-app.bug.partner-name-outside .partner-seat.seat-strip0 round-player0,
+.round-app.bug.partner-name-outside .partner-seat.seat-strip0 round-player1 {
+    order: -1;
+}
+@media (aspect-ratio > 9/16) and (height >= 600px) {
+        /* `.round-app.bug` in the selector is required, not habit: the strip's height is
+           set by `.round-app.bug .seat-strip0` at (0,3,0), and without the app class this
+           rule is (0,2,0) and loses. The symptom was the giveaway — the name moved below
+           the clock as asked, the strip stayed one square tall, and since a strip clips
+           its overflow the name simply disappeared. */
+        .round-app.bug.own-name-outside {
+            --bug-own-strip-row: min-content;
+        }
+}
+main.bug.analysis round-player0.bug rating,
+main.bug.analysis round-player1.bug rating {
+  float: left;
+  font-size: 16px;
+}
+main.bug round-player0,
+main.bug round-player1 {
+  font-size: 0.7vw;
+  width: 100%;
+  line-height: unset;
+  height: 48px;
+  align-items: center;
+}
+/* THE USERNAME ON A LINE OF ITS OWN, below the pocket and the clock. Shared by
+   every mode, because every mode now uses the merged column.
+   `seatNamePlacement.ts` adds these classes when the stack has the height to
+   spend, which is everywhere except at or near full zoom — at full zoom the
+   stack is exactly the ten squares it is given and there is nothing spare.
+
+   These lived in the tall-landscape block until portrait joined the merged column,
+   at which point portrait set the classes and nothing answered: the name stayed
+   between the pocket and the clock while the class said otherwise.
+
+   `display: contents` on the block is what lets the name reach the full width of
+   the strip. The name lives inside the clock's block, so on its own it could only
+   ever span what that block spans — the strip less the pocket. Dissolving the
+   block makes the clock, the name and the misc slot direct flex items of the
+   strip, and then a name with a full basis takes a line across the whole of it.
+   The block element itself is untouched, which matters: flip swaps it between
+   strips, and `display: contents` changes layout, not the DOM.
+
+   The block's own `row-reverse` goes with it, so the clock is placed against the
+   trailing edge here with a margin instead — same result, stated for a row that
+   is no longer reversed. */
+/* A DROPPED part always fits its two sets on one row.
+
+   Beside the board the sets are floored — five tracks at the button minimum, about
+   348px — and two of them cannot fit the strip, so they stack, which is what the
+   presets have always looked like. That floor must stop applying once a part drops,
+   or it decides the wrap there too: dropping happens precisely when the board is
+   small, and a small board makes this column NARROW (its width is the board plus the
+   strip), so the row a part drops into was measured at 672.9px against the 696.8px
+   two floored sets demand. The part dropped and its sets stayed stacked anyway, and
+   being wider made it TALLER, not shorter.
+
+   At an exact half each, two sets always share the row. The buttons can then come out
+   marginally under the design floor on a narrow column — 40.4px against 41.8px — which
+   is still far above the 24px WCAG minimum the floor exists to clear.
+
+   This is also what keeps the placement settled: dropping now makes a part shorter,
+   so it cannot undo the condition that dropped it, and undropping makes it taller, so
+   it cannot undo that either. Stable in both directions. */
+/* No drop-state sizing any more. A dropped part used to stretch its sets to half the
+   row and fill the cells, which is what made its buttons a different size from its
+   neighbour's — and, with the tracks holding a minimum the halved set could not
+   honour, made the row overflow: 220px of content in 183.7px. Every set now draws
+   the same fixed tracks wherever it is, so dropping changes where a part sits and
+   nothing about how it looks. */
+.own-name-outside .own-seat > .info-wrap0,
+.own-name-outside .own-seat > .info-wrap1,
+.partner-name-outside .partner-seat > .info-wrap0,
+.partner-name-outside .partner-seat > .info-wrap1 {
+    display: contents;
+}
+.round-app.bug.own-name-outside .own-seat,
+.round-app.bug.partner-name-outside .partner-seat {
+    flex-wrap: wrap;
+    /* Content height, not one square plus a guess at the name's line. The guess
+       was `font-size * 1.3` and the name's real line box is nearer 1.8 of it —
+       the name carries a presence dot and a rating alongside the text — so the
+       strip clipped the very line it had just made room for. What the line costs
+       is the name's business; the strip takes what its two rows need. */
+    height: auto;
+    align-content: flex-start;
+}
+/* One line, which is the whole point of giving it a line. The text sits in an
+   inner block, so nowrap has to go there — on the outer element it governs
+   nothing. */
+.round-app.bug.own-name-outside .own-seat .player-data,
+.round-app.bug.partner-name-outside .partner-seat .player-data {
+    white-space: nowrap;
+    overflow: hidden;
+}
+.round-app.bug.own-name-outside .own-seat round-player0,
+.round-app.bug.own-name-outside .own-seat round-player1,
+.round-app.bug.partner-name-outside .partner-seat round-player0,
+.round-app.bug.partner-name-outside .partner-seat round-player1 {
+    /* It reaches the next line on its own: `nowrap` on the text inside makes its
+       min-content the width of the whole name, which cannot fit beside the pocket
+       and the clock, so the strip wraps it. Growing then gives it the full width
+       of that line. No forced basis and no order — the content decides, which is
+       why this keeps working when a name is short enough to fit beside them. */
+    flex: 1 1 auto;
+    height: auto;
+}
+/* THE NAME ON A LINE OF ITS OWN — the analysis page's half of the decision above.
+   ------------------------------------------------------------------------------------
+   The declarations are the round page's, which reach the same arrangement from a class
+   the JS toggles; asked here as a style query on the number the stack computed, so the
+   two pages agree about what "outside" looks like while deciding it differently.
+
+   Written in the POSITIVE direction, unlike the coordinate treatment below: a browser
+   without `@container style()` skips this block and every name stays inside its strip,
+   which is a real, complete arrangement and the one the page has at full zoom anyway.
+   Written the other way round, the same browser would give every name a line whether or
+   not the stack had height for it, and the strip's `overflow: hidden` would eat it. */
+/* THE NAME ON A LINE OF ITS OWN — this page's half of the arrangement.
+   ------------------------------------------------------------------------------------
+   The DECISION is the shared module's and arrives as `own-name-outside` / `partner-name-outside`
+   on the app, exactly as on the round page. What follows is this page's rendering of that state,
+   which is genuinely its own: there the name reaches the next line by itself, its `nowrap` text
+   making a min-content too wide to sit beside a pocket AND a clock, while here the pocket is five
+   squares of eight and a name would simply fit beside it — so the line has to be asked for.
+
+   This was a style query on `--bug-name-outside`, the page's own arithmetic. It is the same
+   arrangement, on the same classes as the round page, now that the question is asked once. */
+.analysis-app.bug.own-name-outside .own-seat,
+.analysis-app.bug.partner-name-outside .partner-seat {
+    flex-wrap: wrap;
+    /* Content height, not the one square --bug-strip-h pins it to: the strip now has
+       two rows and takes what they need. The same reasoning as the round page's. */
+    height: auto;
+    align-content: flex-start;
+}
+/* A full basis, which the round page does not need and this page does — see above. */
+.analysis-app.bug.own-name-outside .own-seat.seat-strip0 > round-player0,
+.analysis-app.bug.own-name-outside .own-seat.seat-strip1 > round-player1,
+.analysis-app.bug.partner-name-outside .partner-seat.seat-strip0 > round-player0,
+.analysis-app.bug.partner-name-outside .partner-seat.seat-strip1 > round-player1 {
+    flex: 1 1 100%;
+    height: auto;
+}
+/* Outside, not below: the name leaves a TOP strip upwards, so the pocket stays
+   against the board in both strips. */
+.analysis-app.bug.own-name-outside .own-seat.seat-strip0 > round-player0,
+.analysis-app.bug.partner-name-outside .partner-seat.seat-strip0 > round-player0 {
+    order: -1;
+}
+/* The strip's LINES share its slack rather than piling it under the last one. The
+   strip is a wrapping row in this state: the pocket and clock on one line, the name
+   on the next. `align-content: flex-start` left every spare pixel below them — 40px
+   of dead space under the name at 80% zoom — while the clock stayed at its content
+   height. Stretching the lines hands that space to the pocket-and-clock line, which
+   is where the clock then fills it: measured 51.8 to 71.8, dead space 0. */
+.round-app.bug.own-name-outside .own-seat,
+.round-app.bug.partner-name-outside .partner-seat {
+    align-content: stretch;
+}
+
+.bug rating {
+    display: none;
+}

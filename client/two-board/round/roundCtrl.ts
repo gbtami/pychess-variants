@@ -54,7 +54,7 @@ import {
     showGameKeyboardHelp,
 } from '../../gameKeyboardHelp';
 import { ROUND_DROPPABLE, trackToolsPlacement } from '../common/toolsPlacement';
-import { trackSeatNamePlacement } from './seatNamePlacement';
+import { trackSeatNamePlacement } from '../common/seatNamePlacement';
 import { bindPocketHotkeys } from '../../pocketHotkeys';
 
 // live remaining time of a clock, whether or not it is currently running (mirrors Clock's own tick math)

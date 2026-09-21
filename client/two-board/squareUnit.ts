@@ -80,11 +80,33 @@ const PARTNER_HEIGHT_FRACTION = 0.2;
  * the width will be spent on BEFORE the grid exists, and the grid cannot be measured to find out
  * without the circularity this module avoids.
  */
-const TOOLS_MIN_SQUARES = 2;
+/* WHAT A TOOLS COLUMN IS FOR, AS A WIDTH: a row of five preset buttons, each big enough to hit.
+   ---------------------------------------------------------------------------------------------
+   This was two squares of the viewer's board, and that number had nothing to do with what a tool
+   needs. Its own note said how it was chosen: "the widest column that still leaves every ordinary
+   desktop the column it already has", which answers a question about desktops rather than about
+   tools. Measured on an iPhone SE in landscape: two squares came to 75px, the test passed by a
+   pixel, the column was built at 61, and the preset buttons inside it were drawn 9.8px square. A
+   threshold a region can meet while holding nothing is not a threshold.
+
+   FIVE BUTTONS, because a preset set is five fixed tracks and cannot wrap to fewer, and 24 because
+   that is WCAG's target size — about the smallest a fingertip can reliably hit. The presets decide
+   it rather than the controls' 13ch because IN THE LAST RESORT THE PRESETS CANNOT LEAVE: the chat
+   and the buttons share one tab there, so the column has to hold them rather than hoping the drop
+   machinery will take them somewhere else. A column that holds five tap targets holds the
+   controls as well.
+
+   A FIXED NUMBER OF PIXELS, not squares and not `ch`. A tap target is an absolute size — that is
+   the whole of what the standard says — so it does not scale with the board. */
+const PRESET_COLUMNS = 5;
+const TAP_TARGET_PX = 24;
+const PRESET_PITCH_FLOOR_PX = 3;
+const TOOLS_MIN_WIDTH_PX =
+    PRESET_COLUMNS * TAP_TARGET_PX + (PRESET_COLUMNS - 1) * PRESET_PITCH_FLOOR_PX;
 
 /**
  * THE HEIGHT THE TOOLS NEED to be worth a row of their own beneath both boards, in the same
- * squares of the left board that `TOOLS_MIN_SQUARES` counts across.
+ * squares of the left board, where the width beside them is a fixed number of pixels.
  *
  * Both numbers were read off what the layout actually has to spend rather than chosen — see
  * `toolsHome()`. Two squares is the widest column that still leaves every ordinary desktop the
@@ -149,7 +171,6 @@ const RIGHT_MIN_IN_LEFT_SQUARES = 0.5;
  * It is not a target. `arrangement()` uses it only in the one home whose existence depends on the
  * partner board being smaller, and takes the LARGER of it and what the width already forced.
  */
-const ZONE_A_MAX_PARTNER = 1 - TOOLS_MIN_ROWS / ROWS_IN_SHORT_LANDSCAPE;
 const TALL_COLUMN_GAP_FRACTION = 0.02;
 const TALL_COLUMN_GAP_COUNT = 2;
 
@@ -238,6 +259,39 @@ const TALL_ALLOWANCE_PROPERTY: Record<BugBoardName, string> = {
  * over at module-evaluation time.
  */
 const scale: Record<BugBoardName, number> = { a: 1, b: 1 };
+/* WHAT WAS ASKED FOR, beside what is drawn. `scale` is the drawn value, the preference with this
+   window's floor applied; `requested` is the preference itself, which a resize must not rewrite.
+   Keeping both is what lets the floor be re-applied on every publish: clamping `scale` in place
+   would ratchet it upwards, so a window made small and then large again would never give the
+   boards back the size the reader chose. */
+const requested: Record<BugBoardName, number> = { a: 100, b: 100 };
+
+/* THE FLOOR RE-APPLIED TO BOTH COLUMNS, SETTLED RATHER THAN COMPUTED ONCE.
+   ---------------------------------------------------------------------------------------------
+   `minZoomPercent()` divides the floor SIZE by this column's allowance, and `arrangement()` gives
+   that allowance from the sizes currently DRAWN — so applying the answer changes the question. One
+   pass leaves the two columns on different squares: measured at 1920x955 with both at their
+   minimum, board A on 35px and board B on 41, because B's 46% was divided by one allowance and
+   multiplied by another.
+
+   Three passes, and it converges in two: each pass moves the drawn sizes towards the floor, and the
+   allowances follow them until neither moves. Stopped early when nothing changes, so the common
+   case — a window where the floor is not in force at all — costs one pass. A bounded loop rather
+   than a fixed point solved in closed form, because the arrangement is a chain of conditionals and
+   not an equation. */
+const SETTLE_PASSES = 3;
+
+function clampToFloor(): void {
+    for (let pass = 0; pass < SETTLE_PASSES; pass += 1) {
+        let moved = false;
+        for (const boardName of ['a', 'b'] as const) {
+            const next = clampZoom(boardName, requested[boardName]) / 100;
+            if (Math.abs(next - scale[boardName]) > 1e-6) moved = true;
+            scale[boardName] = next;
+        }
+        if (!moved) return;
+    }
+}
 
 /**
  * The same height, published for the page wrapper to take literally.
@@ -410,7 +464,7 @@ function stackSquares(): number {
  * reader's own zoom — which is an input, not an observation — so no board's size is ever derived
  * from a board's size.
  */
-export type ToolsHome = 'beside' | 'below' | 'zoneA' | 'lastResort';
+export type ToolsHome = 'beside' | 'below' | 'lastResort';
 
 interface Arrangement {
     home: ToolsHome;
@@ -420,9 +474,30 @@ interface Arrangement {
     b: number;
 }
 
-/** The gaps between the three tracks, which the width has to pay for before either board does. */
+/* THE GAPS BETWEEN THE THREE TRACKS, which the width has to pay for before either board does —
+   and the two landscape modes do not spend the same amount.
+   ---------------------------------------------------------------------------------------------
+   Tall landscape separates the columns with `column-gap: 2vmin`. Short landscape uses
+   `--ranks-gutter`, which is the overhang of the rank labels — 15px, a 3px lead-in and a 12px
+   glyph box — because with the boards flush the left board's labels would otherwise land on the
+   right board. At an iPhone SE's 667x375 that is 15px per gap against 7.5, so the layout spends
+   30px where this function budgeted 15.
+
+   Fifteen pixels decided three separate outcomes before it was found: `columnFits` passing by one
+   pixel, a tools column judged worth having at 75 and built at 61, and the same column later
+   built at 121 when the test believed it had 136. A decision about width that is wrong about the
+   width by a gap is wrong about everything downstream.
+
+   READ FROM THE STYLESHEET WHERE IT CAN BE. `--ranks-right` is published for this mode and is the
+   same value the mode's own publisher already reads a few hundred lines below; the arithmetic is
+   the fallback for the modes that have no such property and for the first paint. */
 function columnGaps(): number {
-    return TALL_COLUMN_GAP_COUNT * TALL_COLUMN_GAP_FRACTION * Math.min(availableWidth(), availableHeight());
+    const tall = TALL_COLUMN_GAP_FRACTION * Math.min(availableWidth(), availableHeight());
+    const gutter = Math.abs(
+        parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ranks-right')) || 0,
+    );
+    const shortLandscape = window.matchMedia('(aspect-ratio > 9/16) and (height < 600px)').matches;
+    return TALL_COLUMN_GAP_COUNT * (shortLandscape && gutter > 0 ? gutter : tall);
 }
 
 /** The square a stack gets from a width budget: the budget is `stackSquares()` wide, not eight. */
@@ -465,7 +540,7 @@ function arrangement(dpr: number = window.devicePixelRatio): Arrangement {
         dpr,
     );
     const a = Math.min(squareUnit(height, ROWS_IN_SHORT_LANDSCAPE, dpr), widthCap);
-    const toolsMin = TOOLS_MIN_SQUARES * a;
+    const toolsMin = TOOLS_MIN_WIDTH_PX;
     const floor = RIGHT_MIN_IN_LEFT_SQUARES * a;
 
     /* THE FLOOR IS MET WITHIN ONE DEVICE PIXEL, and it has to be, because the cap and the floor
@@ -478,7 +553,7 @@ function arrangement(dpr: number = window.devicePixelRatio): Arrangement {
      *
      * Measured on p2 at 701x624, dpr 1.125: `a` 54.227, the floor 27.114, the partner board's
      * allowance 26.672 — short by 0.441px, half a device pixel. The exact test failed, `below` and
-     * `zoneA` were both skipped, and the layout went to the LAST RESORT: the whole tools panel
+     * the `zoneA` home that then followed it were both skipped, and the layout went to the LAST RESORT: the whole tools panel
      * hidden behind the partner board's tab with a 222px strip, while zone A stood 275px tall and
      * 222 wide with room for every part of it.
      *
@@ -519,17 +594,18 @@ function arrangement(dpr: number = window.devicePixelRatio): Arrangement {
         const tallest = ROWS_IN_SHORT_LANDSCAPE * Math.max(drawnA, drawn(room));
         if (height - tallest >= TOOLS_MIN_ROWS * a) return { home: 'below', a, b: room };
 
-        // Zone A is what the partner board frees by being SHORTER, so this is the one home whose
-        // existence the partner board's size decides — and the largest board that still leaves the
-        // tools their rows is `ZONE_A_MAX_PARTNER`. Shrinking to exactly that is the rule's step 2
-        // again, in the height rather than the width: the partner board pays the tools' minimum,
-        // and no more than it has to.
-        const forZoneA = Math.min(room, ZONE_A_MAX_PARTNER * a);
-        const zoneAWidth = squares * drawn(forZoneA);
-        const zoneAHeight = ROWS_IN_SHORT_LANDSCAPE * Math.max(0, drawnA - drawn(forZoneA));
-        if (zoneAWidth >= toolsMin && zoneAHeight >= TOOLS_MIN_ROWS * a) {
-            return { home: 'zoneA', a, b: forZoneA };
-        }
+        /* AND THERE IS NO THIRD FALLBACK. A `zoneA` home stood here: shrink the partner board to
+           `ZONE_A_MAX_PARTNER` of the viewer's and put the WHOLE tools panel in the band that
+           frees, under the partner board. It was reachable — seven rows of the survey used it —
+           and it is not a layout worth reaching. The panel it has to hold is the chat, both preset
+           rows and the strip; the band it has to hold them in is what a board shrunk by three
+           tenths gives back, under a board that is itself the smaller of the two. Where the tools
+           have no column and no full-width row beneath both boards, the honest answer is the last
+           resort: the tools take the partner board's column and the board becomes a tab.
+
+           Note this is the only home the PARTNER BOARD's size decided rather than followed — it
+           shrank a board to make room for a panel. Nothing does that now: the boards take what the
+           viewport gives them and the tools arrange around what is left. */
     }
 
     // Step 4. The width cannot hold the pair with the partner board at or above its floor. It
@@ -548,7 +624,6 @@ function arrangement(dpr: number = window.devicePixelRatio): Arrangement {
  *
  *   'beside'      a column of their own, right of both boards — the only home with three columns
  *   'below'       the full-width row beneath both boards, zone B
- *   'zoneA'       the region the partner board frees by being smaller than the viewer's own
  *   'lastResort'  the tab strip alone in zone A, the partner board joining it as a tab
  */
 export function toolsHome(dpr: number = window.devicePixelRatio): ToolsHome {
@@ -568,7 +643,7 @@ function allowanceFor(boardName: BugBoardName, dpr: number = window.devicePixelR
 }
 
 /**
- * What the tools are owed across a region, in pixels — `TOOLS_MIN_SQUARES` squares of the left
+ * What the tools are owed across a region, in pixels — a row of five tap targets, the left
  * board at full zoom.
  *
  * Exported so that `toolsPlacement` can ask the same question of a region it has MEASURED that
@@ -576,7 +651,7 @@ function allowanceFor(boardName: BugBoardName, dpr: number = window.devicePixelR
  * region wide enough to be worth choosing must be wide enough to be worth putting a part in.
  */
 export function toolsMinWidth(): number {
-    return TOOLS_MIN_SQUARES * allowanceFor('a');
+    return TOOLS_MIN_WIDTH_PX;
 }
 
 /**
@@ -593,6 +668,11 @@ export function toolsMinWidth(): number {
  */
 export function minZoomPercent(boardName: BugBoardName): number {
     const dpr = window.devicePixelRatio;
+    // THE FLOOR IS A SIZE AND THE ANSWER IS A PERCENTAGE OF THIS COLUMN'S OWN ALLOWANCE, which is
+    // what makes the two columns land on the same square: `allowB * (4 * allowA / (10 * allowB))`
+    // is `0.4 * allowA` whichever column asks. It holds only while the allowance divided here is
+    // the one the percentage will be multiplied by later — and `arrangement()` answers from the
+    // sizes currently DRAWN, so both move as the boards do. See `clampToFloor()`, which settles it.
     const floorHeight = MIN_STACK_IN_LEFT_SQUARES * allowanceFor('a', dpr);
     const allowance = allowanceFor(boardName, dpr);
     if (!(allowance > 0)) return 0;
@@ -632,7 +712,6 @@ export function clampZoom(boardName: BugBoardName, zoom: number): number {
 const TOOLS_HOME_CLASS: Record<ToolsHome, string> = {
     beside: 'tools-beside',
     below: 'tools-below',
-    zoneA: 'tools-zonea',
     lastResort: 'tools-lastresort',
 };
 
@@ -645,8 +724,8 @@ const TOOLS_HOME_CLASS: Record<ToolsHome, string> = {
  * size the width gave them, and the app keeps the height the last arrangement published — so
  * nothing fires and the arrangement stays the one the old home needed.
  *
- * Measured on p2 at 701x744: the home went from `below` to `zoneA` when the window lost 85px of
- * height, the boards did not move (they are capped by the WIDTH there, so the height changed
+ * Measured on p2 at 701x744, when a `zoneA` home still followed `below`: the home changed when
+ * the window lost 85px of height, the boards did not move (they are capped by the WIDTH there, so the height changed
  * nothing), and `--bug-app-content-h` stayed at the 769px the `below` home had published. The app
  * therefore stood 769px tall in a 744px viewport that cannot scroll, the tools panel ran 206px past
  * the bottom of zone A, and the tab strip — correctly placed in zone B, below it — was drawn off
@@ -698,6 +777,16 @@ function zoomReachesBoards(): boolean {
 }
 
 export function publishSquareUnit(): void {
+    /* THE FLOOR IS RE-APPLIED HERE, on every publish, because the viewport it is computed from
+       changes without anyone touching a slider. It used to be applied only when the setting was
+       read or moved — at load and on a drag — so a window resized afterwards kept a zoom the new
+       layout no longer allows, and the two columns drifted apart: board A's floor is four of its
+       own squares and comes out at 40% of its allowance whatever the window, while board B's is
+       four of A's squares over B's allowance and moves with the ratio between them. Measured at
+       1920x955 with both columns at their minimum: 35px against 41px, where at load the same
+       viewport gives 35 and 35.
+       `minZoomPercent()` answers from a full-zoom arrangement, so this cannot feed on itself. */
+    clampToFloor();
     const style = document.documentElement.style;
     const sq = squareUnit(availableHeight());
     style.setProperty(CSS_PROPERTY, `${sq}px`);
@@ -724,7 +813,7 @@ export function publishSquareUnit(): void {
     const shortUnit = (budget: number) =>
         squareUnit((Math.max(0, budget) * FILES) / stackSquares(), FILES, window.devicePixelRatio);
     const shortBudget = availableWidth() - stackSquares() * sq - shortGaps;
-    const shortPaying = Math.min(sq, shortUnit(shortBudget - TOOLS_MIN_SQUARES * sq));
+    const shortPaying = Math.min(sq, shortUnit(shortBudget - TOOLS_MIN_WIDTH_PX));
     const shortRight =
         shortPaying >= RIGHT_MIN_IN_LEFT_SQUARES * sq ? shortPaying : Math.min(sq, shortUnit(shortBudget));
     style.setProperty(SHORT_LANDSCAPE_RIGHT_PROPERTY, `${shortRight}px`);
@@ -810,7 +899,7 @@ let listening = false;
  * further is needed here.
  */
 export function trackSquareUnit(zoom: Record<BugBoardName, number>): void {
-    for (const boardName of ['a', 'b'] as const) scale[boardName] = zoom[boardName] / 100;
+    for (const boardName of ['a', 'b'] as const) requested[boardName] = zoom[boardName];
     publishSquareUnit();
     if (listening) return;
     listening = true;
@@ -826,6 +915,6 @@ export function trackSquareUnit(zoom: Record<BugBoardName, number>): void {
  * it out. Called by `boardSettings.updateZoom()`, which owns the value.
  */
 export function setBoardZoom(boardName: BugBoardName, zoom: number): void {
-    scale[boardName] = clampZoom(boardName, zoom) / 100;
+    requested[boardName] = zoom;
     publishSquareUnit();
 }

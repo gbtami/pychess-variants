@@ -1,0 +1,173 @@
+/* SHORT LANDSCAPE — pinned, no zoom, and the boards take the height.
+   ------------------------------------------------------------------------------------
+   `@media (aspect-ratio > 9/16) and (height < 600px)`. A phone on its side: the two boards are
+   sized from the viewport's height and the tools take the width they leave, which is why this
+   mode has no zoom and why its tools track is what the boards did not use. */
+
+@media (aspect-ratio > 9/16) and (height < 600px) {
+    /* THIS MODE'S TRACKS, which are NOT the tall-landscape ones. The round page states them
+       separately per mode and this page did not: it had one `@media (orientation: landscape)`
+       block carrying the tall-landscape shape — a `max-content` second column and a `20vw` tools
+       track, centred — and short landscape inherited it. That is why the boards sat in a centred
+       block with 45px of dead space at each edge and the tools stopped at 255px.
+
+       Here the second column is `1fr` and the app stretches, so the boards go to the edge and the
+       tools take everything left over. Later in the file than the shared landscape block, so these
+       win at equal specificity. */
+    .analysis-app.bug {
+        height: 100%;
+        justify-content: stretch;
+    }
+    /* ONE HEIGHT-DERIVED SQUARE FOR BOTH BOARDS, which is what this mode means on the round
+       page and what this page had never done. It sized both stacks from `--bug-tall-sq-a/-b`,
+       the DESKTOP units — per board, and scaled by each profile's zoom slider — in every
+       landscape mode, because it had a single `@media (orientation: landscape)` block where the
+       round page has two.
+
+       What that produced, measured at 1276x551: on one window the own board filled its column at
+       54.67px while the partner board sat at 42.00px, 420px of a 551px column, and the 127px of
+       slack under it was enough for the tab list to drop — which this mode on the round page
+       never does, because there the stack fills the column by construction. On another window
+       both boards were 43.34px because that profile's zoom was lower, so two windows in the same
+       mode at the same size looked unrelated.
+
+       `--bug-sq` is the same unit the round page uses here: derived from the app's height so ten
+       rows fit it exactly, and identical for both boards. Zoom stops reaching the boards in this
+       mode as a result — the round page reaches that conclusion too and hides the resize handle
+       for it, which is the rule just below. */
+    /* THIS MODE'S SQUARES ARE THE SHARED ONES. `--bug-sq` and `--bug-sq-b` are not a second
+       geometry, they are an alias — every rule below keeps using them and the values now come
+       from the one calculation in `squareUnit.ts`.
+
+       They were computed twice, and the copies had drifted. Measured on a live page: `--bug-sq`
+       and `--bug-tall-allow-a` were IDENTICAL to the last decimal, 50.00390625px, because they
+       are the same formula — the header is hidden here, so `availableStackHeight()` already
+       returns the whole viewport. Only the right board differed, 20.67 against 32.67, and that
+       gap was this mode's copy still charging the tools' minimum against the boards: the model
+       tall landscape abandoned. Raising `TOOLS_MIN_SQUARES` from 0.5 to 2 then silently took
+       1.5 squares off this mode's right board, which is what a duplicated formula does when the
+       constant it shares moves.
+
+       ZOOM NOW REACHES THESE BOARDS, which is the one behavioural change. The mode used to size
+       from an allowance directly and ignore the sliders, which is why it hid the resize handle;
+       drawing from the same units as every other mode means the sliders work, so the handle is
+       no longer hidden here either. */
+
+    /* This mode gives the tools the whole leftover rather than a capped share. */
+    .analysis-app.bug {
+        grid-template-columns: auto auto minmax(0, 1fr);
+    }
+    .round-app.bug {
+        /* Tracks are multiples of --bug-sq, the device-pixel-aligned square that
+           client/two-board/squareUnit.ts publishes before the boards are built:
+           a board is 8 squares, so 4 per column across its two columns, and a
+           pocket row is exactly 1 square. Sizing the slot to what chessgroundx
+           will actually render is what removes the leftover that used to show as
+           lines between the boards and under them.
+
+           Deliberately no fallback value: if --bug-sq is missing the var() is
+           invalid at computed-value time and this whole declaration is dropped,
+           which fails loudly instead of silently reverting to the old geometry.
+
+           The last track is 1fr, not auto, so late-arriving chat content can no
+           longer widen the grid and slide the centred boards sideways. */
+        /* Rank labels are absolutely positioned and overhang their board to the
+           right by -1 * --ranks-right (15px: a 3px lead-in then a 12px glyph
+           box, chessground.css `coords.side`). With the boards now flush, the
+           left board's labels would land on the right board, so one gutter
+           track separates them. The right board's labels are left to overhang
+           into the chat, which is harmless. A dedicated track rather than
+           column-gap, because a gap would fall inside each board's two-column
+           span and widen the board slot itself. */
+        --ranks-gutter: calc(-1 * var(--ranks-right));
+        /* Pocket cell width. 0.8 of a board square reproduces exactly the pocket
+           this layout drew when it was pinned to four squares — five cells at 0.8
+           is four squares — so compaction is this one value. Square cells (1.0)
+           are not reachable: they leave the name 37px. */
+        /* THE PER-BOARD PARAMETERS ARE NOT DECLARED HERE ANY MORE — see the shared per-seat rule.
+           They were: `--bug-pocket-sq`, `--bug-strip-h`, `--bug-clock-fs` and `--bug-name-fs`, all
+           written as fractions of `--bug-sq` ON THE APP. A custom property substitutes at the
+           element that DECLARES it, so all four resolved against the LEFT board's square and were
+           then inherited by both stacks — the partner stack's own rebinding of `--bug-sq` comes
+           too late to affect a value already computed.
+
+           Measured with a 50.0px left square and a 32.67px right one: the partner's strip was
+           50px where its own square is 32.67, leaving 17px of slack that read as a gap between
+           board and pocket and gave the username a line of its own; and its pocket was
+           5 x (50 x 0.8) = 200px, six squares of a board eight squares wide. Both are the same
+           mistake, and tall landscape had already avoided it by keying every one of these to a
+           per-seat `--bug-seat-sq`. */
+        /* Two columns: the left board, then everything else. The second takes the
+           remainder rather than being content-sized — this mode has no width to
+           spare, and the rule that the chat gives way before a board does depends
+           on that track being the one that absorbs the shortfall. */
+        /* FLATTENED ONTO THE SHARED TEMPLATE. This mode used to state a grid of its own: two
+           columns — the viewer's stack and a merged `rightcol` holding everything else — over five
+           further rows named `game-controls`, `offer`, `move-controls`, `uboard` and `uleft`. Of
+           those five, nothing claimed four; they survive in this file only in comments about the
+           trouble they once caused. The merged column is the arrangement tall landscape abandoned,
+           and keeping it here meant the zones could not exist and the tools had nowhere to go but
+           a column that shrinks to nothing.
+
+           Three tracks and the shared zone vocabulary, exactly as the other landscape mode: the
+           two boards' own squares, then whatever the tools are allowed. The parts are placed by
+           the shared rules further down the file, and `toolsHome()` chooses between the
+           arrangements from the viewport, which is a calculation this mode can now reach.
+
+           The tracks are the SAME EXPRESSIONS the other mode uses. `--bug-sq` is an alias of
+           `--bug-tall-sq-a` here, so writing the shared names costs nothing and removes the last
+           place where one mode's geometry was spelled differently from the other's. */
+        grid-template-columns: calc(var(--bug-tall-sq-a) * 8)
+                               calc(var(--bug-tall-sq-b) * 8)
+                               var(--bug-tools-track);
+        grid-template-rows: minmax(0, 1fr) auto auto auto auto auto;
+        grid-template-areas: var(--bug-zones-strip);
+        /* The gutter that used to be its own track. With only two columns there is
+           exactly one gap and it falls between them, which is what the separation
+           was always for — the left board's rank labels overhang to its right by
+           --ranks-right and must not paint onto the right board. The old comment
+           justifying a track over a gap argued that a gap would land inside a
+           board's two-column span; each board occupies a single column, so that no
+           longer applies. */
+        column-gap: var(--ranks-gutter);
+    }
+    /* The resize handle is not stated per mode any more — see the one decision near the top
+       of this file, which hides it everywhere and shows it in tall landscape alone. */
+    /* The merged second column, as in tall landscape: the right board's stack
+       floated, the parts arranging themselves in what is left. `flow-root` makes
+       this a block formatting context so it contains the float instead of
+       collapsing around it.
+
+       This mode has no spare height — the stack fills the column — so in practice
+       nothing ever reaches the space under the board here. The rules are the same
+       as tall landscape's on purpose; only the outcome differs. */
+    /* DISSOLVED, like every other mode — stated once in `layout/shared.css` now that portrait
+       dissolves it too. A row spanning both boards can only be spanned by an item of the grid
+       that owns both board columns, which is why the merged column had to stop being a box here
+       before the zones could exist at all. */
+    /* NOTHING ELSE FOR THAT ELEMENT HERE. It has no box in this mode — the rule above makes it
+       `display: contents` — so a track list on it can never apply, and one used to: two columns
+       sized `calc(var(--bug-sq-b) * 8) minmax(0, 1fr)`, with six lines arguing that the right
+       board is the one that yields. The argument is sound and is still in force; it simply is not
+       this rule's to make. `--bug-sq-b` reaches the partner board through `properties.css`, which
+       maps `--bug-stack-sq` to it for this mode, so the stack sizes itself and no track has to. */
+
+    /* THIS MODE'S SPARE HEIGHT — the same expression the desktop mode uses, over this mode's
+       own unit. It comes to the quantisation remainder and nothing else, measured 4.3px at
+       1276x551, which is below the floor: the gap is zero and the coordinates sit on the
+       squares exactly as they do today.
+
+       Stated rather than left to the shared 0px default, because the default would be saying
+       "this mode has no room" when what is true is "this mode's room does not reach the
+       floor". The arithmetic reaching zero on its own is the whole point — no mode is named
+       anywhere in the switch — and a future change that gives this mode height gets the gap
+       for nothing. On the STACKS, not on the app: the shared rule declares the default on
+       these same elements, and an element's own declaration beats an inherited one. */
+    /* AGAINST THE BOARD'S OWN ALLOWANCE, not the app's height. The two differ now: the right
+       board can be capped by WIDTH, so it is smaller than the height would allow while still
+       being at full size, and measuring against the app credited it with room it cannot use —
+       measured at 799x550, 157px of it, which put its coordinates outside the board and its
+       username on a line of its own while the left board kept both in. This mode has no zoom,
+       so a board is always at its allowance and the room is always zero; the formula is written
+       out rather than collapsed to `0px` so that it stays correct if that ever changes. */
+}

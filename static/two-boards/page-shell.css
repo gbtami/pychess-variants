@@ -1,0 +1,282 @@
+/* WHAT A TWO-BOARD PAGE CHANGES ABOUT THE PAGE AROUND IT: the body, the header, `#main-wrap`
+   and `main.round` — pinned to the viewport, not scrolling, and given the width the boards need.
+   Nothing that belongs to the app itself is here; that is `layout/` and `components/`. */
+
+/* site.css gives every page a `margin-bottom: 2vmin`, which on this one is a page
+   taller than the viewport it has just been pinned to — about 8px of it in portrait.
+   It does not scroll, because all three modes set `overflow: hidden` on this body,
+   so it is simply clipped: the bottom seat strip loses the end of a username to a
+   margin nobody can see.
+
+   Neutralised here rather than in site.css, which every other page depends on, and
+   at the top level rather than per mode, because all three pin the body the same way
+   and inherit the same margin.
+
+   The analysis view is included since it started pinning itself in portrait for the same
+   reason. Measured before: a document 843px tall inside an 835px viewport, all of the
+   difference being this margin. */
+body[data-variant='bughouse'][data-view='round'],
+body[data-variant='bughouse'][data-view='analysis'] {
+    margin-bottom: 0;
+}
+/* THE COLLAPSED SITE NAV MUST NOT OCCUPY HEIGHT ON A PAGE THAT CANNOT SCROLL.
+   ------------------------------------------------------------------------------------
+   Under `max-width: 799px` site.css turns the header nav into a burger menu and hides it with
+   `transform: translateX(-100%)`. A transform moves where a box is PAINTED and not where it is
+   LAID OUT, so the nav keeps its full height in flow — a column of 20rem-wide links, measured at
+   1380px — and the document grows by it. Nothing shows, and the page scrolls 600-800px of empty
+   space: measured 603px at 627x835 and 790px at 682x647.
+
+   This has only ever been reachable on a two-board page in a mode that both PINS the body and
+   SHOWS the header. Portrait and short landscape hide the header, so it was masked there; tall
+   landscape shows it but was, until the cut-off moved, always wider than 799px. Routing portrait
+   tablets here makes every tablet narrower than that threshold, so it is now the common case.
+
+   `position: fixed` and not `absolute`. Out of flow is only half of it: an absolutely positioned
+   box still contributes SCROLLABLE OVERFLOW where it extends past the viewport, and this menu is
+   900px tall against an 835px screen — measured, that left 65px of the 603 still there. A fixed
+   box contributes none, and viewport-anchored is what a burger menu wants anyway.
+
+   The reveal is untouched: the links slide in under their own transforms, over the page, which is
+   what the menu already does. `max-height` with `overflow-y: auto` is the other half of making it
+   fixed — a menu taller than the screen has to be scrollable on its own, since there is now no
+   page scroll to reach its foot with.
+
+   Scoped to the bughouse pages: the same declaration site-wide would be the better fix, but every
+   other page scrolls anyway and none of them promises not to.
+
+   AND SCOPED TO THE WIDTH AT WHICH THE MENU COLLAPSES, which is not optional. Unscoped, the same
+   rules reach the ordinary horizontal nav on a wide screen, where `position: fixed` shrinks it to
+   fit — 4px narrower than its own content — and `overflow-y: auto` makes CSS compute the OTHER
+   axis to `auto` as well. The result was a 20px horizontal scrollbar drawn under the menu links,
+   measured at 2495px wide: a grey bar across the top of the page with nothing wrong behind it. */
+@media (max-width: 799px) {
+        body[data-variant='bughouse'] .topnav {
+            position: fixed;
+            max-height: 100%;
+            overflow-y: auto;
+        }
+}
+@media (aspect-ratio <= 9/16) {
+        /* PINNED TO THE VIEWPORT, exactly as the round page pins itself, and for the same
+           reason: the app's `minmax(0, 1fr)` row can only distribute space that exists, so an
+           app sized by its content has no slack to give and the own stack floats wherever the
+           tools leave it. The cap has to be at every level between the body and the app, or the
+           lowest bare `fr` wins — a bare `1fr` is `minmax(auto, 1fr)`, whose minimum is
+           min-content. */
+        body[data-variant='bughouse'][data-view='analysis'] {
+            height: 100vh;
+            overflow: hidden;
+        }
+        body[data-variant='bughouse'][data-view='analysis'] #main-wrap {
+            height: 100%;
+            grid-template-rows: minmax(0, 1fr);
+        }
+        /* Same as short landscape: the vertical budget does not accommodate the site
+           header. Boards and strips alone take 720 of 835px on a 19.5:9 phone. */
+        body[data-variant='bughouse'] header {
+            display: none;
+        }
+        /* Same guarantee short landscape makes: this mode budgets the whole viewport
+           for the boards, so the page itself must not scroll. Scoped to the bughouse
+           round page only — html keeps overflow:visible, so the viewport takes its
+           overflow from body.
+
+           Structural rather than incidental, and it does more than tidy the scrollbar
+           away. --bug-portrait-sq is computed from clientWidth, which EXCLUDES a
+           scrollbar; a page that overflows therefore publishes a unit 8px wider than
+           the space the board actually gets, and the board is clamped and quantised
+           down (measured: 384 intended, 373.33 rendered, offset 4.67px). No scrollbar
+           means clientWidth always equals innerWidth, so that whole failure mode
+           cannot arise rather than merely happening not to. */
+        body[data-variant='bughouse'][data-view='round'] {
+            height: 100vh;
+            overflow: hidden;
+        }
+        /* The app has to be as tall as the viewport for its own `1fr` slack row to
+           have anything to distribute — a fractional track can only share out space
+           that exists, the same trap the tools column hit in short landscape. Without
+           these the app is content-sized, the slack row collapses to whatever the
+           tools panel happens to want, and the player's block floats mid-page instead
+           of sitting on the bottom edge. Measured before: slack 15.57px of an intended
+           148, and the block ending 132.76px short of the bottom.
+
+           `under-board` used to be hidden here, and the rule is gone because the element
+           is: the round page no longer emits it (`two-board/round/round.ts`). It held
+           `#janggi-setup-buttons`, which no bughouse game uses, and an empty crosstable
+           container that nothing on this page ever filled — the crosstable is built by
+           the ONE-board controller, which this page does not run. It cost a 30.7px row
+           below the app for 7.71px of nothing, and the three modes each dealt with that
+           differently: portrait and tall landscape said `display: none`, short landscape
+           let it fall past the fold. Removing the markup settles all three at once.
+
+           The old comment here called the hiding a cost paid in crosstables. It was not:
+           there was never a crosstable in that box. Building one is a feature to add,
+           not something these rules took away. */
+        body[data-variant='bughouse'][data-view='round'] #main-wrap {
+            height: 100%;
+            /* minmax(0, 1fr), not a bare `1fr`, which is minmax(AUTO, 1fr): this row grew to
+               the round page's min-content and carried the whole chain past the viewport —
+               919px in an 835px viewport. The cap has to be at every level between the body
+               and the app, or the lowest bare fr wins. There is one level fewer now: the
+               `main.round.bug` shell that sat between this element and the app is gone, and
+               this element is the `<main>` itself. */
+            grid-template-rows: minmax(0, 1fr);
+        }
+}
+@media (aspect-ratio > 9/16) and (height < 600px) {
+        body[data-variant='bughouse'] header {
+            display: none;
+        }
+        /* The wrapper must FILL the width in this mode, and the `min-width: 800px`
+           rule below stops it: that rule gives `#main-wrap.bug` a content-sized column
+           and centres it, which is what the desktop mode wants, but this mode is also
+           wider than 800px so it matches too.
+
+           A content-sized wrapper makes this mode's `1fr` tools column inert — a
+           fractional track can only distribute space that already exists — so the
+           chat falls back to max-content and widens the app the moment a message
+           arrives. The centred boards then slide left, out from under the bounds
+           chessgroundx memoised at init, and every click lands one file off.
+
+           Measured on a fresh game: one chat line took the app 1211.55 -> 1276 and
+           board A 32.22px left, 0.59 of a square. With this rule the app is 1276
+           from the start, the tools column resolves to its real 386.33px remainder,
+           and the same chat line moves nothing at all.
+
+           This is the requirement "No grid track is sized by late-arriving content"
+           already states: the containing wrapper's own track has to fill the
+           available width or the fractional column achieves nothing.
+
+           The `1fr` lives on `#main-wrap` in the rule above, because the `main.round.bug` shell
+           that used to carry it is gone and the app is this element's only child. What the
+           shell's second track was for — an `aside.sidebar-first` and an `under-left`, both
+           empty — went with it, so there is one track and nothing to leave over.
+
+           WHAT WAS MEASURED, kept because it is why the track is fractional at all. The shell's
+           first track was `minmax(0, max-content)`, which fills only when the app's natural
+           width EXCEEDS the viewport. This mode reaches the other direction easily: height is
+           what is scarce, so a short viewport gives a small square unit — at 636x295, `--bug-sq`
+           29.34px, each board 8 squares = 234.7px, the app's content 599.75px inside a 636px
+           viewport. The 36.25px left over went to the second track, which held nothing.
+           Meanwhile the tools column inside the app is a `1fr` of that content-sized box, and a
+           fractional track can only distribute space that already exists — so it resolved to
+           115.35px instead of 151.60px and the movelist's content box to 107px. The game-over
+           status line needs 121px, so the movelist grew a HORIZONTAL SCROLLBAR. One track, two
+           symptoms. */
+        /* This mode budgets the whole viewport height for the boards, so the page
+           itself must not scroll. html keeps overflow:visible, so the viewport takes its
+           overflow from body.
+
+           THE ANALYSIS VIEW MAKES THE SAME BARGAIN and used to be left out of it. Both pages
+           are pinned to the viewport in this mode, and both let the tools be squeezed to half a
+           square rather than shrink a board — see `squareUnit.ts`. A squeezed tools column has
+           content that does not fit, by design: measured at 899x550 the engine's switch and its
+           MultiPV label overhung a 29.6px column and the page scrolled sideways by 71px. The
+           round page never showed it because this rule already caught it there. Unusable tools
+           are the accepted outcome; a page that scrolls sideways is not. */
+        body[data-variant='bughouse'][data-view='round'],
+        body[data-variant='bughouse'][data-view='analysis'] {
+            height: 100vh;
+            overflow: hidden;
+        }
+        /* The tools column below is 1fr, and a fractional track can only share out
+           space that exists. #main-wrap's own track is content-sized here
+           (--main-max-width: auto, round.css), so without this the 1fr has nothing
+           to distribute and the column stays content-sized exactly as before. */
+        body[data-variant='bughouse'][data-view='round'] #main-wrap {
+            grid-template-columns: 1fr;
+        }
+        /* THE ANALYSIS PAGE IS PINNED THE SAME WAY, which it was not until 2026-08-29. It pinned its
+           wrapper in PORTRAIT and nowhere else, so in landscape the app had no definite height and
+           every `1fr` row inside it resolved against content instead of against the viewport. Nothing
+           showed while the tools sat in one fixed area, because that area could not grow; it is the
+           first thing to fail the moment the tools are placed as individual items, and it fails
+           silently — a row simply takes whatever its content wants.
+
+           Same three declarations the portrait block already states for this view. */
+        body[data-variant='bughouse'][data-view='analysis'] {
+            height: 100vh;
+            overflow: hidden;
+        }
+        body[data-variant='bughouse'][data-view='analysis'] #main-wrap {
+            height: 100%;
+            grid-template-rows: minmax(0, 1fr);
+            /* The tools track below is `1fr`, and a fraction can only share out space that exists.
+               #main-wrap's own track is content-sized here, so without this the 1fr has nothing to
+               distribute — the round page states exactly this, for exactly this reason. */
+            grid-template-columns: 1fr;
+        }
+}
+@media (aspect-ratio > 9/16) and (height >= 600px) {
+        /* The same pinning portrait and short landscape already do, for the same
+           reason: --bug-app-h is the viewport height less the header, so the app has
+           to actually get that height. Left content-sized, the app takes what its rows
+           want and `under-board` reserves a row beneath it — measured here at 72.6px
+           below the app, which the boards would then be overflowing the page by.
+
+           `under-board` is gone from the markup entirely now, so the row it reserved is
+           not there to pin against in any mode. It cost no crosstable to remove: nothing
+           on this page ever drew one in it. A crosstable on a desktop bughouse board is
+           still worth having and is still worth revisiting — as something to BUILD. */
+        body[data-variant='bughouse'][data-view='round'] {
+            height: 100vh;
+            overflow: hidden;
+        }
+        /* Not `height: 100%`. The body is `display: block` and a full viewport tall,
+           so 100% is the whole viewport while this wrapper starts below the header —
+           it ran to 887px in an 827px viewport, over by exactly the header's 60px.
+           --bug-app-h is that height already measured. */
+        body[data-variant='bughouse'][data-view='round'] #main-wrap {
+            height: var(--bug-app-h);
+            grid-template-rows: minmax(0, 1fr);
+        }
+        /* THE ANALYSIS PAGE, PINNED IDENTICALLY. It pinned its wrapper in portrait only; short
+           landscape got the same treatment on 2026-08-29 and this mode needs it for the same reason.
+           Left unpinned, the app's `1fr` row resolves against content rather than the viewport, and
+           once the tools are placed as individual grid items the panel is what that content is —
+           measured here at a 704px app in a 689px viewport, the page scrolling and the tab list below
+           the fold.
+
+           `--bug-app-h`, not `height: 100%`: this mode has the site header above the wrapper, so 100%
+           would be the whole viewport and overshoot by exactly the header. */
+        body[data-variant='bughouse'][data-view='analysis'] {
+            height: 100vh;
+            overflow: hidden;
+        }
+        body[data-variant='bughouse'][data-view='analysis'] #main-wrap {
+            height: var(--bug-app-h);
+            grid-template-rows: minmax(0, 1fr);
+        }
+}
+#main-wrap.bug {
+  display: grid;
+  grid-template-columns: minmax(auto, auto);
+  grid-template-areas: 'main';
+  margin-top: var(--site-header-margin);
+}
+@media (min-width: 800px) {
+      /* CENTRED, CONTENT-SIZED, one item. This is what the `main.round.bug` shell used to do
+         with two content-sized columns and `justify-content: center` — it had two children to
+         centre, the app and an empty `aside.sidebar-first`. Both the aside and the shell are
+         gone; the app is this element's only child and this is the `<main>` itself, so the
+         centring belongs here.
+
+         `minmax(0, max-content)`, not `auto`: an auto track stretches to fill, which would make
+         the app full width instead of its content's width and leave the boards hard against the
+         left edge. Short landscape overrides this with `1fr` from its own body-prefixed rule,
+         which outranks this one whatever the file order — that is the mode where filling is
+         exactly what is wanted, for the reasons its block records.
+
+         The rows and areas that stood here are gone rather than fixed. They read
+         `'app app' 'uleft uboard' 'side side'`, and none of those names has an element any
+         more: the aside is deleted, `under-board` was never emitted by this page, and the
+         spectator placeholder that claimed `uleft` lives in the Info tab. The app claims
+         `main`, the one area `#main-wrap.bug` declares, via `.round-app.bug` in
+         `layout/shared.css` — `round.css` asks for `app`, which is the single-board page's
+         shell talking. */
+      #main-wrap.bug {
+        grid-template-columns: minmax(0, max-content);
+        justify-content: center;
+      }
+}

@@ -18,7 +18,31 @@
         <link rel="stylesheet" href={{ static("blog-cards.css") }}>
         <link rel="stylesheet" href={{ static("flatpickr.css") }}>
         <link rel="stylesheet" href={{ static("reconnecting.css") }}>
-        <link rel="stylesheet" href={{ static("bughouse.css") }}>
+        {# THE TWO-BOARD STYLESHEETS, IN CASCADE ORDER — see openspec/changes/split-bughouse-stylesheet.
+           The order is the design, not an accident: the values first, then what the page around the
+           app does, then the arrangement per mode, then the parts that sit in it. A rule that needs
+           to win a tie says so with its own selector; nothing here may depend on this order alone.
+           `bughouse-lobby.css` last, and it is not part of this at all: the seek and team UI that
+           was in `bughouse.css` because the variant's name was on the file. #}
+        <link rel="stylesheet" href={{ static("two-boards/properties.css") }}>
+        <link rel="stylesheet" href={{ static("two-boards/page-shell.css") }}>
+        <link rel="stylesheet" href={{ static("two-boards/layout/shared.css") }}>
+        <link rel="stylesheet" href={{ static("two-boards/layout/landscape.css") }}>
+        <link rel="stylesheet" href={{ static("two-boards/layout/tall-landscape.css") }}>
+        <link rel="stylesheet" href={{ static("two-boards/layout/short-landscape.css") }}>
+        <link rel="stylesheet" href={{ static("two-boards/layout/portrait.css") }}>
+        <link rel="stylesheet" href={{ static("two-boards/components/stacks.css") }}>
+        <link rel="stylesheet" href={{ static("two-boards/components/seats/strips.css") }}>
+        <link rel="stylesheet" href={{ static("two-boards/components/seats/usernames.css") }}>
+        <link rel="stylesheet" href={{ static("two-boards/components/seats/clocks.css") }}>
+        <link rel="stylesheet" href={{ static("two-boards/components/seats/pockets.css") }}>
+        <link rel="stylesheet" href={{ static("two-boards/components/chat.css") }}>
+        <link rel="stylesheet" href={{ static("two-boards/components/presets.css") }}>
+        <link rel="stylesheet" href={{ static("two-boards/components/movelist.css") }}>
+        <link rel="stylesheet" href={{ static("two-boards/components/tabs.css") }}>
+        <link rel="stylesheet" href={{ static("two-boards/components/engine.css") }}>
+        <link rel="stylesheet" href={{ static("two-boards/components/movetime-chart.css") }}>
+        <link rel="stylesheet" href={{ static("bughouse-lobby.css") }}>
         <link rel="stylesheet" href={{ static("piece/mono/mono.css") }}>
         {% if admin_section and view_css != "admin.css" %}
         <link rel="stylesheet" href={{ static("admin.css") }}>

@@ -1,0 +1,100 @@
+/* THE CHAT — the panel, its message list, and what a message is made of.
+   ------------------------------------------------------------------------------------
+   What belongs here: `.bugroundchat` and everything inside it that is part of a MESSAGE —
+   the list, the entries, their spacing, the input. The chat's own minimums live here too:
+   it refuses `site.css`'s `min-height: 15em` and the input's intrinsic width, and both
+   refusals say the same thing, that the track and the row decide the chat's size.
+
+   What does not: where the chat SITS. Its area, and whether anything drops out of the column
+   beside it, is the arrangement's — `layout/`. And a preset icon drawn inside a message is the
+   presets' rule even though a message is the only place it appears, because what it styles is
+   the button, not the message. */
+
+/* WHAT THE CHAT IS OWED, IN LINES — the unit it is actually made of.
+   ------------------------------------------------------------------------------------
+   The chat reported `min-height: 210px` and this file said nothing about it. That was NOT a flex
+   automatic minimum, as first assumed: `site.css` carries `.chat { min-height: 15em }` and this
+   element is `class="bugroundchat chat"`, so 210px was 15em at a 14px font. A site-wide figure in
+   ems of whatever font the chat happens to have, for a box whose height here is decided by a grid
+   row.
+
+   `publishPresetSize()` has to know this number: the preset buttons grow into the height the
+   tools have SPARE, and spare means "after the chat". Left undeclared, that code carried its own
+   figure — three squares of the viewer's board — which disagreed with the real one and was
+   SMALLER: 150px reserved on a window whose chat already wanted 210, so the buttons could grow
+   into 60px the chat would take straight back.
+
+   Lines, not squares. A chat is legible at a number of lines of text plus its input; it does not
+   become more readable because the board got bigger, and a figure in squares gave 200px on one
+   window and 150px on another for content that needs the same in both. This is the opposite call
+   from `TOOLS_MIN_SQUARES`, deliberately: a preset button has a visual relationship to a board
+   square and a paragraph of chat does not.
+
+   A LINE IS A MESSAGE, AND A MESSAGE IS NOT `1lh`. The first attempt reserved
+   `6 * 1lh + 2.5rem` on `.bugroundchat` and both terms were wrong. `1lh` resolved against the
+   chat's own font — 15.96px — while a rendered `li.message` box measures 22px and advances 27px:
+   it has a smaller font of its own (`max(0.9em, 12px)`), 6px of padding under the text, and 5px
+   of margin to the next one, and its `line-height` was `normal`, so nothing anywhere said what a
+   line was. The input was guessed at `2.5rem` = 40px and is 25px. Reserved 135.7px bought 5.05
+   lines and 15px of nothing, which is why the total looked right and the chat did not.
+
+   So the parts are declared HERE and consumed BOTH by the message rule and by the reservation
+   below, which is what stops them drifting apart again. The input is not declared at all: it is a
+   real element of a definite height, so the code MEASURES it rather than restating it — a guessed
+   constant was exactly the bug. */
+.bugroundchat {
+    --bug-chat-min-lines: 4;
+    /* `max(0.9em, 12px)` is what `li.message` already used; repeated here because the advance
+       below has to be computed from the same number. Both uses resolve `em` against the list's
+       font, so they cannot disagree. */
+    --bug-chat-msg-fs: max(0.9em, 12px);
+    --bug-chat-msg-lh: 1.35;
+    --bug-chat-msg-pad-b: 6px;
+    --bug-chat-msg-gap: 5px;
+    /* What one message actually occupies, top of one to top of the next. */
+    --bug-chat-msg-advance: calc(
+        var(--bug-chat-msg-fs) * var(--bug-chat-msg-lh) + var(--bug-chat-msg-pad-b) +
+            var(--bug-chat-msg-gap)
+    );
+    /* AND THE SITE-WIDE 15em IS REFUSED. `site.css .chat` forces a minimum of 15em — 192.3px at
+       this font — on a box that here is a grid item in a row the layout has already sized. A
+       minimum a row cannot grant does not shrink the row, it OVERFLOWS it: measured 192px of chat
+       in a 133px zone A row and 191px in a 129px zone B row, the bottom 59-62px drawn beneath the
+       preset rows below, with `elementsFromPoint` at the chat input returning `.chatpresets`. The
+       input could not be clicked at all in either window.
+       Zero, not a smaller number: the row is the authority on how tall the chat is, and the list
+       inside it already scrolls. What four messages are worth is a claim on the SPARE height, made
+       in `publishPresetSize()` from the numbers above — a budget, never a floor on the box. */
+    min-height: 0;
+    /* AND THE SAME ON THE OTHER AXIS, FOR A MINIMUM NOBODY WROTE. The chat is a flex item, so its
+       `min-width` is `auto` — the automatic minimum, which resolves to the CONTENT's min-content
+       width. Its content includes a text input, and an `<input>` with no `size` attribute has an
+       intrinsic width of 20 characters: measured by cloning it at `width: max-content`, 201px at
+       this font, on every viewport. So the chat could never be narrower than 201px however narrow
+       its track was, and the tools track is routinely narrower — 190px at 844x390, 141px at
+       1024x768, 61px at 667x375. The chat was then wider than the tab panel that holds it and the
+       panel's `overflow: hidden` cut the right edge off the input, in 15 rows of the survey.
+
+       PROVED RATHER THAN ASSUMED: hiding the input drops the chat's min-content from 201 to the
+       panel's own width, and `min-width: 0` on the INPUT alone changes nothing — an item's own
+       minimum is not what its parent's automatic minimum is computed from. The chat is where the
+       minimum has to be refused, which is also where `min-height: 0` above refuses the other one.
+
+       The track is the authority on how wide the chat is, as the row is on how tall — and what the
+       chat NEEDS is said where every other part says it, as `--bug-part-min-w`, a claim the
+       placement code reads and never a floor on the box. */
+    min-width: 0;
+}
+/* Declared, so `--bug-chat-msg-advance` above describes what is really drawn. `margin-top` goes to
+   zero because adjacent margins collapse: 5px above and 5px below did not add 10px between two
+   messages, so counting either would have been wrong. */
+.bugroundchat li.message {
+    font-size: var(--bug-chat-msg-fs);
+    line-height: var(--bug-chat-msg-lh);
+    padding-bottom: var(--bug-chat-msg-pad-b);
+    margin-top: 0;
+    margin-bottom: var(--bug-chat-msg-gap);
+}
+#messages {
+  width: 100%;
+}

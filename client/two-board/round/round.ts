@@ -173,9 +173,38 @@ export function roundView(model: PyChessModel): VNode[] {
             },
             {
                 label: _('Moves'),
-                parts: [{ content: [h('div.movelist-block', [movelistView.placeholder(), h('div#move-controls')])] }],
+                /* THE RECORD AND THE BUTTONS, two parts, as the analysis page's Moves tab already
+                   is — and for the same reason. A part is what the cascade can move; nested inside
+                   one panel the buttons were unreachable, so a band with room for them went unused
+                   however wide it was. The order is the drop queue's: the list never leaves, being
+                   useless in a band a few squares tall, so it holds the slot that never drops.
+                   The buttons take the second preset panel's slot. The two never coexist — the
+                   presets belong to the Chat tab and these to the Moves tab — which is the same
+                   sharing the end-of-game controls already have with the first preset panel. */
+                parts: [
+                    {
+                        panelClass: 'round-moves-panel',
+                        content: [h('div.movelist-block', [movelistView.placeholder()])],
+                    },
+                    { panelClass: 'round-controls-panel', content: [h('div#move-controls')] },
+                ],
             },
-            { label: _('Info'), parts: [{ content: [gameInfoView.placeholder()] }] },
+            {
+                label: _('Info'),
+                /* THE SPECTATOR LIST LIVES HERE, not in a row of the page's grid. As
+                   `under-left#spectators` it was a child of `main.round.bug` claiming a `uleft`
+                   area, which every template then had to name: a row of its own in tall landscape
+                   and in portrait, a `display: none` in the two modes that could not afford it,
+                   and — on the analysis page, where the same element sat inside the app — implicit
+                   tracks whose gaps took 30px off the tools. An element nobody has ever seen cost
+                   four rules and a guarantee.
+                   Inside a tab panel it is laid out by the panel and named by no template at all.
+                   Nothing fills it yet: the two-board socket drops the `spectators` message (see
+                   `socket/sockets.ts`), so this is the placeholder in its final home, waiting for
+                   the handler. The tag is its own name now rather than a position in a grid that
+                   no longer has a place for it. */
+                parts: [{ content: [gameInfoView.placeholder(), h('spectators#spectators')] }],
+            },
         ],
         _('Round tabs'),
     );
@@ -183,10 +212,6 @@ export function roundView(model: PyChessModel): VNode[] {
     registerStandingTab(roundTabs, PARTNER_BOARD_TAB);
 
     return [
-        // left in place but empty: the game-info placeholder it used to hold is
-        // now the Info panel's content. Whether an empty aside should still
-        // render is a layout question this change does not open.
-        h('aside.sidebar-first'),
         h(
             'div.round-app.bug',
             {
@@ -210,7 +235,7 @@ export function roundView(model: PyChessModel): VNode[] {
             },
             [
                 // The viewer's own board and its two strips as one unit, exactly as the
-                // partner's are grouped in `.bug-right-column`. They used to be three
+                // partner's are grouped in `.partner-and-tools`. They used to be three
                 // separate items of the app's grid, stacked by three named rows —
                 // which is a grid doing, for one board, what a container already does
                 // for the other. The asymmetry cost more than the rows: anything a
@@ -253,66 +278,68 @@ export function roundView(model: PyChessModel): VNode[] {
                 // groups nothing. All of them land here for the moment, so the
                 // column looks exactly as it did; a later change is free to mount
                 // one of them somewhere else entirely.
-                // The second column, as one element rather than as two separately
-                // placed ones. A grid track is sized by its widest item, never by
-                // two items side by side, so a column that is "the right board plus
-                // the tools" has to be a single item holding both. It is also what
-                // the tools need in order to flow under the board later: floating
-                // happens among siblings in one container, not across grid items.
+                // THE PARTNER'S STACK AND THE TOOLS, as siblings of the viewer's stack rather
+                // than inside a wrapper of their own. `div.partner-and-tools` held them until the
+                // day every mode dissolved it: it was `display: contents` in landscape from the
+                // start, portrait stopped being the exception, and an element with no box in any
+                // mode is a level of nesting that nothing reads.
                 //
-                // The cost is that the two boards are no longer siblings in the
-                // app's grid, so switching them cannot be a grid-area swap — see
-                // switchBoardElements() and markRoles(), which both assumed it.
-                h('div.bug-right-column', [
-                    // The board and its two strips are grouped; the tab parts are
-                    // not. That is the whole arrangement in one line.
+                // What it used to buy, and where that went: a grid track is sized by its widest
+                // item and never by two items side by side, so "the right board plus the tools"
+                // once had to be ONE item to size a column. The flattened templates size that
+                // column from the stack's own track instead, which is why the wrapper could go.
+                // The board and its two strips are grouped; the tab parts are
+                // not. That is the whole arrangement in one line.
+                //
+                // These three are one unit — they move together on a switch and
+                // size together — and three siblings cannot be floated as one
+                // thing, so the group has to exist for the board to be the
+                // fixed shape the parts arrange themselves around.
+                // The stack IS the panel — `panelClass` put `.bug-partner-stack` on the
+                // wrapper rather than inside it, so nothing gained a level and the grid area
+                // it has always occupied is still declared on the same element.
+                roundTabs.panel(PARTNER_BOARD_TAB, 0),
+                // The parts. Grouped only so that portrait has something to
+                // place: there the tools are one block in their own grid area,
+                // and free-standing parts auto-placed into the partner board's
+                // rows, which left the chat 20.7px tall.
+                //
+                // The landscape modes make this element `display: contents`, so
+                // it forms no box and each part is placed individually by the
+                // column — which is what lets one of them take the space under a
+                // shrunken board. Each mode dissolves whichever container it
+                // does not want: landscape this one, portrait the two around it.
+                h('div.bug-parts', [
+                    roundTabs.panel(1, 0),
+                    // The two preset rows, grouped. `display: contents` everywhere except
+                    // zone B, so normally they are placed individually exactly as before
+                    // and this element is not in the layout at all.
                     //
-                    // These three are one unit — they move together on a switch and
-                    // size together — and three siblings cannot be floated as one
-                    // thing, so the group has to exist for the board to be the
-                    // fixed shape the parts arrange themselves around.
-                    // The stack IS the panel — `panelClass` put `.bug-partner-stack` on the
-                    // wrapper rather than inside it, so nothing gained a level and the grid area
-                    // it has always occupied is still declared on the same element.
-                    roundTabs.panel(PARTNER_BOARD_TAB, 0),
-                    // The parts. Grouped only so that portrait has something to
-                    // place: there the tools are one block in their own grid area,
-                    // and free-standing parts auto-placed into the partner board's
-                    // rows, which left the chat 20.7px tall.
-                    //
-                    // The landscape modes make this element `display: contents`, so
-                    // it forms no box and each part is placed individually by the
-                    // column — which is what lets one of them take the space under a
-                    // shrunken board. Each mode dissolves whichever container it
-                    // does not want: landscape this one, portrait the two around it.
-                    h('div.bug-parts', [
-                        roundTabs.panel(1, 0),
-                        // The two preset rows, grouped. `display: contents` everywhere except
-                        // zone B, so normally they are placed individually exactly as before
-                        // and this element is not in the layout at all.
-                        //
-                        // It exists for the one arrangement that needs both of them to be ONE
-                        // item: a named grid area is a single rectangle and holds a single
-                        // item, so twenty buttons can only share a row under both boards if
-                        // the twenty are inside one box. In zone B the group becomes that box.
-                        ...(chatPresetsView
-                            ? [h('div.bug-presets-group', [roundTabs.panel(1, 1), roundTabs.panel(1, 2)])]
-                            : []),
-                        roundTabs.panel(2, 0),
-                        roundTabs.panel(3, 0),
-                        // Where the end-of-game controls are rendered, empty until
-                        // there is a result. It belongs to no tab — it must show
-                        // whichever tab is selected — so it is a sibling of the
-                        // parts rather than one of them, and it takes the place the
-                        // presets vacate at the same moment.
-                        h('div.bug-gameover'),
-                        h('div.bug-round-tools-bar', [roundTabs.tabList(), h('div#game-controls')]),
-                    ]),
+                    // It exists for the one arrangement that needs both of them to be ONE
+                    // item: a named grid area is a single rectangle and holds a single
+                    // item, so twenty buttons can only share a row under both boards if
+                    // the twenty are inside one box. In zone B the group becomes that box.
+                    ...(chatPresetsView
+                        ? [h('div.bug-presets-group', [roundTabs.panel(1, 1), roundTabs.panel(1, 2)])]
+                        : []),
+                    roundTabs.panel(2, 0),
+                    // The Moves tab's SECOND part, and it has to be mounted by hand because this
+                    // page mounts panels by index where the analysis page maps over `parts`.
+                    // Declaring a part the view never mounts is silent: the element simply is not
+                    // there, and `#move-controls` -- which `movelist.ts` finds by id -- went with it.
+                    roundTabs.panel(2, 1),
+                    roundTabs.panel(3, 0),
+                    // Where the end-of-game controls are rendered, empty until
+                    // there is a result. It belongs to no tab — it must show
+                    // whichever tab is selected — so it is a sibling of the
+                    // parts rather than one of them, and it takes the place the
+                    // presets vacate at the same moment.
+                    h('div.bug-gameover'),
+                    h('div.bug-round-tools-bar', [roundTabs.tabList(), h('div#game-controls')]),
                 ]),
                 // h('div.material.material-bottom.' + variant.pieceFamily + '.disabled'),
             ],
         ),
-        h('under-left#spectators'),
         // NO `under-board`. It was carried over from the one-board round view and nothing on this
         // page has ever filled it: `.ctable-container` and `#janggi-setup-buttons` are populated by
         // `client/roundCtrl.ts`, the ONE-board controller, and this page runs
@@ -320,12 +347,19 @@ export function roundView(model: PyChessModel): VNode[] {
         // two-board ANALYSIS page emits no `under-board` and wants for nothing, which is the same
         // point made twice.
         //
-        // Two empty divs are not free. `main.round.bug` gave them a 34px row plus two 11px gaps
-        // below the app, so in short landscape the document came out 603px against a 551px
-        // viewport — 52px hanging off the bottom, unseen only because `body`'s `overflow-y: hidden`
-        // propagates to the viewport. Portrait and tall landscape each carried a `display: none`
-        // to buy that space back; with the element gone, all three modes are the same and those
-        // rules are deleted.
+        // Two empty divs are not free. The `main.round.bug` shell gave them a 34px row plus two
+        // 11px gaps below the app, so in short landscape the document came out 603px against a
+        // 551px viewport — 52px hanging off the bottom, unseen only because `body`'s
+        // `overflow-y: hidden` propagates to the viewport. Portrait and tall landscape each
+        // carried a `display: none` to buy that space back; with the element gone, all three
+        // modes are the same and those rules are deleted.
+        //
+        // NO `aside.sidebar-first` EITHER, and no shell to hold one. The one-board page fills that
+        // aside with the game info and the chat; this page moved both into tabs and kept the empty
+        // box, which was the only reason `main.round.bug` needed a grid at all — two children to
+        // place instead of one. It also announced an empty `complementary` landmark to anyone
+        // navigating by landmark, which is worse than free. The app is the wrapper's only child
+        // now, on both pages, and the wrapper is the `<main>`.
         //
         // A crosstable here would be worth having — the stylesheet's comments call its absence a
         // cost. But it was never a cost this markup was paying: nothing was ever drawn in it, so

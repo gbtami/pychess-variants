@@ -26,7 +26,16 @@
  * changed. Measuring asks the page what it actually is.
  */
 
-const APP = '.round-app.bug';
+/* BOTH PAGES, ONE RULE. The analysis page answered this question a second time, in CSS —
+   `--bug-name-outside`, arithmetic on the same room with the line's cost charged at the
+   font's CAP rather than measured. Two implementations of one question about a STACK, which
+   is a component both pages build the same way, and they disagreed: measured across the 264
+   rows of the layout survey, 33 partner stacks on the round page were granted a line the
+   arithmetic refused — 37 to 49px of room against a charge of 53.8 where the line really
+   costs 31.9 to 40.6. Nowhere did the arithmetic grant one this does not. So the CSS decision
+   is gone and this module is where the question is asked; each page still says for ITSELF what
+   "outside" looks like, which is the part that legitimately differs. */
+const APP = '.round-app.bug, .analysis-app.bug';
 
 /** A stack is a strip, eight board rows and a strip — the same ten `squareUnit.ts` divides by. */
 const ROWS_PER_STACK = 10;
@@ -48,7 +57,8 @@ const SEATS = [
 ] as const;
 
 /**
- * What a seat's own line actually costs in height.
+ * What a seat's own line actually costs in height — ALWAYS MEASURED, by putting the seat
+ * in that state and reading it.
  *
  * NOT the name's `line-height`. That was the first attempt and it oscillates: the name
  * box carries a presence dot and a rating beside the text, so the strip grows by
@@ -57,20 +67,29 @@ const SEATS = [
  * pair. The layout then predicted cheap, granted the line, overflowed, took it back,
  * predicted cheap again, and flipped forever at roughly 12Hz.
  *
- * So: measure it where it can be measured, and over-estimate where it cannot. A seat
- * that already has its line reports what the line is really costing — the strip's
- * height above one square. A seat that does not is charged twice its font size, which
- * is above the ~1.6 ratio observed, because the failure mode of under-charging is an
- * infinite loop and the failure mode of over-charging is one seat that keeps its name
- * inline when it might just have fitted.
+ * NOR THE FONT, WHICH WAS THE SECOND ATTEMPT AND IS WHY THIS NOW TRIES IT. A seat without
+ * the line was charged twice its rendered font size, which is an over-estimate on the round
+ * page — the name is at its 16.8px cap there, so 33.6 against a real 20.3 — and a wild
+ * under-estimate on the analysis page, where the name's size comes from a container query
+ * and falls with the strip: measured at 768x1024 with both boards at minimum zoom, a name
+ * rendering at about 5px charged some 20px for a line that costs 45.2. Ported as it was,
+ * that seat would have been granted a line it cannot afford, measured the real cost on the
+ * next pass, taken it back, and flipped — the 12Hz failure again, by a different route.
+ *
+ * TRYING IT IS CHEAPER THAN PREDICTING IT. The class is toggled on, the strip is read, and
+ * the class is put back; the caller then decides against a real number. It costs one forced
+ * layout per seat that does not already have its line, and it cannot be wrong about a cost
+ * that depends on the arrangement it is asking about — which the name's size does, since
+ * the wider row a line gives it is what makes it larger.
  */
-function lineCost(seat: HTMLElement, squareHeight: number): number {
-    const measured = seat.getBoundingClientRect().height - squareHeight;
-    if (measured > 1) return measured;
+function lineCost(app: HTMLElement, seat: HTMLElement, className: string, squareHeight: number): number {
+    const read = () => seat.getBoundingClientRect().height - squareHeight;
+    if (app.classList.contains(className)) return Math.max(0, read());
 
-    const name = seat.querySelector<HTMLElement>('round-player0, round-player1');
-    if (!name) return 0;
-    return parseFloat(getComputedStyle(name).fontSize) * 2;
+    app.classList.add(className);
+    const cost = read();
+    app.classList.remove(className);
+    return Math.max(0, cost);
 }
 
 /** A seat's square, taken from the board it belongs to rather than from a calc() string. */
@@ -84,8 +103,8 @@ function squareOf(app: HTMLElement, boardSelector: string): number {
  * not against the stack's own height — the stack is what grows, so asking it how
  * tall it is would be asking the answer to include the question.
  *
- * The space is the column the stack sits in: `.bug-right-column` for the partner,
- * the round app itself for the viewer's own board.
+ * The space is the rows the stack spans in the app's grid — the same question for both
+ * stacks, since the wrapper that used to hold the partner's is gone.
  */
 function spaceFor(app: HTMLElement, seat: HTMLElement): number {
     /* THE BOARD'S OWN ALLOWANCE FIRST, where the stylesheet publishes one.
@@ -106,39 +125,57 @@ function spaceFor(app: HTMLElement, seat: HTMLElement): number {
     const allow = stack ? parseFloat(getComputedStyle(stack).getPropertyValue('--bug-stack-allow')) : NaN;
     if (Number.isFinite(allow) && allow > 0) return allow * ROWS_PER_STACK;
 
-    // WHERE THE PAGE IS FLATTENED, BOTH STACKS SHARE ONE REGION and neither is in a column that
-    // can be measured. `.bug-right-column` is still their ancestor but it is `display: contents`
-    // there — no box, `clientHeight` reads 0 — so the partner seat was told it had no room at
-    // all and could never take the line, while the own seat fell through to the app and kept
-    // getting one. That is the asymmetry this fixes.
+    // WHERE THE PAGE IS FLATTENED, BOTH STACKS SHARE ONE REGION, and the region is published
+    // rather than measured: it is the pinned budget less whatever zone B holds. The app's own
+    // height is no use for it — that follows the stacks, so asking it would be asking the answer
+    // to include the question.
+    const boards = parseFloat(getComputedStyle(app).getPropertyValue('--bug-boards-h'));
+    if (Number.isFinite(boards)) return boards;
+
+    // OTHERWISE, THE ROWS THE STACK SPANS. Both stacks are items of the app's grid now — the
+    // `.partner-and-tools` wrapper that used to be a box in portrait is gone — so the space a
+    // stack is given is the height of its own rows, which the resolved template states exactly.
     //
-    // The region is published rather than measured here: it is the pinned budget less whatever
-    // zone B holds, and the app's own height is no use for it — that now follows the stacks, so
-    // asking it would be asking the answer to include the question.
-    const dissolved = app.querySelector<HTMLElement>('.bug-right-column');
-    if (dissolved && getComputedStyle(dissolved).display === 'contents') {
-        const boards = parseFloat(getComputedStyle(app).getPropertyValue('--bug-boards-h'));
-        if (Number.isFinite(boards)) return boards;
-    }
+    // This replaces two measurements of that wrapper: its `clientHeight` for the partner, and
+    // the app's height minus the wrapper's for the viewer's own board. The second was there
+    // because in portrait the wrapper sat ABOVE the own board rather than beside it, and
+    // counting the whole app credited the own stack with the partner's region as well — what
+    // let a phone's bottom board believe it had 835px for a 453px stack and take a line for its
+    // username. Asking the grid for the rows an item occupies answers both, in every mode, with
+    // no rule about which mode it is.
+    const rows = rowsSpanned(app, seat.closest<HTMLElement>('.bug-own-stack, .bug-partner-stack'));
+    return Number.isFinite(rows) ? rows : app.clientHeight;
+}
 
-    const column = seat.closest<HTMLElement>('.bug-right-column');
-    if (column) return column.clientHeight;
+/**
+ * The height of the grid rows an item spans, from its container's RESOLVED template.
+ *
+ * `getComputedStyle` gives `grid-template-rows` in used pixels and `grid-template-areas` as the
+ * quoted row strings, so the two line up index for index: find the rows whose cells name this
+ * item's area, and sum them with the gaps between. NaN where the item is not placed by a named
+ * area, which is the caller's signal to fall back.
+ */
+function rowsSpanned(container: HTMLElement, el: HTMLElement | null): number {
+    if (el === null) return NaN;
+    const area = getComputedStyle(el).gridArea.split(' / ')[0].trim();
+    if (area === '' || area === 'auto') return NaN;
 
-    // The viewer's own stack is not in the merged column, so its space is the app —
-    // minus the column when the column is ABOVE it rather than beside it. In the
-    // landscape modes the two sit side by side and share the app's full height; in
-    // portrait the column takes the region above the own board, so counting the whole
-    // app credits the own stack with the column's height as well.
-    //
-    // That miscount is what let a phone's bottom board believe it had 835px for a
-    // 453px stack and take a line for its username. Measured, it has exactly its own
-    // height and can never take one — which is the intended behaviour, arrived at by
-    // measuring correctly rather than by a rule saying "not in portrait".
-    const merged = app.querySelector<HTMLElement>('.bug-right-column');
-    if (!merged) return app.clientHeight;
+    const style = getComputedStyle(container);
+    const heights = style.gridTemplateRows.split(/\s+/).map(parseFloat);
+    const rows = (style.gridTemplateAreas.match(/"[^"]*"/g) ?? []).map(row =>
+        row.slice(1, -1).trim().split(/\s+/),
+    );
+    if (rows.length === 0 || rows.length !== heights.length) return NaN;
 
-    const beside = Math.abs(merged.clientHeight - app.clientHeight) < 2;
-    return beside ? app.clientHeight : app.clientHeight - merged.getBoundingClientRect().height;
+    const gap = parseFloat(style.rowGap) || 0;
+    let total = 0;
+    let spanned = 0;
+    rows.forEach((cells, i) => {
+        if (!cells.includes(area)) return;
+        total += heights[i];
+        spanned += 1;
+    });
+    return spanned > 0 ? total + (spanned - 1) * gap : NaN;
 }
 
 /**
@@ -185,7 +222,7 @@ function place(app: HTMLElement): void {
         // because the line was granted, so the two states disagreed about the same
         // question and each kept overturning the other.
         const square = squareOf(app, board);
-        const cost = 2 * lineCost(element, square);
+        const cost = 2 * lineCost(app, element, className, square);
         const base = stackHeight(app, element, board) - (app.classList.contains(className) ? cost : 0);
 
         app.classList.toggle(className, base + cost <= spaceFor(app, element) - coordGap(element));
@@ -222,7 +259,7 @@ export function trackSeatNamePlacement(onSettled?: () => void): void {
     observer?.disconnect();
     observer = new ResizeObserver(pass);
     observer.observe(app);
-    for (const selector of ['.bug-right-column', '#mainboard cg-board', '#bugboard cg-board']) {
+    for (const selector of ['.bug-partner-stack', '#mainboard cg-board', '#bugboard cg-board']) {
         const el = app.querySelector<HTMLElement>(selector);
         if (el) observer.observe(el);
     }

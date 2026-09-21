@@ -10,6 +10,7 @@ import { AnalysisClockView, renderClocks } from './analysisClock';
 import { AnalysisSeatView, renderSeatNames } from './analysisSeatView';
 import { movetimeChart, MovetimeChartView } from './movetimeChart';
 import { TwoBoardController, initBoardSettings, clearBoardBounds } from '@/two-board/twoBoardCtrl';
+import { trackSeatNamePlacement } from '@/two-board/common/seatNamePlacement';
 import { getPgn, PgnView, updateFENAndPGN } from './pgn';
 import { buildScoreStr, EngineController } from './engine';
 import { AnalysisTreeController } from './analysisTree';
@@ -128,13 +129,21 @@ export default class AnalysisControllerBughouse extends TwoBoardController {
            from there — see `declaredMin()`. */
         trackToolsPlacement(
             [
-                ['[role="tablist"]', 'drop-tablist'],
-                ['.analysis-engine-panel', 'drop-engine', 'drop-engine-b'],
-                ['.analysis-controls-panel', 'drop-controls', 'drop-controls-b'],
+                ['[role="tablist"]', 'drop-tools4'],
+                ['.analysis-engine-panel', 'drop-tools3', 'drop-tools3-b'],
+                ['.analysis-controls-panel', 'drop-tools2', 'drop-tools2-b'],
             ],
             '.analysis-app.bug',
             () => clearBoardBounds(this),
         );
+        /* THE SAME SEAT RULE AS THE ROUND PAGE, from the same module. Whether a username gets a
+           line of its own is a question about a STACK, and the stacks are this page's too — it
+           used to be answered here a second time in CSS, which disagreed with the round page's
+           answer on 33 of the survey's stacks. `clearBoardBounds` for the same reason the tools
+           tracker passes it: a name taking or losing its line changes a strip's height and so
+           MOVES the board inside its stack without resizing it, which is the one change
+           chessgroundx is never told about. */
+        trackSeatNamePlacement(() => clearBoardBounds(this));
         // The four player bars, keyed by which end of which board they sit at. Painted
         // here rather than by the view because the seat that is at a given end depends
         // on the orientation set a few lines above.

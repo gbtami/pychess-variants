@@ -1,0 +1,553 @@
+/* THE CHAT PRESETS — the quick-message buttons, their sets, and the icon on each.
+   ------------------------------------------------------------------------------------
+   A ROUND-PAGE COMPONENT: the analysis page has not one rule about them.
+
+   What belongs here: how a preset button is drawn and sized — the floor and the ceiling the
+   page publishes, the set's five-or-ten columns, the pitch between them, the icon each button
+   carries, the hover and focus states — and the two states the game's end puts them in. The
+   icon's rule inside a chat message is here too, because what it styles is the button.
+
+   What does not: WHERE the sets go. `drop-tools2`, `drop-tools3`, `drop-presets-b`, `tools-*` and the
+   grid areas they name are the arrangement's, in `layout/`. Nor the numbers themselves:
+   `--bug-preset-btn`, its floor and its ceiling are declared in `properties.css` and published
+   from `toolsPlacement.ts`; this file only spends them. */
+
+@media (aspect-ratio <= 9/16) {
+        /* PORTRAIT KEEPS THE PAGE'S GROUND. The panel colour above is for the landscape modes,
+           where the parts move between three places and want to read as one object wherever they
+           land. Portrait has one arrangement and is not being changed. */
+        .round-app.bug .chatpresets-panel,
+        .round-app.bug .bug-presets-group {
+            background-color: transparent;
+        }
+}
+@media (aspect-ratio > 9/16) and (height < 600px) {
+        /* A button is 60% of its share of the parts column — the size the presets drew at
+           before the fixed track, reproduced: 0.6 of a fifth of 382.3 is 45.9, which is what
+           that column measured.
+
+           THE 0.6 IS LOAD-BEARING, not a taste. It is what leaves room for two sets to pair.
+           A set is five buttons and four gaps, so at 0.6 it is 241.5 of a 382.3 column:
+           too wide to have company beside the board, where the sets stack as two rows of
+           five, and narrow enough that two of them fit the 820 a part gets once it has
+           dropped, where they pair into one row of ten. Sized to FILL the column instead,
+           a set is 382.3 and two of them need 764 — more than any dropped width here — so
+           the parts kept their two rows of five under the board and the pairing never
+           happened. That was option B, and this is why it was wrong.
+
+           Sized from the COLUMN, never from the part: a part is 382.3px beside the board and
+           the whole column wide once it has dropped, so sizing from the part is what drew the
+           same button at 41.6px and 24.9px on one screen. `--bug-parts-w` is the column's own
+           track, published by partsWidth.ts.
+
+           `.round-app.bug` is not decoration. A media block adds no specificity, so a bare
+           `.chatpresets` here would tie with the top-level default and lose to it on document
+           order — measured, and the buttons stayed at the floor. Portrait's rule carries the
+           same prefix for the same reason.
+
+           The floor still wins where the column is too narrow for it, which is the whole
+           purpose of a floor. The `0px` fallback is for the frame before the JS has published
+           anything: without it the substitution is invalid and the track breaks. */
+        .round-app.bug .chatpresets {
+            /* The button no longer takes a size from a published width — see `.chatpresets-set`. */
+        }
+        /* THE GAP IS A VALUE, NOT A LEFTOVER, so that every row steps by the same pitch.
+
+           A set used to be `flex: 1 1 auto` with `justify-content: space-between`, which spread
+           whatever the row had left over across the gaps INSIDE each set. Two rows of the same
+           control then stepped by different amounts — measured 38.3 in the column against 53.5
+           under the board — so nothing lined up, and the spacing slid 53.52 -> 38.52 -> 26.52 as
+           the board was resized under it. Spreading also has nothing to say about the boundary
+           BETWEEN two sets, which is why that gap was 0 while every other gap was 53.5.
+
+           Stated as a length instead, the same number serves inside a set, between two sets and
+           between two rows. Five buttons and four gaps fill the parts column exactly, so this
+           reproduces what `space-between` drew in the column — 38.27 against 38.3 here, 38.64
+           against 38.63 in short landscape — while a row of ten now steps by that same pitch and
+           its last five land exactly under the five above it. The spare width goes to the leading
+           margin, which is what anchors the last set to the trailing edge and keeps the alignment
+           stable when the spacing changes.
+
+           `max()` against the base gap because a narrow parts column would otherwise compute a
+           spacing at or below zero. */
+        .round-app.bug .chatpresets {
+        }
+        /* A DROPPED PART IS WIDER THAN THE COLUMN AND MUST NOT STEP WIDER.
+
+           Its row of ten sits directly under the rows of five still beside the board, and the
+           two only line up if both step by one pitch. Letting the dropped row fill its zone
+           gave it its own, larger pitch — measured 81.5px under the board against 74.8px in
+           the column — which put every button out of line except the last, the sets being
+           trailing-aligned.
+
+           So a dropped part keeps the COLUMN's pitch, and goes below it only where its own row
+           cannot hold ten buttons at that pitch: `min()` of the two, floored as ever. That is
+           what lets a part drop into a zone narrower than two full sets — the case this whole
+           rule exists for — while a zone with room to spare simply leaves the surplus in the
+           leading margin instead of spending it between the buttons.
+
+           THE SECOND TERM IS `100cqi`, NOT A PERCENTAGE. It is the width of the zone the part
+           dropped into, and it has to be read from an ancestor: the sets are sized by their
+           content, so a percentage written on a set would resolve against a width that is
+           itself the sum of these very gaps. The panel is the container because the part and
+           its sets are both inside it, so the part's gap between two sets and each set's gap
+           between two buttons resolve against the same number and cannot disagree. */
+        .round-app.bug .chatpresets-panel {
+            container-type: inline-size;
+        }
+}
+@media (aspect-ratio > 9/16) and (height >= 600px) {
+        /* A DEFINITE BASIS, which a panel needs here and nowhere else: beside the board it is a grid
+           item and its row stretches it, while here it is a flex item and would take its width from
+           its content — content that stretches back to the panel. Circular, and it resolved to zero:
+           0px panels with their buttons hanging 216px out to the left, measured.
+
+           Stated in SETS rather than in a button size. It used to read `10 * var(--bug-preset-btn)`,
+           from a number published out of JS; the sets below now carry their own floor basis, so the
+           panel simply asks for two of them and the same wrap point falls out of one statement
+           instead of the same decision being made twice at two levels. */
+        .round-app.bug.drop-presets-b .bug-parts .chatpresets-panel {
+            flex: 1 1 min-content;
+            min-width: 0;
+        }
+        .round-app.bug .chatpresets,
+        .round-app.bug .bug-presets-group {
+            /* The button no longer takes a size from a published width — see `.chatpresets-set`. */
+        }
+        /* Same pitch rule as short landscape, and for the same reasons — see the comment
+           there. Stated per mode rather than once, because the value depends on
+           `--bug-preset-btn`, which each mode sets for itself. */
+        .round-app.bug .chatpresets {
+        }
+        /* Same cap on a dropped part's pitch as short landscape, and for the same reasons —
+           see the comment there. */
+        .round-app.bug .chatpresets-panel {
+            container-type: inline-size;
+        }
+}
+/* The group carries the button floor as well as the part does. Custom properties inherit
+   downwards and the group sits ABOVE the parts, so a floor declared only on `.chatpresets` is
+   invisible to it — which makes every expression built from it invalid there. Not
+   hypothetical: the panels' flex basis in zone B is stated in buttons, and without this it
+   computed to nothing and drew 0px panels with their buttons hanging out to the left. */
+.chatpresets,
+.bug-presets-group {
+  /* The size a preset button actually draws at. The floor below is the minimum; a
+     mode that has room may raise it. Kept as its own variable so that raising it is
+     a one-line statement per mode rather than a rewrite of the track. */
+  /* NOT DECLARED HERE ANY MORE. `--bug-preset-btn` is published on the APP by
+     `publishPresetSize()`, and a declaration on this element — a descendant — would shadow it for
+     everything inside. The floor below is the fallback the tracks use until that first publish,
+     which is also what they used before there was anything to publish. */
+  /* A preset button had no floor at all: `width: 60%` of a cell whose track was
+     `auto`, so it was whatever the column made it — measured 45.92px on the
+     desktop and 13.23px in portrait, against WCAG 2.2's 24px minimum target.
+     0.55 of the player's own board square reproduces roughly 60% of the desktop
+     size (27.5px) while scaling with the page rather than being a per-mode
+     constant: 26.4px in portrait, 30.1 in short landscape, 32.5 on the desktop.
+     The track floor is the button floor divided by the 60% the button occupies. */
+  --bug-preset-btn-min: calc(var(--bug-own-sq) * 0.55);
+  /* AND A CEILING: A PRESET PIECE IS NEVER DRAWN LARGER THAN THE PIECE ON THE BOARD.
+     That is the whole rule, and it is why the number is 1 and not a matter of taste. A preset
+     button is a picture of a piece the player is asking their partner for; drawn bigger than the
+     real one it stops reading as a reference to the board and starts competing with it. Measured
+     on a 2495px-wide window: 97.4px buttons against a 67.6px square, 1.44 times the size.
+     Sizing from spare HEIGHT is what makes a ceiling necessary at all. The old cap of 0.7 squares
+     existed to stop two sets in areas of different widths from drawing at different sizes; that
+     job now belongs to `publishPresetSize()`, which publishes ONE size for every set, and the cap
+     was left declared but wired to nothing — 0.7 was also below what a comfortable window already
+     produced, which is why it read as a maximum that fought the layout rather than bounding it.
+     This one binds in one place only: the widest window. Everywhere else the height runs out
+     first, or the floor wins. */
+  --bug-preset-btn-max: calc(var(--bug-own-sq) * 1);
+  /* THE SMALLEST GAP BETWEEN TWO BUTTONS. The gap actually drawn is published on the column by
+     `publishPresetGap()` — this is the floor it can never go under, and the value every row is
+     WRAPPED at, which is what keeps the wrap from depending on the gap the wrap produces. */
+  --bug-preset-gap-min: 3px;
+  /* The spacing between two ROWS of buttons, which is a different quantity from the pitch
+     above and deliberately does not follow it. It is what has always separated one preset
+     part from the next — the padding below — so making every vertical gap this value is
+     what lets four stacked rows read as four evenly spaced rows. */
+  --bug-preset-row-gap: 5px;
+
+  /* The part holds two sets and lets them wrap against each other: side by side
+     when it is wide enough for both, stacked when it is not. Nothing computes a
+     width — the wrap decides, so a part that drops into the width under the board
+     shows its ten buttons on one row and the same part beside the board shows the
+     two rows of five it has always shown. */
+  display: flex;
+  flex-wrap: wrap;
+  /* HORIZONTALLY, THE SAME GAP THE SETS USE INTERNALLY, so a row is spaced identically
+     wherever the boundary between two buttons happens to fall.
+
+     This box had no gap at all until now, in any mode, which meant two sets sharing a row
+     ABUTTED: measured as a gap of 0 where every other pair on that row was held 53.5px
+     apart on the desktop. Portrait had the same defect at 0 against 3 and simply got away
+     with it.
+
+     VERTICALLY IT IS THE OTHER VALUE, and the axes must not share one. The pitch is a
+     horizontal quantity — it exists so that buttons on a row line up with buttons on
+     another row — and applying it between ROWS makes the two sets inside a part sit
+     further apart than two parts sit from each other: measured 38.27 between rows 1-2 and
+     3-4 against 5 between rows 2-3, so four stacked rows read as two pairs rather than as
+     four evenly spaced rows.
+
+     The 5px is what already separates one part from the next, so it is the value every
+     vertical gap should be. Named rather than repeated, and used for the padding as well,
+     so the gap between two rows of one part and the gap between two parts cannot drift
+     apart again. */
+  column-gap: var(--bug-preset-gap, var(--bug-preset-gap-min));
+  row-gap: var(--bug-preset-row-gap);
+  /* WHERE A ROW'S LEFTOVER GOES, published by `publishPresetGap()`: centred while every row holds
+     the same number of buttons, right-aligned as soon as they do not. A row only has a leftover
+     when it lost the gap vote to a shorter row — see the gap rule — and that is exactly the case
+     where the two have to line up. Centred is the fallback because a lone block is the common
+     shape. */
+  justify-content: var(--bug-preset-align, center);
+  padding-top: var(--bug-preset-row-gap);
+}
+/* The chain that carries a bounded height down to the buttons: a panel is given a definite height
+   by its grid row, `.chatpresets` fills it, and the sets share it. Every link needs `min-height: 0`
+   or the flex default — never shrink below content — reasserts the height the row was meant to
+   cap. */
+/* AND IT IS NOT A `min-height`. Nothing here forces a height, deliberately.
+
+   It was `min-height: 4 * advance` on the list, and a minimum the row cannot grant does not shrink
+   the row — it OVERFLOWS it. Measured on two windows: a chat of 191px in a zone B row of 129px and
+   192px in one of 133px, its bottom 59-62px drawn under the preset rows that follow, with
+   `elementsFromPoint` at the chat input returning `.chatpresets`. The input could not be clicked at
+   all.
+
+   What the four messages are FOR is budgeting: `publishPresetSize()` must not hand the presets
+   height the chat needs. That is a claim on the SPARE height, not a floor on the rendered box, so
+   it belongs in the numbers above — which the code reads — and nowhere in the box model. Where the
+   row cannot seat four messages the list simply scrolls, as a chat log should. */
+.chatpresets-panel > .chatpresets {
+  height: 100%;
+  min-height: 0;
+  align-content: stretch;
+}
+/* A set is five buttons that never break apart, and it is PIECE-ALIGNED: column i
+   is piece i, so "need a knight" sits directly above "don't give a knight"
+   whenever the two sets are stacked. That is why the count is --setColumns and not
+   a number of columns that happen to fit — an `auto-fit` track count would have
+   given the desktop seven columns and destroyed the correspondence.
+
+   Each track is at least the button floor divided by the 60% the button occupies,
+   so a track can grow but never squeeze a button below usable. That floor is also
+   what decides the wrap: a set cannot shrink below five floored tracks, so two of
+   them share a row only where there is room for both at full size. */
+.chatpresets-set {
+  display: grid;
+  /* A track IS a button, and the spacing between them is a gap. The tracks used to
+     be `minmax(button / 0.6, 1fr)` with the button at 60% of the track, which put
+     the spacing INSIDE each cell: 24.9px buttons in 41.6px tracks, a third of the
+     row spent on nothing. It also made the size depend on how much room the row
+     had, so a part that had dropped drew 41.6px buttons while its neighbour beside
+     the board drew 24.9px ones — the same control at two sizes on one screen.
+     Fixed tracks give one size everywhere and pack the row tightly. */
+  /* A TRACK GROWS TO FILL, FLOORED AT THE BUTTON MINIMUM — which is what the paragraph above
+     always described and what the fixed track never did. Pinned to `--bug-preset-btn`, a set
+     was exactly as wide as that number said, and that number came from `--bug-parts-w`: a width
+     published from JS, measured from an element, and fed back into the size of the element it
+     measured. Three defects came out of that one loop in a single session — buttons at their
+     floor beside a 219px panel they left 57px of, buttons at 73px in a 610px row that squeezed
+     the chat to nothing, and an oscillation on a wide screen where each state published the
+     other's width and the layout flipped between them every frame.
+
+     `minmax(floor, 1fr)` needs none of it. A set is five tracks that cannot go below the floor
+     and otherwise share what they are given, so the sets pair when two fit and stack when they
+     do not — self-arranging in a 219px column, a 610px row or an 1100px one, with nothing
+     published, nothing observed and nothing to go stale. */
+  /* A FIXED SIZE, published from the HEIGHT the tools have spare — see `publishPresetSize()`.
+     Tracks that flexed with the box were what let a button's size depend on where its part had
+     been placed, and every oscillation today came through that door. A track is now the size, so
+     a set that moves to a wider region keeps its buttons and simply re-wraps. */
+  grid-template-columns: repeat(var(--setColumns), var(--bug-preset-btn, var(--bug-preset-btn-min)));
+  /* NOTHING TO ALIGN HERE. The set is `flex: 0 0 auto` and its tracks are fixed, so it is exactly
+     as wide as its five buttons and four gaps — measured internal slack, 0.0px. This carried
+     `justify-content: flex-end` for a version in which the set could be wider than its content;
+     it could not do anything any more, and the row's alignment now lives on `.chatpresets`, which
+     is the box that actually has the leftover. */
+  /* HEIGHT LIMITS THE BUTTON WHERE HEIGHT IS WHAT IS SCARCE. A track gives the button its width
+     and `aspect-ratio` gives it its height, so with nothing else said the height simply follows
+     the width and a set that has been given a short box overflows it — measured in zone A at
+     682x503: 50px buttons wanting 220px of a 173px region. `justify-items` centres what is left
+     in the track when the height binds, so the row stays piece-aligned rather than drifting. */
+  align-items: center;
+  justify-items: center;
+  /* AND THE BOUND HAS TO REACH THE BUTTON. `max-height: 100%` on a button resolves against its
+     grid row, and an auto row is sized BY the button — circular, so it constrains nothing: the
+     panel was held to 67px while its buttons stayed 50px and drew straight through it. Rows that
+     share the set's height give the percentage something real to resolve against, and the set
+     takes its height from the panel rather than from its contents. */
+  grid-auto-rows: minmax(0, 1fr);
+  min-height: 0;
+  /* AND THE SET ITSELF HAS TO BE STRETCHED, or the flexible tracks have nothing to share. A grid
+     fills its own width; its own width comes from the flex row above it, where the default
+     `flex: 0 1 auto` leaves it at min-content — five floored tracks — and the buttons sit at the
+     floor however much room the row has.
+     The basis is the set at its floor, which is also what decides the wrap: two sets share a row
+     exactly when both fit at floor size, and stack otherwise. */
+  /* NATURAL WIDTH, so the wrap is decided by what the set ACTUALLY measures. The basis used to be
+     the set at its floor, which was right while the tracks could shrink to that floor — they
+     cannot now, the size being fixed, so two sets at a 195px basis looked as though they fitted a
+     499px row and then overflowed it at their real 499px each. Nothing grows and nothing shrinks:
+     the size is settled before the wrap, and the wrap simply asks whether both sets fit. */
+  flex: 0 0 auto;
+  /* THE SAME PUBLISHED GAP INSIDE A SET AS BETWEEN TWO SETS, which is what makes a row of ten
+     read as one row rather than two blocks of five: its nine gaps are one value. */
+  gap: var(--bug-preset-gap, var(--bug-preset-gap-min));
+  /* NOTHING IS PACKED TO AN EDGE ANY MORE. This was `justify-content: flex-end` with
+     `flex: 0 1 auto`, a set at its natural width pushed to one side, and the spare width of the
+     row showing as a margin beside it — 57px of a 219px panel, measured. With the tracks
+     flexible and the set stretched, there is no spare width to push anywhere: the buttons take
+     the row between them, and two sets still pair or stack exactly as the wrap decides, because
+     the basis above is the set at its floor. */
+}
+/* The presets are their own tab part now, a sibling of the chat view rather than
+   a child of it, so the `order: 3` that used to place them inside the chat view's
+   flex box means nothing here. Chat takes the space that is going; the presets
+   take the height their buttons need and no more, and do not scroll — the panel
+   default of `flex: 1 1 auto` with `overflow: hidden auto` is right for chat and
+   wrong for a fixed grid of buttons.
+
+   `flex-flow: column` is not decoration. A panel is `display: flex`, so its child
+   is laid out on the main axis — and a row's main axis is the width, which is
+   sized from content. The buttons are `width: 60%` of their grid cell and the
+   cells are `auto`, so content-sizing the grid is circular and it collapsed to
+   zero: measured 0x0 buttons in a 5px panel. As a column's cross-axis item the
+   grid stretches to the full width instead, which is exactly the relationship it
+   had inside the chat view's own column before it was pulled out. */
+/* ONE PANEL, WHEREVER THE PARTS END UP.
+   ------------------------------------------------------------------------------------
+   The buttons already carry the surface colour and their containers carried none, so the
+   block read as a scatter of tiles on the page's ground rather than as one panel — and it
+   read differently in each arrangement, because the arrangement decides how the tiles fall.
+   Painting the containers instead makes the ground between the buttons part of the panel, so
+   two rows beside the board, two rows under it and one row of twenty are all the same object.
+
+   The GROUP is painted for the same reason and only pays for itself in one arrangement: it
+   is `display: contents` everywhere else, and an element with no box paints nothing, so this
+   declaration is simply inert until zone B gives it one. There it is what covers the gap
+   between the two panels sharing a row — the join that the pitch needs and that would
+   otherwise show the page through the middle of the panel. */
+.chatpresets-panel,
+.bug-presets-group {
+    background-color: var(--bg-color0);
+}
+/* THE TWO PRESET ROWS AS ONE ITEM, and only where that is needed.
+
+   Dissolved by default, in every mode: the panels are placed individually — one per tools
+   row beside the board, or one per zone A row once they drop — and this element forms no box,
+   so nothing about those arrangements knows it exists. That is why it can be added without
+   touching portrait or short landscape.
+
+   It becomes a real box in zone B alone, because that arrangement needs both panels to be a
+   SINGLE grid item: a named area is one rectangle and holds one item, so a row of twenty
+   buttons under both boards can only exist if the twenty are inside one box. */
+.bug-presets-group {
+    display: contents;
+}
+.bug-parts .chatpresets-panel {
+  flex: 0 0 auto;
+  flex-flow: column;
+  overflow: visible;
+}
+/* Portrait deliberately has nothing here. It used to reverse this pair: master
+   made `.bugroundchat.chat` a column-reverse box, and because the presets were
+   that box's last child they came out on top. Nobody chose that placement — it
+   fell out of the reversal, whose real subject was the chat's own input. When the
+   presets moved out of the chat view the effect was restated as `order: -1` to
+   keep the page looking the same, which preserved an accident.
+
+   Both are gone, so where these sit is decided by where round.ts mounts them, in
+   every layout alike: messages, input, presets underneath. A layout that wants
+   them somewhere else should mount them somewhere else rather than reorder them
+   in place — reordering in place is exactly what made portrait disagree. */
+/* THE ICON URLS ARE ROOT-RELATIVE BECAUSE THIS FILE MOVED, and a `url()` is resolved against
+   the STYLESHEET, not the page. `url('images/bugroundchat/P.svg')` meant `/static/images/...`
+   while these rules lived in `/static/bughouse.css`; from
+   `/static/two-boards/components/presets.css` the same text means
+   `/static/two-boards/components/images/...`, which is a 404, and every preset button lost its
+   picture — 28 of them, silently, because a missing background image draws nothing and breaks no
+   layout. Found on the live harness, not by the survey. Written from the root so that the next
+   move of this file cannot repeat it. */
+.chatpresets button.bugchat {
+  /* fills its track, because the track is the button's size — but never taller than the row it
+     is in: `aspect-ratio` alone makes height follow width, so a button in a short box grows past
+     it, and `max-height` lets the ratio shrink the width instead. */
+  width: 100%;
+  max-height: 100%;
+  /* aspect-ratio rather than `padding-top: 60%`: percentage padding resolves
+     against the cell width, so it cannot honour a minimum — the box would keep
+     its square shape by shrinking rather than by holding the floor. */
+  aspect-ratio: 1 / 1;
+  color: var(--font-color);
+  background-color: var(--bg-color0);
+  cursor: pointer;
+  border: none;
+}
+.bugchatpointer {
+  cursor: pointer;
+}
+li.message .bugchat{
+  width: 2em;
+  height: 2em;
+  display: inline-flex;
+  color: var(--font-color);
+  background-color: var(--bg-color0);
+  cursor: pointer;
+  border: none;
+}
+button.bugchat:hover {
+  color: #fff;
+  background-color: var(--green-hover);
+}
+button.bugchat:focus {
+  outline: none;
+}
+button.bugchat::-moz-focus-inner {
+  border: 0;
+}
+.bugchat.p {
+  background-image: url('/static/images/bugroundchat/P.svg');
+  background-size: cover;
+}
+.bugchat.n{
+  background-image: url('/static/images/bugroundchat/N.svg');
+  background-size: cover;
+}
+.bugchat.b{
+  background-image: url('/static/images/bugroundchat/B.svg');
+  background-size: cover;
+}
+.bugchat.r{
+  background-image: url('/static/images/bugroundchat/R.svg');
+  background-size: cover;
+}
+.bugchat.q{
+  background-image: url('/static/images/bugroundchat/Q.svg');
+  background-size: cover;
+}
+.bugchat.a {
+  background-image: url('/static/images/bugroundchat/Q.svg');
+  background-size: cover;
+}
+.bugchat.c {
+  background-image: url('/static/images/bugroundchat/C.svg');
+  background-size: cover;
+}
+.bugchat.m {
+  background-image: url('/static/images/bugroundchat/M.svg');
+  background-size: cover;
+}
+.bugchat.s {
+  background-image: url('/static/images/bugroundchat/S.svg');
+  background-size: cover;
+}
+.bugchat.nop{
+  background-image: url('/static/images/bugroundchat/DONT.svg'), url('/static/images/bugroundchat/P.svg');
+  background-size: cover;
+}
+.bugchat.non{
+  background-image: url('/static/images/bugroundchat/DONT.svg'), url('/static/images/bugroundchat/N.svg');
+  background-size: cover;
+}
+.bugchat.nob{
+  background-image: url('/static/images/bugroundchat/DONT.svg'), url('/static/images/bugroundchat/B.svg');
+  background-size: cover;
+}
+.bugchat.nor{
+  background-image: url('/static/images/bugroundchat/DONT.svg'), url('/static/images/bugroundchat/R.svg');
+  background-size: cover;
+}
+.bugchat.noq{
+  background-image: url('/static/images/bugroundchat/DONT.svg'), url('/static/images/bugroundchat/Q.svg');
+  background-size: cover;
+}
+.bugchat.noa{
+  background-image: url('/static/images/bugroundchat/DONT.svg'), url('/static/images/bugroundchat/Q.svg');
+  background-size: cover;
+}
+.bugchat.noc{
+  background-image: url('/static/images/bugroundchat/DONT.svg'), url('/static/images/bugroundchat/C.svg');
+  background-size: cover;
+}
+.bugchat.nom{
+  background-image: url('/static/images/bugroundchat/DONT.svg'), url('/static/images/bugroundchat/M.svg');
+  background-size: cover;
+}
+.bugchat.nos{
+  background-image: url('/static/images/bugroundchat/DONT.svg'), url('/static/images/bugroundchat/S.svg');
+  background-size: cover;
+}
+.bugchat.sit{
+  background-image: url('/static/images/bugroundchat/SIT.svg');
+  background-size: cover;
+}
+.bugchat.go{
+  background-image: url('/static/images/bugroundchat/GO.svg');
+  background-size: cover;
+}
+.bugchat.trade{
+  background-image: url('/static/images/bugroundchat/TRADE.svg');
+  background-size: cover;
+}
+.bugchat.notrade{
+  background-image: url('/static/images/bugroundchat/NOTRADE.svg');
+  background-size: cover;
+}
+.bugchat.mate{
+  background-image: url('/static/images/bugroundchat/MATE.svg');
+  background-size: cover;
+}
+.bugchat.ok{
+  background-image: url('/static/images/bugroundchat/OK.svg');
+  background-size: cover;
+}
+.bugchat.no{
+  background-image: url('/static/images/bugroundchat/NO.svg');
+  background-size: cover;
+}
+.bugchat.mb{
+  background-image: url('/static/images/bugroundchat/MB.svg');
+  background-size: cover;
+}
+.bugchat.nvm{
+  background-image: url('/static/images/bugroundchat/NVM.svg');
+  background-size: cover;
+}
+.bugchat.nice{
+  background-image: url('/static/images/bugroundchat/NICE.svg');
+  background-size: cover;
+}
+bugchat img{
+  margin-left: 1em;
+  width: 1.1em;
+  height: 1.1em;
+}
+/* No presets once the game has a result. Hiding the CONTENT rather than the panel
+   is deliberate: the panel is a tab part and the tab widget writes its `display`
+   inline when tabs are switched, so a rule on the panel would either lose to that
+   inline style or need `!important` to beat it. The panel stays, empty and zero
+   tall, and the rows close up on their own. */
+.round-app.bug.game-over .chatpresets {
+    display: none;
+}
+/* AND IT MUST NOT STRETCH, or "empty and zero tall" is only true where nothing else
+   shares its row.
+
+   The first preset part and the end-of-game controls occupy the SAME area on purpose — the
+   controls take the place the presets vacate. So the moment the presets are hidden, that row is
+   sized by the controls, and a grid item's default `stretch` made the emptied panel exactly as
+   tall as they are: measured 136px over a 128px `.bug-gameover` at the same origin, with the
+   panel later in the DOM. It painted its own background across Rematch, New opponent and Analysis
+   board, and `elementFromPoint` over the Rematch button returned the panel — so the controls were
+   not merely invisible, they were unclickable.
+
+   `start` makes the panel take its content height, which is zero now that the content is gone.
+   The second part never showed this: nothing shares its area, so its row collapsed with it. */
+.round-app.bug.game-over .chatpresets-panel {
+    align-self: start;
+}
