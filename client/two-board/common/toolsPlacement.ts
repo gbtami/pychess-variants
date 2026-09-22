@@ -673,7 +673,22 @@ function zoneB(
     tallest: number,
     firstPart: string,
 ): ZoneB {
-    const buttons = group ? [...group.querySelectorAll<HTMLElement>('button')] : [];
+    /* THE BUTTONS ON THE PAGE, NOT THE BUTTONS IN THE DOM — the same question `heightOf` asks,
+       and for the same reason.
+
+       Once the game has a result `presets.css` hides `.chatpresets`, which is the CONTENT: the
+       panels stay, empty and zero tall, and their rows close up. Their WRAPPER does not. It is
+       `display: contents` until a zone B row is claimed for it, and a real flex box with a 5px
+       `padding-top` and a background the moment one is — so a group placed for buttons that are
+       not drawn is a 5px band of `--bg-color0` in the row above the tools bar, and the row it
+       takes comes off the stacks. Measured at 1920x1421, game over with the Chat tab
+       showing: the own stack ended 5px inside `zoneB1` and the band cut the bottom of both
+       usernames and their presence dots.
+       It was charged nothing for it, which is why nothing noticed: hidden buttons measure 0, so
+       the cost came back as the bar's alone and the zone "afforded" a part that does not exist. */
+    const buttons = group
+        ? [...group.querySelectorAll<HTMLElement>('button')].filter(b => b.offsetParent !== null)
+        : [];
     const under = budget - tallest;
     const none = { bar: false, presets: false, oneRow: false, tallest, cost: 0 };
 
@@ -1030,8 +1045,23 @@ function place(container: HTMLElement, droppable: Droppable): void {
         // row of ten, at a size that is already settled above. Charging the measurement refused
         // drops that would have fitted easily: measured at 412x915, 52.8 charged against a 50.8
         // remainder for a row that would really have been 43.
+        /* THE PART THAT IS DRAWN IN THE SLOT, which is not always the first one laid out.
+           ------------------------------------------------------------------------------------
+           Two elements share this entry and never coexist — the first preset panel while the game
+           is on, the end-of-game controls once it is not — and `offsetParent` cannot tell them
+           apart: `presets.css` ends the game by hiding the panel's CONTENT, so the panel itself
+           is still laid out, empty and zero tall. It was therefore picked as the displayed part,
+           and it still CONTAINS its hidden sets, so the block below charged a 128px button stack
+           the 43.1px a preset row would cost once dropped.
+           That alone would only be wrong. It oscillated because `droppedPanelHeight` is computed
+           from the region the presets have, and the region changes with this very decision: the
+           charge came back 43.1 on one pass and `undefined` — falling through to the real 128 — on
+           the next, so the controls dropped into zone A and back out of it once per frame, for as
+           long as the window sat in the band where 43.1 fits and 128 does not. Measured at
+           1920x1421 with both boards at 48%: zone A 110px, and 40 distinct states in 40 frames.
+           A zero-height part draws nothing, so it is not the part in the slot. */
         const displayed = [...column.querySelectorAll<HTMLElement>(selector)].find(
-            part => part.offsetParent !== null,
+            part => part.offsetParent !== null && part.getBoundingClientRect().height > 0,
         );
         const isPresetPanel = displayed?.querySelector(SET) != null;
         const height =
@@ -1120,14 +1150,28 @@ function place(container: HTMLElement, droppable: Droppable): void {
     // panel exactly the board's height and the rows below it close up under them. Never more than
     // the budget, so it cannot overflow.
     //
-    // PUBLISHED AFTER THE CASCADES, not before, because `zoneBUsed` is not known until the
+    // PUBLISHED AFTER THE CASCADES, not before, because what zone B holds is not known until the
     // fallback above has run — a part that has just taken a zone B row costs the boards its
     // height, and publishing the old figure would leave them claiming space that is spoken for.
-    // Every term still comes from measurements taken BEFORE any class was toggled, so nothing here
-    // reads a layout this pass produced.
+    //
+    // AND MEASURED, NOT PREDICTED, which is the whole of the difference between this figure being
+    // right and being nearly right. `zoneBUsed` is what the parts were CHARGED, taken on the parts
+    // themselves; the grid sizes the ITEM that occupies the row, and the two are not the same
+    // element. The presets' two panels are charged, their wrapper is drawn, and the wrapper adds
+    // its own 5px `padding-top`: measured at 1280x861 with the boards at 80%, a 93.8px charge
+    // against 98.8px of drawn rows, so the app was published 5px short, the `1fr` row above zone B
+    // absorbed all of it, and the own stack — `align-self: start`, `overflow: visible` — was drawn
+    // 5px into zone B with nothing able to see it. The sign flips with the wrap: at 65% the same
+    // gap was 5px of dead space under the boards instead.
+    //
+    // `zoneBHeight` reads the occupants off the resolved template, so it cannot disagree with what
+    // the page draws whatever a part is wrapped in — and it is what the flattened branch above
+    // already publishes from. One question, one answer, in both homes. It costs a forced layout
+    // after the classes are toggled, which this pass already pays for several times over.
     if (hasZoneB && b.tallest > 0) {
-        column.style.setProperty(CONTENT_HEIGHT, `${Math.min(available, b.tallest + zoneBUsed)}px`);
-        column.style.setProperty(BOARDS_HEIGHT, `${available - zoneBUsed}px`);
+        const drawn = zoneBHeight(column);
+        column.style.setProperty(CONTENT_HEIGHT, `${Math.min(available, b.tallest + drawn)}px`);
+        column.style.setProperty(BOARDS_HEIGHT, `${available - drawn}px`);
     }
 
     // Last, because it asks where the bar ENDED UP — so it has to run once the arrangement

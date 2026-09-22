@@ -343,7 +343,26 @@ async def finally_logic(
         else:
             game.spectators.discard(user)
             user.watched_games.discard(game.id)
-            await round_broadcast(game, game.spectator_list, full=True)
+            # NOT AWAITED HERE, AND THAT IS THE WHOLE OF IT. This runs in the handler task of the
+            # connection that has just gone away, and aiohttp CANCELS that task as soon as the
+            # client disconnects — so the await was interrupted at its first suspension point and
+            # the message was never written to anybody's socket. The server dropped the spectator
+            # correctly and then told no one, which is why a spectator list only ever grew: joins
+            # are broadcast from a live handler and leaves from a dying one.
+            #
+            # Measured with two watchers opening and closing a bughouse game: the set went
+            # {One, Two} -> {Two} -> {} on the server, `round_broadcast` was entered each time with
+            # three then two live sockets to write to, and every one of those calls ended in
+            # `CancelledError` with no frame reaching any page. Not a bughouse defect — this is the
+            # shared disconnect path for every game type.
+            #
+            # A background task on the USER is not cancelled with the handler, and the user object
+            # outlives it (an anonymous one has a removal delay of its own). The reference kept in
+            # `background_tasks` is what stops the task being garbage collected mid-flight.
+            user.create_background_task(
+                round_broadcast(game, game.spectator_list, full=True),
+                name="spectators-left-%s-%s" % (user.username, game.id),
+            )
 
         # not connected to any other game socket after we closed this one. maybe we havae a change of online users count
         if not user.is_user_active_in_game() and not user.is_user_active_in_lobby():

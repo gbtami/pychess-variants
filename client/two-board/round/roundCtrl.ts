@@ -12,7 +12,8 @@ import { MovePlace, ReconnectController } from '../socket/reconnectController';
 import { ChatController, chatMessage, chatSender } from '../../chat';
 import { MovelistView } from '../common/movelist';
 import { GameInfoView } from '../common/gameInfo';
-import { Clocks, MsgBoard, MsgGameEnd, MsgMove, MsgNewGame, MsgUserConnected, Step, StepChat } from '../../messages';
+import { SpectatorsView } from '../common/spectatorsView';
+import { Clocks, MsgBoard, MsgGameEnd, MsgMove, MsgNewGame, MsgSpectators, MsgUserConnected, Step, StepChat } from '../../messages';
 import {
     MsgUserDisconnected,
     MsgUserPresent,
@@ -79,6 +80,9 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
 
 
     private readonly seatViews: RoundSeatViews;
+    /* WHO IS WATCHING. The widget owns its node and the count on the Info tab; this controller's
+       only part in it is handing on what the socket received. */
+    private readonly spectatorsView: SpectatorsView;
     // color rendered at the top (position 0) of each board. This represents only the
     // initial positioning on the screen: flip/switch only move html elements around,
     // so these remain constant throughout the whole game.
@@ -119,10 +123,13 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
         model: PyChessModel,
         movelistView: MovelistView,
         gameInfoView: GameInfoView,
+        spectatorsView: SpectatorsView,
         seatViews: RoundSeatViews,
         chatPresetsView: ChatPresetsView | undefined,
     ) {
         super(el1, el1Pocket1, el1Pocket2, el2, el2Pocket1, el2Pocket2, model, movelistView, gameInfoView);
+
+        this.spectatorsView = spectatorsView;
 
         this.anon = model.anon === 'True';
 
@@ -1597,6 +1604,17 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
     //     }
     // });
     // }
+
+    /* THE WATCHERS, AS THE SERVER COUNTS THEM. `wsr.py` broadcasts `spectator_list` whenever
+       anybody joins or leaves a game socket, players included (`full=True`), and it has always
+       done so for bughouse — `GameBug.is_player` covers all four seats and `non_bot_players` the
+       whole team, so a board-B player is not mistaken for a departing watcher. What was missing
+       was anything on this side to receive it: the socket's `case 'spectators'` held a commented
+       out call to a method that does not exist on this class, since `onMsgSpectators` is private
+       on `GameController` and the two-board controllers extend `TwoBoardController`. */
+    onMsgSpectators = (msg: MsgSpectators) => {
+        this.spectatorsView.render(msg.spectators);
+    };
 
     onMsgChat = (msg: StepChat) => {
         if (

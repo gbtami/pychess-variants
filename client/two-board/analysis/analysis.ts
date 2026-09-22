@@ -244,7 +244,12 @@ export function analysisView(model: PyChessModel): VNode[] {
                              opens no websocket at all — so the placeholder is here for parity
                              rather than for content, and it costs a template nothing now. */
                           parts: [
-                              { content: [gameInfoView.placeholder(), h('spectators#spectators')] },
+                              {
+                                  // the round page's panel, named the same way and for the same
+                                  // reason: game info above the watchers, not beside them
+                                  panelClass: 'info-panel',
+                                  content: [gameInfoView.placeholder(), h('spectators#spectators')],
+                              },
                           ],
                       },
                       { label: _('Chat'), parts: [{ content: [h('div#roundchat')] }] },

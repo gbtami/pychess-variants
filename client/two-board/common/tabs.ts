@@ -187,6 +187,32 @@ export class TabbedPanels {
         return this.panelVnodes[tabIndex][partIndex];
     }
 
+    /** Re-labels one tab, at any time after construction.
+     *
+     * The label is baked into the tab's vnode at construction, which is right for a name and
+     * wrong for anything that counts: the round page's Info tab carries the number of spectators
+     * beside its name, and that changes whenever somebody opens or closes the game. Patching the
+     * span's text in place rather than re-rendering the strip keeps every id, every
+     * `aria-controls` reference and the selection exactly as they were — the same reason
+     * `setDetached` reaches for the element instead of rebuilding.
+     *
+     * `labels` is updated too, because it is what a DETACHED part is named by
+     * (`roleAttrs` gives it `aria-label`), and a strip that shows one thing while the
+     * accessibility tree says another is worse than either. */
+    setLabel(tabIndex: number, label: string): void {
+        if (this.labels[tabIndex] === label) return;
+        this.labels[tabIndex] = label;
+
+        const tab = this.tabVnodes[tabIndex].elm as HTMLElement | undefined;
+        if (tab !== undefined) tab.textContent = label;
+
+        if (!this.detached[tabIndex]) return;
+        this.panelVnodes[tabIndex].forEach(panel => {
+            const el = panel.elm as HTMLElement | undefined;
+            el?.setAttribute('aria-label', label);
+        });
+    }
+
     /** Detaches or attaches one tab, at any time after construction.
      *
      * DETACHED means: absent from the strip, always displayed, and not governed by which tab is

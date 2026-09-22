@@ -1,0 +1,118 @@
+/* ===========================================================================================
+   RULES THAT PATCH THE SITE'S OWN CSS FOR THE TWO-BOARD PAGES ALONE — AND SHOULD NOT EXIST
+   ===========================================================================================
+
+   THE ENTIRE PURPOSE OF THIS FILE is to hold declarations whose real home is the shared
+   stylesheet — `site.css`, `style.css`, `extensions.css`, `chessground.css` — but which are
+   scoped to bughouse here because fixing them at the source would change every other page on
+   the site, and verifying that is work we have chosen not to do yet.
+
+   Each rule here is therefore a KNOWN, DELIBERATE DUPLICATION with a shared rule, kept in one
+   visible place instead of scattered through `layout/` and `components/` where it reads as
+   ordinary two-board styling. THE FILE IS MEANT TO BE DELETED: every rule in it is an item of
+   debt, and the day a rule is reconciled with the common stylesheet its entry goes away. An
+   empty `override-commons.css` is the goal state, and the file should be removed with the last
+   rule in it.
+
+   WHAT BELONGS HERE — the test is one question, asked conservatively:
+
+       Would this declaration be RIGHT for the whole site, and is it only scoped to bughouse
+       because changing the shared rule is risky or untested?
+
+   If yes, it belongs here. If the two-board pages genuinely want something the rest of the site
+   should not have — a tab panel that sizes to a board rather than to `--panel-height`, a move
+   list that is not capped at 8rem, coordinates drawn inside the squares — that is legitimate
+   two-board styling and belongs with the part it styles. Most of what looks like an override in
+   this directory is of the second kind. When in doubt it stays where it is; a wrong entry here
+   claims a shared rule is broken when it is only different.
+
+   Each entry states WHAT the shared rule does, WHY it is wrong, and WHAT the fix at the source
+   would be, so that reconciling it later needs no re-investigation.
+
+   Loaded LAST of the two-board stylesheets, so an entry outranks both the shared rule it
+   patches and anything in `layout/` or `components/` that happens to touch the same property.
+   =========================================================================================== */
+
+/* -------------------------------------------------------------------------------------------
+   1. THE PRESENCE DOT IS A DIFFERENT SIZE IN ITS TWO STATES, AND MOVES THE BOARD UNDER IT
+
+   The shared rules: `site.css` sizes every icon glyph at `font-size: 1.2em`
+   (`[data-icon]:before, [class*=' icon-']:before`) and then overrides the ONLINE dot down to
+   `0.85em` with a `0.3em` margin — while the OFFLINE dot is given a colour and a `0.4em` margin
+   and no size at all, so it keeps the 1.2em.
+
+   Why that is wrong anywhere: these are one widget in two states. The glyph sits inline with the
+   username, so the taller box raises the line box, and a seat whose player is offline is drawn
+   taller than a seat whose player is online. On this page that pushes one board down relative to
+   the other: measured at 1914x1394 with both boards at their minimum zoom, the strips came to
+   75.58px and 73.31px and the two 424x424 boards sat 2.27px apart vertically, which is the
+   opposite of what "both boards at minimum are identical" promises. Everywhere else on the site
+   the same pair shifts a row by the same amount whenever a user's presence changes — a list of
+   players jitters by 2px as they come and go.
+
+   The fix at the source: give `.icon-offline::before` in `site.css` the size and margin its
+   online twin already has, so the two states are interchangeable. Nothing else on the site
+   depends on the offline dot being larger; it simply was never stated.
+   ------------------------------------------------------------------------------------------- */
+:is(.round-app, .analysis-app).bug .icon-offline::before {
+    font-size: 0.85em;
+    margin-right: 0.3em;
+}
+
+/* -------------------------------------------------------------------------------------------
+   2. THE COLLAPSED SITE NAV KEEPS ITS FULL HEIGHT IN FLOW
+
+   The shared rule: under `max-width: 799px`, `site.css` turns the header nav into a burger menu
+   and hides it with `transform: translateX(-100%)`.
+
+   Why that is wrong anywhere: a transform moves where a box is PAINTED, never where it is LAID
+   OUT. The nav keeps its full height in flow — a column of 20rem-wide links, measured at 1380px
+   — so every narrow viewport carries an invisible column of nothing at the top of its document.
+   Pages that scroll get away with it; a page that pins itself to the viewport does not.
+   Measured on the two-board pages before this rule: 603px of empty scroll at 627x835 and 790px
+   at 682x647, and with `overflow: hidden` on the body it could not even be scrolled past.
+
+   `position: fixed` and not `absolute`: out of flow is only half of it, because an absolutely
+   positioned box still contributes SCROLLABLE OVERFLOW where it extends past the viewport — that
+   left 65px of the 603 behind. `max-height` with `overflow-y: auto` is the other half of being
+   fixed: a menu taller than the screen has to scroll on its own once there is no page scroll to
+   reach its foot with.
+
+   AND IT IS SCOPED TO THE WIDTH AT WHICH THE MENU COLLAPSES, which is not optional even here.
+   Unscoped, these reach the ordinary horizontal nav on a wide screen, where `position: fixed`
+   shrinks it to fit — 4px narrower than its own content — and `overflow-y: auto` makes CSS
+   compute the other axis to `auto` as well: a 20px horizontal scrollbar drawn across the top of
+   the page, measured at 2495px wide.
+
+   The fix at the source: hide the collapsed menu in a way that takes it out of flow — the same
+   three declarations, unscoped, in `site.css`'s own burger block. The reveal needs no change;
+   the links slide in over the page under their own transforms either way. It is scoped here only
+   because every other page scrolls, so none of them can show the defect, and none of them has
+   been tested against the change.
+   ------------------------------------------------------------------------------------------- */
+@media (max-width: 799px) {
+    body[data-variant='bughouse'] .topnav {
+        position: fixed;
+        max-height: 100%;
+        overflow-y: auto;
+    }
+}
+
+/* -------------------------------------------------------------------------------------------
+   3. A NAME LINK CARRIES TRAILING PADDING, SO A LIST OF NAMES READS "Anna , Boris"
+
+   The shared rule: `site.css` gives `.user-link` `padding-right: 8px`.
+
+   Why that is wrong here and anywhere: the padding is for a name at the end of a cell — a
+   players table, a highscore row — where something follows it in a layout. In a sentence the
+   separator is a comma, and the padding lands BETWEEN the name and its comma, so every spectator
+   list on the site is punctuated "Anna , Boris , Charlotte". The single-board pages have had the
+   same artifact for as long as they have had the list; it is simply never been looked at closely.
+
+   The fix at the source: `#spectators .user-link { padding-right: 0 }` in `site.css`, beside the
+   `#spectators` rule that is already there. It would correct the single-board pages too, which is
+   the point, and reaches nothing else — the selector is as narrow as this one.
+   ------------------------------------------------------------------------------------------- */
+:is(.round-app, .analysis-app).bug #spectators .user-link {
+    padding-right: 0;
+}

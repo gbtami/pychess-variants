@@ -25,7 +25,7 @@ import { Api } from 'chessgroundx/api';
 import { Chessground } from 'chessgroundx/chessground';
 import type { Config } from 'chessgroundx/config';
 import { fogFen, Variant } from './variants';
-import { isAnonUsername } from './user';
+import { renderSpectators } from './spectators';
 import { animatePassMove } from './passMove';
 import {
     buildGameKeyboardHelpSections,
@@ -763,31 +763,11 @@ export abstract class GameController extends ChessgroundController implements Ch
         if (container) {
             this.spectatorsContainer = patch(
                 this.spectatorsContainer ?? container,
-                h('under-left#spectators', this.renderSpectators(msg.spectators)),
+                h('under-left#spectators', renderSpectators(msg.spectators)),
             );
         }
     };
 
-    private renderSpectators(raw: string): Array<VNode | string> {
-        if (/^\d+$/.test(raw)) {
-            return [_('Spectators: '), raw];
-        }
-
-        const parts = raw
-            .split(',')
-            .map(part => part.trim())
-            .filter(Boolean);
-        const children: Array<VNode | string> = [_('Spectators: ')];
-        parts.forEach((part, idx) => {
-            if (idx > 0) children.push(', ');
-            if (isAnonUsername(part) || part.startsWith('Anonymous(')) {
-                children.push(part);
-            } else {
-                children.push(h('a.user-link', { attrs: { href: `/@/${encodeURIComponent(part)}` } }, part));
-            }
-        });
-        return children;
-    }
 
     private onMsgChat = (msg: MsgChat) => {
         if (

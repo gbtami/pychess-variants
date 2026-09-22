@@ -940,6 +940,8 @@ ul.guide li {
     visibility: hidden;
     background-color: var(--drop-down);
     position: absolute;
+    /* above the hovered item, which lifts itself to 6 while it expands */
+    z-index: 7;
     left: 0;
     top: 50px;
     min-width: 12rem;

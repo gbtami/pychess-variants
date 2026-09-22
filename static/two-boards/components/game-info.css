@@ -1,0 +1,85 @@
+/* THE INFO TAB: what game this is, and who is watching it.
+   ------------------------------------------------------------------------------------
+   Two parts in one panel — `GameInfoView`'s block and `SpectatorsView`'s list — and this file is
+   how they are arranged, plus how a team row behaves in a column too narrow to hold it.
+
+   What belongs here: the Info panel's own arrangement and the game-info block inside it. What does
+   not: where the panel itself goes, which is `layout/`, and how a tab is drawn, which is
+   `components/tabs.css`. */
+
+/* ONE UNDER THE OTHER, NOT SIDE BY SIDE.
+   A tab panel is `display: flex` here — the default every part gets — and a flex container with
+   no direction is a ROW, so the game info and the spectator list were two columns sharing the
+   panel's width. Measured at 1914x1394 with twelve watchers injected: the list took 222px of a
+   382px panel and stood 1116px tall for one wrapped line of names, with the game info squeezed
+   into what was left. They are not alternatives; the list is about the game the block above
+   describes. `align-items: start` so neither stretches to the panel's height. */
+:is(.round-app, .analysis-app).bug .info-panel {
+    flex-flow: column nowrap;
+    align-items: stretch;
+    align-content: start;
+    gap: 0.4em;
+}
+
+/* A TEAM WRAPS BETWEEN ITS MEMBERS, AND NOWHERE ELSE.
+   ------------------------------------------------------------------------------------
+   `site.css` gives `.player-data` `display: block`, which is right for the tables it was written
+   for — a highscore row, a players list — where the whole row fits. This panel lives in the tools
+   column, the narrowest region on the page, and a bughouse team is TWO players with their titles
+   and ratings: roughly 170px of min-content against a column that is often 120.
+
+   As a block, the only break opportunities were the spaces inside the text itself, so a row broke
+   between a username and its rating, or left a colour icon stranded at the end of a line with its
+   player on the next. Flex with `wrap` moves every break onto the boundaries between items, and
+   `gameInfo.ts` makes each member ONE item carrying its own icon — so a team that does not fit
+   becomes one member per line and nothing is ever parted from the name it belongs to.
+
+   Scoped to the two-board pages: `.player-data` is a shared class and the single-board pages'
+   uses of it are not this shape. */
+:is(.round-app, .analysis-app).bug .game-info .player-data {
+    display: flex;
+    flex-flow: row wrap;
+    /* `site.css` centres `.player-data`, which is right for the tables it was written for and
+       wrong under a left-aligned block: a wrapped team came out as two lines indented by
+       different amounts, each centred on its own content. The panel reads as a column, so its
+       rows start where the block above them starts. */
+    justify-content: start;
+    align-items: baseline;
+    column-gap: 0.35em;
+    row-gap: 0.15em;
+}
+
+/* The member itself: never broken, and the icon sits with the name it describes. */
+:is(.round-app, .analysis-app).bug .game-info team-member {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.2em;
+    min-width: 0;
+    white-space: nowrap;
+}
+
+/* THE NAME IS WHAT YIELDS, not the row. A member that cannot fit its line on its own is
+   truncated rather than allowed to widen the panel — the panel clips (`components/tabs.css`), so
+   an untruncated name would simply disappear over the edge with no sign that it had. */
+:is(.round-app, .analysis-app).bug .game-info team-member player {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* The `+` between them. It is a separator, not a member, so it keeps its own line only when a
+   line is all that is left — `display: inline` would have it share the baseline of whichever
+   member it lands beside. */
+:is(.round-app, .analysis-app).bug .game-info team-join {
+    display: inline-block;
+    opacity: 0.7;
+}
+
+/* The list of watchers, under the block that describes the game. `site.css`'s `#spectators` rule
+   states `justify-content: normal`, which was for `under-left` — a flex container this element is
+   not — and `overflow-wrap: break-word`, which still applies and is wanted: a long name breaks
+   rather than widening the panel. */
+:is(.round-app, .analysis-app).bug .info-panel > spectators {
+    display: block;
+    min-width: 0;
+}

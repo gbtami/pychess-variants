@@ -71,9 +71,11 @@ export class RoundControllerBughouseSocket {
         if (evt.data === '/n') return;
         const msg = JSON.parse(evt.data);
         switch (msg.type) {
-            // copy pated from gameCtl.ts->onMessage, which is otherwise inherited in normal roundCtrl
+            // The two-board layer's own handler: `GameController`'s is private and this controller
+            // does not extend that class, so there was never anything here to call — see
+            // `SpectatorsView`.
             case 'spectators':
-                // this.onMsgSpectators(msg);
+                ctrl.onMsgSpectators(msg);
                 break;
             case 'bugroundchat':
                 ctrl.onMsgChat(msg);
