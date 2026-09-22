@@ -187,18 +187,7 @@ export class TabbedPanels {
         return this.panelVnodes[tabIndex][partIndex];
     }
 
-    /** Re-labels one tab, at any time after construction.
-     *
-     * The label is baked into the tab's vnode at construction, which is right for a name and
-     * wrong for anything that counts: the round page's Info tab carries the number of spectators
-     * beside its name, and that changes whenever somebody opens or closes the game. Patching the
-     * span's text in place rather than re-rendering the strip keeps every id, every
-     * `aria-controls` reference and the selection exactly as they were — the same reason
-     * `setDetached` reaches for the element instead of rebuilding.
-     *
-     * `labels` is updated too, because it is what a DETACHED part is named by
-     * (`roleAttrs` gives it `aria-label`), and a strip that shows one thing while the
-     * accessibility tree says another is worse than either. */
+    /** Updates the visible and accessible labels without rebuilding the tab or changing selection. */
     setLabel(tabIndex: number, label: string): void {
         if (this.labels[tabIndex] === label) return;
         this.labels[tabIndex] = label;
