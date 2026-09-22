@@ -343,7 +343,13 @@ async def finally_logic(
         else:
             game.spectators.discard(user)
             user.watched_games.discard(game.id)
-            await round_broadcast(game, game.spectator_list, full=True)
+            # The disconnecting websocket handler can be cancelled before this broadcast
+            # finishes. A user-owned background task keeps it alive so remaining viewers
+            # receive the updated spectator list.
+            user.create_background_task(
+                round_broadcast(game, game.spectator_list, full=True),
+                name="spectators-left-%s-%s" % (user.username, game.id),
+            )
 
         # not connected to any other game socket after we closed this one. maybe we havae a change of online users count
         if not user.is_user_active_in_game() and not user.is_user_active_in_lobby():

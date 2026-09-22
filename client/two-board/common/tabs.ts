@@ -187,6 +187,21 @@ export class TabbedPanels {
         return this.panelVnodes[tabIndex][partIndex];
     }
 
+    /** Updates the visible and accessible labels without rebuilding the tab or changing selection. */
+    setLabel(tabIndex: number, label: string): void {
+        if (this.labels[tabIndex] === label) return;
+        this.labels[tabIndex] = label;
+
+        const tab = this.tabVnodes[tabIndex].elm as HTMLElement | undefined;
+        if (tab !== undefined) tab.textContent = label;
+
+        if (!this.detached[tabIndex]) return;
+        this.panelVnodes[tabIndex].forEach(panel => {
+            const el = panel.elm as HTMLElement | undefined;
+            el?.setAttribute('aria-label', label);
+        });
+    }
+
     /** Detaches or attaches one tab, at any time after construction.
      *
      * DETACHED means: absent from the strip, always displayed, and not governed by which tab is

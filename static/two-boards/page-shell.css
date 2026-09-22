@@ -19,44 +19,10 @@ body[data-variant='bughouse'][data-view='round'],
 body[data-variant='bughouse'][data-view='analysis'] {
     margin-bottom: 0;
 }
-/* THE COLLAPSED SITE NAV MUST NOT OCCUPY HEIGHT ON A PAGE THAT CANNOT SCROLL.
-   ------------------------------------------------------------------------------------
-   Under `max-width: 799px` site.css turns the header nav into a burger menu and hides it with
-   `transform: translateX(-100%)`. A transform moves where a box is PAINTED and not where it is
-   LAID OUT, so the nav keeps its full height in flow — a column of 20rem-wide links, measured at
-   1380px — and the document grows by it. Nothing shows, and the page scrolls 600-800px of empty
-   space: measured 603px at 627x835 and 790px at 682x647.
-
-   This has only ever been reachable on a two-board page in a mode that both PINS the body and
-   SHOWS the header. Portrait and short landscape hide the header, so it was masked there; tall
-   landscape shows it but was, until the cut-off moved, always wider than 799px. Routing portrait
-   tablets here makes every tablet narrower than that threshold, so it is now the common case.
-
-   `position: fixed` and not `absolute`. Out of flow is only half of it: an absolutely positioned
-   box still contributes SCROLLABLE OVERFLOW where it extends past the viewport, and this menu is
-   900px tall against an 835px screen — measured, that left 65px of the 603 still there. A fixed
-   box contributes none, and viewport-anchored is what a burger menu wants anyway.
-
-   The reveal is untouched: the links slide in under their own transforms, over the page, which is
-   what the menu already does. `max-height` with `overflow-y: auto` is the other half of making it
-   fixed — a menu taller than the screen has to be scrollable on its own, since there is now no
-   page scroll to reach its foot with.
-
-   Scoped to the bughouse pages: the same declaration site-wide would be the better fix, but every
-   other page scrolls anyway and none of them promises not to.
-
-   AND SCOPED TO THE WIDTH AT WHICH THE MENU COLLAPSES, which is not optional. Unscoped, the same
-   rules reach the ordinary horizontal nav on a wide screen, where `position: fixed` shrinks it to
-   fit — 4px narrower than its own content — and `overflow-y: auto` makes CSS compute the OTHER
-   axis to `auto` as well. The result was a 20px horizontal scrollbar drawn under the menu links,
-   measured at 2495px wide: a grey bar across the top of the page with nothing wrong behind it. */
-@media (max-width: 799px) {
-        body[data-variant='bughouse'] .topnav {
-            position: fixed;
-            max-height: 100%;
-            overflow-y: auto;
-        }
-}
+/* THE COLLAPSED SITE NAV used to be pinned here, because `site.css` hides the burger menu with
+   a transform and a transform leaves the box in flow — 1380px of invisible nav at the top of a
+   page that cannot scroll. That is a defect in the shared rule rather than something this page
+   wants differently, so it now lives in `override-commons.css` with the rest of the debt. */
 @media (aspect-ratio <= 9/16) {
         /* PINNED TO THE VIEWPORT, exactly as the round page pins itself, and for the same
            reason: the app's `minmax(0, 1fr)` row can only distribute space that exists, so an

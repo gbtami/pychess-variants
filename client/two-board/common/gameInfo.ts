@@ -61,27 +61,44 @@ export class GameInfoView {
                             : _('Playing right now'),
                     ]),
                 ]),
+                /* A TEAM IS TWO MEMBERS, AND A MEMBER IS ONE UNBREAKABLE THING.
+                   ------------------------------------------------------------------------
+                   The row used to be six siblings — icon, player, `+`, icon, player — in a
+                   `display: block` container, so the only break opportunities were the spaces
+                   INSIDE a name's own text: a team wrapped between a username and its rating,
+                   or between the colour icon and the player it belongs to. In the tools column,
+                   which is the narrowest part of the page and where this panel lives, that is
+                   what a team row usually does.
+
+                   Each member is now one element carrying its own icon, and the row wraps
+                   between members — so a team that does not fit on one line becomes one member
+                   per line, with nothing ever separated from the name it describes. The CSS is
+                   in `components/game-info.css`; the structure is what makes it expressible. */
                 h('div.player-data', [
-                    h('i-side.icon', { class: { [colorIcon(model.variant, variant.colors.first)]: true } }),
-                    h('player', [
-                        playerInfo(seat('a', 'white'), model.level),
-                    ]),
-                    h('div', { style: { display: 'inline', paddingRight: '8px' } }, '+'),
-                    h('i-side.icon', { class: { [colorIcon(model.variant, variant.colors.second)]: true } }),
-                    h('player', [
-                        playerInfo(seat('b', 'black'), model.level),
-                    ]),
+                    teamMember(
+                        colorIcon(model.variant, variant.colors.first),
+                        seat('a', 'white'),
+                        model.level,
+                    ),
+                    h('team-join', '+'),
+                    teamMember(
+                        colorIcon(model.variant, variant.colors.second),
+                        seat('b', 'black'),
+                        model.level,
+                    ),
                 ]),
                 h('div.player-data', [
-                    h('i-side.icon', { class: { [colorIcon(model.variant, variant.colors.second)]: true } }),
-                    h('player', [
-                        playerInfo(seat('b', 'white'), model.level),
-                    ]),
-                    h('div', { style: { display: 'inline', paddingRight: '8px' } }, '+'),
-                    h('i-side.icon', { class: { [colorIcon(model.variant, variant.colors.first)]: true } }),
-                    h('player', [
-                        playerInfo(seat('a', 'black'), model.level),
-                    ]),
+                    teamMember(
+                        colorIcon(model.variant, variant.colors.second),
+                        seat('b', 'white'),
+                        model.level,
+                    ),
+                    h('team-join', '+'),
+                    teamMember(
+                        colorIcon(model.variant, variant.colors.first),
+                        seat('a', 'black'),
+                        model.level,
+                    ),
                 ]),
             ]),
             h('section', [
@@ -100,6 +117,14 @@ export class GameInfoView {
             ]),
         ]);
     }
+}
+
+/** One member of a team: the colour they are playing, and who they are, as a single element.
+ *
+ * The icon is INSIDE the member rather than a sibling of it, which is the whole of what lets the
+ * row wrap sensibly — a line break may now fall between members and nowhere else. */
+function teamMember(icon: string, seat: Seat, level: number): VNode {
+    return h('team-member', [h('i-side.icon', { class: { [icon]: true } }), h('player', [playerInfo(seat, level)])]);
 }
 
 function playerInfo(seat: Seat, level: number) {

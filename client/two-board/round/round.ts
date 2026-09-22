@@ -2,6 +2,7 @@ import { h, VNode } from 'snabbdom';
 
 import { VARIANTS } from '../../variants';
 import { GameInfoView } from '../common/gameInfo';
+import { SpectatorsView } from '../common/spectatorsView';
 import { renderTimeago } from '../../datetime';
 import { PyChessModel } from '../../types';
 import { RoundControllerBughouse } from './roundCtrl';
@@ -19,6 +20,10 @@ import { registerStandingTab } from '../common/toolsPlacement';
 // — the last resort, and nowhere else — it is what the reader is looking for, so it heads the row
 // instead of following three panels.
 const PARTNER_BOARD_TAB = 0;
+/* The tab the spectator list is in, and therefore the tab that carries their count. Named for the
+   same reason the board's index is: an index into the list below reads as nothing at the call
+   site, and the two are the only ones anything outside that list has to know. */
+const INFO_TAB = 3;
 import { ChatPresetsView } from './chatPresets';
 import { twoBoardSeats } from '../common/seatConfiguration';
 import { _ } from '../../i18n';
@@ -33,6 +38,7 @@ function createBoards(
     model: PyChessModel,
     movelistView: MovelistView,
     gameInfoView: GameInfoView,
+    spectatorsView: SpectatorsView,
     seatViews: RoundSeatViews,
     chatPresetsView: ChatPresetsView | undefined,
 ) {
@@ -46,6 +52,7 @@ function createBoards(
         model,
         movelistView,
         gameInfoView,
+        spectatorsView,
         seatViews,
         chatPresetsView,
     );
@@ -81,6 +88,7 @@ export function roundView(model: PyChessModel): VNode[] {
 
     const movelistView = new MovelistView();
     const gameInfoView = new GameInfoView();
+    const spectatorsView = new SpectatorsView();
 
     // A spectator has no partner to tell anything, so they get no presets — the
     // same condition the shared chat view used to apply, asked here instead, and
@@ -199,17 +207,29 @@ export function roundView(model: PyChessModel): VNode[] {
                    tracks whose gaps took 30px off the tools. An element nobody has ever seen cost
                    four rules and a guarantee.
                    Inside a tab panel it is laid out by the panel and named by no template at all.
-                   Nothing fills it yet: the two-board socket drops the `spectators` message (see
-                   `socket/sockets.ts`), so this is the placeholder in its final home, waiting for
-                   the handler. The tag is its own name now rather than a position in a grid that
-                   no longer has a place for it. */
-                parts: [{ content: [gameInfoView.placeholder(), h('spectators#spectators')] }],
+                   The tag is its own name now rather than a position in a grid that no longer has
+                   a place for it, and `SpectatorsView` owns the node: the socket's `spectators`
+                   message reaches it through the controller.
+
+                   THE PANEL IS NAMED so it can be a COLUMN. Its two parts are the game info and
+                   the list of watchers, one under the other — a panel is `display: flex` by
+                   default here, which put them side by side and left the game info competing for
+                   width with a list that is usually empty. */
+                parts: [
+                    {
+                        panelClass: 'info-panel',
+                        content: [gameInfoView.placeholder(), spectatorsView.placeholder()],
+                    },
+                ],
             },
         ],
         _('Round tabs'),
     );
     // The strip may claim it; until then it is simply the board, drawn where it always was.
     registerStandingTab(roundTabs, PARTNER_BOARD_TAB);
+    // AFTER the strip is built, because the strip is built from the widget's own placeholder.
+    // `INFO_TAB` is that tab's index in the list above; the label is the one it was declared with.
+    spectatorsView.countIn(roundTabs, INFO_TAB, _('Info'));
 
     return [
         h(
@@ -227,6 +247,7 @@ export function roundView(model: PyChessModel): VNode[] {
                             model,
                             movelistView,
                             gameInfoView,
+                            spectatorsView,
                             seatViews,
                             chatPresetsView,
                         );
