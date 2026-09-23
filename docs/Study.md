@@ -258,7 +258,12 @@ mainline and would discard Study data.
 PGN contract and converts parsed games into Study trees. It preserves variations,
 comments, NAGs, shapes, clocks, evaluations, and the supported PyChess extensions.
 Clock directives accept both the usual `H:MM:SS(.sss)` form and lichess-compatible
-`H:MM` / `H:MM.SS` forms. Every branch is replayed through Fairy-Stockfish in the
+`H:MM` / `H:MM.SS` forms. Lichess-style `[%emt ...]` elapsed-move annotations are
+also consumed. When a simple PGN `TimeControl` tag uses `seconds` or
+`seconds+increment`, import seeds both root clocks from the initial limit and reconstructs
+missing move clocks as `previous - elapsed + increment`; an explicit `[%clk ...]` remains
+authoritative. Unsupported multi-stage controls such as `40/7200:3600` are preserved as
+tags but deliberately not guessed. Every branch is replayed through Fairy-Stockfish in the
 browser and validated again
 server-side. Repeated RAV branches that resolve to the same legal move are merged after
 that replay, preserving the first/mainline ordering while recursively combining their

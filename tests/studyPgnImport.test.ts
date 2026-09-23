@@ -243,6 +243,79 @@ describe('Study PGN import core', () => {
         expect(d4.clocks).toEqual([296000, 300000]);
     });
 
+    test('reconstructs Lichess-style elapsed move clocks from a simple TimeControl tag', async () => {
+        const [chapter] = await parseStudyPgnForImport(
+            studyPgnParser,
+            ffish,
+            `[TimeControl "180+2"]
+
+1. e4 {[%emt 0:00:10]} e5 {[%emt 0:00:12]} 2. Nf3 {[%emt 0:00:05]} *`,
+        );
+        const mainline = chapter.tree.nodes.sort((a, b) => a.order - b.order);
+
+        expect(chapter.tags.TimeControl).toBe('180+2');
+        expect(chapter.tree.rootClocks).toEqual([180000, 180000]);
+        expect(mainline[0].clocks).toEqual([172000, 180000]);
+        expect(mainline[1].clocks).toEqual([172000, 170000]);
+        expect(mainline[2].clocks).toEqual([169000, 170000]);
+        expect(mainline.every(node => node.annotations === undefined)).toBe(true);
+    });
+
+    test('uses explicit clocks as anchors before reconstructing later elapsed move times', async () => {
+        const [chapter] = await parseStudyPgnForImport(
+            studyPgnParser,
+            ffish,
+            `1. d4 {[%clk 1:59:59] [%emt 0:00:30]} d5 {[%clk 1:59:50]}
+2. c4 {[%emt 0:00:12]} Nf6 {[%emt 0:00:13]} *`,
+        );
+        const [d4, d5, c4, nf6] = chapter.tree.nodes;
+
+        expect(chapter.tree.rootClocks).toBeUndefined();
+        expect(d4.clocks).toBeUndefined();
+        expect(d5.clocks).toEqual([7199000, 7190000]);
+        expect(c4.clocks).toEqual([7187000, 7190000]);
+        expect(nf6.clocks).toEqual([7187000, 7177000]);
+        expect(chapter.tree.nodes.every(node => node.annotations === undefined)).toBe(true);
+    });
+
+    test('reconstructs elapsed clocks independently in sibling variations', async () => {
+        const [chapter] = await parseStudyPgnForImport(
+            studyPgnParser,
+            ffish,
+            `[TimeControl "60+1"]
+
+1. e4 {[%emt 0:00:10]} e5 {[%emt 0:00:11]} (1... c5 {[%emt 0:00:20]})
+2. Nf3 {[%emt 0:00:05]} *`,
+        );
+        const e4 = chapter.tree.nodes.find(node => node.parentId === null)!;
+        const replies = chapter.tree.nodes
+            .filter(node => node.parentId === e4.id)
+            .sort((a, b) => a.order - b.order);
+        const nf3 = chapter.tree.nodes.find(node => node.parentId === replies[0].id)!;
+
+        expect(e4.clocks).toEqual([51000, 60000]);
+        expect(replies.map(node => [node.san, node.clocks])).toEqual([
+            ['e5', [51000, 50000]],
+            ['c5', [51000, 41000]],
+        ]);
+        expect(nf3.clocks).toEqual([47000, 50000]);
+    });
+
+    test('leaves unsupported multi-stage TimeControl clocks unguessed while consuming valid emt metadata', async () => {
+        const [chapter] = await parseStudyPgnForImport(
+            studyPgnParser,
+            ffish,
+            `[TimeControl "40/7200:3600"]
+
+1. e4 {[%emt 0:00:10]} *`,
+        );
+
+        expect(chapter.tags.TimeControl).toBe('40/7200:3600');
+        expect(chapter.tree.rootClocks).toBeUndefined();
+        expect(chapter.tree.nodes[0].clocks).toBeUndefined();
+        expect(chapter.tree.nodes[0].annotations).toBeUndefined();
+    });
+
     test('imports versioned PyChess lesson mode and root/node metadata losslessly', () => {
         const rootLesson = { hint: 'Find } the idea\nwith Unicode ✓' };
         const nodeLesson = { deviation: 'Wrong } answer\nTry again' };

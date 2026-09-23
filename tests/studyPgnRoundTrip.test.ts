@@ -239,6 +239,20 @@ describe('Study PGN round trips and Lichess compatibility corpus', () => {
         expect(chapter.tree.nodes.at(-1)?.move).toBe('P@b4');
     });
 
+    test('normalizes Lichess-style elapsed move times to full Study clocks', async () => {
+        const [chapter] = await parseStudyPgnForImport(
+            studyPgnParser,
+            ffish,
+            `[TimeControl "300+3"]
+
+1. e4 {[%emt 0:00:07.250]} e5 {[%emt 0:00:05.500]} *`,
+        );
+
+        expect(chapter.tree.rootClocks).toEqual([300000, 300000]);
+        expect(chapter.tree.nodes[0].clocks).toEqual([295750, 300000]);
+        expect(chapter.tree.nodes[1].clocks).toEqual([295750, 297500]);
+    });
+
     test.each([
         ['three-field clock', '0:04:59.125', 299125],
         ['Lichess H:MM clock', '2:10', 7800000],

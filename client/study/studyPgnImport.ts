@@ -201,6 +201,7 @@ interface ParsedPgnComments {
     gamebook?: StudyGamebookDto;
     whiteEval?: StudyEvalDto;
     clock?: number;
+    elapsed?: number;
     clocks?: [number, number];
 }
 
@@ -291,8 +292,30 @@ function parsePgnClock(value: string): number | undefined {
 
 function parseFullClocks(value: string): [number, number] | undefined {
     const parts = value.split(',').map(part => Number(part.trim()));
-    if (parts.length !== 2 || parts.some(clock => !Number.isFinite(clock) || clock < 0)) return undefined;
+    if (
+        parts.length !== 2 ||
+        parts.some(clock => !Number.isSafeInteger(clock) || clock < 0)
+    )
+        return undefined;
     return [parts[0], parts[1]];
+}
+
+interface StudyPgnTimeControl {
+    initial: number;
+    increment: number;
+}
+
+function parsePgnTimeControl(value: string | undefined): StudyPgnTimeControl | undefined {
+    if (!value) return undefined;
+    // Match the simple sudden-death / Fischer-increment form that Lichess can
+    // use to reconstruct clocks from [%emt]. Multi-stage PGN controls such as
+    // 40/7200:3600 need move-boundary semantics and are therefore left alone.
+    const match = /^(\d+)(?:\+(\d+))?$/.exec(value.trim());
+    if (!match) return undefined;
+    const initial = Number(match[1]) * 1000;
+    const increment = Number(match[2] ?? '0') * 1000;
+    if (!Number.isSafeInteger(initial) || !Number.isSafeInteger(increment)) return undefined;
+    return { initial, increment };
 }
 
 function parseWhiteEval(value: string): StudyEvalDto | undefined {
@@ -329,6 +352,7 @@ function commentsFromPgn(
 
     let whiteEval: StudyEvalDto | undefined;
     let clock: number | undefined;
+    let elapsed: number | undefined;
     let clocks: [number, number] | undefined;
     let gamebook: StudyGamebookDto | undefined;
     const visibleComments: string[] = [];
@@ -366,6 +390,12 @@ function commentsFromPgn(
             clock = parsed;
             return '';
         });
+        text = text.replace(/\[%emt\s+([^\]]+)\]/gi, (full, body: string) => {
+            const parsed = parsePgnClock(body);
+            if (parsed === undefined) return full;
+            elapsed = parsed;
+            return '';
+        });
         text = text.replace(/\[%pyclocks\s+([^\]]+)\]/gi, (full, body: string) => {
             const parsed = parseFullClocks(body);
             if (!parsed) return full;
@@ -396,6 +426,7 @@ function commentsFromPgn(
         ...(gamebook ? { gamebook } : {}),
         ...(whiteEval ? { whiteEval } : {}),
         ...(clock !== undefined ? { clock } : {}),
+        ...(elapsed !== undefined ? { elapsed } : {}),
         ...(clocks ? { clocks } : {}),
     };
 }
@@ -523,6 +554,7 @@ function normalizeChildren(
     nodes: StudyTreeDto['nodes'],
     path: string,
     parentClocks: ClockState = [undefined, undefined],
+    increment = 0,
     lessonExtension = false,
 ): void {
     const normalizedSiblings = nodes.filter(node => node.parentId === parentId);
@@ -536,14 +568,22 @@ function normalizeChildren(
             const turnColor = turnColorFromFen(fen);
             const parsedComments = commentsFromPgn(parsed.comments ?? [], parsed.nags ?? [], lessonExtension);
             const clockState: ClockState = parsedComments.clocks ? [...parsedComments.clocks] : [...parentClocks];
-            if (!parsedComments.clocks && parsedComments.clock !== undefined) {
+            let clockChanged = parsedComments.clocks !== undefined;
+            if (!parsedComments.clocks) {
                 const mover = turnColor === 'black' ? 0 : 1;
-                clockState[mover] = parsedComments.clock;
+                if (parsedComments.clock !== undefined) {
+                    clockState[mover] = parsedComments.clock;
+                    clockChanged = true;
+                } else if (parsedComments.elapsed !== undefined && clockState[mover] !== undefined) {
+                    const computed = clockState[mover] - parsedComments.elapsed + increment;
+                    // Lichess treats reconstructed non-positive clocks as unknown.
+                    // Do the same instead of persisting an impossible negative state.
+                    clockState[mover] = Number.isSafeInteger(computed) && computed > 0 ? computed : undefined;
+                    clockChanged = true;
+                }
             }
             const clocks =
-                clockState[0] !== undefined &&
-                clockState[1] !== undefined &&
-                (parsedComments.clocks !== undefined || parsedComments.clock !== undefined)
+                clockChanged && clockState[0] !== undefined && clockState[1] !== undefined
                     ? ([clockState[0], clockState[1]] as [number, number])
                     : undefined;
             const evalScore = evalForTurn(parsedComments.whiteEval, turnColor);
@@ -562,6 +602,7 @@ function normalizeChildren(
                     nodes,
                     location,
                     clockState,
+                    increment,
                     lessonExtension,
                 );
                 continue;
@@ -585,7 +626,7 @@ function normalizeChildren(
             };
             nodes.push(node);
             normalizedSiblings.push(node);
-            normalizeChildren(board, parsed.children ?? [], id, nodes, location, clockState, lessonExtension);
+            normalizeChildren(board, parsed.children ?? [], id, nodes, location, clockState, increment, lessonExtension);
         } finally {
             board.pop();
         }
@@ -608,13 +649,20 @@ function normalizeGame(engine: StudyPgnEngine, game: ParsedStudyPgnGame, index: 
         if (!initialFen) throw new StudyPgnImportError(`Unable to initialize PGN variant ${variant}.`);
         const nodes: StudyTreeDto['nodes'] = [];
         const rootComments = commentsFromPgn(game.comments ?? [], [], teaching.lessonExtension);
+        const timeControl = parsePgnTimeControl(tags['TimeControl']);
+        const rootClocks: [number, number] | undefined = rootComments.clocks
+            ? [...rootComments.clocks]
+            : timeControl
+              ? [timeControl.initial, timeControl.initial]
+              : undefined;
         normalizeChildren(
             board,
             game.children,
             null,
             nodes,
             '',
-            rootComments.clocks ? [...rootComments.clocks] : [undefined, undefined],
+            rootClocks ? [...rootClocks] : [undefined, undefined],
+            timeControl?.increment ?? 0,
             teaching.lessonExtension,
         );
         return {
@@ -631,7 +679,7 @@ function normalizeGame(engine: StudyPgnEngine, game: ParsedStudyPgnGame, index: 
                 nodes,
                 ...(rootComments.annotations ? { rootAnnotations: rootComments.annotations } : {}),
                 ...(rootComments.gamebook ? { rootGamebook: rootComments.gamebook } : {}),
-                ...(rootComments.clocks ? { rootClocks: rootComments.clocks } : {}),
+                ...(rootClocks ? { rootClocks } : {}),
             },
             ...(variantIni ? { variantIni } : {}),
         };
