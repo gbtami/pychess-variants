@@ -615,13 +615,6 @@
     align-self: stretch;
     border-bottom: 2px solid transparent;
 }
-.study-side__readonly {
-    align-self: center;
-    flex: 0 0 auto;
-    padding: 0 .55rem;
-    font-size: .75rem;
-    opacity: .65;
-}
 .study-side__panel[hidden] { display: none; }
 .study-side__visibility {
     font-size: .8rem;
@@ -643,6 +636,7 @@
     background: color-mix(in srgb, var(--link-color-blue) 10%, var(--bg-color0));
 }
 .study-chapter__row.active a { color: var(--link-color-blue); }
+.study-mode[hidden] { display: none; }
 .study-mode {
     display: inline-flex;
     align-items: center;

@@ -526,10 +526,15 @@ describe('analysis page smoke coverage', () => {
         };
         const root = renderNodes(studyView(makeModel({ gameId: '', status: 0, study })));
 
-        expect(root.querySelector('.study-side__readonly')?.textContent).toBe('Read only');
+        expect(root.querySelector('.study-side__readonly')).toBeNull();
         const sync = root.querySelector<HTMLButtonElement>('under-board .study-tool-tabs > .study-mode--sync');
         expect(sync?.textContent).toContain('SYNC');
         expect(sync?.hidden).toBe(false);
+
+        const nonMemberRoot = renderNodes(studyView(makeModel({ gameId: '', status: 0, username: 'spectator', study })));
+        expect(nonMemberRoot.querySelector<HTMLButtonElement>('.study-mode--sync')?.hidden).toBe(true);
+        expect(nonMemberRoot.querySelector('.study-side__readonly')).toBeNull();
+
         expect(root.querySelector('.study-mode--write')).toBeNull();
         expect(root.querySelector('.study-side .study-mode')).toBeNull();
         expect(root.querySelector('.study-side__add')).toBeNull();

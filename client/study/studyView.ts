@@ -1248,7 +1248,7 @@ function studySide(study: StudyPageModel, model: PyChessModel, modeActions: Stud
                           [icon('bars')],
                       ),
                   ]
-                : [h('span.study-side__readonly', study.canWrite ? _('Contributor') : _('Read only'))]),
+                : []),
         ]),
         h(
             'section#study-side-panel-chapters.study-side__panel',
