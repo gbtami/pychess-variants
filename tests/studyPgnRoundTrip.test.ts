@@ -328,6 +328,34 @@ describe('Study PGN round trips and Lichess compatibility corpus', () => {
         expect(chapter.tree.nodes.map(node => node.move)).toEqual(['e7e5']);
     });
 
+    test.each([
+        [
+            'Atomic check suffix',
+            `[Variant "Atomic"]
+
+1. Nf3 f6 2. e3 d5 3. Ng5 fxg5 4. Qh5+ *`,
+            'atomic',
+            'd1h5',
+            'Qh5',
+        ],
+        [
+            'Racing Kings goal-rank mate suffix',
+            `[Variant "Racing Kings"]
+[FEN "2R5/4K3/8/8/3Q4/8/k7/8 w - - 1 40"]
+[SetUp "1"]
+
+40. Kd8# *`,
+            'racingkings',
+            'e7d8',
+            'Kd8',
+        ],
+    ] as const)('imports Lichess %s when Fairy-Stockfish canonical SAN omits the suffix', async (_name, pgn, variant, move, san) => {
+        const [chapter] = await parseStudyPgnForImport(studyPgnParser, ffish, pgn);
+
+        expect(chapter.variant).toBe(variant);
+        expect(chapter.tree.nodes.at(-1)).toMatchObject({ move, san, sanSAN: san });
+    });
+
     test('imports a Lichess-style Crazyhouse drop without teaching the parser variant notation', async () => {
         const [chapter] = await parseStudyPgnForImport(
             studyPgnParser,

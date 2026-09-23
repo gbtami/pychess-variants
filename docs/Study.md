@@ -270,8 +270,10 @@ authoritative. Unsupported multi-stage controls such as `40/7200:3600` are prese
 tags but deliberately not guessed. Common external/Lichess `Variant` names are normalized
 to PyChess engine keys before replay (`Standard`/`From Position` → `chess`, `King of the
 Hill` → `kingofthehill`, `Three-check` → `3check`, and `Racing Kings` → `racingkings`),
-while the original PGN tag is retained as metadata. Every branch is replayed through
-Fairy-Stockfish in the browser and validated again server-side. Repeated RAV branches that
+while the original PGN tag is retained as metadata. SAN replay first requires an exact
+Fairy-Stockfish match, then tolerates a check/mate suffix mismatch for external variant PGNs
+where notation differs (for example Lichess Atomic `Qh5+` and Racing Kings goal-rank `Kd8#`).
+Every branch is replayed through Fairy-Stockfish in the browser and validated again server-side. Repeated RAV branches that
 resolve to the same legal move are merged after
 that replay, preserving the first/mainline ordering while recursively combining their
 children and annotations, matching lila's Study import behavior. The import endpoint

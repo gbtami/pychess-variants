@@ -544,6 +544,10 @@ function normalizedSan(value: string): string {
         .replace(/[!?]+$/g, '');
 }
 
+function sanWithoutCheckSuffix(value: string): string {
+    return normalizedSan(value).replace(/[+#]+$/g, '');
+}
+
 function resolveMove(board: StudyPgnBoard, node: ParsedStudyPgnMove, location: string): { move: string; san: string } {
     const suppliedMove = node.move?.trim();
     if (suppliedMove) {
@@ -554,12 +558,20 @@ function resolveMove(board: StudyPgnBoard, node: ParsedStudyPgnMove, location: s
 
     const targetSan = normalizedSan(node.san);
     if (!targetSan) throw new StudyPgnImportError(`Missing move token at ${location}.`);
-    const matching = board
+    const candidates = board
         .legalMoves()
         .split(/\s+/)
         .filter(Boolean)
-        .map(move => ({ move, san: board.sanMove(move) }))
-        .filter(candidate => normalizedSan(candidate.san) === targetSan);
+        .map(move => ({ move, san: board.sanMove(move) }));
+    let matching = candidates.filter(candidate => normalizedSan(candidate.san) === targetSan);
+    if (!matching.length) {
+        // External PGNs are not always consistent with Fairy-Stockfish about
+        // variant check/mate suffixes. Lichess, for example, exports Qh5+ in
+        // Atomic and Kd8# when a Racing Kings king reaches the goal rank while
+        // Fairy-Stockfish's canonical SAN for those moves omits the suffix.
+        const targetWithoutCheck = sanWithoutCheckSuffix(targetSan);
+        matching = candidates.filter(candidate => sanWithoutCheckSuffix(candidate.san) === targetWithoutCheck);
+    }
     if (matching.length !== 1) {
         const detail = matching.length ? 'ambiguous' : 'illegal or unsupported';
         throw new StudyPgnImportError(`PGN move is ${detail} at ${location}: ${node.san}.`);
