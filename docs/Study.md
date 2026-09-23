@@ -256,8 +256,11 @@ mainline and would discard Study data.
 PGN contract and converts parsed games into Study trees. It preserves variations,
 comments, NAGs, shapes, clocks, evaluations, and the supported PyChess extensions.
 Every branch is replayed through Fairy-Stockfish in the browser and validated again
-server-side. The import endpoint accepts normalized chapter data, validates the batch
-before insertion, and enforces remaining chapter capacity.
+server-side. Repeated RAV branches that resolve to the same legal move are merged after
+that replay, preserving the first/mainline ordering while recursively combining their
+children and annotations, matching lila's Study import behavior. The import endpoint
+accepts normalized chapter data, validates the batch before insertion, and enforces
+remaining chapter capacity.
 
 The remaining gap is wiring the parser/import core into the Study create/new-chapter
 paste/upload UI and presenting parse/import errors there.

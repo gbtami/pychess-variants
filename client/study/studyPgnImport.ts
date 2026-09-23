@@ -454,6 +454,36 @@ function turnColorFromFen(fen: string): 'white' | 'black' {
 
 type ClockState = [number | undefined, number | undefined];
 
+function sameShape(a: StudyShapeDto, b: StudyShapeDto): boolean {
+    return a.orig === b.orig && a.dest === b.dest && a.brush === b.brush;
+}
+
+function mergeAnnotations(
+    current: StudyAnnotationsDto | undefined,
+    incoming: StudyAnnotationsDto | undefined,
+): StudyAnnotationsDto | undefined {
+    if (!incoming) return current;
+    if (!current) return incoming;
+
+    const shapes = [...current.shapes];
+    for (const shape of incoming.shapes) {
+        if (!shapes.some(existing => sameShape(existing, shape))) shapes.push(shape);
+    }
+
+    const comments = [...current.comments];
+    for (const comment of incoming.comments) {
+        if (!comments.some(existing => existing.author === comment.author && existing.text === comment.text)) {
+            comments.push(comment);
+        }
+    }
+
+    const nags = [...current.nags];
+    for (const nag of incoming.nags) {
+        if (!nags.includes(nag)) nags.push(nag);
+    }
+    return { shapes, comments, nags };
+}
+
 function normalizeChildren(
     board: StudyPgnBoard,
     parsedChildren: readonly ParsedStudyPgnMove[],
@@ -463,13 +493,13 @@ function normalizeChildren(
     parentClocks: ClockState = [undefined, undefined],
     lessonExtension = false,
 ): void {
-    for (let order = 0; order < parsedChildren.length; order++) {
-        const parsed = parsedChildren[order];
-        const location = path ? `${path}.${order + 1}` : `${order + 1}`;
+    const normalizedSiblings = nodes.filter(node => node.parentId === parentId);
+    for (let sourceOrder = 0; sourceOrder < parsedChildren.length; sourceOrder++) {
+        const parsed = parsedChildren[sourceOrder];
+        const location = path ? `${path}.${sourceOrder + 1}` : `${sourceOrder + 1}`;
         const resolved = resolveMove(board, parsed, location);
         if (!board.push(resolved.move)) throw new StudyPgnImportError(`Illegal move at ${location}: ${parsed.san}.`);
         try {
-            const id = newStudyNodeId();
             const fen = board.fen();
             const turnColor = turnColorFromFen(fen);
             const parsedComments = commentsFromPgn(parsed.comments ?? [], parsed.nags ?? [], lessonExtension);
@@ -485,10 +515,31 @@ function normalizeChildren(
                     ? ([clockState[0], clockState[1]] as [number, number])
                     : undefined;
             const evalScore = evalForTurn(parsedComments.whiteEval, turnColor);
-            nodes.push({
+            const existing = normalizedSiblings.find(node => node.move === resolved.move);
+
+            if (existing) {
+                existing.annotations = mergeAnnotations(existing.annotations, parsedComments.annotations);
+                if (!existing.annotations) delete existing.annotations;
+                if (parsedComments.gamebook) existing.gamebook = parsedComments.gamebook;
+                if (evalScore) existing.eval = evalScore;
+                if (clocks) existing.clocks = clocks;
+                normalizeChildren(
+                    board,
+                    parsed.children ?? [],
+                    existing.id,
+                    nodes,
+                    location,
+                    clockState,
+                    lessonExtension,
+                );
+                continue;
+            }
+
+            const id = newStudyNodeId();
+            const node: StudyTreeDto['nodes'][number] = {
                 id,
                 parentId,
-                order,
+                order: normalizedSiblings.length,
                 move: resolved.move,
                 fen,
                 turnColor,
@@ -499,7 +550,9 @@ function normalizeChildren(
                 ...(parsedComments.gamebook ? { gamebook: parsedComments.gamebook } : {}),
                 ...(evalScore ? { eval: evalScore } : {}),
                 ...(clocks ? { clocks } : {}),
-            });
+            };
+            nodes.push(node);
+            normalizedSiblings.push(node);
             normalizeChildren(board, parsed.children ?? [], id, nodes, location, clockState, lessonExtension);
         } finally {
             board.pop();

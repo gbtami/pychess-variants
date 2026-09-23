@@ -5,6 +5,8 @@ import { beforeAll, describe, expect, test } from '@jest/globals';
 
 import { encodePgnUtf8Base64 } from '../client/pgn';
 
+import { studyPgnParser } from '../client/study/studyPgnParser';
+
 import {
     normalizeStudyPgnDocument,
     parseStudyPgnForImport,
@@ -93,6 +95,108 @@ describe('Study PGN import core', () => {
         expect(roots[0].annotations?.nags).toEqual([1]);
         expect(roots[0].annotations?.shapes).toEqual([{ orig: 'e2', dest: 'e4', brush: 'red' }]);
         expect(roots[0].annotations?.comments[0].text).toBe('King pawn');
+    });
+
+    test('parses raw PGN through Fairy-Stockfish and merges duplicate legal branches like Lichess', async () => {
+        const [chapter] = await parseStudyPgnForImport(
+            studyPgnParser,
+            ffish,
+            `[Event "Duplicate variations"]
+
+1. e4 e5 2. Nf3 Nc6
+    (2... Nc6 3. Bb5 a6)
+    (2... Nc6 3. Bc4 Nf6)
+    (2... d6 3. d4 exd4)
+3. d4 exd4 *`,
+        );
+
+        const children = (parentId: string | null) =>
+            chapter.tree.nodes.filter(node => node.parentId === parentId).sort((a, b) => a.order - b.order);
+        const e4 = children(null)[0];
+        const e5 = children(e4.id)[0];
+        const nf3 = children(e5.id)[0];
+        const [nc6, d6] = children(nf3.id);
+
+        expect(children(null).map(node => node.san)).toEqual(['e4']);
+        expect(children(nf3.id).map(node => node.san)).toEqual(['Nc6', 'd6']);
+        expect(children(nc6.id).map(node => node.san)).toEqual(['d4', 'Bb5', 'Bc4']);
+        expect(children(d6.id).map(node => node.san)).toEqual(['d4']);
+    });
+
+    test('recursively merges duplicate branches below an already merged move', async () => {
+        const [chapter] = await parseStudyPgnForImport(
+            studyPgnParser,
+            ffish,
+            '1. e4 e5 2. Nf3 Nc6 (2... Nc6 3. Bc4 Bc5 4. c3) 3. Bc4 Bc5 4. d3 *',
+        );
+
+        const children = (parentId: string | null) =>
+            chapter.tree.nodes.filter(node => node.parentId === parentId).sort((a, b) => a.order - b.order);
+        let node = children(null)[0];
+        for (const san of ['e5', 'Nf3', 'Nc6', 'Bc4', 'Bc5']) {
+            const next = children(node.id);
+            expect(next[0].san).toBe(san);
+            node = next[0];
+        }
+        expect(children(node.id).map(child => child.san)).toEqual(['d3', 'c3']);
+    });
+
+    test('merges annotations from duplicate branches while keeping the original branch order', async () => {
+        const [chapter] = await parseStudyPgnForImport(
+            studyPgnParser,
+            ffish,
+            `1. e4! {same note [%csl Ge4]}
+                (1. e4!? {same note} {variation note [%cal Re2e4]} 1... c5)
+             1... e5 *`,
+        );
+
+        const roots = chapter.tree.nodes.filter(node => node.parentId === null).sort((a, b) => a.order - b.order);
+        expect(roots).toHaveLength(1);
+        const e4 = roots[0];
+        const children = chapter.tree.nodes.filter(node => node.parentId === e4.id).sort((a, b) => a.order - b.order);
+
+        expect(children.map(node => node.san)).toEqual(['e5', 'c5']);
+        expect(e4.annotations?.nags).toEqual([1, 5]);
+        expect(e4.annotations?.comments.map(comment => comment.text)).toEqual(['same note', 'variation note']);
+        expect(e4.annotations?.shapes).toEqual([
+            { orig: 'e4', brush: 'green' },
+            { orig: 'e2', dest: 'e4', brush: 'red' },
+        ]);
+    });
+
+    test('normalizes multiple raw PGN games into separate chapters', async () => {
+        const chapters = await parseStudyPgnForImport(
+            studyPgnParser,
+            ffish,
+            `[Event "First"]
+[White "Alice"]
+[Black "Bob"]
+
+1. e4 e5 *
+
+[Event "Second"]
+
+1. d4 d5 *`,
+        );
+
+        expect(chapters).toHaveLength(2);
+        expect(chapters.map(chapter => chapter.name)).toEqual(['Alice - Bob', 'Second']);
+        expect(chapters.map(chapter => chapter.tree.nodes[0].move)).toEqual(['e2e4', 'd2d4']);
+    });
+
+    test('keeps raw move tokens variant-neutral until Fairy-Stockfish resolves them', async () => {
+        const [chapter] = await parseStudyPgnForImport(
+            studyPgnParser,
+            ffish,
+            `[Variant "Crazyhouse"]
+[FEN "4k3/8/8/8/8/8/8/4K3[P] w - - 0 1"]
+
+1. P@e4 *`,
+        );
+
+        expect(chapter.variant).toBe('crazyhouse');
+        expect(chapter.tree.nodes).toHaveLength(1);
+        expect(chapter.tree.nodes[0]).toMatchObject({ move: 'P@e4', san: 'P@e4' });
     });
 
     test('imports result, clock and evaluation directives without turning them into visible comments', () => {
