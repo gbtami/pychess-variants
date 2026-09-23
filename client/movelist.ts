@@ -901,7 +901,12 @@ export function updateMovelist(ctrl: GameController, full = true, activate = tru
                 moves,
             ),
         );
-        if (footerContainer) patch(footerContainer, h('div#movelist-footer', footer));
+        if (footerContainer) {
+            while (footerContainer.lastChild) {
+                footerContainer.removeChild(footerContainer.lastChild);
+            }
+            patch(footerContainer, h('div#movelist-footer', footer));
+        }
         if (activate) scrollToPly(ctrl);
         else movelistScrollContainer(ctrl.vmovelist.elm as HTMLElement).scrollTop = scrollTop;
         return;

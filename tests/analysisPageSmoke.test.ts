@@ -949,9 +949,12 @@ describe('analysis tree movelist gating', () => {
         } as any;
 
         updateMovelist(ctrl, true, false, false);
+        updateMovelist(ctrl, true, false, false);
 
         expect(document.querySelector('#movelist .study-next-chapter')).toBeNull();
-        expect(document.querySelector('#movelist-footer .study-next-chapter')?.textContent).toBe('Next chapter');
+        const footerButtons = document.querySelectorAll('#movelist-footer .study-next-chapter');
+        expect(footerButtons).toHaveLength(1);
+        expect(footerButtons[0].textContent).toBe('Next chapter');
     });
 
     test('study comments interrupt move pairs and keep imported text inert', () => {
