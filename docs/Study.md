@@ -257,7 +257,9 @@ mainline and would discard Study data.
 [studyPgnImport.ts](../client/study/studyPgnImport.ts) defines the parser-neutral recursive
 PGN contract and converts parsed games into Study trees. It preserves variations,
 comments, NAGs, shapes, clocks, evaluations, and the supported PyChess extensions.
-Every branch is replayed through Fairy-Stockfish in the browser and validated again
+Clock directives accept both the usual `H:MM:SS(.sss)` form and lichess-compatible
+`H:MM` / `H:MM.SS` forms. Every branch is replayed through Fairy-Stockfish in the
+browser and validated again
 server-side. Repeated RAV branches that resolve to the same legal move are merged after
 that replay, preserving the first/mainline ordering while recursively combining their
 children and annotations, matching lila's Study import behavior. The import endpoint
@@ -441,8 +443,9 @@ Existing tests live in `tests/test_study_*.py`, `tests/study*.test.ts`, and
 `tests/addToStudy.test.ts`. In addition to models/storage, permissions, import/export,
 tree mutations, synchronization/navigation, Fishnet integration and account erasure,
 they now cover mode policy, conceal disclosure, lesson authoring/playback/collaboration,
-Practice engine ownership/feedback/lifecycle, real Fairy-Stockfish WASM searches across
-multiple variant families, deployment gates, and Study browser workflows.
+Practice engine ownership/feedback/lifecycle, Study PGN export→parse→replay round trips,
+representative lichess PGN edge cases, real Fairy-Stockfish WASM searches across multiple
+variant families, deployment gates, and Study browser workflows.
 
 The browser acceptance suite is the place to validate rendered behavior and lifecycle in
 an environment that permits localhost Chromium. Source/unit checks alone cannot prove

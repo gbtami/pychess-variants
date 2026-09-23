@@ -263,11 +263,28 @@ function parseGamebookDirective(encoded: string): StudyGamebookDto {
 }
 
 function parsePgnClock(value: string): number | undefined {
-    const match = /^(\d+):([0-5]?\d):([0-5]?\d(?:\.\d{1,3})?)$/.exec(value.trim());
-    if (!match) return undefined;
-    const hours = Number(match[1]);
-    const minutes = Number(match[2]);
-    const seconds = Number(match[3]);
+    const normalized = value.trim().replace(',', '.');
+    const parts = normalized.split(':');
+    if (parts.length !== 2 && parts.length !== 3) return undefined;
+    if (!/^\d+$/.test(parts[0])) return undefined;
+
+    const hours = Number(parts[0]);
+    let minutes: number;
+    let seconds: number;
+    if (parts.length === 3) {
+        if (!/^\d{1,2}$/.test(parts[1]) || !/^\d{1,2}(?:\.\d{1,3})?$/.test(parts[2])) return undefined;
+        minutes = Number(parts[1]);
+        seconds = Number(parts[2]);
+    } else {
+        // Lichess also accepts the older H:MM and H:MM.SS forms. In the
+        // latter, the decimal digits are seconds rather than a fraction of a minute.
+        if (!/^\d{1,2}(?:\.\d{1,3})?$/.test(parts[1])) return undefined;
+        const minutesAndSeconds = Number(parts[1]);
+        minutes = Math.trunc(minutesAndSeconds);
+        seconds = (minutesAndSeconds - minutes) * 100;
+    }
+    if (minutes >= 60 || seconds >= 60) return undefined;
+
     const milliseconds = Math.round((hours * 3600 + minutes * 60 + seconds) * 1000);
     return Number.isSafeInteger(milliseconds) && milliseconds >= 0 ? milliseconds : undefined;
 }

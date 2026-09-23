@@ -254,6 +254,11 @@ export function renderStudyChapterPgn(study: StudyPgnContext, chapter: StudyPgnC
         turnColor: rootTurnColor(chapter.initialFen),
     };
     const tree = analysisTreeFromStudy(rootStep, chapter.tree);
+    // A PGN recursive annotation variation must follow a move that it varies. A
+    // forced-variation marker on the very first Study move therefore has no legal
+    // PGN representation; export that first move as the mainline instead of
+    // producing an invalid document that starts with "(1. ...)".
+    if (tree.root.children[0]?.forceVariation) tree.root.children[0].forceVariation = false;
     const moveText = renderFullTreePgnMoveText(tree, nodeSan, nodeSuffix);
     const initialComments = annotationComments(tree.root.annotations, true);
     const body = [
