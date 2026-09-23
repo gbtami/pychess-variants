@@ -96,19 +96,35 @@ export interface PgnVariantInfo {
     raw: string;
 }
 
+const PGN_VARIANT_ALIASES: Readonly<Record<string, string>> = Object.freeze({
+    standard: 'chess',
+    'from position': 'chess',
+    fromposition: 'chess',
+    'king of the hill': 'kingofthehill',
+    'three-check': '3check',
+    'three check': '3check',
+    threecheck: '3check',
+    'racing kings': 'racingkings',
+});
+
 export function parsePgnVariantTag(rawVariant: string): PgnVariantInfo {
-    const raw = rawVariant || 'chess';
+    const raw = rawVariant?.trim() || 'chess';
     let variant = raw.toLowerCase();
     if (isCataloguedVariant(variant)) {
         return { variant, chess960: VARIANTS[variant].randomStart, raw };
     }
     let chess960 = variant.includes('960') || variant.includes('random');
 
-    variant = variant.endsWith('960') ? variant.slice(0, -3) : variant;
+    variant = variant.endsWith('960') ? variant.slice(0, -3).trim() : variant;
+    variant = PGN_VARIANT_ALIASES[variant] ?? variant;
     if (variant === 'caparandom') {
         variant = 'capablanca';
         chess960 = true;
-    } else if (variant === 'fischerandom') {
+    } else if (
+        variant === 'fischerandom' ||
+        variant === 'fischer random' ||
+        variant === 'fischer random chess'
+    ) {
         variant = 'chess';
         chess960 = true;
     }

@@ -256,6 +256,39 @@ describe('Study PGN round trips and Lichess compatibility corpus', () => {
         expect(comments.map(comment => comment.sourceAuthor)).toEqual(['Alice', 'Bob']);
     });
 
+    test.each([
+        ['Standard', 'chess'],
+        ['King of the Hill', 'kingofthehill'],
+        ['Three-check', '3check'],
+        ['Racing Kings', 'racingkings'],
+    ] as const)('normalizes Lichess Variant tag %s to PyChess %s', async (externalName, expectedVariant) => {
+        const [chapter] = await parseStudyPgnForImport(
+            studyPgnParser,
+            ffish,
+            `[Variant "${externalName}"]\n\n*`,
+        );
+
+        expect(chapter.variant).toBe(expectedVariant);
+        expect(chapter.chess960).toBe(false);
+        expect(chapter.initialFen).toBeTruthy();
+    });
+
+    test('imports Lichess From Position as ordinary chess with its explicit FEN', async () => {
+        const [chapter] = await parseStudyPgnForImport(
+            studyPgnParser,
+            ffish,
+            `[Variant "From Position"]
+[FEN "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1"]
+[SetUp "1"]
+
+1... e5 *`,
+        );
+
+        expect(chapter.variant).toBe('chess');
+        expect(chapter.initialFen).toBe('rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1');
+        expect(chapter.tree.nodes.map(node => node.move)).toEqual(['e7e5']);
+    });
+
     test('imports a Lichess-style Crazyhouse drop without teaching the parser variant notation', async () => {
         const [chapter] = await parseStudyPgnForImport(
             studyPgnParser,

@@ -267,9 +267,12 @@ also consumed. When a simple PGN `TimeControl` tag uses `seconds` or
 `seconds+increment`, import seeds both root clocks from the initial limit and reconstructs
 missing move clocks as `previous - elapsed + increment`; an explicit `[%clk ...]` remains
 authoritative. Unsupported multi-stage controls such as `40/7200:3600` are preserved as
-tags but deliberately not guessed. Every branch is replayed through Fairy-Stockfish in the
-browser and validated again
-server-side. Repeated RAV branches that resolve to the same legal move are merged after
+tags but deliberately not guessed. Common external/Lichess `Variant` names are normalized
+to PyChess engine keys before replay (`Standard`/`From Position` → `chess`, `King of the
+Hill` → `kingofthehill`, `Three-check` → `3check`, and `Racing Kings` → `racingkings`),
+while the original PGN tag is retained as metadata. Every branch is replayed through
+Fairy-Stockfish in the browser and validated again server-side. Repeated RAV branches that
+resolve to the same legal move are merged after
 that replay, preserving the first/mainline ordering while recursively combining their
 children and annotations, matching lila's Study import behavior. The import endpoint
 accepts normalized chapter data, validates the batch before insertion, and enforces

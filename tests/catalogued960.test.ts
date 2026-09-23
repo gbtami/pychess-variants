@@ -42,6 +42,19 @@ test('built-in randomized variants can override their full display name', () => 
     expect(VARIANTS.racingkings.displayName(true)).toBe('RACING KINGS1440');
 });
 
+test.each([
+    ['Standard', 'chess', false],
+    ['From Position', 'chess', false],
+    ['King of the Hill', 'kingofthehill', false],
+    ['Three-check', '3check', false],
+    ['Three Check', '3check', false],
+    ['Racing Kings', 'racingkings', false],
+    ['King of the Hill 960', 'kingofthehill', true],
+    ['Fischer Random Chess', 'chess', true],
+] as const)('normalizes common external PGN variant name %s', (raw, variant, chess960) => {
+    expect(parsePgnVariantTag(raw)).toEqual({ raw, variant, chess960 });
+});
+
 test('site Chess960 retains its separate variant key', () => {
     expect(variantKey('chess', true)).toBe('chess960');
     expect(parsePgnVariantTag('Chess960').variant).toBe('chess');
