@@ -4,7 +4,11 @@ import path from 'path';
 import { beforeAll, describe, expect, test } from '@jest/globals';
 
 import { renderStudyPgn, type StudyPgnChapterData, type StudyPgnContext } from '../client/study/studyPgn';
-import { normalizeStudyPgnDocument, parseStudyPgnForImport } from '../client/study/studyPgnImport';
+import {
+    normalizeStudyPgnDocument,
+    parseStudyPgnDocumentForImportWithEngines,
+    parseStudyPgnForImport,
+} from '../client/study/studyPgnImport';
 import { studyPgnParser } from '../client/study/studyPgnParser';
 import type { StudyAnnotationsDto, StudyTreeDto, StudyTreeNodeDto } from '../client/study/studyTree';
 
@@ -397,4 +401,39 @@ describe('Study PGN round trips and Lichess compatibility corpus', () => {
         expect(chapter.tree.nodes[0].clocks?.[0]).toBe(expected);
         expect(chapter.tree.nodes[0].annotations?.comments).toBeUndefined();
     });
+    test('restores a consistent exported StudyName for new-Study imports', async () => {
+        const imported = await parseStudyPgnDocumentForImportWithEngines(
+            studyPgnParser,
+            () => ffish,
+            `[StudyName "Original Study"]
+[ChapterName "Intro"]
+
+1. e4 *
+
+[StudyName "Original Study"]
+[ChapterName "Line"]
+
+1. d4 *`,
+        );
+
+        expect(imported.studyName).toBe('Original Study');
+        expect(imported.chapters.map(chapter => chapter.name)).toEqual(['Intro', 'Line']);
+    });
+
+    test('does not guess a Study name when multi-game PGN metadata disagrees', async () => {
+        const imported = await parseStudyPgnDocumentForImportWithEngines(
+            studyPgnParser,
+            () => ffish,
+            `[StudyName "First Study"]
+
+1. e4 *
+
+[StudyName "Second Study"]
+
+1. d4 *`,
+        );
+
+        expect(imported.studyName).toBeUndefined();
+    });
+
 });

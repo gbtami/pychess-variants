@@ -4,7 +4,7 @@ import ffishModule from 'ffish-es6';
 import { patch } from '../document';
 import { studyChapterCreateForm, studyEnabledModesFromJson } from './studyChapterForm';
 import {
-    parseStudyPgnForImportWithEngines,
+    parseStudyPgnDocumentForImportWithEngines,
     postNewStudyPgnImport,
     studyPgnGameUsesAlice,
     type StudyPgnEngine,
@@ -37,8 +37,14 @@ function studySettings(form: HTMLFormElement): StudyPgnNewStudySettings {
         const raw = data.get(name);
         return typeof raw === 'string' ? raw : '';
     };
+    const nameInput = form.querySelector<HTMLInputElement>('input[name="name"]');
+    const name = value('name');
     return {
-        name: value('name'),
+        // Leave the generated default empty for PGN imports so an exported
+        // StudyName can restore the original study title. An explicitly edited
+        // name always wins, and the server supplies the normal default when the
+        // PGN has no StudyName metadata.
+        name: nameInput && name === nameInput.defaultValue ? '' : name,
         visibility: value('visibility'),
         computer: value('computer'),
         explorer: value('explorer'),
@@ -71,12 +77,15 @@ async function importNewStudyPgn(
     pgn: string,
     settings: StudyPgnNewStudySettings,
 ): Promise<StudyPgnImportResponse> {
-    const chapters = await parseStudyPgnForImportWithEngines(
+    const imported = await parseStudyPgnDocumentForImportWithEngines(
         studyPgnParser,
         game => loadStudyPgnModule(studyPgnGameUsesAlice(game)),
         pgn,
     );
-    return postNewStudyPgnImport(settings, chapters);
+    return postNewStudyPgnImport(
+        settings.name || !imported.studyName ? settings : { ...settings, name: imported.studyName },
+        imported.chapters,
+    );
 }
 
 export function initStudyIndex(options: StudyIndexOptions = {}): void {

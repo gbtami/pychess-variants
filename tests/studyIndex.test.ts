@@ -138,4 +138,40 @@ describe('Study index creation dialogs', () => {
         expect(navigate).toHaveBeenCalledWith('/study/Study001/Chap0002');
     });
 
+    test('PGN import leaves the generated default Study name available for StudyName metadata', async () => {
+        const dialog = document.querySelector<HTMLDialogElement>('#study-new-dialog')!;
+        const chapterDialog = document.querySelector<HTMLDialogElement>('#study-first-chapter-dialog')!;
+        mockDialog(dialog);
+        mockDialog(chapterDialog);
+        const pgnImport = jest.fn(async () => ({
+            ok: true,
+            imported: 1,
+            studyId: 'Study001',
+            chapterId: 'Chap0001',
+            url: '/study/Study001/Chap0001',
+        }));
+
+        initStudyIndex({ pgnImport, navigate: jest.fn() });
+        const settingsForm = document.querySelector<HTMLFormElement>('#study-create-form')!;
+        settingsForm.reportValidity = jest.fn(() => true);
+        settingsForm.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+
+        const chapterForm = document.querySelector<HTMLFormElement>('#study-first-chapter-form')!;
+        chapterForm.reportValidity = jest.fn(() => true);
+        chapterForm.querySelector<HTMLButtonElement>('[data-study-chapter-source="pgn"]')!.click();
+        const pgn = '[StudyName "Original Study"]\n[ChapterName "Intro"]\n\n*';
+        chapterForm.querySelector<HTMLTextAreaElement>('textarea[name="pgn"]')!.value = pgn;
+        chapterForm.dispatchEvent(new SubmitEvent('submit', { bubbles: true, cancelable: true }));
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        expect(pgnImport).toHaveBeenCalledWith(pgn, {
+            name: '',
+            visibility: 'private',
+            computer: 'everyone',
+            explorer: 'everyone',
+            cloneable: 'everyone',
+            shareable: 'everyone',
+        });
+    });
+
 });

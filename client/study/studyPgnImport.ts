@@ -74,6 +74,11 @@ export interface StudyPgnImportChapter {
     variantIni?: string;
 }
 
+export interface StudyPgnImportDocument {
+    chapters: StudyPgnImportChapter[];
+    studyName?: string;
+}
+
 export interface StudyPgnImportResponse {
     ok: boolean;
     imported?: number;
@@ -832,11 +837,19 @@ export async function parseStudyPgnForImport(
     return normalizeStudyPgnDocument(engine, await parser.parse(pgn));
 }
 
-export async function parseStudyPgnForImportWithEngines(
+function importedStudyName(parsed: ParsedStudyPgnDocument): string | undefined {
+    const names = parsed.games.map(game => game.tags['StudyName']?.replace(/[\r\n]+/g, ' ').trim());
+    if (!names.length || names.some(name => !name)) return undefined;
+    const first = names[0]!;
+    if (!names.every(name => name === first)) return undefined;
+    return first.slice(0, 100);
+}
+
+export async function parseStudyPgnDocumentForImportWithEngines(
     parser: StudyPgnParser,
     engineForGame: (game: ParsedStudyPgnGame, index: number) => StudyPgnEngine | Promise<StudyPgnEngine>,
     pgn: string,
-): Promise<StudyPgnImportChapter[]> {
+): Promise<StudyPgnImportDocument> {
     if (!pgn.trim()) throw new StudyPgnImportError('PGN text is empty.');
     const parsed = await parser.parse(pgn);
     requireCompleteParser(parsed.capabilities);
@@ -846,7 +859,16 @@ export async function parseStudyPgnForImportWithEngines(
     for (const [index, game] of parsed.games.entries()) {
         chapters.push(normalizeGame(await engineForGame(game, index), game, index));
     }
-    return chapters;
+    const studyName = importedStudyName(parsed);
+    return { chapters, ...(studyName ? { studyName } : {}) };
+}
+
+export async function parseStudyPgnForImportWithEngines(
+    parser: StudyPgnParser,
+    engineForGame: (game: ParsedStudyPgnGame, index: number) => StudyPgnEngine | Promise<StudyPgnEngine>,
+    pgn: string,
+): Promise<StudyPgnImportChapter[]> {
+    return (await parseStudyPgnDocumentForImportWithEngines(parser, engineForGame, pgn)).chapters;
 }
 
 export async function postStudyPgnImport(

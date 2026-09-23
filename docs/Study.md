@@ -286,8 +286,11 @@ is sent to the import endpoint. Parse, legality, and server-validation errors st
 dialog with their detailed diagnostics. Mixed ordinary/Alice PGN batches load the matching
 Fairy-Stockfish WASM module per game. Existing-Study imports open the final chapter through
 the in-place navigator; first-chapter imports atomically create the Study with all parsed
-chapters and then open its final chapter. The same tab can load a local `.pgn` file into the
-paste area with the browser `FileReader`; the import path is otherwise identical.
+chapters and then open its final chapter. When every imported game carries the same
+`StudyName` tag, a brand-new Study restores that title if the user left the generated
+`<username>'s Study` name unchanged; an explicitly edited name always wins. The same tab
+can load a local `.pgn` file into the paste area with the browser `FileReader`; the import
+path is otherwise identical.
 
 ## Implementation and source map
 
