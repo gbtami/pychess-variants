@@ -9,6 +9,9 @@ export interface AnalysisComment {
     id: string;
     author: string;
     text: string;
+    /** Original PGN attribution. Kept separate from authenticated Study authorship. */
+    sourceAuthor?: string;
+    sourceAuthorId?: string;
 }
 
 export interface AnalysisAnnotations {

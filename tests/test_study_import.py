@@ -57,7 +57,13 @@ class StudyImportTestCase(unittest.IsolatedAsyncioTestCase):
                 "rootAnnotations": {
                     "shapes": [],
                     "comments": [
-                        {"id": "Comment001", "author": "spoofed", "text": "Root import note"}
+                        {
+                            "id": "Comment001",
+                            "author": "spoofed",
+                            "text": "Root import note",
+                            "sourceAuthor": "Mary",
+                            "sourceAuthorId": "mary",
+                        }
                     ],
                     "nags": [3],
                 },
@@ -103,7 +109,10 @@ class StudyImportTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(node["s"], "e4")
         self.assertFalse(node.get("c", False))
         self.assertIn("4P3", node["f"])
-        self.assertEqual(imported["root"]["_"]["a"]["c"][0]["a"], "owner")
+        imported_comment = imported["root"]["_"]["a"]["c"][0]
+        self.assertEqual(imported_comment["a"], "owner")
+        self.assertEqual(imported_comment["x"], "Mary")
+        self.assertEqual(imported_comment["y"], "mary")
 
     async def test_import_persists_parsed_evaluation_after_server_replay(self) -> None:
         chapter = self._chapter("e2e4", name="Evaluated", node_id="Node000010")

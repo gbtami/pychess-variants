@@ -19,6 +19,8 @@ from study.constants import (
 )
 
 STUDY_COMMENT_ID_LENGTH = 10
+STUDY_COMMENT_ATTRIBUTION_MAX_LENGTH = 256
+STUDY_COMMENT_ATTRIBUTION_ID_MAX_LENGTH = 128
 _COMMENT_ID_RE = re.compile(rf"^[A-Za-z0-9]{{{STUDY_COMMENT_ID_LENGTH}}}$")
 _TAG_NAME_RE = re.compile(r"^[A-Za-z][A-Za-z0-9_]*$")
 _VALID_FILES = frozenset("abcdefghijklmnop")
@@ -49,6 +51,13 @@ def canonical_comment_text(value: object) -> str:
 
 def canonical_description(value: object) -> str:
     return _clean_text(value, max_length=STUDY_DESCRIPTION_MAX_LENGTH)
+
+
+def canonical_comment_attribution(value: object, *, max_length: int) -> str | None:
+    if value is None:
+        return None
+    cleaned = _clean_text(value, max_length=max_length).replace("\n", " ")
+    return cleaned or None
 
 
 def canonical_tag_name(value: object) -> str:
@@ -143,6 +152,8 @@ class StudyComment:
     id: str
     author: str
     text: str
+    source_author: str | None = None
+    source_author_id: str | None = None
 
     def __post_init__(self) -> None:
         if not is_study_comment_id(self.id):
@@ -153,9 +164,28 @@ class StudyComment:
         if not canonical:
             raise ValueError("Study comment text must be non-empty")
         object.__setattr__(self, "text", canonical)
+        object.__setattr__(
+            self,
+            "source_author",
+            canonical_comment_attribution(
+                self.source_author, max_length=STUDY_COMMENT_ATTRIBUTION_MAX_LENGTH
+            ),
+        )
+        object.__setattr__(
+            self,
+            "source_author_id",
+            canonical_comment_attribution(
+                self.source_author_id, max_length=STUDY_COMMENT_ATTRIBUTION_ID_MAX_LENGTH
+            ),
+        )
 
     def to_document(self) -> dict[str, object]:
-        return {"i": self.id, "a": self.author, "t": self.text}
+        doc: dict[str, object] = {"i": self.id, "a": self.author, "t": self.text}
+        if self.source_author is not None:
+            doc["x"] = self.source_author
+        if self.source_author_id is not None:
+            doc["y"] = self.source_author_id
+        return doc
 
     @classmethod
     def from_document(cls, doc: Mapping[str, object]) -> StudyComment:
@@ -166,10 +196,25 @@ class StudyComment:
             raise ValueError("Invalid Study comment id")
         if not isinstance(author, str) or not author:
             raise ValueError("Invalid Study comment author")
-        return cls(comment_id, author, canonical_comment_text(text))
+        return cls(
+            comment_id,
+            author,
+            canonical_comment_text(text),
+            canonical_comment_attribution(
+                doc.get("x"), max_length=STUDY_COMMENT_ATTRIBUTION_MAX_LENGTH
+            ),
+            canonical_comment_attribution(
+                doc.get("y"), max_length=STUDY_COMMENT_ATTRIBUTION_ID_MAX_LENGTH
+            ),
+        )
 
     def to_payload(self) -> dict[str, object]:
-        return {"id": self.id, "author": self.author, "text": self.text}
+        payload: dict[str, object] = {"id": self.id, "author": self.author, "text": self.text}
+        if self.source_author is not None:
+            payload["sourceAuthor"] = self.source_author
+        if self.source_author_id is not None:
+            payload["sourceAuthorId"] = self.source_author_id
+        return payload
 
     @classmethod
     def from_payload(cls, payload: Mapping[str, object]) -> StudyComment:
@@ -180,7 +225,17 @@ class StudyComment:
             raise ValueError("Invalid Study comment id")
         if not isinstance(author, str) or not author:
             raise ValueError("Invalid Study comment author")
-        return cls(comment_id, author, canonical_comment_text(text))
+        return cls(
+            comment_id,
+            author,
+            canonical_comment_text(text),
+            canonical_comment_attribution(
+                payload.get("sourceAuthor"), max_length=STUDY_COMMENT_ATTRIBUTION_MAX_LENGTH
+            ),
+            canonical_comment_attribution(
+                payload.get("sourceAuthorId"), max_length=STUDY_COMMENT_ATTRIBUTION_ID_MAX_LENGTH
+            ),
+        )
 
 
 def canonical_nags(value: object) -> tuple[int, ...]:

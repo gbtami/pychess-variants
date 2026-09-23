@@ -3,7 +3,12 @@ import type { StudyChapterMode } from '../types';
 import { GLYPH_GROUPS } from '../analysis/glyphs';
 import { encodePgnUtf8Base64 } from '../pgn';
 import { variantKey } from '../variants';
-import { renderFullTreePgnMoveText, type AnalysisAnnotations, type AnalysisTreeNode } from '../analysis/analysisTree';
+import {
+    renderFullTreePgnMoveText,
+    type AnalysisAnnotations,
+    type AnalysisComment,
+    type AnalysisTreeNode,
+} from '../analysis/analysisTree';
 import { analysisTreeFromStudy, type StudyTreeDto } from './studyTree';
 
 export interface StudyPgnChapterData {
@@ -112,9 +117,42 @@ function shapeComment(annotations: AnalysisAnnotations | undefined): string | un
     return csl || cal ? `${csl}${cal}` : undefined;
 }
 
-function annotationComments(annotations: AnalysisAnnotations | undefined, root = false): string[] {
+function attributionName(value: string): string {
+    return value.replace(/["\]]/g, '').trim();
+}
+
+function attributionId(value: string): string {
+    return value.replace(/[\s\]]/g, '').trim();
+}
+
+function attributionMatchesAnnotator(comment: AnalysisComment, annotator: string): boolean {
+    const normalizedAnnotator = annotator.trim().toLowerCase();
+    const sourceAuthor = comment.sourceAuthor?.trim().toLowerCase();
+    const sourceAuthorId = comment.sourceAuthorId?.trim().toLowerCase();
+    if (sourceAuthor && sourceAuthor === normalizedAnnotator) return true;
+    if (sourceAuthorId) {
+        if (sourceAuthorId === normalizedAnnotator) return true;
+        if (normalizedAnnotator.endsWith(`/@/${sourceAuthorId}`) || normalizedAnnotator.endsWith(`/${sourceAuthorId}`))
+            return true;
+    }
+    return false;
+}
+
+function authoredComment(comment: AnalysisComment, annotator: string): string {
+    const sourceAuthor = comment.sourceAuthor && attributionName(comment.sourceAuthor);
+    if (!sourceAuthor || attributionMatchesAnnotator(comment, annotator)) return `{${commentValue(comment.text)}}`;
+    const sourceAuthorId = comment.sourceAuthorId && attributionId(comment.sourceAuthorId);
+    const anno = sourceAuthorId ? `[%anno "${sourceAuthor}", ${sourceAuthorId}]` : `[%anno "${sourceAuthor}"]`;
+    return `{${anno} ${commentValue(comment.text)}}`;
+}
+
+function annotationComments(
+    annotations: AnalysisAnnotations | undefined,
+    root = false,
+    annotator = '',
+): string[] {
     if (!annotations) return [];
-    const result = annotations.comments.map(comment => `{${commentValue(comment.text)}}`);
+    const result = annotations.comments.map(comment => authoredComment(comment, annotator));
     const shapes = shapeComment(annotations);
     if (shapes) result.push(`{${shapes}}`);
     // NAGs have a standard location only after a move. Preserve root NAGs in an
@@ -149,12 +187,12 @@ function clockComments(node: AnalysisTreeNode): string[] {
     return [`{[%clk ${pgnClock(clocks[mover])}]}`, fullClockComment(clocks)!];
 }
 
-function nodeSuffix(node: AnalysisTreeNode): string {
+function nodeSuffix(node: AnalysisTreeNode, annotator: string): string {
     const annotations = node.annotations;
     return [
         ...(annotations?.nags.filter(nag => nag > 6).map(nag => `$${nag}`) ?? []),
         evalComment(node),
-        ...annotationComments(annotations),
+        ...annotationComments(annotations, false, annotator),
         gamebookComment(node.gamebook),
         ...clockComments(node),
     ]
@@ -259,8 +297,9 @@ export function renderStudyChapterPgn(study: StudyPgnContext, chapter: StudyPgnC
     // PGN representation; export that first move as the mainline instead of
     // producing an invalid document that starts with "(1. ...)".
     if (tree.root.children[0]?.forceVariation) tree.root.children[0].forceVariation = false;
-    const moveText = renderFullTreePgnMoveText(tree, nodeSan, nodeSuffix);
-    const initialComments = annotationComments(tree.root.annotations, true);
+    const annotator = `${study.home}/@/${study.owner}`;
+    const moveText = renderFullTreePgnMoveText(tree, nodeSan, node => nodeSuffix(node, annotator));
+    const initialComments = annotationComments(tree.root.annotations, true, annotator);
     const body = [
         ...initialComments,
         gamebookComment(tree.root.gamebook),

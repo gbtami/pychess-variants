@@ -335,7 +335,10 @@ function renderTreeComments(ctrl: TreeCtrl, node: AnalysisTreeNode): VNode[] {
     return (node.annotations?.comments ?? []).map(comment =>
         h(
             'comment.tree-comment',
-            { class: { conceal: treeNodeConcealed(ctrl, node) }, attrs: { title: comment.author } },
+            {
+                class: { conceal: treeNodeConcealed(ctrl, node) },
+                attrs: { title: comment.sourceAuthor ? `PGN: ${comment.sourceAuthor}` : comment.author },
+            },
             comment.text,
         ),
     );

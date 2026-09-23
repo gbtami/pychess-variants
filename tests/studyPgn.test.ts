@@ -117,6 +117,19 @@ describe('Study PGN export', () => {
         expect(pgn).toContain('1. e4! {King pawn} {[%cal Re2e4]} (1. d4?!) e5 1-0');
     });
 
+    test('exports imported comment provenance with Lichess-compatible %anno metadata', () => {
+        const data = chapter();
+        data.tree.rootAnnotations!.comments[0].sourceAuthor = 'https://www.pychess.org/@/owner';
+        data.tree.nodes[0].annotations!.comments[0].sourceAuthor = 'Mary';
+        data.tree.nodes[0].annotations!.comments[0].sourceAuthorId = 'mary';
+
+        const pgn = renderStudyChapterPgn(study, data);
+
+        expect(pgn).toContain('{Root note}');
+        expect(pgn).not.toContain('[%anno "https://www.pychess.org/@/owner"] Root note');
+        expect(pgn).toContain('{[%anno "Mary", mary] King pawn}');
+    });
+
     test('exports versioned lesson metadata without exposing brace or newline text to PGN syntax', () => {
         const data = chapter({ mode: 'gamebook' });
         data.tree.rootGamebook = { hint: 'Find } the idea\nwith Unicode ✓' };

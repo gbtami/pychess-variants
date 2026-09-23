@@ -257,7 +257,11 @@ mainline and would discard Study data.
 [studyPgnImport.ts](../client/study/studyPgnImport.ts) defines the parser-neutral recursive
 PGN contract and converts parsed games into Study trees. It preserves variations,
 comments, NAGs, shapes, clocks, evaluations, and the supported PyChess extensions.
-Clock directives accept both the usual `H:MM:SS(.sss)` form and lichess-compatible
+Lichess-style `[Annotator ...]` and per-comment `[%anno ...]` metadata are consumed as
+**source attribution**, kept separately from authenticated PyChess comment authorship, and
+written back on export when the source differs from the exporting Study owner. This keeps
+external authorship round-trippable without allowing imported PGN to impersonate a PyChess
+account. Clock directives accept both the usual `H:MM:SS(.sss)` form and lichess-compatible
 `H:MM` / `H:MM.SS` forms. Lichess-style `[%emt ...]` elapsed-move annotations are
 also consumed. When a simple PGN `TimeControl` tag uses `seconds` or
 `seconds+increment`, import seeds both root clocks from the initial limit and reconstructs

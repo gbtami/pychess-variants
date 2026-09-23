@@ -226,6 +226,36 @@ describe('Study PGN round trips and Lichess compatibility corpus', () => {
         expect(blackStart.tree.rootAnnotations?.comments[0].text).toBe('custom position with Black to move');
     });
 
+    test('preserves Lichess Annotator and per-comment %anno attribution as import provenance', async () => {
+        const [chapter] = await parseStudyPgnForImport(
+            studyPgnParser,
+            ffish,
+            `[Annotator "https://lichess.org/@/bobby"]
+
+1. e4 { written by the owner } 1... e5 { [%anno "Mary", mary] written by the contributor }`,
+        );
+
+        expect(chapter.tree.nodes[0].annotations?.comments).toMatchObject([
+            { text: 'written by the owner', sourceAuthor: 'https://lichess.org/@/bobby' },
+        ]);
+        expect(chapter.tree.nodes[1].annotations?.comments).toMatchObject([
+            { text: 'written by the contributor', sourceAuthor: 'Mary', sourceAuthorId: 'mary' },
+        ]);
+        expect(chapter.tree.nodes[1].annotations?.comments[0].text).not.toContain('[%anno');
+    });
+
+    test('does not collapse duplicate-branch comments that have different PGN authors', async () => {
+        const [chapter] = await parseStudyPgnForImport(
+            studyPgnParser,
+            ffish,
+            `1. e4 { [%anno "Alice", alice] same text } (1. e4 { [%anno "Bob", bob] same text })`,
+        );
+
+        const comments = chapter.tree.nodes[0].annotations?.comments ?? [];
+        expect(comments).toHaveLength(2);
+        expect(comments.map(comment => comment.sourceAuthor)).toEqual(['Alice', 'Bob']);
+    });
+
     test('imports a Lichess-style Crazyhouse drop without teaching the parser variant notation', async () => {
         const [chapter] = await parseStudyPgnForImport(
             studyPgnParser,

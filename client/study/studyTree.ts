@@ -23,6 +23,9 @@ export interface StudyCommentDto {
     id: string;
     author: string;
     text: string;
+    /** Original PGN attribution, distinct from authenticated Study authorship. */
+    sourceAuthor?: string;
+    sourceAuthorId?: string;
 }
 
 export interface StudyAnnotationsDto {
@@ -157,7 +160,20 @@ export function parseStudyAnnotations(value: unknown): StudyAnnotationsDto {
         ) {
             throw new Error('Invalid Study comment');
         }
-        return { id: comment.id, author: comment.author, text: comment.text };
+        if (comment.sourceAuthor !== undefined && (typeof comment.sourceAuthor !== 'string' || !comment.sourceAuthor))
+            throw new Error('Invalid Study comment source author');
+        if (
+            comment.sourceAuthorId !== undefined &&
+            (typeof comment.sourceAuthorId !== 'string' || !comment.sourceAuthorId)
+        )
+            throw new Error('Invalid Study comment source author id');
+        return {
+            id: comment.id,
+            author: comment.author,
+            text: comment.text,
+            ...(comment.sourceAuthor ? { sourceAuthor: comment.sourceAuthor } : {}),
+            ...(comment.sourceAuthorId ? { sourceAuthorId: comment.sourceAuthorId } : {}),
+        };
     });
     if (new Set(comments.map(comment => comment.id)).size !== comments.length) {
         throw new Error('Duplicate Study comment id');

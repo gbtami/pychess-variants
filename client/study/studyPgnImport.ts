@@ -338,10 +338,59 @@ function evalForTurn(whiteEval: StudyEvalDto | undefined, turnColor: 'white' | '
     return undefined;
 }
 
+const PGN_ATTRIBUTION_MAX_LENGTH = 256;
+const PGN_ATTRIBUTION_ID_MAX_LENGTH = 128;
+const PGN_ANNO_RE = /\[%anno\s+(?:"([^"]*)"|([^\],]+))\s*(?:,\s*([^\]\s]+))?\s*\]/i;
+
+function cleanPgnAttribution(value: string | undefined, maxLength: number): string | undefined {
+    if (value === undefined) return undefined;
+    const cleaned = [...value.replace(/[\r\n]+/g, ' ')]
+        .filter(char => {
+            const code = char.charCodeAt(0);
+            return code >= 32 && code !== 127;
+        })
+        .join('')
+        .trim();
+    return cleaned && cleaned.length <= maxLength ? cleaned : undefined;
+}
+
+interface PgnCommentAttribution {
+    sourceAuthor?: string;
+    sourceAuthorId?: string;
+}
+
+function stripPgnCommentAttribution(
+    text: string,
+    defaultSourceAuthor: string | undefined,
+): { text: string; attribution: PgnCommentAttribution } {
+    const match = PGN_ANNO_RE.exec(text);
+    if (!match) {
+        return {
+            text,
+            attribution: defaultSourceAuthor ? { sourceAuthor: defaultSourceAuthor } : {},
+        };
+    }
+    const sourceAuthor = cleanPgnAttribution(match[1] ?? match[2], PGN_ATTRIBUTION_MAX_LENGTH);
+    const sourceAuthorId = cleanPgnAttribution(match[3], PGN_ATTRIBUTION_ID_MAX_LENGTH);
+    if (!sourceAuthor) {
+        // Do not silently discard malformed attribution metadata. Keeping the
+        // directive in the visible text is safer than inventing an author.
+        return {
+            text,
+            attribution: defaultSourceAuthor ? { sourceAuthor: defaultSourceAuthor } : {},
+        };
+    }
+    return {
+        text: `${text.slice(0, match.index)}${text.slice(match.index + match[0].length)}`,
+        attribution: { sourceAuthor, ...(sourceAuthorId ? { sourceAuthorId } : {}) },
+    };
+}
+
 function commentsFromPgn(
     comments: readonly string[],
     rawNags: readonly number[] = [],
     lessonExtension = false,
+    defaultSourceAuthor?: string,
 ): ParsedPgnComments {
     const shapes: StudyShapeDto[] = [];
     const nags: number[] = [];
@@ -355,9 +404,10 @@ function commentsFromPgn(
     let elapsed: number | undefined;
     let clocks: [number, number] | undefined;
     let gamebook: StudyGamebookDto | undefined;
-    const visibleComments: string[] = [];
+    const visibleComments: Array<{ text: string; attribution: PgnCommentAttribution }> = [];
     for (const original of comments) {
-        let text = original;
+        const attributed = stripPgnCommentAttribution(original, defaultSourceAuthor);
+        let text = attributed.text;
         text = text.replace(/\[%csl\s+([^\]]+)\]/gi, (full, body: string) => {
             const parsed = body.split(',').map(parseShapeToken);
             if (parsed.some(shape => shape === undefined)) return full;
@@ -413,12 +463,17 @@ function commentsFromPgn(
             }
         }
         const cleaned = text.trim();
-        if (cleaned) visibleComments.push(cleaned);
+        if (cleaned) visibleComments.push({ text: cleaned, attribution: attributed.attribution });
     }
 
     const annotations: StudyAnnotationsDto = {
         shapes,
-        comments: visibleComments.map(text => ({ id: newStudyNodeId(), author: 'import', text })),
+        comments: visibleComments.map(({ text, attribution }) => ({
+            id: newStudyNodeId(),
+            author: 'import',
+            text,
+            ...attribution,
+        })),
         nags,
     };
     return {
@@ -535,7 +590,15 @@ function mergeAnnotations(
 
     const comments = [...current.comments];
     for (const comment of incoming.comments) {
-        if (!comments.some(existing => existing.author === comment.author && existing.text === comment.text)) {
+        if (
+            !comments.some(
+                existing =>
+                    existing.author === comment.author &&
+                    existing.text === comment.text &&
+                    existing.sourceAuthor === comment.sourceAuthor &&
+                    existing.sourceAuthorId === comment.sourceAuthorId,
+            )
+        ) {
             comments.push(comment);
         }
     }
@@ -556,6 +619,7 @@ function normalizeChildren(
     parentClocks: ClockState = [undefined, undefined],
     increment = 0,
     lessonExtension = false,
+    defaultSourceAuthor?: string,
 ): void {
     const normalizedSiblings = nodes.filter(node => node.parentId === parentId);
     for (let sourceOrder = 0; sourceOrder < parsedChildren.length; sourceOrder++) {
@@ -566,7 +630,12 @@ function normalizeChildren(
         try {
             const fen = board.fen();
             const turnColor = turnColorFromFen(fen);
-            const parsedComments = commentsFromPgn(parsed.comments ?? [], parsed.nags ?? [], lessonExtension);
+            const parsedComments = commentsFromPgn(
+                parsed.comments ?? [],
+                parsed.nags ?? [],
+                lessonExtension,
+                defaultSourceAuthor,
+            );
             const clockState: ClockState = parsedComments.clocks ? [...parsedComments.clocks] : [...parentClocks];
             let clockChanged = parsedComments.clocks !== undefined;
             if (!parsedComments.clocks) {
@@ -604,6 +673,7 @@ function normalizeChildren(
                     clockState,
                     increment,
                     lessonExtension,
+                    defaultSourceAuthor,
                 );
                 continue;
             }
@@ -626,7 +696,17 @@ function normalizeChildren(
             };
             nodes.push(node);
             normalizedSiblings.push(node);
-            normalizeChildren(board, parsed.children ?? [], id, nodes, location, clockState, increment, lessonExtension);
+            normalizeChildren(
+                board,
+                parsed.children ?? [],
+                id,
+                nodes,
+                location,
+                clockState,
+                increment,
+                lessonExtension,
+                defaultSourceAuthor,
+            );
         } finally {
             board.pop();
         }
@@ -648,7 +728,13 @@ function normalizeGame(engine: StudyPgnEngine, game: ParsedStudyPgnGame, index: 
         const initialFen = board.fen();
         if (!initialFen) throw new StudyPgnImportError(`Unable to initialize PGN variant ${variant}.`);
         const nodes: StudyTreeDto['nodes'] = [];
-        const rootComments = commentsFromPgn(game.comments ?? [], [], teaching.lessonExtension);
+        const defaultSourceAuthor = cleanPgnAttribution(tags['Annotator'], PGN_ATTRIBUTION_MAX_LENGTH);
+        const rootComments = commentsFromPgn(
+            game.comments ?? [],
+            [],
+            teaching.lessonExtension,
+            defaultSourceAuthor,
+        );
         const timeControl = parsePgnTimeControl(tags['TimeControl']);
         const rootClocks: [number, number] | undefined = rootComments.clocks
             ? [...rootComments.clocks]
@@ -664,6 +750,7 @@ function normalizeGame(engine: StudyPgnEngine, game: ParsedStudyPgnGame, index: 
             rootClocks ? [...rootClocks] : [undefined, undefined],
             timeControl?.increment ?? 0,
             teaching.lessonExtension,
+            defaultSourceAuthor,
         );
         return {
             name: chapterName(tags, index),

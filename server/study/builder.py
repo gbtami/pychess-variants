@@ -257,6 +257,7 @@ class StudyChapterBuilder:
                         legal_moves_need_history=options.legal_moves_need_history,
                         runtime_variant=options.runtime_variant,
                         comment_author=self.owner,
+                        preserve_comment_attribution=True,
                     )
             except (StudyChapterBuildError, StudyVariantCapacityError):
                 raise
@@ -282,6 +283,7 @@ class StudyChapterBuilder:
                         legal_moves_need_history=options.legal_moves_need_history,
                         runtime_variant=options.runtime_variant,
                         comment_author=self.owner,
+                        preserve_comment_attribution=True,
                     )
                 except StudyChapterBuildError:
                     raise
@@ -472,6 +474,7 @@ class StudyChapterBuilder:
         legal_moves_need_history: bool,
         runtime_variant: str,
         comment_author: str,
+        preserve_comment_attribution: bool = False,
     ) -> StudyTree:
         rebuilt: dict[str, StudyTreeNode] = {}
         pending = deque([(None, initial_fen, ())])
@@ -538,7 +541,7 @@ class StudyChapterBuilder:
                     clocks=submitted.clocks,
                     force_variation=submitted.force_variation,
                     annotations=StudyChapterBuilder._canonical_annotation_authors(
-                        submitted.annotations, comment_author
+                        submitted.annotations, comment_author, preserve_comment_attribution
                     ),
                     gamebook=submitted.gamebook,
                 )
@@ -551,7 +554,7 @@ class StudyChapterBuilder:
         return StudyTree(
             rebuilt,
             root_annotations=StudyChapterBuilder._canonical_annotation_authors(
-                tree.root_annotations, comment_author
+                tree.root_annotations, comment_author, preserve_comment_attribution
             ),
             root_gamebook=tree.root_gamebook,
             root_clocks=tree.root_clocks,
@@ -559,14 +562,22 @@ class StudyChapterBuilder:
 
     @staticmethod
     def _canonical_annotation_authors(
-        annotations: StudyAnnotations, comment_author: str
+        annotations: StudyAnnotations,
+        comment_author: str,
+        preserve_attribution: bool = False,
     ) -> StudyAnnotations:
         if not annotations.comments:
             return annotations
         return StudyAnnotations(
             shapes=annotations.shapes,
             comments=tuple(
-                StudyComment(comment.id, comment_author, comment.text)
+                StudyComment(
+                    comment.id,
+                    comment_author,
+                    comment.text,
+                    comment.source_author if preserve_attribution else None,
+                    comment.source_author_id if preserve_attribution else None,
+                )
                 for comment in annotations.comments
             ),
             nags=annotations.nags,
