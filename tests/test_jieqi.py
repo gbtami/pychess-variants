@@ -1,7 +1,7 @@
 import unittest
 
 import test_logger
-from fairy import JIEQI_FEN
+from fairy import JIEQI_FEN, FairyBoard
 from fairy.jieqi import (
     BLACK_PIECES,
     RED_PIECES,
@@ -58,6 +58,17 @@ class TestApplyMoveAndTransform(unittest.TestCase):
         result = apply_move_and_transform(self.fen, move, self.mapping)
         king_piece = self.get_piece_at(result, "e2")
         self.assertEqual("K", king_piece)
+
+    def test_checkmate_has_no_legal_move_after_fake_advisor_filter(self):
+        # Reproduces game EIZenrcV after 27 plies: the engine's only reply is
+        # the covered fake advisor move f10g9, which leaves the palace.
+        fen = "2b~a~1a~b~n~r~/2n1k1R2/n1r1bN3/8p~/9/1aB1P4/8P~/1C~N1P2C~1/9/1N~B~1K1B~pR~ b - - 0 1"
+        board = FairyBoard("jieqi", fen)
+        board.set_jieqi_initial_pieces("nrcapppcbpabnpr", "PBPNAPANRBRPCPC")
+
+        self.assertTrue(board.is_checked())
+        self.assertEqual([], board.legal_moves())
+        self.assertFalse(board.has_legal_move())
 
 
 if __name__ == "__main__":

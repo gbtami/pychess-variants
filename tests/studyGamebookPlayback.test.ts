@@ -361,6 +361,37 @@ describe('Study interactive lesson playback adapter', () => {
         playback.destroy();
     });
 
+    test('renders a comment-only chapter as the completed gamebook page like Lichess', () => {
+        const root = node(
+            'root',
+            '',
+            0,
+            undefined,
+            'white',
+            'Welcome to the study.\n\nThis chapter contains only introductory text.',
+        );
+        const tree: AnalysisTree = { root, byPath: new Map([['', root]]), nextId: 1 };
+        const ctrl = makeCtrl(tree);
+        const nextChapter = jest.fn();
+        const playback = new StudyGamebookPlayback(ctrl, {
+            chapterId: 'chapter-introduction',
+            orientation: 'white',
+            preview: false,
+            canAnalyse: true,
+            hasNextChapter: true,
+            onNextChapter: nextChapter,
+            onAnalyse: jest.fn(),
+        });
+
+        expect(document.querySelector('.study-gamebook-play__comment-content')?.textContent).toBe(
+            'Welcome to the study.\n\nThis chapter contains only introductory text.',
+        );
+        expect(document.querySelector('.study-gamebook-play__feedback.end')?.textContent).toContain('Next chapter');
+        expect(document.body.textContent).not.toContain('Lesson unavailable');
+
+        playback.destroy();
+    });
+
     test('matches lichess icon treatment for completed lesson actions', () => {
         const ctrl = makeCtrl();
         const nextChapter = jest.fn();

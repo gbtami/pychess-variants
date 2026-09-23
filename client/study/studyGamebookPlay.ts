@@ -117,7 +117,6 @@ function snapshotNode(node: AnalysisTreeNode, incomingMove?: string): ScriptNode
 
 function snapshotScript(tree: AnalysisTree): ScriptNode[] | undefined {
     const nodes = studyGamebookMainline(tree);
-    if (nodes.length === 1) return [];
     const script: ScriptNode[] = [snapshotNode(nodes[0])];
     for (let index = 1; index < nodes.length; index++) {
         const move = nodes[index].step.move;
@@ -278,10 +277,6 @@ export class StudyGamebookPlayController {
             return;
         }
         this.script = script;
-        if (!script.length) {
-            this.unavailable('empty-script');
-            return;
-        }
         this.enterCurrentPosition(true);
     }
 

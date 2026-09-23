@@ -356,7 +356,7 @@ class FairyBoard:
                 > 0
             )
         else:
-            return len(self.sf.legal_moves(self.variant, self.fen, [], self.chess960)) > 0
+            return bool(self.legal_moves())
 
     def legal_moves(self):
         # move legality can depend on history, e.g., passing and bikjang

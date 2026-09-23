@@ -141,13 +141,27 @@ function controller(
 }
 
 describe('Study interactive lesson deterministic playback', () => {
-    test('empty or already-final roots are unavailable instead of completed', () => {
+    test('comment-only chapters are completed lessons and keep their root comment', () => {
         const root = makeNode('root', '', 0, undefined, 'white', { comment: 'Nothing to play', mainlinePly: 0 });
+        const { ctrl, actions } = controller({ root, byPath: new Map([['', root]]), nextId: 1 });
+
+        expect(ctrl.state).toEqual({
+            kind: 'complete',
+            chapterId: 'chapter-1',
+            path: '',
+            comment: 'Nothing to play',
+        });
+        expect(ctrl.replay()).toBe(true);
+        expect(ctrl.state).toMatchObject({ kind: 'complete', path: '', comment: 'Nothing to play' });
+        expect(ctrl.nextChapter()).toBe(true);
+        expect(actions.nextChapter).toHaveBeenCalledTimes(1);
+    });
+
+    test('an empty root without a comment still matches Lichess gamebook end-state semantics', () => {
+        const root = makeNode('root', '', 0, undefined, 'white', { mainlinePly: 0 });
         const { ctrl } = controller({ root, byPath: new Map([['', root]]), nextId: 1 });
 
-        expect(ctrl.state).toEqual({ kind: 'unavailable', chapterId: 'chapter-1', path: '', reason: 'empty-script' });
-        expect(ctrl.replay()).toBe(false);
-        expect(ctrl.nextChapter()).toBe(false);
+        expect(ctrl.state).toEqual({ kind: 'complete', chapterId: 'chapter-1', path: '' });
     });
 
     test('uses first nonempty comment, hint and solution without playing the solution', () => {

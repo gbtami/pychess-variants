@@ -343,6 +343,32 @@ describe('Study PGN import core', () => {
         expect(chapter.tags.ChapterMode).toBeUndefined();
     });
 
+    test('preserves a Lichess comment-only gamebook chapter at the root position', async () => {
+        const [chapter] = await parseStudyPgnForImport(
+            studyPgnParser,
+            ffish,
+            `[Event "Comment-only lesson"]
+[Variant "From Position"]
+[ChapterName "Introduction"]
+[Annotator "https://lichess.org/@/NoseKnowsAll"]
+[FEN "R7/K5k1/P7/8/8/8/8/1r6 w - - 21 11"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Welcome to the study. This chapter introduces the lesson without any moves. }
+*`,
+        );
+
+        expect(chapter.mode).toBe('gamebook');
+        expect(chapter.tree.nodes).toEqual([]);
+        expect(chapter.tree.rootAnnotations?.comments).toEqual([
+            expect.objectContaining({
+                text: 'Welcome to the study. This chapter introduces the lesson without any moves.',
+                sourceAuthor: 'https://lichess.org/@/NoseKnowsAll',
+            }),
+        ]);
+    });
+
     test('imports the versioned conceal boundary and strips its internal tag', () => {
         const parsed = parsedDocument();
         parsed.games[0].tags.PyChessStudyVersion = '1';
