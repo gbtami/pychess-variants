@@ -206,6 +206,7 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('.study-underboard')).not.toBeNull();
         expect(root.querySelector('#mainboard')).not.toBeNull();
         expect(root.querySelector('#movelist')).not.toBeNull();
+        expect(root.querySelector('#movelist-footer')).not.toBeNull();
         expect(root.querySelector('.analysis-tools > .movelist-block + .study-gamebook-edit')?.textContent).toBe(
             'Lesson authoring',
         );
@@ -917,6 +918,40 @@ describe('analysis tree movelist gating', () => {
         const movelist = document.getElementById('movelist')!;
         expect(movelist.classList.contains('analysis-tree')).toBe(true);
         expect(movelist.classList.contains('tview2-column')).toBe(true);
+    });
+
+    test('analysis extensions render move-list footer outside the scrolling move tree', () => {
+        document.body.innerHTML =
+            '<div class="movelist-block"><div id="movelist"></div><div id="movelist-footer"></div></div>';
+
+        const steps: Step[] = [
+            makeStep('start w - - 0 1', undefined, 'white'),
+            makeStep('s1 b - - 0 1', 'e2e4', 'black', 'e4'),
+        ];
+        const tree = createAnalysisTree(steps);
+        const ctrl = {
+            steps,
+            status: -1,
+            result: '*',
+            ply: 1,
+            plyVari: 0,
+            vmovelist: document.getElementById('movelist'),
+            variant: { name: 'chess' },
+            fog: false,
+            mycolor: 'white',
+            spectator: true,
+            analysisTree: tree,
+            analysisExtension: { renderMoveListFooter: () => [h('button.study-next-chapter', 'Next chapter')] },
+            hasAnalysisTree: () => true,
+            isTreeInlineNotation: () => false,
+            getTreeActivePath: () => tree.root.children[0].path,
+            activateTreePath: () => undefined,
+        } as any;
+
+        updateMovelist(ctrl, true, false, false);
+
+        expect(document.querySelector('#movelist .study-next-chapter')).toBeNull();
+        expect(document.querySelector('#movelist-footer .study-next-chapter')?.textContent).toBe('Next chapter');
     });
 
     test('study comments interrupt move pairs and keep imported text inert', () => {

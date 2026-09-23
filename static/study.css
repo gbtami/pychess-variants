@@ -511,8 +511,10 @@
 .study-app { min-width: 0; }
 .study-app > .sidebar-first { min-width: 0; justify-content: flex-start; }
 .study-app .analysis-tools { min-height: 0; min-width: 0; background: var(--bg-color0); border-radius: 3px; overflow: hidden; }
-.study-app .movelist-block { min-height: 0; }
-.study-app #movelist > .study-next-chapter {
+.study-app .movelist-block { display: flex; flex-direction: column; min-height: 0; }
+.study-app #movelist { flex: 0 0 auto; }
+.study-app #movelist-footer { flex: 0 0 auto; margin-top: auto; }
+.study-app #movelist-footer > .study-next-chapter {
     display: flex;
     flex: 0 0 100%;
     align-items: center;
@@ -527,25 +529,25 @@
     cursor: pointer;
     transition: background-color 120ms ease, color 120ms ease;
 }
-.study-app #movelist > .study-next-chapter:hover,
-.study-app #movelist > .study-next-chapter:focus-visible {
+.study-app #movelist-footer > .study-next-chapter:hover,
+.study-app #movelist-footer > .study-next-chapter:focus-visible {
     color: var(--link-hover);
     background: var(--bg-color2);
 }
-.study-app #movelist > .study-next-chapter.highlighted {
+.study-app #movelist-footer > .study-next-chapter.highlighted {
     background: color-mix(in srgb, var(--move-active) 78%, var(--bg-color1));
     color: #fff;
 }
-.study-app #movelist > .study-next-chapter.highlighted:hover,
-.study-app #movelist > .study-next-chapter.highlighted:focus-visible { background: var(--move-active); }
-.study-app #movelist > .study-next-chapter .icon { width: 1rem; margin: 0; text-align: center; }
-.study-app #movelist > .study-move-fork {
+.study-app #movelist-footer > .study-next-chapter.highlighted:hover,
+.study-app #movelist-footer > .study-next-chapter.highlighted:focus-visible { background: var(--move-active); }
+.study-app #movelist-footer > .study-next-chapter .icon { width: 1rem; margin: 0; text-align: center; }
+.study-app #movelist-footer > .study-move-fork {
     display: flex;
     flex: 0 0 100%;
     flex-wrap: wrap;
     width: 100%;
 }
-.study-app #movelist > .study-move-fork > .study-move-fork__move {
+.study-app #movelist-footer > .study-move-fork > .study-move-fork__move {
     display: flex;
     flex: 0 0 50%;
     align-items: center;
@@ -560,23 +562,23 @@
     text-align: left;
     cursor: pointer;
 }
-.study-app #movelist > .study-move-fork > .study-move-fork__move:nth-child(odd) {
+.study-app #movelist-footer > .study-move-fork > .study-move-fork__move:nth-child(odd) {
     border-right: 1px solid var(--bg-color1);
 }
-.study-app #movelist > .study-move-fork .study-move-fork__index { color: Gray; }
-.study-app #movelist > .study-move-fork .study-move-fork__san {
+.study-app #movelist-footer > .study-move-fork .study-move-fork__index { color: Gray; }
+.study-app #movelist-footer > .study-move-fork .study-move-fork__san {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 @media (hover: hover) {
-    .study-app #movelist > .study-move-fork > .study-move-fork__move:hover,
-    .study-app #movelist > .study-move-fork:not(:hover) > .study-move-fork__move.selected {
+    .study-app #movelist-footer > .study-move-fork > .study-move-fork__move:hover,
+    .study-app #movelist-footer > .study-move-fork:not(:hover) > .study-move-fork__move.selected {
         background: var(--move-active);
         color: #fff;
     }
-    .study-app #movelist > .study-move-fork > .study-move-fork__move:hover .study-move-fork__index,
-    .study-app #movelist > .study-move-fork:not(:hover) > .study-move-fork__move.selected .study-move-fork__index {
+    .study-app #movelist-footer > .study-move-fork > .study-move-fork__move:hover .study-move-fork__index,
+    .study-app #movelist-footer > .study-move-fork:not(:hover) > .study-move-fork__move.selected .study-move-fork__index {
         color: #fff;
     }
 }

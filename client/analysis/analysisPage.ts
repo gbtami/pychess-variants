@@ -81,7 +81,7 @@ export function analysisTools(isOngoingGame: boolean = false, afterMoves?: VNode
                   ]),
               ]),
         isOngoingGame ? '' : h('div.pvbox', [h('div#pv1'), h('div#pv2'), h('div#pv3'), h('div#pv4'), h('div#pv5')]),
-        h('div.movelist-block', [h('div#movelist')]),
+        h('div.movelist-block', [h('div#movelist'), h('div#movelist-footer')]),
         ...afterMovesNodes,
         h('div#misc-info', [h('div#misc-infow'), h('div#misc-info-center'), h('div#misc-infob')]),
         isOngoingGame

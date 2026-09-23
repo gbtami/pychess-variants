@@ -875,7 +875,9 @@ export function updateMovelist(ctrl: GameController, full = true, activate = tru
             moves.push(h('div.result', ctrl.result));
             moves.push(h('div.status', result(ctrl.variant, ctrl.status, ctrl.result)));
         }
-        moves.push(...(treeCtrl.analysisExtension?.renderMoveListFooter?.() ?? []));
+        const footer = treeCtrl.analysisExtension?.renderMoveListFooter?.() ?? [];
+        const footerContainer = document.getElementById('movelist-footer');
+        if (!footerContainer) moves.push(...footer);
         if (contextMenu) moves.push(contextMenu);
         const container = document.getElementById('movelist') as HTMLElement;
         const scrollTop = movelistScrollContainer(container).scrollTop;
@@ -899,6 +901,7 @@ export function updateMovelist(ctrl: GameController, full = true, activate = tru
                 moves,
             ),
         );
+        if (footerContainer) patch(footerContainer, h('div#movelist-footer', footer));
         if (activate) scrollToPly(ctrl);
         else movelistScrollContainer(ctrl.vmovelist.elm as HTMLElement).scrollTop = scrollTop;
         return;
