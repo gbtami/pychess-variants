@@ -923,6 +923,44 @@ async def create_study_from_draft(
     return study, chapter
 
 
+async def create_study_from_drafts(
+    app_state: Any,
+    owner: str,
+    drafts: list[StudyChapterDraft],
+    *,
+    name: str | None = None,
+    visibility: StudyVisibility = "private",
+    settings: Mapping[str, object] | None = None,
+) -> tuple[Study, list[StudyChapter]]:
+    if not drafts:
+        raise StudyStorageError("PGN import contains no chapters")
+    if len(drafts) > STUDY_MAX_CHAPTERS:
+        raise StudyStorageError(f"A Study can have at most {STUDY_MAX_CHAPTERS} chapters")
+
+    study, first = await create_study_from_draft(
+        app_state,
+        owner,
+        drafts[0],
+        name=name,
+        visibility=visibility,
+        settings=settings,
+    )
+    if len(drafts) == 1:
+        return study, [first]
+
+    try:
+        rest = await add_chapters_from_drafts(app_state, study, drafts[1:])
+    except Exception:
+        # A new Study has no external references yet. Roll the first chapter and
+        # Study metadata back as one creation unit when the remaining PGN chapters
+        # cannot be persisted. add_chapters_from_drafts() already cleans its own
+        # partial insert before propagating the failure.
+        await app_state.db.study_chapter.delete_many({"studyId": study.id, "owner": owner})
+        await app_state.db.study.delete_one({"_id": study.id, "owner": owner})
+        raise
+    return study, [first, *rest]
+
+
 async def create_study_with_chapter(
     app_state: Any,
     owner: str,

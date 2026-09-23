@@ -32,6 +32,7 @@ from study.models import (
     Study,
     StudyChapter,
     StudyChapterMode,
+    StudyVisibility,
     study_chapter_mode,
     study_chapter_mode_enabled,
     study_enabled_chapter_modes,
@@ -69,6 +70,7 @@ from study.storage import (
     clone_study,
     contributed_studies_page,
     create_study_from_draft,
+    create_study_from_drafts,
     delete_chapter,
     delete_study,
     edit_chapter_metadata,
@@ -147,6 +149,21 @@ def _study_sync_enabled(value: object, *, default: bool = True) -> bool:
         if normalized in {"0", "false", "off", "no"}:
             return False
     raise StudyStorageError("Invalid Study SYNC mode")
+
+
+def _study_creation_metadata(
+    data: Mapping[str, object],
+) -> tuple[str, StudyVisibility, dict[str, object]]:
+    try:
+        visibility = study_visibility(data.get("visibility", "private"))
+        settings = {
+            feature: study_user_selection(data.get(feature, "everyone"))
+            for feature in ("computer", "explorer", "cloneable", "shareable")
+        }
+    except ValueError as exc:
+        raise StudyStorageError("Invalid Study settings") from exc
+    name = str(data.get("name") or "").strip()
+    return name, visibility, settings
 
 
 def _study_context(context: ViewContext) -> None:
@@ -795,13 +812,9 @@ async def study_create(request: web.Request) -> web.StreamResponse:
     if data is None:
         raise web.HTTPNoContent()
     try:
-        visibility = study_visibility(data.get("visibility", "private"))
-        settings = {
-            feature: study_user_selection(data.get(feature, "everyone"))
-            for feature in ("computer", "explorer", "cloneable", "shareable")
-        }
-    except ValueError as exc:
-        raise web.HTTPBadRequest(text="Invalid Study settings") from exc
+        name, visibility, settings = _study_creation_metadata(data)
+    except StudyStorageError as exc:
+        raise web.HTTPBadRequest(text=str(exc)) from exc
 
     try:
         draft = await _draft_from_form(StudyChapterBuilder(app_state, user.username), data)
@@ -817,7 +830,7 @@ async def study_create(request: web.Request) -> web.StreamResponse:
             app_state,
             user.username,
             draft,
-            name=data.get("name"),
+            name=name or None,
             visibility=visibility,
             settings=settings,
         )
@@ -1135,88 +1148,48 @@ async def study_from_analysis(request: web.Request) -> web.StreamResponse:
     )
 
 
-async def study_import_pgn(request: web.Request) -> web.StreamResponse:
-    user, _, study, _ = await _writable_study_and_chapter(request)
-    app_state = get_app_state(request.app)
-    data = await read_json_data(request)
-    if not isinstance(data, Mapping):
-        return web.json_response({"ok": False, "error": "invalid import payload"}, status=400)
+async def _pgn_import_drafts(
+    app_state: Any, owner: str, data: Mapping[str, object]
+) -> list[StudyChapterDraft]:
     raw_chapters = data.get("chapters")
     if not isinstance(raw_chapters, list) or not raw_chapters:
-        return web.json_response(
-            {"ok": False, "error": "PGN import contains no chapters"}, status=400
-        )
+        raise StudyStorageError("PGN import contains no chapters")
 
-    builder = StudyChapterBuilder(app_state, user.username)
+    builder = StudyChapterBuilder(app_state, owner)
     drafts: list[StudyChapterDraft] = []
     for index, raw in enumerate(raw_chapters, start=1):
         if not isinstance(raw, Mapping):
-            return web.json_response(
-                {"ok": False, "error": f"Imported chapter {index} is invalid"}, status=400
-            )
+            raise StudyChapterBuildError(f"Imported chapter {index} is invalid")
         raw_tree = raw.get("tree")
         if not isinstance(raw_tree, Mapping):
-            return web.json_response(
-                {"ok": False, "error": f"Imported chapter {index} has no valid tree"}, status=400
-            )
+            raise StudyChapterBuildError(f"Imported chapter {index} has no valid tree")
         raw_chess960 = raw.get("chess960", False)
         if not isinstance(raw_chess960, bool):
-            return web.json_response(
-                {"ok": False, "error": f"Imported chapter {index} has invalid Chess960 mode"},
-                status=400,
-            )
+            raise StudyChapterBuildError(f"Imported chapter {index} has invalid Chess960 mode")
         raw_orientation = raw.get("orientation", "white")
         if raw_orientation not in ("white", "black"):
-            return web.json_response(
-                {"ok": False, "error": f"Imported chapter {index} has invalid orientation"},
-                status=400,
-            )
+            raise StudyChapterBuildError(f"Imported chapter {index} has invalid orientation")
         raw_tags = raw.get("tags", {})
-        if not isinstance(raw_tags, Mapping):
-            return web.json_response(
-                {"ok": False, "error": f"Imported chapter {index} has invalid PGN tags"},
-                status=400,
-            )
-        if not all(
+        if not isinstance(raw_tags, Mapping) or not all(
             isinstance(key, str) and isinstance(value, str) for key, value in raw_tags.items()
         ):
-            return web.json_response(
-                {"ok": False, "error": f"Imported chapter {index} has invalid PGN tags"},
-                status=400,
-            )
+            raise StudyChapterBuildError(f"Imported chapter {index} has invalid PGN tags")
         raw_snapshot = raw.get("variantIni")
         if raw_snapshot is not None and not isinstance(raw_snapshot, str):
-            return web.json_response(
-                {"ok": False, "error": f"Imported chapter {index} has invalid variant snapshot"},
-                status=400,
-            )
+            raise StudyChapterBuildError(f"Imported chapter {index} has invalid variant snapshot")
         raw_variant = raw.get("variant")
         raw_initial_fen = raw.get("initialFen")
         raw_name = raw.get("name")
         raw_description = raw.get("description", "")
         if not isinstance(raw_variant, str) or not isinstance(raw_initial_fen, str):
-            return web.json_response(
-                {"ok": False, "error": f"Imported chapter {index} has invalid variant/FEN data"},
-                status=400,
-            )
+            raise StudyChapterBuildError(f"Imported chapter {index} has invalid variant/FEN data")
         if raw_name is not None and not isinstance(raw_name, str):
-            return web.json_response(
-                {"ok": False, "error": f"Imported chapter {index} has invalid name"}, status=400
-            )
+            raise StudyChapterBuildError(f"Imported chapter {index} has invalid name")
         if not isinstance(raw_description, str):
-            return web.json_response(
-                {"ok": False, "error": f"Imported chapter {index} has invalid description"},
-                status=400,
-            )
+            raise StudyChapterBuildError(f"Imported chapter {index} has invalid description")
 
         try:
             mode, conceal_ply = _chapter_teaching_from_input(raw)
-        except StudyChapterBuildError as exc:
-            return web.json_response(
-                {"ok": False, "error": f"Imported chapter {index}: {exc}"}, status=400
-            )
-
-        try:
             drafts.append(
                 await builder.from_import(
                     variant=raw_variant,
@@ -1232,12 +1205,80 @@ async def study_import_pgn(request: web.Request) -> web.StreamResponse:
                     tags=cast(Mapping[str, str], raw_tags),
                 )
             )
-        except StudyVariantCapacityError as exc:
-            return web.json_response({"ok": False, "error": str(exc)}, status=503)
+        except StudyVariantCapacityError:
+            raise
         except StudyChapterBuildError as exc:
-            return web.json_response(
-                {"ok": False, "error": f"Imported chapter {index}: {exc}"}, status=400
-            )
+            raise StudyChapterBuildError(f"Imported chapter {index}: {exc}") from exc
+    return drafts
+
+
+async def study_create_pgn(request: web.Request) -> web.StreamResponse:
+    user, _ = await get_user_context(request)
+    _require_owner_user(user)
+    app_state = get_app_state(request.app)
+    if app_state.db is None:
+        return web.json_response(
+            {"ok": False, "error": "Studies require database access."}, status=503
+        )
+
+    data = await read_json_data(request)
+    if not isinstance(data, Mapping):
+        return web.json_response({"ok": False, "error": "invalid import payload"}, status=400)
+    try:
+        name, visibility, settings = _study_creation_metadata(data)
+        drafts = await _pgn_import_drafts(app_state, user.username, data)
+    except StudyVariantCapacityError as exc:
+        return web.json_response({"ok": False, "error": str(exc)}, status=503)
+    except (StudyStorageError, StudyChapterBuildError) as exc:
+        return web.json_response({"ok": False, "error": str(exc)}, status=400)
+
+    try:
+        quota_claim = await claim_study_creation_slot(app_state, user.username)
+    except StudyQuotaExceeded as exc:
+        status = 403 if exc.code == "account_missing" else 429
+        headers = {} if status == 403 else {"Retry-After": str(exc.retry_after_seconds)}
+        return web.json_response({"ok": False, "error": str(exc)}, status=status, headers=headers)
+
+    try:
+        study, chapters = await create_study_from_drafts(
+            app_state,
+            user.username,
+            drafts,
+            name=name or None,
+            visibility=visibility,
+            settings=settings,
+        )
+    except (StudyStorageError, StudyChapterBuildError) as exc:
+        await release_study_creation_slot(app_state, user.username, quota_claim)
+        return web.json_response({"ok": False, "error": str(exc)}, status=400)
+    except Exception:
+        await release_study_creation_slot(app_state, user.username, quota_claim)
+        raise
+
+    last = chapters[-1]
+    return web.json_response(
+        {
+            "ok": True,
+            "imported": len(chapters),
+            "studyId": study.id,
+            "chapterId": last.id,
+            "url": f"/study/{study.id}/{last.id}",
+        }
+    )
+
+
+async def study_import_pgn(request: web.Request) -> web.StreamResponse:
+    user, _, study, _ = await _writable_study_and_chapter(request)
+    app_state = get_app_state(request.app)
+    data = await read_json_data(request)
+    if not isinstance(data, Mapping):
+        return web.json_response({"ok": False, "error": "invalid import payload"}, status=400)
+    try:
+        drafts = await _pgn_import_drafts(app_state, user.username, data)
+    except StudyVariantCapacityError as exc:
+        return web.json_response({"ok": False, "error": str(exc)}, status=503)
+    except (StudyStorageError, StudyChapterBuildError) as exc:
+        return web.json_response({"ok": False, "error": str(exc)}, status=400)
 
     try:
         activate_shared = _study_sync_enabled(data.get("sync"))

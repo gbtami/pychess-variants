@@ -9,7 +9,6 @@ import { analysisContext } from '../analysis/analysisContext';
 import { analysisChart } from '../analysis/analysisChart';
 import { AnalysisController } from '../analysis/analysisCtrl';
 import { parentPath } from '../analysis/analysisTree';
-import { parsePgnVariantTag } from '../pgn';
 import { renderAnalysisPage } from '../analysis/analysisPage';
 import { copyTextToClipboard } from '../clipboard';
 import { confirmDialog } from '../confirmDialog';
@@ -30,7 +29,7 @@ import { StudyGamebookEditor } from './studyGamebookEdit';
 import { StudyGamebookPlayback } from './studyGamebookPlayback';
 import { StudyPracticeSession } from './studyPractice';
 import { fetchStudyChapterExportData, renderStudyChapterPgn, renderStudyPgn, studyPgnFilename } from './studyPgn';
-import { parseStudyPgnForImportWithEngines, postStudyPgnImport, type ParsedStudyPgnGame } from './studyPgnImport';
+import { parseStudyPgnForImportWithEngines, postStudyPgnImport, studyPgnGameUsesAlice } from './studyPgnImport';
 import { studyPgnParser } from './studyPgnParser';
 import {
     studyChapterCreateForm,
@@ -59,12 +58,6 @@ function studyCanShare(study: StudyPageModel): boolean {
 
 function studyCanEmbed(study: StudyPageModel): boolean {
     return study.canEmbed ?? study.visibility !== 'private';
-}
-
-function studyPgnGameUsesAlice(game: ParsedStudyPgnGame): boolean {
-    const exact = game.tags.PyChessVariant?.trim().toLowerCase();
-    if (exact) return exact === 'alice';
-    return parsePgnVariantTag(game.tags.Variant ?? 'chess').variant === 'alice';
 }
 
 const studyPermissionChoices: [StudyFeatureSelection, string][] = [

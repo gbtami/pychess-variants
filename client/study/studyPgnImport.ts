@@ -83,7 +83,22 @@ export interface StudyPgnImportResponse {
     error?: string;
 }
 
+export interface StudyPgnNewStudySettings {
+    name: string;
+    visibility: string;
+    computer: string;
+    explorer: string;
+    cloneable: string;
+    shareable: string;
+}
+
 export class StudyPgnImportError extends Error {}
+
+export function studyPgnGameUsesAlice(game: ParsedStudyPgnGame): boolean {
+    const exact = game.tags.PyChessVariant?.trim().toLowerCase();
+    if (exact) return exact === 'alice';
+    return parsePgnVariantTag(game.tags.Variant ?? 'chess').variant === 'alice';
+}
 
 const BRUSH_BY_CODE: Record<string, StudyShapeDto['brush']> = {
     G: 'green',
@@ -658,6 +673,28 @@ export async function postStudyPgnImport(
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chapters, ...(sync === undefined ? {} : { sync }) }),
+    });
+    let payload: StudyPgnImportResponse;
+    try {
+        payload = (await response.json()) as StudyPgnImportResponse;
+    } catch {
+        payload = { ok: false, error: `Study PGN import failed (${response.status})` };
+    }
+    if (!response.ok || !payload.ok) {
+        throw new StudyPgnImportError(payload.error || `Study PGN import failed (${response.status})`);
+    }
+    return payload;
+}
+
+export async function postNewStudyPgnImport(
+    settings: StudyPgnNewStudySettings,
+    chapters: StudyPgnImportChapter[],
+    fetcher: typeof fetch = fetch,
+): Promise<StudyPgnImportResponse> {
+    const response = await fetcher('/study/import-pgn', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...settings, chapters }),
     });
     let payload: StudyPgnImportResponse;
     try {

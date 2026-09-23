@@ -1,14 +1,85 @@
+import ffishAliceModule from 'ffish-alice-es6';
+import ffishModule from 'ffish-es6';
+
 import { patch } from '../document';
 import { studyChapterCreateForm, studyEnabledModesFromJson } from './studyChapterForm';
+import {
+    parseStudyPgnForImportWithEngines,
+    postNewStudyPgnImport,
+    studyPgnGameUsesAlice,
+    type StudyPgnEngine,
+    type StudyPgnImportResponse,
+    type StudyPgnNewStudySettings,
+} from './studyPgnImport';
+import { studyPgnParser } from './studyPgnParser';
 
 const STUDY_SETTING_FIELDS = ['name', 'visibility', 'computer', 'explorer', 'cloneable', 'shareable'] as const;
+const studyPgnModules = new Map<boolean, Promise<StudyPgnEngine>>();
+
+type StudyIndexPgnImport = (
+    pgn: string,
+    settings: StudyPgnNewStudySettings,
+) => Promise<StudyPgnImportResponse>;
+
+export interface StudyIndexOptions {
+    pgnImport?: StudyIndexPgnImport;
+    navigate?: (url: string) => void;
+}
 
 function focusAndSelect(input: HTMLInputElement | null): void {
     input?.focus();
     input?.select();
 }
 
-export function initStudyIndex(): void {
+function studySettings(form: HTMLFormElement): StudyPgnNewStudySettings {
+    const data = new FormData(form);
+    const value = (name: (typeof STUDY_SETTING_FIELDS)[number]): string => {
+        const raw = data.get(name);
+        return typeof raw === 'string' ? raw : '';
+    };
+    return {
+        name: value('name'),
+        visibility: value('visibility'),
+        computer: value('computer'),
+        explorer: value('explorer'),
+        cloneable: value('cloneable'),
+        shareable: value('shareable'),
+    };
+}
+
+function loadStudyPgnModule(alice: boolean): Promise<StudyPgnEngine> {
+    const cached = studyPgnModules.get(alice);
+    if (cached) return cached;
+
+    const script = document.querySelector<HTMLScriptElement>('script[src*="/static/pychess-variants.js"]');
+    const version = script ? new URL(script.src, window.location.href).search : '';
+    const factory = alice ? ffishAliceModule : ffishModule;
+    const loading = factory({
+        locateFile: (path: string, prefix: string) =>
+            path.endsWith('.wasm') ? `/static/${path}${version}` : prefix + path,
+    })
+        .then(module => module as StudyPgnEngine)
+        .catch((error: unknown) => {
+            studyPgnModules.delete(alice);
+            throw error;
+        });
+    studyPgnModules.set(alice, loading);
+    return loading;
+}
+
+async function importNewStudyPgn(
+    pgn: string,
+    settings: StudyPgnNewStudySettings,
+): Promise<StudyPgnImportResponse> {
+    const chapters = await parseStudyPgnForImportWithEngines(
+        studyPgnParser,
+        game => loadStudyPgnModule(studyPgnGameUsesAlice(game)),
+        pgn,
+    );
+    return postNewStudyPgnImport(settings, chapters);
+}
+
+export function initStudyIndex(options: StudyIndexOptions = {}): void {
     const dialog = document.querySelector<HTMLDialogElement>('#study-new-dialog');
     const chapterDialog = document.querySelector<HTMLDialogElement>('#study-first-chapter-dialog');
     const chapterFormMount = document.querySelector<HTMLElement>('#study-first-chapter-form-mount');
@@ -17,12 +88,19 @@ export function initStudyIndex(): void {
     const enabledModes = studyEnabledModesFromJson(document.body.getAttribute('data-study-enabled-modes'));
     if (!dialog || !chapterDialog || !chapterFormMount || !openButton || !settingsForm) return;
 
+    const pgnImport = options.pgnImport ?? importNewStudyPgn;
+    const navigate = options.navigate ?? ((url: string) => window.location.assign(url));
     const chapterForm = patch(
         chapterFormMount,
         studyChapterCreateForm('/study', 'chess', false, {
             id: 'study-first-chapter-form',
             chapterName: 'Chapter 1',
             enabledModes,
+            pgnImport: async pgn => {
+                const result = await pgnImport(pgn, studySettings(settingsForm));
+                if (!result.url) throw new Error('Study PGN import did not return a destination.');
+                navigate(result.url);
+            },
         }),
     ).elm as HTMLFormElement;
     const nameInput = dialog.querySelector<HTMLInputElement>('input[name="name"]');

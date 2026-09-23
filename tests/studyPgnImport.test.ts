@@ -11,6 +11,7 @@ import {
     normalizeStudyPgnDocument,
     parseStudyPgnForImport,
     parseStudyPgnForImportWithEngines,
+    postNewStudyPgnImport,
     postStudyPgnImport,
     StudyPgnImportError,
     type ParsedStudyPgnDocument,
@@ -448,4 +449,50 @@ describe('Study PGN import core', () => {
         expect(body.chapters[0].tree.nodes).toHaveLength(4);
         expect(body.sync).toBe(true);
     });
+    test('posts normalized chapters and Study settings when PGN creates a new Study', async () => {
+        const chapters = normalizeStudyPgnDocument(ffish, parsedDocument());
+        let requestUrl = '';
+        let requestInit: RequestInit | undefined;
+        const fetcher = (async (url: RequestInfo | URL, init?: RequestInit) => {
+            requestUrl = String(url);
+            requestInit = init;
+            return {
+                ok: true,
+                status: 200,
+                json: async () => ({
+                    ok: true,
+                    imported: 1,
+                    studyId: 'study001',
+                    chapterId: 'chapter1',
+                    url: '/study/study001/chapter1',
+                }),
+            } as Response;
+        }) as typeof fetch;
+
+        const result = await postNewStudyPgnImport(
+            {
+                name: 'Imported repertoire',
+                visibility: 'unlisted',
+                computer: 'member',
+                explorer: 'owner',
+                cloneable: 'contributor',
+                shareable: 'nobody',
+            },
+            chapters,
+            fetcher,
+        );
+
+        expect(result.imported).toBe(1);
+        expect(requestUrl).toBe('/study/import-pgn');
+        expect(requestInit?.method).toBe('POST');
+        const body = JSON.parse(String(requestInit?.body));
+        expect(body.name).toBe('Imported repertoire');
+        expect(body.visibility).toBe('unlisted');
+        expect(body.computer).toBe('member');
+        expect(body.explorer).toBe('owner');
+        expect(body.cloneable).toBe('contributor');
+        expect(body.shareable).toBe('nobody');
+        expect(body.chapters[0].tree.nodes).toHaveLength(4);
+    });
+
 });

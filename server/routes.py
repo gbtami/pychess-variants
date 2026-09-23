@@ -550,6 +550,7 @@ post_routes: tuple[RouteDef, ...] = (
     (r"/simul/{simulId:\w{8}}/edit", simul_view.update_simul),
     ("/study", study_view.study_create),
     ("/study/from-analysis", study_view.study_from_analysis),
+    ("/study/import-pgn", study_view.study_create_pgn),
     (r"/study/{studyId:\w{8}}/edit", study_view.study_edit),
     (r"/study/{studyId:\w{8}}/clone", study_view.study_clone),
     (r"/study/{studyId:\w{8}}/like", study_view.study_like),

@@ -25,6 +25,7 @@ from study.storage import (
     contributed_studies_page,
     count_studies_for_owner_view,
     create_study_from_draft,
+    create_study_from_drafts,
     create_study_with_chapter,
     delete_chapter,
     delete_study,
@@ -59,6 +60,29 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
         self.client = AsyncMongoMockClient(tz_aware=True)
         self.db = self.client["pychess-test"]
         self.app_state = SimpleNamespace(db=self.db)
+
+    async def test_multi_draft_creation_rolls_back_when_later_batch_fails(self) -> None:
+        drafts = [
+            StudyChapterDraft(
+                variant="chess", initial_fen=FairyBoard.start_fen("chess"), name="One"
+            ),
+            StudyChapterDraft(
+                variant="chess", initial_fen=FairyBoard.start_fen("chess"), name="Two"
+            ),
+        ]
+        with (
+            patch(
+                "study.storage.add_chapters_from_drafts",
+                new=AsyncMock(side_effect=StudyStorageError("simulated import failure")),
+            ),
+            self.assertRaisesRegex(StudyStorageError, "simulated import failure"),
+        ):
+            await create_study_from_drafts(
+                cast(Any, self.app_state), "owner", drafts, name="Atomic import"
+            )
+
+        self.assertEqual(await self.db.study.count_documents({"owner": "owner"}), 0)
+        self.assertEqual(await self.db.study_chapter.count_documents({"owner": "owner"}), 0)
 
     async def test_create_list_and_owner_lookup(self) -> None:
         study, chapter = await create_study_with_chapter(
