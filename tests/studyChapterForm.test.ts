@@ -199,6 +199,32 @@ test('existing Study chapter creation offers a PGN source and imports pasted PGN
     expect(form.querySelector<HTMLButtonElement>('button[type="submit"]')?.textContent).toBe('Create chapter');
 });
 
+test('PGN file selection loads the file into the paste area and imports that text', async () => {
+    const pgnImport = jest.fn(async (_pgn: string) => {});
+    mount(studyChapterCreateForm('/study/StUdY001/chapter', 'chess', false, { pgnImport }));
+
+    const form = document.querySelector<HTMLFormElement>('form.study-side__new-chapter')!;
+    form.reportValidity = jest.fn(() => true);
+    form.querySelector<HTMLButtonElement>('[data-study-chapter-source="pgn"]')!.click();
+    const textarea = form.querySelector<HTMLTextAreaElement>('textarea[name="pgn"]')!;
+    const fileInput = form.querySelector<HTMLInputElement>('input[type="file"][accept=".pgn"]')!;
+    const source = '[Event "Uploaded"]\n\n1. d4 d5 2. c4 *';
+    const file = new File([source], 'study.pgn', { type: 'application/x-chess-pgn' });
+    Object.defineProperty(fileInput, 'files', { configurable: true, value: [file] });
+    const loaded = new Promise<void>(resolve => textarea.addEventListener('input', () => resolve(), { once: true }));
+
+    fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+    await loaded;
+
+    expect(textarea.value).toBe(source);
+    expect(fileInput.disabled).toBe(false);
+
+    form.dispatchEvent(new SubmitEvent('submit', { bubbles: true, cancelable: true }));
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    expect(pgnImport).toHaveBeenCalledWith(source);
+});
+
 test('PGN import errors stay in the chapter dialog with parser diagnostics', async () => {
     const pgnImport = jest.fn(async () => {
         throw new Error('PGN parse error at line 3, column 7: Expected move.');

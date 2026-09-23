@@ -27,9 +27,9 @@ changes; possible future features below are not commitments or a release schedul
 - Store catalogued/custom variant rules with the chapter so later catalogue changes
   do not change the saved rules.
 
-Chapters are single-board only. Existing Studies can add chapters by pasting PGN in the
-New chapter dialog. PGN file upload and creating a brand-new Study directly from PGN
-remain follow-up work described below.
+Chapters are single-board only. Existing Studies can add chapters by pasting PGN or
+selecting a `.pgn` file in the New chapter dialog. Creating a brand-new Study directly
+from PGN remains follow-up work described below.
 
 ### Annotations and analysis
 
@@ -268,8 +268,10 @@ parsed and replayed entirely in the browser, then the normalized batch is sent t
 existing import endpoint. Parse, legality, and server-validation errors stay in the dialog
 with their detailed diagnostics. Mixed ordinary/Alice PGN batches load the matching
 Fairy-Stockfish WASM module per game, and successful imports open the final imported
-chapter through the in-place chapter navigator. File upload and importing PGN as the first
-chapter while creating a brand-new Study remain separate UI follow-up.
+chapter through the in-place chapter navigator. The same tab can load a local `.pgn` file
+into the paste area with the browser `FileReader`; the import path is otherwise identical.
+Importing PGN as the first chapter while creating a brand-new Study remains separate UI
+follow-up.
 
 ## Implementation and source map
 
@@ -402,7 +404,7 @@ PyChess will implement them all or reproduce every lichess workflow.
 
 | Feature | Current gap / next decision |
 | --- | --- |
-| Raw PGN import | Existing Studies support pasted multi-game PGN in New chapter; file upload and first-chapter/new-Study PGN import remain |
+| Raw PGN import | Existing Studies support pasted or uploaded multi-game PGN in New chapter; first-chapter/new-Study PGN import remains |
 | Multiple accepted lesson answers | Interactive lesson currently accepts only the preferred-mainline move at each prompt |
 | Practice courses | No lichess-style `/practice` curriculum, exercise goals/progress, mastery option or tablebase-backed course integration |
 | Chapter reordering | Persisted order exists, but there is no user-facing reorder action or route |

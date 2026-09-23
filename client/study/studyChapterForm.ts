@@ -59,6 +59,32 @@ function studyPgnImportError(form: HTMLFormElement, error: unknown): void {
     output.hidden = false;
 }
 
+function loadStudyPgnFile(event: Event): void {
+    const input = event.currentTarget as HTMLInputElement;
+    const form = input.form;
+    const file = input.files?.[0];
+    const textarea = form?.querySelector<HTMLTextAreaElement>('textarea[name="pgn"]');
+    if (!form || !file || !textarea) return;
+
+    const error = form.querySelector<HTMLElement>('.study-pgn-import__error');
+    if (error) {
+        error.hidden = true;
+        error.textContent = '';
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+        if (typeof reader.result !== 'string') {
+            studyPgnImportError(form, new Error(_('Could not read PGN file.')));
+            return;
+        }
+        textarea.value = reader.result;
+        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+    };
+    reader.onerror = () => studyPgnImportError(form, new Error(_('Could not read PGN file.')));
+    reader.readAsText(file);
+}
+
 function submitStudyPgnImport(event: SubmitEvent, options: StudyChapterCreateFormOptions): void {
     const form = event.currentTarget as HTMLFormElement;
     event.preventDefault();
@@ -376,6 +402,17 @@ export function studyChapterCreateForm(
                                       },
                                   }),
                               ]),
+                              ...(typeof FileReader === 'undefined'
+                                  ? []
+                                  : [
+                                        h('label.study-dialog__field.study-pgn-import__file', [
+                                            h('span', _('PGN file')),
+                                            h('input', {
+                                                attrs: { type: 'file', accept: '.pgn', disabled: true },
+                                                on: { change: loadStudyPgnFile },
+                                            }),
+                                        ]),
+                                    ]),
                               h(
                                   'small.study-dialog__help',
                                   _(

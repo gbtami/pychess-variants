@@ -326,6 +326,7 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('input[name="gameId"]')).not.toBeNull();
         expect(root.querySelector('dialog#study-new-chapter [data-study-chapter-source="pgn"]')).not.toBeNull();
         expect(root.querySelector('dialog#study-new-chapter textarea[name="pgn"]')).not.toBeNull();
+        expect(root.querySelector('dialog#study-new-chapter input[type="file"][accept=".pgn"]')).not.toBeNull();
         const studySettings = root.querySelector<HTMLDialogElement>('#study-settings')!;
         expect(studySettings.querySelector('#study-settings-form input[name="name"]')?.getAttribute('value')).toBe(
             'Opening ideas',
