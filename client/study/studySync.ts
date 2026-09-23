@@ -159,6 +159,7 @@ export interface StudySyncOptions {
     opIdFactory?: () => string;
     syncIdFactory?: () => string;
     contextMenuActions?: AnalysisExtension['contextMenuActions'];
+    renderMoveListFooter?: AnalysisExtension['renderMoveListFooter'];
     writable?: boolean;
     recording?: boolean;
     policy?: StudySessionPolicy;
@@ -441,6 +442,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     readonly socketTarget: string;
     readonly treeStorageKey: string;
     readonly contextMenuActions?: AnalysisExtension['contextMenuActions'];
+    readonly renderMoveListFooter?: AnalysisExtension['renderMoveListFooter'];
     private readonly idleWaiters = new Set<{ resolve: () => void; reject: () => void }>();
     private currentRevision: number;
     private connected = false;
@@ -498,6 +500,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         this.onReloadRequired = options.onReloadRequired ?? (() => window.location.reload());
         this.onAnnotationStateChanged = options.onAnnotationStateChanged;
         this.contextMenuActions = options.contextMenuActions;
+        this.renderMoveListFooter = options.renderMoveListFooter;
         this.opIdFactory = options.opIdFactory ?? newStudyNodeId;
         this.syncIdFactory = options.syncIdFactory ?? newStudyNodeId;
         this.streamReady = options.snapshotVerified === true || !options.snapshotToken;

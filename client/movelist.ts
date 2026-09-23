@@ -875,6 +875,7 @@ export function updateMovelist(ctrl: GameController, full = true, activate = tru
             moves.push(h('div.result', ctrl.result));
             moves.push(h('div.status', result(ctrl.variant, ctrl.status, ctrl.result)));
         }
+        moves.push(...(treeCtrl.analysisExtension?.renderMoveListFooter?.() ?? []));
         if (contextMenu) moves.push(contextMenu);
         const container = document.getElementById('movelist') as HTMLElement;
         const scrollTop = movelistScrollContainer(container).scrollTop;

@@ -512,6 +512,74 @@
 .study-app > .sidebar-first { min-width: 0; justify-content: flex-start; }
 .study-app .analysis-tools { min-height: 0; min-width: 0; background: var(--bg-color0); border-radius: 3px; overflow: hidden; }
 .study-app .movelist-block { min-height: 0; }
+.study-app #movelist > .study-next-chapter {
+    display: flex;
+    flex: 0 0 100%;
+    align-items: center;
+    gap: .35rem;
+    width: 100%;
+    padding: .5em .65em;
+    border: 0;
+    background: var(--bg-color1);
+    color: var(--link-color-blue);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 120ms ease, color 120ms ease;
+}
+.study-app #movelist > .study-next-chapter:hover,
+.study-app #movelist > .study-next-chapter:focus-visible {
+    color: var(--link-hover);
+    background: var(--bg-color2);
+}
+.study-app #movelist > .study-next-chapter.highlighted {
+    background: color-mix(in srgb, var(--move-active) 78%, var(--bg-color1));
+    color: #fff;
+}
+.study-app #movelist > .study-next-chapter.highlighted:hover,
+.study-app #movelist > .study-next-chapter.highlighted:focus-visible { background: var(--move-active); }
+.study-app #movelist > .study-next-chapter .icon { width: 1rem; margin: 0; text-align: center; }
+.study-app #movelist > .study-move-fork {
+    display: flex;
+    flex: 0 0 100%;
+    flex-wrap: wrap;
+    width: 100%;
+}
+.study-app #movelist > .study-move-fork > .study-move-fork__move {
+    display: flex;
+    flex: 0 0 50%;
+    align-items: center;
+    gap: .3em;
+    min-width: 0;
+    padding: .3em .65em;
+    border: 0;
+    border-bottom: 1px solid var(--bg-color1);
+    background: color-mix(in srgb, var(--move-active) 25%, var(--bg-color0));
+    color: var(--font-color);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+.study-app #movelist > .study-move-fork > .study-move-fork__move:nth-child(odd) {
+    border-right: 1px solid var(--bg-color1);
+}
+.study-app #movelist > .study-move-fork .study-move-fork__index { color: Gray; }
+.study-app #movelist > .study-move-fork .study-move-fork__san {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+@media (hover: hover) {
+    .study-app #movelist > .study-move-fork > .study-move-fork__move:hover,
+    .study-app #movelist > .study-move-fork:not(:hover) > .study-move-fork__move.selected {
+        background: var(--move-active);
+        color: #fff;
+    }
+    .study-app #movelist > .study-move-fork > .study-move-fork__move:hover .study-move-fork__index,
+    .study-app #movelist > .study-move-fork:not(:hover) > .study-move-fork__move.selected .study-move-fork__index {
+        color: #fff;
+    }
+}
 .study-app .pocketrow { max-width: 100%; }
 .study-app > under-board { min-width: 0; margin-top: .6rem; }
 .study-app.has-players > under-board { margin-top: 1.4rem; }

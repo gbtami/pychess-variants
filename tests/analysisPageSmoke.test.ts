@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { h, type VNode } from 'snabbdom';
 
+import type { AnalysisController } from '../client/analysis/analysisCtrl';
 import { addOrSelectChild, createAnalysisTree, mainlinePathAtPly } from '../client/analysis/analysisTree';
 import { patch } from '../client/document';
 import { Step } from '../client/messages';
@@ -43,7 +44,9 @@ jest.unstable_mockModule('../client/analysis/analysisSettings', () => ({
 
 const { analysisView, embedView, renderAnalysisPage } = await import('../client/analysis');
 const { puzzleView } = await import('../client/puzzle');
-const { studyEmbedView, studyView, updateStudyUnderboardChapter } = await import('../client/study/studyView');
+const { renderStudyMoveListFooter, studyEmbedView, studyView, updateStudyUnderboardChapter } = await import(
+    '../client/study/studyView'
+);
 const { roundView } = await import('../client/round');
 
 function makeModel(overrides: Partial<PyChessModel> = {}): PyChessModel {
@@ -499,7 +502,7 @@ describe('analysis page smoke coverage', () => {
             maxTopics: 30,
             topicMinLength: 2,
             topicMaxLength: 50,
-            members: { owner: 'write' },
+            members: { owner: 'write', tester: 'read' },
             maxMembers: 30,
             sharedChapter: 'ChAp0001',
             sharedPath: '',
@@ -524,7 +527,9 @@ describe('analysis page smoke coverage', () => {
         const root = renderNodes(studyView(makeModel({ gameId: '', status: 0, study })));
 
         expect(root.querySelector('.study-side__readonly')?.textContent).toBe('Read only');
-        expect(root.querySelector('under-board .study-tool-tabs > .study-mode--sync')?.textContent).toContain('SYNC');
+        const sync = root.querySelector<HTMLButtonElement>('under-board .study-tool-tabs > .study-mode--sync');
+        expect(sync?.textContent).toContain('SYNC');
+        expect(sync?.hidden).toBe(false);
         expect(root.querySelector('.study-mode--write')).toBeNull();
         expect(root.querySelector('.study-side .study-mode')).toBeNull();
         expect(root.querySelector('.study-side__add')).toBeNull();
@@ -547,6 +552,64 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('.study-share__clone button')?.textContent).toBe('Clone study');
         expect(root.querySelector('.study-export__chapter')?.textContent).toBe('Download chapter PGN');
         expect(root.querySelector('.study-export__study')?.textContent).toBe('Download study PGN');
+    });
+
+    test('Study move-list footer offers next chapter and visible fork choices', () => {
+        const study = {
+            canWrite: false,
+            chapter: { id: 'ChAp0001', mode: 'normal' },
+            chapters: [
+                { id: 'ChAp0001', name: 'First', order: 1, orientation: 'white', mode: 'normal' },
+                { id: 'ChAp0002', name: 'Second', order: 2, orientation: 'white', mode: 'normal' },
+            ],
+        } as unknown as StudyPageModel;
+        const e4 = {
+            id: 'e4',
+            path: 'e4',
+            ply: 1,
+            step: makeStep('e4 b - - 0 1', 'e2e4', 'black', 'e4'),
+            children: [],
+        };
+        const e3 = {
+            id: 'e3',
+            path: 'e3',
+            ply: 1,
+            step: makeStep('e3 b - - 0 1', 'e2e3', 'black', 'e3'),
+            children: [],
+        };
+        const d4 = {
+            id: 'd4',
+            path: 'd4',
+            ply: 1,
+            step: makeStep('d4 b - - 0 1', 'd2d4', 'black', 'd4'),
+            children: [],
+        };
+        const activateTreePath = jest.fn();
+        const ctrl = {
+            analysisPath: '',
+            analysisExtension: { isTreeNodeVisible: () => true },
+            getTreeMainlineEndPath: () => '',
+            getTreeNodeAtPath: () => ({ children: [e4, e3, d4] }),
+            getTreeMainChildPath: () => 'e4',
+            activateTreePath,
+        } as unknown as AnalysisController;
+        const goToChapter = jest.fn();
+        const root = renderNodes(renderStudyMoveListFooter(study, ctrl, goToChapter));
+
+        const next = root.querySelector<HTMLButtonElement>('.study-next-chapter')!;
+        expect(next.textContent).toContain('Next chapter');
+        expect(next.classList.contains('highlighted')).toBe(true);
+        expect([...root.querySelectorAll('.study-move-fork__move')].map(move => move.textContent)).toEqual([
+            '1.e4',
+            '1.e3',
+            '1.d4',
+        ]);
+        expect(root.querySelector('.study-move-fork__move.selected')?.getAttribute('data-path')).toBe('e4');
+
+        root.querySelector<HTMLButtonElement>('[data-path="e3"]')!.click();
+        expect(activateTreePath).toHaveBeenCalledWith('e3');
+        next.click();
+        expect(goToChapter).toHaveBeenCalledWith('ChAp0002');
     });
 
     test('study sharing permission hides share and export tools', () => {
@@ -598,6 +661,7 @@ describe('analysis page smoke coverage', () => {
         };
         const root = renderNodes(studyView(makeModel({ gameId: '', status: 0, study })));
 
+        expect(root.querySelector<HTMLButtonElement>('.study-mode--sync')?.hidden).toBe(true);
         expect(root.querySelector('#study-tab-export')).toBeNull();
         expect(root.querySelector('#study-panel-export')).toBeNull();
         expect(root.querySelector('.study-share__copy')).toBeNull();

@@ -14,6 +14,7 @@ import { copyTextToClipboard } from '../clipboard';
 import { confirmDialog } from '../confirmDialog';
 import { downloadText, notifyChessgroundResize, patch } from '../document';
 import { _, ngettext } from '../i18n';
+import { updateMovelist } from '../movelist';
 import type { PyChessModel, StudyFeatureSelection, StudyPageModel } from '../types';
 import { loadCataloguedVariantsFromJson, variantConfigIni } from '../variants';
 import { variantsIni } from '../variantsIni';
@@ -816,9 +817,10 @@ function effectiveStudySessionPolicy(study: StudyPageModel): StudySessionPolicy 
     });
 }
 
-function studyModeButtons(study: StudyPageModel, actions: StudyModeActions): VNode[] {
+function studyModeButtons(study: StudyPageModel, model: PyChessModel, actions: StudyModeActions): VNode[] {
     const policy = effectiveStudySessionPolicy(study);
     const behind = policy.synchronization ? (study.behind ?? 0) : 0;
+    const isMember = Boolean(model.username && study.members[model.username]);
     const state = (on: boolean) => h('span.study-mode__state', on ? '✓' : '✕');
     return [
         h(
@@ -830,6 +832,7 @@ function studyModeButtons(study: StudyPageModel, actions: StudyModeActions): VNo
                     title: _('All Study members remain on the same position'),
                     'aria-pressed': String(policy.synchronization),
                     disabled: policy.preview,
+                    hidden: !isMember,
                 },
                 on: { click: () => actions.toggleSticky() },
             },
@@ -879,6 +882,67 @@ function studyAnalysisTools(study: StudyPageModel): VNode {
     return h('div.study-gamebook-edit', {
         attrs: { hidden: effectiveStudySessionPolicy(study).session !== 'gamebook-author' },
     });
+}
+
+function nextStudyChapter(study: StudyPageModel): StudyPageModel['chapters'][number] | undefined {
+    const chapters = [...study.chapters].sort((a, b) => a.order - b.order);
+    const current = chapters.findIndex(chapter => chapter.id === study.chapter.id);
+    return current >= 0 ? chapters[current + 1] : undefined;
+}
+
+function studyMoveIndex(ply: number): string {
+    return `${Math.ceil(ply / 2)}${ply % 2 === 1 ? '.' : '...'}`;
+}
+
+export function renderStudyMoveListFooter(
+    study: StudyPageModel,
+    ctrl: AnalysisController,
+    goToChapter: (chapterId: string) => void,
+): VNode[] {
+    if (!effectiveStudySessionPolicy(study).tools.fullTree) return [];
+
+    const footer: VNode[] = [];
+    const nextChapter = nextStudyChapter(study);
+    if (nextChapter) {
+        footer.push(
+            h(
+                'button.study-next-chapter',
+                {
+                    class: { highlighted: ctrl.analysisPath === ctrl.getTreeMainlineEndPath() },
+                    attrs: { type: 'button', title: nextChapter.name },
+                    on: { click: () => goToChapter(nextChapter.id) },
+                },
+                [icon('play'), h('span', _('Next chapter'))],
+            ),
+        );
+    }
+
+    const current = ctrl.getTreeNodeAtPath(ctrl.analysisPath ?? '');
+    const forks =
+        current?.children.filter(child => ctrl.analysisExtension?.isTreeNodeVisible?.(child) !== false) ?? [];
+    if (forks.length > 1) {
+        const selectedPath = ctrl.getTreeMainChildPath();
+        footer.push(
+            h(
+                'div.study-move-fork',
+                forks.map(child =>
+                    h(
+                        'button.study-move-fork__move',
+                        {
+                            class: { selected: child.path === selectedPath },
+                            attrs: { type: 'button', 'data-path': child.path },
+                            on: { click: () => ctrl.activateTreePath(child.path) },
+                        },
+                        [
+                            h('span.study-move-fork__index', studyMoveIndex(child.ply)),
+                            h('span.study-move-fork__san', child.step.san ?? child.step.sanSAN ?? child.step.move ?? '?'),
+                        ],
+                    ),
+                ),
+            ),
+        );
+    }
+    return footer;
 }
 
 function refreshStudyModeButtons(study: StudyPageModel): void {
@@ -1793,7 +1857,7 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions
         studyPinnedChapterComment(study, modeActions),
         studyGamebookStatus(study, modeActions),
         h('nav.study-tool-tabs', { attrs: { role: 'tablist', 'aria-label': _('Study tools') } }, [
-            ...studyModeButtons(study, modeActions),
+            ...studyModeButtons(study, model, modeActions),
             ...tabs.map(([tab, label, symbol]) =>
                 h(
                     `button#study-tab-${tab}`,
@@ -2205,6 +2269,7 @@ function runStudyGround(
                     study.chapter.order = current.order;
                     study.chapter.orientation = current.orientation;
                     extension.updateChapterMetadata(current);
+                    updateMovelist(analysisCtrl, true, false);
                 },
                 onConcealChanged: (concealPly, revision) => {
                     study.chapter.concealPly = concealPly;
@@ -2240,6 +2305,9 @@ function runStudyGround(
                     if (!canWrite && study.modeOverride === 'preview') study.modeOverride = null;
                     policy = effectiveStudySessionPolicy(study);
                     extension.setPolicy(policy, !accessChanged);
+                    const syncButton = document.querySelector<HTMLButtonElement>('.study-mode--sync');
+                    if (syncButton) syncButton.hidden = !(model.username && members[model.username]);
+                    updateMovelist(analysisCtrl, true, false);
                     sideVNode = patch(sideVNode, studySide(study, model, modeActions));
                     updateStudyUnderboardChapter(study, model, modeActions);
                     updateGamebookEditor();
@@ -2254,6 +2322,8 @@ function runStudyGround(
                     updateStudyTopicsView(study);
                 },
                 contextMenuActions: policy.tools.annotations ? path => studyContextMenu(analysisCtrl, path) : undefined,
+                renderMoveListFooter: () =>
+                    renderStudyMoveListFooter(study, analysisCtrl, chapterId => void navigation?.go(chapterId, 'push')),
                 writable: study.canWrite,
                 recording: policy.recording,
             });

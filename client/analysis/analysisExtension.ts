@@ -53,6 +53,9 @@ export interface AnalysisExtension {
     onSocketReconnect?(): void;
     onSocketClose?(): void;
     getPgn?(): string | undefined;
+    // Extension-owned controls that belong directly below the rendered move tree.
+    // Study uses this for Lichess-style next-chapter and fork choices.
+    renderMoveListFooter?(): VNode[];
     contextMenuActions?(path: string): VNode[];
     onInitialBoardLoaded?(): void;
     onOrientationChanged?(): void;
