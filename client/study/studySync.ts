@@ -630,6 +630,10 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     onPositionChanged(change: AnalysisPositionChange): void {
         this.practiceSession?.onPositionChanged(change);
         this.gamebookPlayback?.onPositionChanged(change);
+        // AnalysisController refreshes the chessground position after onPathChanged().
+        // Re-apply Study drawings once that board update has completed, matching lila's
+        // showGround() ordering. Practice/gamebook playback own their board shapes.
+        if (!this.practiceSession && !this.gamebookPlayback) this.restoreCurrentShapes();
     }
 
     canActivatePath(path: string, origin: AnalysisNavigationOrigin): boolean {

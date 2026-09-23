@@ -533,6 +533,20 @@ describe('Study analysis websocket synchronization', () => {
         ctrl.analysisPath = 'StudyNode1';
         extension.onPathChanged();
         expect(ctrl.chessground.setShapes).toHaveBeenLastCalledWith([{ orig: 'e4', dest: 'e5', brush: 'red' }]);
+
+        // AnalysisController updates the board after the path callback. Chessground can
+        // clear manual drawings while applying that new position, so Study must restore
+        // them again from the now-active node after the position has settled.
+        ctrl.chessground.setShapes([]);
+        extension.onPositionChanged({
+            origin: 'user-navigation',
+            path: 'StudyNode1',
+            previousPath: '',
+            ply: 1,
+            fen: node.fen,
+            node: ctrl.analysisTree.byPath.get('StudyNode1'),
+        });
+        expect(ctrl.chessground.setShapes).toHaveBeenLastCalledWith([{ orig: 'e4', dest: 'e5', brush: 'red' }]);
         expect(stateChanged).toHaveBeenLastCalledWith(
             expect.objectContaining({ path: 'StudyNode1', annotations: expect.objectContaining({ nags: [1] }) }),
         );

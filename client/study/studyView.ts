@@ -1910,7 +1910,12 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions
         toolPanel('tags', [
             studyMetadataTitle(study),
             studyTopicsView(study),
-            h('table.study-tags'),
+            h(
+                'table.study-tags',
+                Object.entries(study.chapter.tags).map(([key, value]) =>
+                    h('tr', { key }, [h('th', { attrs: { scope: 'row' } }, key), h('td', value)]),
+                ),
+            ),
             ...(study.canWrite
                 ? [
                       h('details.study-annotations__tags', [
@@ -2012,25 +2017,11 @@ function parseTags(text: string): Record<string, string> {
     return tags;
 }
 
-function updateAnnotationPanel(
+function updateStudyMetadataPanel(
     study: StudyPageModel,
     modeActions: StudyModeActions,
     state: StudyAnnotationState,
-    editor?: StudyCommentEditor,
 ): void {
-    editor?.update(state.path, state.annotations.comments);
-    document.querySelectorAll<HTMLButtonElement>('.study-annotations__nag').forEach(button => {
-        const nag = Number(button.dataset.nag);
-        button.classList.toggle('active', state.annotations.nags.includes(nag));
-        button.setAttribute('aria-pressed', String(state.annotations.nags.includes(nag)));
-        button.disabled = state.path === '';
-    });
-
-    document.querySelectorAll<HTMLElement>('[data-count-for]').forEach(count => {
-        const value =
-            count.dataset.countFor === 'comments' ? state.annotations.comments.length : state.annotations.nags.length;
-        count.textContent = value ? String(value) : '';
-    });
     const table = document.querySelector('.study-tags');
     if (table)
         table.replaceChildren(
@@ -2051,6 +2042,28 @@ function updateAnnotationPanel(
     syncStudyPinnedDescriptionUi(study, modeActions);
     const tags = document.querySelector<HTMLTextAreaElement>('.study-annotations__tags textarea');
     if (tags && document.activeElement !== tags) tags.value = tagsText(state.tags);
+}
+
+function updateAnnotationPanel(
+    study: StudyPageModel,
+    modeActions: StudyModeActions,
+    state: StudyAnnotationState,
+    editor?: StudyCommentEditor,
+): void {
+    editor?.update(state.path, state.annotations.comments);
+    document.querySelectorAll<HTMLButtonElement>('.study-annotations__nag').forEach(button => {
+        const nag = Number(button.dataset.nag);
+        button.classList.toggle('active', state.annotations.nags.includes(nag));
+        button.setAttribute('aria-pressed', String(state.annotations.nags.includes(nag)));
+        button.disabled = state.path === '';
+    });
+
+    document.querySelectorAll<HTMLElement>('[data-count-for]').forEach(count => {
+        const value =
+            count.dataset.countFor === 'comments' ? state.annotations.comments.length : state.annotations.nags.length;
+        count.textContent = value ? String(value) : '';
+    });
+    updateStudyMetadataPanel(study, modeActions, state);
 }
 
 function bindAnnotationPanel(getExtension: () => StudyAnalysisExtension): void {
@@ -2231,6 +2244,7 @@ function runStudyGround(
                 memberRole: model.username ? study.members[model.username] : undefined,
                 onAnnotationStateChanged: state => {
                     if (policy.tools.annotations) updateAnnotationPanel(study, modeActions, state, editor);
+                    else updateStudyMetadataPanel(study, modeActions, state);
                     updateGamebookEditor();
                 },
                 onServerEvalChanged: serverEval => {
@@ -2440,6 +2454,7 @@ function runStudyGround(
         const serverPanel = document.getElementById('study-panel-serverEval');
         if (serverPanel && !serverPanel.hidden) modeActions.showServerAnalysis();
         if (policy.tools.annotations) updateAnnotationPanel(study, modeActions, extension.annotationState, editor);
+        else updateStudyMetadataPanel(study, modeActions, extension.annotationState);
         updateGamebookEditor();
         syncStudyPlaybackUi(study, modeActions);
         window['onFSFline'] = ctrl.onFSFline;

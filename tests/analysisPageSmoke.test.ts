@@ -542,6 +542,8 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('#study-tab-comments')).toBeNull();
         expect(root.querySelector('#study-tab-glyphs')).toBeNull();
         expect(root.querySelector('.study-annotations__tags textarea')).toBeNull();
+        expect(root.querySelector('.study-tags th')?.textContent).toBe('Event');
+        expect(root.querySelector('.study-tags td')?.textContent).toBe('Shared study');
         expect(root.querySelector('#study-tab-description')).toBeNull();
         expect(root.querySelector('.study-desc.chapter-desc .text')?.textContent).toBe('Shared description');
         expect(root.querySelector('.study-desc.chapter-desc .contrib')).toBeNull();
