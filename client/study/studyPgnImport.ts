@@ -359,6 +359,10 @@ interface PgnCommentAttribution {
     sourceAuthorId?: string;
 }
 
+function samePgnCommentAttribution(a: PgnCommentAttribution, b: PgnCommentAttribution): boolean {
+    return a.sourceAuthor === b.sourceAuthor && a.sourceAuthorId === b.sourceAuthorId;
+}
+
 function stripPgnCommentAttribution(
     text: string,
     defaultSourceAuthor: string | undefined,
@@ -610,6 +614,22 @@ function mergeAnnotations(
     return { shapes, comments, nags };
 }
 
+function coalesceImportedComments(annotations: StudyAnnotationsDto | undefined): StudyAnnotationsDto | undefined {
+    if (!annotations || annotations.comments.length < 2) return annotations;
+
+    const comments: StudyAnnotationsDto['comments'] = [];
+    for (const comment of annotations.comments) {
+        const existing = comments.find(
+            candidate =>
+                candidate.author === comment.author &&
+                samePgnCommentAttribution(candidate, comment),
+        );
+        if (existing) existing.text = `${existing.text}\n${comment.text}`;
+        else comments.push({ ...comment });
+    }
+    return { ...annotations, comments };
+}
+
 function normalizeChildren(
     board: StudyPgnBoard,
     parsedChildren: readonly ParsedStudyPgnMove[],
@@ -752,6 +772,8 @@ function normalizeGame(engine: StudyPgnEngine, game: ParsedStudyPgnGame, index: 
             teaching.lessonExtension,
             defaultSourceAuthor,
         );
+        rootComments.annotations = coalesceImportedComments(rootComments.annotations);
+        for (const node of nodes) node.annotations = coalesceImportedComments(node.annotations);
         return {
             name: chapterName(tags, index),
             variant,

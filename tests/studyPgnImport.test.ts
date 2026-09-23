@@ -159,7 +159,7 @@ describe('Study PGN import core', () => {
 
         expect(children.map(node => node.san)).toEqual(['e5', 'c5']);
         expect(e4.annotations?.nags).toEqual([1, 5]);
-        expect(e4.annotations?.comments.map(comment => comment.text)).toEqual(['same note', 'variation note']);
+        expect(e4.annotations?.comments.map(comment => comment.text)).toEqual(['same note\nvariation note']);
         expect(e4.annotations?.shapes).toEqual([
             { orig: 'e4', brush: 'green' },
             { orig: 'e2', dest: 'e4', brush: 'red' },

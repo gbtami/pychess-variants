@@ -244,6 +244,45 @@ describe('Study PGN round trips and Lichess compatibility corpus', () => {
         expect(chapter.tree.nodes[1].annotations?.comments[0].text).not.toContain('[%anno');
     });
 
+    test('coalesces multiple comments by the Annotator on one position like Lichess', async () => {
+        const [chapter] = await parseStudyPgnForImport(
+            studyPgnParser,
+            ffish,
+            `[Annotator "Bobby"]
+
+1. e4 e5 { first thought } { second thought }`,
+        );
+
+        expect(chapter.tree.nodes[1].annotations?.comments).toMatchObject([
+            { text: 'first thought\nsecond thought', sourceAuthor: 'Bobby' },
+        ]);
+    });
+
+    test('keeps comments by different %anno authors separate on one position', async () => {
+        const [chapter] = await parseStudyPgnForImport(
+            studyPgnParser,
+            ffish,
+            `1. e4 e5 { [%anno "Mary", mary] first } { [%anno "Bobby", bobby] second }`,
+        );
+
+        expect(chapter.tree.nodes[1].annotations?.comments).toMatchObject([
+            { text: 'first', sourceAuthor: 'Mary', sourceAuthorId: 'mary' },
+            { text: 'second', sourceAuthor: 'Bobby', sourceAuthorId: 'bobby' },
+        ]);
+    });
+
+    test('coalesces repeated comments by the same %anno author with newlines', async () => {
+        const [chapter] = await parseStudyPgnForImport(
+            studyPgnParser,
+            ffish,
+            `1. e4 e5 { [%anno "Mary", mary] first } { [%anno "Mary", mary] second }`,
+        );
+
+        expect(chapter.tree.nodes[1].annotations?.comments).toMatchObject([
+            { text: 'first\nsecond', sourceAuthor: 'Mary', sourceAuthorId: 'mary' },
+        ]);
+    });
+
     test('does not collapse duplicate-branch comments that have different PGN authors', async () => {
         const [chapter] = await parseStudyPgnForImport(
             studyPgnParser,
