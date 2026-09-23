@@ -27,8 +27,8 @@ changes; possible future features below are not commitments or a release schedul
 - Store catalogued/custom variant rules with the chapter so later catalogue changes
   do not change the saved rules.
 
-Chapters are single-board only. Raw PGN paste/upload is still unavailable; the import
-core and its remaining integration are described below.
+Chapters are single-board only. Raw PGN paste/upload is still unavailable in the UI; the
+client parser/import core and its remaining integration are described below.
 
 ### Annotations and analysis
 
@@ -243,20 +243,24 @@ alone is only a compatibility hint and is not a lossless lesson interchange form
 Practice attempts, lesson attempts and reader conceal exploration are disposable runtime
 state and are never exported as authored chapter moves.
 
-### Import: core implemented, raw-text workflow missing
+### Import: parser and core implemented, UI workflow missing
 
-[studyPgnImport.ts](../client/study/studyPgnImport.ts) defines a parser-neutral recursive
+[studyPgnParser.ts](../client/study/studyPgnParser.ts) is the client-side structural PGN
+parser. It keeps SAN/move tokens variant-neutral while preserving recursive RAVs,
+comments, NAGs, tags, and multiple games. It also applies browser-safety limits for
+input size, chapter count, tree size, and variation depth. This deliberately avoids
+using Fairy-Stockfish's lightweight `readGamePGN()` reader, which only exposes the
+mainline and would discard Study data.
+
+[studyPgnImport.ts](../client/study/studyPgnImport.ts) defines the parser-neutral recursive
 PGN contract and converts parsed games into Study trees. It preserves variations,
 comments, NAGs, shapes, clocks, evaluations, and the supported PyChess extensions.
-Every branch is replayed in the browser and validated again server-side. The import
-endpoint accepts normalized chapter data, validates the batch before insertion, and
-enforces remaining chapter capacity.
+Every branch is replayed through Fairy-Stockfish in the browser and validated again
+server-side. The import endpoint accepts normalized chapter data, validates the batch
+before insertion, and enforces remaining chapter capacity.
 
-There is currently no complete raw PGN parser connected to this contract and no
-Study paste/upload UI. The existing lightweight Paste reader exposes headers and
-mainline only. Connecting it as a full Study importer would discard variations and
-annotations. Completing this workflow requires a parser with recursive variations,
-comments, NAGs, and multiple-game support, followed by the UI integration.
+The remaining gap is wiring the parser/import core into the Study create/new-chapter
+paste/upload UI and presenting parse/import errors there.
 
 ## Implementation and source map
 
@@ -268,6 +272,7 @@ comments, NAGs, and multiple-game support, followed by the UI integration.
 | Interactive lesson authoring/playback | [studyGamebook.ts](../client/study/studyGamebook.ts), [studyGamebookEdit.ts](../client/study/studyGamebookEdit.ts), [studyGamebookPlayback.ts](../client/study/studyGamebookPlayback.ts) |
 | Computer practice and bounded engine protocol | [studyPractice.ts](../client/study/studyPractice.ts), [studyPracticeFeedback.ts](../client/study/studyPracticeFeedback.ts), [analysisPracticeEngine.ts](../client/analysis/analysisPracticeEngine.ts) |
 | Lists and Add to Study | [studyIndex.ts](../client/study/studyIndex.ts), [addToStudy.ts](../client/study/addToStudy.ts) |
+| Study PGN import/export | [studyPgnParser.ts](../client/study/studyPgnParser.ts), [studyPgnImport.ts](../client/study/studyPgnImport.ts), [studyPgn.ts](../client/study/studyPgn.ts) |
 | Client persistence adapter and synchronization | [studyTree.ts](../client/study/studyTree.ts), [studySync.ts](../client/study/studySync.ts) |
 | HTTP routes and authorization | [routes.py](../server/routes.py), [views/study.py](../server/views/study.py), [permissions.py](../server/study/permissions.py) |
 | Models, storage, tree validation, mutations | [models.py](../server/study/models.py), [storage.py](../server/study/storage.py), [tree.py](../server/study/tree.py), [builder.py](../server/study/builder.py), [mutations.py](../server/study/mutations.py) |
@@ -388,7 +393,7 @@ PyChess will implement them all or reproduce every lichess workflow.
 
 | Feature | Current gap / next decision |
 | --- | --- |
-| Raw PGN import | Complete parser adapter and paste/upload UI; the normalization/validation core already exists |
+| Raw PGN import | Client parser and normalization/validation core exist; wire them into Study create/new-chapter paste/upload UI |
 | Multiple accepted lesson answers | Interactive lesson currently accepts only the preferred-mainline move at each prompt |
 | Practice courses | No lichess-style `/practice` curriculum, exercise goals/progress, mastery option or tablebase-backed course integration |
 | Chapter reordering | Persisted order exists, but there is no user-facing reorder action or route |
