@@ -155,3 +155,67 @@ test('chapter creation refreshes shared-sync state immediately before native sub
     expect(new FormData(form).get('sync')).toBe('1');
     expect(form.submit).toHaveBeenCalledTimes(1);
 });
+
+test('existing Study chapter creation offers a PGN source and imports pasted PGN asynchronously', async () => {
+    const beforeSubmit = jest.fn(async () => true);
+    const pgnImport = jest.fn(async (_pgn: string) => {});
+    mount(
+        studyChapterCreateForm('/study/StUdY001/chapter', 'chess', false, {
+            beforeSubmit,
+            pgnImport,
+        }),
+    );
+
+    const form = document.querySelector<HTMLFormElement>('form.study-side__new-chapter')!;
+    form.reportValidity = jest.fn(() => true);
+    const setupTab = form.querySelector<HTMLButtonElement>('[data-study-chapter-source="setup"]')!;
+    const pgnTab = form.querySelector<HTMLButtonElement>('[data-study-chapter-source="pgn"]')!;
+    const setupPanel = form.querySelector<HTMLElement>('[data-study-chapter-source-panel="setup"]')!;
+    const pgnPanel = form.querySelector<HTMLElement>('[data-study-chapter-source-panel="pgn"]')!;
+    const pgn = form.querySelector<HTMLTextAreaElement>('textarea[name="pgn"]')!;
+
+    expect(setupTab.getAttribute('aria-selected')).toBe('true');
+    expect(pgnPanel.hidden).toBe(true);
+    expect(pgn.disabled).toBe(true);
+
+    pgnTab.click();
+    expect(setupPanel.hidden).toBe(true);
+    expect(pgnPanel.hidden).toBe(false);
+    expect(pgn.disabled).toBe(false);
+    expect(form.querySelector<HTMLSelectElement>('select[name="variant"]')?.disabled).toBe(true);
+    expect(form.querySelector<HTMLButtonElement>('button[type="submit"]')?.textContent).toBe('Import PGN');
+
+    pgn.value = '[Event "Imported"]\n\n1. e4 e5 *';
+    expect(form.dispatchEvent(new SubmitEvent('submit', { bubbles: true, cancelable: true }))).toBe(false);
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    expect(beforeSubmit).toHaveBeenCalledTimes(1);
+    expect(pgnImport).toHaveBeenCalledWith(pgn.value);
+
+    setupTab.click();
+    expect(setupPanel.hidden).toBe(false);
+    expect(pgnPanel.hidden).toBe(true);
+    expect(form.querySelector<HTMLSelectElement>('select[name="variant"]')?.disabled).toBe(false);
+    expect(form.querySelector<HTMLButtonElement>('button[type="submit"]')?.textContent).toBe('Create chapter');
+});
+
+test('PGN import errors stay in the chapter dialog with parser diagnostics', async () => {
+    const pgnImport = jest.fn(async () => {
+        throw new Error('PGN parse error at line 3, column 7: Expected move.');
+    });
+    mount(studyChapterCreateForm('/study/StUdY001/chapter', 'chess', false, { pgnImport }));
+
+    const form = document.querySelector<HTMLFormElement>('form.study-side__new-chapter')!;
+    form.reportValidity = jest.fn(() => true);
+    form.querySelector<HTMLButtonElement>('[data-study-chapter-source="pgn"]')!.click();
+    form.querySelector<HTMLTextAreaElement>('textarea[name="pgn"]')!.value = 'broken pgn';
+
+    form.dispatchEvent(new SubmitEvent('submit', { bubbles: true, cancelable: true }));
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    const error = form.querySelector<HTMLElement>('.study-pgn-import__error')!;
+    expect(error.hidden).toBe(false);
+    expect(error.textContent).toContain('line 3, column 7');
+    expect(form.getAttribute('aria-busy')).toBeNull();
+    expect(form.querySelector<HTMLButtonElement>('button[type="submit"]')?.disabled).toBe(false);
+});

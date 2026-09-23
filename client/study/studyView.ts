@@ -9,6 +9,7 @@ import { analysisContext } from '../analysis/analysisContext';
 import { analysisChart } from '../analysis/analysisChart';
 import { AnalysisController } from '../analysis/analysisCtrl';
 import { parentPath } from '../analysis/analysisTree';
+import { parsePgnVariantTag } from '../pgn';
 import { renderAnalysisPage } from '../analysis/analysisPage';
 import { copyTextToClipboard } from '../clipboard';
 import { confirmDialog } from '../confirmDialog';
@@ -29,6 +30,8 @@ import { StudyGamebookEditor } from './studyGamebookEdit';
 import { StudyGamebookPlayback } from './studyGamebookPlayback';
 import { StudyPracticeSession } from './studyPractice';
 import { fetchStudyChapterExportData, renderStudyChapterPgn, renderStudyPgn, studyPgnFilename } from './studyPgn';
+import { parseStudyPgnForImportWithEngines, postStudyPgnImport, type ParsedStudyPgnGame } from './studyPgnImport';
+import { studyPgnParser } from './studyPgnParser';
 import {
     studyChapterCreateForm,
     studyChapterModeField,
@@ -56,6 +59,12 @@ function studyCanShare(study: StudyPageModel): boolean {
 
 function studyCanEmbed(study: StudyPageModel): boolean {
     return study.canEmbed ?? study.visibility !== 'private';
+}
+
+function studyPgnGameUsesAlice(game: ParsedStudyPgnGame): boolean {
+    const exact = game.tags.PyChessVariant?.trim().toLowerCase();
+    if (exact) return exact === 'alice';
+    return parsePgnVariantTag(game.tags.Variant ?? 'chess').variant === 'alice';
 }
 
 const studyPermissionChoices: [StudyFeatureSelection, string][] = [
@@ -783,6 +792,7 @@ type StudyModeActions = {
     showServerAnalysis: () => void;
     setDescription: (description: string) => void;
     settleWrites: () => Promise<boolean>;
+    importPgn: (pgn: string) => Promise<void>;
     resetConcealment: () => Promise<void>;
     enterGamebookPreview: () => Promise<void>;
     leaveGamebookPreview: () => Promise<void>;
@@ -1413,6 +1423,7 @@ function studySide(study: StudyPageModel, model: PyChessModel, modeActions: Stud
                               enabledModes: study.enabledModes,
                               sync: () => Boolean(study.sticky),
                               beforeSubmit: modeActions.settleWrites,
+                              pgnImport: pgn => modeActions.importPgn(pgn),
                           },
                       ),
                   ]),
@@ -2164,6 +2175,23 @@ function runStudyGround(
     const modules = new Map<boolean, Promise<PyChessModel['ffish']>>([
         [model.variant === 'alice', Promise.resolve(model.ffish)],
     ]);
+    const loadStudyModule = (alice: boolean): Promise<PyChessModel['ffish']> => {
+        if (!modules.has(alice)) {
+            const script = document.querySelector<HTMLScriptElement>('script[src*="/static/pychess-variants.js"]');
+            const version = script ? new URL(script.src).search : '';
+            modules.set(
+                alice,
+                (alice ? ffishAliceModule : ffishModule)({
+                    locateFile: (path: string, prefix: string) =>
+                        path.endsWith('.wasm') ? `/static/${path}${version}` : prefix + path,
+                }).catch((error: unknown) => {
+                    modules.delete(alice);
+                    throw error;
+                }),
+            );
+        }
+        return modules.get(alice)!;
+    };
     const commentsElement = document.querySelector<HTMLElement>('.study-annotations__comments');
     const editor =
         study.canWrite && commentsElement
@@ -2407,6 +2435,19 @@ function runStudyGround(
                 return false;
             }
         };
+        modeActions.importPgn = async pgn => {
+            const chapters = await parseStudyPgnForImportWithEngines(
+                studyPgnParser,
+                game => loadStudyModule(studyPgnGameUsesAlice(game)),
+                pgn,
+            );
+            const result = await postStudyPgnImport(study.id, chapters, fetch, Boolean(study.sticky));
+            if (!result.chapterId) throw new Error(_('Study PGN import did not return a chapter.'));
+            const importDialog = document.querySelector<HTMLDialogElement>('#study-new-chapter');
+            if (importDialog?.open) importDialog.close();
+            if (navigation) await navigation.go(result.chapterId, 'push');
+            else if (result.url) window.location.assign(result.url);
+        };
         modeActions.resetConcealment = async () => {
             if (!(await modeActions.settleWrites())) return;
             extension.resetConcealment();
@@ -2508,21 +2549,7 @@ function runStudyGround(
             // the current board. Alice and the ordinary variants use separate modules.
             analysisTreeFromStudy(data.board.steps[0], data.study.chapter.tree);
             const alice = data.study.chapter.variant === 'alice';
-            if (!modules.has(alice)) {
-                const script = document.querySelector<HTMLScriptElement>('script[src*="/static/pychess-variants.js"]');
-                const version = script ? new URL(script.src).search : '';
-                modules.set(
-                    alice,
-                    (alice ? ffishAliceModule : ffishModule)({
-                        locateFile: (path: string, prefix: string) =>
-                            path.endsWith('.wasm') ? `/static/${path}${version}` : prefix + path,
-                    }).catch((error: unknown) => {
-                        modules.delete(alice);
-                        throw error;
-                    }),
-                );
-            }
-            const ffish = await modules.get(alice)!;
+            const ffish = await loadStudyModule(alice);
             await ctrl.whenEngineConfigured();
             if (!isCurrent()) return;
             if (
@@ -2778,6 +2805,7 @@ export function studyView(model: PyChessModel): VNode[] {
         showServerAnalysis: () => {},
         setDescription: () => {},
         settleWrites: async () => true,
+        importPgn: async () => {},
         resetConcealment: async () => {},
         enterGamebookPreview: async () => {},
         leaveGamebookPreview: async () => {},

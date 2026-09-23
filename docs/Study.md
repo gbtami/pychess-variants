@@ -27,8 +27,9 @@ changes; possible future features below are not commitments or a release schedul
 - Store catalogued/custom variant rules with the chapter so later catalogue changes
   do not change the saved rules.
 
-Chapters are single-board only. Raw PGN paste/upload is still unavailable in the UI; the
-client parser/import core and its remaining integration are described below.
+Chapters are single-board only. Existing Studies can add chapters by pasting PGN in the
+New chapter dialog. PGN file upload and creating a brand-new Study directly from PGN
+remain follow-up work described below.
 
 ### Annotations and analysis
 
@@ -243,7 +244,7 @@ alone is only a compatibility hint and is not a lossless lesson interchange form
 Practice attempts, lesson attempts and reader conceal exploration are disposable runtime
 state and are never exported as authored chapter moves.
 
-### Import: parser and core implemented, UI workflow missing
+### Import: parser, validation, and paste workflow
 
 [studyPgnParser.ts](../client/study/studyPgnParser.ts) is the client-side structural PGN
 parser. It keeps SAN/move tokens variant-neutral while preserving recursive RAVs,
@@ -262,8 +263,13 @@ children and annotations, matching lila's Study import behavior. The import endp
 accepts normalized chapter data, validates the batch before insertion, and enforces
 remaining chapter capacity.
 
-The remaining gap is wiring the parser/import core into the Study create/new-chapter
-paste/upload UI and presenting parse/import errors there.
+The existing-Study **Add a new chapter** dialog now has a PGN source tab. Pasted text is
+parsed and replayed entirely in the browser, then the normalized batch is sent to the
+existing import endpoint. Parse, legality, and server-validation errors stay in the dialog
+with their detailed diagnostics. Mixed ordinary/Alice PGN batches load the matching
+Fairy-Stockfish WASM module per game, and successful imports open the final imported
+chapter through the in-place chapter navigator. File upload and importing PGN as the first
+chapter while creating a brand-new Study remain separate UI follow-up.
 
 ## Implementation and source map
 
@@ -396,7 +402,7 @@ PyChess will implement them all or reproduce every lichess workflow.
 
 | Feature | Current gap / next decision |
 | --- | --- |
-| Raw PGN import | Client parser and normalization/validation core exist; wire them into Study create/new-chapter paste/upload UI |
+| Raw PGN import | Existing Studies support pasted multi-game PGN in New chapter; file upload and first-chapter/new-Study PGN import remain |
 | Multiple accepted lesson answers | Interactive lesson currently accepts only the preferred-mainline move at each prompt |
 | Practice courses | No lichess-style `/practice` curriculum, exercise goals/progress, mastery option or tablebase-backed course integration |
 | Chapter reordering | Persisted order exists, but there is no user-facing reorder action or route |

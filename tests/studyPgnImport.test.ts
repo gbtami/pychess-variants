@@ -10,6 +10,7 @@ import { studyPgnParser } from '../client/study/studyPgnParser';
 import {
     normalizeStudyPgnDocument,
     parseStudyPgnForImport,
+    parseStudyPgnForImportWithEngines,
     postStudyPgnImport,
     StudyPgnImportError,
     type ParsedStudyPgnDocument,
@@ -397,6 +398,28 @@ describe('Study PGN import core', () => {
         await expect(parseStudyPgnForImport(parser, ffish, '   ')).rejects.toBeInstanceOf(StudyPgnImportError);
     });
 
+    test('can select a Fairy-Stockfish engine independently for every imported game', async () => {
+        const seenEvents: string[] = [];
+        const chapters = await parseStudyPgnForImportWithEngines(
+            studyPgnParser,
+            async game => {
+                seenEvents.push(game.tags.Event ?? '');
+                return ffish;
+            },
+            `[Event "First"]
+
+1. e4 e5 *
+
+[Event "Second"]
+
+1. d4 d5 *`,
+        );
+
+        expect(seenEvents).toEqual(['First', 'Second']);
+        expect(chapters).toHaveLength(2);
+        expect(chapters.map(chapter => chapter.tree.nodes[0].move)).toEqual(['e2e4', 'd2d4']);
+    });
+
     test('posts only normalized chapter data to the Study batch endpoint', async () => {
         const chapters = normalizeStudyPgnDocument(ffish, parsedDocument());
         let requestUrl = '';
@@ -417,11 +440,12 @@ describe('Study PGN import core', () => {
             } as Response;
         }) as typeof fetch;
 
-        const result = await postStudyPgnImport('study001', chapters, fetcher);
+        const result = await postStudyPgnImport('study001', chapters, fetcher, true);
         expect(result.imported).toBe(1);
         expect(requestUrl).toBe('/study/study001/import-pgn');
         expect(requestInit?.method).toBe('POST');
         const body = JSON.parse(String(requestInit?.body));
         expect(body.chapters[0].tree.nodes).toHaveLength(4);
+        expect(body.sync).toBe(true);
     });
 });

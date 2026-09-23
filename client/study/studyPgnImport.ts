@@ -631,15 +631,33 @@ export async function parseStudyPgnForImport(
     return normalizeStudyPgnDocument(engine, await parser.parse(pgn));
 }
 
+export async function parseStudyPgnForImportWithEngines(
+    parser: StudyPgnParser,
+    engineForGame: (game: ParsedStudyPgnGame, index: number) => StudyPgnEngine | Promise<StudyPgnEngine>,
+    pgn: string,
+): Promise<StudyPgnImportChapter[]> {
+    if (!pgn.trim()) throw new StudyPgnImportError('PGN text is empty.');
+    const parsed = await parser.parse(pgn);
+    requireCompleteParser(parsed.capabilities);
+    if (!parsed.games.length) throw new StudyPgnImportError('PGN contains no games.');
+
+    const chapters: StudyPgnImportChapter[] = [];
+    for (const [index, game] of parsed.games.entries()) {
+        chapters.push(normalizeGame(await engineForGame(game, index), game, index));
+    }
+    return chapters;
+}
+
 export async function postStudyPgnImport(
     studyId: string,
     chapters: StudyPgnImportChapter[],
     fetcher: typeof fetch = fetch,
+    sync?: boolean,
 ): Promise<StudyPgnImportResponse> {
     const response = await fetcher(`/study/${studyId}/import-pgn`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chapters }),
+        body: JSON.stringify({ chapters, ...(sync === undefined ? {} : { sync }) }),
     });
     let payload: StudyPgnImportResponse;
     try {

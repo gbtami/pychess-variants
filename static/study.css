@@ -1082,6 +1082,27 @@ button.study-gamebook-edit__legend { cursor: pointer; }
 }
 .study-side__new-chapter { display: grid; gap: 1rem; }
 .study-side__new-chapter label { display: grid; gap: .35rem; }
+.study-chapter-source-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+}
+.study-chapter-source-tab {
+    flex: 1 1 0;
+    padding: .55rem .5rem .45rem;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: var(--font-color);
+    font: inherit;
+    cursor: pointer;
+}
+.study-chapter-source-tab:hover { border-bottom-color: color-mix(in srgb, var(--rusty) 45%, transparent); }
+.study-chapter-source-tab.active { color: var(--rusty); border-bottom-color: var(--rusty); }
+.study-chapter-source-panel { display: grid; gap: 1rem; }
+.study-chapter-source-panel[hidden] { display: none; }
+.study-pgn-import textarea { min-height: 13rem; font-family: monospace; line-height: 1.35; }
+.study-pgn-import__error { margin: 0; color: var(--bad); font-size: .9em; white-space: pre-wrap; }
+.study-pgn-import__error[hidden] { display: none; }
 
 @media (min-width: 1100px) {
     .study-app {
