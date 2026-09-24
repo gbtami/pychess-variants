@@ -211,6 +211,9 @@ root-only lock to the other training modes for disclosure/resource safety.
 
 ## PGN and interchange
 
+The implementation history, real-world compatibility notes, and remaining PGN-import
+audit checklist are tracked in [Study-PGN-import.md](Study-PGN-import.md).
+
 ### Export
 
 [studyPgn.ts](../client/study/studyPgn.ts) renders PGN in the browser. Chapter export
