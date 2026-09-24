@@ -99,6 +99,52 @@ describe('Study PGN import core', () => {
         expect(roots[0].annotations?.comments[0].text).toBe('King pawn');
     });
 
+    test('infers Lichess-style automatic orientation when external PGN omits the tag', async () => {
+        const [normal] = await parseStudyPgnForImport(
+            studyPgnParser,
+            ffish,
+            `[Event "Automatic orientation"]
+
+1. e4 e5 2. Nf3 *`,
+        );
+        expect(normal.orientation).toBe('black');
+
+        const [finished] = await parseStudyPgnForImport(
+            studyPgnParser,
+            ffish,
+            `[Event "Finished game"]
+[Result "1-0"]
+
+1. e4 1-0`,
+        );
+        expect(finished.orientation).toBe('white');
+
+        const [gamebook] = await parseStudyPgnForImport(
+            studyPgnParser,
+            ffish,
+            `[Event "Interactive lesson"]
+[ChapterMode "gamebook"]
+
+1. e4 e5 *`,
+        );
+        expect(gamebook.orientation).toBe('black');
+    });
+
+    test('keeps the root side for move-less lessons whose exported orientation is unknowable', async () => {
+        const [chapter] = await parseStudyPgnForImport(
+            studyPgnParser,
+            ffish,
+            `[Variant "From Position"]
+[FEN "8/8/8/8/8/8/4K3/7k b - - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Introduction only. } *`,
+        );
+
+        expect(chapter.orientation).toBe('black');
+    });
+
     test('parses raw PGN through Fairy-Stockfish and merges duplicate legal branches like Lichess', async () => {
         const [chapter] = await parseStudyPgnForImport(
             studyPgnParser,
@@ -360,6 +406,7 @@ describe('Study PGN import core', () => {
         );
 
         expect(chapter.mode).toBe('gamebook');
+        expect(chapter.orientation).toBe('white');
         expect(chapter.tree.nodes).toEqual([]);
         expect(chapter.tree.rootAnnotations?.comments).toEqual([
             expect.objectContaining({

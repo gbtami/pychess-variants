@@ -257,6 +257,15 @@ mainline and would discard Study data.
 [studyPgnImport.ts](../client/study/studyPgnImport.ts) defines the parser-neutral recursive
 PGN contract and converts parsed games into Study trees. It preserves variations,
 comments, NAGs, shapes, clocks, evaluations, and the supported PyChess extensions.
+When an imported PGN contains `[Orientation "white"]` or `[Orientation "black"]`, that
+choice is preserved exactly. Lichess omits this tag from its default Study export, so in its
+absence the importer applies the useful parts of Lichess's automatic orientation rules:
+finished games face White, normal chapters face the side to move at the end of the mainline,
+and interactive lessons face the player who made the final authored mainline move. A
+move-less lesson keeps the root side to move because no learner move exists from which to
+infer a side. PyChess's own Study export always includes Orientation, so PyChess round trips
+do not depend on these heuristics.
+
 Lichess-style `[Annotator ...]` and per-comment `[%anno ...]` metadata are consumed as
 **source attribution**, kept separately from authenticated PyChess comment authorship, and
 written back on export when the source differs from the exporting Study owner. This keeps

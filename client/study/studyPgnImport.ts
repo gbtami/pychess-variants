@@ -591,6 +591,55 @@ function turnColorFromFen(fen: string): 'white' | 'black' {
     throw new StudyPgnImportError('Fairy-Stockfish returned a FEN without a valid side to move.');
 }
 
+function oppositeColor(color: 'white' | 'black'): 'white' | 'black' {
+    return color === 'white' ? 'black' : 'white';
+}
+
+function lastMainlineTurnColor(
+    initialFen: string,
+    nodes: readonly StudyTreeDto['nodes'][number][],
+): 'white' | 'black' {
+    let color = turnColorFromFen(initialFen);
+    let parentId: string | null = null;
+    while (true) {
+        const next = nodes.find(node => node.parentId === parentId && node.order === 0);
+        if (!next) return color;
+        color = next.turnColor;
+        parentId = next.id;
+    }
+}
+
+function pgnHasOutcome(tags: Record<string, string>): boolean {
+    const result = tags['Result']?.trim();
+    return result === '1-0' || result === '0-1' || result === '1/2-1/2';
+}
+
+function importedChapterOrientation(
+    tags: Record<string, string>,
+    mode: StudyChapterMode,
+    initialFen: string,
+    nodes: readonly StudyTreeDto['nodes'][number][],
+): 'white' | 'black' {
+    const explicit = tags['Orientation']?.trim().toLowerCase();
+    if (explicit === 'white' || explicit === 'black') return explicit;
+
+    const rootTurn = turnColorFromFen(initialFen);
+    // Match Lichess's automatic Study orientation when its default PGN export
+    // omits the Orientation tag: conceal starts from the side to move, finished
+    // games use White by convention, gamebooks face the player who made the
+    // final authored mainline move, and normal chapters face the final side to move.
+    if (mode === 'conceal') return rootTurn;
+    if (pgnHasOutcome(tags)) return 'white';
+    const finalTurn = lastMainlineTurnColor(initialFen, nodes);
+    if (mode === 'gamebook') {
+        // A move-less chapter has no authored learner move from which to infer a
+        // side. Keep the root side there; this also avoids flipping Lichess
+        // title/introduction chapters whose default export lost the orientation.
+        return nodes.length ? oppositeColor(finalTurn) : rootTurn;
+    }
+    return finalTurn;
+}
+
 type ClockState = [number | undefined, number | undefined];
 
 function sameShape(a: StudyShapeDto, b: StudyShapeDto): boolean {
@@ -796,7 +845,7 @@ function normalizeGame(engine: StudyPgnEngine, game: ParsedStudyPgnGame, index: 
             variant,
             chess960,
             initialFen,
-            orientation: tags['Orientation']?.trim().toLowerCase() === 'black' ? 'black' : 'white',
+            orientation: importedChapterOrientation(tags, teaching.mode, initialFen, nodes),
             mode: teaching.mode,
             ...(teaching.mode === 'conceal' ? { concealPly: teaching.concealPly ?? 0 } : {}),
             description,
