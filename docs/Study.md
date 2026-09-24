@@ -263,11 +263,14 @@ comments, NAGs, shapes, clocks, evaluations, and the supported PyChess extension
 When an imported PGN contains `[Orientation "white"]` or `[Orientation "black"]`, that
 choice is preserved exactly. Lichess omits this tag from its default Study export, so in its
 absence the importer applies the useful parts of Lichess's automatic orientation rules:
-finished games face White, normal chapters face the side to move at the end of the mainline,
-and interactive lessons face the player who made the final authored mainline move. A
-move-less lesson keeps the root side to move because no learner move exists from which to
-infer a side. PyChess's own Study export always includes Orientation, so PyChess round trips
-do not depend on these heuristics.
+finished games face White and normal chapters face the side to move at the end of the
+mainline. Interactive lessons with a visible root prompt face the root side to move; this
+recovers exported lessons that immediately ask the reader for the first move. Other
+interactive lessons face the player who made the final authored mainline move, which keeps
+lessons that begin with a scripted opponent move working as expected. A move-less lesson
+keeps the root side to move because no learner move exists from which to infer a side.
+PyChess's own Study export always includes Orientation, so PyChess round trips do not depend
+on these heuristics.
 
 Lichess-style `[Annotator ...]` and per-comment `[%anno ...]` metadata are consumed as
 **source attribution**, kept separately from authenticated PyChess comment authorship, and

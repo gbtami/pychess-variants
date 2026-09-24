@@ -130,6 +130,34 @@ describe('Study PGN import core', () => {
         expect(gamebook.orientation).toBe('black');
     });
 
+    test('uses a root lesson prompt to recover the learner side when Lichess omitted orientation', async () => {
+        const [chapter] = await parseStudyPgnForImport(
+            studyPgnParser,
+            ffish,
+            `[Event "Lichess lesson example"]
+[ChapterMode "gamebook"]
+
+{ Play the most common opening move. }
+1. e4 e5 2. Nf3 Nc6 *`,
+        );
+
+        expect(chapter.orientation).toBe('white');
+    });
+
+    test('keeps the final-mover gamebook heuristic when the first prompt follows an opponent move', async () => {
+        const [chapter] = await parseStudyPgnForImport(
+            studyPgnParser,
+            ffish,
+            `[FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+1... e5 { Now find White's reply. } 2. Nf3 *`,
+        );
+
+        expect(chapter.orientation).toBe('white');
+    });
+
     test('keeps the root side for move-less lessons whose exported orientation is unknowable', async () => {
         const [chapter] = await parseStudyPgnForImport(
             studyPgnParser,

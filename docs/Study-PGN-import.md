@@ -192,8 +192,9 @@ automatic-orientation behavior:
 
 - finished games face White;
 - normal analysis chapters face the side to move at the end of the preferred mainline;
-- interactive/gamebook chapters face the player who made the final authored mainline
-  move;
+- interactive/gamebook chapters with a visible root prompt face the root side to move;
+- other interactive/gamebook chapters face the player who made the final authored
+  mainline move;
 - conceal chapters keep the initial side to move;
 - move-less interactive chapters keep the root side to move because no learner move
   exists from which to infer an orientation.
@@ -205,6 +206,17 @@ Some exported Lichess Studies use chapters with no moves at all, only a root com
 but playback classified the resulting gamebook as an empty/unavailable lesson. Playback
 now treats a valid root-only gamebook as the normal completed/end state so the comment is
 rendered and the usual next/replay/analysis controls remain available.
+
+### Additional fix found during semantic audit: root-prompt gamebook orientation
+
+Lichess's default Study PGN export does not include chapter orientation. The existing
+Lichess-style final-mainline-mover heuristic works for lessons that begin with a scripted
+opponent move, but it mis-oriented Lichess's own exported lesson example: its instruction
+is a root comment asking White to play `1.e4`, while the even-length mainline ends with a
+Black move. For gamebooks without an explicit Orientation and without a finished-game
+result, a visible root comment now acts as a signal that the learner is the root side to
+move. Lessons whose first prompt follows a scripted opponent move have no root prompt and
+continue to use the final-mainline-mover heuristic.
 
 ## PyChess-specific lossless extensions
 
@@ -225,7 +237,10 @@ local test inputs, not committed wholesale as repository fixtures):
   FEN positions, and several comment-only introductory chapters;
 - **Lichess Lesson Example** — compact lesson/gamebook example;
 - **The Guide to Variants** — chapters covering Standard, King of the Hill, Three-check,
-  Antichess, Atomic, Racing Kings, Chess960, Horde, and Crazyhouse.
+  Antichess, Atomic, Racing Kings, Chess960, Horde, and Crazyhouse;
+- **Instructive ZH Positions** — annotation-heavy Crazyhouse positions with comments,
+  shapes, NAGs, and many move/root clocks;
+- **CWC 2020 Puzzles** — 50+ Crazyhouse chapters, mostly interactive/gamebook material.
 
 When a real-world incompatibility is found, prefer reducing it to a small synthetic
 regression fixture rather than committing an entire third-party Study export.
@@ -235,7 +250,7 @@ regression fixture rather than committing an entire third-party Study export.
 The core feature is implemented. Remaining work should be driven primarily by concrete
 semantic differences found in real PGNs rather than by adding speculative metadata.
 
-### A. Real-study semantic parity audit — **next recommended step**
+### A. Real-study semantic parity audit — **in progress**
 
 Compare imported chapters from the current real-study corpus with their Lichess source,
 looking for information that imports successfully but lands on the wrong position or is
@@ -247,12 +262,15 @@ rendered differently. Check especially:
 - root vs move clocks;
 - NAG placement;
 - preferred-mainline/variation ordering;
-- chapter mode and gamebook behavior;
+- chapter mode and gamebook behavior (including root-prompt vs scripted-opponent orientation);
 - FEN/root-position handling;
 - chapter tags and description-like metadata.
 
-This is the highest-value next step because syntax/replay failures are now relatively
-well covered; silent semantic loss is the more likely remaining problem.
+The current corpus now parses/replays cleanly and has been mechanically audited for these
+annotation classes. That pass found and fixed the root-prompt gamebook orientation loss
+described above. Continue this item with position-by-position semantic comparison against
+the Lichess source, because silent semantic loss is now more likely than syntax/replay
+failure.
 
 ### B. Interactive/gamebook metadata parity
 

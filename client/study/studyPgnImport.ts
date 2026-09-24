@@ -619,22 +619,26 @@ function importedChapterOrientation(
     mode: StudyChapterMode,
     initialFen: string,
     nodes: readonly StudyTreeDto['nodes'][number][],
+    hasRootComment: boolean,
 ): 'white' | 'black' {
     const explicit = tags['Orientation']?.trim().toLowerCase();
     if (explicit === 'white' || explicit === 'black') return explicit;
 
     const rootTurn = turnColorFromFen(initialFen);
-    // Match Lichess's automatic Study orientation when its default PGN export
-    // omits the Orientation tag: conceal starts from the side to move, finished
-    // games use White by convention, gamebooks face the player who made the
-    // final authored mainline move, and normal chapters face the final side to move.
+    // Match the recoverable parts of Lichess's automatic Study orientation when
+    // its default PGN export omits the Orientation tag: conceal starts from the
+    // side to move, finished games use White by convention, and normal chapters
+    // face the final side to move. Gamebooks need one extra import heuristic below.
     if (mode === 'conceal') return rootTurn;
     if (pgnHasOutcome(tags)) return 'white';
     const finalTurn = lastMainlineTurnColor(initialFen, nodes);
     if (mode === 'gamebook') {
-        // A move-less chapter has no authored learner move from which to infer a
-        // side. Keep the root side there; this also avoids flipping Lichess
-        // title/introduction chapters whose default export lost the orientation.
+        // Lichess omits the authored orientation from Study PGN. A root text
+        // comment is a strong signal that the lesson starts by asking the side
+        // to move for an answer (as in Lichess's own lesson-example Study).
+        // Without that signal, keep Lichess's import heuristic and face the
+        // player who made the final authored mainline move.
+        if (hasRootComment) return rootTurn;
         return nodes.length ? oppositeColor(finalTurn) : rootTurn;
     }
     return finalTurn;
@@ -845,7 +849,13 @@ function normalizeGame(engine: StudyPgnEngine, game: ParsedStudyPgnGame, index: 
             variant,
             chess960,
             initialFen,
-            orientation: importedChapterOrientation(tags, teaching.mode, initialFen, nodes),
+            orientation: importedChapterOrientation(
+                tags,
+                teaching.mode,
+                initialFen,
+                nodes,
+                Boolean(rootComments.annotations?.comments.length),
+            ),
             mode: teaching.mode,
             ...(teaching.mode === 'conceal' ? { concealPly: teaching.concealPly ?? 0 } : {}),
             description,
