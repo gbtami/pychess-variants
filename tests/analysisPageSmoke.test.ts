@@ -1007,7 +1007,7 @@ describe('analysis tree movelist gating', () => {
         tree.root.annotations = {
             shapes: [],
             nags: [],
-            comments: [{ id: 'rootnote', author: 'tester', text: 'Start here' }],
+            comments: [{ id: 'rootnote', author: 'tester', text: 'Start here\nlichess.org/study/example' }],
         };
         tree.root.children[0].annotations = {
             shapes: [],
@@ -1036,6 +1036,9 @@ describe('analysis tree movelist gating', () => {
         const list = document.getElementById('movelist')!;
         expect(list.querySelectorAll('interrupt .tree-comment')).toHaveLength(2);
         expect(list.querySelector('img')).toBeNull();
+        const commentLink = list.querySelector<HTMLAnchorElement>('.tree-comment a')!;
+        expect(commentLink.getAttribute('href')).toBe('https://lichess.org/study/example');
+        expect(commentLink.textContent).toBe('lichess.org/study/example');
         expect(list.querySelector('.result, .status')).toBeNull();
         expect([...list.children].map(el => el.tagName.toLowerCase())).toEqual([
             'interrupt',

@@ -8,6 +8,7 @@ import { AnalysisTreeNode } from './analysis/analysisTree';
 import type { AnalysisContext } from './analysis/analysisContext';
 import type { AnalysisExtension } from './analysis/analysisExtension';
 import { GLYPHS } from './analysis/glyphs';
+import { renderLinkifiedText } from './richTextEnhance';
 
 type TreeCtrl = GameController & {
     analysisTree?: { root: AnalysisTreeNode };
@@ -328,8 +329,8 @@ export function createMovelistButtons(ctrl: GameController) {
     ctrl.moveControls = patch(container, h('div#btn-controls-top.btn-controls', buttons));
 }
 
-// Like lila's treeView: comments interrupt the mainline columns, and flow
-// with variations. Text stays plain text, including imported PGN annotations.
+// Like lila's treeView: comments interrupt the mainline columns, flow with
+// variations, preserve authored line breaks, and safely autolink URLs.
 function renderTreeComments(ctrl: TreeCtrl, node: AnalysisTreeNode): VNode[] {
     if (!treeNodeAnnotationsVisible(ctrl, node)) return [];
     return (node.annotations?.comments ?? []).map(comment =>
@@ -339,7 +340,7 @@ function renderTreeComments(ctrl: TreeCtrl, node: AnalysisTreeNode): VNode[] {
                 class: { conceal: treeNodeConcealed(ctrl, node) },
                 attrs: { title: comment.sourceAuthor ? `PGN: ${comment.sourceAuthor}` : comment.author },
             },
-            comment.text,
+            renderLinkifiedText(comment.text),
         ),
     );
 }

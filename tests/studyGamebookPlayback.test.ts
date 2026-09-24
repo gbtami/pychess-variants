@@ -403,7 +403,7 @@ describe('Study interactive lesson playback adapter', () => {
             0,
             undefined,
             'white',
-            'Welcome to the study.\n\nThis chapter contains only introductory text.',
+            'Welcome to the study.\n\nRead https://lichess.org/study/example before continuing.',
         );
         const tree: AnalysisTree = { root, byPath: new Map([['', root]]), nextId: 1 };
         const ctrl = makeCtrl(tree);
@@ -418,9 +418,13 @@ describe('Study interactive lesson playback adapter', () => {
             onAnalyse: jest.fn(),
         });
 
-        expect(document.querySelector('.study-gamebook-play__comment-content')?.textContent).toBe(
-            'Welcome to the study.\n\nThis chapter contains only introductory text.',
-        );
+        const comment = document.querySelector<HTMLElement>('.study-gamebook-play__comment-content')!;
+        expect(comment.querySelectorAll('br')).toHaveLength(2);
+        expect(comment.textContent).toBe('Welcome to the study.Read lichess.org/study/example before continuing.');
+        const link = comment.querySelector<HTMLAnchorElement>('a')!;
+        expect(link.getAttribute('href')).toBe('https://lichess.org/study/example');
+        expect(link.getAttribute('target')).toBe('_blank');
+        expect(link.getAttribute('rel')).toBe('nofollow noreferrer noopener');
         expect(document.querySelector('.study-gamebook-play__feedback.end')?.textContent).toContain('Next chapter');
         expect(document.body.textContent).not.toContain('Lesson unavailable');
 

@@ -1,4 +1,25 @@
-import { enhanceRichText, expandGameEmbeds } from '../client/richTextEnhance';
+import { enhanceLinkifiedText, enhanceRichText, expandGameEmbeds, setLinkifiedText } from '../client/richTextEnhance';
+
+test('linkified text matches Study-style Lichess rich text without markdown or embeds', () => {
+    const source = '* Beginner https://lichess.org/study/wukLYIXj\n\n<img src=x onerror=alert(1)> @somebody #gameIdXX';
+    const html = enhanceLinkifiedText(source);
+
+    expect(html).toContain('* Beginner <a');
+    expect(html).toContain('href="https://lichess.org/study/wukLYIXj"');
+    expect(html).toContain('>lichess.org/study/wukLYIXj</a><br><br>');
+    expect(html).toContain('&lt;img src=x onerror=alert(1)&gt; @somebody #gameIdXX');
+    expect(html).not.toContain('<img ');
+    expect(html).not.toContain('href="/@/somebody"');
+});
+
+test('linkified text can be rendered safely into a plain DOM element', () => {
+    const root = document.createElement('div');
+    setLinkifiedText(root, 'First line\n\nlichess.org/study/example');
+
+    expect(root.querySelectorAll('br')).toHaveLength(2);
+    expect(root.querySelector('a')?.getAttribute('href')).toBe('https://lichess.org/study/example');
+    expect(root.querySelector('a')?.textContent).toBe('lichess.org/study/example');
+});
 
 test('embeds direct imgur links as images', () => {
     const html = enhanceRichText('https://i.imgur.com/HFn4lkh.jpeg');

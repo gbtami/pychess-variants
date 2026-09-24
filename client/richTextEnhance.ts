@@ -6,7 +6,7 @@ type RichNode = VNode | string;
 
 // Derived from lichess rich text behavior, adapted for pychess.
 const linkRegex =
-    /(^|[\s\n]|<[A-Za-z]*\/?>)((?:(?:https?|ftp):\/\/|pychess\.org)[-A-Z0-9+\u0026\u2019@#/%?=()~_|!:,.;]*[-A-Z0-9+\u0026@#/%=~()_|])/gi;
+    /(^|[\s\n]|<[A-Za-z]*\/?>)((?:(?:https?|ftp):\/\/|(?:pychess\.org|lichess\.org))[-A-Z0-9+\u0026\u2019@#/%?=()~_|!:,.;]*[-A-Z0-9+\u0026@#/%=~()_|])/gi;
 const mentionRegex = /(^|[^\w@#/])@([a-z0-9_-]{2,30})/gi;
 const gameIdRegex = /(\s#)([\w]{8})($|[^\w-])/g;
 const imgurRegex = /https?:\/\/(?:i\.)?imgur\.com\/(?!gallery\b)(\w{7})(?:\.jpe?g|\.png|\.gif)?/i;
@@ -132,6 +132,48 @@ function enhanceUrls(escaped: string, options: EnhanceRichTextOptions): string {
     return escaped.replace(linkRegex, (_, space: string, url: string) => `${space}${expandUrl(url, options)}`);
 }
 
+function linkifyUrls(escaped: string): string {
+    return escaped.replace(linkRegex, (_, space: string, url: string) => `${space}${expandLink(url)}`);
+}
+
+export function enhanceLinkifiedText(text: string): string {
+    return linkifyUrls(escapeHtml(text)).replace(/\n/g, '<br>');
+}
+
+export function setLinkifiedText(element: HTMLElement, text: string): void {
+    element.innerHTML = enhanceLinkifiedText(text);
+}
+
+export function renderLinkifiedText(text: string): RichNode[] {
+    return [
+        h('span', {
+            hook: {
+                create(_emptyVnode, vnode) {
+                    const el = vnode.elm as HTMLElement;
+                    el.innerHTML = enhanceLinkifiedText(text);
+                    if (!vnode.data) vnode.data = {};
+                    vnode.data.cachedLinkifiedText = text;
+                },
+                insert(vnode) {
+                    const el = vnode.elm as HTMLElement;
+                    if (!vnode.data) vnode.data = {};
+                    if (vnode.data.cachedLinkifiedText !== text) {
+                        el.innerHTML = enhanceLinkifiedText(text);
+                        vnode.data.cachedLinkifiedText = text;
+                    }
+                },
+                postpatch(oldVnode, vnode) {
+                    const el = vnode.elm as HTMLElement;
+                    const oldText = oldVnode.data?.cachedLinkifiedText;
+                    if (!vnode.data) vnode.data = {};
+                    if (oldText !== text) el.innerHTML = enhanceLinkifiedText(text);
+                    vnode.data.cachedLinkifiedText = text;
+                },
+            },
+        }),
+    ];
+}
+
 function enhanceMentions(html: string): string {
     return html.replace(mentionRegex, (_m: string, prefix: string, user: string) => {
         return `${prefix}${linkHtml(`/@/${encodeURIComponent(user)}`, `@${escapeHtml(user)}`)}`;
@@ -150,7 +192,7 @@ export function enhanceRichText(text: string, options: EnhanceRichTextOptions = 
 }
 
 export function isMoreThanText(text: string): boolean {
-    return /(\n|(@|#|\.)\w{2,}|https?:\/\/|pychess\.org)/i.test(text);
+    return /(\n|(@|#|\.)\w{2,}|https?:\/\/|(?:pychess\.org|lichess\.org))/i.test(text);
 }
 
 export function renderRichText(text: string, options: EnhanceRichTextOptions = {}): RichNode[] {

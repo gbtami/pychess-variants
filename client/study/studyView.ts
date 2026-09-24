@@ -15,6 +15,7 @@ import { confirmDialog } from '../confirmDialog';
 import { downloadText, notifyChessgroundResize, patch } from '../document';
 import { _, ngettext } from '../i18n';
 import { updateMovelist } from '../movelist';
+import { renderLinkifiedText } from '../richTextEnhance';
 import type { PyChessModel, StudyFeatureSelection, StudyPageModel } from '../types';
 import { loadCataloguedVariantsFromJson, variantConfigIni } from '../variants';
 import { variantsIni } from '../variantsIni';
@@ -1700,7 +1701,7 @@ function studyPinnedChapterComment(study: StudyPageModel, modeActions: StudyMode
                       },
                       pinnedChapterCommentTitle(),
                   )
-                : h('div.text', description),
+                : h('div.text', renderLinkifiedText(description)),
         ]);
     }
 

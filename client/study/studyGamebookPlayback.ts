@@ -11,6 +11,7 @@ import type {
 import type { AnalysisTreeNode } from '../analysis/analysisTree';
 import { uci2cg } from '../chess';
 import { _ } from '../i18n';
+import { setLinkifiedText } from '../richTextEnhance';
 import { StudyGamebookPlayController, type StudyGamebookPlayState } from './studyGamebookPlay';
 
 export interface StudyGamebookPlaybackOptions {
@@ -297,7 +298,7 @@ export class StudyGamebookPlayback {
         comment.className = 'study-gamebook-play__comment';
         const text = document.createElement('div');
         text.className = 'study-gamebook-play__comment-content';
-        text.textContent = content ?? _('You completed this lesson.');
+        setLinkifiedText(text, content ?? _('You completed this lesson.'));
         comment.append(text);
 
         if (state.kind === 'prompt' && state.hint) {
