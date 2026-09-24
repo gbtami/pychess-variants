@@ -3,14 +3,21 @@ import path from 'path';
 
 import { beforeAll, describe, expect, test } from '@jest/globals';
 
+import type { Step } from '../client/messages';
 import { renderStudyPgn, type StudyPgnChapterData, type StudyPgnContext } from '../client/study/studyPgn';
 import {
     normalizeStudyPgnDocument,
     parseStudyPgnDocumentForImportWithEngines,
     parseStudyPgnForImport,
 } from '../client/study/studyPgnImport';
+import { StudyGamebookPlayController } from '../client/study/studyGamebookPlay';
 import { studyPgnParser } from '../client/study/studyPgnParser';
-import type { StudyAnnotationsDto, StudyTreeDto, StudyTreeNodeDto } from '../client/study/studyTree';
+import {
+    analysisTreeFromStudy,
+    type StudyAnnotationsDto,
+    type StudyTreeDto,
+    type StudyTreeNodeDto,
+} from '../client/study/studyTree';
 
 let ffish: any;
 
@@ -188,6 +195,79 @@ describe('Study PGN round trips and Lichess compatibility corpus', () => {
         }
         expect(imported[0].tags).toMatchObject({ Event: 'Round-trip event', Result: '1-0', Round: '7' });
         expect(imported[1].tags.Result).toBe('*');
+    });
+
+    test('imports Lichess gamebook comments into learner feedback and scripted replies', async () => {
+        const [chapter] = await parseStudyPgnForImport(
+            studyPgnParser,
+            ffish,
+            `[ChapterMode "gamebook"]
+
+{ Play the most common opening move. }
+1. e4 { Good. Now watch the reply. }
+(1. e3 { That is playable, but the lesson expects a more active move. })
+1... e5 { Develop a piece and attack the pawn. }
+2. Nf3 { Lesson complete. } *`,
+        );
+
+        expect(chapter.mode).toBe('gamebook');
+        expect(chapter.orientation).toBe('white');
+        const rootStep: Step = {
+            fen: chapter.initialFen,
+            check: false,
+            turnColor: chapter.initialFen.split(/\s+/)[1] === 'b' ? 'black' : 'white',
+        };
+        const tree = analysisTreeFromStudy(rootStep, chapter.tree);
+        let pending: (() => void) | undefined;
+        const scriptedMoves: string[] = [];
+        const ctrl = new StudyGamebookPlayController({
+            chapterId: 'imported-gamebook',
+            tree,
+            orientation: chapter.orientation,
+            actions: {
+                playScriptedMove(move) {
+                    scriptedMoves.push(move);
+                    return true;
+                },
+                goToPath: () => {},
+            },
+            scheduler: {
+                schedule(_delayMs, action) {
+                    pending = action;
+                    return () => {
+                        if (pending === action) pending = undefined;
+                    };
+                },
+            },
+        });
+
+        expect(ctrl.state).toMatchObject({
+            kind: 'prompt',
+            comment: 'Play the most common opening move.',
+            solutionMove: 'e2e4',
+        });
+        expect(ctrl.gradeLearnerMove('e2e3')).toBe('wrong');
+        expect(ctrl.state).toMatchObject({
+            kind: 'wrong-feedback',
+            comment: 'That is playable, but the lesson expects a more active move.',
+        });
+        expect(ctrl.retry()).toBe(true);
+
+        expect(ctrl.gradeLearnerMove('e2e4')).toBe('correct');
+        expect(ctrl.state).toMatchObject({ kind: 'correct-feedback', comment: 'Good. Now watch the reply.' });
+        expect(ctrl.continue()).toBe(true);
+        expect(ctrl.state).toMatchObject({ kind: 'opponent-wait', move: 'e7e5' });
+        pending?.();
+        expect(scriptedMoves).toEqual(['e7e5']);
+        expect(ctrl.state).toMatchObject({
+            kind: 'prompt',
+            comment: 'Develop a piece and attack the pawn.',
+            solutionMove: 'g1f3',
+        });
+
+        expect(ctrl.gradeLearnerMove('g1f3')).toBe('correct');
+        expect(ctrl.state).toMatchObject({ kind: 'complete', comment: 'Lesson complete.' });
+        ctrl.destroy();
     });
 
     test('imports Lichess-style root variations, comments and broad NAG values', async () => {

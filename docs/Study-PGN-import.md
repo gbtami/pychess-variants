@@ -259,41 +259,46 @@ regression fixture rather than committing an entire third-party Study export.
 The core feature is implemented. Remaining work should be driven primarily by concrete
 semantic differences found in real PGNs rather than by adding speculative metadata.
 
-### A. Real-study semantic parity audit — **in progress**
+### A. Real-study semantic parity audit — **complete for the current corpus**
 
-Compare imported chapters from the current real-study corpus with their Lichess source,
-looking for information that imports successfully but lands on the wrong position or is
-rendered differently. Check especially:
+The five-study corpus has now been compared structurally and semantically rather than only
+checked for parse/replay success. The audit verified that:
 
-- root comment vs move comment placement;
-- arrow/circle placement;
-- root vs move evaluations;
-- root vs move clocks;
-- NAG placement;
-- preferred-mainline/variation ordering;
-- chapter mode and gamebook behavior (including root-prompt vs scripted-opponent orientation);
-- FEN/root-position handling;
-- chapter tags and description-like metadata.
+- every source arrow/circle in the corpus lands on the same authored position;
+- all 170 Lichess clock directives in the clock-heavy Crazyhouse study survive import;
+- NAG placement matches the parsed source tree after accounting for intentional
+  duplicate-variation merging (including a duplicated `Rxa3 $2` branch in the rook study);
+- preferred-mainline/variation ordering remains stable after engine normalization;
+- FEN differences are only expected Fairy-Stockfish canonicalization, such as Crazyhouse
+  pocket syntax, Chess960 castling rights, and Three-check counters;
+- root/move comments, root/move evaluations, and source attribution survive at the intended
+  positions;
+- the root-prompt orientation exception is exercised by Lichess's lesson example without
+  changing the intended orientation of the larger lesson corpus;
+- all 66 imported gamebook chapters in the corpus can follow their canonical authored line
+  through the deterministic lesson controller to completion.
 
-The current corpus now parses/replays cleanly. A mechanical import -> PyChess export ->
-re-import comparison across all five studies also preserved the authored tree semantics
-that the source PGNs actually contain. That pass found and fixed the root-prompt gamebook
-orientation loss described above. Continue this item with position-by-position semantic
-comparison against the Lichess source, because silent semantic loss not represented by the
-current corpus is now more likely than syntax/replay failure.
+A mechanical import -> PyChess export -> re-import comparison across all five studies also
+preserves the authored tree semantics that the source PGNs contain. Future work on this
+item should therefore be bug-driven by a new real export that demonstrates a semantic
+difference rather than by adding speculative parser behavior.
 
-### B. Interactive/gamebook metadata parity
+### B. Interactive/gamebook metadata parity — **complete within PGN interchange limits**
 
-Audit real lesson exports for feedback/control metadata and verify that:
+Real lesson exports now have an import-to-playback regression covering root prompts,
+move-specific wrong-answer comments, correct-answer feedback, scripted opponent replies,
+subsequent learner prompts, and terminal completion. The larger real-study corpus also
+reaches the expected gamebook end state on every canonical lesson line, including
+root-only/comment-only chapters.
 
-- correct/incorrect/deviation branches retain the intended comments;
-- hints/deviation text are attached to the intended position;
-- terminal lesson positions reach the same end-state behavior;
-- retry/solution behavior is not accidentally changed by import;
-- root-only lesson chapters remain valid.
+One important limitation is upstream rather than an importer bug: Lila's Study PGN export
+includes `ChapterMode "gamebook"`, ordinary comments, and RAVs, but does **not** serialize
+its internal gamebook hint/deviation fields. Those fields therefore cannot be reconstructed
+from an ordinary Lichess PGN export. PyChess's own lossless PGN extensions continue to
+preserve PyChess gamebook hint/deviation data on PyChess -> PyChess round trips.
 
-Only implement Lichess-specific directives after finding a real example that the current
-importer loses or misinterprets.
+Only add another Lichess-specific gamebook directive if a future real export actually
+contains information that the current importer loses or misinterprets.
 
 ### C. Root-node annotation audit
 
