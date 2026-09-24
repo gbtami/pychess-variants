@@ -250,12 +250,14 @@ state and are never exported as authored chapter moves.
 
 ### Import: parser, validation, and paste workflow
 
-[studyPgnParser.ts](../client/study/studyPgnParser.ts) is the client-side structural PGN
-parser. It keeps SAN/move tokens variant-neutral while preserving recursive RAVs,
-comments, NAGs, tags, and multiple games. It also applies browser-safety limits for
-input size, chapter count, tree size, and variation depth. This deliberately avoids
-using Fairy-Stockfish's lightweight `readGamePGN()` reader, which only exposes the
-mainline and would discard Study data.
+[pgnParser.ts](../client/pgnParser.ts) is the shared client-side structural PGN parser.
+It keeps SAN/move tokens variant-neutral while preserving recursive RAVs, comments, NAGs,
+tags, and multiple games. It also applies browser-safety limits for input size, chapter
+count, tree size, and variation depth. Study import consumes the full parsed document;
+**Tools -> Import game** uses the same parser/normalization but intentionally follows only
+the first game's preferred mainline. Fairy-Stockfish resolves the resulting SAN tokens to
+legal variant moves rather than parsing the PGN text itself. Dedicated Bughouse/BPGN and
+Shogi KIF imports remain on their existing specialized paths.
 
 [studyPgnImport.ts](../client/study/studyPgnImport.ts) defines the parser-neutral recursive
 PGN contract and converts parsed games into Study trees. It preserves variations,
@@ -317,7 +319,7 @@ path is otherwise identical.
 | Interactive lesson authoring/playback | [studyGamebook.ts](../client/study/studyGamebook.ts), [studyGamebookEdit.ts](../client/study/studyGamebookEdit.ts), [studyGamebookPlayback.ts](../client/study/studyGamebookPlayback.ts) |
 | Computer practice and bounded engine protocol | [studyPractice.ts](../client/study/studyPractice.ts), [studyPracticeFeedback.ts](../client/study/studyPracticeFeedback.ts), [analysisPracticeEngine.ts](../client/analysis/analysisPracticeEngine.ts) |
 | Lists and Add to Study | [studyIndex.ts](../client/study/studyIndex.ts), [addToStudy.ts](../client/study/addToStudy.ts) |
-| Study PGN import/export | [studyPgnParser.ts](../client/study/studyPgnParser.ts), [studyPgnImport.ts](../client/study/studyPgnImport.ts), [studyPgn.ts](../client/study/studyPgn.ts) |
+| Study PGN import/export | [pgnParser.ts](../client/pgnParser.ts), [studyPgnImport.ts](../client/study/studyPgnImport.ts), [studyPgn.ts](../client/study/studyPgn.ts) |
 | Client persistence adapter and synchronization | [studyTree.ts](../client/study/studyTree.ts), [studySync.ts](../client/study/studySync.ts) |
 | HTTP routes and authorization | [routes.py](../server/routes.py), [views/study.py](../server/views/study.py), [permissions.py](../server/study/permissions.py) |
 | Models, storage, tree validation, mutations | [models.py](../server/study/models.py), [storage.py](../server/study/storage.py), [tree.py](../server/study/tree.py), [builder.py](../server/study/builder.py), [mutations.py](../server/study/mutations.py) |

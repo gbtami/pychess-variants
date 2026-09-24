@@ -1,26 +1,53 @@
-import type {
-    ParsedStudyPgnDocument,
-    ParsedStudyPgnGame,
-    ParsedStudyPgnMove,
-    StudyPgnParser,
-    StudyPgnParserCapabilities,
-} from './studyPgnImport';
+export interface PgnParserCapabilities {
+    recursiveVariations: boolean;
+    comments: boolean;
+    nags: boolean;
+    multipleGames: boolean;
+}
 
-export interface StudyPgnParserLimits {
+export interface ParsedPgnMove {
+    /** PGN move token (normally SAN). Kept opaque until engine-backed replay. */
+    san: string;
+    /** Variant-native Fairy-Stockfish/pyffish move when a producer can expose it. */
+    move?: string;
+    comments?: string[];
+    nags?: number[];
+    /** Child[0] is the PGN continuation; later children are RAV alternatives. */
+    children?: ParsedPgnMove[];
+}
+
+export interface ParsedPgnGame {
+    tags: Record<string, string>;
+    /** Comments attached to the initial position before the first move. */
+    comments?: string[];
+    /** Root children use mainline-first ordering; later children are root RAVs. */
+    children: ParsedPgnMove[];
+}
+
+export interface ParsedPgnDocument {
+    capabilities: PgnParserCapabilities;
+    games: ParsedPgnGame[];
+}
+
+export interface PgnParser {
+    parse(pgn: string): ParsedPgnDocument | Promise<ParsedPgnDocument>;
+}
+
+export interface PgnParserLimits {
     maxInputChars: number;
     maxGames: number;
     maxNodesPerGame: number;
     maxVariationDepth: number;
 }
 
-export const DEFAULT_STUDY_PGN_PARSER_LIMITS: Readonly<StudyPgnParserLimits> = Object.freeze({
+export const DEFAULT_PGN_PARSER_LIMITS: Readonly<PgnParserLimits> = Object.freeze({
     maxInputChars: 8_000_000,
     maxGames: 64,
     maxNodesPerGame: 3_000,
     maxVariationDepth: 64,
 });
 
-const COMPLETE_CAPABILITIES: StudyPgnParserCapabilities = {
+const COMPLETE_CAPABILITIES: PgnParserCapabilities = {
     recursiveVariations: true,
     comments: true,
     nags: true,
@@ -56,19 +83,19 @@ const STANDALONE_NAGS: Readonly<Record<string, number>> = Object.freeze({
 
 const RESULT_TOKENS = new Set(['1-0', '0-1', '1/2-1/2', '1/2', '½-½', '*']);
 
-export class StudyPgnParseError extends Error {
+export class PgnParseError extends Error {
     readonly line: number;
     readonly column: number;
 
     constructor(message: string, line: number, column: number) {
         super(`PGN parse error at line ${line}, column ${column}: ${message}`);
-        this.name = 'StudyPgnParseError';
+        this.name = 'PgnParseError';
         this.line = line;
         this.column = column;
     }
 }
 
-type PositionOwner = ParsedStudyPgnGame | ParsedStudyPgnMove;
+type PositionOwner = ParsedPgnGame | ParsedPgnMove;
 
 interface SequenceResult {
     result?: string;
@@ -83,13 +110,13 @@ function addComment(owner: PositionOwner, comment: string): void {
     owner.comments.push(cleaned);
 }
 
-function addNag(move: ParsedStudyPgnMove, nag: number): void {
+function addNag(move: ParsedPgnMove, nag: number): void {
     if (!nag) return;
     move.nags ??= [];
     if (!move.nags.includes(nag)) move.nags.push(nag);
 }
 
-function cleanupMove(move: ParsedStudyPgnMove): void {
+function cleanupMove(move: ParsedPgnMove): void {
     if (!move.comments?.length) delete move.comments;
     if (!move.nags?.length) delete move.nags;
     if (!move.children?.length) delete move.children;
@@ -109,20 +136,13 @@ class ParserState {
 
     constructor(
         private readonly source: string,
-        private readonly limits: StudyPgnParserLimits,
+        private readonly limits: PgnParserLimits,
     ) {}
 
-    parseDocument(): ParsedStudyPgnDocument {
-        if (this.source.length > this.limits.maxInputChars) {
-            throw new StudyPgnParseError(
-                `PGN text is too large (maximum ${this.limits.maxInputChars.toLocaleString()} characters).`,
-                1,
-                1,
-            );
-        }
-
+    parseDocument(): ParsedPgnDocument {
+        this.validateInputSize();
         this.skipInterTokenSpace();
-        const games: ParsedStudyPgnGame[] = [];
+        const games: ParsedPgnGame[] = [];
         while (!this.eof()) {
             if (games.length >= this.limits.maxGames) {
                 this.fail(`PGN contains more than ${this.limits.maxGames} games.`);
@@ -136,7 +156,23 @@ class ParserState {
         return { capabilities: { ...COMPLETE_CAPABILITIES }, games };
     }
 
-    private parseGame(): ParsedStudyPgnGame {
+    parseFirstGame(): ParsedPgnGame | undefined {
+        this.validateInputSize();
+        this.skipInterTokenSpace();
+        return this.eof() ? undefined : this.parseGame();
+    }
+
+    private validateInputSize(): void {
+        if (this.source.length > this.limits.maxInputChars) {
+            throw new PgnParseError(
+                `PGN text is too large (maximum ${this.limits.maxInputChars.toLocaleString()} characters).`,
+                1,
+                1,
+            );
+        }
+    }
+
+    private parseGame(): ParsedPgnGame {
         this.currentGameNodes = 0;
         const tags: Record<string, string> = {};
         this.skipInterTokenSpace();
@@ -146,7 +182,7 @@ class ParserState {
             this.skipInterTokenSpace();
         }
 
-        const game: ParsedStudyPgnGame = { tags, children: [] };
+        const game: ParsedPgnGame = { tags, children: [] };
         const sequence = this.parseSequence(game.children, game, false, 0);
         if (sequence.result) this.parseTrailingComments(sequence.terminalOwner);
         const tagResult = tags.Result ? normalizedResult(tags.Result) : undefined;
@@ -158,7 +194,7 @@ class ParserState {
     }
 
     private parseSequence(
-        children: ParsedStudyPgnMove[],
+        children: ParsedPgnMove[],
         startOwner: PositionOwner,
         variation: boolean,
         depth: number,
@@ -169,8 +205,8 @@ class ParserState {
 
         let currentOwner = startOwner;
         let currentChildren = children;
-        let lastMove: ParsedStudyPgnMove | undefined;
-        let lastMoveSiblings: ParsedStudyPgnMove[] | undefined;
+        let lastMove: ParsedPgnMove | undefined;
+        let lastMoveSiblings: ParsedPgnMove[] | undefined;
         let lastMoveParent: PositionOwner | undefined;
         let sawMove = false;
         const leadingVariationComments: string[] = [];
@@ -247,7 +283,7 @@ class ParserState {
                 this.fail(`PGN game contains more than ${this.limits.maxNodesPerGame} moves/variation nodes.`);
             }
 
-            const node: ParsedStudyPgnMove = { san };
+            const node: ParsedPgnMove = { san };
             if (nag !== undefined) addNag(node, nag);
             if (variation && !sawMove) {
                 for (const comment of leadingVariationComments) addComment(node, comment);
@@ -438,15 +474,20 @@ class ParserState {
     }
 
     private fail(message: string): never {
-        throw new StudyPgnParseError(message, this.line, this.column);
+        throw new PgnParseError(message, this.line, this.column);
     }
 }
 
-export function parseStudyPgn(pgn: string, limits: Partial<StudyPgnParserLimits> = {}): ParsedStudyPgnDocument {
-    const resolvedLimits = { ...DEFAULT_STUDY_PGN_PARSER_LIMITS, ...limits };
+export function parsePgn(pgn: string, limits: Partial<PgnParserLimits> = {}): ParsedPgnDocument {
+    const resolvedLimits = { ...DEFAULT_PGN_PARSER_LIMITS, ...limits };
     return new ParserState(pgn, resolvedLimits).parseDocument();
 }
 
-export const studyPgnParser: StudyPgnParser = {
-    parse: parseStudyPgn,
+export function parseFirstPgnGame(pgn: string, limits: Partial<PgnParserLimits> = {}): ParsedPgnGame | undefined {
+    const resolvedLimits = { ...DEFAULT_PGN_PARSER_LIMITS, ...limits };
+    return new ParserState(pgn, resolvedLimits).parseFirstGame();
+}
+
+export const pgnParser: PgnParser = {
+    parse: parsePgn,
 };

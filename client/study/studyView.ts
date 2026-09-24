@@ -30,7 +30,7 @@ import { StudyGamebookPlayback } from './studyGamebookPlayback';
 import { StudyPracticeSession } from './studyPractice';
 import { fetchStudyChapterExportData, renderStudyChapterPgn, renderStudyPgn, studyPgnFilename } from './studyPgn';
 import { parseStudyPgnForImportWithEngines, postStudyPgnImport, studyPgnGameUsesAlice } from './studyPgnImport';
-import { studyPgnParser } from './studyPgnParser';
+import { pgnParser as studyPgnParser } from '../pgnParser';
 import {
     studyChapterCreateForm,
     studyChapterModeField,

@@ -11,7 +11,7 @@ import {
     parseStudyPgnForImport,
 } from '../client/study/studyPgnImport';
 import { StudyGamebookPlayController } from '../client/study/studyGamebookPlay';
-import { studyPgnParser } from '../client/study/studyPgnParser';
+import { pgnParser as studyPgnParser } from '../client/pgnParser';
 import {
     analysisTreeFromStudy,
     type StudyAnnotationsDto,

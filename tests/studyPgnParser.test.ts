@@ -1,9 +1,9 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { parseStudyPgn, StudyPgnParseError, type StudyPgnParserLimits } from '../client/study/studyPgnParser';
+import { parsePgn, PgnParseError, type PgnParserLimits } from '../client/pgnParser';
 
 function firstGame(pgn: string) {
-    return parseStudyPgn(pgn).games[0];
+    return parsePgn(pgn).games[0];
 }
 
 describe('Study PGN raw parser', () => {
@@ -60,7 +60,7 @@ describe('Study PGN raw parser', () => {
     });
 
     test('parses several games and derives a missing Result tag from movetext', () => {
-        const parsed = parseStudyPgn(`[Event "One"]
+        const parsed = parsePgn(`[Event "One"]
 [Result "1-0"]
 
 1.e4 e5 1-0
@@ -83,7 +83,7 @@ describe('Study PGN raw parser', () => {
     });
 
     test('keeps comments after the termination marker on the final position', () => {
-        const parsed = parseStudyPgn('1.e4 e5 1-0 {final note}\n\n[Event "Next"]\n\n1.d4 *');
+        const parsed = parsePgn('1.e4 e5 1-0 {final note}\n\n[Event "Next"]\n\n1.d4 *');
         expect(parsed.games).toHaveLength(2);
         expect(parsed.games[0].children[0].children?.[0].comments).toEqual(['final note']);
         expect(parsed.games[1].tags.Event).toBe('Next');
@@ -160,29 +160,27 @@ describe('Study PGN raw parser', () => {
         ['variation without a move', '(1.d4)', /line 1, column 1: Variation has no preceding move/],
         ['malformed tag', '[Event noquote]\n1.e4 *', /line 1, column \d+: Expected quoted value/],
     ])('reports useful source locations for %s', (_name, pgn, expected) => {
-        expect(() => parseStudyPgn(pgn)).toThrow(expected as RegExp);
+        expect(() => parsePgn(pgn)).toThrow(expected as RegExp);
         try {
-            parseStudyPgn(pgn);
+            parsePgn(pgn);
         } catch (error) {
-            expect(error).toBeInstanceOf(StudyPgnParseError);
-            expect((error as StudyPgnParseError).line).toBeGreaterThan(0);
-            expect((error as StudyPgnParseError).column).toBeGreaterThan(0);
+            expect(error).toBeInstanceOf(PgnParseError);
+            expect((error as PgnParseError).line).toBeGreaterThan(0);
+            expect((error as PgnParseError).column).toBeGreaterThan(0);
         }
     });
 
     test('enforces configurable browser-safety limits', () => {
-        const base: StudyPgnParserLimits = {
+        const base: PgnParserLimits = {
             maxInputChars: 10_000,
             maxGames: 10,
             maxNodesPerGame: 10,
             maxVariationDepth: 10,
         };
 
-        expect(() => parseStudyPgn('1.e4 *', { ...base, maxInputChars: 3 })).toThrow(/too large/);
-        expect(() => parseStudyPgn('1.e4 * 1.d4 *', { ...base, maxGames: 1 })).toThrow(/more than 1 games/);
-        expect(() => parseStudyPgn('1.e4 e5 2.Nf3 *', { ...base, maxNodesPerGame: 2 })).toThrow(/more than 2/);
-        expect(() => parseStudyPgn('1.e4 (1.d4 (1.c4)) *', { ...base, maxVariationDepth: 1 })).toThrow(
-            /nesting exceeds 1/,
-        );
+        expect(() => parsePgn('1.e4 *', { ...base, maxInputChars: 3 })).toThrow(/too large/);
+        expect(() => parsePgn('1.e4 * 1.d4 *', { ...base, maxGames: 1 })).toThrow(/more than 1 games/);
+        expect(() => parsePgn('1.e4 e5 2.Nf3 *', { ...base, maxNodesPerGame: 2 })).toThrow(/more than 2/);
+        expect(() => parsePgn('1.e4 (1.d4 (1.c4)) *', { ...base, maxVariationDepth: 1 })).toThrow(/nesting exceeds 1/);
     });
 });

@@ -34,6 +34,17 @@ const CWDA_ROOKIES_PGN = `[Event "CwDA import test"]
 
 1. b3 a6 2. Mb2 a5 3. Ec3 b6 4. Fc4 b5 5. O-O-O *`;
 
+const SIMPLE_KIF = `開始日時：2026/09/24
+場所：Test
+持ち時間：10分+30秒
+手合割：平手
+先手：Sente
+後手：Gote
+手数----指手---------消費時間--
+1 ７六歩(77)
+2 ３四歩(33)
+3 投了`;
+
 type QueuedXhrResponse = {
     status: number;
     body: Record<string, string> | string;
@@ -44,6 +55,7 @@ type QueuedXhrResponse = {
 let ffish: FairyStockfish;
 let queuedXhrResponses: QueuedXhrResponse[] = [];
 let sentBodies: FormData[] = [];
+let openedUrls: string[] = [];
 let warnSpy: jest.SpiedFunction<typeof console.warn>;
 
 const originalXHR = global.XMLHttpRequest;
@@ -55,8 +67,8 @@ class FakeXMLHttpRequest {
     onreadystatechange: ((this: XMLHttpRequest, ev: Event) => unknown) | null = null;
     onerror: ((this: XMLHttpRequest, ev: Event) => unknown) | null = null;
 
-    open(_method: string, _url: string, _async?: boolean): void {
-        // No-op for tests.
+    open(_method: string, url: string, _async?: boolean): void {
+        openedUrls.push(url);
     }
 
     send(body?: Document | XMLHttpRequestBodyInit | null): void {
@@ -130,6 +142,7 @@ afterAll(() => {
 beforeEach(() => {
     queuedXhrResponses = [];
     sentBodies = [];
+    openedUrls = [];
     document.body.innerHTML = '';
 });
 
@@ -188,7 +201,78 @@ test('shows parser move errors from Fairy-Stockfish bindings', () => {
     triggerImport(makeModel(), invalidMovePgn);
 
     expect(sentBodies).toHaveLength(0);
-    expect(latestAlertText()).toContain('The given sanMove');
+    expect(latestAlertText()).toBe('PGN move is illegal or unsupported at ply 2: Cz9.');
+});
+
+test('ordinary import shares tolerant PGN parsing and keeps only the mainline', () => {
+    const pgn = `[Event "Shared parser"]
+[White "Alice"]
+[Black "Bob"]
+[Result "1/2"]
+
+1. e4 (1. d4 d5) e5 1/2`;
+    queueXhrResponse({ status: 200, body: { gameId: 'Draw1234' }, skipReadyState: true });
+
+    triggerImport(makeModel(), pgn);
+
+    expect(openedUrls).toEqual(['/import']);
+    expect(sentBodies).toHaveLength(1);
+    const sent = sentBodies[0];
+    expect(sent.get('moves')).toBe('e2e4 e7e5');
+    expect(sent.get('Result')).toBe('1/2-1/2');
+    expect(document.querySelector('#alert-dialog')).toBeNull();
+});
+
+test('ordinary import ignores later games after the first parsed game', () => {
+    const pgn = `[Event "First"]
+[Result "*"]
+
+1. e4 e5 *
+
+[Event "Broken second"]
+
+1. definitely-not-a-move *`;
+    queueXhrResponse({ status: 200, body: { gameId: 'First123' }, skipReadyState: true });
+
+    triggerImport(makeModel(), pgn);
+
+    expect(openedUrls).toEqual(['/import']);
+    expect(sentBodies).toHaveLength(1);
+    expect(sentBodies[0].get('Event')).toBe('First');
+    expect(sentBodies[0].get('moves')).toBe('e2e4 e7e5');
+});
+
+test('Bughouse BPGN stays on the dedicated server-side import path', () => {
+    const bpgn = `[Variant "Bughouse"]
+[WhiteA "Alice"]
+[BlackA "Bob"]
+[WhiteB "Carol"]
+[BlackB "Dave"]
+
+1A. e4 e5`;
+    queueXhrResponse({ status: 200, body: {}, skipReadyState: true });
+
+    triggerImport(makeModel(), bpgn);
+
+    expect(openedUrls).toEqual(['/import_bpgn']);
+    expect(sentBodies).toHaveLength(1);
+    expect(sentBodies[0].get('pgn')).toBe(bpgn);
+    expect(sentBodies[0].get('moves')).toBeNull();
+});
+
+test('Shogi KIF stays on the dedicated KIF parser path', () => {
+    queueXhrResponse({ status: 200, body: { gameId: 'Kif12345' }, skipReadyState: true });
+
+    triggerImport(makeModel(), SIMPLE_KIF);
+
+    expect(openedUrls).toEqual(['/import']);
+    expect(sentBodies).toHaveLength(1);
+    const sent = sentBodies[0];
+    expect(sent.get('Variant')).toBe('shogi');
+    expect(sent.get('White')).toBe('Sente');
+    expect(sent.get('Black')).toBe('Gote');
+    expect(sent.get('moves')).toBe('c3c4 g7g6');
+    expect(sent.get('Status')).toBe('2');
 });
 
 test('shows backend import errors returned as non-200 responses', () => {

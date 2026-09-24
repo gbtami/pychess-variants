@@ -11,7 +11,7 @@ import {
     type StudyPgnImportResponse,
     type StudyPgnNewStudySettings,
 } from './studyPgnImport';
-import { studyPgnParser } from './studyPgnParser';
+import { pgnParser as studyPgnParser } from '../pgnParser';
 
 const STUDY_SETTING_FIELDS = ['name', 'visibility', 'computer', 'explorer', 'cloneable', 'shareable'] as const;
 const studyPgnModules = new Map<boolean, Promise<StudyPgnEngine>>();

@@ -17,7 +17,7 @@ format contains.
 
 The chosen architecture is deliberately split into two layers:
 
-1. [studyPgnParser.ts](../client/study/studyPgnParser.ts) is a pure TypeScript,
+1. [pgnParser.ts](../client/pgnParser.ts) is a pure TypeScript,
    variant-neutral structural PGN parser. It understands PGN syntax, comments, NAGs,
    recursive annotation variations (RAVs), tags, results, and multiple games, but treats
    move/SAN tokens as opaque strings.
@@ -30,11 +30,21 @@ This separation is important for PyChess Variants. A generic PGN parser should n
 hard-coded assumptions about 8x8 chess, piece letters, drops, fairy pieces, or custom
 variants. Fairy-Stockfish already owns those rules.
 
-The importer does **not** build on `ffish.readGamePGN()`. That lightweight reader is useful
-for mainline-only use cases but discards the recursive variations and annotations needed
-by Study. Lila is used as the main reference for Study import semantics and edge cases,
-while the desktop PyChess PGN parser was useful as a reference for the basic scanner /
-recursive-parser shape.
+Study import does **not** build on `ffish.readGamePGN()`. The same structural parser is now
+also used by **Tools -> Import game** for ordinary PGN, so syntax tolerance and tag/result
+normalization do not drift between the two user-facing import paths. Fairy-Stockfish remains
+authoritative for resolving SAN to legal variant moves and replaying the selected mainline.
+Lila is used as the main reference for Study import semantics and edge cases, while the
+desktop PyChess PGN parser was useful as a reference for the basic scanner / recursive-parser
+shape.
+
+Two deliberately different formats stay outside this shared ordinary-PGN path:
+
+- Bughouse/BPGN is detected before structural PGN parsing and is still posted unchanged to
+  the dedicated `/import_bpgn` server importer, whose two-board semantics are substantially
+  different from a single-board PGN tree.
+- Shogi KIF is still detected before ordinary PGN parsing and handled by the existing
+  dedicated `parseKif()` importer. KIF is a Japanese game-record format, not a PGN dialect.
 
 Keeping the expensive work client-side also avoids turning large PGN imports into extra
 server CPU/memory load on the production Heroku dyno.
@@ -43,7 +53,7 @@ server CPU/memory load on the production Heroku dyno.
 
 | Area | Files |
 | --- | --- |
-| Structural parser | [studyPgnParser.ts](../client/study/studyPgnParser.ts) |
+| Structural parser | [pgnParser.ts](../client/pgnParser.ts) |
 | Replay/normalization/import API | [studyPgnImport.ts](../client/study/studyPgnImport.ts) |
 | PGN export / PyChess extensions | [studyPgn.ts](../client/study/studyPgn.ts) |
 | Study chapter/new-Study import UI | [studyChapterForm.ts](../client/study/studyChapterForm.ts) and Study creation code |
@@ -255,6 +265,27 @@ Playback now restores the active authored shapes both when it starts and after e
 change, while keeping solution hints in separate auto-shapes. This also matches lila's
 gamebook behavior, which retains the original node shapes while a lesson is being played.
 
+### Shared ordinary-game PGN import path
+
+The **Tools -> Import game** page now uses the same [pgnParser.ts](../client/pgnParser.ts)
+scanner/parser as Study import for ordinary PGN instead of delegating PGN text parsing to
+`ffish.readGamePGN()`. The page still imports one game and only follows the preferred
+mainline; comments and RAVs are structurally parsed but intentionally not stored in the
+saved game. Each SAN token is resolved against Fairy-Stockfish legal moves with the same
+normalization used by Study import, then the resulting variant-native moves are submitted
+to the existing `/import` endpoint.
+
+This means future compatibility work for PGNs produced by other chess sites can normally be
+implemented once in the shared structural parser or PGN normalization helpers and benefit
+both Study import and Tools -> Import game. Dedicated BPGN/Bughouse and KIF paths remain
+separate by design and have regression coverage preventing them from accidentally entering
+the shared ordinary-PGN path.
+
+The first cross-path regression is the non-standard but common draw shorthand `1/2`: after
+its parser support was added for Study imports, Tools -> Import game now receives the same
+canonical `1/2-1/2` result automatically. The ordinary importer also has regression coverage
+that a RAV is ignored in favor of the source mainline when creating a saved game.
+
 ## PyChess-specific lossless extensions
 
 PyChess Study export has extensions for information ordinary PGN cannot fully express,
@@ -446,6 +477,10 @@ stable:
 - Multi-stage `TimeControl` clock reconstruction is intentionally not guessed yet.
 - The parser is structural, not a substitute for Fairy-Stockfish. Variant legality and
   SAN interpretation must remain engine-backed.
+- Keep Bughouse/BPGN on its dedicated server-side import path; do not flatten its two-board
+  record into the ordinary single-board parser/replay workflow.
+- Keep Shogi KIF on its dedicated KIF parser; site-specific PGN tolerance should not turn KIF
+  into a pseudo-PGN format.
 - Do not merge duplicate branches by SAN string before replay; merge by resolved legal
   move after Fairy-Stockfish normalization.
 - Do not let external comment attribution become authenticated PyChess authorship.

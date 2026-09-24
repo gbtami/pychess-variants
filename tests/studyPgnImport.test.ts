@@ -5,7 +5,7 @@ import { beforeAll, describe, expect, test } from '@jest/globals';
 
 import { encodePgnUtf8Base64 } from '../client/pgn';
 
-import { studyPgnParser } from '../client/study/studyPgnParser';
+import { pgnParser as studyPgnParser } from '../client/pgnParser';
 
 import {
     normalizeStudyPgnDocument,

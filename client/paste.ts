@@ -9,18 +9,16 @@ import { cwdaEngineVariant, VARIANTS } from './variants';
 import { alertDialog } from './alertDialog';
 import { parseKif, resultString } from '../client/kif';
 import { PyChessModel } from './types';
-import { extractPgnTags, parsePgnVariantTag, replacePgnVariantTag, validatePgnFenTag } from './pgn';
+import { extractPgnTags, parsePgnVariantTag, resolvePgnMove, validatePgnFenTag } from './pgn';
 import { importGameBugH } from '@/two-board/paste';
+import { parseFirstPgnGame, type ParsedPgnMove } from './pgnParser';
 
 const BRAINKING_SITE = '[Site "BrainKing.com (Prague, Czech Republic)"]';
 const EMBASSY_FEN = '[FEN "rnbqkmcbnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKMCBNR w KQkq - 0 1"]';
-const IMPORT_FFISH_ERROR_BUFFER: string[] = [];
 export function recordImportFfishError(text: string): void {
     const message = text.trim();
     if (/^Variant '.*' already exists\.$/.test(message)) return;
     console.warn(message);
-    IMPORT_FFISH_ERROR_BUFFER.push(message);
-    if (IMPORT_FFISH_ERROR_BUFFER.length > 200) IMPORT_FFISH_ERROR_BUFFER.shift();
 }
 
 export function pasteView(model: PyChessModel): VNode[] {
@@ -70,8 +68,6 @@ export function pasteView(model: PyChessModel): VNode[] {
             ffish.loadVariantConfig(allVariantsIni(variantsIni));
             const XHR = new XMLHttpRequest();
             const FD = new FormData();
-            const ffishErrorStart = IMPORT_FFISH_ERROR_BUFFER.length;
-
             let variant: string;
             let initialFen: string;
             let board;
@@ -124,23 +120,10 @@ export function pasteView(model: PyChessModel): VNode[] {
 
                     board.delete();
                 } else {
-                    const sourceTags = extractPgnTags(pgn);
-                    const sourceVariantInfo = parsePgnVariantTag(sourceTags['Variant'] ?? 'chess');
-                    const cwdaInitialFen = sourceTags['FEN'] ?? VARIANTS.cwda.startFen;
-                    const parserPgn =
-                        sourceVariantInfo.variant === 'cwda'
-                            ? replacePgnVariantTag(pgn, cwdaEngineVariant(cwdaInitialFen))
-                            : pgn;
-                    const game = ffish.readGamePGN(parserPgn);
-                    const parserError = getLatestFfishError(ffishErrorStart);
-                    if (parserError) {
-                        throw new Error(parserError);
-                    }
+                    const game = parseFirstPgnGame(pgn);
+                    if (!game) throw new Error(_('Invalid PGN'));
 
-                    const variantInfo =
-                        sourceVariantInfo.variant === 'cwda'
-                            ? sourceVariantInfo
-                            : parsePgnVariantTag(game.headers('Variant'));
+                    const variantInfo = parsePgnVariantTag(game.tags['Variant'] ?? 'chess');
                     variant = variantInfo.variant;
 
                     if (variant === 'alice') {
@@ -155,7 +138,7 @@ export function pasteView(model: PyChessModel): VNode[] {
                     }
 
                     initialFen = VARIANTS[variant].startFen;
-                    const f = game.headers('FEN');
+                    const f = game.tags['FEN'];
                     if (f) {
                         const fenValidation = validatePgnFenTag(ffish, f, variantInfo.variant, variantInfo.chess960);
                         if (fenValidation !== null) {
@@ -164,7 +147,7 @@ export function pasteView(model: PyChessModel): VNode[] {
                         initialFen = f;
                     }
 
-                    const t = game.headers('Termination');
+                    const t = game.tags['Termination'];
                     //console.log("Termination:", t);
                     if (t) {
                         const status = getStatus(t.toLowerCase());
@@ -177,27 +160,26 @@ export function pasteView(model: PyChessModel): VNode[] {
                         variantInfo.chess960,
                     );
 
-                    mainlineMoves = game
-                        .mainlineMoves()
-                        .split(/\s+/)
-                        .filter((move: string) => move.length > 0);
-                    for (let idx = 0; idx < mainlineMoves.length; ++idx) {
-                        const pushed = board.push(mainlineMoves[idx]);
-                        if (!pushed) {
-                            throw new Error(`Illegal move at ply ${idx + 1}: ${mainlineMoves[idx]}`);
+                    let node: ParsedPgnMove | undefined = game.children[0];
+                    let ply = 1;
+                    while (node) {
+                        const resolved = resolvePgnMove(board, node, `ply ${ply}`);
+                        if (!board.push(resolved.move)) {
+                            throw new Error(`Illegal move at ply ${ply}: ${node.san}`);
                         }
+                        mainlineMoves.push(resolved.move);
+                        node = node.children?.[0];
+                        ply += 1;
                     }
 
-                    const tags = (game.headerKeys() as string).split(' ');
-                    tags.forEach(tag => {
-                        FD.append(tag, variant === 'cwda' && tag === 'Variant' ? variantInfo.raw : game.headers(tag));
+                    Object.entries(game.tags).forEach(([tag, value]) => {
+                        FD.append(tag, value);
                     });
                     FD.append('moves', mainlineMoves.join(' '));
                     FD.append('final_fen', board.fen());
                     FD.append('username', model['username']);
 
                     board.delete();
-                    game.delete();
                 }
             } catch (err) {
                 const message = buildImportErrorMessage(err, pgn, ffish);
@@ -282,12 +264,6 @@ function getStatus(termination: string) {
     if (termination.includes('time')) return '6';
     if (termination.includes('abandon')) return '7';
     return '11'; // unknown
-}
-
-function getLatestFfishError(fromIndex: number): string | null {
-    if (IMPORT_FFISH_ERROR_BUFFER.length <= fromIndex) return null;
-    const latest = IMPORT_FFISH_ERROR_BUFFER[IMPORT_FFISH_ERROR_BUFFER.length - 1];
-    return latest && latest.trim() ? latest.trim() : null;
 }
 
 function buildImportErrorMessage(err: unknown, pgn: string, ffish: FairyStockfish): string {

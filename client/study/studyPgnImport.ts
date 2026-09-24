@@ -1,4 +1,11 @@
-import { decodePgnUtf8Base64, parsePgnVariantTag } from '../pgn';
+import { decodePgnUtf8Base64, parsePgnVariantTag, resolvePgnMove } from '../pgn';
+import type {
+    ParsedPgnDocument,
+    ParsedPgnGame,
+    ParsedPgnMove,
+    PgnParser,
+    PgnParserCapabilities,
+} from '../pgnParser';
 import type { StudyChapterMode } from '../types';
 import {
     newStudyNodeId,
@@ -10,40 +17,11 @@ import {
     type StudyTreeDto,
 } from './studyTree';
 
-export interface StudyPgnParserCapabilities {
-    recursiveVariations: boolean;
-    comments: boolean;
-    nags: boolean;
-    multipleGames: boolean;
-}
-
-export interface ParsedStudyPgnMove {
-    /** PGN move token (normally SAN). Kept for diagnostics and SAN-only parsers. */
-    san: string;
-    /** Variant-native Fairy-Stockfish/pyffish move when the parser can expose it. */
-    move?: string;
-    comments?: string[];
-    nags?: number[];
-    /** Child[0] is the PGN continuation; later children are RAV alternatives. */
-    children?: ParsedStudyPgnMove[];
-}
-
-export interface ParsedStudyPgnGame {
-    tags: Record<string, string>;
-    /** Comments attached to the initial position before the first move. */
-    comments?: string[];
-    /** Root children use the same mainline-first ordering as StudyTreeDto. */
-    children: ParsedStudyPgnMove[];
-}
-
-export interface ParsedStudyPgnDocument {
-    capabilities: StudyPgnParserCapabilities;
-    games: ParsedStudyPgnGame[];
-}
-
-export interface StudyPgnParser {
-    parse(pgn: string): ParsedStudyPgnDocument | Promise<ParsedStudyPgnDocument>;
-}
+export type StudyPgnParserCapabilities = PgnParserCapabilities;
+export type ParsedStudyPgnMove = ParsedPgnMove;
+export type ParsedStudyPgnGame = ParsedPgnGame;
+export type ParsedStudyPgnDocument = ParsedPgnDocument;
+export type StudyPgnParser = PgnParser;
 
 interface StudyPgnBoard {
     legalMoves(): string;
@@ -542,48 +520,6 @@ function resolveVariant(tags: Record<string, string>): { variant: string; chess9
     };
 }
 
-function normalizedSan(value: string): string {
-    return value
-        .trim()
-        .replace(/0/g, 'O')
-        .replace(/[!?]+$/g, '');
-}
-
-function sanWithoutCheckSuffix(value: string): string {
-    return normalizedSan(value).replace(/[+#]+$/g, '');
-}
-
-function resolveMove(board: StudyPgnBoard, node: ParsedStudyPgnMove, location: string): { move: string; san: string } {
-    const suppliedMove = node.move?.trim();
-    if (suppliedMove) {
-        const san = board.sanMove(suppliedMove);
-        if (!san) throw new StudyPgnImportError(`Illegal move at ${location}: ${node.san || suppliedMove}.`);
-        return { move: suppliedMove, san };
-    }
-
-    const targetSan = normalizedSan(node.san);
-    if (!targetSan) throw new StudyPgnImportError(`Missing move token at ${location}.`);
-    const candidates = board
-        .legalMoves()
-        .split(/\s+/)
-        .filter(Boolean)
-        .map(move => ({ move, san: board.sanMove(move) }));
-    let matching = candidates.filter(candidate => normalizedSan(candidate.san) === targetSan);
-    if (!matching.length) {
-        // External PGNs are not always consistent with Fairy-Stockfish about
-        // variant check/mate suffixes. Lichess, for example, exports Qh5+ in
-        // Atomic and Kd8# when a Racing Kings king reaches the goal rank while
-        // Fairy-Stockfish's canonical SAN for those moves omits the suffix.
-        const targetWithoutCheck = sanWithoutCheckSuffix(targetSan);
-        matching = candidates.filter(candidate => sanWithoutCheckSuffix(candidate.san) === targetWithoutCheck);
-    }
-    if (matching.length !== 1) {
-        const detail = matching.length ? 'ambiguous' : 'illegal or unsupported';
-        throw new StudyPgnImportError(`PGN move is ${detail} at ${location}: ${node.san}.`);
-    }
-    return matching[0];
-}
-
 function turnColorFromFen(fen: string): 'white' | 'black' {
     const turn = fen.trim().split(/\s+/)[1];
     if (turn === 'w') return 'white';
@@ -716,7 +652,7 @@ function normalizeChildren(
     for (let sourceOrder = 0; sourceOrder < parsedChildren.length; sourceOrder++) {
         const parsed = parsedChildren[sourceOrder];
         const location = path ? `${path}.${sourceOrder + 1}` : `${sourceOrder + 1}`;
-        const resolved = resolveMove(board, parsed, location);
+        const resolved = resolvePgnMove(board, parsed, location);
         if (!board.push(resolved.move)) throw new StudyPgnImportError(`Illegal move at ${location}: ${parsed.san}.`);
         try {
             const fen = board.fen();
