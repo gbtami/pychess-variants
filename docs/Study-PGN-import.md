@@ -143,12 +143,19 @@ Added export -> parser -> Fairy-Stockfish import regression coverage for combina
 - multiple chapters;
 - move-less chapters;
 - Study/gamebook metadata and PyChess extensions.
+- forced-variation boundaries, including a forced preferred continuation that standard
+  PGN cannot represent losslessly by itself.
 
 Clock parsing accepts `H:MM:SS(.sss)` as well as Lichess-compatible `H:MM` and `H:MM.SS`
 forms, including comma fractional seconds.
 
-A first Study move marked `forceVariation` is exported as the mainline rather than as an
-invalid root RAV, because PGN has no preceding move that such a variation could vary.
+Standard PGN cannot distinguish "this preferred child exists but must remain a variation"
+from an ordinary preferred continuation. Rendering `forceVariation` directly as a RAV can
+also produce non-replayable text such as `1. e4 (1... e5)`, because normal PGN parsers treat
+that RAV as a sibling of `e4`. PyChess therefore renders the legal continuation normally and
+attaches the versioned `[%pyforcevariation]` directive to the authored node. Re-import
+restores the exact forced boundary; ordinary PGN readers can ignore the directive and still
+replay a legal move tree.
 
 ### 7. `[%emt]` and clock reconstruction
 
@@ -498,12 +505,33 @@ Remaining optional UX work here is limited to better per-chapter failure context
 imports show that the existing `Could not replay imported PGN chapter N: ...` diagnostics
 are insufficient.
 
-### H. Final round-trip fixture
+### H. Final round-trip fixture — **complete**
 
-Build one compact PyChess Study fixture containing essentially every supported
-import/export feature and assert export -> parse -> normalize equivalence for the authored
-DTO/tree data that should survive. This should become the main regression guard for
-future Study changes.
+A compact four-chapter PyChess fixture is now the main lossless Study-PGN regression. It
+exports the whole Study, parses it with the shared structural parser, replays every branch
+through Fairy-Stockfish, and compares the authored semantic tree after normalization rather
+than relying on generated node/comment IDs.
+
+Together the fixture exercises:
+
+- all four chapter modes (`normal`, `practice`, `conceal`, `gamebook`) and the conceal
+  boundary;
+- Study/chapter ordering and Study-name recovery;
+- Standard, Chess960 with a Black-to-move FEN, and an embedded custom-variant snapshot;
+- chapter descriptions plus rich ordinary metadata and imported `Annotator` provenance;
+- preferred lines and side variations;
+- root/move comments, per-comment source attribution, circles/arrows and root/move NAGs;
+- root/move clocks and centipawn/mate evaluations;
+- root/node gamebook hint/deviation data, including lesson metadata retained while a chapter
+  is in Normal mode;
+- Unicode and PGN-sensitive braces/backslashes inside extension-backed text;
+- forced-variation boundaries.
+
+Building this final fixture exposed the last concrete lossless-PGN gap found in the audit:
+`forceVariation` was persisted by Study but deliberately omitted by the older semantic
+round-trip helper, and a forced preferred continuation could not be parsed back into the
+same tree. The versioned `[%pyforcevariation]` directive now preserves that authored flag
+while the surrounding PGN remains legal for ordinary readers.
 
 ### I. Final documentation cleanup / feature-complete stop point
 
@@ -544,9 +572,8 @@ JavaScript/Python wheelhouses are useful when full validation is needed.
 The continuation workflow should be:
 
 1. Read `AGENTS.md`, this document, and the PGN section of `docs/Study.md`.
-2. Start from **Remaining compatibility checklist G** (optional import UX polish) or H
-   (the comprehensive round-trip fixture) unless a newly reported concrete import bug takes
-   priority.
+2. Start from **Remaining compatibility checklist I** (final documentation cleanup / stop
+   point) unless a newly reported concrete import bug takes priority.
 3. Compare with current Lila behavior when implementing Lichess compatibility rather than
    inventing a new convention.
 4. Add/minimize a regression test for each discovered incompatibility.

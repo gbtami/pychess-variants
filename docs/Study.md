@@ -238,6 +238,7 @@ PyChess also writes ignorable extensions for data ordinary PGN cannot fully expr
 | `PyChessConcealPly` | Root-relative reveal boundary for Hide-next-moves chapters |
 | `ChapterMode=gamebook` | Compatibility marker for interactive lessons; it does not contain the lesson text by itself |
 | `[%pygamebook BASE64]` | UTF-8 JSON containing a position's optional lesson `hint` / `deviation` text |
+| `[%pyforcevariation]` | Marks an authored node that must remain a variation instead of extending the preferred mainline |
 | `[%pynag ...]` | Root-position NAGs |
 | `[%pyclocks whiteMs,blackMs]` | Both clock values, including root clocks and sub-second precision |
 

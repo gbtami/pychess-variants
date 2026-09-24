@@ -191,6 +191,19 @@ describe('Study PGN export', () => {
         expect(pgn).toContain('[%pygamebook ');
     });
 
+    test('exports a forced preferred continuation as legal PGN plus a lossless PyChess marker', () => {
+        const data = chapter({ variantIni: undefined, description: '' });
+        data.tree.nodes[1].forceVariation = true;
+
+        const pgn = renderStudyChapterPgn(study, data);
+        expect(pgn).toContain('e5 {[%pyforcevariation]}');
+        expect(pgn).not.toContain('(1... e5');
+
+        const game = ffish.readGamePGN(pgn);
+        expect(game.mainlineMoves().trim()).toBe('e2e4 e7e5');
+        game.delete();
+    });
+
     test('preserves result, clocks and evaluations with compatible PGN directives', () => {
         const data = chapter();
         data.tree.rootEval = { cp: 25 };

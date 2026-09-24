@@ -174,7 +174,324 @@ function emptyChapter(): StudyPgnChapterData {
     };
 }
 
+const ROUND_TRIP_METADATA_TAGS = [
+    'Event',
+    'Site',
+    'Date',
+    'Round',
+    'White',
+    'Black',
+    'WhiteTitle',
+    'BlackTitle',
+    'WhiteElo',
+    'BlackElo',
+    'WhiteFideId',
+    'BlackFideId',
+    'Result',
+    'TimeControl',
+    'Termination',
+    'ECO',
+    'Opening',
+    'Annotator',
+    'CustomMeta',
+] as const;
+
+function comprehensiveAnnotations(value: StudyAnnotationsDto | undefined, defaultSourceAuthor: string) {
+    if (!value) return undefined;
+    return {
+        shapes: value.shapes,
+        comments: value.comments.map(comment => ({
+            text: comment.text,
+            sourceAuthor: comment.sourceAuthor ?? defaultSourceAuthor,
+            ...(comment.sourceAuthorId ? { sourceAuthorId: comment.sourceAuthorId } : {}),
+        })),
+        nags: value.nags,
+    };
+}
+
+function comprehensiveSemanticTree(tree: StudyTreeDto, defaultSourceAuthor: string) {
+    const children = (parentId: string | null): unknown[] =>
+        tree.nodes
+            .filter(node => node.parentId === parentId)
+            .sort((a, b) => a.order - b.order)
+            .map(node => ({
+                move: node.move,
+                fen: node.fen,
+                turnColor: node.turnColor,
+                check: node.check,
+                san: node.san,
+                sanSAN: node.sanSAN,
+                forceVariation: node.forceVariation === true,
+                annotations: comprehensiveAnnotations(node.annotations, defaultSourceAuthor),
+                gamebook: node.gamebook,
+                eval: node.eval,
+                clocks: node.clocks,
+                children: children(node.id),
+            }));
+    return {
+        rootAnnotations: comprehensiveAnnotations(tree.rootAnnotations, defaultSourceAuthor),
+        rootGamebook: tree.rootGamebook,
+        rootEval: tree.rootEval,
+        rootClocks: tree.rootClocks,
+        children: children(null),
+    };
+}
+
+function comprehensiveSemanticChapter(chapter: StudyPgnChapterData | Awaited<ReturnType<typeof parseStudyPgnForImport>>[number]) {
+    const defaultSourceAuthor = chapter.tags.Annotator?.trim() || `${study.home}/@/${study.owner}`;
+    const metadata = Object.fromEntries(
+        ROUND_TRIP_METADATA_TAGS.flatMap(name => (chapter.tags[name] === undefined ? [] : [[name, chapter.tags[name]]])),
+    );
+    return {
+        name: chapter.name,
+        variant: chapter.variant,
+        chess960: chapter.chess960,
+        initialFen: chapter.initialFen,
+        orientation: chapter.orientation,
+        mode: chapter.mode ?? 'normal',
+        concealPly: chapter.mode === 'conceal' ? (chapter.concealPly ?? 0) : undefined,
+        description: chapter.description,
+        metadata,
+        variantIni: chapter.variantIni,
+        tree: comprehensiveSemanticTree(chapter.tree, defaultSourceAuthor),
+    };
+}
+
+function comprehensiveRoundTripChapters(): StudyPgnChapterData[] {
+    const annotator = 'https://lichess.org/@/SourceAuthor';
+    const gamebook = annotatedChapter();
+    gamebook.name = 'Everything lesson';
+    gamebook.order = 1;
+    gamebook.description = 'Description with } brace, \\ slash, Unicode ✓\nand a second line';
+    gamebook.tags = {
+        Event: 'Comprehensive round-trip event',
+        Site: 'https://example.test/event/42',
+        Date: '2026.09.24',
+        Round: '7.2',
+        White: 'Alice',
+        Black: 'Bob',
+        WhiteTitle: 'GM',
+        BlackTitle: 'IM',
+        WhiteElo: '2501',
+        BlackElo: '2412',
+        WhiteFideId: '1000001',
+        BlackFideId: '1000002',
+        Result: '1-0',
+        TimeControl: '300+3',
+        Termination: 'Normal',
+        ECO: 'C20',
+        Opening: 'King Pawn Game',
+        Annotator: annotator,
+        CustomMeta: 'kept verbatim',
+    };
+    gamebook.tree.rootAnnotations = {
+        shapes: [
+            { orig: 'e4', brush: 'green' },
+            { orig: 'g1', dest: 'f3', brush: 'blue' },
+        ],
+        comments: [
+            {
+                id: 'Comment001',
+                author: 'owner',
+                sourceAuthor: annotator,
+                text: 'Root } note \\ preserved',
+            },
+        ],
+        nags: [3, 14],
+    };
+    gamebook.tree.rootGamebook = { hint: 'Find } the idea\nwith Unicode ✓' };
+    gamebook.tree.nodes[0].annotations = {
+        shapes: [{ orig: 'e2', dest: 'e4', brush: 'red' }],
+        comments: [
+            {
+                id: 'Comment002',
+                author: 'owner',
+                sourceAuthor: 'Mary',
+                sourceAuthorId: 'mary',
+                text: 'King pawn',
+            },
+        ],
+        nags: [1, 16, 146],
+    };
+    gamebook.tree.nodes[0].gamebook = { deviation: 'Not this } move\ntry the center' };
+    gamebook.tree.nodes[2].annotations = {
+        shapes: [],
+        comments: [
+            {
+                id: 'Comment003',
+                author: 'owner',
+                sourceAuthor: annotator,
+                text: 'Queen pawn sideline',
+            },
+        ],
+        nags: [6],
+    };
+
+    const forced: StudyPgnChapterData = {
+        id: 'chapter2',
+        name: 'Forced continuation',
+        order: 2,
+        variant: 'chess',
+        chess960: false,
+        initialFen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        orientation: 'white',
+        mode: 'normal',
+        description: '',
+        tags: {
+            Event: 'Forced line',
+            Site: 'https://example.test/forced',
+            Date: '2026.09.23',
+            White: '?',
+            Black: '?',
+            Result: '*',
+            Annotator: `${study.home}/@/${study.owner}`,
+        },
+        createdAt: '2026-09-23T10:01:00+00:00',
+        tree: {
+            rootGamebook: { hint: 'A draft lesson survives even in normal mode' },
+            nodes: [
+                {
+                    id: 'Force00001',
+                    parentId: null,
+                    order: 0,
+                    move: 'e2e4',
+                    fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+                    turnColor: 'black',
+                    check: false,
+                    san: 'e4',
+                    sanSAN: 'e4',
+                },
+                {
+                    id: 'Force00002',
+                    parentId: 'Force00001',
+                    order: 0,
+                    move: 'e7e5',
+                    fen: 'rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2',
+                    turnColor: 'white',
+                    check: false,
+                    san: 'e5',
+                    sanSAN: 'e5',
+                    forceVariation: true,
+                },
+                {
+                    id: 'Force00003',
+                    parentId: 'Force00002',
+                    order: 0,
+                    move: 'g1f3',
+                    fen: 'rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2',
+                    turnColor: 'black',
+                    check: false,
+                    san: 'Nf3',
+                    sanSAN: 'Nf3',
+                },
+                {
+                    id: 'Force00004',
+                    parentId: 'Force00001',
+                    order: 1,
+                    move: 'c7c5',
+                    fen: 'rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2',
+                    turnColor: 'white',
+                    check: false,
+                    san: 'c5',
+                    sanSAN: 'c5',
+                },
+            ],
+        },
+    };
+
+    const customIni =
+        '[pgncustom:chess]\nstartFen = rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\n';
+    const custom: StudyPgnChapterData = {
+        id: 'chapter3',
+        name: 'Custom practice',
+        order: 3,
+        variant: 'pgncustom',
+        chess960: false,
+        initialFen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        orientation: 'black',
+        mode: 'practice',
+        description: 'Embedded custom rules',
+        tags: {
+            Event: 'Custom practice',
+            Site: 'https://example.test/custom',
+            Date: '2026.09.23',
+            White: '?',
+            Black: '?',
+            Result: '*',
+            Annotator: `${study.home}/@/${study.owner}`,
+        },
+        variantIni: customIni,
+        createdAt: '2026-09-23T10:02:00+00:00',
+        tree: {
+            nodes: [
+                {
+                    id: 'Custom0001',
+                    parentId: null,
+                    order: 0,
+                    move: 'e2e4',
+                    fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+                    turnColor: 'black',
+                    check: false,
+                    san: 'e4',
+                    sanSAN: 'e4',
+                },
+            ],
+        },
+    };
+
+    const conceal960: StudyPgnChapterData = {
+        id: 'chapter4',
+        name: 'Chess960 conceal',
+        order: 4,
+        variant: 'chess',
+        chess960: true,
+        initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b HAha - 0 1',
+        orientation: 'black',
+        mode: 'conceal',
+        concealPly: 1,
+        description: '',
+        tags: {
+            Event: '960 conceal',
+            Site: 'https://example.test/960',
+            Date: '2026.09.23',
+            White: '?',
+            Black: '?',
+            Result: '*',
+            Annotator: `${study.home}/@/${study.owner}`,
+        },
+        createdAt: '2026-09-23T10:03:00+00:00',
+        tree: {
+            nodes: [
+                {
+                    id: 'Conceal001',
+                    parentId: null,
+                    order: 0,
+                    move: 'e7e5',
+                    fen: 'rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w HAha - 0 2',
+                    turnColor: 'white',
+                    check: false,
+                    san: 'e5',
+                    sanSAN: 'e5',
+                },
+            ],
+        },
+    };
+
+    return [custom, conceal960, forced, gamebook];
+}
+
 describe('Study PGN round trips and Lichess compatibility corpus', () => {
+    test('round-trips one comprehensive authored Study fixture losslessly', async () => {
+        const source = comprehensiveRoundTripChapters();
+        const pgn = renderStudyPgn(study, source);
+        const imported = await parseStudyPgnDocumentForImportWithEngines(studyPgnParser, () => ffish, pgn);
+        const expected = [...source].sort((a, b) => a.order - b.order).map(comprehensiveSemanticChapter);
+
+        expect(imported.studyName).toBe(study.name);
+        expect(pgn).toContain('{[%pyforcevariation]}');
+        expect(imported.chapters.map(comprehensiveSemanticChapter)).toEqual(expected);
+    });
+
     test('round-trips PyChess Study exports through the raw parser and Fairy-Stockfish normalizer', () => {
         const source = [annotatedChapter(), emptyChapter()];
         const pgn = renderStudyPgn(study, source);

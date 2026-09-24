@@ -575,6 +575,17 @@ describe('Study PGN import core', () => {
         expect(chapter.tree.rootAnnotations?.comments[0].text).toContain('[%pygamebook');
     });
 
+    test('does not interpret forced-variation directives without the PyChess extension version tag', async () => {
+        const [chapter] = await parseStudyPgnForImport(
+            studyPgnParser,
+            ffish,
+            `1. e4 { visible note [%pyforcevariation] } *`,
+        );
+
+        expect(chapter.tree.nodes[0].forceVariation).toBeUndefined();
+        expect(chapter.tree.nodes[0].annotations?.comments[0].text).toContain('[%pyforcevariation]');
+    });
+
     test('preserves lesson metadata in normal mode and accepts the ChapterMode gamebook compatibility tag', () => {
         const encoded = encodePgnUtf8Base64(JSON.stringify({ hint: 'Draft hint' }));
         const normal = parsedDocument();
@@ -628,6 +639,17 @@ describe('Study PGN import core', () => {
         malformed.games[0].tags.PyChessStudyVersion = '1';
         malformed.games[0].comments = ['[%pygamebook definitely-not-base64]'];
         expect(() => normalizeStudyPgnDocument(ffish, malformed)).toThrow(/Invalid PyChess lesson metadata/);
+
+        const malformedForce = parsedDocument();
+        malformedForce.games[0].tags.PyChessStudyVersion = '1';
+        malformedForce.games[0].children[0].comments = ['[%pyforcevariation nope]'];
+        expect(() => normalizeStudyPgnDocument(ffish, malformedForce)).toThrow(/forced-variation metadata/);
+
+        const multipleForce = parsedDocument();
+        multipleForce.games[0].tags.PyChessStudyVersion = '1';
+        multipleForce.games[0].children[0].comments = ['[%pyforcevariation]'];
+        multipleForce.games[0].children[0].children = [{ san: 'e5', comments: ['[%pyforcevariation]'] }];
+        expect(() => normalizeStudyPgnDocument(ffish, multipleForce)).toThrow(/more than one forced-variation marker/);
 
         const oversized = parsedDocument();
         oversized.games[0].tags.PyChessStudyVersion = '1';

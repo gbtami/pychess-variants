@@ -187,13 +187,14 @@ function clockComments(node: AnalysisTreeNode): string[] {
     return [`{[%clk ${pgnClock(clocks[mover])}]}`, fullClockComment(clocks)!];
 }
 
-function nodeSuffix(node: AnalysisTreeNode, annotator: string): string {
+function nodeSuffix(node: AnalysisTreeNode, annotator: string, forceVariation: boolean): string {
     const annotations = node.annotations;
     return [
         ...(annotations?.nags.filter(nag => nag > 6).map(nag => `$${nag}`) ?? []),
         evalComment(node),
         ...annotationComments(annotations, false, annotator),
         gamebookComment(node.gamebook),
+        forceVariation ? '{[%pyforcevariation]}' : undefined,
         ...clockComments(node),
     ]
         .filter((value): value is string => Boolean(value))
@@ -295,13 +296,22 @@ export function renderStudyChapterPgn(study: StudyPgnContext, chapter: StudyPgnC
         turnColor: rootTurnColor(chapter.initialFen),
     };
     const tree = analysisTreeFromStudy(rootStep, chapter.tree);
-    // A PGN recursive annotation variation must follow a move that it varies. A
-    // forced-variation marker on the very first Study move therefore has no legal
-    // PGN representation; export that first move as the mainline instead of
-    // producing an invalid document that starts with "(1. ...)".
-    if (tree.root.children[0]?.forceVariation) tree.root.children[0].forceVariation = false;
+    // Standard PGN has no way to mark a preferred continuation as "variation only".
+    // Rendering the Study forceVariation flag directly would produce a parenthesized
+    // continuation such as `1. e4 (1... e5)`, which ordinary RAV parsers interpret as
+    // a sibling of e4 rather than a continuation after it. Preserve the authored flag
+    // in a versioned PyChess directive, but render the move tree itself as ordinary
+    // legal PGN so both PyChess and external readers can replay it.
+    const forcedPaths = new Set<string>();
+    for (const [path, node] of tree.byPath) {
+        if (!node.forceVariation) continue;
+        forcedPaths.add(path);
+        node.forceVariation = false;
+    }
     const annotator = chapter.tags['Annotator']?.trim() || `${study.home}/@/${study.owner}`;
-    const moveText = renderFullTreePgnMoveText(tree, nodeSan, node => nodeSuffix(node, annotator));
+    const moveText = renderFullTreePgnMoveText(tree, nodeSan, node =>
+        nodeSuffix(node, annotator, forcedPaths.has(node.path)),
+    );
     const initialComments = annotationComments(tree.root.annotations, true, annotator);
     const body = [
         evalComment(tree.root),

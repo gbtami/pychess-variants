@@ -201,6 +201,7 @@ function addUniqueShape(shapes: StudyShapeDto[], shape: StudyShapeDto): void {
 interface ParsedPgnComments {
     annotations?: StudyAnnotationsDto;
     gamebook?: StudyGamebookDto;
+    forceVariation?: boolean;
     whiteEval?: StudyEvalDto;
     clock?: number;
     elapsed?: number;
@@ -410,6 +411,7 @@ function commentsFromPgn(
     let elapsed: number | undefined;
     let clocks: [number, number] | undefined;
     let gamebook: StudyGamebookDto | undefined;
+    let forceVariation = false;
     const visibleComments: Array<{ text: string; attribution: PgnCommentAttribution }> = [];
     for (const original of comments) {
         const attributed = stripPgnCommentAttribution(original, defaultSourceAuthor);
@@ -467,6 +469,13 @@ function commentsFromPgn(
             if (/\[%pygamebook\b/i.test(text)) {
                 throw new StudyPgnImportError('Malformed PyChess lesson metadata in PGN comment.');
             }
+            text = text.replace(/\[%pyforcevariation\s*\]/gi, () => {
+                forceVariation = true;
+                return '';
+            });
+            if (/\[%pyforcevariation\b/i.test(text)) {
+                throw new StudyPgnImportError('Malformed PyChess forced-variation metadata in PGN comment.');
+            }
         }
         const cleaned = text.trim();
         if (cleaned) visibleComments.push({ text: cleaned, attribution: attributed.attribution });
@@ -485,6 +494,7 @@ function commentsFromPgn(
     return {
         ...(annotations.shapes.length || annotations.comments.length || annotations.nags.length ? { annotations } : {}),
         ...(gamebook ? { gamebook } : {}),
+        ...(forceVariation ? { forceVariation: true } : {}),
         ...(whiteEval ? { whiteEval } : {}),
         ...(clock !== undefined ? { clock } : {}),
         ...(elapsed !== undefined ? { elapsed } : {}),
@@ -715,6 +725,7 @@ function normalizeChildren(
                 existing.annotations = mergeAnnotations(existing.annotations, parsedComments.annotations);
                 if (!existing.annotations) delete existing.annotations;
                 if (parsedComments.gamebook) existing.gamebook = parsedComments.gamebook;
+                if (parsedComments.forceVariation) existing.forceVariation = true;
                 if (evalScore) existing.eval = evalScore;
                 if (clocks) existing.clocks = clocks;
                 normalizeChildren(
@@ -745,6 +756,7 @@ function normalizeChildren(
                 sanSAN: resolved.san,
                 ...(parsedComments.annotations ? { annotations: parsedComments.annotations } : {}),
                 ...(parsedComments.gamebook ? { gamebook: parsedComments.gamebook } : {}),
+                ...(parsedComments.forceVariation ? { forceVariation: true } : {}),
                 ...(evalScore ? { eval: evalScore } : {}),
                 ...(clocks ? { clocks } : {}),
             };
@@ -810,6 +822,9 @@ function normalizeGame(engine: StudyPgnEngine, game: ParsedStudyPgnGame, index: 
         );
         rootComments.annotations = coalesceImportedComments(rootComments.annotations);
         for (const node of nodes) node.annotations = coalesceImportedComments(node.annotations);
+        if (nodes.filter(node => node.forceVariation).length > 1) {
+            throw new StudyPgnImportError('PyChess Study PGN contains more than one forced-variation marker.');
+        }
         return {
             name: chapterName(tags, index),
             variant,
