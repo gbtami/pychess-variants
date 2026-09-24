@@ -626,21 +626,22 @@ function importedChapterOrientation(
 
     const rootTurn = turnColorFromFen(initialFen);
     // Match the recoverable parts of Lichess's automatic Study orientation when
-    // its default PGN export omits the Orientation tag: conceal starts from the
-    // side to move, finished games use White by convention, and normal chapters
-    // face the final side to move. Gamebooks need one extra import heuristic below.
+    // its default PGN export omits the Orientation tag. Conceal starts from the
+    // side to move and ordinary finished games use White by convention. Gamebooks
+    // are handled first because a Study export can retain the source game's Result;
+    // that result is game metadata and does not identify the learner side.
     if (mode === 'conceal') return rootTurn;
-    if (pgnHasOutcome(tags)) return 'white';
     const finalTurn = lastMainlineTurnColor(initialFen, nodes);
     if (mode === 'gamebook') {
-        // Lichess omits the authored orientation from Study PGN. A root text
-        // comment is a strong signal that the lesson starts by asking the side
-        // to move for an answer (as in Lichess's own lesson-example Study).
-        // Without that signal, keep Lichess's import heuristic and face the
-        // player who made the final authored mainline move.
-        if (hasRootComment) return rootTurn;
+        // Lichess's outcome-less lesson example starts with a root prompt for the
+        // learner but ends after an automatic opponent reply, so the root comment
+        // remains a useful fallback in that narrower case. Real puzzle-pack exports
+        // with a game outcome can also have root introductory text before a scripted
+        // opponent move, so do not let such comments override the authored line.
+        if (!pgnHasOutcome(tags) && hasRootComment) return rootTurn;
         return nodes.length ? oppositeColor(finalTurn) : rootTurn;
     }
+    if (pgnHasOutcome(tags)) return 'white';
     return finalTurn;
 }
 

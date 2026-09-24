@@ -192,9 +192,10 @@ automatic-orientation behavior:
 
 - finished games face White;
 - normal analysis chapters face the side to move at the end of the preferred mainline;
-- interactive/gamebook chapters with a visible root prompt face the root side to move;
-- other interactive/gamebook chapters face the player who made the final authored
-  mainline move;
+- outcome-less interactive/gamebook chapters with a visible root prompt face the root
+  side to move;
+- other interactive/gamebook chapters, including puzzle exports that retain the source
+  game's `Result`, face the player who made the final authored mainline move;
 - conceal chapters keep the initial side to move;
 - move-less interactive chapters keep the root side to move because no learner move
   exists from which to infer an orientation.
@@ -217,6 +218,22 @@ Black move. For gamebooks without an explicit Orientation and without a finished
 result, a visible root comment now acts as a signal that the learner is the root side to
 move. Lessons whose first prompt follows a scripted opponent move have no root prompt and
 continue to use the final-mainline-mover heuristic.
+
+### Additional fix found from the 2026 official puzzle pack: source-game results in gamebooks
+
+The official **FIDE World Rapid & Blitz 2025 - Puzzle Pack** exposed another orientation
+ambiguity that the older corpus did not contain. Its 33 interactive chapters are cut from
+real tournament games and the exported Study PGN retains the original game's `Result`
+(`1-0`, `0-1`, or `1/2-1/2`). Treating every result-bearing chapter as an ordinary finished
+game therefore forced all 33 gamebooks to face White, including positions where White's
+first authored move is a scripted blunder and the learner is meant to find Black's tactic.
+
+Gamebook orientation is now resolved before the ordinary finished-game convention. A
+result-bearing gamebook uses the final-authored-mover fallback, while the narrower
+outcome-less root-prompt exception remains for Lichess's lesson-example export. On the
+new official pack this recovers 22 White-oriented and 11 Black-oriented lessons instead
+of flattening all 33 to White. Explicit `Orientation` tags still take precedence over all
+heuristics.
 
 ### Additional fix found during root-node audit: root evaluations
 
@@ -250,6 +267,9 @@ local test inputs, not committed wholesale as repository fixtures):
 - **Instructive ZH Positions** — annotation-heavy Crazyhouse positions with comments,
   shapes, NAGs, and many move/root clocks;
 - **CWC 2020 Puzzles** — 50+ Crazyhouse chapters, mostly interactive/gamebook material.
+- **FIDE World Rapid & Blitz 2025 - Puzzle Pack** — 33 official Lichess gamebook chapters
+  created in 2026 from real FIDE event games, with arbitrary FEN starts, retained game
+  results, multi-author `[%anno]` attribution, variations, clocks, and root introductions.
 
 When a real-world incompatibility is found, prefer reducing it to a small synthetic
 regression fixture rather than committing an entire third-party Study export.
@@ -261,7 +281,7 @@ semantic differences found in real PGNs rather than by adding speculative metada
 
 ### A. Real-study semantic parity audit — **complete for the current corpus**
 
-The five-study corpus has now been compared structurally and semantically rather than only
+The six-study corpus has now been compared structurally and semantically rather than only
 checked for parse/replay success. The audit verified that:
 
 - every source arrow/circle in the corpus lands on the same authored position;
@@ -273,12 +293,15 @@ checked for parse/replay success. The audit verified that:
   pocket syntax, Chess960 castling rights, and Three-check counters;
 - root/move comments, root/move evaluations, and source attribution survive at the intended
   positions;
-- the root-prompt orientation exception is exercised by Lichess's lesson example without
-  changing the intended orientation of the larger lesson corpus;
-- all 66 imported gamebook chapters in the corpus can follow their canonical authored line
-  through the deterministic lesson controller to completion.
+- the outcome-less root-prompt orientation exception is exercised by Lichess's lesson
+  example, while the newer official puzzle pack demonstrates that retained source-game
+  results must not force interactive chapters to White;
+- the official 2026 puzzle pack normalizes all 33 chapters successfully and recovers both
+  learner colors (22 White, 11 Black) instead of flattening them to White;
+- all 99 gamebook chapters in the six-study corpus can follow their canonical authored
+  line through the deterministic lesson controller to completion.
 
-A mechanical import -> PyChess export -> re-import comparison across all five studies also
+A mechanical import -> PyChess export -> re-import comparison across all six studies also
 preserves the authored tree semantics that the source PGNs contain. Future work on this
 item should therefore be bug-driven by a new real export that demonstrates a semantic
 difference rather than by adding speculative parser behavior.

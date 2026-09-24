@@ -158,6 +158,33 @@ describe('Study PGN import core', () => {
         expect(chapter.orientation).toBe('white');
     });
 
+    test('does not let a source-game result force Lichess puzzle-pack gamebooks to face White', async () => {
+        const [blackPuzzle, whitePuzzle] = await parseStudyPgnForImport(
+            studyPgnParser,
+            ffish,
+            `[Event "World Blitz 2025 Open"]
+[Result "0-1"]
+[Variant "From Position"]
+[FEN "8/5pk1/5p2/P3q3/1Q6/KP6/8/8 w - - 3 56"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+56. a6 { Let's start off with an easy one. } 56... Qa1# 0-1
+
+[Event "WRBC 2025 Rapid Open"]
+[Result "1-0"]
+[Variant "From Position"]
+[FEN "3RRbk1/pbq3p1/1p3rQB/2p5/5P2/8/PP4P1/7K b - - 6 26"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+{ Find the combination. } 26... Qxd8 27. Qxg7# 1-0`,
+        );
+
+        expect(blackPuzzle.orientation).toBe('black');
+        expect(whitePuzzle.orientation).toBe('white');
+    });
+
     test('keeps the root side for move-less lessons whose exported orientation is unknowable', async () => {
         const [chapter] = await parseStudyPgnForImport(
             studyPgnParser,
