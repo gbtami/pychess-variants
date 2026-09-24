@@ -94,6 +94,7 @@ export class StudyGamebookPlayback {
             },
         });
         this.onStateChanged(this.controller.state);
+        this.restoreAuthoredShapes();
     }
 
     beforeMoveApplied(move: AnalysisMoveApplication): boolean {
@@ -117,6 +118,12 @@ export class StudyGamebookPlayback {
             const move = change.node?.step.move;
             if (move) this.controller.gradeLearnerMove(move);
         }
+        // AnalysisController applies the new FEN before this callback. Chessground can
+        // clear manual drawings during that board update, so gamebook playback must
+        // restore the authored drawings for the active lesson position. The ordinary
+        // Study extension deliberately skips its own restoration while playback owns
+        // the board annotations.
+        this.restoreAuthoredShapes();
         this.syncBoardInput();
         this.renderPlayButtons(this.controller.state);
     }
@@ -173,6 +180,10 @@ export class StudyGamebookPlayback {
     onShapesChanged(): void {
         // Learner drawing changes are local noise during playback. Always restore
         // authored drawings; solution hints live in autoShapes and never replace them.
+        this.restoreAuthoredShapes();
+    }
+
+    private restoreAuthoredShapes(): void {
         const node = this.ctrl.analysisTree && this.ctrl.getTreeNodeAtPath(this.ctrl.analysisPath ?? '');
         this.ctrl.chessground.setShapes(node?.annotations?.shapes ?? []);
     }

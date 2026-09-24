@@ -196,6 +196,41 @@ describe('Study interactive lesson playback adapter', () => {
         playback.destroy();
     });
 
+    test('restores authored drawings after gamebook position changes', () => {
+        const tree = lessonTree();
+        const e4 = tree.byPath.get('e4')!;
+        e4.annotations = {
+            ...(e4.annotations ?? { comments: [], nags: [] }),
+            shapes: [{ orig: 'b1', dest: 'c3', brush: 'blue' }],
+        };
+        const ctrl = makeCtrl(tree);
+        const playback = new StudyGamebookPlayback(ctrl, {
+            chapterId: 'chapter-shapes',
+            orientation: 'white',
+            preview: false,
+            canAnalyse: false,
+            hasNextChapter: false,
+        });
+
+        expect(ctrl.chessground.setShapes).toHaveBeenLastCalledWith([
+            expect.objectContaining({ orig: 'a1', dest: 'a2', brush: 'green' }),
+        ]);
+
+        ctrl.analysisPath = 'e4';
+        playback.onPositionChanged(position(e4, 'automated-reply'));
+        expect(ctrl.chessground.setShapes).toHaveBeenLastCalledWith([
+            expect.objectContaining({ orig: 'b1', dest: 'c3', brush: 'blue' }),
+        ]);
+
+        ctrl.analysisPath = '';
+        playback.onPositionChanged(position(tree.root, 'reset'));
+        expect(ctrl.chessground.setShapes).toHaveBeenLastCalledWith([
+            expect.objectContaining({ orig: 'a1', dest: 'a2', brush: 'green' }),
+        ]);
+
+        playback.destroy();
+    });
+
     test('keeps solution auto-shapes separate from authored drawings and supports rank-10 coordinates safely', () => {
         const tree = lessonTree();
         tree.root.children[0].step.move = 'e9e10';

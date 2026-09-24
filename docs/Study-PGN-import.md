@@ -244,6 +244,17 @@ validation/storage, mutations, analysis-tree reconstruction, and PGN re-export. 
 move-node evaluations, imported PGN values are converted from White POV to the side-to-move
 POV used internally, then converted back to White POV when exported.
 
+### Additional fix found during root-node audit: gamebook drawings after navigation
+
+Lichess's lesson-example export contains authored arrows on the root prompt. The PGN data
+was imported correctly, but interactive playback could lose those drawings after a board
+position change such as a wrong attempt followed by Retry. Normal Study navigation restores
+authored shapes after Chessground receives the new FEN; gamebook playback intentionally owns
+that restoration path, but previously only restored drawings after a drawing-change event.
+Playback now restores the active authored shapes both when it starts and after every position
+change, while keeping solution hints in separate auto-shapes. This also matches lila's
+gamebook behavior, which retains the original node shapes while a lesson is being played.
+
 ## PyChess-specific lossless extensions
 
 PyChess Study export has extensions for information ordinary PGN cannot fully express,
@@ -265,7 +276,7 @@ local test inputs, not committed wholesale as repository fixtures):
 - **The Guide to Variants** — chapters covering Standard, King of the Hill, Three-check,
   Antichess, Atomic, Racing Kings, Chess960, Horde, and Crazyhouse;
 - **Instructive ZH Positions** — annotation-heavy Crazyhouse positions with comments,
-  shapes, NAGs, and many move/root clocks;
+  shapes, NAGs, and many move clocks;
 - **CWC 2020 Puzzles** — 50+ Crazyhouse chapters, mostly interactive/gamebook material.
 - **FIDE World Rapid & Blitz 2025 - Puzzle Pack** — 33 official Lichess gamebook chapters
   created in 2026 from real FIDE event games, with arbitrary FEN starts, retained game
@@ -323,13 +334,25 @@ preserve PyChess gamebook hint/deviation data on PyChess -> PyChess round trips.
 Only add another Lichess-specific gamebook directive if a future real export actually
 contains information that the current importer loses or misinterprets.
 
-### C. Root-node annotation audit
+### C. Root-node annotation audit — **complete**
 
-Add explicit import/round-trip cases for every annotation type that is meaningful on the
-root position. Comments, circles/arrows, clocks, evaluations, and PyChess root NAG
-extensions now have coverage; keep this item open while the real-source visual/semantic
-audit continues, because root positions are an easy place for otherwise-correct
-move-oriented code to lose metadata.
+Root-position data now has explicit import/export coverage for comments, circles/arrows,
+full clocks, evaluations, PyChess root NAGs, lesson metadata, and external comment
+attribution. A corpus-wide root-only import -> PyChess export -> re-import comparison also
+preserves root comment text, `sourceAuthor` / `sourceAuthorId`, shapes, evals, clocks, and
+gamebook metadata for all six supplied real Studies. The real corpus exercises root arrows
+and circles as well as both default `[Annotator ...]` and per-comment `[%anno ...]` sources,
+including the 2026 official Lichess puzzle pack.
+
+Standard Lichess `[%clk]` / `[%emt]` comments are move-time annotations; lila's importer also
+ignores them as a standalone root clock. PyChess therefore keeps the lossless two-sided root
+clock state in its `[%pyclocks whiteMs,blackMs]` extension rather than inventing a missing
+opponent clock.
+
+The visual audit found one playback-only loss: gamebook navigation could clear authored
+root drawings after Chessground applied a new FEN. Interactive playback now restores the
+active position's authored shapes on startup and after every position change, so root
+prompt arrows such as those in Lichess's lesson example survive wrong-answer/retry flow.
 
 ### D. Chapter metadata audit
 
@@ -400,7 +423,7 @@ JavaScript/Python wheelhouses are useful when full validation is needed.
 The continuation workflow should be:
 
 1. Read `AGENTS.md`, this document, and the PGN section of `docs/Study.md`.
-2. Start from **Remaining compatibility checklist A** unless a newly reported concrete
+2. Start from **Remaining compatibility checklist D** unless a newly reported concrete
    import bug takes priority.
 3. Compare with current Lila behavior when implementing Lichess compatibility rather than
    inventing a new convention.
