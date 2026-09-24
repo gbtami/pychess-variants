@@ -8,6 +8,7 @@ import {
     postNewStudyPgnImport,
     studyPgnGameUsesAlice,
     type StudyPgnEngine,
+    type StudyPgnImportProgressCallback,
     type StudyPgnImportResponse,
     type StudyPgnNewStudySettings,
 } from './studyPgnImport';
@@ -19,6 +20,7 @@ const studyPgnModules = new Map<boolean, Promise<StudyPgnEngine>>();
 type StudyIndexPgnImport = (
     pgn: string,
     settings: StudyPgnNewStudySettings,
+    onProgress?: StudyPgnImportProgressCallback,
 ) => Promise<StudyPgnImportResponse>;
 
 export interface StudyIndexOptions {
@@ -76,16 +78,21 @@ function loadStudyPgnModule(alice: boolean): Promise<StudyPgnEngine> {
 async function importNewStudyPgn(
     pgn: string,
     settings: StudyPgnNewStudySettings,
+    onProgress?: StudyPgnImportProgressCallback,
 ): Promise<StudyPgnImportResponse> {
     const imported = await parseStudyPgnDocumentForImportWithEngines(
         studyPgnParser,
         game => loadStudyPgnModule(studyPgnGameUsesAlice(game)),
         pgn,
+        onProgress,
     );
-    return postNewStudyPgnImport(
+    onProgress?.({ phase: 'saving', completed: 0, total: 1 });
+    const result = await postNewStudyPgnImport(
         settings.name || !imported.studyName ? settings : { ...settings, name: imported.studyName },
         imported.chapters,
     );
+    onProgress?.({ phase: 'saving', completed: 1, total: 1 });
+    return result;
 }
 
 export function initStudyIndex(options: StudyIndexOptions = {}): void {
@@ -105,8 +112,8 @@ export function initStudyIndex(options: StudyIndexOptions = {}): void {
             id: 'study-first-chapter-form',
             chapterName: 'Chapter 1',
             enabledModes,
-            pgnImport: async pgn => {
-                const result = await pgnImport(pgn, studySettings(settingsForm));
+            pgnImport: async (pgn, onProgress) => {
+                const result = await pgnImport(pgn, studySettings(settingsForm), onProgress);
                 if (!result.url) throw new Error('Study PGN import did not return a destination.');
                 navigate(result.url);
             },

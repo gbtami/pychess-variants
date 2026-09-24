@@ -701,6 +701,34 @@ describe('Study PGN import core', () => {
         expect(chapters.map(chapter => chapter.tree.nodes[0].move)).toEqual(['e2e4', 'd2d4']);
     });
 
+    test('reports parsing and per-chapter normalization progress', async () => {
+        const progress: Array<{ phase: string; completed: number; total: number }> = [];
+        const chapters = await parseStudyPgnForImportWithEngines(
+            studyPgnParser,
+            async () => ffish,
+            '1.e4 e5 *\n\n1.d4 d5 *',
+            update => progress.push(update),
+        );
+
+        expect(chapters).toHaveLength(2);
+        expect(progress).toEqual([
+            { phase: 'parsing', completed: 0, total: 1 },
+            { phase: 'parsing', completed: 1, total: 1 },
+            { phase: 'normalizing', completed: 0, total: 2 },
+            { phase: 'normalizing', completed: 1, total: 2 },
+            { phase: 'normalizing', completed: 2, total: 2 },
+        ]);
+    });
+
+    test('rejects a single authored line beyond the Lichess 600-ply Study guard before stack exhaustion', async () => {
+        const sans: string[] = [];
+        for (let ply = 0; ply < 601; ply++) sans.push(['Nf3', 'Nf6', 'Ng1', 'Ng8'][ply % 4]);
+
+        await expect(parseStudyPgnForImport(studyPgnParser, ffish, `${sans.join(' ')} *`)).rejects.toThrow(
+            /line exceeds 600 plies/,
+        );
+    });
+
     test('posts only normalized chapter data to the Study batch endpoint', async () => {
         const chapters = normalizeStudyPgnDocument(ffish, parsedDocument());
         let requestUrl = '';

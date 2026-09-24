@@ -1101,6 +1101,32 @@ button.study-gamebook-edit__legend { cursor: pointer; }
 .study-chapter-source-panel { display: grid; gap: 1rem; }
 .study-chapter-source-panel[hidden] { display: none; }
 .study-pgn-import textarea { min-height: 13rem; font-family: monospace; line-height: 1.35; }
+.study-pgn-import__progress {
+    position: relative;
+    height: 3px;
+    overflow: hidden;
+    border-radius: 2px;
+    background: color-mix(in srgb, var(--good) 22%, transparent);
+}
+.study-pgn-import__progress[hidden] { display: none; }
+.study-pgn-import__progress span {
+    display: block;
+    width: 0;
+    height: 100%;
+    background: var(--good);
+    transition: width 120ms ease-out;
+}
+.study-pgn-import__progress.indeterminate span {
+    width: 35%;
+    animation: study-pgn-import-progress 900ms ease-in-out infinite;
+}
+@keyframes study-pgn-import-progress {
+    from { transform: translateX(-110%); }
+    to { transform: translateX(320%); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .study-pgn-import__progress.indeterminate span { animation-duration: 2s; }
+}
 .study-pgn-import__error { margin: 0; color: var(--bad); font-size: .9em; white-space: pre-wrap; }
 .study-pgn-import__error[hidden] { display: none; }
 

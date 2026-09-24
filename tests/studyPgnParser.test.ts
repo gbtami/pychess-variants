@@ -170,17 +170,25 @@ describe('Study PGN raw parser', () => {
         }
     });
 
+    test('preserves large comments without changing escaped brace/backslash semantics', () => {
+        const payload = `${'analysis '.repeat(20_000)}${String.raw`\} tail \\ slash`}`;
+        const game = firstGame(`{${payload}} 1.e4 *`);
+        expect(game.comments).toEqual([`${'analysis '.repeat(20_000)}} tail ${'\\'} slash`]);
+    });
+
     test('enforces configurable browser-safety limits', () => {
         const base: PgnParserLimits = {
             maxInputChars: 10_000,
             maxGames: 10,
             maxNodesPerGame: 10,
+            maxTotalNodes: 20,
             maxVariationDepth: 10,
         };
 
         expect(() => parsePgn('1.e4 *', { ...base, maxInputChars: 3 })).toThrow(/too large/);
         expect(() => parsePgn('1.e4 * 1.d4 *', { ...base, maxGames: 1 })).toThrow(/more than 1 games/);
         expect(() => parsePgn('1.e4 e5 2.Nf3 *', { ...base, maxNodesPerGame: 2 })).toThrow(/more than 2/);
+        expect(() => parsePgn('1.e4 e5 * 1.d4 d5 *', { ...base, maxTotalNodes: 3 })).toThrow(/more than 3 total/);
         expect(() => parsePgn('1.e4 (1.d4 (1.c4)) *', { ...base, maxVariationDepth: 1 })).toThrow(/nesting exceeds 1/);
     });
 });

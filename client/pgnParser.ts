@@ -37,6 +37,7 @@ export interface PgnParserLimits {
     maxInputChars: number;
     maxGames: number;
     maxNodesPerGame: number;
+    maxTotalNodes: number;
     maxVariationDepth: number;
 }
 
@@ -44,6 +45,7 @@ export const DEFAULT_PGN_PARSER_LIMITS: Readonly<PgnParserLimits> = Object.freez
     maxInputChars: 8_000_000,
     maxGames: 64,
     maxNodesPerGame: 3_000,
+    maxTotalNodes: 30_000,
     maxVariationDepth: 64,
 });
 
@@ -116,11 +118,15 @@ function addNag(move: ParsedPgnMove, nag: number): void {
     if (!move.nags.includes(nag)) move.nags.push(nag);
 }
 
-function cleanupMove(move: ParsedPgnMove): void {
-    if (!move.comments?.length) delete move.comments;
-    if (!move.nags?.length) delete move.nags;
-    if (!move.children?.length) delete move.children;
-    else move.children.forEach(cleanupMove);
+function cleanupMoves(moves: ParsedPgnMove[]): void {
+    const pending = [...moves];
+    while (pending.length) {
+        const move = pending.pop()!;
+        if (!move.comments?.length) delete move.comments;
+        if (!move.nags?.length) delete move.nags;
+        if (!move.children?.length) delete move.children;
+        else pending.push(...move.children);
+    }
 }
 
 function normalizedResult(token: string): string | undefined {
@@ -133,6 +139,7 @@ class ParserState {
     private line = 1;
     private column = 1;
     private currentGameNodes = 0;
+    private totalNodes = 0;
 
     constructor(
         private readonly source: string,
@@ -188,7 +195,7 @@ class ParserState {
         const tagResult = tags.Result ? normalizedResult(tags.Result) : undefined;
         if (tagResult) tags.Result = tagResult;
         else if (!tags.Result && sequence.result) tags.Result = sequence.result;
-        game.children.forEach(cleanupMove);
+        cleanupMoves(game.children);
         if (!game.comments?.length) delete game.comments;
         return game;
     }
@@ -279,8 +286,12 @@ class ParserState {
             const { san, nag } = this.splitMoveNag(token);
             if (!san) continue;
             this.currentGameNodes += 1;
+            this.totalNodes += 1;
             if (this.currentGameNodes > this.limits.maxNodesPerGame) {
                 this.fail(`PGN game contains more than ${this.limits.maxNodesPerGame} moves/variation nodes.`);
+            }
+            if (this.totalNodes > this.limits.maxTotalNodes) {
+                this.fail(`PGN contains more than ${this.limits.maxTotalNodes} total moves/variation nodes.`);
             }
 
             const node: ParsedPgnMove = { san };
@@ -349,23 +360,29 @@ class ParserState {
 
     private parseBraceComment(): string {
         this.expect('{');
-        let value = '';
+        const start = this.index;
+        let segmentStart = start;
+        let parts: string[] | undefined;
         while (!this.eof()) {
             const ch = this.peek();
             if (ch === '}') {
+                const tail = this.source.slice(segmentStart, this.index);
                 this.advance();
-                return value;
+                if (!parts) return this.source.slice(start, this.index - 1);
+                parts.push(tail);
+                return parts.join('');
             }
             if (ch === '\\') {
                 const next = this.peek(1);
                 if (next === '}' || next === '\\') {
-                    value += next;
+                    parts ??= [];
+                    parts.push(this.source.slice(segmentStart, this.index), next);
                     this.advance();
                     this.advance();
+                    segmentStart = this.index;
                     continue;
                 }
             }
-            value += ch;
             this.advance();
         }
         this.fail('Unclosed brace comment; expected "}".');
@@ -373,12 +390,9 @@ class ParserState {
 
     private parseLineComment(): string {
         this.expect(';');
-        let value = '';
-        while (!this.eof() && this.peek() !== '\n' && this.peek() !== '\r') {
-            value += this.peek();
-            this.advance();
-        }
-        return value;
+        const start = this.index;
+        while (!this.eof() && this.peek() !== '\n' && this.peek() !== '\r') this.advance();
+        return this.source.slice(start, this.index);
     }
 
     private parseNumericNag(): number {
@@ -436,12 +450,9 @@ class ParserState {
     }
 
     private readWhile(predicate: (ch: string) => boolean): string {
-        let value = '';
-        while (!this.eof() && predicate(this.peek())) {
-            value += this.peek();
-            this.advance();
-        }
-        return value;
+        const start = this.index;
+        while (!this.eof() && predicate(this.peek())) this.advance();
+        return this.source.slice(start, this.index);
     }
 
     private expect(expected: string, message?: string): void {

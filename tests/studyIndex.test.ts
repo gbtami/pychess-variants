@@ -127,14 +127,18 @@ describe('Study index creation dialogs', () => {
         chapterForm.dispatchEvent(new SubmitEvent('submit', { bubbles: true, cancelable: true }));
         await new Promise(resolve => setTimeout(resolve, 0));
 
-        expect(pgnImport).toHaveBeenCalledWith(pgn, {
-            name: 'Imported Study',
-            visibility: 'unlisted',
-            computer: 'everyone',
-            explorer: 'everyone',
-            cloneable: 'everyone',
-            shareable: 'everyone',
-        });
+        expect(pgnImport).toHaveBeenCalledWith(
+            pgn,
+            {
+                name: 'Imported Study',
+                visibility: 'unlisted',
+                computer: 'everyone',
+                explorer: 'everyone',
+                cloneable: 'everyone',
+                shareable: 'everyone',
+            },
+            expect.any(Function),
+        );
         expect(navigate).toHaveBeenCalledWith('/study/Study001/Chap0002');
     });
 
@@ -164,14 +168,18 @@ describe('Study index creation dialogs', () => {
         chapterForm.dispatchEvent(new SubmitEvent('submit', { bubbles: true, cancelable: true }));
         await new Promise(resolve => setTimeout(resolve, 0));
 
-        expect(pgnImport).toHaveBeenCalledWith(pgn, {
-            name: '',
-            visibility: 'private',
-            computer: 'everyone',
-            explorer: 'everyone',
-            cloneable: 'everyone',
-            shareable: 'everyone',
-        });
+        expect(pgnImport).toHaveBeenCalledWith(
+            pgn,
+            {
+                name: '',
+                visibility: 'private',
+                computer: 'everyone',
+                explorer: 'everyone',
+                cloneable: 'everyone',
+                shareable: 'everyone',
+            },
+            expect.any(Function),
+        );
     });
 
 });

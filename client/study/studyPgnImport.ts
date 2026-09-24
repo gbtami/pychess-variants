@@ -77,6 +77,25 @@ export interface StudyPgnNewStudySettings {
 
 export class StudyPgnImportError extends Error {}
 
+export type StudyPgnImportProgressPhase = 'parsing' | 'normalizing' | 'saving';
+
+export interface StudyPgnImportProgress {
+    phase: StudyPgnImportProgressPhase;
+    completed: number;
+    total: number;
+}
+
+export type StudyPgnImportProgressCallback = (progress: StudyPgnImportProgress) => void;
+
+// Lichess independently caps one authored line at 600 plies even though a chapter
+// may contain up to 3,000 total nodes. Keep the same guard here so a pathological
+// deep mainline cannot exhaust the browser stack or make navigation unusable.
+const STUDY_PGN_MAX_LINE_PLIES = 600;
+
+function yieldToBrowser(): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, 0));
+}
+
 export function studyPgnGameUsesAlice(game: ParsedStudyPgnGame): boolean {
     const exact = game.tags.PyChessVariant?.trim().toLowerCase();
     if (exact) return exact === 'alice';
@@ -647,11 +666,18 @@ function normalizeChildren(
     increment = 0,
     lessonExtension = false,
     defaultSourceAuthor?: string,
+    plyDepth = 0,
 ): void {
     const normalizedSiblings = nodes.filter(node => node.parentId === parentId);
     for (let sourceOrder = 0; sourceOrder < parsedChildren.length; sourceOrder++) {
         const parsed = parsedChildren[sourceOrder];
         const location = path ? `${path}.${sourceOrder + 1}` : `${sourceOrder + 1}`;
+        const childPlyDepth = plyDepth + 1;
+        if (childPlyDepth > STUDY_PGN_MAX_LINE_PLIES) {
+            throw new StudyPgnImportError(
+                `PGN line exceeds ${STUDY_PGN_MAX_LINE_PLIES} plies at ${location}. Split or shorten the chapter before importing it.`,
+            );
+        }
         const resolved = resolvePgnMove(board, parsed, location);
         if (!board.push(resolved.move)) throw new StudyPgnImportError(`Illegal move at ${location}: ${parsed.san}.`);
         try {
@@ -701,6 +727,7 @@ function normalizeChildren(
                     increment,
                     lessonExtension,
                     defaultSourceAuthor,
+                    childPlyDepth,
                 );
                 continue;
             }
@@ -733,6 +760,7 @@ function normalizeChildren(
                 increment,
                 lessonExtension,
                 defaultSourceAuthor,
+                childPlyDepth,
             );
         } finally {
             board.pop();
@@ -830,9 +858,9 @@ export async function parseStudyPgnForImport(
     parser: StudyPgnParser,
     engine: StudyPgnEngine,
     pgn: string,
+    onProgress?: StudyPgnImportProgressCallback,
 ): Promise<StudyPgnImportChapter[]> {
-    if (!pgn.trim()) throw new StudyPgnImportError('PGN text is empty.');
-    return normalizeStudyPgnDocument(engine, await parser.parse(pgn));
+    return parseStudyPgnForImportWithEngines(parser, () => engine, pgn, onProgress);
 }
 
 function importedStudyName(parsed: ParsedStudyPgnDocument): string | undefined {
@@ -847,15 +875,25 @@ export async function parseStudyPgnDocumentForImportWithEngines(
     parser: StudyPgnParser,
     engineForGame: (game: ParsedStudyPgnGame, index: number) => StudyPgnEngine | Promise<StudyPgnEngine>,
     pgn: string,
+    onProgress?: StudyPgnImportProgressCallback,
 ): Promise<StudyPgnImportDocument> {
     if (!pgn.trim()) throw new StudyPgnImportError('PGN text is empty.');
+    onProgress?.({ phase: 'parsing', completed: 0, total: 1 });
+    // Give the browser one paint before the synchronous structural parse begins.
+    if (onProgress) await yieldToBrowser();
     const parsed = await parser.parse(pgn);
     requireCompleteParser(parsed.capabilities);
     if (!parsed.games.length) throw new StudyPgnImportError('PGN contains no games.');
+    onProgress?.({ phase: 'parsing', completed: 1, total: 1 });
 
     const chapters: StudyPgnImportChapter[] = [];
+    onProgress?.({ phase: 'normalizing', completed: 0, total: parsed.games.length });
     for (const [index, game] of parsed.games.entries()) {
+        // Replay is CPU-bound. Yield between chapters so the dialog, progress bar,
+        // and the rest of the page remain responsive during large Study imports.
+        if (onProgress) await yieldToBrowser();
         chapters.push(normalizeGame(await engineForGame(game, index), game, index));
+        onProgress?.({ phase: 'normalizing', completed: index + 1, total: parsed.games.length });
     }
     const studyName = importedStudyName(parsed);
     return { chapters, ...(studyName ? { studyName } : {}) };
@@ -865,8 +903,9 @@ export async function parseStudyPgnForImportWithEngines(
     parser: StudyPgnParser,
     engineForGame: (game: ParsedStudyPgnGame, index: number) => StudyPgnEngine | Promise<StudyPgnEngine>,
     pgn: string,
+    onProgress?: StudyPgnImportProgressCallback,
 ): Promise<StudyPgnImportChapter[]> {
-    return (await parseStudyPgnDocumentForImportWithEngines(parser, engineForGame, pgn)).chapters;
+    return (await parseStudyPgnDocumentForImportWithEngines(parser, engineForGame, pgn, onProgress)).chapters;
 }
 
 export async function postStudyPgnImport(

@@ -1,6 +1,7 @@
 import { h, VNode } from 'snabbdom';
 import { _ } from '../i18n';
 import type { StudyChapterMode } from '../types';
+import type { StudyPgnImportProgress, StudyPgnImportProgressCallback } from './studyPgnImport';
 import { selectVariant, twoBoarsVariants } from '../variants';
 
 export interface StudyChapterCreateFormOptions {
@@ -11,7 +12,7 @@ export interface StudyChapterCreateFormOptions {
     enabledModes?: readonly StudyChapterMode[];
     sync?: () => boolean;
     beforeSubmit?: () => Promise<boolean>;
-    pgnImport?: (pgn: string) => Promise<void>;
+    pgnImport?: (pgn: string, onProgress?: StudyPgnImportProgressCallback) => Promise<void>;
 }
 
 type StudyChapterModeOption = {
@@ -50,6 +51,38 @@ function selectStudyChapterSource(form: HTMLFormElement, source: StudyChapterSou
         error.hidden = true;
         error.textContent = '';
     }
+}
+
+function setStudyPgnImportProgress(form: HTMLFormElement, progress: StudyPgnImportProgress): void {
+    const track = form.querySelector<HTMLElement>('.study-pgn-import__progress');
+    const bar = track?.querySelector<HTMLElement>('span');
+    if (!track || !bar) return;
+
+    track.hidden = false;
+    if (progress.phase === 'normalizing') {
+        const fraction = progress.total > 0 ? Math.min(1, Math.max(0, progress.completed / progress.total)) : 0;
+        const percent = Math.round(fraction * 100);
+        track.classList.remove('indeterminate');
+        track.setAttribute('aria-valuenow', String(percent));
+        track.setAttribute('aria-valuetext', _('Preparing chapters: %1%', percent));
+        bar.style.width = `${percent}%`;
+    } else {
+        track.classList.add('indeterminate');
+        track.removeAttribute('aria-valuenow');
+        track.setAttribute('aria-valuetext', progress.phase === 'parsing' ? _('Parsing PGN') : _('Saving chapters'));
+        bar.style.removeProperty('width');
+    }
+}
+
+function resetStudyPgnImportProgress(form: HTMLFormElement): void {
+    const track = form.querySelector<HTMLElement>('.study-pgn-import__progress');
+    const bar = track?.querySelector<HTMLElement>('span');
+    if (!track || !bar) return;
+    track.hidden = true;
+    track.classList.remove('indeterminate');
+    track.removeAttribute('aria-valuenow');
+    track.removeAttribute('aria-valuetext');
+    bar.style.removeProperty('width');
 }
 
 function studyPgnImportError(form: HTMLFormElement, error: unknown): void {
@@ -106,13 +139,14 @@ function submitStudyPgnImport(event: SubmitEvent, options: StudyChapterCreateFor
         if (options.beforeSubmit && !(await options.beforeSubmit())) return;
         if (!form.isConnected || !form.reportValidity()) return;
         syncHiddenInput(form, options.sync);
-        await options.pgnImport!(textarea.value);
+        await options.pgnImport!(textarea.value, progress => setStudyPgnImportProgress(form, progress));
     })()
         .catch(importError => studyPgnImportError(form, importError))
         .finally(() => {
             delete form.dataset.studySettling;
             form.removeAttribute('aria-busy');
             if (submit) submit.disabled = false;
+            resetStudyPgnImportProgress(form);
         });
 }
 
@@ -418,6 +452,19 @@ export function studyChapterCreateForm(
                                   _(
                                       'PGN tags and embedded Study metadata determine variants, chapter names and annotations.',
                                   ),
+                              ),
+                              h(
+                                  'div.study-pgn-import__progress',
+                                  {
+                                      attrs: {
+                                          role: 'progressbar',
+                                          'aria-label': _('PGN import progress'),
+                                          'aria-valuemin': '0',
+                                          'aria-valuemax': '100',
+                                          hidden: true,
+                                      },
+                                  },
+                                  [h('span')],
                               ),
                               h('p.study-pgn-import__error', { attrs: { role: 'alert', hidden: true } }),
                           ],

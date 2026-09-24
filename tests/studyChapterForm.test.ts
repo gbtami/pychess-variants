@@ -190,13 +190,50 @@ test('existing Study chapter creation offers a PGN source and imports pasted PGN
     await new Promise(resolve => setTimeout(resolve, 0));
 
     expect(beforeSubmit).toHaveBeenCalledTimes(1);
-    expect(pgnImport).toHaveBeenCalledWith(pgn.value);
+    expect(pgnImport).toHaveBeenCalledWith(pgn.value, expect.any(Function));
 
     setupTab.click();
     expect(setupPanel.hidden).toBe(false);
     expect(pgnPanel.hidden).toBe(true);
     expect(form.querySelector<HTMLSelectElement>('select[name="variant"]')?.disabled).toBe(false);
     expect(form.querySelector<HTMLButtonElement>('button[type="submit"]')?.textContent).toBe('Create chapter');
+});
+
+test('PGN import renders determinate chapter progress and hides it after completion', async () => {
+    let finish!: () => void;
+    let report:
+        | ((progress: { phase: 'parsing' | 'normalizing' | 'saving'; completed: number; total: number }) => void)
+        | undefined;
+    const pgnImport = jest.fn(
+        (_pgn: string, onProgress?: typeof report) =>
+            new Promise<void>(resolve => {
+                report = onProgress;
+                finish = resolve;
+            }),
+    );
+    mount(studyChapterCreateForm('/study/StUdY001/chapter', 'chess', false, { pgnImport }));
+
+    const form = document.querySelector<HTMLFormElement>('form.study-side__new-chapter')!;
+    form.reportValidity = jest.fn(() => true);
+    form.querySelector<HTMLButtonElement>('[data-study-chapter-source="pgn"]')!.click();
+    form.querySelector<HTMLTextAreaElement>('textarea[name="pgn"]')!.value = '1.e4 e5 *';
+    form.dispatchEvent(new SubmitEvent('submit', { bubbles: true, cancelable: true }));
+    await Promise.resolve();
+
+    const progress = form.querySelector<HTMLElement>('.study-pgn-import__progress')!;
+    const bar = progress.querySelector<HTMLElement>('span')!;
+    report?.({ phase: 'normalizing', completed: 1, total: 2 });
+    expect(progress.hidden).toBe(false);
+    expect(progress.getAttribute('aria-valuenow')).toBe('50');
+    expect(bar.style.width).toBe('50%');
+
+    report?.({ phase: 'saving', completed: 0, total: 1 });
+    expect(progress.classList.contains('indeterminate')).toBe(true);
+    expect(progress.getAttribute('aria-valuetext')).toContain('Saving chapters');
+
+    finish();
+    await new Promise(resolve => setTimeout(resolve, 0));
+    expect(progress.hidden).toBe(true);
 });
 
 test('PGN file selection loads the file into the paste area and imports that text', async () => {
@@ -222,7 +259,7 @@ test('PGN file selection loads the file into the paste area and imports that tex
     form.dispatchEvent(new SubmitEvent('submit', { bubbles: true, cancelable: true }));
     await new Promise(resolve => setTimeout(resolve, 0));
 
-    expect(pgnImport).toHaveBeenCalledWith(source);
+    expect(pgnImport).toHaveBeenCalledWith(source, expect.any(Function));
 });
 
 test('PGN import errors stay in the chapter dialog with parser diagnostics', async () => {

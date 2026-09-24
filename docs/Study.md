@@ -253,7 +253,10 @@ state and are never exported as authored chapter moves.
 [pgnParser.ts](../client/pgnParser.ts) is the shared client-side structural PGN parser.
 It keeps SAN/move tokens variant-neutral while preserving recursive RAVs, comments, NAGs,
 tags, and multiple games. It also applies browser-safety limits for input size, chapter
-count, tree size, and variation depth. Study import consumes the full parsed document;
+count, per-chapter tree size, total batch nodes, and variation depth. Study replay separately
+limits one authored line to 600 plies, matching Lichess's deep-line Study guard while still
+allowing up to 3,000 nodes in a chapter with useful side variations. Study import consumes
+the full parsed document;
 **Tools -> Import game** uses the same parser/normalization but intentionally follows only
 the first game's preferred mainline. Fairy-Stockfish resolves the resulting SAN tokens to
 legal variant moves rather than parsing the PGN text itself. Dedicated Bughouse/BPGN and
@@ -299,9 +302,12 @@ remaining chapter capacity.
 
 Both **Add a new chapter** and the first-chapter dialog for a new Study have a PGN source
 tab. Pasted text is parsed and replayed entirely in the browser, then the normalized batch
-is sent to the import endpoint. Parse, legality, and server-validation errors stay in the
-dialog with their detailed diagnostics. Mixed ordinary/Alice PGN batches load the matching
-Fairy-Stockfish WASM module per game. Existing-Study imports open the final chapter through
+is sent to the import endpoint. A thin green progress bar is indeterminate while parsing
+and saving, and advances chapter-by-chapter during Fairy-Stockfish replay; the importer
+yields between chapters so the dialog can repaint during large batches. Parse, legality,
+and server-validation errors stay in the dialog with their detailed diagnostics. Mixed
+ordinary/Alice PGN batches load the matching Fairy-Stockfish WASM module per game.
+Existing-Study imports open the final chapter through
 the in-place navigator; first-chapter imports atomically create the Study with all parsed
 chapters and then open its final chapter. When every imported game carries the same
 `StudyName` tag, a brand-new Study restores that title if the user left the generated

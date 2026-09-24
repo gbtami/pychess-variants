@@ -29,7 +29,12 @@ import { StudyGamebookEditor } from './studyGamebookEdit';
 import { StudyGamebookPlayback } from './studyGamebookPlayback';
 import { StudyPracticeSession } from './studyPractice';
 import { fetchStudyChapterExportData, renderStudyChapterPgn, renderStudyPgn, studyPgnFilename } from './studyPgn';
-import { parseStudyPgnForImportWithEngines, postStudyPgnImport, studyPgnGameUsesAlice } from './studyPgnImport';
+import {
+    parseStudyPgnForImportWithEngines,
+    postStudyPgnImport,
+    studyPgnGameUsesAlice,
+    type StudyPgnImportProgressCallback,
+} from './studyPgnImport';
 import { pgnParser as studyPgnParser } from '../pgnParser';
 import {
     studyChapterCreateForm,
@@ -785,7 +790,7 @@ type StudyModeActions = {
     showServerAnalysis: () => void;
     setDescription: (description: string) => void;
     settleWrites: () => Promise<boolean>;
-    importPgn: (pgn: string) => Promise<void>;
+    importPgn: (pgn: string, onProgress?: StudyPgnImportProgressCallback) => Promise<void>;
     resetConcealment: () => Promise<void>;
     enterGamebookPreview: () => Promise<void>;
     leaveGamebookPreview: () => Promise<void>;
@@ -2428,13 +2433,16 @@ function runStudyGround(
                 return false;
             }
         };
-        modeActions.importPgn = async pgn => {
+        modeActions.importPgn = async (pgn, onProgress) => {
             const chapters = await parseStudyPgnForImportWithEngines(
                 studyPgnParser,
                 game => loadStudyModule(studyPgnGameUsesAlice(game)),
                 pgn,
+                onProgress,
             );
+            onProgress?.({ phase: 'saving', completed: 0, total: 1 });
             const result = await postStudyPgnImport(study.id, chapters, fetch, Boolean(study.sticky));
+            onProgress?.({ phase: 'saving', completed: 1, total: 1 });
             if (!result.chapterId) throw new Error(_('Study PGN import did not return a chapter.'));
             const importDialog = document.querySelector<HTMLDialogElement>('#study-new-chapter');
             if (importDialog?.open) importDialog.close();

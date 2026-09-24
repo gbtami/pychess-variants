@@ -70,7 +70,12 @@ The browser parser currently rejects input beyond these defaults:
 - 8,000,000 input characters
 - 64 games/chapters
 - 3,000 move nodes per game
+- 30,000 move/variation nodes across one import batch
 - variation nesting deeper than 64
+
+Study replay additionally rejects an authored line deeper than **600 plies**. This mirrors
+Lichess's independent `Node.MAX_PLIES = 600` guard while retaining the 3,000-node chapter
+capacity for useful analysis trees with side variations.
 
 These limits are intentionally enforced before server validation so pathological input
 cannot make the browser do unbounded work.
@@ -438,18 +443,60 @@ delimiters, and unknown/illegal move tokens are still errors rather than being s
 Future additions to this item should therefore require a concrete common producer or a
 real import failure, not generic error recovery.
 
-### F. Large-import/browser-performance verification
+### F. Large-import/browser-performance verification — **complete**
 
-Exercise inputs near the configured limits: many chapters, deep RAVs, annotation-heavy
-trees, and large comments. Confirm that parsing/replay stays responsive enough and that
-failures happen before excessive browser memory/CPU use. Do not raise limits without a
-measured reason.
+The browser-side importer was exercised with synthetic inputs close to the configured
+limits and compared with current lila's Study guards. Lichess allows 64 chapters and 3,000
+Study nodes per chapter, but independently caps one line at 600 plies and rejects an
+individual imported chapter PGN above 100,000 characters. Its expensive replay runs on the
+server, so copying only the chapter/node limits would leave PyChess with a much larger
+main-thread worst case.
 
-### G. Import UX polish
+Measured on the development sandbox with the same Fairy-Stockfish WASM used by the tests:
 
-Once semantic behavior is stable, consider small UI improvements such as clearer progress
-for multi-chapter imports and better per-chapter failure context. Avoid adding UI that
-requires server-heavy progress machinery unless there is a demonstrated need.
+- 64 chapters x 120 plies (7,680 moves) normalize in about **1.76 s** while yielding between
+  chapters;
+- a near-ceiling 64 x 468-ply batch (29,952 moves) normalizes in about **4.71 s** and adds
+  roughly **30 MiB** of heap in that run;
+- the previous theoretical 64 x 3,000-node envelope was measured at roughly 30 seconds /
+  145 MiB and is no longer accepted as one browser import;
+- parsing one synthetic 7.5 MB brace comment improved from about **554 ms / +243 MiB**
+  transient heap to about **38 ms / +7 MiB** after replacing per-character string
+  concatenation with source slicing/chunking.
+
+The resulting safeguards are:
+
+- retain the existing 64-chapter and 3,000-node-per-chapter limits;
+- add a 30,000-node total batch ceiling so the browser cannot reach the pathological
+  64 x 3,000 replay case in one import;
+- mirror Lichess's 600-ply single-line guard, preventing the previous deep-mainline
+  `RangeError: Maximum call stack size exceeded`;
+- keep the 8,000,000-character document limit, with the scanner optimized so a large plain
+  comment no longer causes quadratic-style string allocation amplification;
+- yield to the event loop between chapter replays when a UI progress callback is present,
+  allowing the browser to repaint and accept input during large multi-chapter imports.
+
+These measurements are development/sandbox figures rather than browser performance promises,
+but they establish that the configured worst case now fails before the previously observed
+excessive CPU/memory envelope. Do not raise these limits without a new measured reason.
+
+### G. Import UX polish — **progress indicator implemented; further polish optional**
+
+Study PGN import now renders a thin green progress bar in the chapter dialog. Structural
+parsing and the final server save are shown as indeterminate phases; chapter replay is
+determinate and advances chapter-by-chapter. The importer yields before parsing so the
+initial state can paint, then between CPU-bound chapter replays so the progress bar can
+actually update instead of being blocked by the main thread. The same progress path is used
+when a PGN creates a brand-new Study.
+
+Lila's current Study import form does not expose a comparable percentage bar: it posts the
+PGN to the server and closes the form while server-side import performs the replay. PyChess
+keeps replay client-side to protect the small production server, so client progress/yielding
+is intentionally a PyChess-specific adaptation rather than copied server machinery.
+
+Remaining optional UX work here is limited to better per-chapter failure context if real
+imports show that the existing `Could not replay imported PGN chapter N: ...` diagnostics
+are insufficient.
 
 ### H. Final round-trip fixture
 
@@ -497,8 +544,9 @@ JavaScript/Python wheelhouses are useful when full validation is needed.
 The continuation workflow should be:
 
 1. Read `AGENTS.md`, this document, and the PGN section of `docs/Study.md`.
-2. Start from **Remaining compatibility checklist F** unless a newly reported concrete
-   import bug takes priority.
+2. Start from **Remaining compatibility checklist G** (optional import UX polish) or H
+   (the comprehensive round-trip fixture) unless a newly reported concrete import bug takes
+   priority.
 3. Compare with current Lila behavior when implementing Lichess compatibility rather than
    inventing a new convention.
 4. Add/minimize a regression test for each discovered incompatibility.
