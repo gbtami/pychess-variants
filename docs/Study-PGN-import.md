@@ -1,13 +1,14 @@
 # Study PGN import
 
-This document tracks the client-side Study PGN parser/importer work and serves as a
-handoff for continuing the implementation in a later development session. The stable
-user-facing Study documentation remains in [Study.md](Study.md); this file records the
-architecture decisions, completed compatibility work, remaining audit checklist, and
-recommended next steps.
+This document records the completed client-side Study PGN parser/importer work and serves
+as the detailed implementation/audit companion to the stable Study documentation in
+[Study.md](Study.md). It captures the final architecture decisions, real-world compatibility
+audit, safety/performance limits, lossless PyChess extensions, and maintenance rules for
+future PGN compatibility fixes.
 
-Status: **core parser/import workflow implemented; real-world Lichess compatibility and
-semantic parity audit in progress**.
+Status: **feature-complete for the audited interchange scope**. The A-I compatibility and
+round-trip plan is complete; future changes should be driven by concrete PGN failures or
+new producer conventions rather than speculative extensions.
 
 ## Goals and architecture
 
@@ -328,10 +329,12 @@ local test inputs, not committed wholesale as repository fixtures):
 When a real-world incompatibility is found, prefer reducing it to a small synthetic
 regression fixture rather than committing an entire third-party Study export.
 
-## Remaining compatibility checklist
+## Completed compatibility and acceptance checklist
 
-The core feature is implemented. Remaining work should be driven primarily by concrete
-semantic differences found in real PGNs rather than by adding speculative metadata.
+The planned A-I implementation/audit pass is complete. The sections below record the
+acceptance evidence and the concrete compatibility bugs fixed along the way. Future work
+should be driven primarily by semantic differences found in new real PGNs rather than by
+adding speculative metadata.
 
 ### A. Real-study semantic parity audit — **complete for the current corpus**
 
@@ -487,7 +490,7 @@ These measurements are development/sandbox figures rather than browser performan
 but they establish that the configured worst case now fails before the previously observed
 excessive CPU/memory envelope. Do not raise these limits without a new measured reason.
 
-### G. Import UX polish — **progress indicator implemented; further polish optional**
+### G. Import UX polish — **complete**
 
 Study PGN import now renders a thin green progress bar in the chapter dialog. Structural
 parsing and the final server save are shown as indeterminate phases; chapter replay is
@@ -501,9 +504,9 @@ PGN to the server and closes the form while server-side import performs the repl
 keeps replay client-side to protect the small production server, so client progress/yielding
 is intentionally a PyChess-specific adaptation rather than copied server machinery.
 
-Remaining optional UX work here is limited to better per-chapter failure context if real
-imports show that the existing `Could not replay imported PGN chapter N: ...` diagnostics
-are insufficient.
+The current chapter-numbered replay diagnostics are sufficient for the completed scope.
+If future real imports show that per-chapter failure context is insufficient, improve that
+specific error path rather than adding generic import UI complexity preemptively.
 
 ### H. Final round-trip fixture — **complete**
 
@@ -533,15 +536,21 @@ round-trip helper, and a forced preferred continuation could not be parsed back 
 same tree. The versioned `[%pyforcevariation]` directive now preserves that authored flag
 while the surrounding PGN remains legal for ordinary readers.
 
-### I. Final documentation cleanup / feature-complete stop point
+### I. Final documentation cleanup / feature-complete stop point — **complete**
 
-When the real-world corpus imports cleanly and the comprehensive round-trip fixture is
-stable:
+The real-world corpus imports cleanly, the comprehensive lossless round-trip fixture is
+stable, and [Study.md](Study.md) documents the final shared-parser architecture, browser
+limits, orientation/interchange behavior, progress UI, and unavoidable PGN losses. This is
+the feature-complete stop point for the planned importer work.
 
-- update [Study.md](Study.md) with any newly supported conventions or unavoidable losses;
-- mark the remaining items in this document complete;
-- stop adding PGN extensions speculatively;
-- treat later failures as concrete compatibility bugs with minimized regression cases.
+From here:
+
+- do not add PGN extensions speculatively;
+- treat later failures as concrete compatibility bugs with minimized regression cases;
+- keep ordinary PGN syntax/normalization shared between Study import and Tools -> Import
+  game;
+- keep Bughouse/BPGN and Shogi KIF on their dedicated import paths;
+- re-measure browser CPU/memory behavior before raising any parser or replay limit.
 
 ## Known limitations / design constraints
 
@@ -562,25 +571,25 @@ stable:
 - Keep full third-party Study PGNs out of the repository when a small regression case can
   reproduce the issue.
 
-## How to continue this work in a new ChatGPT session
+## Future maintenance workflow
 
-For a clean handoff, provide the latest `pychess-variants` source ZIP and point the new
-session to this file and `AGENTS.md`. If the next task is Lichess parity, also provide the
-matching Lila source ZIP and whichever real exported PGN reproduces the issue. Offline
-JavaScript/Python wheelhouses are useful when full validation is needed.
-
-The continuation workflow should be:
+For a future compatibility bug, start with the latest source plus the smallest PGN that
+reproduces the failure. If the issue concerns Lichess parity, compare with the matching
+current Lila behavior/source rather than inventing a new convention. The maintenance flow
+is:
 
 1. Read `AGENTS.md`, this document, and the PGN section of `docs/Study.md`.
-2. Start from **Remaining compatibility checklist I** (final documentation cleanup / stop
-   point) unless a newly reported concrete import bug takes priority.
-3. Compare with current Lila behavior when implementing Lichess compatibility rather than
-   inventing a new convention.
-4. Add/minimize a regression test for each discovered incompatibility.
-5. Keep parsing variant-neutral; use Fairy-Stockfish for SAN/legal-move normalization.
-6. Make one focused change at a time and provide an incremental `.patch` for local testing
-   before proceeding to the next item.
-7. Include a suggested git commit message with every patch.
+2. Reproduce the concrete import/export failure before changing parser tolerance or an
+   extension.
+3. Reduce the producer PGN to a small regression case where practical.
+4. Keep structural parsing variant-neutral and use Fairy-Stockfish for SAN/legal-move
+   normalization.
+5. Check whether an ordinary-PGN fix should benefit both Study import and Tools -> Import
+   game; preserve the dedicated BPGN and KIF paths.
+6. Run the change-scoped quality gates from `AGENTS.md`, plus corpus/round-trip checks when
+   the affected semantics warrant them.
+7. Revisit the documented browser limits only with new measurements showing that a change
+   is safe and useful.
 
 For TypeScript/Study changes, follow the current project verification policy in
 `AGENTS.md` / `.agents/skills/pychess-testing/SKILL.md`; the normal frontend gates are

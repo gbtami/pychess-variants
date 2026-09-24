@@ -249,34 +249,47 @@ alone is only a compatibility hint and is not a lossless lesson interchange form
 Practice attempts, lesson attempts and reader conceal exploration are disposable runtime
 state and are never exported as authored chapter moves.
 
+Lichess's ordinary Study PGN export likewise does not contain every internal Study field.
+In particular, it does not serialize gamebook hint/deviation fields, and it normally omits
+chapter orientation. PyChess can infer useful orientation in common cases, but missing
+author intent cannot always be reconstructed from ordinary PGN. Multi-stage `TimeControl`
+values are retained but their clocks are not guessed. These are interchange limitations,
+not reasons to invent unverified Lichess-specific directives.
+
 ### Import: parser, validation, and paste workflow
 
 [pgnParser.ts](../client/pgnParser.ts) is the shared client-side structural PGN parser.
 It keeps SAN/move tokens variant-neutral while preserving recursive RAVs, comments, NAGs,
-tags, and multiple games. It also applies browser-safety limits for input size, chapter
-count, per-chapter tree size, total batch nodes, and variation depth. Study replay separately
-limits one authored line to 600 plies, matching Lichess's deep-line Study guard while still
-allowing up to 3,000 nodes in a chapter with useful side variations. Study import consumes
-the full parsed document;
-**Tools -> Import game** uses the same parser/normalization but intentionally follows only
-the first game's preferred mainline. Fairy-Stockfish resolves the resulting SAN tokens to
-legal variant moves rather than parsing the PGN text itself. Dedicated Bughouse/BPGN and
-Shogi KIF imports remain on their existing specialized paths.
+tags, and multiple games. Browser-side Study import is bounded to 8,000,000 input characters,
+64 games/chapters, 3,000 move nodes per chapter, 30,000 move/variation nodes across the
+batch, and variation nesting depth 64. Study replay separately limits one authored line to
+600 plies, matching Lichess's deep-line Study guard while still allowing useful side
+variations within the 3,000-node chapter budget. Study import consumes the full parsed
+document. **Tools -> Import game** uses the same parser/normalization but intentionally
+imports only the first game's preferred mainline. Fairy-Stockfish resolves the resulting
+SAN tokens to legal variant moves rather than parsing the PGN text itself. Dedicated
+Bughouse/BPGN imports and Shogi KIF imports remain on their existing specialized paths.
+
+Compatibility tolerance stays conservative. Unambiguous producer quirks such as `2.. d6`
+and the shorthand draw result `1/2` are accepted (`1/2` is canonicalized to `1/2-1/2`),
+while malformed tag pairs, unmatched comment/variation delimiters, and unknown or illegal
+move tokens remain import errors rather than being silently skipped.
 
 [studyPgnImport.ts](../client/study/studyPgnImport.ts) defines the parser-neutral recursive
 PGN contract and converts parsed games into Study trees. It preserves variations,
 comments, NAGs, shapes, clocks, evaluations, and the supported PyChess extensions.
 When an imported PGN contains `[Orientation "white"]` or `[Orientation "black"]`, that
 choice is preserved exactly. Lichess omits this tag from its default Study export, so in its
-absence the importer applies the useful parts of Lichess's automatic orientation rules:
-finished games face White and normal chapters face the side to move at the end of the
-mainline. Interactive lessons with a visible root prompt face the root side to move; this
-recovers exported lessons that immediately ask the reader for the first move. Other
-interactive lessons face the player who made the final authored mainline move, which keeps
-lessons that begin with a scripted opponent move working as expected. A move-less lesson
-keeps the root side to move because no learner move exists from which to infer a side.
-PyChess's own Study export always includes Orientation, so PyChess round trips do not depend
-on these heuristics.
+absence the importer applies the useful parts of Lichess's automatic orientation rules.
+For non-gamebook chapters, finished games face White and normal analysis chapters face the
+side to move at the end of the mainline. Interactive/gamebook orientation is resolved first,
+because exported puzzle chapters can retain the source game's `Result`: a lesson with a
+visible root prompt faces the root side to move, while other lessons face the player who
+made the final authored mainline move. This keeps both immediate learner prompts and lessons
+that begin with a scripted opponent move working as expected. A move-less lesson keeps the
+root side to move because no learner move exists from which to infer a side. PyChess's own
+Study export always includes Orientation, so PyChess round trips do not depend on these
+heuristics.
 
 Lichess-style `[Annotator ...]` and per-comment `[%anno ...]` metadata are consumed as
 **source attribution**, kept separately from authenticated PyChess comment authorship, and
