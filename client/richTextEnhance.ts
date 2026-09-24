@@ -141,12 +141,13 @@ export function enhanceLinkifiedText(text: string): string {
 }
 
 export function setLinkifiedText(element: HTMLElement, text: string): void {
+    element.classList.add('rich-text');
     element.innerHTML = enhanceLinkifiedText(text);
 }
 
 export function renderLinkifiedText(text: string): RichNode[] {
     return [
-        h('span', {
+        h('span.rich-text', {
             hook: {
                 create(_emptyVnode, vnode) {
                     const el = vnode.elm as HTMLElement;
@@ -198,7 +199,7 @@ export function isMoreThanText(text: string): boolean {
 export function renderRichText(text: string, options: EnhanceRichTextOptions = {}): RichNode[] {
     if (!isMoreThanText(text)) return [text];
     return [
-        h('span', {
+        h('span.rich-text', {
             hook: {
                 create(_emptyVnode, vnode) {
                     const el = vnode.elm as HTMLElement;

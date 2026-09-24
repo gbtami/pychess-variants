@@ -1587,6 +1587,22 @@ p a,
 div.guide li a {
   color: var(--link-hover);
 }
+
+/* User-authored rich text follows Lichess's prose-link treatment without
+   changing navigation and other UI links that intentionally color only on hover. */
+.rich-text a {
+  color: var(--link-hover);
+}
+.rich-text a:hover,
+.rich-text a:active,
+.rich-text a:focus {
+  color: var(--link-color-blue);
+}
+[data-theme='dark'] .rich-text a:hover,
+[data-theme='dark'] .rich-text a:active,
+[data-theme='dark'] .rich-text a:focus {
+  color: color-mix(in oklab, var(--link-hover) 75%, white);
+}
 div a {
   cursor: pointer;
 }
