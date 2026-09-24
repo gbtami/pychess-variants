@@ -382,12 +382,30 @@ A reduced regression based on the 2026 official FIDE puzzle pack covers the rich
 case without committing the full third-party Study export. Future work on chapter metadata
 should be driven by a concrete export that demonstrates a new loss or ambiguity.
 
-### E. Malformed-but-common PGN tolerance
+### E. Malformed-but-common PGN tolerance — **complete**
 
-After the real corpus is clean, consider a small compatibility suite for recoverable
-syntax emitted by common tools, such as unusual move-number spacing, repeated NAGs,
-escaped text, or harmless SAN decoration differences. Keep this conservative: malformed
-input should not silently become a different game.
+A compatibility pass used the desktop PyChess `testing/gamefiles/*.pgn` corpus as an
+additional stress source. With only `maxGames` raised for the audit, all 26 non-corrupt
+files parse structurally; `badpgn.pgn` remains rejected because its tag structure is not
+recoverable without guessing. Under the normal Study limits, four database-sized files
+correctly stop at the 64-chapter safety cap rather than bypassing the browser guard.
+
+The reduced regression coverage now includes the useful malformed-but-unambiguous forms
+found in that corpus and its PGN tests:
+
+- unusual move numbering such as `2.. d6`;
+- repeated numeric/symbolic NAGs without duplicate annotations;
+- a line beginning with `%` inside a brace comment, which must remain comment text rather
+  than being mistaken for a PGN escape line;
+- bracket-like text inside comments;
+- the non-standard shorthand draw terminator/result `1/2`, explicitly tolerated by the
+  desktop PyChess parser and now normalized to canonical `1/2-1/2`;
+- existing castling/check/mate SAN decoration normalization during engine-backed replay.
+
+Tolerance remains conservative: malformed tag pairs, unmatched variation/comment
+delimiters, and unknown/illegal move tokens are still errors rather than being skipped.
+Future additions to this item should therefore require a concrete common producer or a
+real import failure, not generic error recovery.
 
 ### F. Large-import/browser-performance verification
 
@@ -444,7 +462,7 @@ JavaScript/Python wheelhouses are useful when full validation is needed.
 The continuation workflow should be:
 
 1. Read `AGENTS.md`, this document, and the PGN section of `docs/Study.md`.
-2. Start from **Remaining compatibility checklist E** unless a newly reported concrete
+2. Start from **Remaining compatibility checklist F** unless a newly reported concrete
    import bug takes priority.
 3. Compare with current Lila behavior when implementing Lichess compatibility rather than
    inventing a new convention.

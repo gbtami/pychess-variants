@@ -100,6 +100,34 @@ describe('Study PGN raw parser', () => {
         expect(sans).toEqual(['e4', 'e5', 'Nf3', 'Nc6', 'Bb5', 'a6']);
     });
 
+    test('accepts recoverable PyChess desktop PGN quirks without treating comment text as syntax', () => {
+        const game = firstGame(`[Result "1/2"]
+
+{root note}
+1. e4 $1 $24 e5! 2 Nf3 { [
+%clk 0:05:00] comment }
+({variation intro ['just for fun']} 2.. d6) 1/2`);
+
+        const e4 = game.children[0];
+        const e5 = e4.children![0];
+        const nf3 = e5.children![0];
+        expect(game.tags.Result).toBe('1/2-1/2');
+        expect(e4.nags).toEqual([1, 24]);
+        expect(e5.nags).toEqual([1]);
+        expect(nf3.comments).toEqual(['[\n%clk 0:05:00] comment']);
+        expect(e5.children?.[1]).toMatchObject({
+            san: 'd6',
+            comments: ["variation intro ['just for fun']"],
+        });
+    });
+
+    test('normalizes a shorthand 1/2 movetext result instead of replaying it as a move', () => {
+        const game = firstGame('1.e4 e5 1/2');
+        expect(game.tags.Result).toBe('1/2-1/2');
+        expect(game.children[0].children?.[0]).toMatchObject({ san: 'e5' });
+        expect(game.children[0].children?.[0].children).toBeUndefined();
+    });
+
     test('supports standalone symbolic NAGs and de-duplicates repeated NAGs', () => {
         const game = firstGame('1.e4 ! $1 e5 = 2.Nf3 ± Nc6 -/+ *');
         const e4 = game.children[0];

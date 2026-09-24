@@ -54,7 +54,7 @@ const STANDALONE_NAGS: Readonly<Record<string, number>> = Object.freeze({
     '-/+': 19,
 });
 
-const RESULT_TOKENS = new Set(['1-0', '0-1', '1/2-1/2', '½-½', '*']);
+const RESULT_TOKENS = new Set(['1-0', '0-1', '1/2-1/2', '1/2', '½-½', '*']);
 
 export class StudyPgnParseError extends Error {
     readonly line: number;
@@ -98,7 +98,7 @@ function cleanupMove(move: ParsedStudyPgnMove): void {
 
 function normalizedResult(token: string): string | undefined {
     if (!RESULT_TOKENS.has(token)) return undefined;
-    return token === '½-½' ? '1/2-1/2' : token;
+    return token === '½-½' || token === '1/2' ? '1/2-1/2' : token;
 }
 
 class ParserState {
@@ -149,7 +149,9 @@ class ParserState {
         const game: ParsedStudyPgnGame = { tags, children: [] };
         const sequence = this.parseSequence(game.children, game, false, 0);
         if (sequence.result) this.parseTrailingComments(sequence.terminalOwner);
-        if (!tags.Result && sequence.result) tags.Result = sequence.result;
+        const tagResult = tags.Result ? normalizedResult(tags.Result) : undefined;
+        if (tagResult) tags.Result = tagResult;
+        else if (!tags.Result && sequence.result) tags.Result = sequence.result;
         game.children.forEach(cleanupMove);
         if (!game.comments?.length) delete game.comments;
         return game;
