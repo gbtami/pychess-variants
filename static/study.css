@@ -632,7 +632,7 @@
 .study-chapter__row { display: flex; align-items: stretch; min-height: 2.2rem; }
 .study-chapter__row a { display: flex; flex: 1; min-width: 0; align-items: center; padding: .35rem .4rem; }
 .study-chapter__number { flex: 0 0 1.7rem; text-align: center; opacity: .7; }
-.study-chapter__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.study-chapter__name { flex: 1 1 100%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .study-chapter__result { flex: 0 0 auto; margin-inline: .55rem .3rem; font-size: .9em; white-space: nowrap; }
 .study-chapter__row.active, .study-chapter__row:hover, .study-chapter__row:focus-within {
     background: color-mix(in srgb, var(--link-color-blue) 10%, var(--bg-color0));
