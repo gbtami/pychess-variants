@@ -19,7 +19,7 @@ import type {
     AnalysisNavigationOrigin,
     AnalysisPositionChange,
 } from '../analysis/analysisExtension';
-import type { JSONObject, StudyChapterMode, StudyChapterPreview, StudyServerEval } from '../types';
+import type { JSONObject, StudyChapterMode, StudyChapterPreview, StudyChapterStatus, StudyServerEval } from '../types';
 import {
     mergeStudyNodeIntoAnalysisTree,
     mergeStudyTreeIntoAnalysisTree,
@@ -197,6 +197,10 @@ function asStringArray(value: unknown): string[] | undefined {
     return result;
 }
 
+function asStudyChapterStatus(value: unknown): StudyChapterStatus | undefined {
+    return value === '1-0' || value === '0-1' || value === '½-½' || value === '*' ? value : undefined;
+}
+
 function asStudyChapterPreviews(value: unknown): StudyChapterPreview[] | undefined {
     if (!Array.isArray(value) || value.length === 0) return undefined;
     const chapters: StudyChapterPreview[] = [];
@@ -225,6 +229,7 @@ function asStudyChapterPreviews(value: unknown): StudyChapterPreview[] | undefin
             (chapter.concealPly !== undefined &&
                 (!Number.isInteger(chapter.concealPly) || (chapter.concealPly as number) < 0)) ||
             (mode !== 'conceal' && chapter.concealPly !== undefined) ||
+            (chapter.status !== undefined && asStudyChapterStatus(chapter.status) === undefined) ||
             (chapter.descriptionPinned !== undefined && typeof chapter.descriptionPinned !== 'boolean')
         )
             return undefined;
@@ -235,6 +240,7 @@ function asStudyChapterPreviews(value: unknown): StudyChapterPreview[] | undefin
             order: chapter.order as number,
             orientation: chapter.orientation,
             mode,
+            ...(chapter.status === undefined ? {} : { status: asStudyChapterStatus(chapter.status) }),
             ...(mode === 'conceal' ? { concealPly: (chapter.concealPly as number | undefined) ?? 0 } : {}),
             ...(chapter.descriptionPinned === undefined ? {} : { descriptionPinned: chapter.descriptionPinned }),
         });

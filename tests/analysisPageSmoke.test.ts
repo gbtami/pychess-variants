@@ -498,9 +498,11 @@ describe('analysis page smoke coverage', () => {
             Result: '0-1',
         };
         study.chapter.tree = { nodes: [] };
+        study.chapters[0].status = '0-1';
         const importedRoot = renderNodes(studyView(makeModel({ gameId: '', status: 0, study })));
 
         expect(importedRoot.querySelector('.study-app')?.classList.contains('has-players')).toBe(true);
+        expect(importedRoot.querySelector('.study-chapter__result')?.textContent).toBe('0-1');
         expect(importedRoot.querySelector('.study__player-top .name')?.textContent).toBe('Bob');
         expect(importedRoot.querySelector('.study__player-top .name')?.tagName).toBe('SPAN');
         expect(importedRoot.querySelector('.study__player-top .result')?.textContent).toBe('1');

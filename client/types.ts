@@ -31,6 +31,7 @@ export interface SimulGame {
 
 export type StudyFeatureSelection = 'nobody' | 'owner' | 'contributor' | 'member' | 'everyone';
 export type StudyChapterMode = 'normal' | 'practice' | 'conceal' | 'gamebook';
+export type StudyChapterStatus = '1-0' | '0-1' | '½-½' | '*';
 
 export type StudyServerEval = {
     path: string;
@@ -46,6 +47,7 @@ export type StudyChapterPreview = {
     order: number;
     orientation: 'white' | 'black';
     mode: StudyChapterMode;
+    status?: StudyChapterStatus;
     concealPly?: number;
     descriptionPinned?: boolean;
 };

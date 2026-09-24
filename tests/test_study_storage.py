@@ -536,6 +536,20 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
             {study.id: ("Chapter 1", "Second line", "Third line", "Fourth line")},
         )
 
+    async def test_chapter_previews_include_pgn_result_status(self) -> None:
+        draft = StudyChapterDraft(
+            variant="chess",
+            initial_fen=FairyBoard.start_fen("chess"),
+            name="Alice - Bob",
+            tags={"result": "1/2-1/2"},
+        )
+        study, chapter = await create_study_from_draft(cast(Any, self.app_state), "owner", draft)
+
+        previews = await chapter_previews(cast(Any, self.app_state), study.id)
+
+        self.assertEqual(previews[0]["id"], chapter.id)
+        self.assertEqual(previews[0]["status"], "½-½")
+
     async def test_chapter_crud_keeps_lightweight_ordered_previews(self) -> None:
         study, first = await create_study_with_chapter(cast(Any, self.app_state), "owner")
         second = await add_chapter(cast(Any, self.app_state), study, first)

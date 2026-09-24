@@ -1285,6 +1285,7 @@ function studySide(study: StudyPageModel, model: PyChessModel, modeActions: Stud
                                 [
                                     h('span.study-chapter__number', `${item.order}. `),
                                     h('span.study-chapter__name', item.name),
+                                    ...(item.status ? [h('span.study-chapter__result', item.status)] : []),
                                 ],
                             ),
                             ...(canManageChapters
@@ -1725,6 +1726,12 @@ function studyTag(study: StudyPageModel, name: string): string | undefined {
     const expected = name.toLowerCase();
     const entry = Object.entries(study.chapter.tags).find(([key]) => key.toLowerCase() === expected);
     return entry?.[1];
+}
+
+function studyChapterStatusFromTags(tags: Record<string, string>): StudyPageModel['chapters'][number]['status'] {
+    const result = Object.entries(tags).find(([key]) => key.toLowerCase() === 'result')?.[1]?.trim();
+    if (result === '1/2-1/2') return '½-½';
+    return result === '1-0' || result === '0-1' || result === '½-½' || result === '*' ? result : undefined;
 }
 
 function studyHasGamePlayers(study: StudyPageModel): boolean {
@@ -2286,6 +2293,14 @@ function runStudyGround(
                 onAnnotationStateChanged: state => {
                     if (policy.tools.annotations) updateAnnotationPanel(study, modeActions, state, editor);
                     else updateStudyMetadataPanel(study, modeActions, state);
+                    const preview = study.chapters.find(chapter => chapter.id === study.chapter.id);
+                    if (preview) {
+                        const status = studyChapterStatusFromTags(state.tags);
+                        if (preview.status !== status) {
+                            preview.status = status;
+                            sideVNode = patch(sideVNode, studySide(study, model, modeActions));
+                        }
+                    }
                     updateGamebookEditor();
                 },
                 onServerEvalChanged: serverEval => {

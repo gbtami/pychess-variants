@@ -834,6 +834,24 @@ async def load_chapter(app_state: Any, study_id: str, chapter_id: str) -> StudyC
     return StudyChapter.from_document(doc) if doc is not None else None
 
 
+def _chapter_preview_status(raw_tags: object) -> str | None:
+    if not isinstance(raw_tags, Mapping):
+        return None
+    for raw_name, raw_value in raw_tags.items():
+        if (
+            not isinstance(raw_name, str)
+            or raw_name.casefold() != "result"
+            or not isinstance(raw_value, str)
+        ):
+            continue
+        result = raw_value.strip()
+        if result == "1/2-1/2":
+            return "½-½"
+        if result in {"1-0", "0-1", "½-½", "*"}:
+            return result
+    return None
+
+
 async def chapter_previews(app_state: Any, study_id: str) -> list[dict[str, object]]:
     cursor = app_state.db.study_chapter.find(
         {"studyId": study_id},
@@ -845,6 +863,7 @@ async def chapter_previews(app_state: Any, study_id: str) -> list[dict[str, obje
             "mode": 1,
             "concealPly": 1,
             "description": 1,
+            "tags": 1,
         },
     ).sort("order", 1)
     previews: list[dict[str, object]] = []
@@ -861,6 +880,9 @@ async def chapter_previews(app_state: Any, study_id: str) -> list[dict[str, obje
             "mode": mode,
             "descriptionPinned": bool(doc.get("description")),
         }
+        status = _chapter_preview_status(doc.get("tags"))
+        if status is not None:
+            preview["status"] = status
         if mode == "conceal":
             raw_conceal_ply = doc.get("concealPly", 0)
             if (
