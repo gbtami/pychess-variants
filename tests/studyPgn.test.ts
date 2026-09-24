@@ -125,8 +125,24 @@ describe('Study PGN export', () => {
 
         const pgn = renderStudyChapterPgn(study, data);
 
+        expect(pgn).toContain('[Annotator "https://www.pychess.org/@/owner"]');
         expect(pgn).toContain('{Root note}');
         expect(pgn).not.toContain('[%anno "https://www.pychess.org/@/owner"] Root note');
+        expect(pgn).toContain('{[%anno "Mary", mary] King pawn}');
+    });
+
+    test('preserves an imported Annotator tag instead of replacing it with the Study owner', () => {
+        const data = chapter({ tags: { Event: 'Imported', Annotator: 'https://lichess.org/@/bobby' } });
+        data.tree.rootAnnotations!.comments[0].sourceAuthor = 'https://lichess.org/@/bobby';
+        data.tree.nodes[0].annotations!.comments[0].sourceAuthor = 'Mary';
+        data.tree.nodes[0].annotations!.comments[0].sourceAuthorId = 'mary';
+
+        const pgn = renderStudyChapterPgn(study, data);
+
+        expect(pgn).toContain('[Annotator "https://lichess.org/@/bobby"]');
+        expect(pgn).not.toContain('[Annotator "https://www.pychess.org/@/owner"]');
+        expect(pgn).toContain('{Root note}');
+        expect(pgn).not.toContain('[%anno "https://lichess.org/@/bobby"] Root note');
         expect(pgn).toContain('{[%anno "Mary", mary] King pawn}');
     });
 

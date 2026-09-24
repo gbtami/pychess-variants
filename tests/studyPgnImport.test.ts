@@ -9,6 +9,7 @@ import { studyPgnParser } from '../client/study/studyPgnParser';
 
 import {
     normalizeStudyPgnDocument,
+    parseStudyPgnDocumentForImportWithEngines,
     parseStudyPgnForImport,
     parseStudyPgnForImportWithEngines,
     postNewStudyPgnImport,
@@ -265,6 +266,71 @@ describe('Study PGN import core', () => {
             { orig: 'e4', brush: 'green' },
             { orig: 'e2', dest: 'e4', brush: 'red' },
         ]);
+    });
+
+    test('preserves real Lichess event metadata while consuming Study structural tags', async () => {
+        const imported = await parseStudyPgnDocumentForImportWithEngines(
+            studyPgnParser,
+            () => ffish,
+            `[Event "World Blitz 2025 Open"]
+[Site "https://lichess.org/broadcast/example"]
+[Date "2025.12.26"]
+[Round "1.7"]
+[White "Musovic, Armin"]
+[Black "Sanal, Vahap"]
+[Result "0-1"]
+[WhiteElo "2274"]
+[WhiteTitle "FM"]
+[WhiteFideId "939935"]
+[BlackElo "2563"]
+[BlackTitle "GM"]
+[BlackFideId "6300545"]
+[TimeControl "15 mins + 10 sec increment"]
+[Variant "From Position"]
+[ECO "?"]
+[Opening "?"]
+[StudyName "FIDE World Rapid & Blitz 2025 - Puzzle Pack"]
+[ChapterName "Musovic, Armin - Sanal, Vahap"]
+[ChapterURL "https://lichess.org/study/9LjyYZ9N/FXMbkAeX"]
+[Annotator "https://lichess.org/@/Lichess"]
+[FEN "8/5pk1/5p2/P3q3/1Q6/KP6/8/8 w - - 3 56"]
+[SetUp "1"]
+[ChapterMode "gamebook"]
+
+56. a6 56... Qa1# 0-1`,
+        );
+        const [chapter] = imported.chapters;
+
+        expect(imported.studyName).toBe('FIDE World Rapid & Blitz 2025 - Puzzle Pack');
+        expect(chapter.name).toBe('Musovic, Armin - Sanal, Vahap');
+        expect(chapter.variant).toBe('chess');
+        expect(chapter.mode).toBe('gamebook');
+        expect(chapter.tags).toMatchObject({
+            Event: 'World Blitz 2025 Open',
+            Site: 'https://lichess.org/broadcast/example',
+            Date: '2025.12.26',
+            Round: '1.7',
+            White: 'Musovic, Armin',
+            Black: 'Sanal, Vahap',
+            Result: '0-1',
+            WhiteElo: '2274',
+            WhiteTitle: 'FM',
+            WhiteFideId: '939935',
+            BlackElo: '2563',
+            BlackTitle: 'GM',
+            BlackFideId: '6300545',
+            TimeControl: '15 mins + 10 sec increment',
+            Variant: 'From Position',
+            ECO: '?',
+            Opening: '?',
+            Annotator: 'https://lichess.org/@/Lichess',
+            FEN: '8/5pk1/5p2/P3q3/1Q6/KP6/8/8 w - - 3 56',
+            SetUp: '1',
+        });
+        expect(chapter.tags.StudyName).toBeUndefined();
+        expect(chapter.tags.ChapterName).toBeUndefined();
+        expect(chapter.tags.ChapterURL).toBeUndefined();
+        expect(chapter.tags.ChapterMode).toBeUndefined();
     });
 
     test('normalizes multiple raw PGN games into separate chapters', async () => {

@@ -354,12 +354,33 @@ root drawings after Chessground applied a new FEN. Interactive playback now rest
 active position's authored shapes on startup and after every position change, so root
 prompt arrows such as those in Lichess's lesson example survive wrong-answer/retry flow.
 
-### D. Chapter metadata audit
+### D. Chapter metadata audit — **complete**
 
-Verify real-world handling of chapter name, Study name, FEN/SetUp, variant, orientation,
-mode, player/result data, Event/Site/Date, and other tags. Preserve tags even when PyChess
-does not interpret them. Infer behavioral fields only when the source gives enough
-information; do not invent missing metadata.
+The six-study corpus (182 chapters) has been checked for chapter/Study names, FEN/SetUp,
+variant, orientation, mode, player/result data, Event/Site/Date/Round, ratings/titles/FIDE
+IDs, TimeControl, Termination, ECO/Opening, Annotator, and other retained tags. The audit
+verified that:
+
+- a consistent Lichess `StudyName` restores the Study title for new-Study imports, while
+  conflicting/missing values are not guessed;
+- `ChapterName` becomes the chapter name, with the existing player/Event fallbacks used
+  only when it is absent;
+- behavioral/structural tags (`FEN`, `SetUp`, `Variant`, orientation, mode and PyChess
+  extension tags) are consumed into authoritative chapter fields and regenerated from the
+  saved chapter on export rather than trusted as free-form overrides;
+- ordinary source metadata is kept even when PyChess does not interpret it, including the
+  newer official puzzle pack's player ratings, titles, FIDE IDs, broadcast `Site`, `Round`,
+  `TimeControl`, `ECO`/`Opening`, and literal unknown values such as `?`;
+- imported `Annotator` is preserved as source provenance and used as the default author
+  when comments are exported. Previously the exporter replaced all 182 real-corpus
+  `Annotator` tags with the current PyChess Study owner, forcing otherwise-default source
+  comments to be rewritten with redundant `[%anno ...]` directives. PyChess now matches
+  Lichess here: an existing Annotator survives, while native chapters without one still
+  receive the current Study owner.
+
+A reduced regression based on the 2026 official FIDE puzzle pack covers the rich metadata
+case without committing the full third-party Study export. Future work on chapter metadata
+should be driven by a concrete export that demonstrates a new loss or ambiguity.
 
 ### E. Malformed-but-common PGN tolerance
 
@@ -423,7 +444,7 @@ JavaScript/Python wheelhouses are useful when full validation is needed.
 The continuation workflow should be:
 
 1. Read `AGENTS.md`, this document, and the PGN section of `docs/Study.md`.
-2. Start from **Remaining compatibility checklist D** unless a newly reported concrete
+2. Start from **Remaining compatibility checklist E** unless a newly reported concrete
    import bug takes priority.
 3. Compare with current Lila behavior when implementing Lichess compatibility rather than
    inventing a new convention.

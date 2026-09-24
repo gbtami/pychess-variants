@@ -218,7 +218,10 @@ function chapterTags(study: StudyPgnContext, chapter: StudyPgnChapterData): Arra
     tags.set('StudyName', study.name);
     tags.set('ChapterName', chapter.name);
     tags.set('ChapterURL', chapterUrl);
-    tags.set('Annotator', `${study.home}/@/${study.owner}`);
+    // An imported Annotator is source provenance and also the default author for
+    // imported comments. Match Lichess by keeping it; native chapters fall back
+    // to the current Study owner.
+    if (!tags.has('Annotator')) tags.set('Annotator', `${study.home}/@/${study.owner}`);
     tags.set('Orientation', chapter.orientation);
     tags.set('PyChessVariant', chapter.variant);
     tags.set('PyChessStudyVersion', PYCHESS_STUDY_PGN_VERSION);
@@ -297,7 +300,7 @@ export function renderStudyChapterPgn(study: StudyPgnContext, chapter: StudyPgnC
     // PGN representation; export that first move as the mainline instead of
     // producing an invalid document that starts with "(1. ...)".
     if (tree.root.children[0]?.forceVariation) tree.root.children[0].forceVariation = false;
-    const annotator = `${study.home}/@/${study.owner}`;
+    const annotator = chapter.tags['Annotator']?.trim() || `${study.home}/@/${study.owner}`;
     const moveText = renderFullTreePgnMoveText(tree, nodeSan, node => nodeSuffix(node, annotator));
     const initialComments = annotationComments(tree.root.annotations, true, annotator);
     const body = [
