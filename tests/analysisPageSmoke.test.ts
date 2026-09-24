@@ -488,6 +488,34 @@ describe('analysis page smoke coverage', () => {
             root.querySelector<HTMLSelectElement>('#chapter-settings-ChAp0001 select[name="description"]')?.value,
         ).toBe('1');
         expect(study.chapters[0].descriptionPinned).toBe(true);
+
+        study.isOwner = false;
+        study.canWrite = false;
+        study.chapter.source = { kind: 'import' };
+        study.chapter.tags = {
+            ...study.chapter.tags,
+            Event: 'World Blitz 2025 Open',
+            Result: '0-1',
+        };
+        study.chapter.tree = { nodes: [] };
+        const importedRoot = renderNodes(studyView(makeModel({ gameId: '', status: 0, study })));
+
+        expect(importedRoot.querySelector('.study-app')?.classList.contains('has-players')).toBe(true);
+        expect(importedRoot.querySelector('.study__player-top .name')?.textContent).toBe('Bob');
+        expect(importedRoot.querySelector('.study__player-top .name')?.tagName).toBe('SPAN');
+        expect(importedRoot.querySelector('.study__player-top .result')?.textContent).toBe('1');
+        expect(importedRoot.querySelector('.study__player-bot .result')?.textContent).toBe('0');
+        expect(importedRoot.querySelector('.study__player .anal-clock')).toBeNull();
+
+        study.chapter.mode = 'gamebook';
+        study.chapters[0].mode = 'gamebook';
+        study.modeOverride = 'analysis';
+        const metadataRoot = renderNodes(studyView(makeModel({ gameId: '', status: 0, study })));
+        const playbackTags = metadataRoot.querySelector('.study-gamebook-play__metadata .study-tags');
+        expect(playbackTags).not.toBeNull();
+        expect(playbackTags?.textContent).toContain('World Blitz 2025 Open');
+        expect(playbackTags?.textContent).toContain('Alice');
+        expect(metadataRoot.querySelector('.study-gamebook-play__metadata #study-panel-tags')).toBeNull();
     });
 
     test('read-only study view hides mutation controls while keeping sharing available', () => {

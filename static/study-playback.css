@@ -75,7 +75,7 @@
     border: 0;
     border-radius: 0 0 3px 3px;
     background: transparent;
-    color: var(--link-color);
+    color: var(--link-color-blue);
     font: inherit;
     font-size: 1rem;
     text-align: left;
@@ -297,13 +297,35 @@ button.study-gamebook-play__feedback.act:focus-visible {
     color: var(--link-color-blue);
 }
 
-.study-gamebook-play-underboard > .study-underboard__title {
+.study-gamebook-play__metadata {
+    overflow: hidden;
+    border-radius: 3px;
+    background: var(--bg-color0);
+    box-shadow: var(--base-shadow);
+}
+
+.study-gamebook-play__metadata > .study-underboard__title {
     margin: 0;
     padding: .45rem .6rem;
     border-bottom: 1px solid var(--border-color);
     background: var(--bg-color0);
-    box-shadow: var(--base-shadow);
     font-size: 1rem;
+}
+
+.study-gamebook-play__tags {
+    margin: 0;
+}
+
+.study-gamebook-play__tags th {
+    width: 1%;
+    color: color-mix(in srgb, var(--font-color) 70%, transparent);
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.study-gamebook-play__tags th,
+.study-gamebook-play__tags td {
+    padding: .55rem .7rem;
 }
 
 @media (max-width: 799px) {

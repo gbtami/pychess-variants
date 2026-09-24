@@ -1728,7 +1728,7 @@ function studyTag(study: StudyPageModel, name: string): string | undefined {
 }
 
 function studyHasGamePlayers(study: StudyPageModel): boolean {
-    return study.chapter.source?.kind === 'game' && Boolean(studyTag(study, 'White') && studyTag(study, 'Black'));
+    return Boolean(studyTag(study, 'White') && studyTag(study, 'Black'));
 }
 
 function studyPlayerIdentity(study: StudyPageModel, color: 'white' | 'black'): VNode {
@@ -1743,11 +1743,14 @@ function studyPlayerIdentity(study: StudyPageModel, color: 'white' | 'black'): V
         gameResult && /^(1-0|0-1|1\/2-1\/2|½-½)$/.test(gameResult)
             ? gameResult.split('-')[color === 'white' ? 0 : 1].replace('1/2', '½')
             : undefined;
+    const name = displayUsername(username);
+    const playerName =
+        study.chapter.source?.kind === 'game' ? userLink(username, name, { className: 'name' }) : h('span.name', name);
     return h('div.left', [
         ...(score ? [h(`${score === '1' ? 'good' : score === '0' ? 'bad' : 'span'}.result`, score)] : []),
         h('span.info', [
             ...(title ? [h('player-title', title)] : []),
-            userLink(username, displayUsername(username), { className: 'name' }),
+            playerName,
             ...(shownRating ? [h('span.elo', shownRating)] : []),
         ]),
     ]);
@@ -1762,15 +1765,22 @@ function studyPlayerColorAt(
     return orientation === 'white' ? 'black' : 'white';
 }
 
+function studyHasClockData(study: StudyPageModel): boolean {
+    return Boolean(study.chapter.tree.rootClocks || study.chapter.tree.nodes.some(node => node.clocks));
+}
+
 function studyPlayerBar(
     study: StudyPageModel,
     placement: 'top' | 'bottom',
     orientation = study.chapter.orientation,
 ): VNode {
     const clockId = placement === 'top' ? 'anal-clock-top' : 'anal-clock-bottom';
+    const clock = studyHasClockData(study)
+        ? h(`div#${clockId}.anal-clock.${placement}`, '-')
+        : h(`div#${clockId}.study__player-clock-placeholder`);
     return h(`div.study__player.study__player-${placement === 'bottom' ? 'bot' : 'top'}`, [
         studyPlayerIdentity(study, studyPlayerColorAt(study, placement, orientation)),
-        h(`div#${clockId}.anal-clock.${placement}`, '-'),
+        clock,
     ]);
 }
 
@@ -1841,6 +1851,16 @@ export function updateStudyUnderboardChapter(
     if (preview) preview.hidden = study.chapter.mode !== 'gamebook';
 }
 
+function studyTagsTable(study: StudyPageModel, playback = false): VNode {
+    return h(
+        `table.study-tags${playback ? '.study-gamebook-play__tags' : ''}`,
+        { attrs: { 'data-study-tags': '' } },
+        Object.entries(study.chapter.tags).map(([key, value]) =>
+            h('tr', { key }, [h('th', { attrs: { scope: 'row' } }, key), h('td', value)]),
+        ),
+    );
+}
+
 function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions: StudyModeActions): VNode {
     const defaultTab: StudyTab = 'tags';
     const policy = effectiveStudySessionPolicy(study);
@@ -1861,7 +1881,7 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions
     return h('div.study-underboard', [
         h('div.study-gamebook-play-underboard', [
             h('div.study-gamebook-play-buttons', { attrs: { hidden: 'true' } }),
-            studyMetadataTitle(study),
+            h('div.study-gamebook-play__metadata', [studyMetadataTitle(study), studyTagsTable(study, true)]),
         ]),
         studyPinnedChapterComment(study, modeActions),
         studyGamebookStatus(study, modeActions),
@@ -1919,12 +1939,7 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions
         toolPanel('tags', [
             studyMetadataTitle(study),
             studyTopicsView(study),
-            h(
-                'table.study-tags',
-                Object.entries(study.chapter.tags).map(([key, value]) =>
-                    h('tr', { key }, [h('th', { attrs: { scope: 'row' } }, key), h('td', value)]),
-                ),
-            ),
+            studyTagsTable(study),
             ...(study.canWrite
                 ? [
                       h('details.study-annotations__tags', [
@@ -2031,8 +2046,7 @@ function updateStudyMetadataPanel(
     modeActions: StudyModeActions,
     state: StudyAnnotationState,
 ): void {
-    const table = document.querySelector('.study-tags');
-    if (table)
+    document.querySelectorAll<HTMLTableElement>('[data-study-tags]').forEach(table => {
         table.replaceChildren(
             ...Object.entries(state.tags).map(([key, value]) => {
                 const row = document.createElement('tr');
@@ -2045,6 +2059,7 @@ function updateStudyMetadataPanel(
                 return row;
             }),
         );
+    });
 
     study.chapter.description = state.description;
     study.chapter.tags = { ...state.tags };
