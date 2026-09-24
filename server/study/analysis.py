@@ -671,6 +671,7 @@ def _merge_analysis_into_tree(
         nodes,
         root_annotations=chapter.root.root_annotations,
         root_gamebook=chapter.root.root_gamebook,
+        root_eval_score=chapter.root.root_eval_score,
         root_clocks=chapter.root.root_clocks,
     )
 

@@ -91,6 +91,7 @@ class StudyChapterBuilderTestCase(unittest.IsolatedAsyncioTestCase):
         root_fen = FairyBoard.start_fen("chess")
         submitted = {
             "rootGamebook": {"hint": "Root lesson"},
+            "rootEval": {"cp": 18},
             "rootAnnotations": {
                 "shapes": [{"orig": "e4", "brush": "blue"}],
                 "comments": [{"id": "Comment001", "author": "spoofed", "text": "Root note"}],
@@ -160,6 +161,7 @@ class StudyChapterBuilderTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(draft.root.root_annotations.comments[0].text, "Root note")
         self.assertEqual(draft.root.root_annotations.comments[0].author, "owner")
         self.assertEqual(draft.root.root_gamebook.hint, "Root lesson")
+        self.assertEqual(draft.root.root_eval_score, {"cp": 18})
         self.assertEqual(first.gamebook.deviation, "Node lesson")
         self.assertEqual(first.annotations.comments[0].text, "Node note")
         self.assertEqual(first.annotations.comments[0].author, "owner")

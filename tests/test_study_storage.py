@@ -608,6 +608,7 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
                 comments=(StudyComment("Comment001", "owner", "Root note"),)
             ),
             root_gamebook=StudyGamebook(hint="Remove root lesson"),
+            root_eval_score={"cp": 25},
             root_clocks=(300000, 300000),
         )
         chapter = replace(chapter, root=tree)
@@ -624,6 +625,7 @@ class StudyStorageTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(all(node.annotations.empty for node in loaded.root.nodes.values()))
         self.assertTrue(loaded.root.root_gamebook.empty)
         self.assertTrue(loaded.root.nodes[main.id].gamebook.empty)
+        self.assertEqual(loaded.root.root_eval_score, {"cp": 25})
         self.assertEqual(loaded.root.root_clocks, (300000, 300000))
         self.assertEqual(loaded.root.nodes[main.id].clocks, (298000, 300000))
 

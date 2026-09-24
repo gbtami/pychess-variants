@@ -190,6 +190,7 @@ class StudyMutationService:
                 nodes,
                 root_annotations=chapter.root.root_annotations,
                 root_gamebook=chapter.root.root_gamebook,
+                root_eval_score=chapter.root.root_eval_score,
                 root_clocks=chapter.root.root_clocks,
             ),
         )
@@ -260,6 +261,7 @@ class StudyMutationService:
                 nodes,
                 root_annotations=chapter.root.root_annotations,
                 root_gamebook=chapter.root.root_gamebook,
+                root_eval_score=chapter.root.root_eval_score,
                 root_clocks=chapter.root.root_clocks,
             ),
         )
@@ -347,6 +349,7 @@ class StudyMutationService:
                 nodes,
                 root_annotations=chapter.root.root_annotations,
                 root_gamebook=chapter.root.root_gamebook,
+                root_eval_score=chapter.root.root_eval_score,
                 root_clocks=chapter.root.root_clocks,
             ),
         )
@@ -410,6 +413,7 @@ class StudyMutationService:
                 nodes,
                 root_annotations=chapter.root.root_annotations,
                 root_gamebook=chapter.root.root_gamebook,
+                root_eval_score=chapter.root.root_eval_score,
                 root_clocks=chapter.root.root_clocks,
             ),
         )
@@ -570,6 +574,7 @@ class StudyMutationService:
                 nodes,
                 root_annotations=chapter.root.root_annotations,
                 root_gamebook=chapter.root.root_gamebook,
+                root_eval_score=chapter.root.root_eval_score,
                 root_clocks=chapter.root.root_clocks,
             )
             annotation_field = f"root.{target.id}.a"
@@ -588,6 +593,7 @@ class StudyMutationService:
                 nodes,
                 root_annotations=empty_annotations,
                 root_gamebook=empty_gamebook,
+                root_eval_score=chapter.root.root_eval_score,
                 root_clocks=chapter.root.root_clocks,
             )
             annotation_field = "root._.a"
@@ -760,6 +766,7 @@ class StudyMutationService:
                 nodes,
                 root_annotations=chapter.root.root_annotations,
                 root_gamebook=chapter.root.root_gamebook,
+                root_eval_score=chapter.root.root_eval_score,
                 root_clocks=chapter.root.root_clocks,
             )
             gamebook_field = f"root.{target.id}.g"
@@ -768,6 +775,7 @@ class StudyMutationService:
                 nodes,
                 root_annotations=chapter.root.root_annotations,
                 root_gamebook=canonical,
+                root_eval_score=chapter.root.root_eval_score,
                 root_clocks=chapter.root.root_clocks,
             )
             gamebook_field = "root._.g"
@@ -824,6 +832,7 @@ class StudyMutationService:
                 nodes,
                 root_annotations=chapter.root.root_annotations,
                 root_gamebook=chapter.root.root_gamebook,
+                root_eval_score=chapter.root.root_eval_score,
                 root_clocks=chapter.root.root_clocks,
             )
             annotation_field = f"root.{target.id}.a"
@@ -832,6 +841,7 @@ class StudyMutationService:
                 nodes,
                 root_annotations=annotations,
                 root_gamebook=chapter.root.root_gamebook,
+                root_eval_score=chapter.root.root_eval_score,
                 root_clocks=chapter.root.root_clocks,
             )
             annotation_field = "root._.a"

@@ -301,6 +301,7 @@ export function renderStudyChapterPgn(study: StudyPgnContext, chapter: StudyPgnC
     const moveText = renderFullTreePgnMoveText(tree, nodeSan, node => nodeSuffix(node, annotator));
     const initialComments = annotationComments(tree.root.annotations, true, annotator);
     const body = [
+        evalComment(tree.root),
         ...initialComments,
         gamebookComment(tree.root.gamebook),
         fullClockComment(tree.root.step.clocks),

@@ -557,6 +557,7 @@ class StudyChapterBuilder:
                 tree.root_annotations, comment_author, preserve_comment_attribution
             ),
             root_gamebook=tree.root_gamebook,
+            root_eval_score=tree.root_eval_score,
             root_clocks=tree.root_clocks,
         )
 

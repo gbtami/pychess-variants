@@ -65,6 +65,7 @@ export interface StudyTreeDto {
     nodes: StudyTreeNodeDto[];
     rootAnnotations?: StudyAnnotationsDto;
     rootGamebook?: StudyGamebookDto;
+    rootEval?: StudyEvalDto;
     rootClocks?: [number, number];
 }
 
@@ -269,6 +270,7 @@ function parentKey(parentId: string | null): string {
 
 export function analysisTreeFromStudy(rootStep: Step, dto: StudyTreeDto): AnalysisTree {
     const rootGamebook = dto.rootGamebook === undefined ? undefined : analysisGamebookFromStudy(dto.rootGamebook);
+    const rootEval = cevalFromStudyEval(dto.rootEval);
     if (dto.rootClocks !== undefined) {
         if (
             !Array.isArray(dto.rootClocks) ||
@@ -311,6 +313,7 @@ export function analysisTreeFromStudy(rootStep: Step, dto: StudyTreeDto): Analys
         mainlinePly: 0,
         annotations: analysisAnnotationsFromStudy(dto.rootAnnotations),
         gamebook: rootGamebook,
+        eval: rootEval,
     };
     const tree: AnalysisTree = {
         root,
@@ -378,6 +381,7 @@ export function studyTreeFromAnalysisTree(tree: AnalysisTree): StudyTreeDto {
     const nodes: StudyTreeNodeDto[] = [];
     const rootAnnotations = studyAnnotationsFromAnalysis(tree.root.annotations);
     const rootGamebook = studyGamebookFromAnalysis(tree.root.gamebook);
+    const rootEval = studyEvalFromCeval(tree.root.eval);
     const rootClocks = tree.root.step.clocks ? ([...tree.root.step.clocks] as [number, number]) : undefined;
     const used = new Set<string>();
     const queue: Array<{ parent: AnalysisTreeNode; stableParentId: string | null }> = [
@@ -417,6 +421,7 @@ export function studyTreeFromAnalysisTree(tree: AnalysisTree): StudyTreeDto {
         nodes,
         ...(rootAnnotations ? { rootAnnotations } : {}),
         ...(rootGamebook ? { rootGamebook } : {}),
+        ...(rootEval ? { rootEval } : {}),
         ...(rootClocks ? { rootClocks } : {}),
     };
 }
@@ -596,6 +601,11 @@ export function mergeStudyTreeIntoAnalysisTree(tree: AnalysisTree, dto: StudyTre
         }
     } else {
         tree.root.gamebook = undefined;
+    }
+    try {
+        tree.root.eval = cevalFromStudyEval(dto.rootEval);
+    } catch {
+        return false;
     }
     if (dto.rootClocks !== undefined) {
         if (

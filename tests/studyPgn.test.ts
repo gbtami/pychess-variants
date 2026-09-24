@@ -177,6 +177,7 @@ describe('Study PGN export', () => {
 
     test('preserves result, clocks and evaluations with compatible PGN directives', () => {
         const data = chapter();
+        data.tree.rootEval = { cp: 25 };
         data.tree.rootClocks = [300000, 300000];
         data.tree.nodes[0].clocks = [298765, 300000];
         data.tree.nodes[0].eval = { cp: -42 };
@@ -186,6 +187,7 @@ describe('Study PGN export', () => {
         const pgn = renderStudyChapterPgn(study, data);
 
         expect(pgn).toContain('[Result "1-0"]');
+        expect(pgn).toContain('{[%eval 0.25]}');
         expect(pgn).toContain('{[%pyclocks 300000,300000]}');
         expect(pgn).toContain(
             'e4! {[%eval 0.42]} {King pawn} {[%cal Re2e4]} {[%clk 0:04:59]} {[%pyclocks 298765,300000]}',

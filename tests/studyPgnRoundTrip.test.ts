@@ -60,6 +60,7 @@ function semanticTree(tree: StudyTreeDto) {
     return {
         rootAnnotations: annotations(tree.rootAnnotations),
         rootGamebook: tree.rootGamebook,
+        rootEval: tree.rootEval,
         rootClocks: tree.rootClocks,
         children: children(null),
     };
@@ -85,6 +86,7 @@ function annotatedChapter(): StudyPgnChapterData {
                 nags: [3, 14],
             },
             rootGamebook: { hint: 'Find the central idea' },
+            rootEval: { cp: 17 },
             rootClocks: [300000, 300000],
             nodes: [
                 {

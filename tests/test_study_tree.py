@@ -104,13 +104,15 @@ class StudyTreeTestCase(unittest.TestCase):
             },
             root_annotations=root_annotations,
             root_gamebook=StudyGamebook(hint="Root hint"),
+            root_eval_score={"mate": -2},
             root_clocks=(300000, 300000),
         )
 
         doc = tree.to_document()
         self.assertEqual(doc[STUDY_TREE_ROOT_KEY]["a"]["n"], [1, 3])  # type: ignore[index]
         self.assertEqual(doc[STUDY_TREE_ROOT_KEY]["k"], [300000, 300000])  # type: ignore[index]
-        self.assertEqual(doc[STUDY_TREE_ROOT_KEY]["g"], {"h": "Root hint"})  # type: ignore[index]
+        self.assertEqual(doc[STUDY_TREE_ROOT_KEY]["g"], {"h": "Root hint"})
+        self.assertEqual(doc[STUDY_TREE_ROOT_KEY]["e"], {"mate": -2})  # type: ignore[index]
         self.assertIn("a", doc[ROOT_A])  # type: ignore[operator]
         self.assertEqual(
             doc[ROOT_A]["g"],  # type: ignore[index]
@@ -124,6 +126,7 @@ class StudyTreeTestCase(unittest.TestCase):
         self.assertEqual(payload["rootAnnotations"]["nags"], [1, 3])  # type: ignore[index]
         self.assertEqual(payload["rootClocks"], [300000, 300000])
         self.assertEqual(payload["rootGamebook"], {"hint": "Root hint"})
+        self.assertEqual(payload["rootEval"], {"mate": -2})
         self.assertEqual(
             payload["nodes"][0]["gamebook"],  # type: ignore[index]
             {"hint": "Node hint", "deviation": "Try another move"},
@@ -156,6 +159,12 @@ class StudyTreeTestCase(unittest.TestCase):
         self.assertEqual(restored.path_for_node(DEEP_A), path)
         self.assertEqual(restored.node_at_path(path), restored.nodes[DEEP_A])
         self.assertIsNone(restored.node_at_path(f"{ROOT_B}.{CHILD_A}"))
+
+    def test_rejects_malformed_root_eval(self) -> None:
+        payload = StudyTree().to_payload()
+        payload["rootEval"] = {"cp": "bad"}
+        with self.assertRaises(TypeError):
+            StudyTree.from_payload(payload)
 
     def test_rejects_malformed_node_eval(self) -> None:
         payload = make_node(ROOT_A).to_payload()

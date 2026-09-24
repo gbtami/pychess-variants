@@ -218,6 +218,15 @@ result, a visible root comment now acts as a signal that the learner is the root
 move. Lessons whose first prompt follows a scripted opponent move have no root prompt and
 continue to use the final-mainline-mover heuristic.
 
+### Additional fix found during root-node audit: root evaluations
+
+`[%eval ...]` was already parsed for every PGN comment, but the normalization path only
+attached it to move nodes. A root-position evaluation was therefore silently discarded.
+Study trees now carry a first-class root evaluation through client DTO conversion, server
+validation/storage, mutations, analysis-tree reconstruction, and PGN re-export. As with
+move-node evaluations, imported PGN values are converted from White POV to the side-to-move
+POV used internally, then converted back to White POV when exported.
+
 ## PyChess-specific lossless extensions
 
 PyChess Study export has extensions for information ordinary PGN cannot fully express,
@@ -266,11 +275,12 @@ rendered differently. Check especially:
 - FEN/root-position handling;
 - chapter tags and description-like metadata.
 
-The current corpus now parses/replays cleanly and has been mechanically audited for these
-annotation classes. That pass found and fixed the root-prompt gamebook orientation loss
-described above. Continue this item with position-by-position semantic comparison against
-the Lichess source, because silent semantic loss is now more likely than syntax/replay
-failure.
+The current corpus now parses/replays cleanly. A mechanical import -> PyChess export ->
+re-import comparison across all five studies also preserved the authored tree semantics
+that the source PGNs actually contain. That pass found and fixed the root-prompt gamebook
+orientation loss described above. Continue this item with position-by-position semantic
+comparison against the Lichess source, because silent semantic loss not represented by the
+current corpus is now more likely than syntax/replay failure.
 
 ### B. Interactive/gamebook metadata parity
 
@@ -288,9 +298,10 @@ importer loses or misinterprets.
 ### C. Root-node annotation audit
 
 Add explicit import/round-trip cases for every annotation type that is meaningful on the
-root position, especially comments, circles/arrows, clocks, evaluations, and PyChess root
-NAG extensions. Root positions are an easy place for otherwise-correct move-oriented code
-to lose metadata.
+root position. Comments, circles/arrows, clocks, evaluations, and PyChess root NAG
+extensions now have coverage; keep this item open while the real-source visual/semantic
+audit continues, because root positions are an easy place for otherwise-correct
+move-oriented code to lose metadata.
 
 ### D. Chapter metadata audit
 

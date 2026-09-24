@@ -826,6 +826,7 @@ function normalizeGame(engine: StudyPgnEngine, game: ParsedStudyPgnGame, index: 
             defaultSourceAuthor,
         );
         const timeControl = parsePgnTimeControl(tags['TimeControl']);
+        const rootEval = evalForTurn(rootComments.whiteEval, turnColorFromFen(initialFen));
         const rootClocks: [number, number] | undefined = rootComments.clocks
             ? [...rootComments.clocks]
             : timeControl
@@ -864,6 +865,7 @@ function normalizeGame(engine: StudyPgnEngine, game: ParsedStudyPgnGame, index: 
                 nodes,
                 ...(rootComments.annotations ? { rootAnnotations: rootComments.annotations } : {}),
                 ...(rootComments.gamebook ? { rootGamebook: rootComments.gamebook } : {}),
+                ...(rootEval ? { rootEval } : {}),
                 ...(rootClocks ? { rootClocks } : {}),
             },
             ...(variantIni ? { variantIni } : {}),

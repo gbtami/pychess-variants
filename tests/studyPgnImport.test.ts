@@ -278,7 +278,7 @@ describe('Study PGN import core', () => {
     test('imports result, clock and evaluation directives without turning them into visible comments', () => {
         const parsed = parsedDocument();
         parsed.games[0].tags.Result = '1-0';
-        parsed.games[0].comments = ['Root note [%csl Ge4] [%pynag 3] [%pyclocks 300000,300000]'];
+        parsed.games[0].comments = ['Root note [%csl Ge4] [%pynag 3] [%eval 0.25] [%pyclocks 300000,300000]'];
         const e4 = parsed.games[0].children[0];
         e4.comments = ['King pawn [%cal Re2e4] [%eval 0.42] [%clk 0:04:59] [%pyclocks 298765,300000]'];
         const e5 = e4.children![0];
@@ -290,6 +290,7 @@ describe('Study PGN import core', () => {
         const e5Node = chapter.tree.nodes.find(node => node.parentId === e4Node.id && node.order === 0)!;
 
         expect(chapter.tags.Result).toBe('1-0');
+        expect(chapter.tree.rootEval).toEqual({ cp: 25 });
         expect(chapter.tree.rootClocks).toEqual([300000, 300000]);
         expect(e4Node.eval).toEqual({ cp: -42 });
         expect(e4Node.clocks).toEqual([298765, 300000]);
@@ -297,6 +298,18 @@ describe('Study PGN import core', () => {
         expect(e5Node.eval).toEqual({ mate: 3 });
         expect(e5Node.clocks).toEqual([298765, 297234]);
         expect(e5Node.annotations).toBeUndefined();
+    });
+
+    test('stores root evaluations from the initial side-to-move point of view', async () => {
+        const [chapter] = await parseStudyPgnForImport(
+            studyPgnParser,
+            ffish,
+            `[FEN "4k3/8/8/8/8/8/8/4K3 b - - 0 1"]
+
+{[%eval 0.25]} *`,
+        );
+
+        expect(chapter.tree.rootEval).toEqual({ cp: -25 });
     });
 
     test('imports standard clock directives by carrying known clocks down each variation', () => {

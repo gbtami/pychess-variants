@@ -350,11 +350,17 @@ class StudyTree:
     nodes: Mapping[str, StudyTreeNode] = field(default_factory=dict)
     root_annotations: StudyAnnotations = field(default_factory=StudyAnnotations)
     root_gamebook: StudyGamebook = field(default_factory=StudyGamebook)
+    root_eval_score: Mapping[str, int] | None = None
     root_clocks: tuple[int | float, int | float] | None = None
 
     def __post_init__(self) -> None:
         nodes = dict(self.nodes)
         object.__setattr__(self, "nodes", nodes)
+        object.__setattr__(
+            self,
+            "root_eval_score",
+            _canonical_eval_score(self.root_eval_score, context="Study root eval"),
+        )
         object.__setattr__(
             self,
             "root_clocks",
@@ -470,6 +476,8 @@ class StudyTree:
             root_record["a"] = self.root_annotations.to_document()
         if not self.root_gamebook.empty:
             root_record["g"] = self.root_gamebook.to_document()
+        if self.root_eval_score is not None:
+            root_record["e"] = dict(self.root_eval_score)
         if self.root_clocks is not None:
             root_record["k"] = list(self.root_clocks)
         doc: dict[str, object] = {STUDY_TREE_ROOT_KEY: root_record}
@@ -488,10 +496,11 @@ class StudyTree:
         raw_root_gamebook = raw_root.get("g", {})
         if not isinstance(raw_root_gamebook, Mapping):
             raise TypeError("Study tree root gamebook record must be a mapping")
-        unexpected_root_keys = set(raw_root) - {"a", "g", "k"}
+        unexpected_root_keys = set(raw_root) - {"a", "g", "e", "k"}
         if unexpected_root_keys:
             raise ValueError("Study tree root record contains unsupported fields")
         root_annotations = StudyAnnotations.from_document(raw_root_annotations)
+        root_eval_score = _canonical_eval_score(raw_root.get("e"), context="Study root eval")
         root_clocks = _canonical_clocks(raw_root.get("k"), context="Study root clocks")
 
         nodes: dict[str, StudyTreeNode] = {}
@@ -507,6 +516,7 @@ class StudyTree:
             nodes,
             root_annotations=root_annotations,
             root_gamebook=StudyGamebook.from_document(raw_root_gamebook),
+            root_eval_score=root_eval_score,
             root_clocks=root_clocks,
         )
 
@@ -530,6 +540,8 @@ class StudyTree:
             payload["rootAnnotations"] = self.root_annotations.to_payload()
         if not self.root_gamebook.empty:
             payload["rootGamebook"] = self.root_gamebook.to_payload()
+        if self.root_eval_score is not None:
+            payload["rootEval"] = dict(self.root_eval_score)
         if self.root_clocks is not None:
             payload["rootClocks"] = list(self.root_clocks)
         return payload
@@ -539,6 +551,9 @@ class StudyTree:
         raw_nodes = payload.get("nodes")
         raw_root_annotations = payload.get("rootAnnotations", {})
         raw_root_gamebook = payload.get("rootGamebook", {})
+        raw_root_eval_score = _canonical_eval_score(
+            payload.get("rootEval"), context="Study tree payload field 'rootEval'"
+        )
         raw_root_clocks = _canonical_clocks(
             payload.get("rootClocks"), context="Study tree payload field 'rootClocks'"
         )
@@ -560,5 +575,6 @@ class StudyTree:
             nodes,
             root_annotations=StudyAnnotations.from_payload(raw_root_annotations),
             root_gamebook=StudyGamebook.from_payload(raw_root_gamebook),
+            root_eval_score=raw_root_eval_score,
             root_clocks=raw_root_clocks,
         )
