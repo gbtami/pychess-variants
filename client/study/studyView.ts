@@ -902,55 +902,56 @@ function studyMoveIndex(ply: number): string {
     return `${Math.ceil(ply / 2)}${ply % 2 === 1 ? '.' : '...'}`;
 }
 
-export function renderStudyMoveListFooter(
+export function renderStudyMoveListEnd(
     study: StudyPageModel,
     ctrl: AnalysisController,
     goToChapter: (chapterId: string) => void,
 ): VNode[] {
     if (!effectiveStudySessionPolicy(study).tools.fullTree) return [];
 
-    const footer: VNode[] = [];
     const nextChapter = nextStudyChapter(study);
-    if (nextChapter) {
-        footer.push(
-            h(
-                'button.study-next-chapter',
-                {
-                    class: { highlighted: ctrl.analysisPath === ctrl.getTreeMainlineEndPath() },
-                    attrs: { type: 'button', title: nextChapter.name },
-                    on: { click: () => goToChapter(nextChapter.id) },
-                },
-                [icon('play'), h('span', _('Next chapter'))],
-            ),
-        );
-    }
+    if (!nextChapter) return [];
+    return [
+        h(
+            'button.study-next-chapter',
+            {
+                class: { highlighted: ctrl.analysisPath === ctrl.getTreeMainlineEndPath() },
+                attrs: { type: 'button', title: nextChapter.name },
+                on: { click: () => goToChapter(nextChapter.id) },
+            },
+            [icon('play'), h('span', _('Next chapter'))],
+        ),
+    ];
+}
+
+export function renderStudyMoveListFooter(study: StudyPageModel, ctrl: AnalysisController): VNode[] {
+    if (!effectiveStudySessionPolicy(study).tools.fullTree) return [];
 
     const current = ctrl.getTreeNodeAtPath(ctrl.analysisPath ?? '');
     const forks =
         current?.children.filter(child => ctrl.analysisExtension?.isTreeNodeVisible?.(child) !== false) ?? [];
-    if (forks.length > 1) {
-        const selectedPath = ctrl.getTreeMainChildPath();
-        footer.push(
-            h(
-                'div.study-move-fork',
-                forks.map(child =>
-                    h(
-                        'button.study-move-fork__move',
-                        {
-                            class: { selected: child.path === selectedPath },
-                            attrs: { type: 'button', 'data-path': child.path },
-                            on: { click: () => ctrl.activateTreePath(child.path) },
-                        },
-                        [
-                            h('span.study-move-fork__index', studyMoveIndex(child.ply)),
-                            h('span.study-move-fork__san', child.step.san ?? child.step.sanSAN ?? child.step.move ?? '?'),
-                        ],
-                    ),
+    if (forks.length <= 1) return [];
+
+    const selectedPath = ctrl.getTreeMainChildPath();
+    return [
+        h(
+            'div.study-move-fork',
+            forks.map(child =>
+                h(
+                    'button.study-move-fork__move',
+                    {
+                        class: { selected: child.path === selectedPath },
+                        attrs: { type: 'button', 'data-path': child.path },
+                        on: { click: () => ctrl.activateTreePath(child.path) },
+                    },
+                    [
+                        h('span.study-move-fork__index', studyMoveIndex(child.ply)),
+                        h('span.study-move-fork__san', child.step.san ?? child.step.sanSAN ?? child.step.move ?? '?'),
+                    ],
                 ),
             ),
-        );
-    }
-    return footer;
+        ),
+    ];
 }
 
 function refreshStudyModeButtons(study: StudyPageModel): void {
@@ -2392,8 +2393,9 @@ function runStudyGround(
                     updateStudyTopicsView(study);
                 },
                 contextMenuActions: policy.tools.annotations ? path => studyContextMenu(analysisCtrl, path) : undefined,
-                renderMoveListFooter: () =>
-                    renderStudyMoveListFooter(study, analysisCtrl, chapterId => void navigation?.go(chapterId, 'push')),
+                renderMoveListEnd: () =>
+                    renderStudyMoveListEnd(study, analysisCtrl, chapterId => void navigation?.go(chapterId, 'push')),
+                renderMoveListFooter: () => renderStudyMoveListFooter(study, analysisCtrl),
                 writable: study.canWrite,
                 recording: policy.recording,
             });

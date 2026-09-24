@@ -159,6 +159,7 @@ export interface StudySyncOptions {
     opIdFactory?: () => string;
     syncIdFactory?: () => string;
     contextMenuActions?: AnalysisExtension['contextMenuActions'];
+    renderMoveListEnd?: AnalysisExtension['renderMoveListEnd'];
     renderMoveListFooter?: AnalysisExtension['renderMoveListFooter'];
     writable?: boolean;
     recording?: boolean;
@@ -448,6 +449,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     readonly socketTarget: string;
     readonly treeStorageKey: string;
     readonly contextMenuActions?: AnalysisExtension['contextMenuActions'];
+    readonly renderMoveListEnd?: AnalysisExtension['renderMoveListEnd'];
     readonly renderMoveListFooter?: AnalysisExtension['renderMoveListFooter'];
     private readonly idleWaiters = new Set<{ resolve: () => void; reject: () => void }>();
     private currentRevision: number;
@@ -506,6 +508,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         this.onReloadRequired = options.onReloadRequired ?? (() => window.location.reload());
         this.onAnnotationStateChanged = options.onAnnotationStateChanged;
         this.contextMenuActions = options.contextMenuActions;
+        this.renderMoveListEnd = options.renderMoveListEnd;
         this.renderMoveListFooter = options.renderMoveListFooter;
         this.opIdFactory = options.opIdFactory ?? newStudyNodeId;
         this.syncIdFactory = options.syncIdFactory ?? newStudyNodeId;

@@ -44,9 +44,8 @@ jest.unstable_mockModule('../client/analysis/analysisSettings', () => ({
 
 const { analysisView, embedView, renderAnalysisPage } = await import('../client/analysis');
 const { puzzleView } = await import('../client/puzzle');
-const { renderStudyMoveListFooter, studyEmbedView, studyView, updateStudyUnderboardChapter } = await import(
-    '../client/study/studyView'
-);
+const { renderStudyMoveListEnd, renderStudyMoveListFooter, studyEmbedView, studyView, updateStudyUnderboardChapter } =
+    await import('../client/study/studyView');
 const { roundView } = await import('../client/round');
 
 function makeModel(overrides: Partial<PyChessModel> = {}): PyChessModel {
@@ -207,7 +206,7 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('#mainboard')).not.toBeNull();
         expect(root.querySelector('#movelist')).not.toBeNull();
         expect(root.querySelector('#movelist-footer')).not.toBeNull();
-        expect(root.querySelector('.analysis-tools > .movelist-block + .study-gamebook-edit')?.textContent).toBe(
+        expect(root.querySelector('.analysis-tools > #movelist-footer + .study-gamebook-edit')?.textContent).toBe(
             'Lesson authoring',
         );
         expect(root.querySelector('#move-controls')).not.toBeNull();
@@ -595,7 +594,7 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('.study-export__study')?.textContent).toBe('Download study PGN');
     });
 
-    test('Study move-list footer offers next chapter and visible fork choices', () => {
+    test('Study move list keeps next chapter scrollable and fork choices fixed', () => {
         const study = {
             canWrite: false,
             chapter: { id: 'ChAp0001', mode: 'normal' },
@@ -635,19 +634,20 @@ describe('analysis page smoke coverage', () => {
             activateTreePath,
         } as unknown as AnalysisController;
         const goToChapter = jest.fn();
-        const root = renderNodes(renderStudyMoveListFooter(study, ctrl, goToChapter));
+        const moveListEnd = renderNodes(renderStudyMoveListEnd(study, ctrl, goToChapter));
+        const footer = renderNodes(renderStudyMoveListFooter(study, ctrl));
 
-        const next = root.querySelector<HTMLButtonElement>('.study-next-chapter')!;
+        const next = moveListEnd.querySelector<HTMLButtonElement>('.study-next-chapter')!;
         expect(next.textContent).toContain('Next chapter');
         expect(next.classList.contains('highlighted')).toBe(true);
-        expect([...root.querySelectorAll('.study-move-fork__move')].map(move => move.textContent)).toEqual([
+        expect([...footer.querySelectorAll('.study-move-fork__move')].map(move => move.textContent)).toEqual([
             '1.e4',
             '1.e3',
             '1.d4',
         ]);
-        expect(root.querySelector('.study-move-fork__move.selected')?.getAttribute('data-path')).toBe('e4');
+        expect(footer.querySelector('.study-move-fork__move.selected')?.getAttribute('data-path')).toBe('e4');
 
-        root.querySelector<HTMLButtonElement>('[data-path="e3"]')!.click();
+        footer.querySelector<HTMLButtonElement>('[data-path="e3"]')!.click();
         expect(activateTreePath).toHaveBeenCalledWith('e3');
         next.click();
         expect(goToChapter).toHaveBeenCalledWith('ChAp0002');
@@ -955,7 +955,7 @@ describe('analysis tree movelist gating', () => {
 
     test('analysis extensions render move-list footer outside the scrolling move tree', () => {
         document.body.innerHTML =
-            '<div class="movelist-block"><div id="movelist"></div><div id="movelist-footer"></div></div>';
+            '<div class="movelist-block"><div id="movelist"></div></div><div id="movelist-footer"></div>';
 
         const steps: Step[] = [
             makeStep('start w - - 0 1', undefined, 'white'),
@@ -974,7 +974,10 @@ describe('analysis tree movelist gating', () => {
             mycolor: 'white',
             spectator: true,
             analysisTree: tree,
-            analysisExtension: { renderMoveListFooter: () => [h('button.study-next-chapter', 'Next chapter')] },
+            analysisExtension: {
+                renderMoveListEnd: () => [h('button.study-next-chapter', 'Next chapter')],
+                renderMoveListFooter: () => [h('button.study-move-fork', 'Forks')],
+            },
             hasAnalysisTree: () => true,
             isTreeInlineNotation: () => false,
             getTreeActivePath: () => tree.root.children[0].path,
@@ -984,10 +987,13 @@ describe('analysis tree movelist gating', () => {
         updateMovelist(ctrl, true, false, false);
         updateMovelist(ctrl, true, false, false);
 
-        expect(document.querySelector('#movelist .study-next-chapter')).toBeNull();
-        const footerButtons = document.querySelectorAll('#movelist-footer .study-next-chapter');
+        const nextButtons = document.querySelectorAll('#movelist .study-next-chapter');
+        expect(nextButtons).toHaveLength(1);
+        expect(nextButtons[0].textContent).toBe('Next chapter');
+        expect(document.querySelector('#movelist .study-move-fork')).toBeNull();
+        const footerButtons = document.querySelectorAll('#movelist-footer .study-move-fork');
         expect(footerButtons).toHaveLength(1);
-        expect(footerButtons[0].textContent).toBe('Next chapter');
+        expect(footerButtons[0].textContent).toBe('Forks');
     });
 
     test('study comments interrupt move pairs and keep imported text inert', () => {

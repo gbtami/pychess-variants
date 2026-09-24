@@ -878,6 +878,8 @@ export function updateMovelist(ctrl: GameController, full = true, activate = tru
             moves.push(h('div.result', ctrl.result));
             moves.push(h('div.status', result(ctrl.variant, ctrl.status, ctrl.result)));
         }
+        const moveListEnd = treeCtrl.analysisExtension?.renderMoveListEnd?.() ?? [];
+        moves.push(...moveListEnd);
         const footer = treeCtrl.analysisExtension?.renderMoveListFooter?.() ?? [];
         const footerContainer = document.getElementById('movelist-footer');
         if (!footerContainer) moves.push(...footer);
