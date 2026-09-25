@@ -405,16 +405,16 @@ one large change.
 
 **No runtime change.**
 
-### P1 — Curated Practice registry and validator
+### P1 — Curated Practice registry and validator — **done**
 
-- [ ] Add Practice section/study data structures on the server.
-- [ ] Start with an empty or tiny DEV registry of Study IDs.
-- [ ] Load Study/chapter metadata from the existing Study storage rather than duplicating
+- [x] Add Practice section/study data structures on the server.
+- [x] Start with an empty or tiny DEV registry of Study IDs.
+- [x] Load Study/chapter metadata from the existing Study storage rather than duplicating
       it.
-- [ ] Validate existence, public visibility, chapter count, single-variant identity, and
+- [x] Validate existence, public visibility, chapter count, single-variant identity, and
       eligible chapter modes.
-- [ ] Return useful validation reasons for bad registry entries.
-- [ ] Add focused unit tests for valid/missing/private/mixed-variant/bad-mode Studies.
+- [x] Return useful validation reasons for bad registry entries.
+- [x] Add focused unit tests for valid/missing/private/mixed-variant/bad-mode Studies.
 
 **Acceptance:** server code can build a validated Practice curriculum from Study IDs,
 but there is no user-facing page yet.
