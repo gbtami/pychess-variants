@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any, Literal, cast
 
+import settings
 from newid import new_id
 from typing_defs import AnalysisStep
 
@@ -34,22 +35,29 @@ STUDY_DEFAULT_ENABLED_CHAPTER_MODES: tuple[StudyChapterMode, ...] = ("normal", "
 _CHAPTER_MODES = frozenset(STUDY_CHAPTER_MODES)
 
 
-def _configured_study_chapter_modes(raw: str | None) -> tuple[StudyChapterMode, ...]:
+def _configured_study_chapter_modes(
+    raw: str | None, *, dev: bool = False
+) -> tuple[StudyChapterMode, ...]:
     """Return the chapter modes authors may newly select on this deployment.
 
-    Readers and existing chapters always support every schema-known mode. This
-    switch is deliberately only an entry gate so a production rollback can stop
-    new lesson/practice data without making already stored chapters unreadable.
+    DEV always exposes every schema-known mode so incomplete rollout gates do not
+    block authoring, PGN import, or Practice content testing. Production keeps the
+    staged entry gate: existing chapters remain readable even when a mode is not
+    enabled for new data.
     """
 
-    if raw is None or not raw.strip():
-        return STUDY_DEFAULT_ENABLED_CHAPTER_MODES
+    requested: set[str] | None = None
+    if raw is not None and raw.strip():
+        requested = {part.strip() for part in raw.split(",") if part.strip()}
+        unknown = requested - _CHAPTER_MODES
+        if unknown:
+            values = ", ".join(sorted(unknown))
+            raise RuntimeError(f"Unknown STUDY_ENABLED_CHAPTER_MODES value(s): {values}")
 
-    requested = {part.strip() for part in raw.split(",") if part.strip()}
-    unknown = requested - _CHAPTER_MODES
-    if unknown:
-        values = ", ".join(sorted(unknown))
-        raise RuntimeError(f"Unknown STUDY_ENABLED_CHAPTER_MODES value(s): {values}")
+    if dev:
+        return STUDY_CHAPTER_MODES
+    if requested is None:
+        return STUDY_DEFAULT_ENABLED_CHAPTER_MODES
 
     # Normal analysis is the schema baseline and the escape hatch from a disabled
     # training mode, so never allow an operator setting to remove it.
@@ -58,7 +66,7 @@ def _configured_study_chapter_modes(raw: str | None) -> tuple[StudyChapterMode, 
 
 
 STUDY_ENABLED_CHAPTER_MODES = _configured_study_chapter_modes(
-    os.getenv("STUDY_ENABLED_CHAPTER_MODES")
+    os.getenv("STUDY_ENABLED_CHAPTER_MODES"), dev=settings.DEV
 )
 _USER_SELECTIONS = frozenset(("nobody", "owner", "contributor", "member", "everyone"))
 

@@ -423,16 +423,18 @@ Practice emits no further bounded-search work. The engine adapter also caps arbi
 callers at one million nodes, 10 seconds movetime, depth 30, MultiPV 3 and a 12-second
 wall-clock search limit by default.
 
-`STUDY_ENABLED_CHAPTER_MODES` is a comma-separated deployment gate over
-`normal,practice,conceal,gamebook`. It defaults to `normal,gamebook` so Normal analysis
-and Interactive lesson can be rolled out first, and it always keeps `normal` as an
-escape hatch. Set the variable explicitly to enable Practice with computer and/or Hide
-next moves later. The switch gates **new entry** into a mode: existing chapters in a
-disabled mode remain readable/playable and preserving edits remain schema-aware, while
-new chapters, imports, copies/clones and mode transitions cannot introduce disabled
-mode data. For rollback, keep this schema-preserving server deployed and narrow the
-variable (for example to `normal`) rather than deploying code from before analysis-mode
-support. No eager migration/backfill is required.
+`STUDY_ENABLED_CHAPTER_MODES` is a comma-separated production deployment gate over
+`normal,practice,conceal,gamebook`. DEV always enables all four modes so authors can
+exercise the complete Study/Practice workflow, including imports whose source metadata
+resolves to Practice with computer or Hide next moves. Production defaults to
+`normal,gamebook` so Normal analysis and Interactive lesson can remain the staged public
+rollout, and an explicit production value always keeps `normal` as an escape hatch. The
+switch gates **new entry** into a mode: existing chapters in a disabled mode remain
+readable/playable and preserving edits remain schema-aware, while new chapters, imports,
+copies/clones and mode transitions cannot introduce disabled mode data. For rollback,
+keep this schema-preserving server deployed and narrow the production variable (for
+example to `normal`) rather than deploying code from before analysis-mode support. No
+eager migration/backfill is required.
 
 Untrusted embedded rules and their imported positions/trees are validated outside
 the serving process. Historical rules admitted to the main native engine registry

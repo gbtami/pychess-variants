@@ -581,6 +581,9 @@ with extra links.
       Practice curriculum, import now recovers `practice` from `ChapterURL`, preserves
       explicit `gamebook`, and materializes Lichess's default `Termination "mate"` when
       an inferred computer-Practice chapter exported no goal.
+- [x] Enable all four Study analysis modes on DEV. Production keeps its staged chapter-mode
+      gate, but local/DEV authoring and imports must not be blocked from `practice` or
+      `conceal` while the full feature set is being exercised.
 - [ ] Fix authoring/runtime issues found by real lesson creation rather than expanding
       the feature spec speculatively.
 
