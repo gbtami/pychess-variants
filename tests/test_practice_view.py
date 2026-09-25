@@ -86,6 +86,7 @@ async def _insert_practice_learner_study(app_state, study_id: str = "prac0001") 
             created_at=now,
             updated_at=now,
             mode=mode,
+            tags={"Termination": "mate"} if mode == "practice" else {},
         )
         await app_state.db.study_chapter.insert_one(chapter.to_document())
 
@@ -416,6 +417,7 @@ async def test_signed_in_practice_completion_persists_and_resumes_first_unfinish
     payload = await chapter.json()
     assert payload["study"]["practice"]["completedChapterIds"] == ["chap0001"]
     assert payload["study"]["practice"]["persistProgress"] is True
+    assert payload["study"]["practice"]["goal"] == {"result": "mate"}
 
 
 @pytest.mark.asyncio

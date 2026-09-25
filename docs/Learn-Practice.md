@@ -496,14 +496,15 @@ learner shell, but completion is not persisted yet.
 **Acceptance:** a signed-in DEV user can leave Practice, return later, and resume from
 the correct chapter.
 
-### P7 — Practice goal parser
+### P7 — Practice goal parser — **done**
 
-- [ ] Add a small typed goal model.
-- [ ] Parse lichess-compatible `Termination` syntax:
+- [x] Add a small typed goal model.
+- [x] Parse lichess-compatible `Termination` syntax:
       `mate`, `mate in N`, `draw in N`, `equalize in N`, eval-in-N, promotion-with-eval.
-- [ ] Add PyChess `win` and `win in N` generic terminal-result goals.
-- [ ] Treat missing/invalid goals as Practice curation errors for `practice` chapters.
-- [ ] Add parser tests including whitespace/case handling and invalid input.
+- [x] Add PyChess `win` and `win in N` generic terminal-result goals.
+- [x] Expose the validated typed goal in the Practice learner payload for P8.
+- [x] Treat missing/invalid goals as Practice curation errors for `practice` chapters.
+- [x] Add parser tests including whitespace/case handling and invalid input.
 
 **Acceptance:** every curated computer-practice chapter has a validated typed objective
 before it is presented to learners.
@@ -590,7 +591,9 @@ Exact names can change during implementation, but keeping Practice separate from
 storage while reusing Study runtime should lead to a structure roughly like:
 
 ```text
-server/practice.py                  curated structure, goals, progress helpers
+server/practice.py                  curated structure and validation
+server/practice_goal.py             typed `Termination` goal parser
+server/practice_progress.py         persistent learner progress helpers
 server/views/practice.py            DEV routes/view models
 client/practice.ts                  Practice index + variant selector
 client/study/...                    minimal hooks for Practice curriculum context

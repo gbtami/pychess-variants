@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any, Literal
 
+from practice_goal import PracticeGoal, parse_practice_goal
 from study.models import Study, StudyChapterMode, study_chapter_mode
 from study.storage import load_study
 from variants import is_catalogued_variant
@@ -18,6 +20,7 @@ PracticeValidationCode = Literal[
     "mixed-chess960",
     "chess960-mismatch",
     "unsupported-mode",
+    "invalid-goal",
 ]
 
 PRACTICE_ELIGIBLE_CHAPTER_MODES: frozenset[StudyChapterMode] = frozenset(("gamebook", "practice"))
@@ -53,6 +56,7 @@ class PracticeChapterMetadata:
     variant: str
     chess960: bool
     mode: StudyChapterMode
+    goal: PracticeGoal | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -173,6 +177,17 @@ def _issue(code: PracticeValidationCode, message: str) -> PracticeValidationIssu
     return PracticeValidationIssue(code=code, message=message)
 
 
+def _termination_tag(tags: object) -> object | None:
+    """Return the Termination tag value, accepting tag-name case differences."""
+
+    if not isinstance(tags, Mapping):
+        return None
+    for name, value in tags.items():
+        if isinstance(name, str) and name.casefold() == "termination":
+            return value
+    return None
+
+
 async def _chapter_metadata(
     app_state: Any, study_id: str
 ) -> tuple[tuple[PracticeChapterMetadata, ...], tuple[PracticeValidationIssue, ...]]:
@@ -185,6 +200,7 @@ async def _chapter_metadata(
             "variant": 1,
             "chess960": 1,
             "mode": 1,
+            "tags": 1,
         },
     ).sort("order", 1)
 
@@ -229,6 +245,23 @@ async def _chapter_metadata(
             )
             continue
 
+        goal: PracticeGoal | None = None
+        if mode == "practice":
+            raw_goal = _termination_tag(doc.get("tags", {}))
+            goal = parse_practice_goal(raw_goal)
+            if goal is None:
+                if raw_goal is None:
+                    message = (
+                        f"Practice Study {study_id} chapter {chapter_id} is missing a "
+                        "Termination goal"
+                    )
+                else:
+                    message = (
+                        f"Practice Study {study_id} chapter {chapter_id} has invalid "
+                        f"Termination goal {raw_goal!r}"
+                    )
+                issues.append(_issue("invalid-goal", message))
+
         chapters.append(
             PracticeChapterMetadata(
                 id=chapter_id,
@@ -237,6 +270,7 @@ async def _chapter_metadata(
                 variant=variant,
                 chess960=chess960,
                 mode=mode,
+                goal=goal,
             )
         )
 

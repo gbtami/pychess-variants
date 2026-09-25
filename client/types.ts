@@ -32,6 +32,11 @@ export interface SimulGame {
 export type StudyFeatureSelection = 'nobody' | 'owner' | 'contributor' | 'member' | 'everyone';
 export type StudyChapterMode = 'normal' | 'practice' | 'conceal' | 'gamebook';
 export type StudyChapterStatus = '1-0' | '0-1' | '½-½' | '*';
+export type PracticeGoal =
+    | { result: 'mate' | 'win' }
+    | { result: 'mateIn' | 'drawIn' | 'equalIn' | 'winIn'; moves: number }
+    | { result: 'evalIn'; moves: number; cp: number }
+    | { result: 'promotion'; cp: number };
 
 export type StudyServerEval = {
     path: string;
@@ -93,6 +98,7 @@ export type StudyPageModel = {
         studyUrl: string;
         completedChapterIds: string[];
         persistProgress: boolean;
+        goal?: PracticeGoal;
     };
     // Runtime collaboration mode. The server owns sharedChapter/sharedPath; these
     // three fields are local browser state initialized by the Study client.

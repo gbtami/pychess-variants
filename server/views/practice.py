@@ -135,7 +135,10 @@ async def practice_study(request: web.Request) -> ViewContext | web.Response:
             resume_chapter_id = resolved.chapters[0].id
         raise web.HTTPFound(f"/practice/{variant_key}/{resolved.study.id}/{resume_chapter_id}")
 
-    if requested_chapter_id not in set(chapter_ids):
+    chapter_metadata = next(
+        (item for item in resolved.chapters if item.id == requested_chapter_id), None
+    )
+    if chapter_metadata is None:
         raise web.HTTPNotFound()
 
     try:
@@ -164,6 +167,11 @@ async def practice_study(request: web.Request) -> ViewContext | web.Response:
             "studyUrl": f"/practice/{variant_key}/{resolved.study.id}",
             "completedChapterIds": list(study_progress.completed_chapter_ids),
             "persistProgress": _progress_username(user) is not None,
+            **(
+                {"goal": chapter_metadata.goal.to_payload()}
+                if chapter_metadata.goal is not None
+                else {}
+            ),
         },
     )
 

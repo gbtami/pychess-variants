@@ -43,23 +43,27 @@ class PracticeCurriculumTestCase(unittest.IsolatedAsyncioTestCase):
         variant: str = "chess",
         chess960: bool = False,
         mode: StudyChapterMode = "gamebook",
+        tags: dict[str, str] | None = None,
     ) -> None:
-        await self.db.study_chapter.insert_one(
-            {
-                "_id": chapter_id,
-                "studyId": study_id,
-                "name": f"Chapter {order}",
-                "order": order,
-                "variant": variant,
-                "chess960": chess960,
-                "mode": mode,
-            }
-        )
+        doc: dict[str, object] = {
+            "_id": chapter_id,
+            "studyId": study_id,
+            "name": f"Chapter {order}",
+            "order": order,
+            "variant": variant,
+            "chess960": chess960,
+            "mode": mode,
+        }
+        if tags is not None:
+            doc["tags"] = tags
+        await self.db.study_chapter.insert_one(doc)
 
     async def test_valid_public_single_variant_study_is_resolved(self) -> None:
         await self._insert_study("valid")
         await self._insert_chapter("valid", "c1", order=1, mode="gamebook")
-        await self._insert_chapter("valid", "c2", order=2, mode="practice")
+        await self._insert_chapter(
+            "valid", "c2", order=2, mode="practice", tags={"Termination": "mate"}
+        )
         section = PracticeSection(
             id="basics",
             name="Basics",
@@ -140,6 +144,56 @@ class PracticeCurriculumTestCase(unittest.IsolatedAsyncioTestCase):
         codes = {issue.code for issue in resolved.issues}
         self.assertIn("variant-mismatch", codes)
         self.assertIn("chess960-mismatch", codes)
+
+    async def test_computer_practice_chapter_requires_explicit_valid_goal(self) -> None:
+        await self._insert_study("missing-goal")
+        await self._insert_chapter("missing-goal", "c1", order=1, mode="practice")
+
+        resolved = await validate_practice_study(
+            cast(Any, self.app_state), PracticeStudyRef("missing-goal", "chess")
+        )
+
+        self.assertFalse(resolved.valid)
+        issue = next(issue for issue in resolved.issues if issue.code == "invalid-goal")
+        self.assertIn("missing", issue.message)
+
+    async def test_computer_practice_chapter_rejects_invalid_goal(self) -> None:
+        await self._insert_study("bad-goal")
+        await self._insert_chapter(
+            "bad-goal",
+            "c1",
+            order=1,
+            mode="practice",
+            tags={"Termination": "Normal"},
+        )
+
+        resolved = await validate_practice_study(
+            cast(Any, self.app_state), PracticeStudyRef("bad-goal", "chess")
+        )
+
+        self.assertFalse(resolved.valid)
+        issue = next(issue for issue in resolved.issues if issue.code == "invalid-goal")
+        self.assertIn("Normal", issue.message)
+
+    async def test_computer_practice_goal_is_typed_and_tag_name_is_case_insensitive(self) -> None:
+        await self._insert_study("goal")
+        await self._insert_chapter(
+            "goal",
+            "c1",
+            order=1,
+            mode="practice",
+            tags={"termination": "  WiN   in  7 "},
+        )
+
+        resolved = await validate_practice_study(
+            cast(Any, self.app_state), PracticeStudyRef("goal", "chess")
+        )
+
+        self.assertTrue(resolved.valid)
+        self.assertEqual(
+            resolved.chapters[0].goal.to_payload() if resolved.chapters[0].goal else None,
+            {"result": "winIn", "moves": 7},
+        )
 
     async def test_empty_public_study_is_not_eligible(self) -> None:
         await self._insert_study("empty")
