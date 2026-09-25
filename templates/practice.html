@@ -1,0 +1,83 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap" class="study-index-wrap">
+    <main class="study-index-page">
+        <section class="study-index box">
+            <div class="study-topics-index">
+                <h1>{% trans %}Practice{% endtrans %}</h1>
+                <p>
+                    {% trans %}Development preview of curated Study lessons.{% endtrans %}
+                    {% trans %}Progress tracking is not enabled yet.{% endtrans %}
+                </p>
+
+                {% if practice_sections %}
+                    {% for resolved_section in practice_sections %}
+                    <section aria-labelledby="practice-section-{{ resolved_section.section.id }}">
+                        <h2 id="practice-section-{{ resolved_section.section.id }}">{{ resolved_section.section.name }}</h2>
+
+                        {% if resolved_section.studies %}
+                        <div class="studies study-list">
+                            {% for resolved in resolved_section.studies %}
+                            <article class="study-card">
+                                {% if resolved.study %}
+                                <a
+                                    class="study-card__overlay"
+                                    href="/study/{{ resolved.study.id }}"
+                                    title="{{ resolved.study.name }}"
+                                    aria-label="{{ resolved.study.name }}"
+                                ></a>
+                                {% endif %}
+                                <div class="study-card__top">
+                                    <span class="study-card__icon" aria-hidden="true"></span>
+                                    <div class="study-card__summary">
+                                        <strong class="study-card__name">
+                                            {% if resolved.study %}{{ resolved.study.name }}{% else %}{{ resolved.ref.study_id }}{% endif %}
+                                        </strong>
+                                        <div class="study-card__meta">
+                                            <span>{{ variant_display_name(resolved.ref.variant) }}</span>
+                                            {% if resolved.ref.chess960 %}<span aria-hidden="true">•</span><span>960</span>{% endif %}
+                                            {% if resolved.study %}<span aria-hidden="true">•</span><span class="study-card__owner">{{ resolved.study.owner }}</span>{% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="study-card__body">
+                                    <ol class="study-card__chapters">
+                                        {% if resolved.valid %}
+                                            {% for chapter in resolved.chapters %}
+                                            <li class="study-card__chapter">{{ chapter.name }}</li>
+                                            {% endfor %}
+                                        {% else %}
+                                            {% for issue in resolved.issues %}
+                                            <li class="study-card__chapter">{{ issue.message }}</li>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </ol>
+                                    {% if resolved.ref.description %}
+                                    <p>{{ resolved.ref.description }}</p>
+                                    {% endif %}
+                                </div>
+                            </article>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="study-empty">
+                            <span class="study-empty__icon icon icon-book" aria-hidden="true"></span>
+                            <p>{% trans %}No studies are configured in this Practice section yet.{% endtrans %}</p>
+                        </div>
+                        {% endif %}
+                    </section>
+                    {% endfor %}
+                {% else %}
+                <div class="study-empty">
+                    <span class="study-empty__icon icon icon-book" aria-hidden="true"></span>
+                    <p>{% trans %}No Practice studies are curated yet.{% endtrans %}</p>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+    </main>
+</div>
+{% endblock %}
+{% block js %}
+    <script src="{{ js }}"></script>
+{% endblock %}

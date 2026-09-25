@@ -226,6 +226,9 @@ from views import (
     mod_public_chat as mod_public_chat_view,
 )
 from views import (
+    practice as practice_view,
+)
+from views import (
     report as report_view,
 )
 from views import (
@@ -288,6 +291,8 @@ get_routes: tuple[RouteDef, ...] = (
     ("/puzzle/daily", puzzle.puzzle),
     (r"/puzzle/{puzzleId:\w{5}}", puzzle.puzzle),
     ("/puzzle/{variant}", puzzle.puzzle),
+    ("/practice", practice_view.practice),
+    (r"/practice/{variant:[a-z0-9_-]+}", practice_view.practice),
     (r"/corranalysis/{gameId:\w{8}}", analysis.analysis),
     (r"/analysis/{variant:[a-z0-9_-]+}", analysis.analysis),
     (r"/analysis/{variant:[a-z0-9_-]+}/{fen}", analysis.analysis),

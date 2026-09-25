@@ -2,7 +2,7 @@
 
 ## Status
 
-**Planned. Initial rollout is DEV-only.**
+**In progress. Initial rollout is DEV-only.**
 
 The first goal is to give PyChess content creators a real Practice surface on the DEV
 site so they can build, test, and refine high-quality Study-based lessons before any
@@ -419,14 +419,14 @@ one large change.
 **Acceptance:** server code can build a validated Practice curriculum from Study IDs,
 but there is no user-facing page yet.
 
-### P2 — DEV-only routes, Learn menu entry, and Practice index shell
+### P2 — DEV-only routes, Learn menu entry, and Practice index shell — **done**
 
-- [ ] Add `/practice` and `/practice/<variant>` routes.
-- [ ] Guard the routes with `settings.DEV`; production should return 404/not expose the
+- [x] Add `/practice` and `/practice/<variant>` routes.
+- [x] Guard the routes with `settings.DEV`; production should return 404/not expose the
       feature.
-- [ ] Add **Practice** under **Learn** only on DEV.
-- [ ] Render a basic Practice page from the validated registry.
-- [ ] Do not implement progress yet.
+- [x] Add **Practice** under **Learn** only on DEV.
+- [x] Render a basic Practice page from the validated registry.
+- [x] Do not implement progress yet.
 
 **Acceptance:** DEV users can open Learn → Practice and see curated sections/studies;
 production behavior is unchanged.
