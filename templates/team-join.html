@@ -13,7 +13,7 @@
                 {% if team.get('requestRequired') %}
                 <div class="form-group">
                     <label class="form-label" for="team-join-message">{% trans %}Message{% endtrans %}</label>
-                    <textarea class="form-control" id="team-join-message" name="message" required minlength="{{ team_request_min_length }}" maxlength="{{ team_request_max_length }}" rows="6" autofocus></textarea>
+                    <textarea class="form-control" id="team-join-message" name="message" required maxlength="{{ team_request_max_length }}" rows="6" autofocus>{{ team_request_default_message }}</textarea>
                     <small class="form-help">{% trans %}Tell the team leaders why you want to join. Your request will be reviewed before you become a member.{% endtrans %}</small>
                 </div>
                 {% endif %}

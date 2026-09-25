@@ -558,7 +558,7 @@ class ViewContext(TypedDict, total=False):
     team_declined_requests_current_href: str
     team_pending_request: Mapping[str, object] | None
     team_declined_request: Mapping[str, object] | None
-    team_request_min_length: int
+    team_request_default_message: str
     team_request_max_length: int
     team_can_manage_requests: bool
     team_can_kick: bool

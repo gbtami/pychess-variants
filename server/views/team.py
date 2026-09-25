@@ -26,8 +26,8 @@ from team import (
     TEAM_MAX_JOINED,
     TEAM_MAX_LEADERS,
     TEAM_PERMISSION_DEFINITIONS,
+    TEAM_REQUEST_DEFAULT_MESSAGE,
     TEAM_REQUEST_MAX_LENGTH,
-    TEAM_REQUEST_MIN_LENGTH,
     TEAM_UPDATE_MAX_LENGTH,
     TEAM_UPDATE_MAX_PER_7_DAYS,
     add_team_leader,
@@ -463,7 +463,7 @@ async def team_join_form(request: web.Request) -> ViewContext:
     context.update(
         {
             "team": team,
-            "team_request_min_length": TEAM_REQUEST_MIN_LENGTH,
+            "team_request_default_message": TEAM_REQUEST_DEFAULT_MESSAGE,
             "team_request_max_length": TEAM_REQUEST_MAX_LENGTH,
             "title": f"Join {team['name']} • PyChess",
         }

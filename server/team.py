@@ -28,8 +28,8 @@ TEAM_INTRO_MIN_LENGTH = 3
 TEAM_INTRO_MAX_LENGTH = 200
 TEAM_DESCRIPTION_MIN_LENGTH = 30
 TEAM_DESCRIPTION_MAX_LENGTH = 4000
-TEAM_REQUEST_MIN_LENGTH = 30
 TEAM_REQUEST_MAX_LENGTH = 2000
+TEAM_REQUEST_DEFAULT_MESSAGE = "Hello, I would like to join the team!"
 TEAM_ENTRY_CODE_MAX_LENGTH = 60
 TEAM_UPDATE_MIN_LENGTH = 3
 TEAM_UPDATE_MAX_LENGTH = 9000
@@ -739,7 +739,6 @@ async def join_or_request_team(
     if team.get("requestRequired"):
         message = _clean_text(
             form.get("message"),
-            min_length=TEAM_REQUEST_MIN_LENGTH,
             max_length=TEAM_REQUEST_MAX_LENGTH,
             field="Join request message",
         )
