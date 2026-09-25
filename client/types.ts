@@ -64,6 +64,7 @@ export type StudyPageModel = {
     visibility: 'private' | 'unlisted' | 'public';
     isOwner: boolean;
     canWrite: boolean;
+    canPreviewPractice?: boolean;
     canClone: boolean;
     canShare?: boolean;
     canEmbed?: boolean;
@@ -98,6 +99,7 @@ export type StudyPageModel = {
         studyUrl: string;
         completedChapterIds: string[];
         persistProgress: boolean;
+        preview?: boolean;
         goal?: PracticeGoal;
     };
     // Runtime collaboration mode. The server owns sharedChapter/sharedPath; these

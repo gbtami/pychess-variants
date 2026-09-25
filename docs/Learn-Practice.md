@@ -526,13 +526,17 @@ before it is presented to learners.
 **Acceptance:** Practice-with-computer chapters are open-ended in move choice but can be
 completed against explicit objectives.
 
-### P9 — DEV content-creator Practice Preview
+### P9 — DEV content-creator Practice Preview — **done**
 
-- [ ] Add a DEV-only **Preview in Practice** action for Study owners/contributors.
-- [ ] Open the Study in the same learner shell without requiring registry membership.
-- [ ] Do not write curriculum progress while previewing.
-- [ ] Surface validation problems directly to the creator.
-- [ ] Ensure preview still honors Study access and saved variant snapshots.
+- [x] Add a DEV-only **Preview in Practice** action for Study owners/write contributors.
+- [x] Open the Study in the same learner shell without requiring registry membership.
+- [x] Do not hydrate or write curriculum progress while previewing.
+- [x] Surface validation problems directly to the creator before entering the learner
+      runtime.
+- [x] Keep normal Study access checks and load the real Study chapter/saved variant
+      snapshot through the same Study builder used by curated Practice.
+- [x] Keep preview out of Study REC/SYNC and websocket persistence by using the same
+      learner-only Practice context as curated lessons.
 
 **Acceptance:** a content creator can author → preview → fix a lesson without asking for
 a registry edit after every change.

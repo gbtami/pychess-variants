@@ -10,6 +10,7 @@ from practice import (
     PracticeSection,
     PracticeStudyRef,
     build_practice_curriculum,
+    validate_practice_preview_study,
     validate_practice_study,
 )
 from study.models import Study, StudyChapterMode, StudyVisibility
@@ -105,6 +106,17 @@ class PracticeCurriculumTestCase(unittest.IsolatedAsyncioTestCase):
 
         self.assertFalse(resolved.valid)
         self.assertIn("not-public", {issue.code for issue in resolved.issues})
+
+    async def test_private_study_can_be_valid_in_author_practice_preview(self) -> None:
+        await self._insert_study("private", visibility="private")
+        await self._insert_chapter("private", "c1", order=1)
+        study = Study.from_document(await self.db.study.find_one({"_id": "private"}))
+
+        resolved = await validate_practice_preview_study(cast(Any, self.app_state), study)
+
+        self.assertTrue(resolved.valid)
+        self.assertEqual(resolved.ref.variant, "chess")
+        self.assertFalse(resolved.ref.chess960)
 
     async def test_mixed_variant_study_is_not_eligible(self) -> None:
         await self._insert_study("mixed")

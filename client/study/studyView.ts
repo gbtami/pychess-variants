@@ -937,6 +937,7 @@ function chapterIdFromStudyUrl(study: StudyPageModel, pathname: string): string 
 }
 
 function studyDocumentTitle(study: StudyPageModel): string {
+    if (study.practice?.preview) return `${study.name} • Practice Preview • PyChess`;
     return study.practice ? `${study.name} • Practice • PyChess` : `${study.name} • PyChess`;
 }
 
@@ -1285,6 +1286,7 @@ function studyMembersSide(study: StudyPageModel, model: PyChessModel): VNode {
 
 function practiceStudySide(study: StudyPageModel, progress?: StudyPracticeProgress): VNode {
     const practice = study.practice!;
+    const preview = Boolean(practice.preview);
     const chapters = [...study.chapters].sort((a, b) => a.order - b.order);
     const current = chapters.findIndex(chapter => chapter.id === study.chapter.id);
     const previous = current > 0 ? chapters[current - 1] : undefined;
@@ -1294,7 +1296,12 @@ function practiceStudySide(study: StudyPageModel, progress?: StudyPracticeProgre
         h('div.study-side__tabs', [
             h(
                 'a.study-side__tab.active',
-                { attrs: { href: practice.indexUrl, title: _('Back to Practice') } },
+                {
+                    attrs: {
+                        href: practice.indexUrl,
+                        title: preview ? _('Back to Study') : _('Back to Practice'),
+                    },
+                },
                 practice.sectionName,
             ),
         ]),
@@ -1367,7 +1374,11 @@ function practiceStudySide(study: StudyPageModel, progress?: StudyPracticeProgre
                       ),
                   ]
                 : []),
-            h('a.study-side__add', { attrs: { href: practice.indexUrl } }, `← ${_('Back to Practice')}`),
+            h(
+                'a.study-side__add',
+                { attrs: { href: practice.indexUrl } },
+                `← ${preview ? _('Back to Study') : _('Back to Practice')}`,
+            ),
         ]),
     ]);
 }
@@ -1462,6 +1473,20 @@ function studySide(
                               },
                               [icon('plus-square'), _('Add a new chapter')],
                           ),
+                          ...(study.canPreviewPractice
+                              ? [
+                                    h(
+                                        'a.study-side__add.study-practice-preview',
+                                        {
+                                            attrs: {
+                                                href: `/practice/preview/${study.id}/${chapter.id}`,
+                                                title: _('Preview this Study as a Practice learner'),
+                                            },
+                                        },
+                                        [icon('play'), _('Preview in Practice')],
+                                    ),
+                                ]
+                              : []),
                       ]
                     : []),
             ],

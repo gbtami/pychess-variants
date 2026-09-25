@@ -292,6 +292,14 @@ get_routes: tuple[RouteDef, ...] = (
     (r"/puzzle/{puzzleId:\w{5}}", puzzle.puzzle),
     ("/puzzle/{variant}", puzzle.puzzle),
     ("/practice", practice_view.practice),
+    (
+        r"/practice/preview/{studyId:\w{8}}",
+        practice_view.practice_preview,
+    ),
+    (
+        r"/practice/preview/{studyId:\w{8}}/{chapterId:\w{8}}",
+        practice_view.practice_preview,
+    ),
     (r"/practice/{variant:[a-z0-9_-]+}", practice_view.practice),
     (
         r"/practice/{variant:[a-z0-9_-]+}/{studyId:\w{8}}",

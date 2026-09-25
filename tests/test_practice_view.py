@@ -91,6 +91,53 @@ async def _insert_practice_learner_study(app_state, study_id: str = "prac0001") 
         await app_state.db.study_chapter.insert_one(chapter.to_document())
 
 
+async def _insert_preview_study(
+    app_state,
+    study_id: str = "prev0001",
+    *,
+    members: dict[str, str] | None = None,
+    second_mode: str = "practice",
+    second_goal: str | None = "mate",
+) -> None:
+    now = datetime.now(UTC)
+    study = Study(
+        id=study_id,
+        name="Author Practice Draft",
+        owner="teacher",
+        members=members or {"teacher": "write"},
+        visibility="private",
+        settings={"computer": "nobody"},
+        created_at=now,
+        updated_at=now,
+        current_chapter="chap0001",
+    )
+    await app_state.db.study.insert_one(study.to_document())
+    fen = "8/8/8/8/8/8/4K3/6k1 w - - 0 1"
+    for order, (chapter_id, name, mode) in enumerate(
+        (("chap0001", "Lesson", "gamebook"), ("chap0002", "Try it", second_mode)),
+        start=1,
+    ):
+        tags = (
+            {"Termination": second_goal} if mode == "practice" and second_goal is not None else {}
+        )
+        chapter = StudyChapter(
+            id=chapter_id,
+            study_id=study_id,
+            name=name,
+            order=order,
+            owner="teacher",
+            variant="chess",
+            initial_fen=fen,
+            orientation="white",
+            root=StudyTree(),
+            created_at=now,
+            updated_at=now,
+            mode=mode,
+            tags=tags,
+        )
+        await app_state.db.study_chapter.insert_one(chapter.to_document())
+
+
 def _practice_sections() -> tuple[PracticeSection, ...]:
     return (
         PracticeSection(
@@ -383,6 +430,123 @@ async def test_practice_learner_routes_are_hidden_outside_dev(aiohttp_client, mo
         assert response.status == 404
         chapter = await client.get("/practice/chess/prac0001/chap0001")
         assert chapter.status == 404
+
+
+@pytest.mark.asyncio
+async def test_practice_preview_uses_private_writable_study_without_registry_or_progress(
+    aiohttp_client,
+) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    await _insert_preview_study(app_state)
+    teacher = User(app_state, username="teacher")
+    app_state.users[teacher.username] = teacher
+    _set_session_user(client, teacher.username)
+
+    editor = await client.get("/study/prev0001/chap0001", headers={"Accept": "application/json"})
+    assert editor.status == 200
+    editor_payload = await editor.json()
+    assert editor_payload["study"]["canPreviewPractice"] is True
+
+    response = await client.get("/practice/preview/prev0001", allow_redirects=False)
+    assert response.status == 302
+    assert response.headers["Location"] == "/practice/preview/prev0001/chap0001"
+
+    chapter = await client.get(
+        "/practice/preview/prev0001/chap0002", headers={"Accept": "application/json"}
+    )
+    assert chapter.status == 200
+    payload = await chapter.json()
+    study = payload["study"]
+    assert study["id"] == "prev0001"
+    assert study["chapter"]["id"] == "chap0002"
+    assert study["canWrite"] is False
+    assert study["isOwner"] is False
+    assert study["features"]["computer"] is True
+    assert study["practice"] == {
+        "variant": "chess",
+        "sectionId": "preview",
+        "sectionName": "Practice Preview",
+        "indexUrl": "/study/prev0001/chap0002",
+        "studyUrl": "/practice/preview/prev0001",
+        "completedChapterIds": [],
+        "persistProgress": False,
+        "preview": True,
+        "goal": {"result": "mate"},
+    }
+    assert await app_state.db.practice.count_documents({}) == 0
+
+
+@pytest.mark.asyncio
+async def test_practice_preview_allows_write_contributor_but_rejects_reader(aiohttp_client) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    await _insert_preview_study(
+        app_state,
+        members={"teacher": "write", "writer": "write", "reader": "read"},
+    )
+    for username in ("writer", "reader"):
+        app_state.users[username] = User(app_state, username=username)
+
+    _set_session_user(client, "writer")
+    writer = await client.get("/practice/preview/prev0001/chap0001")
+    assert writer.status == 200
+
+    client.session.cookie_jar.clear()
+    _set_session_user(client, "reader")
+    reader = await client.get("/practice/preview/prev0001/chap0001")
+    assert reader.status == 403
+
+
+@pytest.mark.asyncio
+async def test_practice_preview_surfaces_validation_errors_to_creator(aiohttp_client) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    await _insert_preview_study(app_state, second_goal=None)
+    teacher = User(app_state, username="teacher")
+    app_state.users[teacher.username] = teacher
+    _set_session_user(client, teacher.username)
+
+    response = await client.get("/practice/preview/prev0001/chap0002")
+    assert response.status == 200
+    html = await response.text()
+    assert "Practice Preview" in html
+    assert "invalid-goal" in html
+    assert "missing a Termination goal" in html
+    assert 'href="/study/prev0001/chap0002"' in html
+
+    data = await client.get(
+        "/practice/preview/prev0001/chap0002", headers={"Accept": "application/json"}
+    )
+    assert data.status == 422
+    payload = await data.json()
+    assert payload["valid"] is False
+    assert payload["issues"][0]["code"] == "invalid-goal"
+
+
+@pytest.mark.asyncio
+async def test_practice_preview_is_hidden_outside_dev(aiohttp_client) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    await _insert_preview_study(app_state)
+    teacher = User(app_state, username="teacher")
+    app_state.users[teacher.username] = teacher
+    _set_session_user(client, teacher.username)
+
+    with patch("settings.DEV", False):
+        response = await client.get("/practice/preview/prev0001/chap0001")
+        assert response.status == 404
+
+        editor = await client.get(
+            "/study/prev0001/chap0001", headers={"Accept": "application/json"}
+        )
+        assert editor.status == 200
+        payload = await editor.json()
+        assert payload["study"]["canPreviewPractice"] is False
 
 
 @pytest.mark.asyncio

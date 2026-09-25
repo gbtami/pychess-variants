@@ -7,6 +7,7 @@ from typing import Any, cast
 
 import aiohttp_jinja2
 import aiohttp_session
+import settings
 from aiohttp import web
 from catalogued_variants import catalogued_variant_client_doc_for_name
 from fairy import BLACK, FairyBoard
@@ -909,6 +910,7 @@ async def _populate_study_chapter_context(
                 else is_study_owner(study, None if user.anon else user.username)
             ),
             "canWrite": writable and practice_context is None,
+            "canPreviewPractice": settings.DEV and writable and practice_context is None,
             "canClone": (
                 practice_context is None
                 and not user.anon

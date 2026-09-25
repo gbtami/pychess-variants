@@ -390,6 +390,41 @@ async def validate_practice_study(app_state: Any, ref: PracticeStudyRef) -> Prac
     )
 
 
+async def validate_practice_preview_study(app_state: Any, study: Study) -> PracticeStudyValidation:
+    """Validate an uncurated writable Study for the DEV Practice preview.
+
+    Preview deliberately skips the curated-registry-only requirements: the Study may
+    be private/unlisted and there is no registry variant identity to compare against.
+    All chapter/content constraints still apply, so creators see the same problems
+    that would prevent later curation.
+    """
+
+    chapters, chapter_issues = await _chapter_metadata(app_state, study.id)
+    issues = list(chapter_issues)
+
+    if chapters:
+        first = chapters[0]
+        ref = PracticeStudyRef(
+            study_id=study.id,
+            variant=first.variant,
+            chess960=first.chess960,
+        )
+        issues.extend(_validate_chapter_identity(ref, chapters))
+    else:
+        # The placeholder identity is never exposed as a real curriculum variant; it
+        # merely keeps the validation result shape shared with curated Practice.
+        ref = PracticeStudyRef(study_id=study.id, variant="chess")
+        if not chapter_issues:
+            issues.append(_issue("no-chapters", f"Practice Study {study.id} has no chapters"))
+
+    return PracticeStudyValidation(
+        ref=ref,
+        study=study,
+        chapters=chapters,
+        issues=tuple(issues),
+    )
+
+
 async def build_practice_curriculum(
     app_state: Any,
     sections: tuple[PracticeSection, ...] = PRACTICE_SECTIONS,

@@ -228,6 +228,7 @@ describe('analysis page smoke coverage', () => {
                         visibility: 'private',
                         isOwner: true,
                         canWrite: true,
+                        canPreviewPractice: true,
                         canClone: true,
                         canLike: true,
                         liked: true,
@@ -296,6 +297,10 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('#roundchat')).toBeNull();
         expect([...root.querySelectorAll('button')].some(button => button.textContent === 'Add to Study')).toBe(false);
         expect(root.querySelector('dialog#study-new-chapter .study-side__new-chapter')).not.toBeNull();
+        expect(root.querySelector<HTMLAnchorElement>('.study-practice-preview')?.getAttribute('href')).toBe(
+            '/practice/preview/StUdY001/ChAp0001',
+        );
+        expect(root.querySelector('.study-practice-preview')?.textContent).toContain('Preview in Practice');
         const newChapterForm = root.querySelector<HTMLFormElement>(
             'dialog#study-new-chapter .study-side__new-chapter',
         )!;

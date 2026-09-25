@@ -16,7 +16,8 @@ from practice_progress import (
     reset_practice_chapters,
 )
 from pychess_global_app_state_utils import get_app_state
-from study.storage import load_chapter
+from study.permissions import can_view_study, can_write_study
+from study.storage import load_chapter, load_study
 from typing_defs import ViewContext
 
 from views import get_user_context
@@ -184,6 +185,115 @@ async def practice_study(request: web.Request) -> ViewContext | web.Response:
             }
         )
     return context
+
+
+async def practice_preview(request: web.Request) -> web.StreamResponse:
+    """Preview one writable Study through the learner-only Practice runtime.
+
+    This DEV authoring aid intentionally bypasses the curated registry while keeping
+    the same chapter/content validation. Preview never hydrates or persists curriculum
+    progress and never joins the Study websocket room.
+    """
+
+    if not settings.DEV:
+        raise web.HTTPNotFound()
+
+    user, context = await get_user_context(request)
+    app_state = get_app_state(request.app)
+    if app_state.db is None:
+        raise web.HTTPServiceUnavailable(text="Practice requires database access.")
+
+    study_id = request.match_info["studyId"]
+    study = await load_study(app_state, study_id)
+    viewer = None if user.anon else user.username
+    if study is None or not can_view_study(study, viewer):
+        raise web.HTTPNotFound()
+    if not can_write_study(study, viewer):
+        raise web.HTTPForbidden(text="You cannot preview this Study as Practice.")
+
+    resolved = await practice_data.validate_practice_preview_study(app_state, study)
+    requested_chapter_id = request.match_info.get("chapterId")
+    editor_chapter_id = requested_chapter_id or study.current_chapter
+    if editor_chapter_id is None and resolved.chapters:
+        editor_chapter_id = resolved.chapters[0].id
+    editor_url = f"/study/{study.id}" + (
+        f"/{editor_chapter_id}" if editor_chapter_id is not None else ""
+    )
+
+    if not resolved.valid:
+        if request.headers.get("Accept") == "application/json":
+            return web.json_response(
+                {
+                    "studyId": study.id,
+                    "valid": False,
+                    "issues": [
+                        {"code": issue.code, "message": issue.message} for issue in resolved.issues
+                    ],
+                },
+                status=422,
+            )
+        context["title"] = f"{study.name} • Practice Preview • PyChess"
+        context["practice_preview_study"] = study
+        context["practice_preview_issues"] = resolved.issues
+        context["practice_preview_back_url"] = editor_url
+        return await aiohttp_jinja2.render_template_async("practice-preview.html", request, context)
+
+    if requested_chapter_id is None:
+        chapter_ids = {chapter.id for chapter in resolved.chapters}
+        chapter_id = study.current_chapter if study.current_chapter in chapter_ids else None
+        if chapter_id is None:
+            chapter_id = resolved.chapters[0].id
+        raise web.HTTPFound(f"/practice/preview/{study.id}/{chapter_id}")
+
+    chapter_metadata = next(
+        (item for item in resolved.chapters if item.id == requested_chapter_id), None
+    )
+    if chapter_metadata is None:
+        raise web.HTTPNotFound()
+
+    try:
+        chapter = await load_chapter(app_state, study.id, requested_chapter_id)
+    except (TypeError, ValueError) as exc:
+        raise web.HTTPNotFound(text="Practice preview chapter is unavailable") from exc
+    if chapter is None or chapter.mode not in practice_data.PRACTICE_ELIGIBLE_CHAPTER_MODES:
+        raise web.HTTPNotFound()
+
+    _study_context(context)
+    context["view"] = "study"
+    context["title"] = f"{study.name} • Practice Preview • PyChess"
+    await _populate_study_chapter_context(
+        app_state,
+        user,
+        context,
+        study,
+        chapter,
+        writable=False,
+        practice_context={
+            "variant": practice_data.practice_variant_key(resolved.ref),
+            "sectionId": "preview",
+            "sectionName": "Practice Preview",
+            "indexUrl": f"/study/{study.id}/{chapter.id}",
+            "studyUrl": f"/practice/preview/{study.id}",
+            "completedChapterIds": [],
+            "persistProgress": False,
+            "preview": True,
+            **(
+                {"goal": chapter_metadata.goal.to_payload()}
+                if chapter_metadata.goal is not None
+                else {}
+            ),
+        },
+    )
+
+    if request.headers.get("Accept") == "application/json":
+        return web.json_response(
+            {
+                "study": json.loads(str(context["study_data"])),
+                "board": json.loads(str(context["board"])),
+                "cataloguedVariants": json.loads(str(context.get("catalogued_variants") or "[]")),
+            }
+        )
+    return await aiohttp_jinja2.render_template_async("analysis.html", request, context)
 
 
 async def practice_complete(request: web.Request) -> web.Response:
