@@ -7,6 +7,53 @@
     --main-max-width: 1180px;
 }
 
+/* `#main-wrap` reserves the named `main` grid area in site.css. Keep the
+   validation-error preview on that track instead of letting CSS Grid auto-place
+   it into the narrow outer-margin column. */
+#main-wrap.practice-preview-wrap {
+    --main-max-width: 900px;
+}
+
+.practice-preview-page {
+    grid-area: main;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 900px;
+    margin: 1.25rem auto 3rem;
+    padding: clamp(1.5rem, 4vw, 3rem);
+}
+
+.practice-preview-page h1 {
+    padding: 0 0 1rem;
+}
+
+.practice-preview-page p {
+    padding: .45rem 0;
+}
+
+.practice-preview-page ul {
+    margin: .75rem 0 1rem 1.5rem;
+}
+
+.practice-preview-page li + li {
+    margin-top: .35rem;
+}
+
+.practice-preview-page .button {
+    display: inline-block;
+    margin-top: .45rem;
+    border-radius: 3px;
+    padding: .55rem .85rem;
+    background: var(--link-color-blue);
+    color: #fff;
+    text-decoration: none;
+}
+
+.practice-preview-page .button:hover,
+.practice-preview-page .button:focus-visible {
+    filter: brightness(1.1);
+}
+
 .practice-index-page {
     grid-area: main;
     display: grid;
@@ -349,7 +396,8 @@
 }
 
 @media (max-width: 799px) {
-    #main-wrap.practice-index-wrap {
+    #main-wrap.practice-index-wrap,
+    #main-wrap.practice-preview-wrap {
         --main-max-width: 100%;
     }
 

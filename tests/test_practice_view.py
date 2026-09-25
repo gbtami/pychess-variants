@@ -514,6 +514,8 @@ async def test_practice_preview_surfaces_validation_errors_to_creator(aiohttp_cl
     assert response.status == 200
     html = await response.text()
     assert "Practice Preview" in html
+    assert 'id="main-wrap" class="practice-preview-wrap"' in html
+    assert 'class="page-small box box-pad practice-preview-page"' in html
     assert "invalid-goal" in html
     assert "missing a Termination goal" in html
     assert 'href="/study/prev0001/chap0002"' in html
