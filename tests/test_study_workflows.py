@@ -640,6 +640,55 @@ async def test_single_chapter_add_rolls_back_if_parent_update_fails(aiohttp_clie
 
 
 @pytest.mark.asyncio
+async def test_chapter_create_explicit_variant_does_not_inherit_current_chess960(
+    aiohttp_client,
+) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    owner = "chapter_960_owner"
+    await _insert_user(app_state, owner)
+
+    draft = await StudyChapterBuilder(app_state, owner).blank_or_fen(
+        variant="seirawan", chess960=True, name="Imported Seirawan960"
+    )
+    study, first = await create_study_from_draft(app_state, owner, draft)
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": _login_cookie(owner)})
+
+    response = await client.post(
+        f"/study/{study.id}/chapter",
+        data={"chapterName": "Normal S-Chess", "variant": "seirawan", "sync": "0"},
+        allow_redirects=False,
+    )
+    assert response.status == 302
+    normal_id = response.headers["Location"].rsplit("/", 1)[-1]
+    normal = await app_state.db.study_chapter.find_one({"_id": normal_id})
+    assert normal is not None
+    assert normal.get("chess960", False) is False
+    assert normal["initialFen"] == FairyBoard.start_fen("seirawan", False)
+
+    stored = await app_state.db.study.find_one({"_id": study.id})
+    assert stored is not None
+    assert stored["currentChapter"] == first.id
+
+    response = await client.post(
+        f"/study/{study.id}/chapter",
+        data={
+            "chapterName": "Explicit Seirawan960",
+            "variant": "seirawan",
+            "chess960": "1",
+            "sync": "0",
+        },
+        allow_redirects=False,
+    )
+    assert response.status == 302
+    random_id = response.headers["Location"].rsplit("/", 1)[-1]
+    random_chapter = await app_state.db.study_chapter.find_one({"_id": random_id})
+    assert random_chapter is not None
+    assert random_chapter["chess960"] is True
+
+
+@pytest.mark.asyncio
 async def test_chapter_create_honors_sync_mode_and_broadcasts_chapter_list(aiohttp_client) -> None:
     app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
     client = await aiohttp_client(app)

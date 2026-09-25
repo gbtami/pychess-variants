@@ -1418,7 +1418,6 @@ function studySide(study: StudyPageModel, model: PyChessModel, modeActions: Stud
                       studyChapterCreateForm(
                           `/study/${study.id}/chapter`,
                           model.variant || 'chess',
-                          model.chess960 === 'True',
                           {
                               orientation: study.chapter.orientation,
                               enabledModes: study.enabledModes,

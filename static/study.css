@@ -1083,6 +1083,12 @@ button.study-gamebook-edit__legend { cursor: pointer; }
 }
 .study-side__new-chapter { display: grid; gap: 1rem; }
 .study-side__new-chapter label { display: grid; gap: .35rem; }
+.study-side__new-chapter label.study-chapter-chess960 {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+.study-side__new-chapter label.study-chapter-chess960[hidden] { display: none; }
 .study-chapter-source-tabs {
     display: flex;
     border-bottom: 1px solid var(--border-color);

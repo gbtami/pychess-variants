@@ -108,7 +108,7 @@ export function initStudyIndex(options: StudyIndexOptions = {}): void {
     const navigate = options.navigate ?? ((url: string) => window.location.assign(url));
     const chapterForm = patch(
         chapterFormMount,
-        studyChapterCreateForm('/study', 'chess', false, {
+        studyChapterCreateForm('/study', 'chess', {
             id: 'study-first-chapter-form',
             chapterName: 'Chapter 1',
             enabledModes,

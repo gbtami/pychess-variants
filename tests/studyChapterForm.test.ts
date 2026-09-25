@@ -15,9 +15,36 @@ function mount(vnode: ReturnType<typeof studyChapterCreateForm> | ReturnType<typ
     patch(document.getElementById('root')!, vnode);
 }
 
+test('chapter creation exposes an independent Chess960 choice only for supported variants', () => {
+    mount(studyChapterCreateForm('/study/StUdY001/chapter', 'seirawan'));
+
+    const form = document.querySelector<HTMLFormElement>('form.study-side__new-chapter')!;
+    const variant = form.querySelector<HTMLSelectElement>('select[name="variant"]')!;
+    const field = form.querySelector<HTMLElement>('.study-chapter-chess960')!;
+    const chess960 = field.querySelector<HTMLInputElement>('input[name="chess960"]')!;
+
+    expect(field.hidden).toBe(false);
+    expect(chess960.checked).toBe(false);
+    expect(new FormData(form).get('chess960')).toBeNull();
+
+    chess960.checked = true;
+    expect(new FormData(form).get('chess960')).toBe('1');
+
+    variant.value = 'minishogi';
+    variant.dispatchEvent(new Event('change', { bubbles: true }));
+    expect(field.hidden).toBe(true);
+    expect(chess960.checked).toBe(false);
+    expect(new FormData(form).get('chess960')).toBeNull();
+
+    variant.value = 'seirawan';
+    variant.dispatchEvent(new Event('change', { bubbles: true }));
+    expect(field.hidden).toBe(false);
+    expect(chess960.checked).toBe(false);
+});
+
 test('chapter creation exposes learner orientation and the staged default analysis modes', () => {
     mount(
-        studyChapterCreateForm('/study/StUdY001/chapter', 'chess', false, {
+        studyChapterCreateForm('/study/StUdY001/chapter', 'chess', {
             orientation: 'black',
         }),
     );
@@ -91,7 +118,7 @@ test('analysis mode help follows the newly selected completed mode', () => {
 });
 
 test('Hide next moves submits the conceal mode value', () => {
-    mount(studyChapterCreateForm('/study', 'chess', false, { enabledModes: ALL_STUDY_MODES }));
+    mount(studyChapterCreateForm('/study', 'chess', { enabledModes: ALL_STUDY_MODES }));
 
     const form = document.querySelector<HTMLFormElement>('form.study-side__new-chapter')!;
     const mode = form.querySelector<HTMLSelectElement>('select[name="mode"]')!;
@@ -117,7 +144,7 @@ test('chapter creation waits for pending Study writes before allowing native sub
                 release = resolve;
             }),
     );
-    mount(studyChapterCreateForm('/study/StUdY001/chapter', 'chess', false, { beforeSubmit }));
+    mount(studyChapterCreateForm('/study/StUdY001/chapter', 'chess', { beforeSubmit }));
     const form = document.querySelector<HTMLFormElement>('form.study-side__new-chapter')!;
     form.reportValidity = jest.fn(() => true);
     form.submit = jest.fn();
@@ -137,7 +164,7 @@ test('chapter creation waits for pending Study writes before allowing native sub
 test('chapter creation refreshes shared-sync state immediately before native submission', async () => {
     let sync = false;
     mount(
-        studyChapterCreateForm('/study/StUdY001/chapter', 'chess', false, {
+        studyChapterCreateForm('/study/StUdY001/chapter', 'chess', {
             sync: () => sync,
             beforeSubmit: async () => true,
         }),
@@ -160,7 +187,7 @@ test('existing Study chapter creation offers a PGN source and imports pasted PGN
     const beforeSubmit = jest.fn(async () => true);
     const pgnImport = jest.fn(async (_pgn: string) => {});
     mount(
-        studyChapterCreateForm('/study/StUdY001/chapter', 'chess', false, {
+        studyChapterCreateForm('/study/StUdY001/chapter', 'chess', {
             beforeSubmit,
             pgnImport,
         }),
@@ -211,7 +238,7 @@ test('PGN import renders determinate chapter progress and hides it after complet
                 finish = resolve;
             }),
     );
-    mount(studyChapterCreateForm('/study/StUdY001/chapter', 'chess', false, { pgnImport }));
+    mount(studyChapterCreateForm('/study/StUdY001/chapter', 'chess', { pgnImport }));
 
     const form = document.querySelector<HTMLFormElement>('form.study-side__new-chapter')!;
     form.reportValidity = jest.fn(() => true);
@@ -238,7 +265,7 @@ test('PGN import renders determinate chapter progress and hides it after complet
 
 test('PGN file selection loads the file into the paste area and imports that text', async () => {
     const pgnImport = jest.fn(async (_pgn: string) => {});
-    mount(studyChapterCreateForm('/study/StUdY001/chapter', 'chess', false, { pgnImport }));
+    mount(studyChapterCreateForm('/study/StUdY001/chapter', 'chess', { pgnImport }));
 
     const form = document.querySelector<HTMLFormElement>('form.study-side__new-chapter')!;
     form.reportValidity = jest.fn(() => true);
@@ -266,7 +293,7 @@ test('PGN import errors stay in the chapter dialog with parser diagnostics', asy
     const pgnImport = jest.fn(async () => {
         throw new Error('PGN parse error at line 3, column 7: Expected move.');
     });
-    mount(studyChapterCreateForm('/study/StUdY001/chapter', 'chess', false, { pgnImport }));
+    mount(studyChapterCreateForm('/study/StUdY001/chapter', 'chess', { pgnImport }));
 
     const form = document.querySelector<HTMLFormElement>('form.study-side__new-chapter')!;
     form.reportValidity = jest.fn(() => true);

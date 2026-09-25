@@ -2,7 +2,7 @@ import { h, VNode } from 'snabbdom';
 import { _ } from '../i18n';
 import type { StudyChapterMode } from '../types';
 import type { StudyPgnImportProgress, StudyPgnImportProgressCallback } from './studyPgnImport';
-import { selectVariant, twoBoarsVariants } from '../variants';
+import { selectVariant, twoBoarsVariants, VARIANTS } from '../variants';
 
 export interface StudyChapterCreateFormOptions {
     id?: string;
@@ -26,6 +26,33 @@ const STUDY_CHAPTER_MODE_ORDER: readonly StudyChapterMode[] = ['normal', 'practi
 const STUDY_DEFAULT_ENABLED_MODES: readonly StudyChapterMode[] = ['normal', 'gamebook'];
 
 type StudyChapterSource = 'setup' | 'pgn';
+
+function studyChapterChess960State(variantName: string): { visible: boolean; checked: boolean } {
+    const variant = VARIANTS[variantName];
+    if (!variant) return { visible: false, checked: false };
+    if (variant.randomStart) return { visible: false, checked: true };
+    return { visible: variant.chess960, checked: false };
+}
+
+function updateStudyChapterChess960Field(form: HTMLFormElement, variantName: string): void {
+    const field = form.querySelector<HTMLElement>('.study-chapter-chess960');
+    const input = field?.querySelector<HTMLInputElement>('input[name="chess960"]');
+    if (!field || !input) return;
+    const state = studyChapterChess960State(variantName);
+    field.hidden = !state.visible;
+    input.checked = state.checked;
+}
+
+function studyChapterChess960Field(variantName: string): VNode {
+    const state = studyChapterChess960State(variantName);
+    return h('label.study-chapter-chess960', { attrs: { hidden: !state.visible } }, [
+        h('input', {
+            props: { type: 'checkbox', name: 'chess960', checked: state.checked },
+            attrs: { value: '1' },
+        }),
+        h('span', 'Chess960'),
+    ]);
+}
 
 function selectStudyChapterSource(form: HTMLFormElement, source: StudyChapterSource): void {
     form.dataset.studyChapterSource = source;
@@ -311,7 +338,6 @@ export function settleStudyFormSubmit(
 export function studyChapterCreateForm(
     action: string,
     variant: string,
-    chess960: boolean,
     options: StudyChapterCreateFormOptions = {},
 ): VNode {
     const mode = options.mode ?? 'normal';
@@ -322,12 +348,15 @@ export function studyChapterCreateForm(
             selectVariant(
                 'variant',
                 variant,
-                () => {},
+                event => {
+                    const select = event.currentTarget as HTMLSelectElement;
+                    if (select.form) updateStudyChapterChess960Field(select.form, select.value);
+                },
                 () => {},
                 twoBoarsVariants,
             ),
         ]),
-        ...(chess960 ? [h('input', { attrs: { type: 'hidden', name: 'chess960', value: '1' } })] : []),
+        studyChapterChess960Field(variant),
         studyChapterOrientationField(options.orientation ?? 'white'),
         studyChapterModeField(mode, options.enabledModes),
         chapterField('fen', _('FEN (optional)')),

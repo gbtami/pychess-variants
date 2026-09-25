@@ -28,7 +28,9 @@ changes; possible future features below are not commitments or a release schedul
   do not change the saved rules.
 
 Chapters are single-board only. Existing Studies can add chapters by pasting PGN or
-selecting a `.pgn` file in the New chapter dialog. The same PGN source is available for
+selecting a `.pgn` file in the New chapter dialog. Setup chapters expose an independent
+Chess960 option only for variants that support randomized starts; changing chapters does
+not implicitly carry that choice into a new chapter. The same PGN source is available for
 the first chapter of a new Study, where multi-game PGN creates all initial chapters in
 one validated import and opens the final imported chapter.
 

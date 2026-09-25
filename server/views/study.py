@@ -429,11 +429,16 @@ async def _draft_from_form(
             conceal_ply=conceal_ply,
         )
 
-    variant = str(data.get("variant") or fallback_variant).strip() or fallback_variant
+    raw_variant = data.get("variant")
+    variant = str(raw_variant or fallback_variant).strip() or fallback_variant
     fen = str(data.get("fen") or "").strip() or None
-    chess960 = (
-        _form_bool(data.get("chess960")) if data.get("chess960") is not None else fallback_chess960
-    )
+    raw_chess960 = data.get("chess960")
+    if raw_chess960 is not None:
+        chess960 = _form_bool(raw_chess960)
+    elif raw_variant is None:
+        chess960 = fallback_chess960
+    else:
+        chess960 = False
     orientation = "black" if str(data.get("orientation") or "").lower() == "black" else "white"
     return await builder.blank_or_fen(
         variant=variant,
