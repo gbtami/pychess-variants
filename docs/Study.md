@@ -251,12 +251,22 @@ alone is only a compatibility hint and is not a lossless lesson interchange form
 Practice attempts, lesson attempts and reader conceal exploration are disposable runtime
 state and are never exported as authored chapter moves.
 
-Lichess's ordinary Study PGN export likewise does not contain every internal Study field.
-In particular, it does not serialize gamebook hint/deviation fields, and it normally omits
-chapter orientation. PyChess can infer useful orientation in common cases, but missing
-author intent cannot always be reconstructed from ordinary PGN. Multi-stage `TimeControl`
-values are retained but their clocks are not guessed. These are interchange limitations,
-not reasons to invent unverified Lichess-specific directives.
+Lichess's ordinary Study PGN export likewise does not contain every internal Study field,
+so it must be treated as a **lossy interchange format rather than a complete Study backup or
+clone format**. This is a long-standing known limitation documented in
+[lichess-org/lila#3960](https://github.com/lichess-org/lila/issues/3960): Interactive Lesson
+content entered as **When any other wrong move is played** and **Optional, on-demand hint
+for the player** is stored by Lichess but omitted from its exported Study PGN. In PyChess
+terms, these correspond to gamebook deviation/hint semantics and therefore cannot be
+reconstructed exactly from the exported move tree and ordinary comments alone.
+
+Lichess Study PGN also normally omits chapter orientation. PyChess can infer useful
+orientation in common cases, but missing author intent cannot always be reconstructed from
+ordinary PGN. Multi-stage `TimeControl` values are retained but their clocks are not
+guessed. Consequently, successful import of a Lichess Study PGN means that the portable
+PGN content was recovered; it must not be interpreted as proof of full Study-fidelity
+round-tripping. These are interchange limitations, not reasons to invent unverified
+Lichess-specific directives.
 
 ### Import: parser, validation, and paste workflow
 
