@@ -25,13 +25,10 @@ describe('Practice browser-session progress', () => {
         expect(progress.isComplete('chapter-2')).toBe(false);
     });
 
-
-    test('hydrates completed chapters and persists only newly completed ones', () => {
-        const saved: string[] = [];
-        const progress = new StudyPracticeProgress(
-            new MemoryStorage(),
-            ['chapter-1'],
-            chapterId => saved.push(chapterId),
+    test('hydrates completed chapters and persists new completion or improved move-count attempts', () => {
+        const saved: Array<[string, number | undefined]> = [];
+        const progress = new StudyPracticeProgress(new MemoryStorage(), ['chapter-1'], (chapterId, bestMoves) =>
+            saved.push([chapterId, bestMoves]),
         );
 
         expect(progress.isComplete('chapter-1')).toBe(true);
@@ -40,7 +37,13 @@ describe('Practice browser-session progress', () => {
 
         expect(progress.complete('chapter-2')).toBe(true);
         expect(progress.isComplete('chapter-2')).toBe(true);
-        expect(saved).toEqual(['chapter-2']);
+        expect(saved).toEqual([['chapter-2', undefined]]);
+
+        expect(progress.complete('chapter-2', 7)).toBe(false);
+        expect(saved).toEqual([
+            ['chapter-2', undefined],
+            ['chapter-2', 7],
+        ]);
     });
 
     test('defaults auto-next on and remembers the browser preference', () => {

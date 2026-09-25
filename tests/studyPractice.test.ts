@@ -8,6 +8,7 @@ jest.mock('../client/i18n', () => ({
 }));
 
 import type { AnalysisController } from '../client/analysis/analysisCtrl';
+import type { PracticeGoal } from '../client/types';
 import type { AnalysisNavigationOrigin } from '../client/analysis/analysisExtension';
 import type { AnalysisTree, AnalysisTreeNode } from '../client/analysis/analysisTree';
 import { StudyPracticeSession, type StudyPracticeAccess } from '../client/study/studyPractice';
@@ -19,6 +20,7 @@ type Scenario = {
     terminalAfter?: number;
     initialTerminal?: boolean;
     result?: string;
+    checkmate?: boolean;
     legalMoves?: (turn: Color, moves: readonly string[]) => string;
 };
 
@@ -56,6 +58,14 @@ class FakeBoard {
 
     result(): string {
         return this.isGameOver() ? (scenario.result ?? '1-0') : '*';
+    }
+
+    isCheck(): boolean {
+        return this.isGameOver() && Boolean(scenario.checkmate);
+    }
+
+    numberLegalMoves(): number {
+        return this.legalMoves().split(' ').filter(Boolean).length;
     }
 
     legalMoves(): string {
@@ -108,6 +118,11 @@ type HarnessOverrides = Partial<{
     practiceEngineIdle: boolean;
     canAnalyse: boolean;
     onAnalyse: () => void;
+    goal: PracticeGoal;
+    autoNext: () => boolean;
+    hasNextChapter: boolean;
+    onComplete: (moves: number) => void;
+    onNextChapter: () => void;
 }>;
 
 function makeHarness(
@@ -198,6 +213,11 @@ function makeHarness(
         access: () => accessRef.value,
         canAnalyse: overrides.canAnalyse ?? false,
         ...(overrides.onAnalyse ? { onAnalyse: overrides.onAnalyse } : {}),
+        ...(overrides.goal ? { goal: overrides.goal } : {}),
+        ...(overrides.autoNext ? { autoNext: overrides.autoNext } : {}),
+        ...(overrides.hasNextChapter !== undefined ? { hasNextChapter: overrides.hasNextChapter } : {}),
+        ...(overrides.onComplete ? { onComplete: overrides.onComplete } : {}),
+        ...(overrides.onNextChapter ? { onNextChapter: overrides.onNextChapter } : {}),
     });
 
     const humanMove = (move: string) => {
@@ -457,6 +477,75 @@ describe('StudyPracticeSession', () => {
         expect(session.state.kind).toBe('ended');
         if (session.state.kind === 'ended') expect(session.state.result).toBe('1-0');
         expect(commands).not.toContain('go nodes 600000');
+        session.destroy();
+    });
+
+    test('variant-native win goal completes on a non-checkmate Fairy-Stockfish terminal result', () => {
+        scenario = { initialTurn: 'white', terminalAfter: 1, result: '1-0', checkmate: false };
+        const onComplete = jest.fn();
+        const { session, humanMove, finishEvaluation } = makeHarness('white', undefined, {
+            engineVariant: 'racingkings',
+            goal: { result: 'win' },
+            onComplete,
+        });
+
+        finishEvaluation('e2e4');
+        expect(humanMove('e2e4')).toBe(true);
+        expect(session.state).toMatchObject({ kind: 'ended', goalDecision: 'success', result: '1-0' });
+        expect(onComplete).toHaveBeenCalledWith(1);
+        expect(document.querySelector('.study-practice')?.textContent).toContain('Success!');
+        session.destroy();
+    });
+
+    test('mate goal requires a real checked no-legal-moves terminal position', () => {
+        scenario = { initialTurn: 'white', terminalAfter: 1, result: '1-0', checkmate: false };
+        const failed = makeHarness('white', undefined, { goal: { result: 'mate' } });
+        failed.finishEvaluation('e2e4');
+        expect(failed.humanMove('e2e4')).toBe(true);
+        expect(failed.session.state).toMatchObject({ kind: 'ended', goalDecision: 'failure' });
+        failed.session.destroy();
+
+        scenario = { initialTurn: 'white', terminalAfter: 1, result: '1-0', checkmate: true };
+        const completed = jest.fn();
+        const success = makeHarness('white', undefined, { goal: { result: 'mate' }, onComplete: completed });
+        success.finishEvaluation('e2e4');
+        expect(success.humanMove('e2e4')).toBe(true);
+        expect(success.session.state).toMatchObject({ kind: 'ended', goalDecision: 'success' });
+        expect(completed).toHaveBeenCalledWith(1);
+        success.session.destroy();
+    });
+
+    test('draw goal accepts a claimable full-history draw terminal result', () => {
+        scenario = { initialTurn: 'white', terminalAfter: 1, result: '1/2-1/2' };
+        const completed = jest.fn();
+        const { session, humanMove, finishEvaluation } = makeHarness('white', undefined, {
+            goal: { result: 'drawIn', moves: 5 },
+            onComplete: completed,
+        });
+
+        finishEvaluation('e2e4');
+        expect(humanMove('e2e4')).toBe(true);
+        expect(session.state).toMatchObject({ kind: 'ended', goalDecision: 'success', result: '1/2-1/2' });
+        expect(completed).toHaveBeenCalledWith(1);
+        session.destroy();
+    });
+
+    test('shallow bounded goal evaluation is indeterminate and never records completion', () => {
+        scenario = { initialTurn: 'white' };
+        const completed = jest.fn();
+        const { session, humanMove, finishEvaluation } = makeHarness('white', undefined, {
+            goal: { result: 'evalIn', moves: 1, cp: 200 },
+            onComplete: completed,
+        });
+
+        finishEvaluation('e2e4');
+        expect(humanMove('e2e4')).toBe(true);
+        session.onEngineLine('info depth 12 multipv 1 score cp -400 nodes 400000 time 1000 pv e7e5');
+        session.onEngineLine('bestmove e7e5');
+
+        expect(session.state).toMatchObject({ kind: 'ended', goalDecision: 'indeterminate' });
+        expect(completed).not.toHaveBeenCalled();
+        expect(document.querySelector('.study-practice')?.textContent).toContain('Result unclear');
         session.destroy();
     });
 

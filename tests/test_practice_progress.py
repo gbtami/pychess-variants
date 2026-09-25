@@ -45,6 +45,21 @@ class PracticeProgressTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual((summary.done, summary.total, summary.state), (2, 2, "done"))
         self.assertIsNone(complete.first_unfinished("study001", ("chap0001", "chap0002")))
 
+    async def test_best_move_count_only_improves(self) -> None:
+        await record_practice_completion(
+            self.app_state, "learner", "study001", "chap0001", best_moves=12
+        )
+        await record_practice_completion(
+            self.app_state, "learner", "study001", "chap0001", best_moves=15
+        )
+        await record_practice_completion(
+            self.app_state, "learner", "study001", "chap0001", best_moves=9
+        )
+
+        progress = await load_practice_progress(self.app_state, "learner")
+        chapter = progress.chapters[practice_progress_key("study001", "chap0001")]
+        self.assertEqual(chapter.best_moves, 9)
+
     async def test_reset_removes_only_selected_chapter_keys(self) -> None:
         await record_practice_completion(self.app_state, "learner", "study001", "chap0001")
         await record_practice_completion(self.app_state, "learner", "study002", "chap0002")

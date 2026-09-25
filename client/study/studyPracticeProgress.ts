@@ -14,7 +14,7 @@ export class StudyPracticeProgress {
     constructor(
         private readonly storage: Pick<Storage, 'getItem' | 'setItem'> = localStorage,
         completedChapterIds: Iterable<string> = [],
-        private readonly onComplete?: (chapterId: string) => void,
+        private readonly onComplete?: (chapterId: string, bestMoves?: number) => void,
     ) {
         this.completed = new Set(completedChapterIds);
         const stored = this.storage.getItem(PRACTICE_AUTO_NEXT_KEY);
@@ -25,11 +25,11 @@ export class StudyPracticeProgress {
         return this.completed.has(chapterId);
     }
 
-    complete(chapterId: string): boolean {
+    complete(chapterId: string, bestMoves?: number): boolean {
         const size = this.completed.size;
         this.completed.add(chapterId);
         const changed = this.completed.size !== size;
-        if (changed) this.onComplete?.(chapterId);
+        if (changed || bestMoves !== undefined) this.onComplete?.(chapterId, bestMoves);
         return changed;
     }
 

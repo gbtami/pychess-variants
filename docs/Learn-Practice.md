@@ -509,18 +509,18 @@ the correct chapter.
 **Acceptance:** every curated computer-practice chapter has a validated typed objective
 before it is presented to learners.
 
-### P8 — Dynamic Practice-with-computer success evaluator
+### P8 — Dynamic Practice-with-computer success evaluator — **done**
 
-- [ ] Feed the typed Practice goal into the existing `studyPractice` runtime.
-- [ ] Implement terminal `win`, mate, draw/equalize, eval, move-limit, and promotion
+- [x] Feed the typed Practice goal into the existing `studyPractice` runtime.
+- [x] Implement terminal `win`, mate, draw/equalize, eval, move-limit, and promotion
       success/failure checks.
-- [ ] Use the existing full-history local rules board for repetition and variant-native
+- [x] Use the existing full-history local rules board for repetition and variant-native
       results.
-- [ ] Reuse the bounded browser engine and its current ownership/drain/time-out rules.
-- [ ] Never fall back to Fishnet merely to decide Practice completion.
-- [ ] Keep an indeterminate state when an evaluation is not deep/reliable enough.
-- [ ] Record completion and best move count only on actual success.
-- [ ] Add tests for both orthodox chess and at least one non-checkmate variant-native
+- [x] Reuse the bounded browser engine and its current ownership/drain/time-out rules.
+- [x] Never fall back to Fishnet merely to decide Practice completion.
+- [x] Keep an indeterminate state when an evaluation is not deep/reliable enough.
+- [x] Record completion and best move count only on actual success.
+- [x] Add tests for both orthodox chess and at least one non-checkmate variant-native
       `win` goal.
 
 **Acceptance:** Practice-with-computer chapters are open-ended in move choice but can be
@@ -593,6 +593,7 @@ storage while reusing Study runtime should lead to a structure roughly like:
 ```text
 server/practice.py                  curated structure and validation
 server/practice_goal.py             typed `Termination` goal parser
+client/study/studyPracticeGoal.ts   typed browser goal evaluator
 server/practice_progress.py         persistent learner progress helpers
 server/views/practice.py            DEV routes/view models
 client/practice.ts                  Practice index + variant selector

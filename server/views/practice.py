@@ -187,7 +187,7 @@ async def practice_study(request: web.Request) -> ViewContext | web.Response:
 
 
 async def practice_complete(request: web.Request) -> web.Response:
-    """Persist completion of a curated Interactive Lesson for a signed-in learner."""
+    """Persist completion of a curated Practice chapter for a signed-in learner."""
 
     if not settings.DEV:
         raise web.HTTPNotFound()
@@ -214,13 +214,35 @@ async def practice_complete(request: web.Request) -> web.Response:
     chapter = next((item for item in resolved.chapters if item.id == chapter_id), None)
     if chapter is None:
         raise web.HTTPNotFound()
-    # P5 can prove success only for authored Interactive Lessons. P8 will extend this
-    # endpoint to computer-practice chapters after their goal evaluator exists.
-    if chapter.mode != "gamebook":
-        raise web.HTTPBadRequest(text="This Practice chapter has no completion evaluator yet.")
+    best_moves: int | None = None
+    if chapter.mode == "practice":
+        # The browser owns the bounded Fairy-Stockfish evaluator. Persist only the
+        # successful attempt summary it sends after P8 has reached a real success state.
+        try:
+            payload = await request.json()
+        except (json.JSONDecodeError, TypeError):
+            raise web.HTTPBadRequest(text="Computer Practice completion needs a move count.")
+        raw_best_moves = payload.get("bestMoves") if isinstance(payload, dict) else None
+        if (
+            isinstance(raw_best_moves, bool)
+            or not isinstance(raw_best_moves, int)
+            or raw_best_moves < 0
+        ):
+            raise web.HTTPBadRequest(text="Computer Practice completion needs a valid move count.")
+        best_moves = raw_best_moves
+    elif chapter.mode != "gamebook":
+        raise web.HTTPBadRequest(text="This Practice chapter has no completion evaluator.")
 
-    await record_practice_completion(app_state, username, resolved.study.id, chapter.id)
-    return web.json_response({"completed": True})
+    await record_practice_completion(
+        app_state,
+        username,
+        resolved.study.id,
+        chapter.id,
+        best_moves=best_moves,
+    )
+    return web.json_response(
+        {"completed": True, **({"bestMoves": best_moves} if best_moves is not None else {})}
+    )
 
 
 async def practice_reset(request: web.Request) -> web.StreamResponse:

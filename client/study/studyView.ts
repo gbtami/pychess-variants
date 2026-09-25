@@ -909,13 +909,19 @@ function studyChapterUrl(study: StudyPageModel, chapterId: string): string {
     return `${studyChapterBaseUrl(study)}/${chapterId}`;
 }
 
-function persistPracticeCompletion(study: StudyPageModel, chapterId: string): void {
+function persistPracticeCompletion(study: StudyPageModel, chapterId: string, bestMoves?: number): void {
     const practice = study.practice;
     if (!practice?.persistProgress) return;
     void fetch(`${practice.studyUrl}/${encodeURIComponent(chapterId)}/complete`, {
         method: 'POST',
         credentials: 'same-origin',
         keepalive: true,
+        ...(bestMoves === undefined
+            ? {}
+            : {
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ bestMoves }),
+              }),
     })
         .then(response => {
             if (!response.ok) throw new Error(`Practice progress could not be saved (${response.status}).`);
@@ -2577,6 +2583,9 @@ function runStudyGround(
             extension.setGamebookPlayback(gamebookPlayback);
         }
         if (isPracticePlayback(policy)) {
+            const orderedChapters = [...study.chapters].sort((a, b) => a.order - b.order);
+            const chapterIndex = orderedChapters.findIndex(chapter => chapter.id === study.chapter.id);
+            const nextChapter = chapterIndex >= 0 ? orderedChapters[chapterIndex + 1] : undefined;
             const practiceSession = new StudyPracticeSession(ctrl, {
                 initialFen: study.chapter.initialFen,
                 learnerColor: study.chapter.orientation,
@@ -2590,6 +2599,22 @@ function runStudyGround(
                     return { available: true };
                 },
                 canAnalyse: study.canWrite,
+                ...(study.practice?.goal ? { goal: study.practice.goal } : {}),
+                ...(study.practice && practiceProgress
+                    ? {
+                          autoNext: () => practiceProgress.autoNext,
+                          hasNextChapter: Boolean(nextChapter),
+                          onComplete: (moves: number) => {
+                              const changed = practiceProgress.complete(study.chapter.id, moves);
+                              if (!changed) return;
+                              sideVNode = patch(
+                                  sideVNode,
+                                  studySide(study, model, modeActions, practiceProgress),
+                              );
+                          },
+                      }
+                    : {}),
+                ...(nextChapter ? { onNextChapter: () => void navigation?.go(nextChapter.id, 'push') } : {}),
                 ...(study.canWrite ? { onAnalyse: () => void modeActions.enterPracticeAnalysis() } : {}),
             });
             extension.setPracticeSession(practiceSession);
@@ -2992,7 +3017,7 @@ export function studyView(model: PyChessModel): VNode[] {
         ? new StudyPracticeProgress(
               localStorage,
               study.practice.completedChapterIds,
-              chapterId => persistPracticeCompletion(study, chapterId),
+              (chapterId, bestMoves) => persistPracticeCompletion(study, chapterId, bestMoves),
           )
         : undefined;
     const modeActions: StudyModeActions = {

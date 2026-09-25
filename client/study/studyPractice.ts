@@ -16,6 +16,7 @@ import {
 } from '../analysis/analysisPracticeEngine';
 import { uci2cg } from '../chess';
 import { _ } from '../i18n';
+import type { PracticeGoal } from '../types';
 import {
     gradeStudyPracticeMove,
     studyPracticeMovesEquivalent,
@@ -23,6 +24,11 @@ import {
     type StudyPracticeEvaluation,
     type StudyPracticeFeedback,
 } from './studyPracticeFeedback';
+import {
+    evaluateStudyPracticeGoal,
+    studyPracticeMovePromotes,
+    type StudyPracticeGoalDecision,
+} from './studyPracticeGoal';
 
 export type StudyPracticeUnavailableReason =
     | 'computer-disabled'
@@ -37,6 +43,8 @@ export interface StudyPracticeMove {
     fen: string;
     path: string;
     by: 'human' | 'engine';
+    san?: string;
+    promotion?: boolean;
 }
 
 export type StudyPracticeState =
@@ -45,7 +53,12 @@ export type StudyPracticeState =
     | Readonly<{ kind: 'evaluating-move' }>
     | Readonly<{ kind: 'engine-thinking' }>
     | Readonly<{ kind: 'paused'; liveKind: 'human-turn' | 'engine-thinking'; browseIndex: number }>
-    | Readonly<{ kind: 'ended'; result?: string; feedback?: StudyPracticeFeedback }>
+    | Readonly<{
+          kind: 'ended';
+          result?: string;
+          feedback?: StudyPracticeFeedback;
+          goalDecision?: Exclude<StudyPracticeGoalDecision, 'ongoing'>;
+      }>
     | Readonly<{ kind: 'unavailable'; reason: StudyPracticeUnavailableReason; message?: string }>;
 
 export type StudyPracticeAccess =
@@ -58,12 +71,19 @@ export interface StudyPracticeOptions {
     access(): StudyPracticeAccess;
     canAnalyse: boolean;
     onAnalyse?(): void;
+    goal?: PracticeGoal;
+    autoNext?(): boolean;
+    hasNextChapter?: boolean;
+    onComplete?(moves: number): void;
+    onNextChapter?(): void;
 }
 
 type PracticeBoard = {
     delete(): void;
     isGameOver(claimDraw?: boolean): boolean;
+    isCheck(): boolean;
     legalMoves(): string;
+    numberLegalMoves(): number;
     pop(): void;
     push(move: string): void;
     result(claimDraw?: boolean): string;
@@ -138,11 +158,13 @@ export class StudyPracticeSession {
     private readonly searchPurposes = new Map<string, SearchPurpose>();
     private livePath = '';
     private pendingGrade?: PendingGrade;
+    private pendingGoalFeedback?: StudyPracticeFeedback;
     private lastRetry?: PracticeRetry;
     private launchingSearchPurpose?: SearchPurpose;
     private lastFeedback?: StudyPracticeFeedback;
     private hintLevel: 0 | 1 | 2 = 0;
     private applyingEngineReply = false;
+    private autoNextTimer?: number;
     private destroyed = false;
 
     constructor(
@@ -236,19 +258,29 @@ export class StudyPracticeSession {
             return;
         }
 
+        let san: string | undefined;
         try {
+            san = this.historyBoard.sanMove(move);
             this.historyBoard.push(move);
         } catch (error) {
             this.setUnavailable('engine-error', error instanceof Error ? error.message : String(error));
             return;
         }
-        this.history.push({ move, fen: change.fen, path: change.path, by });
+        const promotion = by === 'human' && studyPracticeMovePromotes(move, san);
+        this.history.push({
+            move,
+            fen: change.fen,
+            path: change.path,
+            by,
+            ...(san ? { san } : {}),
+            ...(promotion ? { promotion: true } : {}),
+        });
         this.paths.push(change.path);
         this.livePath = change.path;
 
         if (by === 'engine') {
             if (this.isTerminal()) {
-                this.finish();
+                this.finishCurrentPosition();
                 return;
             }
             if (this.ctrl.turnColor === this.options.learnerColor) this.enterHumanTurn();
@@ -341,7 +373,7 @@ export class StudyPracticeSession {
 
         this.engine.setBlocked(null);
         if (this.isTerminal()) {
-            this.finish();
+            this.finishCurrentPosition();
             return;
         }
         if (
@@ -371,7 +403,7 @@ export class StudyPracticeSession {
         if (this.destroyed || this.stateValue.kind !== 'paused') return false;
         if ((this.ctrl.analysisPath ?? '') !== this.livePath) this.ctrl.activateTreePath(this.livePath, true, 'reset');
         if (this.isTerminal()) {
-            this.finish();
+            this.finishCurrentPosition();
             return true;
         }
         if (this.ctrl.turnColor === this.options.learnerColor) this.enterHumanTurn();
@@ -436,6 +468,9 @@ export class StudyPracticeSession {
         }
 
         this.pendingGrade = undefined;
+        this.pendingGoalFeedback = undefined;
+        if (this.autoNextTimer !== undefined) window.clearTimeout(this.autoNextTimer);
+        this.autoNextTimer = undefined;
         this.lastFeedback = undefined;
         this.lastRetry = undefined;
         this.hintLevel = 0;
@@ -455,6 +490,9 @@ export class StudyPracticeSession {
         this.evaluationSearches.clear();
         this.evaluations.clear();
         this.pendingGrade = undefined;
+        this.pendingGoalFeedback = undefined;
+        if (this.autoNextTimer !== undefined) window.clearTimeout(this.autoNextTimer);
+        this.autoNextTimer = undefined;
         this.lastFeedback = undefined;
         this.lastRetry = undefined;
         this.hintLevel = 0;
@@ -473,6 +511,8 @@ export class StudyPracticeSession {
     destroy(): void {
         if (this.destroyed) return;
         this.destroyed = true;
+        if (this.autoNextTimer !== undefined) window.clearTimeout(this.autoNextTimer);
+        this.autoNextTimer = undefined;
         this.engine.destroy();
         this.historyBoard.delete();
         this.clearHintShapes();
@@ -522,16 +562,95 @@ export class StudyPracticeSession {
         }
     }
 
-    private finish(feedback = this.lastFeedback, result = this.gameResult()): void {
+    private learnerMoveCount(): number {
+        return this.history.reduce((count, move) => count + (move.by === 'human' ? 1 : 0), 0);
+    }
+
+    private isCheckmate(): boolean {
+        if (!this.isTerminal()) return false;
+        try {
+            return this.historyBoard.isCheck() && this.historyBoard.numberLegalMoves() === 0;
+        } catch {
+            return false;
+        }
+    }
+
+    private currentMoveWasPromotion(): boolean {
+        const move = this.history[this.history.length - 1];
+        return move?.by === 'human' && move.promotion === true;
+    }
+
+    private goalDecision(feedback = this.lastFeedback): StudyPracticeGoalDecision {
+        const goal = this.options.goal;
+        if (!goal) return 'ongoing';
+        return evaluateStudyPracticeGoal({
+            goal,
+            learnerColor: this.options.learnerColor,
+            learnerMoves: this.learnerMoveCount(),
+            checkmate: this.isCheckmate(),
+            promotion: this.currentMoveWasPromotion(),
+            ...(this.isTerminal() ? { terminalResult: this.gameResult() } : {}),
+            ...(this.currentEvaluation() ? { evaluation: this.currentEvaluation() } : {}),
+            ...(feedback ? { feedbackVerdict: feedback.verdict } : {}),
+        });
+    }
+
+    private finish(
+        feedback = this.lastFeedback,
+        result = this.gameResult(),
+        goalDecision?: Exclude<StudyPracticeGoalDecision, 'ongoing'>,
+    ): void {
         this.engine.cancel();
         this.pendingGrade = undefined;
+        this.pendingGoalFeedback = undefined;
         this.hintLevel = 0;
         this.clearHintShapes();
         this.setState({
             kind: 'ended',
-            ...(result ? { result } : {}),
+            ...(result && result !== '*' ? { result } : {}),
             ...(feedback ? { feedback } : {}),
+            ...(goalDecision ? { goalDecision } : {}),
         });
+        if (goalDecision === 'success') {
+            this.options.onComplete?.(this.learnerMoveCount());
+            if (this.options.autoNext?.() && this.options.hasNextChapter && this.options.onNextChapter) {
+                this.autoNextTimer = window.setTimeout(() => {
+                    this.autoNextTimer = undefined;
+                    if (
+                        !this.destroyed &&
+                        this.stateValue.kind === 'ended' &&
+                        this.stateValue.goalDecision === 'success'
+                    )
+                        this.options.onNextChapter?.();
+                }, 1000);
+            }
+        }
+    }
+
+    private finishCurrentPosition(feedback = this.lastFeedback): void {
+        if (!this.options.goal) {
+            this.finish(feedback);
+            return;
+        }
+        const decision = this.goalDecision(feedback);
+        this.finish(feedback, this.gameResult(), decision === 'ongoing' ? 'failure' : decision);
+    }
+
+    private continuePendingGoal(): void {
+        if (!this.options.goal || this.pendingGoalFeedback === undefined) return;
+        const decision = this.goalDecision(this.pendingGoalFeedback);
+        if (decision === 'indeterminate' && !this.currentEvaluation()) {
+            this.ensureEvaluation(
+                this.history.map(entry => entry.move),
+                this.ctrl.turnColor,
+            );
+            return;
+        }
+
+        const feedback = this.pendingGoalFeedback;
+        this.pendingGoalFeedback = undefined;
+        if (decision === 'ongoing') this.advanceAfterHumanMove();
+        else this.finish(feedback, this.gameResult(), decision);
     }
 
     private engineReady(): boolean {
@@ -677,13 +796,22 @@ export class StudyPracticeSession {
             : undefined;
         const terminalResult = pending.terminalResult;
         this.pendingGrade = undefined;
-        if (terminalResult) this.finish(feedback, terminalResult);
-        else this.advanceAfterHumanMove();
+        if (terminalResult) {
+            if (this.options.goal) this.finishCurrentPosition(feedback);
+            else this.finish(feedback, terminalResult);
+            return;
+        }
+        if (this.options.goal) {
+            this.pendingGoalFeedback = feedback;
+            this.continuePendingGoal();
+            return;
+        }
+        this.advanceAfterHumanMove();
     }
 
     private advanceAfterHumanMove(): void {
         if (this.isTerminal()) {
-            this.finish();
+            this.finishCurrentPosition();
             return;
         }
         if (this.ctrl.turnColor === this.options.learnerColor) this.enterHumanTurn();
@@ -757,6 +885,7 @@ export class StudyPracticeSession {
                         turnColor: purpose.turnColor,
                     });
                     this.continuePendingGrade();
+                    this.continuePendingGoal();
                     this.syncHintShapes();
                     this.render();
                     return;
@@ -775,6 +904,7 @@ export class StudyPracticeSession {
                 key: purpose.key,
                 moves: purpose.moves,
                 turnColor: purpose.turnColor,
+                ...(event.info?.depth !== undefined ? { depth: event.info.depth } : {}),
                 bestMove: event.move,
                 ...(event.info?.score ? { score: event.info.score } : {}),
                 ...(event.info?.bound ? { bound: event.info.bound } : {}),
@@ -782,6 +912,7 @@ export class StudyPracticeSession {
             };
             this.evaluations.set(purpose.key, evaluation);
             this.continuePendingGrade();
+            this.continuePendingGoal();
             this.syncHintShapes();
             this.render();
             return;
@@ -789,7 +920,7 @@ export class StudyPracticeSession {
 
         if (this.stateValue.kind !== 'engine-thinking') return;
         if (!event.move) {
-            if (this.isTerminal()) this.finish();
+            if (this.isTerminal()) this.finishCurrentPosition();
             else this.setUnavailable('engine-error', _('The browser engine returned no legal move.'));
             return;
         }
@@ -1018,8 +1149,25 @@ export class StudyPracticeSession {
             addButton(_('Resume practice'), () => this.resume(), true);
         } else if (state.kind === 'ended') {
             addTurnPiece();
-            heading.textContent = state.result === '1-0' || state.result === '0-1' ? _('Checkmate') : _('Draw');
-            addText(this.outcomeMessage(state.result));
+            if (state.goalDecision === 'success') {
+                heading.textContent = _('Success!');
+                addText(_('Practice goal completed in %1 move(s).', String(this.learnerMoveCount())));
+                if (!this.options.autoNext?.() || !this.options.hasNextChapter) {
+                    if (this.options.onNextChapter && this.options.hasNextChapter)
+                        addButton(_('Next chapter'), this.options.onNextChapter, true);
+                }
+            } else if (state.goalDecision === 'failure') {
+                heading.textContent = _('Practice goal not reached');
+                addText(_('Try the exercise again.'));
+                addButton(_('Retry'), () => this.reset(), true);
+            } else if (state.goalDecision === 'indeterminate') {
+                heading.textContent = _('Result unclear');
+                addText(_('The bounded browser engine could not evaluate the goal reliably.'));
+                addButton(_('Retry'), () => this.reset(), true);
+            } else {
+                heading.textContent = state.result === '1-0' || state.result === '0-1' ? _('Checkmate') : _('Draw');
+                addText(this.outcomeMessage(state.result));
+            }
         } else {
             addOffMark();
             heading.textContent = _('Practice unavailable');

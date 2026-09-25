@@ -421,6 +421,35 @@ async def test_signed_in_practice_completion_persists_and_resumes_first_unfinish
 
 
 @pytest.mark.asyncio
+async def test_computer_practice_completion_requires_and_keeps_best_move_count(
+    aiohttp_client, monkeypatch
+) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    await _insert_practice_learner_study(app_state)
+    monkeypatch.setattr(practice_data, "PRACTICE_SECTIONS", (_practice_sections()[0],))
+    learner = User(app_state, username="learner")
+    app_state.users[learner.username] = learner
+    _set_session_user(client, learner.username)
+
+    missing = await client.post("/practice/chess/prac0001/chap0002/complete")
+    assert missing.status == 400
+
+    complete = await client.post(
+        "/practice/chess/prac0001/chap0002/complete", json={"bestMoves": 12}
+    )
+    assert complete.status == 200
+    assert await complete.json() == {"completed": True, "bestMoves": 12}
+
+    await client.post("/practice/chess/prac0001/chap0002/complete", json={"bestMoves": 15})
+    await client.post("/practice/chess/prac0001/chap0002/complete", json={"bestMoves": 9})
+    progress_doc = await app_state.db.practice.find_one({"_id": learner.username})
+    assert progress_doc is not None
+    assert progress_doc["chapters"]["prac0001:chap0002"]["bestMoves"] == 9
+
+
+@pytest.mark.asyncio
 async def test_practice_index_shows_persistent_progress_and_reset_for_signed_in_user(
     aiohttp_client, monkeypatch
 ) -> None:

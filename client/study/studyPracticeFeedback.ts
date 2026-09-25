@@ -6,6 +6,7 @@ export type StudyPracticeVerdict = 'good' | 'inaccuracy' | 'mistake' | 'blunder'
 
 export interface StudyPracticeEvaluation {
     turnColor: StudyPracticeColor;
+    depth?: number;
     score?: AnalysisPracticeScore;
     bound?: AnalysisPracticeBound;
     bestMove?: string | null;
