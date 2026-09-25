@@ -20,6 +20,20 @@
                 <p class="practice-variant-picker__empty">{% trans %}No variants have valid Practice content yet.{% endtrans %}</p>
                 {% endif %}
             </div>
+
+            {% if practice_progress_authenticated and practice_variant and practice_has_content %}
+            <div class="practice-index__progress" data-practice-progress-state="{% if practice_variant_progress.done == 0 %}untouched{% elif practice_variant_progress.done >= practice_variant_progress.total %}done{% else %}ongoing{% endif %}">
+                <p>
+                    <strong>{% trans %}Progress{% endtrans %}</strong><br>
+                    {{ practice_variant_progress.done }} / {{ practice_variant_progress.total }} {% trans %}chapters{% endtrans %}
+                </p>
+                {% if practice_variant_progress.done %}
+                <form method="post" action="/practice/{{ practice_variant }}/reset">
+                    <button class="button button-empty" type="submit">{% trans %}Reset progress{% endtrans %}</button>
+                </form>
+                {% endif %}
+            </div>
+            {% endif %}
         </aside>
 
         <section class="practice-index study-index box">
@@ -27,7 +41,11 @@
                 <h1>{% trans %}Practice{% endtrans %}</h1>
                 <p>
                     {% trans %}Development preview of curated Study lessons.{% endtrans %}
-                    {% trans %}Progress tracking is not enabled yet.{% endtrans %}
+                    {% if practice_progress_authenticated %}
+                    {% trans %}Your completed chapters are saved automatically.{% endtrans %}
+                    {% else %}
+                    {% trans %}Sign in to save your progress between visits.{% endtrans %}
+                    {% endif %}
                 </p>
 
                 {% if practice_variant and not practice_has_content %}
@@ -44,7 +62,12 @@
 
                         <div class="studies study-list">
                             {% for resolved in resolved_section.studies %}
-                            <article class="study-card{% if not resolved.valid %} practice-study-card--invalid{% endif %}">
+                            {% if resolved.study and resolved.valid %}
+                            {% set study_progress = practice_progress_by_study[resolved.study.id] %}
+                            {% else %}
+                            {% set study_progress = none %}
+                            {% endif %}
+                            <article class="study-card{% if not resolved.valid %} practice-study-card--invalid{% elif practice_progress_authenticated %} practice-study-card--{{ study_progress.state }}{% endif %}"{% if study_progress %} data-practice-progress-state="{{ study_progress.state }}"{% endif %}>
                                 {% if resolved.study and resolved.valid and practice_variant %}
                                 <a
                                     class="study-card__overlay"
@@ -63,6 +86,12 @@
                                             <span>{{ variant_display_name(practice_variant or resolved.ref.variant) }}</span>
                                             {% if not practice_variant and resolved.ref.chess960 %}<span aria-hidden="true">•</span><span>960</span>{% endif %}
                                             {% if resolved.study %}<span aria-hidden="true">•</span><span class="study-card__owner">{{ resolved.study.owner }}</span>{% endif %}
+                                            {% if practice_progress_authenticated and study_progress %}
+                                            <span aria-hidden="true">•</span>
+                                            <span class="practice-study-card__progress">
+                                                {% if study_progress.state == "done" %}{% trans %}Complete{% endtrans %}{% elif study_progress.state == "ongoing" %}{{ study_progress.done }} / {{ study_progress.total }}{% else %}{% trans %}Not started{% endtrans %}{% endif %}
+                                            </span>
+                                            {% endif %}
                                         </div>
                                     </div>
                                 </div>
@@ -70,7 +99,7 @@
                                     <ol class="study-card__chapters">
                                         {% if resolved.valid %}
                                             {% for chapter in resolved.chapters %}
-                                            <li class="study-card__chapter">{{ chapter.name }}</li>
+                                            <li class="study-card__chapter{% if study_progress and chapter.id in study_progress.completed_chapter_ids %} practice-study-card__chapter--done{% endif %}">{% if study_progress and chapter.id in study_progress.completed_chapter_ids %}✓ {% endif %}{{ chapter.name }}</li>
                                             {% endfor %}
                                         {% else %}
                                             {% for issue in resolved.issues %}

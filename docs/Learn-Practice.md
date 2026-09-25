@@ -478,17 +478,20 @@ learner shell, but completion is not persisted yet.
 
 **Acceptance:** gamebook-only Practice Studies are fully usable in one browser session.
 
-### P6 — Persistent progress, resume, and reset
+### P6 — Persistent progress, resume, and reset — **done**
 
-- [ ] Add the dedicated Practice progress collection/model.
-- [ ] Persist authenticated chapter completion.
-- [ ] Count `done / total` per Study and total progress for the selected variant.
-- [ ] Enter a Study at its first unfinished chapter.
-- [ ] Show untouched / ongoing / done card/chapter states.
-- [ ] Add explicit reset-progress action.
-- [ ] Keep anonymous Practice functional without server-persisted progress.
-- [ ] Add database/model/view tests; add indexes only if the chosen document shape
-      actually requires them.
+- [x] Add the dedicated Practice progress collection/model. Progress is one compact
+      document per username, so Mongo's built-in `_id` index is sufficient.
+- [x] Persist authenticated Interactive Lesson chapter completion. The same record shape
+      reserves optional `bestMoves` for P8 computer-practice scoring.
+- [x] Count `done / total` per Study and total progress for the selected variant.
+- [x] Enter a Study at its first unfinished chapter; a fully completed Study reopens at
+      its first chapter.
+- [x] Show untouched / ongoing / done card/chapter states.
+- [x] Add explicit reset-progress action for the selected variant.
+- [x] Keep anonymous Practice functional without server-persisted progress.
+- [x] Add database/model/view tests. No secondary index is required by the chosen
+      one-document-per-user shape.
 
 **Acceptance:** a signed-in DEV user can leave Practice, return later, and resume from
 the correct chapter.

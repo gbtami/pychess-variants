@@ -91,6 +91,8 @@ export type StudyPageModel = {
         sectionName: string;
         indexUrl: string;
         studyUrl: string;
+        completedChapterIds: string[];
+        persistProgress: boolean;
     };
     // Runtime collaboration mode. The server owns sharedChapter/sharedPath; these
     // three fields are local browser state initialized by the Study client.

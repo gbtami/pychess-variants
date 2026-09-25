@@ -241,6 +241,14 @@ class AccountApiTestCase(AioHTTPTestCase):
                 "seenAt": datetime.now(UTC),
             }
         )
+        await app_state.db.practice.insert_one(
+            {
+                "_id": "alice",
+                "chapters": {
+                    "study001:chapter1": {"completedAt": datetime.now(UTC)},
+                },
+            }
+        )
         await app_state.db.user_report.insert_one(
             {
                 "_id": "report1",
@@ -895,6 +903,7 @@ class AccountApiTestCase(AioHTTPTestCase):
         self.assertEqual(["carol"], other_blog.get("likes"))
 
         self.assertEqual(0, await app_state.db.push_subscription.count_documents({"user": "alice"}))
+        self.assertIsNone(await app_state.db.practice.find_one({"_id": "alice"}))
         self.assertEqual(
             0, await app_state.db.account_reopen_token.count_documents({"username": "alice"})
         )

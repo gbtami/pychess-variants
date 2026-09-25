@@ -909,6 +909,20 @@ function studyChapterUrl(study: StudyPageModel, chapterId: string): string {
     return `${studyChapterBaseUrl(study)}/${chapterId}`;
 }
 
+function persistPracticeCompletion(study: StudyPageModel, chapterId: string): void {
+    const practice = study.practice;
+    if (!practice?.persistProgress) return;
+    void fetch(`${practice.studyUrl}/${encodeURIComponent(chapterId)}/complete`, {
+        method: 'POST',
+        credentials: 'same-origin',
+        keepalive: true,
+    })
+        .then(response => {
+            if (!response.ok) throw new Error(`Practice progress could not be saved (${response.status}).`);
+        })
+        .catch(error => console.error('Could not save Practice progress', error));
+}
+
 function chapterIdFromStudyUrl(study: StudyPageModel, pathname: string): string | undefined {
     const prefix = `${studyChapterBaseUrl(study)}/`;
     if (!pathname.startsWith(prefix)) return undefined;
@@ -1283,31 +1297,40 @@ function practiceStudySide(study: StudyPageModel, progress?: StudyPracticeProgre
                 'nav.study-chapters',
                 { attrs: { 'aria-label': _('Practice chapters') } },
                 chapters.map(item =>
-                    h('div.study-chapter__row', { class: { active: item.id === study.chapter.id } }, [
-                        h(
-                            'a',
-                            {
-                                attrs: {
-                                    href: studyChapterUrl(study, item.id),
-                                    'aria-current': item.id === study.chapter.id ? 'page' : 'false',
-                                    'data-study-chapter-id': item.id,
-                                },
+                    h(
+                        'div.study-chapter__row',
+                        {
+                            class: {
+                                active: item.id === study.chapter.id,
+                                completed: Boolean(progress?.isComplete(item.id)),
                             },
-                            [
-                                h('span.study-chapter__number', `${item.order}. `),
-                                h('span.study-chapter__name', item.name),
-                                ...(progress?.isComplete(item.id)
-                                    ? [
-                                          h(
-                                              'span.study-chapter__result',
-                                              { attrs: { title: _('Completed'), 'aria-label': _('Completed') } },
-                                              '✓',
-                                          ),
-                                      ]
-                                    : []),
-                            ],
-                        ),
-                    ]),
+                        },
+                        [
+                            h(
+                                'a',
+                                {
+                                    attrs: {
+                                        href: studyChapterUrl(study, item.id),
+                                        'aria-current': item.id === study.chapter.id ? 'page' : 'false',
+                                        'data-study-chapter-id': item.id,
+                                    },
+                                },
+                                [
+                                    h('span.study-chapter__number', `${item.order}. `),
+                                    h('span.study-chapter__name', item.name),
+                                    ...(progress?.isComplete(item.id)
+                                        ? [
+                                              h(
+                                                  'span.study-chapter__result',
+                                                  { attrs: { title: _('Completed'), 'aria-label': _('Completed') } },
+                                                  '✓',
+                                              ),
+                                          ]
+                                        : []),
+                                ],
+                            ),
+                        ],
+                    ),
                 ),
             ),
             ...(previous
@@ -2965,7 +2988,13 @@ export function studyView(model: PyChessModel): VNode[] {
     if (!study) return [h('div.box.box-pad', _('Study data is unavailable.'))];
 
     initializeStudyModes(study);
-    const practiceProgress = study.practice ? new StudyPracticeProgress() : undefined;
+    const practiceProgress = study.practice
+        ? new StudyPracticeProgress(
+              localStorage,
+              study.practice.completedChapterIds,
+              chapterId => persistPracticeCompletion(study, chapterId),
+          )
+        : undefined;
     const modeActions: StudyModeActions = {
         toggleSticky: () => {},
         toggleWrite: () => {},

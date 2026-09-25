@@ -585,6 +585,11 @@ post_routes: tuple[RouteDef, ...] = (
         study_view.study_chapter_clear_variations,
     ),
     (r"/study/{studyId:\w{8}}/{chapterId:\w{8}}/delete", study_view.study_chapter_delete),
+    (
+        r"/practice/{variant:[a-z0-9_-]+}/{studyId:\w{8}}/{chapterId:\w{8}}/complete",
+        practice_view.practice_complete,
+    ),
+    (r"/practice/{variant:[a-z0-9_-]+}/reset", practice_view.practice_reset),
     ("/team/new", team_view.team_create),
     ("/team/{teamId}/edit", team_view.team_update),
     ("/team/{teamId}/leaders/add", team_view.team_leader_add),

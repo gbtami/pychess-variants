@@ -294,6 +294,7 @@ async def _scrub_delete_owned_data(app_state: Any, user: Any, now: datetime) -> 
     await db.ublog_post.delete_many({"author": user.username})
     await db.bot_token.delete_many({"user": user.username})
     await db.push_subscription.delete_many({"user": user.username})
+    await db.practice.delete_one({"_id": user.username})
     await db.account_reopen_token.delete_many({"username": user.username})
     await db.notify.delete_many({"notifies": user.username})
     await app_state.timeline.erase_user(user.username)

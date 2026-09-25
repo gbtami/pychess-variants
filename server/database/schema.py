@@ -113,6 +113,7 @@ COLLECTIONS = (
     CollectionSpec("mod_log"),
     CollectionSpec("notify"),
     CollectionSpec("puzzle"),
+    CollectionSpec("practice"),
     CollectionSpec("push_subscription"),
     CollectionSpec("relation"),
     CollectionSpec("security_ban_signal"),

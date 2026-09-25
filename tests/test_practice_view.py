@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+import time
 from datetime import UTC, datetime
 from unittest.mock import patch
 
@@ -10,8 +12,14 @@ from practice import PracticeSection, PracticeStudyRef
 from pychess_global_app_state_utils import get_app_state
 from study.models import Study, StudyChapter
 from study.tree import StudyTree
+from user import User
 
 from server import make_app
+
+
+def _set_session_user(client, username: str) -> None:
+    session_data = {"session": {"user_name": username}, "created": int(time.time())}
+    client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": json.dumps(session_data)})
 
 
 async def _insert_public_practice_study(
@@ -333,6 +341,8 @@ async def test_practice_learner_route_redirects_to_first_chapter_and_returns_iso
         "sectionName": "Pawn endgames",
         "indexUrl": "/practice/chess",
         "studyUrl": "/practice/chess/prac0001",
+        "completedChapterIds": [],
+        "persistProgress": False,
     }
     assert study["canWrite"] is False
     assert study["isOwner"] is False
@@ -372,3 +382,133 @@ async def test_practice_learner_routes_are_hidden_outside_dev(aiohttp_client, mo
         assert response.status == 404
         chapter = await client.get("/practice/chess/prac0001/chap0001")
         assert chapter.status == 404
+
+
+@pytest.mark.asyncio
+async def test_signed_in_practice_completion_persists_and_resumes_first_unfinished(
+    aiohttp_client, monkeypatch
+) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    await _insert_practice_learner_study(app_state)
+    monkeypatch.setattr(practice_data, "PRACTICE_SECTIONS", (_practice_sections()[0],))
+    learner = User(app_state, username="learner")
+    app_state.users[learner.username] = learner
+    _set_session_user(client, learner.username)
+
+    complete = await client.post("/practice/chess/prac0001/chap0001/complete")
+    assert complete.status == 200
+    assert await complete.json() == {"completed": True}
+
+    progress_doc = await app_state.db.practice.find_one({"_id": learner.username})
+    assert progress_doc is not None
+    assert "prac0001:chap0001" in progress_doc["chapters"]
+
+    resume = await client.get("/practice/chess/prac0001", allow_redirects=False)
+    assert resume.status == 302
+    assert resume.headers["Location"] == "/practice/chess/prac0001/chap0002"
+
+    chapter = await client.get(
+        "/practice/chess/prac0001/chap0002", headers={"Accept": "application/json"}
+    )
+    assert chapter.status == 200
+    payload = await chapter.json()
+    assert payload["study"]["practice"]["completedChapterIds"] == ["chap0001"]
+    assert payload["study"]["practice"]["persistProgress"] is True
+
+
+@pytest.mark.asyncio
+async def test_practice_index_shows_persistent_progress_and_reset_for_signed_in_user(
+    aiohttp_client, monkeypatch
+) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    await _insert_practice_learner_study(app_state)
+    monkeypatch.setattr(practice_data, "PRACTICE_SECTIONS", (_practice_sections()[0],))
+    learner = User(app_state, username="learner")
+    app_state.users[learner.username] = learner
+    _set_session_user(client, learner.username)
+    await app_state.db.practice.insert_one(
+        {
+            "_id": learner.username,
+            "chapters": {"prac0001:chap0001": {"completedAt": datetime.now(UTC)}},
+            "createdAt": datetime.now(UTC),
+            "updatedAt": datetime.now(UTC),
+        }
+    )
+
+    response = await client.get("/practice/chess")
+    assert response.status == 200
+    html = await response.text()
+    assert "1 / 2 chapters" in html
+    assert 'data-practice-progress-state="ongoing"' in html
+    assert "✓ Opposition" in html
+    assert 'action="/practice/chess/reset"' in html
+    assert "Reset progress" in html
+
+    reset = await client.post("/practice/chess/reset", allow_redirects=False)
+    assert reset.status == 302
+    assert reset.headers["Location"] == "/practice/chess"
+    progress_doc = await app_state.db.practice.find_one({"_id": learner.username})
+    assert progress_doc is not None
+    assert progress_doc.get("chapters", {}) == {}
+
+
+@pytest.mark.asyncio
+async def test_practice_reset_preserves_other_variant_progress(aiohttp_client, monkeypatch) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    await _insert_practice_learner_study(app_state)
+    await _insert_public_practice_study(
+        app_state,
+        "prac0002",
+        name="Shogi Fundamentals",
+        chapter_name="Entering king",
+        variant="shogi",
+    )
+    monkeypatch.setattr(practice_data, "PRACTICE_SECTIONS", _practice_sections())
+    learner = User(app_state, username="learner")
+    app_state.users[learner.username] = learner
+    _set_session_user(client, learner.username)
+    now = datetime.now(UTC)
+    await app_state.db.practice.insert_one(
+        {
+            "_id": learner.username,
+            "chapters": {
+                "prac0001:chap0001": {"completedAt": now},
+                "prac0002:prac0002-chapter1": {"completedAt": now},
+            },
+            "createdAt": now,
+            "updatedAt": now,
+        }
+    )
+
+    reset = await client.post("/practice/chess/reset", allow_redirects=False)
+    assert reset.status == 302
+    progress_doc = await app_state.db.practice.find_one({"_id": learner.username})
+    assert progress_doc is not None
+    assert "prac0001:chap0001" not in progress_doc["chapters"]
+    assert "prac0002:prac0002-chapter1" in progress_doc["chapters"]
+
+
+@pytest.mark.asyncio
+async def test_anonymous_practice_does_not_persist_progress(aiohttp_client, monkeypatch) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    await _insert_practice_learner_study(app_state)
+    monkeypatch.setattr(practice_data, "PRACTICE_SECTIONS", (_practice_sections()[0],))
+
+    chapter = await client.get(
+        "/practice/chess/prac0001/chap0001", headers={"Accept": "application/json"}
+    )
+    payload = await chapter.json()
+    assert payload["study"]["practice"]["persistProgress"] is False
+    assert payload["study"]["practice"]["completedChapterIds"] == []
+
+    complete = await client.post("/practice/chess/prac0001/chap0001/complete")
+    assert complete.status == 401
+    assert await app_state.db.practice.count_documents({}) == 0

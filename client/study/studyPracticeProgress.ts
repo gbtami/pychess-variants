@@ -1,17 +1,22 @@
 const PRACTICE_AUTO_NEXT_KEY = 'practice_autoNext';
 
 /**
- * Browser-session Practice state.
+ * Practice progress visible to the current learner runtime.
  *
- * P5 deliberately keeps chapter completion in memory only. P6 will hydrate and
- * persist this state for authenticated users, while the auto-next preference is a
- * local browser setting just like lichess' Practice toggle.
+ * Authenticated completion is hydrated from Mongo by the Practice route and
+ * persisted through the callback. Anonymous learners keep the same in-memory
+ * behavior without creating server progress.
  */
 export class StudyPracticeProgress {
-    private readonly completed = new Set<string>();
+    private readonly completed: Set<string>;
     private _autoNext: boolean;
 
-    constructor(private readonly storage: Pick<Storage, 'getItem' | 'setItem'> = localStorage) {
+    constructor(
+        private readonly storage: Pick<Storage, 'getItem' | 'setItem'> = localStorage,
+        completedChapterIds: Iterable<string> = [],
+        private readonly onComplete?: (chapterId: string) => void,
+    ) {
+        this.completed = new Set(completedChapterIds);
         const stored = this.storage.getItem(PRACTICE_AUTO_NEXT_KEY);
         this._autoNext = stored === null ? true : stored === 'true';
     }
@@ -23,7 +28,9 @@ export class StudyPracticeProgress {
     complete(chapterId: string): boolean {
         const size = this.completed.size;
         this.completed.add(chapterId);
-        return this.completed.size !== size;
+        const changed = this.completed.size !== size;
+        if (changed) this.onComplete?.(chapterId);
+        return changed;
     }
 
     get autoNext(): boolean {
