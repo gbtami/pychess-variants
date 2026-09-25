@@ -590,6 +590,9 @@ label.piece.piece3.mansindam {
 label.piece.piece4.mansindam {
     background-image: url('images/pieces/disguised/w.svg');
 }
+label.piece.piece5.mansindam {
+    background-image: url('images/pieces/green/wN.svg');
+}
 
 label.piece.piece0.shinobi {
     background-image: url('images/pieces/shinobi/merida/wJ.svg');
