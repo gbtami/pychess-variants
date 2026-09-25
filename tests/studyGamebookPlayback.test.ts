@@ -431,6 +431,98 @@ describe('Study interactive lesson playback adapter', () => {
         playback.destroy();
     });
 
+    test('reports Practice success only when the authored lesson reaches its end', () => {
+        const ctrl = makeCtrl();
+        let autoNext = false;
+        const onComplete = jest.fn();
+        const nextChapter = jest.fn();
+        const playback = new StudyGamebookPlayback(ctrl, {
+            chapterId: 'chapter-practice',
+            orientation: 'white',
+            preview: false,
+            canAnalyse: false,
+            hasNextChapter: true,
+            onNextChapter: nextChapter,
+            practice: {
+                autoNext: () => autoNext,
+                setAutoNext: value => {
+                    autoNext = value;
+                },
+                onComplete,
+            },
+        });
+
+        const wrong = ctrl.analysisTree!.byPath.get('d4')!;
+        ctrl.analysisPath = wrong.path;
+        ctrl.turnColor = wrong.step.turnColor;
+        playback.onPositionChanged(position(wrong));
+        expect(onComplete).not.toHaveBeenCalled();
+        expect(document.body.textContent).not.toContain('Success!');
+
+        document.querySelector<HTMLButtonElement>('.study-gamebook-play__feedback.bad')?.click();
+        const e4 = ctrl.analysisTree!.byPath.get('e4')!;
+        ctrl.analysisPath = e4.path;
+        ctrl.turnColor = e4.step.turnColor;
+        playback.onPositionChanged(position(e4));
+        expect(onComplete).not.toHaveBeenCalled();
+
+        document.querySelector<HTMLButtonElement>('.study-gamebook-play__feedback.good')?.click();
+        jest.runOnlyPendingTimers();
+        const nf3 = ctrl.analysisTree!.byPath.get('e4.e5.nf3')!;
+        ctrl.analysisPath = nf3.path;
+        ctrl.turnColor = nf3.step.turnColor;
+        playback.onPositionChanged(position(nf3));
+
+        expect(onComplete).toHaveBeenCalledTimes(1);
+        expect(onComplete).toHaveBeenCalledWith('chapter-practice');
+        expect(document.querySelector('.study-gamebook-play__success')?.textContent).toContain('Success!');
+        expect(nextChapter).not.toHaveBeenCalled();
+
+        playback.destroy();
+    });
+
+    test('Practice auto-next can advance after success and can be disabled from the lesson controls', () => {
+        const root = node('root', '', 0, undefined, 'white', 'Introduction.');
+        const tree: AnalysisTree = { root, byPath: new Map([['', root]]), nextId: 1 };
+        const ctrl = makeCtrl(tree);
+        let autoNext = true;
+        const setAutoNext = jest.fn((value: boolean) => {
+            autoNext = value;
+        });
+        const nextChapter = jest.fn();
+        const playback = new StudyGamebookPlayback(ctrl, {
+            chapterId: 'chapter-auto-next',
+            orientation: 'white',
+            preview: false,
+            canAnalyse: false,
+            hasNextChapter: true,
+            onNextChapter: nextChapter,
+            practice: {
+                autoNext: () => autoNext,
+                setAutoNext,
+                onComplete: jest.fn(),
+            },
+        });
+
+        const toggle = document.querySelector<HTMLInputElement>('.study-gamebook-play-auto-next input')!;
+        expect(toggle.checked).toBe(true);
+        toggle.checked = false;
+        toggle.dispatchEvent(new Event('change', { bubbles: true }));
+        expect(setAutoNext).toHaveBeenCalledWith(false);
+        jest.advanceTimersByTime(1000);
+        expect(nextChapter).not.toHaveBeenCalled();
+
+        toggle.checked = true;
+        toggle.dispatchEvent(new Event('change', { bubbles: true }));
+        expect(setAutoNext).toHaveBeenLastCalledWith(true);
+        jest.advanceTimersByTime(999);
+        expect(nextChapter).not.toHaveBeenCalled();
+        jest.advanceTimersByTime(1);
+        expect(nextChapter).toHaveBeenCalledTimes(1);
+
+        playback.destroy();
+    });
+
     test('matches lichess icon treatment for completed lesson actions', () => {
         const ctrl = makeCtrl();
         const nextChapter = jest.fn();

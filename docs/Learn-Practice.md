@@ -463,14 +463,17 @@ variants without mixing their Studies.
 **Acceptance:** a curated Study can be opened and navigated in a dedicated Practice
 learner shell, but completion is not persisted yet.
 
-### P5 — Interactive Lesson completion
+### P5 — Interactive Lesson completion — **done**
 
-- [ ] Connect existing gamebook playback `end` state to Practice chapter success.
-- [ ] Add success UI and next-chapter action.
-- [ ] Add optional auto-next behavior after success.
-- [ ] Keep wrong-answer retry/hint/solution behavior owned by the existing gamebook
+- [x] Connect existing gamebook playback `end` state to Practice chapter success.
+- [x] Add success UI and next-chapter action.
+- [x] Add optional auto-next behavior after success. The browser preference defaults to
+      enabled (matching lichess) and can be toggled from the lesson controls.
+- [x] Keep wrong-answer retry/hint/solution behavior owned by the existing gamebook
       implementation.
-- [ ] Add tests proving that an Interactive Lesson is complete only when its authored
+- [x] Keep completed chapter markers in browser-session memory only; persistent/user
+      progress intentionally remains P6.
+- [x] Add tests proving that an Interactive Lesson is complete only when its authored
       lesson reaches the end.
 
 **Acceptance:** gamebook-only Practice Studies are fully usable in one browser session.

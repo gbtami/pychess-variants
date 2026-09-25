@@ -29,6 +29,7 @@ import { StudyCommentEditor } from './commentEditor';
 import { StudyGamebookEditor } from './studyGamebookEdit';
 import { StudyGamebookPlayback } from './studyGamebookPlayback';
 import { StudyPracticeSession } from './studyPractice';
+import { StudyPracticeProgress } from './studyPracticeProgress';
 import { fetchStudyChapterExportData, renderStudyChapterPgn, renderStudyPgn, studyPgnFilename } from './studyPgn';
 import {
     parseStudyPgnForImportWithEngines,
@@ -1262,7 +1263,7 @@ function studyMembersSide(study: StudyPageModel, model: PyChessModel): VNode {
     ]);
 }
 
-function practiceStudySide(study: StudyPageModel): VNode {
+function practiceStudySide(study: StudyPageModel, progress?: StudyPracticeProgress): VNode {
     const practice = study.practice!;
     const chapters = [...study.chapters].sort((a, b) => a.order - b.order);
     const current = chapters.findIndex(chapter => chapter.id === study.chapter.id);
@@ -1295,6 +1296,15 @@ function practiceStudySide(study: StudyPageModel): VNode {
                             [
                                 h('span.study-chapter__number', `${item.order}. `),
                                 h('span.study-chapter__name', item.name),
+                                ...(progress?.isComplete(item.id)
+                                    ? [
+                                          h(
+                                              'span.study-chapter__result',
+                                              { attrs: { title: _('Completed'), 'aria-label': _('Completed') } },
+                                              '✓',
+                                          ),
+                                      ]
+                                    : []),
                             ],
                         ),
                     ]),
@@ -1333,8 +1343,13 @@ function practiceStudySide(study: StudyPageModel): VNode {
     ]);
 }
 
-function studySide(study: StudyPageModel, model: PyChessModel, modeActions: StudyModeActions): VNode {
-    if (study.practice) return practiceStudySide(study);
+function studySide(
+    study: StudyPageModel,
+    model: PyChessModel,
+    modeActions: StudyModeActions,
+    practiceProgress?: StudyPracticeProgress,
+): VNode {
+    if (study.practice) return practiceStudySide(study, practiceProgress);
     const chapter = study.chapter;
     // Lichess keeps structural chapter management tied to Study membership,
     // even while a writable member is in a disposable training/playback session.
@@ -2276,6 +2291,7 @@ function runStudyGround(
     study: StudyPageModel,
     sideVNode: VNode,
     modeActions: StudyModeActions,
+    practiceProgress?: StudyPracticeProgress,
 ): void {
     let extension!: StudyAnalysisExtension;
     let ctrl!: AnalysisController;
@@ -2398,7 +2414,7 @@ function runStudyGround(
                         const status = studyChapterStatusFromTags(state.tags);
                         if (preview.status !== status) {
                             preview.status = status;
-                            sideVNode = patch(sideVNode, studySide(study, model, modeActions));
+                            sideVNode = patch(sideVNode, studySide(study, model, modeActions, practiceProgress));
                         }
                     }
                     updateGamebookEditor();
@@ -2428,7 +2444,7 @@ function runStudyGround(
                 onChaptersChanged: (chapters, sharedChapter) => {
                     study.chapters = chapters.map(chapter => ({ ...chapter }));
                     const current = study.chapters.find(chapter => chapter.id === study.chapter.id);
-                    sideVNode = patch(sideVNode, studySide(study, model, modeActions));
+                    sideVNode = patch(sideVNode, studySide(study, model, modeActions, practiceProgress));
                     if (!current) {
                         const fallback =
                             study.chapters.find(chapter => chapter.id === sharedChapter)?.id ?? study.chapters[0]?.id;
@@ -2478,7 +2494,7 @@ function runStudyGround(
                     const syncButton = document.querySelector<HTMLButtonElement>('.study-mode--sync');
                     if (syncButton) syncButton.hidden = !(model.username && members[model.username]);
                     updateMovelist(analysisCtrl, true, false);
-                    sideVNode = patch(sideVNode, studySide(study, model, modeActions));
+                    sideVNode = patch(sideVNode, studySide(study, model, modeActions, practiceProgress));
                     updateStudyUnderboardChapter(study, model, modeActions);
                     updateGamebookEditor();
                     syncStudyPlaybackUi(study, modeActions);
@@ -2510,6 +2526,23 @@ function runStudyGround(
                 preview: policy.session === 'gamebook-preview',
                 canAnalyse: !study.canWrite,
                 hasNextChapter: Boolean(nextChapter),
+                ...(study.practice && practiceProgress
+                    ? {
+                          practice: {
+                              autoNext: () => practiceProgress.autoNext,
+                              setAutoNext: value => {
+                                  practiceProgress.autoNext = value;
+                              },
+                              onComplete: chapterId => {
+                                  if (!practiceProgress.complete(chapterId)) return;
+                                  sideVNode = patch(
+                                      sideVNode,
+                                      studySide(study, model, modeActions, practiceProgress),
+                                  );
+                              },
+                          },
+                      }
+                    : {}),
                 ...(nextChapter
                     ? { onNextChapter: () => void navigation?.go(nextChapter.id, 'push') }
                     : {}),
@@ -2752,7 +2785,7 @@ function runStudyGround(
                 const replacement = (next.children as VNode[]).find(child => child.sel?.includes(selector));
                 if (current && replacement) patch(toVNode(current), replacement);
             }
-            sideVNode = patch(sideVNode, studySide(study, model, modeActions));
+            sideVNode = patch(sideVNode, studySide(study, model, modeActions, practiceProgress));
             syncStudyPlaybackUi(study, modeActions);
             mount(app.querySelector<HTMLElement>('#mainboard > .cg-wrap')!, true);
             restoreSessionPosition();
@@ -2932,6 +2965,7 @@ export function studyView(model: PyChessModel): VNode[] {
     if (!study) return [h('div.box.box-pad', _('Study data is unavailable.'))];
 
     initializeStudyModes(study);
+    const practiceProgress = study.practice ? new StudyPracticeProgress() : undefined;
     const modeActions: StudyModeActions = {
         toggleSticky: () => {},
         toggleWrite: () => {},
@@ -2948,11 +2982,11 @@ export function studyView(model: PyChessModel): VNode[] {
         enterPracticeAnalysis: async () => {},
         leavePracticeAnalysis: async () => {},
     };
-    const side = studySide(study, model, modeActions);
+    const side = studySide(study, model, modeActions, practiceProgress);
     const page = renderAnalysisPage(model, {
         side,
         underboard: studyUnderboard(study, model, modeActions),
-        mountBoard: vnode => runStudyGround(vnode, model, study, side, modeActions),
+        mountBoard: vnode => runStudyGround(vnode, model, study, side, modeActions, practiceProgress),
         ongoing: false,
         toolsAfterMoves: studyAnalysisTools(study),
         ...studyBoardParts(study),
