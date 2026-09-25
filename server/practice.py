@@ -140,6 +140,30 @@ def filter_practice_curriculum(
     return tuple(filtered)
 
 
+@dataclass(frozen=True, slots=True)
+class PracticeStudyLocation:
+    section: PracticeSection
+    ref: PracticeStudyRef
+
+
+def find_practice_study(
+    variant_key: str,
+    study_id: str,
+    sections: tuple[PracticeSection, ...] | None = None,
+) -> PracticeStudyLocation | None:
+    """Locate one curated Practice Study without touching Study storage.
+
+    The registry identity is part of the learner URL contract. A Study curated for one
+    variant key must not be reachable through another variant's Practice namespace.
+    """
+
+    for section in PRACTICE_SECTIONS if sections is None else sections:
+        for ref in section.studies:
+            if ref.study_id == study_id and practice_variant_key(ref) == variant_key:
+                return PracticeStudyLocation(section=section, ref=ref)
+    return None
+
+
 # Keep the initial registry intentionally empty. P1 establishes the curation contract
 # and validator; real DEV Study IDs can be added once the Practice index/player exists.
 PRACTICE_SECTIONS: tuple[PracticeSection, ...] = ()

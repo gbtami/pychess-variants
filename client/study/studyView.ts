@@ -806,6 +806,12 @@ function studyRecordingKey(studyId: string): string {
 }
 
 function initializeStudyModes(study: StudyPageModel): void {
+    if (study.practice) {
+        study.sticky = false;
+        study.write = false;
+        study.behind = 0;
+        return;
+    }
     if (study.sticky === undefined) study.sticky = study.chapter.id === study.sharedChapter;
     if (study.behind === undefined) study.behind = 0;
     if (study.write === undefined) {
@@ -827,6 +833,7 @@ function effectiveStudySessionPolicy(study: StudyPageModel): StudySessionPolicy 
 }
 
 function studyModeButtons(study: StudyPageModel, model: PyChessModel, actions: StudyModeActions): VNode[] {
+    if (study.practice) return [];
     const policy = effectiveStudySessionPolicy(study);
     const behind = policy.synchronization ? (study.behind ?? 0) : 0;
     const isMember = Boolean(model.username && study.members[model.username]);
@@ -891,6 +898,25 @@ function studyAnalysisTools(study: StudyPageModel): VNode {
     return h('div.study-gamebook-edit', {
         attrs: { hidden: effectiveStudySessionPolicy(study).session !== 'gamebook-author' },
     });
+}
+
+function studyChapterBaseUrl(study: StudyPageModel): string {
+    return study.practice?.studyUrl ?? `/study/${study.id}`;
+}
+
+function studyChapterUrl(study: StudyPageModel, chapterId: string): string {
+    return `${studyChapterBaseUrl(study)}/${chapterId}`;
+}
+
+function chapterIdFromStudyUrl(study: StudyPageModel, pathname: string): string | undefined {
+    const prefix = `${studyChapterBaseUrl(study)}/`;
+    if (!pathname.startsWith(prefix)) return undefined;
+    const chapterId = pathname.slice(prefix.length);
+    return chapterId && !chapterId.includes('/') ? chapterId : undefined;
+}
+
+function studyDocumentTitle(study: StudyPageModel): string {
+    return study.practice ? `${study.name} • Practice • PyChess` : `${study.name} • PyChess`;
 }
 
 function nextStudyChapter(study: StudyPageModel): StudyPageModel['chapters'][number] | undefined {
@@ -1236,7 +1262,79 @@ function studyMembersSide(study: StudyPageModel, model: PyChessModel): VNode {
     ]);
 }
 
+function practiceStudySide(study: StudyPageModel): VNode {
+    const practice = study.practice!;
+    const chapters = [...study.chapters].sort((a, b) => a.order - b.order);
+    const current = chapters.findIndex(chapter => chapter.id === study.chapter.id);
+    const previous = current > 0 ? chapters[current - 1] : undefined;
+    const next = current >= 0 ? chapters[current + 1] : undefined;
+
+    return h('div.study-side', [
+        h('div.study-side__tabs', [
+            h(
+                'a.study-side__tab.active',
+                { attrs: { href: practice.indexUrl, title: _('Back to Practice') } },
+                practice.sectionName,
+            ),
+        ]),
+        h('section.study-side__panel', [
+            h(
+                'nav.study-chapters',
+                { attrs: { 'aria-label': _('Practice chapters') } },
+                chapters.map(item =>
+                    h('div.study-chapter__row', { class: { active: item.id === study.chapter.id } }, [
+                        h(
+                            'a',
+                            {
+                                attrs: {
+                                    href: studyChapterUrl(study, item.id),
+                                    'aria-current': item.id === study.chapter.id ? 'page' : 'false',
+                                    'data-study-chapter-id': item.id,
+                                },
+                            },
+                            [
+                                h('span.study-chapter__number', `${item.order}. `),
+                                h('span.study-chapter__name', item.name),
+                            ],
+                        ),
+                    ]),
+                ),
+            ),
+            ...(previous
+                ? [
+                      h(
+                          'a.study-side__add',
+                          {
+                              attrs: {
+                                  href: studyChapterUrl(study, previous.id),
+                                  'data-study-chapter-id': previous.id,
+                              },
+                          },
+                          `← ${_('Previous chapter')}: ${previous.name}`,
+                      ),
+                  ]
+                : []),
+            ...(next
+                ? [
+                      h(
+                          'a.study-side__add',
+                          {
+                              attrs: {
+                                  href: studyChapterUrl(study, next.id),
+                                  'data-study-chapter-id': next.id,
+                              },
+                          },
+                          `${_('Next chapter')}: ${next.name} →`,
+                      ),
+                  ]
+                : []),
+            h('a.study-side__add', { attrs: { href: practice.indexUrl } }, `← ${_('Back to Practice')}`),
+        ]),
+    ]);
+}
+
 function studySide(study: StudyPageModel, model: PyChessModel, modeActions: StudyModeActions): VNode {
+    if (study.practice) return practiceStudySide(study);
     const chapter = study.chapter;
     // Lichess keeps structural chapter management tied to Study membership,
     // even while a writable member is in a disposable training/playback session.
@@ -1280,8 +1378,9 @@ function studySide(study: StudyPageModel, model: PyChessModel, modeActions: Stud
                                 'a',
                                 {
                                     attrs: {
-                                        href: `/study/${study.id}/${item.id}`,
+                                        href: studyChapterUrl(study, item.id),
                                         'aria-current': item.id === chapter.id ? 'page' : 'false',
+                                        'data-study-chapter-id': item.id,
                                     },
                                 },
                                 [
@@ -2248,17 +2347,19 @@ function runStudyGround(
             orientation: study.chapter.orientation,
         });
     };
-    const socket = createWebsocket(
-        `wsstudy/${study.id}`,
-        () => extension.onSocketOpen(),
-        () => extension.onSocketReconnect(),
-        () => extension.onSocketClose(),
-        event => {
-            if (event.data === '/n') return;
-            const message = JSON.parse(event.data);
-            extension.onSocketMessage(message.type, message);
-        },
-    );
+    const socket = study.practice
+        ? undefined
+        : createWebsocket(
+              `wsstudy/${study.id}`,
+              () => extension.onSocketOpen(),
+              () => extension.onSocketReconnect(),
+              () => extension.onSocketClose(),
+              event => {
+                  if (event.data === '/n') return;
+                  const message = JSON.parse(event.data);
+                  extension.onSocketMessage(message.type, message);
+              },
+          );
     const mount = (el: HTMLElement, snapshotVerified = false) => {
         policy = effectiveStudySessionPolicy(study);
         ctrl = new AnalysisController(el, model, analysisCtrl => {
@@ -2269,7 +2370,7 @@ function runStudyGround(
                 revision: study.chapter.revision,
                 snapshotToken: study.chapter.snapshotToken,
                 roomSnapshotToken: study.roomSnapshotToken,
-                snapshotVerified,
+                snapshotVerified: study.practice ? true : snapshotVerified,
                 tree: study.chapter.tree,
                 orientation: study.chapter.orientation,
                 mode: study.chapter.mode,
@@ -2522,7 +2623,7 @@ function runStudyGround(
             study.modeOverride = null;
             await navigation?.reload();
         };
-        if (socket.ws.readyState === WebSocket.OPEN) extension.onSocketOpen();
+        if (socket?.ws.readyState === WebSocket.OPEN) extension.onSocketOpen();
         const serverPanel = document.getElementById('study-panel-serverEval');
         if (serverPanel && !serverPanel.hidden) modeActions.showServerAnalysis();
         if (policy.tools.annotations) updateAnnotationPanel(study, modeActions, extension.annotationState, editor);
@@ -2559,6 +2660,7 @@ function runStudyGround(
     navigation = new StudyChapterNavigation({
         studyId: study.id,
         currentChapter: () => study.chapter.id,
+        chapterUrl: chapterId => studyChapterUrl(study, chapterId),
         flush: () => {
             editor?.flush();
             gamebookEditor?.flush();
@@ -2584,6 +2686,7 @@ function runStudyGround(
             await ctrl.whenEngineConfigured();
             if (!isCurrent()) return;
             if (
+                !study.practice &&
                 !(await extension.verifySnapshot(
                     data.study.chapter.id,
                     data.study.chapter.snapshotToken,
@@ -2619,7 +2722,7 @@ function runStudyGround(
             loadCataloguedVariantsFromJson(JSON.stringify(data.cataloguedVariants));
             ffish.loadVariantConfig(variantConfigIni(variantsIni, model.variant));
             document.body.dataset.variant = model.variant;
-            document.title = `${study.name} • PyChess`;
+            document.title = studyDocumentTitle(study);
             // Patch only chapter-dependent parts. The main grid, sidebar, tool tabs
             // and underboard editors remain mounted throughout the switch.
             const next = renderAnalysisPage(model, {
@@ -2695,10 +2798,11 @@ function runStudyGround(
 
     document.querySelector('.sidebar-first')!.addEventListener('click', event => {
         const mouse = event as MouseEvent;
-        const link = (event.target as Element).closest<HTMLAnchorElement>('.study-chapters a');
+        const link = (event.target as Element).closest<HTMLAnchorElement>('[data-study-chapter-id]');
         if (!link || mouse.button !== 0 || mouse.ctrlKey || mouse.metaKey || mouse.shiftKey || mouse.altKey) return;
+        const chapterId = link.dataset.studyChapterId;
+        if (!chapterId) return;
         event.preventDefault();
-        const chapterId = new URL(link.href).pathname.split('/').pop()!;
         if (chapterId !== study.chapter.id) study.modeOverride = null;
         if (policy.synchronization) {
             if (policy.canPublishSharedPosition && extension.sharePosition(chapterId, '')) return;
@@ -2709,15 +2813,14 @@ function runStudyGround(
         void navigation?.go(chapterId);
     });
     window.addEventListener('popstate', () => {
-        const [prefix, studyId, chapterId] = window.location.pathname.split('/').filter(Boolean);
-        if (prefix === 'study' && studyId === study.id && chapterId) {
-            if (chapterId !== study.chapter.id) study.modeOverride = null;
-            if (policy.synchronization && chapterId !== study.sharedChapter) {
-                study.sticky = false;
-                refreshStudyModeButtons(study);
-            }
-            void navigation?.go(chapterId, 'pop');
+        const chapterId = chapterIdFromStudyUrl(study, window.location.pathname);
+        if (!chapterId) return;
+        if (chapterId !== study.chapter.id) study.modeOverride = null;
+        if (policy.synchronization && chapterId !== study.sharedChapter) {
+            study.sticky = false;
+            refreshStudyModeButtons(study);
         }
+        void navigation?.go(chapterId, 'pop');
     });
     window.addEventListener('beforeunload', event => {
         editor?.flush();

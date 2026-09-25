@@ -23,8 +23,13 @@ export class StudyChapterNavigation {
             apply: (snapshot: StudyChapterSnapshot, isCurrent: () => boolean) => Promise<void>;
             busy: (busy: boolean) => void;
             error: (error: unknown) => void;
+            chapterUrl?: (chapterId: string) => string;
         },
     ) {}
+
+    private chapterUrl(chapterId: string): string {
+        return this.options.chapterUrl?.(chapterId) ?? `/study/${this.options.studyId}/${chapterId}`;
+    }
 
     async go(
         chapterId: string,
@@ -44,7 +49,7 @@ export class StudyChapterNavigation {
         try {
             await this.options.flush();
             if (request !== this.request) return;
-            const response = await fetch(`/study/${this.options.studyId}/${chapterId}`, {
+            const response = await fetch(this.chapterUrl(chapterId), {
                 headers: { Accept: 'application/json' },
                 signal,
             });
@@ -60,9 +65,8 @@ export class StudyChapterNavigation {
             if (request !== this.request) return;
             await this.options.apply(data, () => request === this.request);
             if (request !== this.request) return;
-            if (history === 'push') window.history.pushState(null, '', `/study/${this.options.studyId}/${chapterId}`);
-            else if (history === 'replace')
-                window.history.replaceState(null, '', `/study/${this.options.studyId}/${chapterId}`);
+            if (history === 'push') window.history.pushState(null, '', this.chapterUrl(chapterId));
+            else if (history === 'replace') window.history.replaceState(null, '', this.chapterUrl(chapterId));
         } catch (error) {
             if (request !== this.request) return;
             if (error instanceof StaleStudyChapterSnapshotError && staleRetries < 2) {
@@ -73,7 +77,7 @@ export class StudyChapterNavigation {
                 window.history.replaceState(
                     null,
                     '',
-                    `/study/${this.options.studyId}/${this.options.currentChapter()}`,
+                    this.chapterUrl(this.options.currentChapter()),
                 );
             this.options.error(error);
         } finally {

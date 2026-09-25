@@ -868,6 +868,7 @@ async def _populate_study_chapter_context(
     chapter: StudyChapter,
     *,
     writable: bool,
+    practice_context: Mapping[str, object] | None = None,
 ) -> None:
     context["variant"] = chapter.variant
     context["chess960"] = chapter.chess960
@@ -902,14 +903,27 @@ async def _populate_study_chapter_context(
             "name": study.name,
             "owner": study.owner,
             "visibility": study.visibility,
-            "isOwner": is_study_owner(study, None if user.anon else user.username),
-            "canWrite": writable,
-            "canClone": (not user.anon and not user.bot and can_clone_study(study, user.username)),
-            "canShare": can_share_study(study, viewer),
-            "canEmbed": can_embed_study(study),
+            "isOwner": (
+                False
+                if practice_context is not None
+                else is_study_owner(study, None if user.anon else user.username)
+            ),
+            "canWrite": writable and practice_context is None,
+            "canClone": (
+                practice_context is None
+                and not user.anon
+                and not user.bot
+                and can_clone_study(study, user.username)
+            ),
+            "canShare": practice_context is None and can_share_study(study, viewer),
+            "canEmbed": practice_context is None and can_embed_study(study),
             "enabledModes": list(study_enabled_chapter_modes()),
             "features": {
-                "computer": can_use_study_computer(study, viewer),
+                # Practice is a learner runtime. Curated computer-practice chapters may
+                # use the bounded local engine regardless of the Study authoring setting.
+                "computer": (
+                    True if practice_context is not None else can_use_study_computer(study, viewer)
+                ),
                 "explorer": can_use_study_explorer(study, viewer),
             },
             "settings": {
@@ -918,7 +932,7 @@ async def _populate_study_chapter_context(
                 "cloneable": study_feature_selection(study, "cloneable"),
                 "shareable": study_feature_selection(study, "shareable"),
             },
-            "canLike": not user.anon and not user.bot,
+            "canLike": practice_context is None and not user.anon and not user.bot,
             "liked": study.is_liked_by(None if user.anon else user.username),
             "likes": study.likes,
             "topics": list(study.topics),
@@ -986,6 +1000,7 @@ async def _populate_study_chapter_context(
                 "tree": chapter.root.to_payload(),
             },
             "chapters": chapters,
+            **({"practice": dict(practice_context)} if practice_context is not None else {}),
         }
     )
 

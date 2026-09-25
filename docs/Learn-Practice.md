@@ -451,14 +451,14 @@ production behavior is unchanged.
 **Acceptance:** creators can switch between Practice curricula for different PyChess
 variants without mixing their Studies.
 
-### P4 — Practice learner route and chapter navigation
+### P4 — Practice learner route and chapter navigation — **done**
 
-- [ ] Add `/practice/<variant>/<studyId>` and chapter-specific route support.
-- [ ] Reuse Study loading/building and the existing Study analysis client.
-- [ ] Add a Practice context/model telling the client it is in curriculum learner mode.
-- [ ] Render the curated Study's chapter list with previous/next navigation.
-- [ ] Restrict initial curated chapters to `gamebook` and `practice` modes.
-- [ ] Ensure Practice learner attempts never enable Study REC/SYNC persistence.
+- [x] Add `/practice/<variant>/<studyId>` and chapter-specific route support.
+- [x] Reuse Study loading/building and the existing Study analysis client.
+- [x] Add a Practice context/model telling the client it is in curriculum learner mode.
+- [x] Render the curated Study's chapter list with previous/next navigation.
+- [x] Restrict initial curated chapters to `gamebook` and `practice` modes.
+- [x] Ensure Practice learner attempts never enable Study REC/SYNC persistence.
 
 **Acceptance:** a curated Study can be opened and navigated in a dedicated Practice
 learner shell, but completion is not persisted yet.

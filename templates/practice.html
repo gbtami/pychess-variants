@@ -45,10 +45,10 @@
                         <div class="studies study-list">
                             {% for resolved in resolved_section.studies %}
                             <article class="study-card{% if not resolved.valid %} practice-study-card--invalid{% endif %}">
-                                {% if resolved.study %}
+                                {% if resolved.study and resolved.valid and practice_variant %}
                                 <a
                                     class="study-card__overlay"
-                                    href="/study/{{ resolved.study.id }}"
+                                    href="/practice/{{ practice_variant }}/{{ resolved.study.id }}"
                                     title="{{ resolved.study.name }}"
                                     aria-label="{{ resolved.study.name }}"
                                 ></a>

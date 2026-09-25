@@ -151,3 +151,27 @@ test('refetches a chapter when late snapshot verification detects a stream gap',
     expect(error).not.toHaveBeenCalled();
     expect(window.location.pathname).toBe('/study/study001/second');
 });
+
+test('supports a custom Practice chapter route for fetch and history', async () => {
+    let current = 'first';
+    const nav = new StudyChapterNavigation({
+        studyId: 'study001',
+        currentChapter: () => current,
+        flush: async () => {},
+        apply: async data => {
+            current = data.study.chapter.id;
+        },
+        error: jest.fn(),
+        busy: jest.fn(),
+        chapterUrl: chapterId => `/practice/chess/study001/${chapterId}`,
+    });
+    fetchMock.mockResolvedValue(response('second'));
+
+    await nav.go('second');
+
+    expect(fetchMock).toHaveBeenCalledWith(
+        '/practice/chess/study001/second',
+        expect.objectContaining({ headers: { Accept: 'application/json' } }),
+    );
+    expect(window.location.pathname).toBe('/practice/chess/study001/second');
+});

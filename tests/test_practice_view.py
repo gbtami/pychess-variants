@@ -8,7 +8,8 @@ import pytest
 from mongomock_motor import AsyncMongoMockClient
 from practice import PracticeSection, PracticeStudyRef
 from pychess_global_app_state_utils import get_app_state
-from study.models import Study
+from study.models import Study, StudyChapter
+from study.tree import StudyTree
 
 from server import make_app
 
@@ -44,6 +45,41 @@ async def _insert_public_practice_study(
             "mode": "gamebook",
         }
     )
+
+
+async def _insert_practice_learner_study(app_state, study_id: str = "prac0001") -> None:
+    now = datetime.now(UTC)
+    study = Study(
+        id=study_id,
+        name="Pawn Endgames",
+        owner="teacher",
+        members={"teacher": "write"},
+        visibility="public",
+        settings={"computer": "nobody"},
+        created_at=now,
+        updated_at=now,
+    )
+    await app_state.db.study.insert_one(study.to_document())
+    fen = "8/8/8/8/8/8/4K3/6k1 w - - 0 1"
+    for order, (chapter_id, name, mode) in enumerate(
+        (("chap0001", "Opposition", "gamebook"), ("chap0002", "Convert the win", "practice")),
+        start=1,
+    ):
+        chapter = StudyChapter(
+            id=chapter_id,
+            study_id=study_id,
+            name=name,
+            order=order,
+            owner="teacher",
+            variant="chess",
+            initial_fen=fen,
+            orientation="white",
+            root=StudyTree(),
+            created_at=now,
+            updated_at=now,
+            mode=mode,
+        )
+        await app_state.db.study_chapter.insert_one(chapter.to_document())
 
 
 def _practice_sections() -> tuple[PracticeSection, ...]:
@@ -107,7 +143,7 @@ async def test_practice_index_redirects_to_menu_variant_and_filters_curriculum(
     assert "Pawn Endgames" in html
     assert "Opposition" in html
     assert "Master the essential pawn endings." in html
-    assert 'href="/study/prac0001"' in html
+    assert 'href="/practice/chess/prac0001"' in html
     assert "Shogi basics" not in html
     assert "Shogi Fundamentals" not in html
     assert "data-practice-variant-select" in html
@@ -260,3 +296,79 @@ async def test_practice_route_and_menu_are_hidden_outside_dev(aiohttp_client) ->
         assert about.status == 200
         html = await about.text()
         assert 'href="/practice"' not in html
+
+
+@pytest.mark.asyncio
+async def test_practice_learner_route_redirects_to_first_chapter_and_returns_isolated_study_data(
+    aiohttp_client, monkeypatch
+) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    await _insert_practice_learner_study(app_state)
+    monkeypatch.setattr(practice_data, "PRACTICE_SECTIONS", (_practice_sections()[0],))
+
+    response = await client.get("/practice/chess/prac0001", allow_redirects=False)
+    assert response.status == 302
+    assert response.headers["Location"] == "/practice/chess/prac0001/chap0001"
+
+    learner_page = await client.get("/practice/chess/prac0001/chap0001")
+    assert learner_page.status == 200
+    learner_html = await learner_page.text()
+    assert "Pawn Endgames • Practice • PyChess" in learner_html
+
+    chapter = await client.get(
+        "/practice/chess/prac0001/chap0001", headers={"Accept": "application/json"}
+    )
+    assert chapter.status == 200
+    payload = await chapter.json()
+    study = payload["study"]
+    assert study["id"] == "prac0001"
+    assert study["chapter"]["id"] == "chap0001"
+    assert study["chapter"]["mode"] == "gamebook"
+    assert [item["id"] for item in study["chapters"]] == ["chap0001", "chap0002"]
+    assert study["practice"] == {
+        "variant": "chess",
+        "sectionId": "pawn-endgames",
+        "sectionName": "Pawn endgames",
+        "indexUrl": "/practice/chess",
+        "studyUrl": "/practice/chess/prac0001",
+    }
+    assert study["canWrite"] is False
+    assert study["isOwner"] is False
+    assert study["canClone"] is False
+    assert study["canShare"] is False
+    assert study["canLike"] is False
+    assert study["features"]["computer"] is True
+
+
+@pytest.mark.asyncio
+async def test_practice_learner_route_rejects_wrong_variant_or_non_curated_chapter(
+    aiohttp_client, monkeypatch
+) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    await _insert_practice_learner_study(app_state)
+    monkeypatch.setattr(practice_data, "PRACTICE_SECTIONS", (_practice_sections()[0],))
+
+    wrong_variant = await client.get("/practice/shogi/prac0001/chap0001")
+    assert wrong_variant.status == 404
+
+    wrong_chapter = await client.get("/practice/chess/prac0001/missing1")
+    assert wrong_chapter.status == 404
+
+
+@pytest.mark.asyncio
+async def test_practice_learner_routes_are_hidden_outside_dev(aiohttp_client, monkeypatch) -> None:
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+    client = await aiohttp_client(app)
+    app_state = get_app_state(app)
+    await _insert_practice_learner_study(app_state)
+    monkeypatch.setattr(practice_data, "PRACTICE_SECTIONS", (_practice_sections()[0],))
+
+    with patch("settings.DEV", False):
+        response = await client.get("/practice/chess/prac0001")
+        assert response.status == 404
+        chapter = await client.get("/practice/chess/prac0001/chap0001")
+        assert chapter.status == 404
