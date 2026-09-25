@@ -638,6 +638,13 @@
     background: color-mix(in srgb, var(--link-color-blue) 10%, var(--bg-color0));
 }
 .study-chapter__row.active a { color: var(--link-color-blue); }
+.practice-chapter-status {
+    width: 1.1rem;
+    color: color-mix(in srgb, var(--font-color) 45%, transparent);
+    text-align: center;
+}
+.study-chapter__row.active .practice-chapter-status { color: var(--link-color-blue); }
+.study-chapter__row.completed .practice-chapter-status { color: var(--good); font-weight: bold; }
 .study-mode[hidden] { display: none; }
 .study-mode {
     display: inline-flex;

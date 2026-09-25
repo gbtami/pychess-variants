@@ -26,6 +26,7 @@ import {
 } from './studyPracticeFeedback';
 import {
     evaluateStudyPracticeGoal,
+    studyPracticeGoalText,
     studyPracticeMovePromotes,
     type StudyPracticeGoalDecision,
 } from './studyPracticeGoal';
@@ -1110,6 +1111,13 @@ export class StudyPracticeSession {
         };
 
         const commentFeedback = state.kind === 'ended' ? state.feedback : this.lastFeedback;
+        if (this.options.goal && state.kind !== 'ended' && state.kind !== 'unavailable')
+            addText(
+                _(
+                    'Goal: %1',
+                    studyPracticeGoalText(this.options.goal, this.options.learnerColor, this.learnerMoveCount()),
+                ),
+            );
         this.panel.classList.remove('good', 'inaccuracy', 'mistake', 'blunder', 'unknown');
         if (commentFeedback) this.panel.classList.add(commentFeedback.verdict);
 

@@ -1,3 +1,4 @@
+import { _, ngettext } from '../i18n';
 import type { PracticeGoal } from '../types';
 import { studyPracticeOutcome, type StudyPracticeEvaluation, type StudyPracticeVerdict } from './studyPracticeFeedback';
 
@@ -12,6 +13,46 @@ export interface StudyPracticeGoalPosition {
     promotion: boolean;
     evaluation?: StudyPracticeEvaluation;
     feedbackVerdict?: StudyPracticeVerdict;
+}
+
+/** Human-readable learner objective, following lila's Practice wording while
+ * keeping PyChess's variant-native `win` goals and non-pawn promotion support. */
+export function studyPracticeGoalText(goal: PracticeGoal, learnerColor: 'white' | 'black', learnerMoves = 0): string {
+    const remaining = 'moves' in goal ? Math.max(0, goal.moves - learnerMoves) : undefined;
+    switch (goal.result) {
+        case 'mate':
+            return _('Checkmate the opponent.');
+        case 'mateIn':
+            return ngettext(
+                'Checkmate the opponent in %1 move.',
+                'Checkmate the opponent in %1 moves.',
+                remaining ?? goal.moves,
+            );
+        case 'drawIn':
+            return ngettext(
+                'Hold the draw for %1 more move.',
+                'Hold the draw for %1 more moves.',
+                remaining ?? goal.moves,
+            );
+        case 'equalIn':
+            return ngettext('Equalize in %1 move.', 'Equalize in %1 moves.', remaining ?? goal.moves);
+        case 'evalIn': {
+            const targetFavorsWhite = goal.cp >= 0;
+            if ((learnerColor === 'white') === targetFavorsWhite)
+                return ngettext(
+                    'Get a winning position in %1 move.',
+                    'Get a winning position in %1 moves.',
+                    remaining ?? goal.moves,
+                );
+            return ngettext('Defend for %1 move.', 'Defend for %1 moves.', remaining ?? goal.moves);
+        }
+        case 'promotion':
+            return _('Safely promote a piece.');
+        case 'win':
+            return _('Win the game.');
+        case 'winIn':
+            return ngettext('Win the game in %1 move.', 'Win the game in %1 moves.', remaining ?? goal.moves);
+    }
 }
 
 export const PRACTICE_GOAL_MIN_DEPTH = 16;

@@ -1309,14 +1309,15 @@ function practiceStudySide(study: StudyPageModel, progress?: StudyPracticeProgre
             h(
                 'nav.study-chapters',
                 { attrs: { 'aria-label': _('Practice chapters') } },
-                chapters.map(item =>
-                    h(
+                chapters.map(item => {
+                    const active = item.id === study.chapter.id;
+                    const completed = Boolean(progress?.isComplete(item.id));
+                    const status = completed ? '✓' : active ? '▶' : '○';
+                    const statusLabel = completed ? _('Completed') : active ? _('Current chapter') : _('Not completed');
+                    return h(
                         'div.study-chapter__row',
                         {
-                            class: {
-                                active: item.id === study.chapter.id,
-                                completed: Boolean(progress?.isComplete(item.id)),
-                            },
+                            class: { active, completed },
                         },
                         [
                             h(
@@ -1324,27 +1325,23 @@ function practiceStudySide(study: StudyPageModel, progress?: StudyPracticeProgre
                                 {
                                     attrs: {
                                         href: studyChapterUrl(study, item.id),
-                                        'aria-current': item.id === study.chapter.id ? 'page' : 'false',
+                                        'aria-current': active ? 'page' : 'false',
                                         'data-study-chapter-id': item.id,
                                     },
                                 },
                                 [
                                     h('span.study-chapter__number', `${item.order}. `),
                                     h('span.study-chapter__name', item.name),
-                                    ...(progress?.isComplete(item.id)
-                                        ? [
-                                              h(
-                                                  'span.study-chapter__result',
-                                                  { attrs: { title: _('Completed'), 'aria-label': _('Completed') } },
-                                                  '✓',
-                                              ),
-                                          ]
-                                        : []),
+                                    h(
+                                        'span.study-chapter__result.practice-chapter-status',
+                                        { attrs: { title: statusLabel, 'aria-label': statusLabel } },
+                                        status,
+                                    ),
                                 ],
                             ),
                         ],
-                    ),
-                ),
+                    );
+                }),
             ),
             ...(previous
                 ? [

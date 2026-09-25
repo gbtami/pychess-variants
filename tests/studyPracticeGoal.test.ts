@@ -3,6 +3,7 @@ import { describe, expect, test } from '@jest/globals';
 import type { PracticeGoal } from '../client/types';
 import {
     evaluateStudyPracticeGoal,
+    studyPracticeGoalText,
     studyPracticeMovePromotes,
     type StudyPracticeGoalPosition,
 } from '../client/study/studyPracticeGoal';
@@ -130,5 +131,18 @@ describe('evaluateStudyPracticeGoal', () => {
     test('mistakes and blunders fail non-terminal objectives, matching lichess Practice', () => {
         expect(evaluateStudyPracticeGoal(position({ result: 'win' }, { feedbackVerdict: 'mistake' }))).toBe('failure');
         expect(evaluateStudyPracticeGoal(position({ result: 'win' }, { feedbackVerdict: 'good' }))).toBe('ongoing');
+    });
+
+    test('describes computer-practice goals with learner-facing variant-safe wording', () => {
+        expect(studyPracticeGoalText({ result: 'mate' }, 'white')).toBe('Checkmate the opponent.');
+        expect(studyPracticeGoalText({ result: 'mateIn', moves: 3 }, 'white', 1)).toBe(
+            'Checkmate the opponent in 2 moves.',
+        );
+        expect(studyPracticeGoalText({ result: 'evalIn', moves: 4, cp: 300 }, 'white', 1)).toBe(
+            'Get a winning position in 3 moves.',
+        );
+        expect(studyPracticeGoalText({ result: 'evalIn', moves: 4, cp: 300 }, 'black', 1)).toBe('Defend for 3 moves.');
+        expect(studyPracticeGoalText({ result: 'promotion', cp: 200 }, 'white')).toBe('Safely promote a piece.');
+        expect(studyPracticeGoalText({ result: 'winIn', moves: 2 }, 'white')).toBe('Win the game in 2 moves.');
     });
 });

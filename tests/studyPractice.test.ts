@@ -318,6 +318,15 @@ describe('StudyPracticeSession', () => {
         session.destroy();
     });
 
+    test('shows the current computer-practice goal in the learner panel', () => {
+        const { session } = makeHarness('white', undefined, { goal: { result: 'winIn', moves: 3 } });
+        const panel = document.querySelector<HTMLElement>('.study-practice')!;
+
+        expect(panel.textContent).toContain('Goal: Win the game in 3 moves.');
+
+        session.destroy();
+    });
+
     test('announces the automatic evaluation transition without adding manual continue controls', () => {
         const { session, humanMove, finishEvaluation } = makeHarness('white');
         const panel = document.querySelector<HTMLElement>('.study-practice')!;

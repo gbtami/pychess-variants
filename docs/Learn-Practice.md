@@ -541,17 +541,28 @@ completed against explicit objectives.
 **Acceptance:** a content creator can author → preview → fix a lesson without asking for
 a registry edit after every change.
 
-### P10 — Practice UX/parity polish
+### P10 — Practice UX/parity polish — **done**
 
-- [ ] Refine the Practice index/card layout against lichess without blindly copying
-      chess-only assumptions.
-- [ ] Add clear goal text to computer-practice chapters.
-- [ ] Add chapter completion icons/status and progress bars.
-- [ ] Verify responsive/mobile layout.
-- [ ] Verify browser back/forward navigation and variant-dropdown state.
-- [ ] Check keyboard/accessible labels for selector, cards, progress, and success actions.
-- [ ] Reuse existing PyChess icons/styles where possible; borrow/adapt lichess assets only
-      through the project `lichess` workflow when useful.
+- [x] Refine the Practice index/card layout against lichess without blindly copying
+      chess-only assumptions. The index borrows lila's side-progress/card-state ideas
+      while keeping the PyChess variant selector and Study artwork.
+- [x] Add clear goal text to computer-practice chapters, both on curriculum cards and in
+      the live browser-engine Practice panel. Goal wording stays variant-safe for generic
+      wins and promotions.
+- [x] Add chapter completion icons/status and progress bars. The index has overall and
+      per-Study native progress bars; the Practice learner sidebar marks complete,
+      current, and unfinished chapters.
+- [x] Verify responsive/mobile layout through dedicated 799px/520px Practice breakpoints
+      that collapse the side panel and cards without relying on lichess's chess-only
+      fixed card width.
+- [x] Verify browser back/forward navigation and variant-dropdown state. The selector
+      now re-syncs its server-rendered variant on `pageshow`, covering bfcache restores
+      after a variant change.
+- [x] Check keyboard/accessible labels for selector, cards, progress, chapter state, and
+      the existing success actions. Native `<progress>` elements expose completion to
+      assistive technology and card overlays keep explicit open-study labels.
+- [x] Reuse existing PyChess icons/styles where possible; lila's Practice layout was used
+      as the behavior/style reference without copying its chess-specific lesson artwork.
 
 **Acceptance:** Practice feels like a deliberate Learn feature rather than a Study page
 with extra links.

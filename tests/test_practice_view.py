@@ -637,9 +637,14 @@ async def test_practice_index_shows_persistent_progress_and_reset_for_signed_in_
     response = await client.get("/practice/chess")
     assert response.status == 200
     html = await response.text()
-    assert "1 / 2 chapters" in html
+    assert 'value="1"' in html
+    assert 'max="2"' in html
+    assert 'aria-label="1 of 2 chapters complete"' in html
     assert 'data-practice-progress-state="ongoing"' in html
-    assert "✓ Opposition" in html
+    assert "practice-study-card__chapter--done" in html
+    assert "Opposition" in html
+    assert "Goal:" in html
+    assert "Checkmate the opponent" in html
     assert 'action="/practice/chess/reset"' in html
     assert "Reset progress" in html
 

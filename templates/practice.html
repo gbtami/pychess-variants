@@ -2,11 +2,31 @@
 {% block content %}
 <div id="main-wrap" class="practice-index-wrap">
     <main class="practice-index-page">
-        <aside class="practice-index__side" aria-label="{% trans %}Practice filters{% endtrans %}">
+        <aside class="practice-index__side" aria-label="{% trans %}Practice filters and progress{% endtrans %}">
+            <header class="practice-index__header">
+                <span class="practice-index__icon study-card__icon" aria-hidden="true"></span>
+                <div>
+                    <h1>{% trans %}Practice{% endtrans %}</h1>
+                    <p>
+                        {% if practice_variant %}
+                        {{ variant_display_name(practice_variant) }}
+                        {% else %}
+                        {% trans %}Curated lessons{% endtrans %}
+                        {% endif %}
+                    </p>
+                </div>
+            </header>
+
             <div class="practice-variant-picker">
                 <label for="practice-variant">{% trans %}Variant{% endtrans %}</label>
                 {% if practice_variants %}
-                <select id="practice-variant" name="variant" data-practice-variant-select>
+                <select
+                    id="practice-variant"
+                    name="variant"
+                    data-practice-variant-select
+                    data-practice-current-variant="{{ practice_variant or '' }}"
+                    aria-describedby="practice-variant-help"
+                >
                     {% if practice_variant not in practice_variants %}
                     <option value="" selected disabled>{% trans %}Select a variant{% endtrans %}</option>
                     {% endif %}
@@ -16,6 +36,9 @@
                     </option>
                     {% endfor %}
                 </select>
+                <p id="practice-variant-help" class="practice-variant-picker__help">
+                    {% trans %}Choose the curriculum for one chess variant.{% endtrans %}
+                </p>
                 {% else %}
                 <p class="practice-variant-picker__empty">{% trans %}No variants have valid Practice content yet.{% endtrans %}</p>
                 {% endif %}
@@ -23,9 +46,18 @@
 
             {% if practice_progress_authenticated and practice_variant and practice_has_content %}
             <div class="practice-index__progress" data-practice-progress-state="{% if practice_variant_progress.done == 0 %}untouched{% elif practice_variant_progress.done >= practice_variant_progress.total %}done{% else %}ongoing{% endif %}">
-                <p>
-                    <strong>{% trans %}Progress{% endtrans %}</strong><br>
-                    {{ practice_variant_progress.done }} / {{ practice_variant_progress.total }} {% trans %}chapters{% endtrans %}
+                <div class="practice-index__progress-head">
+                    <strong>{% trans %}Progress{% endtrans %}</strong>
+                    <span>{{ practice_variant_progress.done }} / {{ practice_variant_progress.total }}</span>
+                </div>
+                <progress
+                    class="practice-progress-bar"
+                    value="{{ practice_variant_progress.done }}"
+                    max="{{ practice_variant_progress.total }}"
+                    aria-label="{% trans done=practice_variant_progress.done, total=practice_variant_progress.total %}{{ done }} of {{ total }} chapters complete{% endtrans %}"
+                >{{ practice_variant_progress.done }} / {{ practice_variant_progress.total }}</progress>
+                <p class="practice-index__progress-copy">
+                    {% trans count=practice_variant_progress.done %}{{ count }} chapter completed{% pluralize %}{{ count }} chapters completed{% endtrans %}
                 </p>
                 {% if practice_variant_progress.done %}
                 <form method="post" action="/practice/{{ practice_variant }}/reset">
@@ -33,20 +65,17 @@
                 </form>
                 {% endif %}
             </div>
+            {% elif not practice_progress_authenticated and practice_has_content %}
+            <p class="practice-index__signin-hint">{% trans %}Sign in to save your progress between visits.{% endtrans %}</p>
             {% endif %}
         </aside>
 
-        <section class="practice-index study-index box">
-            <div class="study-topics-index">
-                <h1>{% trans %}Practice{% endtrans %}</h1>
-                <p>
-                    {% trans %}Development preview of curated Study lessons.{% endtrans %}
-                    {% if practice_progress_authenticated %}
-                    {% trans %}Your completed chapters are saved automatically.{% endtrans %}
-                    {% else %}
-                    {% trans %}Sign in to save your progress between visits.{% endtrans %}
-                    {% endif %}
-                </p>
+        <section class="practice-index study-index box" aria-labelledby="practice-curriculum-title">
+            <div class="study-topics-index practice-app">
+                <div class="practice-index__intro">
+                    <h2 id="practice-curriculum-title">{% trans %}Practice curriculum{% endtrans %}</h2>
+                    <p>{% trans %}Development preview of curated Study lessons.{% endtrans %}</p>
+                </div>
 
                 {% if practice_variant and not practice_has_content %}
                 <div class="study-empty practice-empty">
@@ -57,27 +86,37 @@
 
                 {% if practice_sections %}
                     {% for resolved_section in practice_sections %}
-                    <section aria-labelledby="practice-section-{{ resolved_section.section.id }}">
+                    <section class="practice-section" aria-labelledby="practice-section-{{ resolved_section.section.id }}">
                         <h2 id="practice-section-{{ resolved_section.section.id }}">{{ resolved_section.section.name }}</h2>
 
-                        <div class="studies study-list">
+                        <div class="studies practice-studies">
                             {% for resolved in resolved_section.studies %}
                             {% if resolved.study and resolved.valid %}
                             {% set study_progress = practice_progress_by_study[resolved.study.id] %}
                             {% else %}
                             {% set study_progress = none %}
                             {% endif %}
-                            <article class="study-card{% if not resolved.valid %} practice-study-card--invalid{% elif practice_progress_authenticated %} practice-study-card--{{ study_progress.state }}{% endif %}"{% if study_progress %} data-practice-progress-state="{{ study_progress.state }}"{% endif %}>
+                            <article class="study-card practice-study-card{% if not resolved.valid %} practice-study-card--invalid{% elif practice_progress_authenticated %} practice-study-card--{{ study_progress.state }}{% endif %}"{% if study_progress %} data-practice-progress-state="{{ study_progress.state }}"{% endif %}>
                                 {% if resolved.study and resolved.valid and practice_variant %}
                                 <a
                                     class="study-card__overlay"
                                     href="/practice/{{ practice_variant }}/{{ resolved.study.id }}"
                                     title="{{ resolved.study.name }}"
-                                    aria-label="{{ resolved.study.name }}"
+                                    aria-label="{% trans study_name=resolved.study.name %}Open Practice study {{ study_name }}{% endtrans %}"
                                 ></a>
                                 {% endif %}
+
+                                {% if practice_progress_authenticated and study_progress %}
+                                <div
+                                    class="practice-study-card__ribbon practice-study-card__ribbon--{{ study_progress.state }}"
+                                    aria-label="{% trans done=study_progress.done, total=study_progress.total %}{{ done }} of {{ total }} chapters complete{% endtrans %}"
+                                >
+                                    <span aria-hidden="true">{{ study_progress.done }} / {{ study_progress.total }}</span>
+                                </div>
+                                {% endif %}
+
                                 <div class="study-card__top">
-                                    <span class="study-card__icon" aria-hidden="true"></span>
+                                    <span class="study-card__icon practice-study-card__icon" aria-hidden="true"></span>
                                     <div class="study-card__summary">
                                         <strong class="study-card__name">
                                             {% if resolved.study %}{{ resolved.study.name }}{% else %}{{ resolved.ref.study_id }}{% endif %}
@@ -88,27 +127,73 @@
                                             {% if resolved.study %}<span aria-hidden="true">•</span><span class="study-card__owner">{{ resolved.study.owner }}</span>{% endif %}
                                             {% if practice_progress_authenticated and study_progress %}
                                             <span aria-hidden="true">•</span>
-                                            <span class="practice-study-card__progress">
-                                                {% if study_progress.state == "done" %}{% trans %}Complete{% endtrans %}{% elif study_progress.state == "ongoing" %}{{ study_progress.done }} / {{ study_progress.total }}{% else %}{% trans %}Not started{% endtrans %}{% endif %}
+                                            <span class="practice-study-card__progress-text">
+                                                {% if study_progress.state == "done" %}{% trans %}Complete{% endtrans %}{% elif study_progress.state == "ongoing" %}{% trans %}In progress{% endtrans %}{% else %}{% trans %}Not started{% endtrans %}{% endif %}
                                             </span>
                                             {% endif %}
                                         </div>
                                     </div>
                                 </div>
-                                <div class="study-card__body">
-                                    <ol class="study-card__chapters">
-                                        {% if resolved.valid %}
-                                            {% for chapter in resolved.chapters %}
-                                            <li class="study-card__chapter{% if study_progress and chapter.id in study_progress.completed_chapter_ids %} practice-study-card__chapter--done{% endif %}">{% if study_progress and chapter.id in study_progress.completed_chapter_ids %}✓ {% endif %}{{ chapter.name }}</li>
-                                            {% endfor %}
-                                        {% else %}
-                                            {% for issue in resolved.issues %}
-                                            <li class="study-card__chapter">{{ issue.message }}</li>
-                                            {% endfor %}
-                                        {% endif %}
-                                    </ol>
+
+                                <div class="study-card__body practice-study-card__body">
                                     {% if resolved.ref.description %}
-                                    <p>{{ resolved.ref.description }}</p>
+                                    <p class="practice-study-card__description">{{ resolved.ref.description }}</p>
+                                    {% endif %}
+
+                                    {% if resolved.valid %}
+                                    <ol class="practice-study-card__chapters" aria-label="{% trans %}Practice chapters{% endtrans %}">
+                                        {% for chapter in resolved.chapters %}
+                                        {% set chapter_done = study_progress and chapter.id in study_progress.completed_chapter_ids %}
+                                        <li class="practice-study-card__chapter{% if chapter_done %} practice-study-card__chapter--done{% endif %}">
+                                            <span
+                                                class="practice-study-card__chapter-status"
+                                                {% if chapter_done %}title="{% trans %}Completed{% endtrans %}" aria-label="{% trans %}Completed{% endtrans %}"{% else %}aria-hidden="true"{% endif %}
+                                            >{% if chapter_done %}✓{% else %}○{% endif %}</span>
+                                            <span class="practice-study-card__chapter-copy">
+                                                <span class="practice-study-card__chapter-name">{{ chapter.name }}</span>
+                                                {% if chapter.mode == "gamebook" %}
+                                                <span class="practice-study-card__chapter-detail">{% trans %}Interactive lesson{% endtrans %}</span>
+                                                {% elif chapter.goal %}
+                                                <span class="practice-study-card__chapter-detail practice-study-card__goal">
+                                                    <strong>{% trans %}Goal{% endtrans %}:</strong>
+                                                    {% if chapter.goal.result == "mate" %}
+                                                        {% trans %}Checkmate the opponent{% endtrans %}
+                                                    {% elif chapter.goal.result == "mateIn" %}
+                                                        {% trans count=chapter.goal.moves %}Checkmate the opponent in {{ count }} move{% pluralize %}Checkmate the opponent in {{ count }} moves{% endtrans %}
+                                                    {% elif chapter.goal.result == "drawIn" %}
+                                                        {% trans count=chapter.goal.moves %}Hold the draw for {{ count }} move{% pluralize %}Hold the draw for {{ count }} moves{% endtrans %}
+                                                    {% elif chapter.goal.result == "equalIn" %}
+                                                        {% trans count=chapter.goal.moves %}Equalize in {{ count }} move{% pluralize %}Equalize in {{ count }} moves{% endtrans %}
+                                                    {% elif chapter.goal.result == "evalIn" %}
+                                                        {% trans count=chapter.goal.moves %}Reach the target evaluation in {{ count }} move{% pluralize %}Reach the target evaluation in {{ count }} moves{% endtrans %}
+                                                    {% elif chapter.goal.result == "promotion" %}
+                                                        {% trans %}Promote safely while keeping the required evaluation{% endtrans %}
+                                                    {% elif chapter.goal.result == "win" %}
+                                                        {% trans %}Win the game{% endtrans %}
+                                                    {% elif chapter.goal.result == "winIn" %}
+                                                        {% trans count=chapter.goal.moves %}Win the game in {{ count }} move{% pluralize %}Win the game in {{ count }} moves{% endtrans %}
+                                                    {% endif %}
+                                                </span>
+                                                {% endif %}
+                                            </span>
+                                        </li>
+                                        {% endfor %}
+                                    </ol>
+                                    {% else %}
+                                    <ul class="practice-study-card__issues" aria-label="{% trans %}Curation problems{% endtrans %}">
+                                        {% for issue in resolved.issues %}
+                                        <li>{{ issue.message }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                    {% endif %}
+
+                                    {% if practice_progress_authenticated and study_progress %}
+                                    <progress
+                                        class="practice-progress-bar practice-progress-bar--card"
+                                        value="{{ study_progress.done }}"
+                                        max="{{ study_progress.total }}"
+                                        aria-label="{% trans study_name=resolved.study.name, done=study_progress.done, total=study_progress.total %}{{ study_name }} progress: {{ done }} of {{ total }} chapters complete{% endtrans %}"
+                                    >{{ study_progress.done }} / {{ study_progress.total }}</progress>
                                     {% endif %}
                                 </div>
                             </article>
