@@ -179,6 +179,11 @@ Important differences from Puzzle:
   catalogued variant cleanly, match the Puzzle UI/behavior without forcing Practice into
   the helper's static assumptions.
 
+P3 follows that latter path: the server renders only validated curated variant keys, and
+`client/practice.ts` applies the same immediate-on-change navigation pattern as Puzzle.
+Built-in randomized starts use the normal `<variant>960` site key, while catalogued
+variants keep their catalogued names.
+
 Suggested routes:
 
 ```text
@@ -431,15 +436,17 @@ but there is no user-facing page yet.
 **Acceptance:** DEV users can open Learn → Practice and see curated sections/studies;
 production behavior is unchanged.
 
-### P3 — Variant selector and filtering
+### P3 — Variant selector and filtering — **done**
 
-- [ ] Add the Puzzle-like **Variant** dropdown.
-- [ ] Filter sections/cards to the selected variant and remove empty sections.
-- [ ] Populate choices only from variants that currently have valid curated content.
-- [ ] Preserve the variant in URLs/navigation.
-- [ ] Reuse `selectVariant(...)` where it fits, but support Study/catalogued variant
-      metadata rather than assuming Puzzle's static variant list forever.
-- [ ] Add tests for variant filtering and stale/no-content variant URLs.
+- [x] Add the Puzzle-like **Variant** dropdown.
+- [x] Filter sections/cards to the selected variant and remove empty sections.
+- [x] Populate choices only from variants that currently have valid curated content.
+- [x] Preserve the variant in URLs/navigation.
+- [x] Match the Puzzle selector interaction while using curated Study variant keys rather
+      than forcing Practice through `selectVariant(...)`'s full static catalogue. This
+      keeps sparse Practice choices, built-in `...960` keys, and catalogued variant names
+      representable without exposing unrelated variants.
+- [x] Add tests for variant filtering and stale/no-content variant URLs.
 
 **Acceptance:** creators can switch between Practice curricula for different PyChess
 variants without mixing their Studies.

@@ -5,6 +5,7 @@ from typing import Any, Literal
 
 from study.models import Study, StudyChapterMode, study_chapter_mode
 from study.storage import load_study
+from variants import is_catalogued_variant
 
 PracticeValidationCode = Literal[
     "study-not-found",
@@ -84,6 +85,59 @@ class PracticeSectionValidation:
     @property
     def invalid_studies(self) -> tuple[PracticeStudyValidation, ...]:
         return tuple(study for study in self.studies if not study.valid)
+
+
+def practice_variant_key(ref: PracticeStudyRef) -> str:
+    """Return the URL/client variant key for one curated Study.
+
+    Built-in randomized starts use the site's conventional ``<variant>960`` key.
+    Catalogued variants keep their catalogued name because random-start identity is
+    already part of that variant snapshot/name on the client.
+    """
+
+    if ref.chess960 and not is_catalogued_variant(ref.variant):
+        return f"{ref.variant}960"
+    return ref.variant
+
+
+def practice_variant_keys(
+    curriculum: tuple[PracticeSectionValidation, ...],
+) -> tuple[str, ...]:
+    """Return curated variant keys that currently have at least one valid Study."""
+
+    keys: list[str] = []
+    seen: set[str] = set()
+    for section in curriculum:
+        for resolved in section.valid_studies:
+            key = practice_variant_key(resolved.ref)
+            if key not in seen:
+                seen.add(key)
+                keys.append(key)
+    return tuple(keys)
+
+
+def filter_practice_curriculum(
+    curriculum: tuple[PracticeSectionValidation, ...], variant_key: str
+) -> tuple[PracticeSectionValidation, ...]:
+    """Keep only cards for ``variant_key`` and drop empty curriculum sections.
+
+    Invalid entries with the selected registry variant remain visible on DEV so content
+    creators can fix curation mistakes. They do not make a variant appear in the
+    selector because :func:`practice_variant_keys` considers only valid Studies.
+    """
+
+    filtered: list[PracticeSectionValidation] = []
+    for resolved_section in curriculum:
+        studies = tuple(
+            resolved
+            for resolved in resolved_section.studies
+            if practice_variant_key(resolved.ref) == variant_key
+        )
+        if studies:
+            filtered.append(
+                PracticeSectionValidation(section=resolved_section.section, studies=studies)
+            )
+    return tuple(filtered)
 
 
 # Keep the initial registry intentionally empty. P1 establishes the curation contract

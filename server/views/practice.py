@@ -21,11 +21,28 @@ async def practice(request: web.Request) -> ViewContext:
         app_state,
         sections=practice_data.PRACTICE_SECTIONS,
     )
+    available_variants = practice_data.practice_variant_keys(curriculum)
+    requested_variant = request.match_info.get("variant")
+
+    if requested_variant is None and available_variants:
+        menu_variant = context["menu_variant"]
+        selected_variant = (
+            menu_variant if menu_variant in available_variants else available_variants[0]
+        )
+        raise web.HTTPFound(f"/practice/{selected_variant}")
+
+    selected_variant = requested_variant
+    if selected_variant is None:
+        # With no valid curated Study there is no selector target. Keep invalid DEV
+        # entries visible so maintainers can see why the registry is unusable.
+        visible_curriculum = curriculum
+    else:
+        visible_curriculum = practice_data.filter_practice_curriculum(curriculum, selected_variant)
 
     context["title"] = "Practice • PyChess"
-    # Reuse the Study index shell for P2. Practice gets its own styling when the
-    # variant selector/card UX is introduced in P3/P10.
-    context["view_css"] = "study.css"
-    context["practice_sections"] = curriculum
-    context["practice_variant"] = request.match_info.get("variant")
+    context["view_css"] = "practice.css"
+    context["practice_sections"] = visible_curriculum
+    context["practice_variant"] = selected_variant
+    context["practice_variants"] = available_variants
+    context["practice_has_content"] = selected_variant in available_variants
     return context

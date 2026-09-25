@@ -1,8 +1,28 @@
 {% extends "template.html" %}
 {% block content %}
-<div id="main-wrap" class="study-index-wrap">
-    <main class="study-index-page">
-        <section class="study-index box">
+<div id="main-wrap" class="practice-index-wrap">
+    <main class="practice-index-page">
+        <aside class="practice-index__side" aria-label="{% trans %}Practice filters{% endtrans %}">
+            <div class="practice-variant-picker">
+                <label for="practice-variant">{% trans %}Variant{% endtrans %}</label>
+                {% if practice_variants %}
+                <select id="practice-variant" name="variant" data-practice-variant-select>
+                    {% if practice_variant not in practice_variants %}
+                    <option value="" selected disabled>{% trans %}Select a variant{% endtrans %}</option>
+                    {% endif %}
+                    {% for variant_key in practice_variants %}
+                    <option value="{{ variant_key }}"{% if variant_key == practice_variant %} selected{% endif %}>
+                        {{ variant_display_name(variant_key) }}
+                    </option>
+                    {% endfor %}
+                </select>
+                {% else %}
+                <p class="practice-variant-picker__empty">{% trans %}No variants have valid Practice content yet.{% endtrans %}</p>
+                {% endif %}
+            </div>
+        </aside>
+
+        <section class="practice-index study-index box">
             <div class="study-topics-index">
                 <h1>{% trans %}Practice{% endtrans %}</h1>
                 <p>
@@ -10,15 +30,21 @@
                     {% trans %}Progress tracking is not enabled yet.{% endtrans %}
                 </p>
 
+                {% if practice_variant and not practice_has_content %}
+                <div class="study-empty practice-empty">
+                    <span class="study-empty__icon icon icon-book" aria-hidden="true"></span>
+                    <p>{% trans variant_name=variant_display_name(practice_variant) %}No Practice lessons yet for {{ variant_name }}.{% endtrans %}</p>
+                </div>
+                {% endif %}
+
                 {% if practice_sections %}
                     {% for resolved_section in practice_sections %}
                     <section aria-labelledby="practice-section-{{ resolved_section.section.id }}">
                         <h2 id="practice-section-{{ resolved_section.section.id }}">{{ resolved_section.section.name }}</h2>
 
-                        {% if resolved_section.studies %}
                         <div class="studies study-list">
                             {% for resolved in resolved_section.studies %}
-                            <article class="study-card">
+                            <article class="study-card{% if not resolved.valid %} practice-study-card--invalid{% endif %}">
                                 {% if resolved.study %}
                                 <a
                                     class="study-card__overlay"
@@ -34,8 +60,8 @@
                                             {% if resolved.study %}{{ resolved.study.name }}{% else %}{{ resolved.ref.study_id }}{% endif %}
                                         </strong>
                                         <div class="study-card__meta">
-                                            <span>{{ variant_display_name(resolved.ref.variant) }}</span>
-                                            {% if resolved.ref.chess960 %}<span aria-hidden="true">•</span><span>960</span>{% endif %}
+                                            <span>{{ variant_display_name(practice_variant or resolved.ref.variant) }}</span>
+                                            {% if not practice_variant and resolved.ref.chess960 %}<span aria-hidden="true">•</span><span>960</span>{% endif %}
                                             {% if resolved.study %}<span aria-hidden="true">•</span><span class="study-card__owner">{{ resolved.study.owner }}</span>{% endif %}
                                         </div>
                                     </div>
@@ -59,15 +85,9 @@
                             </article>
                             {% endfor %}
                         </div>
-                        {% else %}
-                        <div class="study-empty">
-                            <span class="study-empty__icon icon icon-book" aria-hidden="true"></span>
-                            <p>{% trans %}No studies are configured in this Practice section yet.{% endtrans %}</p>
-                        </div>
-                        {% endif %}
                     </section>
                     {% endfor %}
-                {% else %}
+                {% elif not practice_variant %}
                 <div class="study-empty">
                     <span class="study-empty__icon icon icon-book" aria-hidden="true"></span>
                     <p>{% trans %}No Practice studies are curated yet.{% endtrans %}</p>
