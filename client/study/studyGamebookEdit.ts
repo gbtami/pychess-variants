@@ -16,6 +16,14 @@ export interface StudyGamebookEditActions {
     saveGamebook: (field: StudyGamebookField, value: string, path: string) => void;
 }
 
+type FocusedTextarea = {
+    field: StudyGamebookField;
+    selectionStart: number;
+    selectionEnd: number;
+    selectionDirection: 'forward' | 'backward' | 'none' | null;
+    scrollTop: number;
+};
+
 type LegendOptions = {
     icon?: 'comment-o' | 'info' | 'play';
     todo?: boolean;
@@ -67,7 +75,9 @@ export class StudyGamebookEditor {
     ) {}
 
     update(state: StudyGamebookEditState): void {
-        if (this.lastPath !== state.path) this.flush();
+        const samePath = this.lastPath === state.path;
+        const focused = samePath ? this.captureFocusedTextarea(state.path) : undefined;
+        if (!samePath) this.flush();
         this.lastPath = state.path;
         this.root.replaceChildren();
 
@@ -108,6 +118,7 @@ export class StudyGamebookEditor {
                     }),
                 );
             }
+            this.restoreFocusedTextarea(focused);
             return;
         }
 
@@ -116,6 +127,7 @@ export class StudyGamebookEditor {
                 commentLegend(_('Explain why this move is wrong in a comment.'), true),
                 legend(_('Or promote it as the main line if it is the right move.')),
             );
+            this.restoreFocusedTextarea(focused);
             return;
         }
 
@@ -134,6 +146,7 @@ export class StudyGamebookEditor {
                     'info',
                 ),
             );
+            this.restoreFocusedTextarea(focused);
             return;
         }
 
@@ -165,6 +178,7 @@ export class StudyGamebookEditor {
                 true,
             ),
         );
+        this.restoreFocusedTextarea(focused);
     }
 
     flush(): void {
@@ -181,6 +195,31 @@ export class StudyGamebookEditor {
         this.root.replaceChildren();
     }
 
+    private captureFocusedTextarea(path: string): FocusedTextarea | undefined {
+        const active = document.activeElement;
+        if (!(active instanceof HTMLTextAreaElement) || !this.root.contains(active)) return undefined;
+        const field = active.dataset.studyGamebookField;
+        if ((field !== 'hint' && field !== 'deviation') || active.dataset.studyGamebookPath !== path) return undefined;
+        return {
+            field,
+            selectionStart: active.selectionStart,
+            selectionEnd: active.selectionEnd,
+            selectionDirection: active.selectionDirection,
+            scrollTop: active.scrollTop,
+        };
+    }
+
+    private restoreFocusedTextarea(focused: FocusedTextarea | undefined): void {
+        if (!focused) return;
+        const input = this.root.querySelector<HTMLTextAreaElement>(
+            `textarea[data-study-gamebook-field="${focused.field}"]`,
+        );
+        if (!input) return;
+        input.focus({ preventScroll: true });
+        input.setSelectionRange(focused.selectionStart, focused.selectionEnd, focused.selectionDirection ?? undefined);
+        input.scrollTop = focused.scrollTop;
+    }
+
     private textarea(
         field: StudyGamebookField,
         path: string,
@@ -192,17 +231,20 @@ export class StudyGamebookEditor {
     ): HTMLElement {
         const wrapper = document.createElement('div');
         wrapper.className = `study-gamebook-edit__field study-gamebook-edit__field--${field}`;
+        const currentValue = this.pending?.field === field && this.pending.path === path ? this.pending.value : value;
         wrapper.append(
             legend(legendText, {
                 icon: iconName,
                 todo,
-                done: todo && value.trim().length > 2,
+                done: todo && currentValue.trim().length > 2,
             }),
         );
         const input = document.createElement('textarea');
         input.rows = 3;
         input.maxLength = 4000;
-        input.value = value;
+        input.value = currentValue;
+        input.dataset.studyGamebookField = field;
+        input.dataset.studyGamebookPath = path;
         input.placeholder = placeholder;
         input.setAttribute('aria-label', legendText);
         const schedule = () => {

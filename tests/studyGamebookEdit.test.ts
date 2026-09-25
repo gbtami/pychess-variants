@@ -78,6 +78,46 @@ describe('Study gamebook author editor', () => {
         expect(saveGamebook).toHaveBeenCalledWith('hint', 'Look at the center', '');
     });
 
+    test('preserves an active gamebook textarea draft, focus, and caret across same-position redraws', () => {
+        const { root, editor, tree, saveGamebook } = render('StudyNode1');
+        document.body.append(root);
+        const deviation = root.querySelector<HTMLTextAreaElement>(
+            'textarea[aria-label="When any other wrong move is played:"]',
+        )!;
+        deviation.focus();
+        deviation.value = 'This is not gating';
+        deviation.setSelectionRange(8, 11, 'forward');
+        deviation.scrollTop = 7;
+        deviation.dispatchEvent(new Event('input', { bubbles: true }));
+
+        editor.update({ tree, path: 'StudyNode1', orientation: 'white' });
+
+        const redrawn = root.querySelector<HTMLTextAreaElement>(
+            'textarea[aria-label="When any other wrong move is played:"]',
+        )!;
+        expect(redrawn).not.toBe(deviation);
+        expect(redrawn.value).toBe('This is not gating');
+        expect(document.activeElement).toBe(redrawn);
+        expect(redrawn.selectionStart).toBe(8);
+        expect(redrawn.selectionEnd).toBe(11);
+        expect(redrawn.selectionDirection).toBe('forward');
+        expect(redrawn.scrollTop).toBe(7);
+        expect(saveGamebook).not.toHaveBeenCalled();
+
+        editor.flush();
+        expect(saveGamebook).toHaveBeenCalledWith('deviation', 'This is not gating', 'StudyNode1');
+
+        tree.byPath.get('StudyNode1')!.gamebook = { deviation: 'This is not gating' };
+        editor.update({ tree, path: 'StudyNode1', orientation: 'white' });
+        const acknowledged = root.querySelector<HTMLTextAreaElement>(
+            'textarea[aria-label="When any other wrong move is played:"]',
+        )!;
+        expect(acknowledged.value).toBe('This is not gating');
+        expect(document.activeElement).toBe(acknowledged);
+        expect(acknowledged.selectionStart).toBe(8);
+        expect(acknowledged.selectionEnd).toBe(11);
+    });
+
     test('shows correct-move reflection and fallback wrong-answer guidance', () => {
         const { root, editComment } = render('StudyNode1');
 
