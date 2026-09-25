@@ -252,11 +252,13 @@ button.study-gamebook-play__feedback.act:focus-visible {
     filter: brightness(1.08);
 }
 
-.study-gamebook-play-underboard {
+.study-gamebook-play-underboard,
+.study-gamebook-play__metadata {
     display: none;
 }
 
-.study-app.study-gamebook-playback .study-gamebook-play-underboard {
+.study-app.study-gamebook-playback .study-gamebook-play-underboard,
+.study-app.study-gamebook-playback .study-gamebook-play__metadata {
     display: block;
 }
 

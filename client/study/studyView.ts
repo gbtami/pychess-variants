@@ -1888,11 +1888,9 @@ function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions
             : []),
     ];
     return h('div.study-underboard', [
-        h('div.study-gamebook-play-underboard', [
-            h('div.study-gamebook-play-buttons', { attrs: { hidden: 'true' } }),
-            h('div.study-gamebook-play__metadata', [studyMetadataTitle(study), studyTagsTable(study, true)]),
-        ]),
+        h('div.study-gamebook-play-underboard', [h('div.study-gamebook-play-buttons', { attrs: { hidden: 'true' } })]),
         studyPinnedChapterComment(study, modeActions),
+        h('div.study-gamebook-play__metadata', [studyMetadataTitle(study), studyTagsTable(study, true)]),
         studyGamebookStatus(study, modeActions),
         h('nav.study-tool-tabs', { attrs: { role: 'tablist', 'aria-label': _('Study tools') } }, [
             ...studyModeButtons(study, model, modeActions),

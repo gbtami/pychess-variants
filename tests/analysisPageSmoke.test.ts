@@ -512,7 +512,14 @@ describe('analysis page smoke coverage', () => {
         study.chapters[0].mode = 'gamebook';
         study.modeOverride = 'analysis';
         const metadataRoot = renderNodes(studyView(makeModel({ gameId: '', status: 0, study })));
-        const playbackTags = metadataRoot.querySelector('.study-gamebook-play__metadata .study-tags');
+        const pinnedComment = metadataRoot.querySelector('.study-desc-slot');
+        const playbackMetadata = metadataRoot.querySelector('.study-gamebook-play__metadata');
+        const playbackTags = playbackMetadata?.querySelector('.study-tags');
+        expect(pinnedComment?.textContent).toContain('Pinned after render');
+        expect(playbackMetadata).not.toBeNull();
+        expect(
+            Boolean(pinnedComment?.compareDocumentPosition(playbackMetadata!) & Node.DOCUMENT_POSITION_FOLLOWING),
+        ).toBe(true);
         expect(playbackTags).not.toBeNull();
         expect(playbackTags?.textContent).toContain('World Blitz 2025 Open');
         expect(playbackTags?.textContent).toContain('Alice');
