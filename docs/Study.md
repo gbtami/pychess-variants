@@ -268,6 +268,15 @@ PGN content was recovered; it must not be interpreted as proof of full Study-fid
 round-tripping. These are interchange limitations, not reasons to invent unverified
 Lichess-specific directives.
 
+One tightly scoped exception is the current official **Lichess Practice** curriculum.
+Lila exports `ChapterMode "gamebook"` for Interactive Lessons but omits its internal
+Practice-with-computer mode. Those exports retain `ChapterURL`, so PyChess recognizes
+Study IDs present in lila's canonical `PracticeSections.scala` and restores `practice`
+mode for otherwise-unmarked chapters. Lichess Practice defaults a missing goal to mate;
+for chapters whose mode was recovered this way, PyChess therefore materializes
+`Termination "mate"` when that tag is absent. Unknown Lichess Studies are not inferred as
+Practice, and PyChess-authored Practice chapters continue to require an explicit goal.
+
 ### Import: parser, validation, and paste workflow
 
 [pgnParser.ts](../client/pgnParser.ts) is the shared client-side structural PGN parser.

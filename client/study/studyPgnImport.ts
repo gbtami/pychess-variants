@@ -213,9 +213,63 @@ interface ParsedPgnComments {
 const PYCHESS_STUDY_PGN_VERSION = '1';
 const STUDY_CHAPTER_MODES = new Set<StudyChapterMode>(['normal', 'practice', 'conceal', 'gamebook']);
 
+// Lichess's ordinary Study PGN export serializes Interactive Lesson chapters as
+// [ChapterMode "gamebook"], but it does not serialize the internal Practice-with-
+// computer mode. Recover that otherwise-lost mode only for Studies that the current
+// lila Practice curriculum explicitly curates. The IDs mirror
+// modules/practice/src/main/PracticeSections.scala (inspected 2026-09-25).
+const LICHESS_PRACTICE_STUDY_IDS = new Set([
+    'BJy6fEDf',
+    'fE4k21MW',
+    '8yadFPpU',
+    'PDkQDt6u',
+    '96Lij7wH',
+    'Rg2cMBZ6',
+    'ByhlXnmM',
+    '9ogFv8Ac',
+    'tuoBxVE5',
+    'Qj281y1p',
+    'MnsJEWnI',
+    'RUQASaZm',
+    'o734CNqp',
+    'ITWY4GN2',
+    'lyVYjhPG',
+    '9cKgYrHb',
+    'g1fxVZu9',
+    's5pLU7Of',
+    'kdKpaYLW',
+    'jOZejFWk',
+    '49fDW0wP',
+    '0YcGiH4Y',
+    'CgjKPvxQ',
+    'udx042D6',
+    'Grmtwuft',
+    'xebrDvFe',
+    'A4ujYOer',
+    'pt20yRkT',
+    'MkDViieT',
+    'pqUSUw8Y',
+    'heQDnvq7',
+    'wS23j5Tm',
+]);
+
+function isCurrentLichessPracticeChapter(tags: Record<string, string>): boolean {
+    const chapterUrl = tags['ChapterURL']?.trim();
+    if (!chapterUrl) return false;
+    const match = /^https:\/\/(?:www\.)?lichess\.org\/study\/([A-Za-z0-9]{8})(?:\/[A-Za-z0-9]{8})?\/?$/.exec(
+        chapterUrl,
+    );
+    return match !== null && LICHESS_PRACTICE_STUDY_IDS.has(match[1]);
+}
+
 function chapterTeaching(
     tags: Record<string, string>,
-): { mode: StudyChapterMode; concealPly?: number; lessonExtension: boolean } {
+): {
+    mode: StudyChapterMode;
+    concealPly?: number;
+    lessonExtension: boolean;
+    inferredLichessPractice: boolean;
+} {
     const version = tags['PyChessStudyVersion'];
     if (version !== undefined && version !== PYCHESS_STUDY_PGN_VERSION) {
         throw new StudyPgnImportError(`Unsupported PyChess Study PGN version: ${version}.`);
@@ -231,7 +285,11 @@ function chapterTeaching(
     if (compatible !== undefined && compatible !== 'gamebook') {
         throw new StudyPgnImportError(`Unsupported ChapterMode: ${compatible}.`);
     }
-    const mode = (rawMode as StudyChapterMode | undefined) ?? (compatible === 'gamebook' ? 'gamebook' : 'normal');
+    const inferredLichessPractice =
+        rawMode === undefined && compatible === undefined && isCurrentLichessPracticeChapter(tags);
+    const mode =
+        (rawMode as StudyChapterMode | undefined) ??
+        (compatible === 'gamebook' ? 'gamebook' : inferredLichessPractice ? 'practice' : 'normal');
     if (compatible === 'gamebook' && mode !== 'gamebook') {
         throw new StudyPgnImportError('ChapterMode conflicts with PyChessChapterMode.');
     }
@@ -253,6 +311,7 @@ function chapterTeaching(
         mode,
         ...(mode === 'conceal' ? { concealPly: concealPly ?? 0 } : {}),
         lessonExtension: version === PYCHESS_STUDY_PGN_VERSION,
+        inferredLichessPractice,
     };
 }
 
@@ -825,6 +884,16 @@ function normalizeGame(engine: StudyPgnEngine, game: ParsedStudyPgnGame, index: 
         if (nodes.filter(node => node.forceVariation).length > 1) {
             throw new StudyPgnImportError('PyChess Study PGN contains more than one forced-variation marker.');
         }
+        const importedTags = canonicalTags(tags);
+        // Lichess PracticeGoal defaults an absent/unrecognized Termination tag to
+        // mate. Keep PyChess's stricter explicit-goal rule for authored Practice
+        // Studies, but materialize the missing default when importing a chapter
+        // whose Practice mode itself had to be recovered from the official Lichess
+        // curriculum. Existing non-empty Termination values remain untouched so a
+        // malformed source goal is still visible to PyChess validation.
+        if (teaching.inferredLichessPractice && importedTags.Termination === undefined) {
+            importedTags.Termination = 'mate';
+        }
         return {
             name: chapterName(tags, index),
             variant,
@@ -840,7 +909,7 @@ function normalizeGame(engine: StudyPgnEngine, game: ParsedStudyPgnGame, index: 
             mode: teaching.mode,
             ...(teaching.mode === 'conceal' ? { concealPly: teaching.concealPly ?? 0 } : {}),
             description,
-            tags: canonicalTags(tags),
+            tags: importedTags,
             tree: {
                 nodes,
                 ...(rootComments.annotations ? { rootAnnotations: rootComments.annotations } : {}),

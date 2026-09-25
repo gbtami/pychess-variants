@@ -380,6 +380,34 @@ preserve PyChess gamebook hint/deviation data on PyChess -> PyChess round trips.
 Only add another Lichess-specific gamebook directive if a future real export actually
 contains information that the current importer loses or misinterprets.
 
+### Additional real-corpus fix: official Lichess Practice mode recovery
+
+The official Lichess Practice Studies expose another deliberate PGN interchange loss.
+Lila's Study exporter writes `ChapterMode "gamebook"` for Interactive Lesson chapters,
+but it does not write the internal Practice-with-computer mode. A plain import therefore
+cannot distinguish one of those computer exercises from an ordinary `normal` Study
+chapter by chapter mode alone.
+
+The current lila Practice curriculum gives us a narrow authoritative recovery signal:
+each exported chapter still contains its `ChapterURL`, whose Study ID can be checked
+against `modules/practice/src/main/PracticeSections.scala`. For those known Practice
+Study IDs only, PyChess now imports an otherwise-unmarked chapter as `practice` while
+leaving explicit `ChapterMode "gamebook"` chapters as `gamebook`. Explicit versioned
+PyChess chapter mode metadata remains authoritative, and unknown Lichess Study IDs keep
+the ordinary `normal` fallback.
+
+Lila's `PracticeGoal` also defaults a missing or unrecognized `Termination` value to
+mate. The supplied real Practice corpus includes official computer-practice chapters
+whose PGN omits `Termination` entirely. When PyChess has recovered `practice` mode from
+the known official Lichess curriculum and the exported chapter has no non-empty
+`Termination`, the importer materializes `Termination "mate"`. This compatibility rule
+does not weaken PyChess's normal Practice validation: newly authored or unrelated
+Practice chapters still need an explicit valid goal.
+
+Mode recovery happens while importing the PGN. A Study imported before this compatibility
+rule was added has already stored those chapters as `normal`; re-import that source PGN
+(or explicitly change the affected chapter modes) before using it as Practice content.
+
 ### C. Root-node annotation audit — **complete**
 
 Root-position data now has explicit import/export coverage for comments, circles/arrows,

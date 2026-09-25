@@ -333,6 +333,64 @@ describe('Study PGN import core', () => {
         expect(chapter.tags.ChapterMode).toBeUndefined();
     });
 
+    test('recovers current Lichess Practice computer mode that ordinary Study PGN omits', async () => {
+        const [chapter] = await parseStudyPgnForImport(
+            studyPgnParser,
+            ffish,
+            `[StudyName "Lichess Practice: Checkmate Patterns I"]
+[ChapterName "Back Rank Mate"]
+[ChapterURL "https://lichess.org/study/fE4k21MW/AbCd1234"]
+[Termination "mate in 2"]
+
+1. e4 e5 *`,
+        );
+
+        expect(chapter.mode).toBe('practice');
+        expect(chapter.tags.Termination).toBe('mate in 2');
+        expect(chapter.tags.ChapterURL).toBeUndefined();
+    });
+
+    test('materializes Lichess Practice default mate without changing unrelated or gamebook imports', async () => {
+        const [missingGoal, gamebook, unrelated] = await parseStudyPgnForImport(
+            studyPgnParser,
+            ffish,
+            `[StudyName "Lichess Practice: Piece Checkmates I"]
+[ChapterURL "https://lichess.org/study/BJy6fEDf/AaBbCcDd"]
+
+*
+
+[StudyName "Lichess Practice: 7th-Rank Rook Pawn"]
+[ChapterURL "https://lichess.org/study/MkDViieT/EeFfGgHh"]
+[ChapterMode "gamebook"]
+
+{ Interactive introduction. } *
+
+[StudyName "Ordinary Lichess Study"]
+[ChapterURL "https://lichess.org/study/9LjyYZ9N/FXMbkAeX"]
+
+*`,
+        );
+
+        expect(missingGoal.mode).toBe('practice');
+        expect(missingGoal.tags.Termination).toBe('mate');
+        expect(gamebook.mode).toBe('gamebook');
+        expect(gamebook.tags.Termination).toBeUndefined();
+        expect(unrelated.mode).toBe('normal');
+        expect(unrelated.tags.Termination).toBeUndefined();
+    });
+
+    test('keeps explicit PyChess chapter mode authoritative over Lichess Practice inference', () => {
+        const parsed = parsedDocument();
+        parsed.games[0].tags.PyChessStudyVersion = '1';
+        parsed.games[0].tags.PyChessChapterMode = 'normal';
+        parsed.games[0].tags.ChapterURL = 'https://lichess.org/study/fE4k21MW/AbCd1234';
+
+        const [chapter] = normalizeStudyPgnDocument(ffish, parsed);
+
+        expect(chapter.mode).toBe('normal');
+        expect(chapter.tags.Termination).toBeUndefined();
+    });
+
     test('normalizes multiple raw PGN games into separate chapters', async () => {
         const chapters = await parseStudyPgnForImport(
             studyPgnParser,

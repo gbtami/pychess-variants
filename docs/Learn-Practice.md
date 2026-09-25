@@ -567,7 +567,7 @@ a registry edit after every change.
 **Acceptance:** Practice feels like a deliberate Learn feature rather than a Study page
 with extra links.
 
-### P11 — Real curriculum/content pass on DEV
+### P11 — Real curriculum/content pass on DEV — **in progress**
 
 - [ ] Ask content creators to prepare several real Practice Studies.
 - [ ] Include more than one variant so the selector and variant assumptions are actually
@@ -576,6 +576,11 @@ with extra links.
 - [ ] Include custom FEN/orientation cases.
 - [ ] Include at least one catalogued/custom variant Study if we intend to support those
       at production launch.
+- [x] Fix the first real Lichess-corpus compatibility issue: ordinary Lichess Study PGN
+      omits the internal computer-Practice chapter mode. For Study IDs in lila's current
+      Practice curriculum, import now recovers `practice` from `ChapterURL`, preserves
+      explicit `gamebook`, and materializes Lichess's default `Termination "mate"` when
+      an inferred computer-Practice chapter exported no goal.
 - [ ] Fix authoring/runtime issues found by real lesson creation rather than expanding
       the feature spec speculatively.
 
