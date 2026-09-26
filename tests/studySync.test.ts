@@ -913,7 +913,7 @@ describe('Study analysis websocket synchronization', () => {
         expect(reload).not.toHaveBeenCalled();
     });
 
-    test('REC off keeps contributor edits local until recording is enabled', () => {
+    test('REC off still persists chapter metadata while keeping position annotations local', () => {
         const ctrl = makeCtrl();
         const extension = new StudyAnalysisExtension(ctrl, {
             studyId: 'study001',
@@ -922,20 +922,49 @@ describe('Study analysis websocket synchronization', () => {
             writable: true,
             recording: false,
             onReloadRequired: jest.fn(),
-            opIdFactory: () => 'RecordedOp',
+            opIdFactory: () => 'MetadataOp',
         });
         extension.onSocketOpen();
 
-        extension.setDescription('local experiment');
+        extension.setNags([1]);
         expect(extension.isRecording).toBe(false);
         expect(extension.pendingCount).toBe(0);
         expect(ctrl.doSend).not.toHaveBeenCalled();
 
-        extension.setRecording(true);
-        extension.setDescription('recorded change');
-        expect(extension.isRecording).toBe(true);
+        extension.setDescription('persistent chapter comment');
+        expect(extension.pendingCount).toBe(1);
         expect(ctrl.doSend).toHaveBeenCalledWith(
-            expect.objectContaining({ type: 'study_set_description', description: 'recorded change' }),
+            expect.objectContaining({ type: 'study_set_description', description: 'persistent chapter comment' }),
+        );
+    });
+
+    test('practice playback can persist chapter metadata without enabling REC', () => {
+        const ctrl = makeCtrl();
+        const policy = studySessionPolicy({
+            mode: 'practice',
+            canWrite: true,
+            computerAllowed: true,
+            savedRecording: true,
+            savedSynchronization: true,
+            activeGame: false,
+        });
+        const extension = new StudyAnalysisExtension(ctrl, {
+            studyId: 'study001',
+            chapterId: 'chapter1',
+            revision: 0,
+            writable: true,
+            recording: true,
+            policy,
+            description: '',
+            onReloadRequired: jest.fn(),
+            opIdFactory: () => 'PracticeMetadataOp',
+        });
+        extension.onSocketOpen();
+
+        expect(extension.isRecording).toBe(false);
+        extension.setDescription('Practice introduction');
+        expect(ctrl.doSend).toHaveBeenCalledWith(
+            expect.objectContaining({ type: 'study_set_description', description: 'Practice introduction' }),
         );
     });
 

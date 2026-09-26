@@ -937,15 +937,17 @@ export class StudyAnalysisExtension implements AnalysisExtension {
     }
 
     setDescription(description: string): void {
+        if (!this.writable || this.reloadRequested) return;
         this.description = description;
         this.notifyAnnotationState();
-        this.enqueue('study_set_description', { description });
+        this.enqueue('study_set_description', { description }, false);
     }
 
     setTags(tags: Record<string, string>): void {
+        if (!this.writable || this.reloadRequested) return;
         this.tags = { ...tags };
         this.notifyAnnotationState();
-        this.enqueue('study_set_tags', { tags });
+        this.enqueue('study_set_tags', { tags }, false);
     }
 
     requestServerAnalysis(): void {
@@ -1312,8 +1314,8 @@ export class StudyAnalysisExtension implements AnalysisExtension {
         return true;
     }
 
-    private enqueue(type: StudyMutationType, body: JSONObject): void {
-        if (!this.writable || !this.recording || this.reloadRequested) return;
+    private enqueue(type: StudyMutationType, body: JSONObject, requiresRecording = true): void {
+        if (!this.writable || (requiresRecording && !this.recording) || this.reloadRequested) return;
         const clientOpId = this.opIdFactory();
         if (!clientOpId) {
             this.requestReload('invalid_client_operation_id');
