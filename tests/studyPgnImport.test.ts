@@ -350,6 +350,25 @@ describe('Study PGN import core', () => {
         expect(chapter.tags.ChapterURL).toBeUndefined();
     });
 
+    test('keeps Lichess computer Practice on the root side when the exported mainline has odd length', async () => {
+        const [chapter] = await parseStudyPgnForImport(
+            studyPgnParser,
+            ffish,
+            `[StudyName "Lichess Practice: The Fork"]
+[ChapterName "Fork Challenge #6 P"]
+[ChapterURL "https://lichess.org/study/Qj281y1p/TsdeLDey"]
+[Termination "-30cp in 3"]
+[FEN "r1bq1rk1/3np1bp/p2p1pp1/1PpP3n/4PP1B/2N2Q2/PP1N2PP/R3KB1R b KQ - 1 1"]
+[SetUp "1"]
+
+1... Nxf4 2. Qxf4 g5 3. Qf2 gxh4 *`,
+        );
+
+        expect(chapter.mode).toBe('practice');
+        expect(chapter.orientation).toBe('black');
+        expect(chapter.tags.Termination).toBe('-30cp in 3');
+    });
+
     test('materializes Lichess Practice default mate without changing unrelated or gamebook imports', async () => {
         const [missingGoal, gamebook, unrelated] = await parseStudyPgnForImport(
             studyPgnParser,

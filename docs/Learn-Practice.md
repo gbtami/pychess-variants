@@ -584,6 +584,10 @@ with extra links.
 - [x] Enable all four Study analysis modes on DEV. Production keeps its staged chapter-mode
       gate, but local/DEV authoring and imports must not be blocked from `practice` or
       `conceal` while the full feature set is being exercised.
+- [x] Fix Lichess computer-Practice orientation recovery when Study PGN omits orientation.
+      Practice chapters now default to the root side to move instead of the final exported
+      mainline turn; the latter could make the browser engine auto-play the learner's first
+      move in odd-length lines such as The Fork's `Fork Challenge #6 P`.
 - [x] Match Lichess computer-Practice completion UX discovered during real curriculum testing:
       expose the persisted **Load next exercise immediately** toggle below the board, play the
       Practice success sound, and replace the pinned goal/comment with the green Success/next

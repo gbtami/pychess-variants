@@ -650,11 +650,14 @@ function importedChapterOrientation(
 
     const rootTurn = turnColorFromFen(initialFen);
     // Match the recoverable parts of Lichess's automatic Study orientation when
-    // its default PGN export omits the Orientation tag. Conceal starts from the
-    // side to move and ordinary finished games use White by convention. Gamebooks
-    // are handled first because a Study export can retain the source game's Result;
-    // that result is game metadata and does not identify the learner side.
-    if (mode === 'conceal') return rootTurn;
+    // its default PGN export omits the Orientation tag. Conceal and computer Practice
+    // start from the root side to move. In Practice the saved children are discarded
+    // and the learner plays an open-ended game from the root, so using the exported
+    // mainline's final turn can incorrectly make the engine play the learner's first
+    // move. Ordinary finished games use White by convention. Gamebooks are handled
+    // first because a Study export can retain the source game's Result; that result is
+    // game metadata and does not identify the learner side.
+    if (mode === 'conceal' || mode === 'practice') return rootTurn;
     const finalTurn = lastMainlineTurnColor(initialFen, nodes);
     if (mode === 'gamebook') {
         // Lichess's outcome-less lesson example starts with a root prompt for the

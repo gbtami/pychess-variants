@@ -215,6 +215,8 @@ automatic-orientation behavior:
 
 - finished games face White;
 - normal analysis chapters face the side to move at the end of the preferred mainline;
+- computer-Practice chapters face the root side to move, because their saved children are
+  discarded and the learner starts an open-ended game from the root;
 - outcome-less interactive/gamebook chapters with a visible root prompt face the root
   side to move;
 - other interactive/gamebook chapters, including puzzle exports that retain the source

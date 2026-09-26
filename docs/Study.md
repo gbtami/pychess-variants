@@ -302,15 +302,16 @@ comments, NAGs, shapes, clocks, evaluations, and the supported PyChess extension
 When an imported PGN contains `[Orientation "white"]` or `[Orientation "black"]`, that
 choice is preserved exactly. Lichess omits this tag from its default Study export, so in its
 absence the importer applies the useful parts of Lichess's automatic orientation rules.
-For non-gamebook chapters, finished games face White and normal analysis chapters face the
-side to move at the end of the mainline. Interactive/gamebook orientation is resolved first,
-because exported puzzle chapters can retain the source game's `Result`: a lesson with a
-visible root prompt faces the root side to move, while other lessons face the player who
-made the final authored mainline move. This keeps both immediate learner prompts and lessons
-that begin with a scripted opponent move working as expected. A move-less lesson keeps the
-root side to move because no learner move exists from which to infer a side. PyChess's own
-Study export always includes Orientation, so PyChess round trips do not depend on these
-heuristics.
+Conceal and computer-Practice chapters face the root side to move; Practice must do so because
+its saved children are discarded and the learner starts an open-ended game from the chapter
+root. For other non-gamebook chapters, finished games face White and normal analysis chapters
+face the side to move at the end of the mainline. Interactive/gamebook orientation is resolved
+first, because exported puzzle chapters can retain the source game's `Result`: a lesson with a
+visible root prompt faces the root side to move, while other lessons face the player who made
+the final authored mainline move. This keeps both immediate learner prompts and lessons that
+begin with a scripted opponent move working as expected. A move-less lesson keeps the root
+side to move because no learner move exists from which to infer a side. PyChess's own Study
+export always includes Orientation, so PyChess round trips do not depend on these heuristics.
 
 Lichess-style `[Annotator ...]` and per-comment `[%anno ...]` metadata are consumed as
 **source attribution**, kept separately from authenticated PyChess comment authorship, and
