@@ -333,19 +333,20 @@ export class AnalysisController extends GameController {
             (document.getElementById('misc-infob') as HTMLElement).style.textAlign = 'center';
         }
 
-        setAriaTabClick('analysis_tab', document.querySelector('.analysis-tabs') ?? document);
+        const analysisTabs = document.querySelector<HTMLElement>('.analysis-tabs');
+        if (analysisTabs) setAriaTabClick('analysis_tab', analysisTabs);
 
-        if (this.analysisContext.capabilities.analysisTabs) {
-            const initialEl = document.querySelector('.analysis-tabs [tabindex="0"]') as HTMLElement;
-            initialEl.setAttribute('aria-selected', 'true');
-            (
-                initialEl!.parentNode!.parentNode!.querySelector(
-                    `#${initialEl.getAttribute('aria-controls')}`,
-                )! as HTMLElement
-            ).style.display = 'block';
+        if (this.analysisContext.capabilities.analysisTabs && analysisTabs) {
+            const initialEl = analysisTabs.querySelector<HTMLElement>('[tabindex="0"]');
+            if (initialEl) {
+                initialEl.setAttribute('aria-selected', 'true');
+                const controls = initialEl.getAttribute('aria-controls');
+                const panel = controls ? document.getElementById(controls) : null;
+                if (panel) panel.style.display = 'block';
+            }
 
-            const menuEl = document.getElementById('bars') as HTMLElement;
-            menuEl.style.display = 'block';
+            const menuEl = document.getElementById('bars');
+            if (menuEl) menuEl.style.display = 'block';
         }
         if (this.isAnalysisBoard) {
             const analysisTabs = document.querySelector<HTMLElement>('.analysis-tabs');

@@ -56,22 +56,22 @@ export function analysisContext(model: PyChessModel): AnalysisContext {
             // These capability values intentionally mirror the legacy boolean gates in
             // AnalysisController. Phase 0B centralizes the answers without changing
             // behavior; later modes such as Study can extend this vocabulary cleanly.
-            resizableCharts: !embed,
+            resizableCharts: !embed && !practiceLearner,
             localAnalysisAllowed: !ongoing && studyComputerAllowed,
             editableTree: !ongoing && !embed,
             gamePanels: !analysisBoard && !embed && !ongoing,
             roundChat: !analysisBoard && !embed && !puzzle && !ongoing,
             engineTools: !embed && !ongoing,
-            analysisTabs: !puzzle && !ongoing && !embed,
+            analysisTabs: !puzzle && !ongoing && !embed && !practiceLearner,
             usesRoundSocket: !puzzle && !ongoing && model.gameId !== '',
             // Learn -> Practice deliberately omits the normal analysis FEN/PGN panel.
             // Keep ordinary Study metadata available while preventing the shared
             // AnalysisController from writing into DOM nodes that Practice does not render.
             positionMetadata: !puzzle && !ongoing && !practiceLearner,
-            evalCharts: !puzzle && !ongoing,
+            evalCharts: !puzzle && !ongoing && !practiceLearner,
             positionEvaluation: !ongoing,
             serverAnalysisRequest: !analysisBoard && !embed,
-            moveTimeChart: !embed,
+            moveTimeChart: !embed && !practiceLearner,
         },
     };
 }

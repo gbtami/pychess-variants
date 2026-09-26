@@ -125,7 +125,7 @@ describe('analysis context', () => {
         expect(context.capabilities.positionMetadata).toBe(true);
     });
 
-    test('Practice learner omits the FEN/PGN metadata panel', () => {
+    test('Practice learner omits analysis chrome that its dedicated shell does not render', () => {
         const context = analysisContext(
             model({
                 gameId: '',
@@ -137,7 +137,11 @@ describe('analysis context', () => {
 
         expect(context.mode).toBe('study');
         expect(context.capabilities.engineTools).toBe(true);
+        expect(context.capabilities.resizableCharts).toBe(false);
+        expect(context.capabilities.analysisTabs).toBe(false);
         expect(context.capabilities.positionMetadata).toBe(false);
+        expect(context.capabilities.evalCharts).toBe(false);
+        expect(context.capabilities.moveTimeChart).toBe(false);
     });
 
     test('study computer permission can disable local engine analysis', () => {
