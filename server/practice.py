@@ -209,6 +209,13 @@ PRACTICE_SECTIONS: tuple[PracticeSection, ...] = (
         name="Fundamental Tactics",
         studies=(
             PracticeStudyRef(
+                study_id="qsAfywrB",
+                variant="chess",
+                description="Use the fork, Luke",
+                title="The Fork",
+                icon="trident",
+            ),
+            PracticeStudyRef(
                 study_id="tMJYfZmq",
                 variant="chess",
                 description="A very powerful tactic",
