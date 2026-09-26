@@ -10,6 +10,7 @@ from practice import (
     PracticeSection,
     PracticeStudyRef,
     build_practice_curriculum,
+    practice_menu_payload,
     validate_practice_preview_study,
     validate_practice_study,
 )
@@ -58,6 +59,61 @@ class PracticeCurriculumTestCase(unittest.IsolatedAsyncioTestCase):
         if tags is not None:
             doc["tags"] = tags
         await self.db.study_chapter.insert_one(doc)
+
+    async def test_empty_study_ids_are_ignored_as_curriculum_placeholders(self) -> None:
+        await self._insert_study("ready")
+        await self._insert_chapter("ready", "c1", order=1)
+        section = PracticeSection(
+            id="basics",
+            name="Basics",
+            studies=(
+                PracticeStudyRef(
+                    study_id="",
+                    variant="chess",
+                    title="Waiting for import",
+                ),
+                PracticeStudyRef(
+                    study_id="ready",
+                    variant="chess",
+                    title="Ready",
+                ),
+            ),
+        )
+
+        curriculum = await build_practice_curriculum(cast(Any, self.app_state), sections=(section,))
+
+        self.assertEqual([study.ref.study_id for study in curriculum[0].studies], ["ready"])
+        self.assertEqual(
+            practice_menu_payload((section,)),
+            [
+                {
+                    "id": "basics",
+                    "name": "Basics",
+                    "studies": [
+                        {
+                            "id": "ready",
+                            "name": "Ready",
+                            "url": "/practice/chess/ready",
+                        }
+                    ],
+                }
+            ],
+        )
+
+    def test_empty_only_sections_are_omitted_from_practice_menu(self) -> None:
+        section = PracticeSection(
+            id="waiting",
+            name="Waiting",
+            studies=(
+                PracticeStudyRef(
+                    study_id="",
+                    variant="chess",
+                    title="Waiting for import",
+                ),
+            ),
+        )
+
+        self.assertEqual(practice_menu_payload((section,)), [])
 
     async def test_valid_public_single_variant_study_is_resolved(self) -> None:
         await self._insert_study("valid")

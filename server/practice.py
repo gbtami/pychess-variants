@@ -165,20 +165,23 @@ def practice_menu_payload(
 
     payload: list[dict[str, object]] = []
     for section in PRACTICE_SECTIONS if sections is None else sections:
-        payload.append(
+        studies = [
             {
-                "id": section.id,
-                "name": section.name,
-                "studies": [
-                    {
-                        "id": ref.study_id,
-                        "name": ref.title or ref.study_id,
-                        "url": f"/practice/{practice_variant_key(ref)}/{ref.study_id}",
-                    }
-                    for ref in section.studies
-                ],
+                "id": ref.study_id,
+                "name": ref.title or ref.study_id,
+                "url": f"/practice/{practice_variant_key(ref)}/{ref.study_id}",
             }
-        )
+            for ref in section.studies
+            if ref.study_id
+        ]
+        if studies:
+            payload.append(
+                {
+                    "id": section.id,
+                    "name": section.name,
+                    "studies": studies,
+                }
+            )
     return payload
 
 
@@ -200,14 +203,94 @@ def find_practice_study(
     return None
 
 
-# Initial real DEV curriculum content. These local Studies were imported from
-# arex's Lichess Practice Studies. Section placement, titles, descriptions, and
-# artwork mirror lila's PracticeSections registry.
+# DEV curriculum mirrors lila's PracticeSections registry. Empty ``study_id``
+# values are intentional placeholders: fill them with the local PyChess Study ID
+# after importing that Lichess source Study. Placeholder entries stay hidden until
+# then, while their title/description/artwork remain ready for curation.
 PRACTICE_SECTIONS: tuple[PracticeSection, ...] = (
+    PracticeSection(
+        id="checkmates",
+        name="Checkmates",
+        studies=(
+            # Lichess source: https://lichess.org/study/BJy6fEDf
+            PracticeStudyRef(
+                study_id="",
+                variant="chess",
+                description="Basic checkmates",
+                title="Piece Checkmates I",
+                icon="stone-pile",
+            ),
+            # Lichess source: https://lichess.org/study/fE4k21MW
+            PracticeStudyRef(
+                study_id="",
+                variant="chess",
+                description="Recognize the patterns",
+                title="Checkmate Patterns I",
+                icon="pocket-bow",
+            ),
+            # Lichess source: https://lichess.org/study/8yadFPpU
+            PracticeStudyRef(
+                study_id="",
+                variant="chess",
+                description="Recognize the patterns",
+                title="Checkmate Patterns II",
+                icon="sword-in-stone",
+            ),
+            # Lichess source: https://lichess.org/study/PDkQDt6u
+            PracticeStudyRef(
+                study_id="",
+                variant="chess",
+                description="Recognize the patterns",
+                title="Checkmate Patterns III",
+                icon="catapult",
+            ),
+            # Lichess source: https://lichess.org/study/96Lij7wH
+            PracticeStudyRef(
+                study_id="",
+                variant="chess",
+                description="Recognize the patterns",
+                title="Checkmate Patterns IV",
+                icon="musket",
+            ),
+            # Lichess source: https://lichess.org/study/Rg2cMBZ6
+            PracticeStudyRef(
+                study_id="",
+                variant="chess",
+                description="Challenging checkmates",
+                title="Piece Checkmates II",
+                icon="stone-spear",
+            ),
+            # Lichess source: https://lichess.org/study/ByhlXnmM
+            PracticeStudyRef(
+                study_id="",
+                variant="chess",
+                description="Interactive lesson",
+                title="Knight & Bishop Mate",
+                icon="ghost-ally",
+            ),
+        ),
+    ),
     PracticeSection(
         id="fundamental-tactics",
         name="Fundamental Tactics",
         studies=(
+            # Lichess source: https://lichess.org/study/9ogFv8Ac
+            PracticeStudyRef(
+                study_id="",
+                variant="chess",
+                description="Pin it to win it",
+                title="The Pin",
+                icon="voodoo-doll",
+            ),
+            # Lichess source: https://lichess.org/study/tuoBxVE5
+            PracticeStudyRef(
+                study_id="",
+                variant="chess",
+                description="Yum - skewers!",
+                title="The Skewer",
+                icon="pierced-body",
+            ),
+            # Lichess source: https://lichess.org/study/Qj281y1p
             PracticeStudyRef(
                 study_id="qsAfywrB",
                 variant="chess",
@@ -215,6 +298,15 @@ PRACTICE_SECTIONS: tuple[PracticeSection, ...] = (
                 title="The Fork",
                 icon="trident",
             ),
+            # Lichess source: https://lichess.org/study/MnsJEWnI
+            PracticeStudyRef(
+                study_id="",
+                variant="chess",
+                description="Including discovered checks",
+                title="Discovered Attacks",
+                icon="boxing-glove-surprise",
+            ),
+            # Lichess source: https://lichess.org/study/RUQASaZm
             PracticeStudyRef(
                 study_id="tMJYfZmq",
                 variant="chess",
@@ -222,18 +314,183 @@ PRACTICE_SECTIONS: tuple[PracticeSection, ...] = (
                 title="Double Check",
                 icon="rogue",
             ),
+            # Lichess source: https://lichess.org/study/o734CNqp
+            PracticeStudyRef(
+                study_id="",
+                variant="chess",
+                description="They have too much work",
+                title="Overloaded Pieces",
+                icon="breaking-chain",
+            ),
+            # Lichess source: https://lichess.org/study/ITWY4GN2
+            PracticeStudyRef(
+                study_id="",
+                variant="chess",
+                description="In-between moves",
+                title="Zwischenzug",
+                icon="two-shadows",
+            ),
+            # Lichess source: https://lichess.org/study/lyVYjhPG
+            PracticeStudyRef(
+                study_id="",
+                variant="chess",
+                description="Attacking through an enemy piece",
+                title="X-Ray",
+                icon="skeletal-hand",
+            ),
+        ),
+    ),
+    PracticeSection(
+        id="advanced-tactics",
+        name="Advanced Tactics",
+        studies=(
+            # Lichess source: https://lichess.org/study/9cKgYrHb
+            PracticeStudyRef(
+                study_id="",
+                variant="chess",
+                description="Being forced to move",
+                title="Zugzwang",
+                icon="cement-shoes",
+            ),
+            # Lichess source: https://lichess.org/study/g1fxVZu9
+            PracticeStudyRef(
+                study_id="",
+                variant="chess",
+                description="Interpose a piece to great effect",
+                title="Interference",
+                icon="bolt-shield",
+            ),
+            # Lichess source: https://lichess.org/study/s5pLU7Of
+            PracticeStudyRef(
+                study_id="",
+                variant="chess",
+                description="Study the greek gift sacrifice",
+                title="Greek Gift",
+                icon="trojan-horse",
+            ),
+            # Lichess source: https://lichess.org/study/kdKpaYLW
+            PracticeStudyRef(
+                study_id="",
+                variant="chess",
+                description="Distracting a defender",
+                title="Deflection",
+                icon="divert",
+            ),
+            # Lichess source: https://lichess.org/study/jOZejFWk
+            PracticeStudyRef(
+                study_id="",
+                variant="chess",
+                description="Lure a piece to a bad square",
+                title="Attraction",
+                icon="magnet",
+            ),
+            # Lichess source: https://lichess.org/study/49fDW0wP
+            PracticeStudyRef(
+                study_id="",
+                variant="chess",
+                description="Promote - but not to a queen!",
+                title="Underpromotion",
+                icon="upgrade",
+            ),
+            # Lichess source: https://lichess.org/study/0YcGiH4Y
+            PracticeStudyRef(
+                study_id="",
+                variant="chess",
+                description="A piece is lost, but it can still help",
+                title="Desperado",
+                icon="quicksand",
+            ),
+            # Lichess source: https://lichess.org/study/CgjKPvxQ
+            PracticeStudyRef(
+                study_id="",
+                variant="chess",
+                description="Respond to a check with a check",
+                title="Counter Check",
+                icon="back-forth",
+            ),
+            # Lichess source: https://lichess.org/study/udx042D6
+            PracticeStudyRef(
+                study_id="",
+                variant="chess",
+                description="Remove the defending piece",
+                title="Undermining",
+                icon="mining",
+            ),
+            # Lichess source: https://lichess.org/study/Grmtwuft
+            PracticeStudyRef(
+                study_id="",
+                variant="chess",
+                description="Get out of the way!",
+                title="Clearance",
+                icon="detour",
+            ),
         ),
     ),
     PracticeSection(
         id="pawn-endgames",
         name="Pawn Endgames",
         studies=(
+            # Lichess source: https://lichess.org/study/xebrDvFe
+            PracticeStudyRef(
+                study_id="",
+                variant="chess",
+                description="Reach a key square",
+                title="Key Squares",
+                icon="key",
+            ),
+            # Lichess source: https://lichess.org/study/A4ujYOer
+            PracticeStudyRef(
+                study_id="",
+                variant="chess",
+                description="Take the opposition",
+                title="Opposition",
+                icon="push",
+            ),
+            # Lichess source: https://lichess.org/study/pt20yRkT
             PracticeStudyRef(
                 study_id="cEFpp4ht",
                 variant="chess",
                 description="Versus a Queen",
                 title="7th-Rank Rook Pawn",
                 icon="stone-tower",
+            ),
+        ),
+    ),
+    PracticeSection(
+        id="rook-endgames",
+        name="Rook Endgames",
+        studies=(
+            # Lichess source: https://lichess.org/study/MkDViieT
+            PracticeStudyRef(
+                study_id="",
+                variant="chess",
+                description="And Passive Rook vs Rook",
+                title="7th-Rank Rook Pawn",
+                icon="guarded-tower",
+            ),
+            # Lichess source: https://lichess.org/study/pqUSUw8Y
+            PracticeStudyRef(
+                study_id="",
+                variant="chess",
+                description="Lucena and Philidor",
+                title="Basic Rook Endgames",
+                icon="siege-tower",
+            ),
+            # Lichess source: https://lichess.org/study/heQDnvq7
+            PracticeStudyRef(
+                study_id="",
+                variant="chess",
+                description="Broaden your knowledge",
+                title="Intermediate Rook Endings",
+                icon="locked-fortress",
+            ),
+            # Lichess source: https://lichess.org/study/wS23j5Tm
+            PracticeStudyRef(
+                study_id="",
+                variant="chess",
+                description="Rook endings with several pawns",
+                title="Practical Rook Endings",
+                icon="tower-fall",
             ),
         ),
     ),
@@ -502,6 +759,10 @@ async def build_practice_curriculum(
     for section in sections:
         studies: list[PracticeStudyValidation] = []
         for ref in section.studies:
+            # Empty IDs reserve upstream Lichess Practice curriculum slots until the
+            # corresponding Study has been imported into PyChess.
+            if not ref.study_id:
+                continue
             studies.append(await validate_practice_study(app_state, ref))
         resolved.append(PracticeSectionValidation(section=section, studies=tuple(studies)))
     return tuple(resolved)
