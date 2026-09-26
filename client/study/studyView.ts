@@ -2476,6 +2476,51 @@ function runStudyGround(
           );
     const mount = (el: HTMLElement, snapshotVerified = false) => {
         policy = effectiveStudySessionPolicy(study);
+        let gamebookPlayback: StudyGamebookPlayback | undefined;
+        const installGamebookPlayback = (analysisCtrl: AnalysisController): void => {
+            if (gamebookPlayback || !isGamebookPlayback(policy) || !analysisCtrl.analysisTree) return;
+            // The board insert hook can run before later analysis-shell siblings have
+            // settled in the DOM. Wait for the normal post-constructor retry when the
+            // tools column is not available yet instead of aborting Interactive Lesson
+            // playback for the whole chapter.
+            if (!document.querySelector<HTMLElement>('.analysis-tools')) return;
+
+            const orderedChapters = [...study.chapters].sort((a, b) => a.order - b.order);
+            const chapterIndex = orderedChapters.findIndex(chapter => chapter.id === study.chapter.id);
+            const nextChapter = chapterIndex >= 0 ? orderedChapters[chapterIndex + 1] : undefined;
+            gamebookPlayback = new StudyGamebookPlayback(analysisCtrl, {
+                chapterId: study.chapter.id,
+                orientation: study.chapter.orientation,
+                preview: policy.session === 'gamebook-preview',
+                canAnalyse: !study.canWrite,
+                hasNextChapter: Boolean(nextChapter),
+                ...(study.practice && practiceProgress
+                    ? {
+                          practice: {
+                              autoNext: () => practiceProgress.autoNext,
+                              setAutoNext: value => {
+                                  practiceProgress.autoNext = value;
+                              },
+                              onComplete: chapterId => {
+                                  if (!practiceProgress.complete(chapterId)) return;
+                                  sideVNode = patch(
+                                      sideVNode,
+                                      studySide(study, model, modeActions, practiceProgress),
+                                  );
+                              },
+                          },
+                      }
+                    : {}),
+                ...(nextChapter
+                    ? { onNextChapter: () => void navigation?.go(nextChapter.id, 'push') }
+                    : {}),
+                ...(policy.session === 'gamebook-preview'
+                    ? { onReturnToEditor: () => void modeActions.leaveGamebookPreview() }
+                    : {}),
+                ...(!study.canWrite ? { onAnalyse: () => void modeActions.enterGamebookAnalysis() } : {}),
+            });
+            extension.setGamebookPlayback(gamebookPlayback);
+        };
         ctrl = new AnalysisController(el, model, analysisCtrl => {
             extension = new StudyAnalysisExtension(analysisCtrl, {
                 socket,
@@ -2504,6 +2549,12 @@ function runStudyGround(
                 concealPly: study.chapter.mode === 'conceal' ? (study.chapter.concealPly ?? 0) : undefined,
                 policy,
                 memberRole: model.username ? study.members[model.username] : undefined,
+                // Interactive Lesson playback depends on the persisted Study tree.
+                // Initial board/tree hydration happens inside AnalysisController's
+                // constructor, so start the learner adapter at the exact point where
+                // StudySync has loaded that tree instead of assuming it was already
+                // present immediately after controller construction.
+                onInitialTreeLoaded: () => queueMicrotask(() => installGamebookPlayback(analysisCtrl)),
                 onAnnotationStateChanged: state => {
                     if (policy.tools.annotations) updateAnnotationPanel(study, modeActions, state, editor);
                     else updateStudyMetadataPanel(study, modeActions, state);
@@ -2614,43 +2665,7 @@ function runStudyGround(
             });
             return extension;
         });
-        if (isGamebookPlayback(policy)) {
-            const orderedChapters = [...study.chapters].sort((a, b) => a.order - b.order);
-            const chapterIndex = orderedChapters.findIndex(chapter => chapter.id === study.chapter.id);
-            const nextChapter = chapterIndex >= 0 ? orderedChapters[chapterIndex + 1] : undefined;
-            const gamebookPlayback = new StudyGamebookPlayback(ctrl, {
-                chapterId: study.chapter.id,
-                orientation: study.chapter.orientation,
-                preview: policy.session === 'gamebook-preview',
-                canAnalyse: !study.canWrite,
-                hasNextChapter: Boolean(nextChapter),
-                ...(study.practice && practiceProgress
-                    ? {
-                          practice: {
-                              autoNext: () => practiceProgress.autoNext,
-                              setAutoNext: value => {
-                                  practiceProgress.autoNext = value;
-                              },
-                              onComplete: chapterId => {
-                                  if (!practiceProgress.complete(chapterId)) return;
-                                  sideVNode = patch(
-                                      sideVNode,
-                                      studySide(study, model, modeActions, practiceProgress),
-                                  );
-                              },
-                          },
-                      }
-                    : {}),
-                ...(nextChapter
-                    ? { onNextChapter: () => void navigation?.go(nextChapter.id, 'push') }
-                    : {}),
-                ...(policy.session === 'gamebook-preview'
-                    ? { onReturnToEditor: () => void modeActions.leaveGamebookPreview() }
-                    : {}),
-                ...(!study.canWrite ? { onAnalyse: () => void modeActions.enterGamebookAnalysis() } : {}),
-            });
-            extension.setGamebookPlayback(gamebookPlayback);
-        }
+        installGamebookPlayback(ctrl);
         if (isPracticePlayback(policy)) {
             const orderedChapters = [...study.chapters].sort((a, b) => a.order - b.order);
             const chapterIndex = orderedChapters.findIndex(chapter => chapter.id === study.chapter.id);

@@ -303,12 +303,14 @@ describe('Study analysis websocket synchronization', () => {
     test('loads the persisted tree into the generic analysis host before editing', () => {
         const ctrl = makeCtrl();
         ctrl.tree = { loadAnalysisTree: jest.fn((tree: unknown) => (ctrl.analysisTree = tree)) };
+        const initialTreeLoaded = jest.fn();
         const extension = new StudyAnalysisExtension(ctrl, {
             studyId: 'study001',
             chapterId: 'chapter1',
             revision: 4,
             tree: { nodes: [e4Node()] },
             orientation: 'black',
+            onInitialTreeLoaded: initialTreeLoaded,
             onReloadRequired: jest.fn(),
         });
 
@@ -320,6 +322,7 @@ describe('Study analysis websocket synchronization', () => {
         expect(ctrl.mycolor).toBe('black');
         expect(ctrl.oppcolor).toBe('white');
         expect(extension.treeStorageKey).toBe('study:study001:chapter1');
+        expect(initialTreeLoaded).toHaveBeenCalledTimes(1);
         expect(updateMovelistMock).toHaveBeenCalled();
     });
 

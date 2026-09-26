@@ -141,6 +141,7 @@ export interface StudySyncOptions {
     variantIni?: string;
     createdAt?: string;
     serverEval?: StudyServerEval | null;
+    onInitialTreeLoaded?: () => void;
     onAnnotationStateChanged?: (state: StudyAnnotationState) => void;
     onReloadRequired?: (reason: string) => void;
     memberRole?: StudyMemberRole;
@@ -784,6 +785,7 @@ export class StudyAnalysisExtension implements AnalysisExtension {
             const tree = analysisTreeFromStudy(rootStep, this.options.tree);
             this.ctrl.tree.loadAnalysisTree(tree);
             this.initialTreeLoaded = true;
+            this.options.onInitialTreeLoaded?.();
             this.refreshPreferredMainline();
             this.applyServerEval();
             if (this.options.rootOnlyPreview && this.ctrl.analysisPath !== '') {

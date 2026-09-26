@@ -1491,9 +1491,18 @@ button.study-gamebook-edit__legend { cursor: pointer; }
 /* Learn -> Practice learner shell, adapted from lila's study Practice sidebar.
    Keep this separate from ordinary Study navigation: Practice is a curated learner
    surface, not the Study editor with extra links. */
+.study-app > .sidebar-first:has(.practice-study-side) {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+}
 .study-app .practice-study-side {
     display: flex;
+    width: 100%;
+    max-width: 100%;
     min-height: 0;
+    min-width: 0;
     flex-direction: column;
     align-self: start;
     overflow: hidden;
@@ -1545,12 +1554,16 @@ button.study-gamebook-edit__legend { cursor: pointer; }
 }
 .study-app .practice-study-side__chapters {
     flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
     min-height: 0;
     max-height: calc(100vh - var(--site-header-height) - var(--site-header-margin) - 9rem);
     overflow-y: auto;
 }
 .study-app .practice-study-chapter {
     display: flex;
+    width: 100%;
+    max-width: 100%;
     min-width: 0;
     min-height: 2.2rem;
     align-items: stretch;
@@ -1590,15 +1603,16 @@ button.study-gamebook-edit__legend { cursor: pointer; }
     align-items: center;
     margin: 0;
     padding: .45rem .45rem .45rem .3rem;
-    overflow: hidden;
     font-size: .95rem;
     font-weight: normal;
     line-height: 1.2;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow-wrap: anywhere;
+    white-space: normal;
 }
 .study-app .practice-study-side__footer {
     display: flex;
+    width: 100%;
+    min-width: 0;
     flex: 0 0 auto;
     align-items: center;
     padding: .55rem .55rem .55rem 0;
@@ -1618,6 +1632,8 @@ button.study-gamebook-edit__legend { cursor: pointer; }
 }
 .study-app .practice-study-side__selector {
     flex: 1 1 auto;
+    width: 100%;
+    max-width: 100%;
     min-width: 0;
     height: 2rem;
     border: 1px solid var(--border-color);
