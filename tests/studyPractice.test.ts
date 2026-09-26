@@ -540,22 +540,53 @@ describe('StudyPracticeSession', () => {
         session.destroy();
     });
 
-    test('shallow bounded goal evaluation is indeterminate and never records completion', () => {
+    test('goal evaluation asks for the minimum reliable depth before reporting an unclear result', () => {
         scenario = { initialTurn: 'white' };
         const completed = jest.fn();
-        const { session, humanMove, finishEvaluation } = makeHarness('white', undefined, {
+        const { session, commands, humanMove, finishEvaluation } = makeHarness('white', undefined, {
             goal: { result: 'evalIn', moves: 1, cp: 200 },
             onComplete: completed,
         });
 
         finishEvaluation('e2e4');
         expect(humanMove('e2e4')).toBe(true);
+        expect(commands).toContain('go depth 16');
+
+        // Keep the bounded-search failure mode: if the browser engine still cannot
+        // return a depth-16 exact score, the chapter must not invent a result.
         session.onEngineLine('info depth 12 multipv 1 score cp -400 nodes 400000 time 1000 pv e7e5');
         session.onEngineLine('bestmove e7e5');
 
         expect(session.state).toMatchObject({ kind: 'ended', goalDecision: 'indeterminate' });
         expect(completed).not.toHaveBeenCalled();
         expect(document.querySelector('.study-practice')?.textContent).toContain('Result unclear');
+        session.destroy();
+    });
+
+    test('a shallow cached move evaluation is retried at goal depth before deciding', () => {
+        scenario = { initialTurn: 'white' };
+        const completed = jest.fn();
+        const { session, commands, humanMove, finishEvaluation } = makeHarness('white', undefined, {
+            goal: { result: 'evalIn', moves: 1, cp: 200 },
+            onComplete: completed,
+        });
+
+        finishEvaluation('e2e4', 0);
+        expect(humanMove('d2d4')).toBe(true);
+        session.onEngineLine('info depth 12 multipv 1 score cp -400 nodes 400000 time 1000 pv e7e5');
+        session.onEngineLine('bestmove e7e5');
+
+        // The goal retry queues behind the completed move-evaluation ready barrier.
+        expect(commands.filter(command => command === 'go depth 16')).toHaveLength(0);
+        session.onEngineLine('readyok');
+        expect(commands.filter(command => command === 'go depth 16')).toHaveLength(1);
+
+        session.onEngineLine('info depth 16 multipv 1 score cp -400 nodes 700000 time 1200 pv e7e5');
+        session.onEngineLine('bestmove e7e5');
+
+        expect(session.state).toMatchObject({ kind: 'ended', goalDecision: 'success' });
+        expect(completed).toHaveBeenCalledWith(1);
+        expect(document.querySelector('.study-practice')?.textContent).toContain('Success!');
         session.destroy();
     });
 

@@ -27,6 +27,7 @@ import {
 } from './studyPracticeFeedback';
 import {
     evaluateStudyPracticeGoal,
+    PRACTICE_GOAL_MIN_DEPTH,
     studyPracticeMovePromotes,
     type StudyPracticeGoalDecision,
 } from './studyPracticeGoal';
@@ -156,6 +157,7 @@ export class StudyPracticeSession {
     private readonly paths: string[] = [''];
     private readonly evaluations = new Map<string, PositionEvaluation>();
     private readonly evaluationSearches = new Set<string>();
+    private readonly goalEvaluationAttempts = new Set<string>();
     private readonly searchPurposes = new Map<string, SearchPurpose>();
     private livePath = '';
     private pendingGrade?: PendingGrade;
@@ -444,6 +446,7 @@ export class StudyPracticeSession {
         this.engine.beginSession();
         this.searchPurposes.clear();
         this.evaluationSearches.clear();
+        this.goalEvaluationAttempts.clear();
         while (this.history.length > parentIndex) {
             try {
                 this.historyBoard.pop();
@@ -489,6 +492,7 @@ export class StudyPracticeSession {
         this.engine.beginSession();
         this.searchPurposes.clear();
         this.evaluationSearches.clear();
+        this.goalEvaluationAttempts.clear();
         this.evaluations.clear();
         this.pendingGrade = undefined;
         this.pendingGoalFeedback = undefined;
@@ -640,12 +644,9 @@ export class StudyPracticeSession {
     private continuePendingGoal(): void {
         if (!this.options.goal || this.pendingGoalFeedback === undefined) return;
         const decision = this.goalDecision(this.pendingGoalFeedback);
-        if (decision === 'indeterminate' && !this.currentEvaluation()) {
-            this.ensureEvaluation(
-                this.history.map(entry => entry.move),
-                this.ctrl.turnColor,
-            );
-            return;
+        if (decision === 'indeterminate') {
+            const moves = this.history.map(entry => entry.move);
+            if (this.ensureGoalEvaluation(moves, this.ctrl.turnColor)) return;
         }
 
         const feedback = this.pendingGoalFeedback;
@@ -704,6 +705,30 @@ export class StudyPracticeSession {
                 options: this.searchOptions(),
             },
         );
+    }
+
+    private ensureGoalEvaluation(moves: readonly string[], turnColor: 'white' | 'black'): boolean {
+        if (this.destroyed) return false;
+        const key = this.positionKey(moves);
+        if (this.evaluationSearches.has(key)) return true;
+        if (this.goalEvaluationAttempts.has(key) || !this.engineReady()) return false;
+
+        // Goal evaluation requires depth >= PRACTICE_GOAL_MIN_DEPTH. A fixed node
+        // budget can stop one iteration earlier, especially with multiple Threads,
+        // so ask the engine for the exact reliability threshold once before giving up.
+        this.goalEvaluationAttempts.add(key);
+        this.evaluationSearches.add(key);
+        this.launchSearch(
+            { kind: 'evaluation', key, moves: [...moves], turnColor },
+            {
+                initialFen: this.options.initialFen,
+                moves,
+                budget: { type: 'depth', value: PRACTICE_GOAL_MIN_DEPTH },
+                multiPv: 1,
+                options: this.searchOptions(),
+            },
+        );
+        return true;
     }
 
     private evaluationFor(moves: readonly string[]): PositionEvaluation | undefined {
