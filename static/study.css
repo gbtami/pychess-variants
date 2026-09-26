@@ -3,16 +3,13 @@
 
 /* Adapted from lila ui/analyse/css/study: chapter list, tool tabs, and
    underboard panels. Use PyChess theme tokens and variant board geometry. */
-/* The Study index mirrors lila's page-menu + study-index structure. It shares
-   this stylesheet with the Study workspace, so undo analysis.css's shrink-wrap
-   main track only for list pages. */
-#main-wrap.study-index-wrap {
-    --main-max-width: 1180px;
-}
+/* The Study index mirrors lila's page-menu + study-index structure. Keep the
+   site's full desktop main width so the three-column study grid has the same
+   breathing room as lila instead of shrinking this page below the global cap. */
 .study-index-page {
     grid-area: main;
     width: 100%;
-    max-width: 1180px;
+    max-width: 1300px;
     margin: 1.25rem auto 3rem;
 }
 /* Standard Study actions share one button treatment across the index,
@@ -356,7 +353,7 @@
 }
 .studies {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(20.5rem, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(45ch, 1fr));
     border-top: 1px solid var(--border-color);
 }
 .study-card {
@@ -405,7 +402,7 @@
     overflow: hidden;
     color: var(--link-color-blue);
     font-family: var(--font-sans);
-    font-size: 1.5em;
+    font-size: 1.4em;
     font-weight: normal;
     line-height: 1.2;
     text-overflow: ellipsis;
