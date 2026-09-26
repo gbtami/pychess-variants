@@ -825,6 +825,7 @@ describe('analysis page smoke coverage', () => {
                 studyUrl: '/practice/chess/PrAc0001',
                 completedChapterIds: ['ChAp0001'],
                 persistProgress: false,
+                goal: { result: 'mate' },
             },
             chapter: {
                 id: 'ChAp0002',
@@ -867,6 +868,7 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector<HTMLSelectElement>('.practice-study-side__selector')?.value).toBe(
             '/practice/chess/PrAc0001',
         );
+        expect(root.querySelector('.study-practice-underboard__goal')?.textContent).toBe('Checkmate the opponent.');
         expect(root.querySelector('.study-practice-underboard__comment')?.textContent).toBe('Chapter lesson text');
         study.chapter.description = 'Restored after chapter navigation';
         updateStudyUnderboardChapter(study, makeModel({ gameId: '', status: 0, study }));

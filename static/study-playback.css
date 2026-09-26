@@ -493,7 +493,7 @@ button.study-gamebook-play__feedback.act:focus-visible {
     border: 0;
     border-radius: 0;
     background: transparent;
-    color: var(--link-color);
+    color: var(--link-color-blue);
     font: inherit;
     cursor: pointer;
 }

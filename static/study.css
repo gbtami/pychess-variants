@@ -1673,10 +1673,10 @@ button.study-gamebook-edit__legend { cursor: pointer; }
     line-height: 1.45;
 }
 .study-app .study-practice-underboard__goal {
-    font-weight: bold;
-}
-.study-app .study-practice-underboard__goal + .study-practice-underboard__comment {
-    margin-top: .8rem;
+    width: 100%;
+    margin-bottom: .8rem;
+    font-size: 1.2em;
+    text-align: center;
 }
 .study-app .study-practice-underboard__comment {
     white-space: pre-wrap;

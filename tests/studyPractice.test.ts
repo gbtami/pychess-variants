@@ -318,11 +318,12 @@ describe('StudyPracticeSession', () => {
         session.destroy();
     });
 
-    test('shows the current computer-practice goal in the learner panel', () => {
+    test('keeps the computer-practice goal out of the right learner panel', () => {
         const { session } = makeHarness('white', undefined, { goal: { result: 'winIn', moves: 3 } });
         const panel = document.querySelector<HTMLElement>('.study-practice')!;
 
-        expect(panel.textContent).toContain('Goal: Win the game in 3 moves.');
+        expect(panel.textContent).not.toContain('Goal:');
+        expect(panel.textContent).not.toContain('Win the game in 3 moves.');
 
         session.destroy();
     });
