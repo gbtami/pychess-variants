@@ -200,10 +200,23 @@ def find_practice_study(
     return None
 
 
-# Initial real DEV curriculum content. The local Study below was imported from
-# arex's Lichess Practice study ``pt20yRkT`` (Queen vs 7th-Rank Pawn). The
-# section name and short description mirror lila's PracticeSections registry.
+# Initial real DEV curriculum content. These local Studies were imported from
+# arex's Lichess Practice Studies. Section placement, titles, descriptions, and
+# artwork mirror lila's PracticeSections registry.
 PRACTICE_SECTIONS: tuple[PracticeSection, ...] = (
+    PracticeSection(
+        id="fundamental-tactics",
+        name="Fundamental Tactics",
+        studies=(
+            PracticeStudyRef(
+                study_id="tMJYfZmq",
+                variant="chess",
+                description="A very powerful tactic",
+                title="Double Check",
+                icon="rogue",
+            ),
+        ),
+    ),
     PracticeSection(
         id="pawn-endgames",
         name="Pawn Endgames",
