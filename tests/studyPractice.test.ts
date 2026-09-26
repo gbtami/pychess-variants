@@ -533,6 +533,7 @@ describe('StudyPracticeSession', () => {
         finishEvaluation('e2e4');
         expect(humanMove('e2e4')).toBe(true);
         expect(states).toContain('success');
+        expect(document.querySelector('.study-practice')?.textContent).not.toContain('Next chapter');
 
         jest.advanceTimersByTime(10_000);
         expect(nextChapter).not.toHaveBeenCalled();
@@ -545,6 +546,7 @@ describe('StudyPracticeSession', () => {
         failed.finishEvaluation('e2e4');
         expect(failed.humanMove('e2e4')).toBe(true);
         expect(failed.session.state).toMatchObject({ kind: 'ended', goalDecision: 'failure' });
+        expect(document.querySelector('.study-practice')?.textContent).not.toContain('Retry');
         failed.session.destroy();
 
         scenario = { initialTurn: 'white', terminalAfter: 1, result: '1-0', checkmate: true };

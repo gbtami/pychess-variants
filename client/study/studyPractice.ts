@@ -632,6 +632,8 @@ export class StudyPracticeSession {
                         this.options.onNextChapter?.();
                 }, 1000);
             }
+        } else if (goalDecision === 'failure') {
+            sound.practiceFailure();
         }
     }
 
@@ -1183,14 +1185,9 @@ export class StudyPracticeSession {
             if (state.goalDecision === 'success') {
                 heading.textContent = _('Success!');
                 addText(_('Practice goal completed in %1 move(s).', String(this.learnerMoveCount())));
-                if (!this.options.autoNext?.() || !this.options.hasNextChapter) {
-                    if (this.options.onNextChapter && this.options.hasNextChapter)
-                        addButton(_('Next chapter'), this.options.onNextChapter, true);
-                }
             } else if (state.goalDecision === 'failure') {
                 heading.textContent = _('Practice goal not reached');
                 addText(_('Try the exercise again.'));
-                addButton(_('Retry'), () => this.reset(), true);
             } else if (state.goalDecision === 'indeterminate') {
                 heading.textContent = _('Result unclear');
                 addText(_('The bounded browser engine could not evaluate the goal reliably.'));

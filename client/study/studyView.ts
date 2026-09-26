@@ -2054,6 +2054,7 @@ function practiceStudyUnderboard(
     practiceProgress?: StudyPracticeProgress,
     practiceState?: StudyPracticeState,
     onNextChapter?: () => void,
+    onRetry?: () => void,
 ): VNode {
     const description = study.chapter.description;
     const hasDescription = Boolean(description && description !== EMPTY_PINNED_CHAPTER_COMMENT);
@@ -2102,7 +2103,24 @@ function practiceStudyUnderboard(
         ]);
     }
 
+    const failed = practiceState?.kind === 'ended' && practiceState.goalDecision === 'failure';
     const goal = study.practice?.goal;
+    if (failed && goal && onRetry) {
+        return h('div.study-practice-underboard', [
+            h(
+                'button.study-practice-underboard__feedback.fail.action',
+                { attrs: { type: 'button' }, on: { click: onRetry } },
+                [
+                    h(
+                        'span.study-practice-underboard__failure-goal',
+                        studyPracticeGoalText(goal, study.chapter.orientation),
+                    ),
+                    h('strong', _('Click to retry')),
+                ],
+            ),
+        ]);
+    }
+
     const feedback = goal
         ? h('div.study-practice-underboard__feedback.ongoing', [
               h(
@@ -2143,9 +2161,14 @@ function updatePracticeStudyUnderboardState(
     practiceProgress: StudyPracticeProgress | undefined,
     practiceState: StudyPracticeState,
     onNextChapter?: () => void,
+    onRetry?: () => void,
 ): void {
     const current = document.querySelector<HTMLElement>('.study-practice-underboard');
-    if (current) patch(toVNode(current), practiceStudyUnderboard(study, practiceProgress, practiceState, onNextChapter));
+    if (current)
+        patch(
+            toVNode(current),
+            practiceStudyUnderboard(study, practiceProgress, practiceState, onNextChapter, onRetry),
+        );
 }
 
 function studyUnderboard(
@@ -2757,7 +2780,8 @@ function runStudyGround(
             const orderedChapters = [...study.chapters].sort((a, b) => a.order - b.order);
             const chapterIndex = orderedChapters.findIndex(chapter => chapter.id === study.chapter.id);
             const nextChapter = chapterIndex >= 0 ? orderedChapters[chapterIndex + 1] : undefined;
-            const practiceSession = new StudyPracticeSession(ctrl, {
+            let practiceSession: StudyPracticeSession;
+            practiceSession = new StudyPracticeSession(ctrl, {
                 initialFen: study.chapter.initialFen,
                 learnerColor: study.chapter.orientation,
                 access: () => {
@@ -2781,6 +2805,7 @@ function runStudyGround(
                                   practiceProgress,
                                   state,
                                   nextChapter ? () => void navigation?.go(nextChapter.id, 'push') : undefined,
+                                  () => practiceSession.reset(),
                               ),
                           onComplete: (moves: number) => {
                               const changed = practiceProgress.complete(study.chapter.id, moves);

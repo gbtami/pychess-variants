@@ -588,6 +588,9 @@ with extra links.
       expose the persisted **Load next exercise immediately** toggle below the board, play the
       Practice success sound, and replace the pinned goal/comment with the green Success/next
       action when auto-next is disabled.
+- [x] Match Lichess computer-Practice failure UX: play the Practice failure sound, replace the
+      pinned goal/comment with the red goal/Click-to-retry action, and keep next/retry chapter
+      navigation out of the move-feedback panel because the underboard action owns it.
 - [ ] Fix authoring/runtime issues found by real lesson creation rather than expanding
       the feature spec speculatively.
 
