@@ -148,6 +148,8 @@ def _practice_sections() -> tuple[PracticeSection, ...]:
                     study_id="prac0001",
                     variant="chess",
                     description="Master the essential pawn endings.",
+                    title="Pawn Endgames",
+                    icon="stone-tower",
                 ),
             ),
         ),
@@ -159,6 +161,7 @@ def _practice_sections() -> tuple[PracticeSection, ...]:
                     study_id="prac0002",
                     variant="shogi",
                     description="Learn fundamental Shogi technique.",
+                    title="Shogi Fundamentals",
                 ),
             ),
         ),
@@ -387,6 +390,22 @@ async def test_practice_learner_route_redirects_to_first_chapter_and_returns_iso
         "variant": "chess",
         "sectionId": "pawn-endgames",
         "sectionName": "Pawn endgames",
+        "studyTitle": "Pawn Endgames",
+        "studyDescription": "Master the essential pawn endings.",
+        "studyIcon": "stone-tower",
+        "menu": [
+            {
+                "id": "pawn-endgames",
+                "name": "Pawn endgames",
+                "studies": [
+                    {
+                        "id": "prac0001",
+                        "name": "Pawn Endgames",
+                        "url": "/practice/chess/prac0001",
+                    }
+                ],
+            }
+        ],
         "indexUrl": "/practice/chess",
         "studyUrl": "/practice/chess/prac0001",
         "completedChapterIds": [],
@@ -468,6 +487,10 @@ async def test_practice_preview_uses_private_writable_study_without_registry_or_
         "variant": "chess",
         "sectionId": "preview",
         "sectionName": "Practice Preview",
+        "studyTitle": "Author Practice Draft",
+        "studyDescription": "Practice Preview",
+        "studyIcon": "help",
+        "menu": [],
         "indexUrl": "/study/prev0001/chap0002",
         "studyUrl": "/practice/preview/prev0001",
         "completedChapterIds": [],

@@ -30,6 +30,7 @@ import { StudyGamebookEditor } from './studyGamebookEdit';
 import { StudyGamebookPlayback } from './studyGamebookPlayback';
 import { StudyPracticeSession } from './studyPractice';
 import { StudyPracticeProgress } from './studyPracticeProgress';
+import { studyPracticeGoalText } from './studyPracticeGoal';
 import { fetchStudyChapterExportData, renderStudyChapterPgn, renderStudyPgn, studyPgnFilename } from './studyPgn';
 import {
     parseStudyPgnForImportWithEngines,
@@ -1288,94 +1289,102 @@ function practiceStudySide(study: StudyPageModel, progress?: StudyPracticeProgre
     const practice = study.practice!;
     const preview = Boolean(practice.preview);
     const chapters = [...study.chapters].sort((a, b) => a.order - b.order);
-    const current = chapters.findIndex(chapter => chapter.id === study.chapter.id);
-    const previous = current > 0 ? chapters[current - 1] : undefined;
-    const next = current >= 0 ? chapters[current + 1] : undefined;
 
-    return h('div.study-side', [
-        h('div.study-side__tabs', [
+    const chapterNodes = chapters.map(item => {
+        const active = item.id === study.chapter.id;
+        const completed = Boolean(progress?.isComplete(item.id));
+        const statusLabel = completed ? _('Completed') : active ? _('Current chapter') : _('Not completed');
+        return h(
+            'a.practice-study-chapter',
+            {
+                key: item.id,
+                class: { active, completed },
+                attrs: {
+                    href: studyChapterUrl(study, item.id),
+                    'aria-current': active ? 'page' : 'false',
+                    'data-study-chapter-id': item.id,
+                },
+            },
+            [
+                h(
+                    'span.practice-study-chapter__status',
+                    { attrs: { title: statusLabel, 'aria-label': statusLabel } },
+                    completed ? '✓' : active ? '▶' : '✓',
+                ),
+                h('h3.practice-study-chapter__name', item.name),
+            ],
+        );
+    });
+
+    return h('div.study-side.practice-study-side', [
+        h('div.practice-study-side__title', [
+            h('img.practice-study-side__icon', {
+                attrs: {
+                    src: `/static/images/practice/${practice.studyIcon}.svg`,
+                    alt: '',
+                    'aria-hidden': 'true',
+                },
+            }),
+            h('div.practice-study-side__title-text', [
+                h('h1', practice.studyTitle),
+                ...(practice.studyDescription ? [h('em', practice.studyDescription)] : []),
+            ]),
+        ]),
+        h('nav.practice-study-side__chapters', { attrs: { 'aria-label': _('Practice chapters') } }, chapterNodes),
+        h('div.practice-study-side__footer', [
             h(
-                'a.study-side__tab.active',
+                'a.practice-study-side__back',
                 {
                     attrs: {
                         href: practice.indexUrl,
-                        title: preview ? _('Back to Study') : _('Back to Practice'),
+                        title: preview ? _('Back to Study') : _('More practice'),
+                        'aria-label': preview ? _('Back to Study') : _('More practice'),
                     },
                 },
-                practice.sectionName,
+                '‹',
             ),
-        ]),
-        h('section.study-side__panel', [
-            h(
-                'nav.study-chapters',
-                { attrs: { 'aria-label': _('Practice chapters') } },
-                chapters.map(item => {
-                    const active = item.id === study.chapter.id;
-                    const completed = Boolean(progress?.isComplete(item.id));
-                    const status = completed ? '✓' : active ? '▶' : '○';
-                    const statusLabel = completed ? _('Completed') : active ? _('Current chapter') : _('Not completed');
-                    return h(
-                        'div.study-chapter__row',
-                        {
-                            class: { active, completed },
-                        },
-                        [
-                            h(
-                                'a',
-                                {
-                                    attrs: {
-                                        href: studyChapterUrl(study, item.id),
-                                        'aria-current': active ? 'page' : 'false',
-                                        'data-study-chapter-id': item.id,
-                                    },
-                                },
-                                [
-                                    h('span.study-chapter__number', `${item.order}. `),
-                                    h('span.study-chapter__name', item.name),
-                                    h(
-                                        'span.study-chapter__result.practice-chapter-status',
-                                        { attrs: { title: statusLabel, 'aria-label': statusLabel } },
-                                        status,
-                                    ),
-                                ],
-                            ),
-                        ],
-                    );
-                }),
-            ),
-            ...(previous
+            ...(practice.menu.length
                 ? [
                       h(
-                          'a.study-side__add',
+                          'select.practice-study-side__selector',
                           {
-                              attrs: {
-                                  href: studyChapterUrl(study, previous.id),
-                                  'data-study-chapter-id': previous.id,
+                              attrs: { 'aria-label': _('Practice list') },
+                              on: {
+                                  change: event => {
+                                      const target = event.currentTarget as HTMLSelectElement;
+                                      if (target.value) window.location.href = target.value;
+                                  },
                               },
                           },
-                          `← ${_('Previous chapter')}: ${previous.name}`,
+                          [
+                              h('option', { attrs: { disabled: true } }, _('Practice list')),
+                              ...practice.menu.map(section =>
+                                  h(
+                                      'optgroup',
+                                      { attrs: { label: section.name } },
+                                      section.studies.map(item =>
+                                          h(
+                                              'option',
+                                              {
+                                                  attrs: {
+                                                      value: item.url,
+                                                      selected: item.id === study.id,
+                                                  },
+                                              },
+                                              item.name,
+                                          ),
+                                      ),
+                                  ),
+                              ),
+                          ],
                       ),
                   ]
-                : []),
-            ...(next
-                ? [
+                : [
                       h(
-                          'a.study-side__add',
-                          {
-                              attrs: {
-                                  href: studyChapterUrl(study, next.id),
-                                  'data-study-chapter-id': next.id,
-                              },
-                          },
-                          `${_('Next chapter')}: ${next.name} →`,
+                          'span.practice-study-side__preview-label',
+                          preview ? _('Practice Preview') : practice.sectionName,
                       ),
-                  ]
-                : []),
-            h(
-                'a.study-side__add',
-                { attrs: { href: practice.indexUrl } },
-                `← ${preview ? _('Back to Study') : _('Back to Practice')}`,
-            ),
+                  ]),
         ]),
     ]);
 }
@@ -2034,7 +2043,45 @@ function studyTagsTable(study: StudyPageModel, playback = false): VNode {
     );
 }
 
+function practiceStudyUnderboard(study: StudyPageModel): VNode {
+    const description = study.chapter.description;
+    const hasDescription = Boolean(description && description !== EMPTY_PINNED_CHAPTER_COMMENT);
+
+    if (study.chapter.mode === 'gamebook') {
+        return h(
+            'div.study-practice-underboard',
+            hasDescription
+                ? [
+                      h('div.study-practice-underboard__feedback.ongoing', [
+                          h('div.study-practice-underboard__comment', renderLinkifiedText(description)),
+                      ]),
+                  ]
+                : [],
+        );
+    }
+
+    const goal = study.practice?.goal;
+    const feedback = goal
+        ? h('div.study-practice-underboard__feedback.ongoing', [
+              h(
+                  'div.study-practice-underboard__goal',
+                  studyPracticeGoalText(goal, study.chapter.orientation),
+              ),
+              ...(hasDescription
+                  ? [h('div.study-practice-underboard__comment', renderLinkifiedText(description))]
+                  : []),
+          ])
+        : hasDescription
+          ? h('div.study-practice-underboard__feedback.ongoing', [
+                h('div.study-practice-underboard__comment', renderLinkifiedText(description)),
+            ])
+          : undefined;
+    return h('div.study-practice-underboard', feedback ? [feedback] : []);
+}
+
 function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions: StudyModeActions): VNode {
+    if (study.practice) return practiceStudyUnderboard(study);
+
     const defaultTab: StudyTab = 'tags';
     const policy = effectiveStudySessionPolicy(study);
     const hideServerEval = !policy.tools.evaluationDisplay && !policy.tools.serverAnalysis;

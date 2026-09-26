@@ -1487,3 +1487,178 @@ button.study-gamebook-edit__legend { cursor: pointer; }
     background: var(--bg-color0);
     box-shadow: var(--base-shadow);
 }
+
+/* Learn -> Practice learner shell, adapted from lila's study Practice sidebar.
+   Keep this separate from ordinary Study navigation: Practice is a curated learner
+   surface, not the Study editor with extra links. */
+.study-app .practice-study-side {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+    align-self: start;
+    overflow: hidden;
+    border-radius: 3px;
+    background: var(--bg-color0);
+    box-shadow: var(--base-shadow);
+}
+.study-app .practice-study-side__title {
+    display: flex;
+    flex: 0 0 auto;
+    min-width: 0;
+    align-items: center;
+    padding: .7rem;
+    background: var(--link-color-blue);
+    color: #fff;
+}
+.study-app .practice-study-side__icon {
+    flex: 0 0 3.5rem;
+    width: 3.5rem;
+    height: 3.5rem;
+    margin-inline-end: .6rem;
+    object-fit: contain;
+    opacity: .9;
+}
+.study-app .practice-study-side__title-text {
+    min-width: 0;
+    overflow: hidden;
+}
+.study-app .practice-study-side__title h1 {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-size: 1.2rem;
+    font-weight: normal;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.study-app .practice-study-side__title em {
+    display: block;
+    margin-top: .1rem;
+    overflow: hidden;
+    font-size: .9rem;
+    font-style: normal;
+    line-height: 1.25;
+    opacity: .9;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.study-app .practice-study-side__chapters {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: calc(100vh - var(--site-header-height) - var(--site-header-margin) - 9rem);
+    overflow-y: auto;
+}
+.study-app .practice-study-chapter {
+    display: flex;
+    min-width: 0;
+    min-height: 2.2rem;
+    align-items: stretch;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--font-color);
+    text-decoration: none;
+    transition: background 120ms ease;
+}
+.study-app .practice-study-chapter:hover,
+.study-app .practice-study-chapter:focus-visible,
+.study-app .practice-study-chapter.active {
+    background: color-mix(in srgb, var(--link-color-blue) 10%, var(--bg-color0));
+}
+.study-app .practice-study-chapter:focus-visible {
+    outline: 2px solid var(--link-color-blue);
+    outline-offset: -2px;
+}
+.study-app .practice-study-chapter__status {
+    display: flex;
+    flex: 0 0 2.5rem;
+    align-items: center;
+    justify-content: center;
+    color: color-mix(in srgb, var(--font-color) 22%, transparent);
+    font-size: 1.1rem;
+}
+.study-app .practice-study-chapter.completed .practice-study-chapter__status {
+    color: var(--link-color-blue);
+}
+.study-app .practice-study-chapter.active .practice-study-chapter__status {
+    background: var(--link-color-blue);
+    color: #fff;
+}
+.study-app .practice-study-chapter__name {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    align-items: center;
+    margin: 0;
+    padding: .45rem .45rem .45rem .3rem;
+    overflow: hidden;
+    font-size: .95rem;
+    font-weight: normal;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.study-app .practice-study-side__footer {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    padding: .55rem .55rem .55rem 0;
+    background: var(--bg-color1);
+}
+.study-app .practice-study-side__back {
+    flex: 0 0 2.5rem;
+    color: var(--link-color-blue);
+    font-size: 1.8rem;
+    line-height: 1;
+    text-align: center;
+    text-decoration: none;
+}
+.study-app .practice-study-side__back:hover,
+.study-app .practice-study-side__back:focus-visible {
+    filter: brightness(1.15);
+}
+.study-app .practice-study-side__selector {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 2rem;
+    border: 1px solid var(--border-color);
+    border-radius: 2px;
+    background: var(--bg-color0);
+    color: var(--font-color);
+    font: inherit;
+}
+.study-app .practice-study-side__preview-label {
+    min-width: 0;
+    overflow: hidden;
+    color: color-mix(in srgb, var(--font-color) 72%, transparent);
+    font-size: .9rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.study-app .study-practice-underboard {
+    width: 100%;
+}
+.study-app .study-practice-underboard:empty {
+    display: none;
+}
+.study-app .study-practice-underboard__feedback {
+    padding: 1rem 1.2rem;
+    border-radius: 3px;
+    background: var(--bg-color0);
+    box-shadow: var(--base-shadow);
+    line-height: 1.45;
+}
+.study-app .study-practice-underboard__goal {
+    font-weight: bold;
+}
+.study-app .study-practice-underboard__goal + .study-practice-underboard__comment {
+    margin-top: .8rem;
+}
+.study-app .study-practice-underboard__comment {
+    white-space: pre-wrap;
+}
+
+@media (max-width: 799px) {
+    .study-app .practice-study-side__chapters {
+        max-height: 18rem;
+    }
+}

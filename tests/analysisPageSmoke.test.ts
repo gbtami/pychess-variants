@@ -780,6 +780,98 @@ describe('analysis page smoke coverage', () => {
         expect(root.querySelector('.study-underboard__name')?.textContent).toBe('Shared ideas: Second line');
     });
 
+    test('Practice learner uses the dedicated compact sidebar and lesson underboard', () => {
+        const study: StudyPageModel = {
+            id: 'PrAc0001',
+            name: 'Imported practice study',
+            owner: 'teacher',
+            visibility: 'public',
+            isOwner: false,
+            canWrite: false,
+            canClone: false,
+            canLike: false,
+            liked: false,
+            likes: 0,
+            topics: [],
+            maxTopics: 30,
+            topicMinLength: 2,
+            topicMaxLength: 50,
+            members: { teacher: 'write' },
+            maxMembers: 30,
+            sharedChapter: 'ChAp0002',
+            sharedPath: '',
+            roomSnapshotToken: 'practice-room',
+            practice: {
+                variant: 'chess',
+                sectionId: 'pawn-endgames',
+                sectionName: 'Pawn Endgames',
+                studyTitle: '7th-Rank Rook Pawn',
+                studyDescription: 'Versus a Queen',
+                studyIcon: 'stone-tower',
+                menu: [
+                    {
+                        id: 'pawn-endgames',
+                        name: 'Pawn Endgames',
+                        studies: [
+                            {
+                                id: 'PrAc0001',
+                                name: '7th-Rank Rook Pawn',
+                                url: '/practice/chess/PrAc0001',
+                            },
+                        ],
+                    },
+                ],
+                indexUrl: '/practice/chess',
+                studyUrl: '/practice/chess/PrAc0001',
+                completedChapterIds: ['ChAp0001'],
+                persistProgress: false,
+            },
+            chapter: {
+                id: 'ChAp0002',
+                name: 'Not a Bishop or Rook pawn = Win',
+                revision: 1,
+                order: 2,
+                orientation: 'white',
+                mode: 'normal',
+                variant: 'chess',
+                chess960: false,
+                initialFen: '7K/8/1Q6/8/8/8/3kp3/8 w - - 0 1',
+                variantIni: null,
+                createdAt: '2026-09-26T08:00:00+00:00',
+                description: 'Chapter lesson text',
+                tags: { Event: 'Should not be shown in Practice' },
+                tree: { nodes: [] },
+            },
+            chapters: [
+                { id: 'ChAp0001', name: 'Exercise: Queen in front = Win', order: 1, orientation: 'white' },
+                { id: 'ChAp0002', name: 'Not a Bishop or Rook pawn = Win', order: 2, orientation: 'white' },
+            ],
+        };
+
+        const root = renderNodes(studyView(makeModel({ gameId: '', status: 0, study })));
+
+        expect(root.querySelector('.practice-study-side__title h1')?.textContent).toBe('7th-Rank Rook Pawn');
+        expect(root.querySelector('.practice-study-side__title em')?.textContent).toBe('Versus a Queen');
+        expect(root.querySelector('.study-side__tabs')).toBeNull();
+        expect(root.querySelectorAll('.practice-study-chapter')).toHaveLength(2);
+        expect(root.querySelector('.practice-study-chapter.completed .practice-study-chapter__status')?.textContent).toBe(
+            '✓',
+        );
+        expect(root.querySelector('.practice-study-chapter.active .practice-study-chapter__status')?.textContent).toBe(
+            '▶',
+        );
+        expect(root.querySelectorAll('.study-side__add')).toHaveLength(0);
+        expect(root.querySelector<HTMLAnchorElement>('.practice-study-side__back')?.getAttribute('href')).toBe(
+            '/practice/chess',
+        );
+        expect(root.querySelector<HTMLSelectElement>('.practice-study-side__selector')?.value).toBe(
+            '/practice/chess/PrAc0001',
+        );
+        expect(root.querySelector('.study-practice-underboard__comment')?.textContent).toBe('Chapter lesson text');
+        expect(root.querySelector('.study-tags')).toBeNull();
+        expect(root.querySelector('.study-tool-tabs')).toBeNull();
+    });
+
     test('study embed reuses the lean analysis embed shell', () => {
         const study: StudyPageModel = {
             id: 'StUdY001',

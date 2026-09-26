@@ -152,6 +152,36 @@ class PracticeStudyLocation:
     ref: PracticeStudyRef
 
 
+def practice_menu_payload(
+    sections: tuple[PracticeSection, ...] | None = None,
+) -> list[dict[str, object]]:
+    """Return the lightweight curated Practice navigation used by the learner sidebar.
+
+    The menu intentionally comes from the curated registry rather than Study storage,
+    matching lila's Practice selector. Runtime routes still validate the referenced
+    Study before rendering it, so a stale registry entry cannot bypass Practice
+    validation.
+    """
+
+    payload: list[dict[str, object]] = []
+    for section in PRACTICE_SECTIONS if sections is None else sections:
+        payload.append(
+            {
+                "id": section.id,
+                "name": section.name,
+                "studies": [
+                    {
+                        "id": ref.study_id,
+                        "name": ref.title or ref.study_id,
+                        "url": f"/practice/{practice_variant_key(ref)}/{ref.study_id}",
+                    }
+                    for ref in section.studies
+                ],
+            }
+        )
+    return payload
+
+
 def find_practice_study(
     variant_key: str,
     study_id: str,

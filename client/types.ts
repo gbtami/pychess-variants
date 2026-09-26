@@ -95,6 +95,14 @@ export type StudyPageModel = {
         variant: string;
         sectionId: string;
         sectionName: string;
+        studyTitle: string;
+        studyDescription: string;
+        studyIcon: string;
+        menu: {
+            id: string;
+            name: string;
+            studies: { id: string; name: string; url: string }[];
+        }[];
         indexUrl: string;
         studyUrl: string;
         completedChapterIds: string[];
