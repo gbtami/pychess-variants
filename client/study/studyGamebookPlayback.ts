@@ -305,7 +305,7 @@ export class StudyGamebookPlayback {
         comment.className = 'study-gamebook-play__comment';
         const text = document.createElement('div');
         text.className = 'study-gamebook-play__comment-content';
-        setLinkifiedText(text, content ?? _('You completed this lesson.'));
+        setLinkifiedText(text, content ?? _('Congratulations! You completed this lesson.'));
         comment.append(text);
 
         if (state.kind === 'prompt' && state.hint) {
@@ -377,13 +377,6 @@ export class StudyGamebookPlayback {
         if (state.kind === 'complete') {
             const end = document.createElement('div');
             end.className = 'study-gamebook-play__feedback end';
-            if (this.options.practice) {
-                end.classList.add('practice-success');
-                const success = document.createElement('div');
-                success.className = 'study-gamebook-play__success';
-                success.append(this.actionIcon('check'), document.createTextNode(_('Success!')));
-                end.append(success);
-            }
             if (this.options.hasNextChapter) {
                 const nextChapter = this.actionButton(
                     _('Next chapter'),
@@ -402,7 +395,7 @@ export class StudyGamebookPlayback {
             end.append(replay);
             if (this.options.canAnalyse && this.options.onAnalyse) {
                 const analysis = this.actionButton(
-                    _('Analysis'),
+                    _('Analysis board'),
                     this.options.onAnalyse,
                     'study-gamebook-play__end-action analyse',
                 );

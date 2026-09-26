@@ -208,26 +208,6 @@ button.study-gamebook-play__feedback.act:focus-visible {
     overflow: hidden;
 }
 
-.study-gamebook-play__success {
-    display: flex;
-    flex: 1 1 100%;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: .5em;
-    background: var(--good);
-    color: #fff;
-    font-size: 1.25em;
-    font-weight: bold;
-}
-
-.study-gamebook-play__success > [class^='icon-'],
-.study-gamebook-play__success > [class*=' icon-'] {
-    margin-bottom: .45em;
-    font-size: 2em;
-    line-height: 1;
-}
-
 .study-gamebook-play__end-action {
     display: flex;
     flex: 1 1 100%;

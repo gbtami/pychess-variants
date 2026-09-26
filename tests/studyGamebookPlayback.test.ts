@@ -330,7 +330,7 @@ describe('Study interactive lesson playback adapter', () => {
         expect(end.querySelector('.study-gamebook-play__end-action.retry .icon-refresh')).not.toBeNull();
         expect(document.body.textContent).not.toContain('Next chapter');
         const analysis = [...document.querySelectorAll<HTMLButtonElement>('.study-gamebook-play button')].find(
-            button => button.textContent === 'Analysis',
+            button => button.textContent === 'Analysis board',
         );
         expect(analysis).toBeDefined();
         expect(analysis?.querySelector('.icon-microscope')).not.toBeNull();
@@ -457,7 +457,7 @@ describe('Study interactive lesson playback adapter', () => {
         ctrl.turnColor = wrong.step.turnColor;
         playback.onPositionChanged(position(wrong));
         expect(onComplete).not.toHaveBeenCalled();
-        expect(document.body.textContent).not.toContain('Success!');
+        expect(document.body.textContent).not.toContain('Congratulations! You completed this lesson.');
 
         document.querySelector<HTMLButtonElement>('.study-gamebook-play__feedback.bad')?.click();
         const e4 = ctrl.analysisTree!.byPath.get('e4')!;
@@ -475,14 +475,15 @@ describe('Study interactive lesson playback adapter', () => {
 
         expect(onComplete).toHaveBeenCalledTimes(1);
         expect(onComplete).toHaveBeenCalledWith('chapter-practice');
-        expect(document.querySelector('.study-gamebook-play__success')?.textContent).toContain('Success!');
+        expect(document.querySelector('.study-gamebook-play__comment-content')?.textContent).toBe('Finished.');
+        expect(document.querySelector('.study-gamebook-play__success')).toBeNull();
         expect(nextChapter).not.toHaveBeenCalled();
 
         playback.destroy();
     });
 
     test('Practice Interactive Lesson waits on success until the learner chooses the next chapter', () => {
-        const root = node('root', '', 0, undefined, 'white', 'Introduction.');
+        const root = node('root', '', 0, undefined, 'white');
         const tree: AnalysisTree = { root, byPath: new Map([['', root]]), nextId: 1 };
         const ctrl = makeCtrl(tree);
         const onComplete = jest.fn();
@@ -498,12 +499,18 @@ describe('Study interactive lesson playback adapter', () => {
         });
 
         expect(onComplete).toHaveBeenCalledWith('chapter-waits-for-next');
-        expect(document.querySelector('.study-gamebook-play__success')?.textContent).toContain('Success!');
+        expect(document.querySelector('.study-gamebook-play__comment-content')?.textContent).toBe(
+            'Congratulations! You completed this lesson.',
+        );
+        expect(document.querySelector('.study-gamebook-play__success')).toBeNull();
         expect(document.querySelector('.study-gamebook-play-auto-next')).toBeNull();
 
         jest.advanceTimersByTime(10_000);
         expect(nextChapter).not.toHaveBeenCalled();
-        expect(document.querySelector('.study-gamebook-play__success')?.textContent).toContain('Success!');
+        expect(document.querySelector('.study-gamebook-play__comment-content')?.textContent).toBe(
+            'Congratulations! You completed this lesson.',
+        );
+        expect(document.querySelector('.study-gamebook-play__success')).toBeNull();
 
         document.querySelector<HTMLButtonElement>('.study-gamebook-play__end-action.next')?.click();
         expect(nextChapter).toHaveBeenCalledTimes(1);
@@ -523,6 +530,7 @@ describe('Study interactive lesson playback adapter', () => {
             hasNextChapter: true,
             onNextChapter: nextChapter,
             onAnalyse: analyse,
+            practice: { onComplete: jest.fn() },
         });
 
         const e4 = ctrl.analysisTree!.byPath.get('e4')!;
@@ -538,6 +546,17 @@ describe('Study interactive lesson playback adapter', () => {
         playback.onPositionChanged(position(nf3));
 
         const end = document.querySelector<HTMLElement>('.study-gamebook-play__feedback.end')!;
+        expect(end.querySelectorAll('.study-gamebook-play__end-action')).toHaveLength(3);
+        expect(end.querySelector('.study-gamebook-play__success')).toBeNull();
+        expect(end.querySelector<HTMLButtonElement>('.study-gamebook-play__end-action.next')?.textContent).toBe(
+            'Next chapter',
+        );
+        expect(end.querySelector<HTMLButtonElement>('.study-gamebook-play__end-action.retry')?.textContent).toBe(
+            'Play again',
+        );
+        expect(end.querySelector<HTMLButtonElement>('.study-gamebook-play__end-action.analyse')?.textContent).toBe(
+            'Analysis board',
+        );
         expect(end.querySelector('.study-gamebook-play__end-action.next .icon-play')).not.toBeNull();
         expect(end.querySelector('.study-gamebook-play__end-action.retry .icon-refresh')).not.toBeNull();
         expect(end.querySelector('.study-gamebook-play__end-action.analyse .icon-microscope')).not.toBeNull();
