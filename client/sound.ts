@@ -64,6 +64,7 @@ class Sounds {
 
     tracks: { [key: string]: Howl };
     private countDownTracks: { [key: number]: Howl };
+    private practiceSuccessTrack?: Howl;
     private assetURL: string;
 
     constructor() {
@@ -78,6 +79,7 @@ class Sounds {
             this.tracks[key].volume(volume);
         });
         Object.values(this.countDownTracks).forEach(track => track.volume(volume));
+        this.practiceSuccessTrack?.volume(volume);
     }
 
     buildBugChatSounds(assetURL: string) {
@@ -89,6 +91,7 @@ class Sounds {
     updateSoundTheme(assetURL: string) {
         this.assetURL = assetURL;
         this.countDownTracks = {};
+        this.practiceSuccessTrack = undefined;
         const soundTheme = soundThemeSettings.value;
         Object.keys(Sounds.trackNames).forEach((key: keyof typeof Sounds.trackNames) => {
             this.tracks[key] = this.buildSound(assetURL, soundTheme, Sounds.trackNames[key]);
@@ -190,6 +193,13 @@ class Sounds {
     }
     berserk() {
         if (this.audio()) this.tracks.Berserk.play();
+    }
+
+    // Lila Practice success cue: public/sound/other/energy3.* (AGPL-3.0).
+    practiceSuccess() {
+        if (!this.audio()) return;
+        this.practiceSuccessTrack ??= this.buildSound(this.assetURL, 'other', 'energy3');
+        this.practiceSuccessTrack.play();
     }
 
     bugchat(msg: string) {

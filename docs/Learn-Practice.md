@@ -584,6 +584,10 @@ with extra links.
 - [x] Enable all four Study analysis modes on DEV. Production keeps its staged chapter-mode
       gate, but local/DEV authoring and imports must not be blocked from `practice` or
       `conceal` while the full feature set is being exercised.
+- [x] Match Lichess computer-Practice completion UX discovered during real curriculum testing:
+      expose the persisted **Load next exercise immediately** toggle below the board, play the
+      Practice success sound, and replace the pinned goal/comment with the green Success/next
+      action when auto-next is disabled.
 - [ ] Fix authoring/runtime issues found by real lesson creation rather than expanding
       the feature spec speculatively.
 

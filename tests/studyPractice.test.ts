@@ -123,6 +123,7 @@ type HarnessOverrides = Partial<{
     hasNextChapter: boolean;
     onComplete: (moves: number) => void;
     onNextChapter: () => void;
+    onStateChange: (state: import('../client/study/studyPractice').StudyPracticeState) => void;
 }>;
 
 function makeHarness(
@@ -218,6 +219,7 @@ function makeHarness(
         ...(overrides.hasNextChapter !== undefined ? { hasNextChapter: overrides.hasNextChapter } : {}),
         ...(overrides.onComplete ? { onComplete: overrides.onComplete } : {}),
         ...(overrides.onNextChapter ? { onNextChapter: overrides.onNextChapter } : {}),
+        ...(overrides.onStateChange ? { onStateChange: overrides.onStateChange } : {}),
     });
 
     const humanMove = (move: string) => {
@@ -238,6 +240,14 @@ function makeHarness(
 describe('StudyPracticeSession', () => {
     beforeEach(() => {
         jest.useFakeTimers();
+        Object.defineProperty(HTMLMediaElement.prototype, 'play', {
+            configurable: true,
+            value: jest.fn(() => Promise.resolve()),
+        });
+        Object.defineProperty(HTMLMediaElement.prototype, 'load', {
+            configurable: true,
+            value: jest.fn(),
+        });
         scenario = { initialTurn: 'white' };
         boardsCreated = 0;
         boardsDeleted = 0;
@@ -504,6 +514,28 @@ describe('StudyPracticeSession', () => {
         expect(session.state).toMatchObject({ kind: 'ended', goalDecision: 'success', result: '1-0' });
         expect(onComplete).toHaveBeenCalledWith(1);
         expect(document.querySelector('.study-practice')?.textContent).toContain('Success!');
+        session.destroy();
+    });
+
+    test('successful Practice plays the success sound and waits when auto-next is disabled', () => {
+        scenario = { initialTurn: 'white', terminalAfter: 1, result: '1-0', checkmate: true };
+        const nextChapter = jest.fn();
+        const states: string[] = [];
+        const { session, humanMove, finishEvaluation } = makeHarness('white', undefined, {
+            goal: { result: 'mate' },
+            autoNext: () => false,
+            hasNextChapter: true,
+            onNextChapter: nextChapter,
+            onStateChange: state =>
+                states.push(state.kind === 'ended' ? (state.goalDecision ?? state.kind) : state.kind),
+        });
+
+        finishEvaluation('e2e4');
+        expect(humanMove('e2e4')).toBe(true);
+        expect(states).toContain('success');
+
+        jest.advanceTimersByTime(10_000);
+        expect(nextChapter).not.toHaveBeenCalled();
         session.destroy();
     });
 

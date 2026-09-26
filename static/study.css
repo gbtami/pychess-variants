@@ -1681,6 +1681,44 @@ button.study-gamebook-edit__legend { cursor: pointer; }
 .study-app .study-practice-underboard__comment {
     white-space: pre-wrap;
 }
+.study-app .study-practice-underboard__auto-next {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    margin-top: .45rem;
+    padding: .35rem 0;
+    font-size: .9rem;
+}
+.study-app .study-practice-underboard__auto-next > label:last-child {
+    cursor: pointer;
+}
+.study-app .study-practice-underboard__feedback.success {
+    display: flex;
+    width: 100%;
+    min-height: 4.6rem;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    border: 0;
+    background: var(--good);
+    color: #fff;
+    font: inherit;
+    font-size: 1.1rem;
+    text-align: center;
+}
+.study-app .study-practice-underboard__feedback.success.action {
+    cursor: pointer;
+}
+.study-app .study-practice-underboard__feedback.success.action:hover,
+.study-app .study-practice-underboard__feedback.success.action:focus-visible {
+    filter: brightness(1.08);
+}
+.study-app .study-practice-underboard__success-title {
+    font-size: 1.1em;
+}
+.study-app .study-practice-underboard__success-action {
+    font-weight: normal;
+}
 
 @media (max-width: 799px) {
     .study-app .practice-study-side__chapters {

@@ -17,6 +17,7 @@ import {
 import { boardSettings } from '../boardSettings';
 import { uci2cg } from '../chess';
 import { _ } from '../i18n';
+import { sound } from '../sound';
 import type { PracticeGoal } from '../types';
 import {
     gradeStudyPracticeMove,
@@ -78,6 +79,7 @@ export interface StudyPracticeOptions {
     hasNextChapter?: boolean;
     onComplete?(moves: number): void;
     onNextChapter?(): void;
+    onStateChange?(state: StudyPracticeState): void;
 }
 
 type PracticeBoard = {
@@ -617,6 +619,7 @@ export class StudyPracticeSession {
             ...(goalDecision ? { goalDecision } : {}),
         });
         if (goalDecision === 'success') {
+            sound.practiceSuccess();
             this.options.onComplete?.(this.learnerMoveCount());
             if (this.options.autoNext?.() && this.options.hasNextChapter && this.options.onNextChapter) {
                 this.autoNextTimer = window.setTimeout(() => {
@@ -978,6 +981,7 @@ export class StudyPracticeSession {
         this.syncBoardInput();
         this.syncHintShapes();
         this.render();
+        this.options.onStateChange?.(state);
     }
 
     private syncBoardInput(): void {

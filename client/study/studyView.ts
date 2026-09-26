@@ -28,7 +28,7 @@ import { GLYPH_GROUPS, toggleGlyph } from '../analysis/glyphs';
 import { StudyCommentEditor } from './commentEditor';
 import { StudyGamebookEditor } from './studyGamebookEdit';
 import { StudyGamebookPlayback } from './studyGamebookPlayback';
-import { StudyPracticeSession } from './studyPractice';
+import { StudyPracticeSession, type StudyPracticeState } from './studyPractice';
 import { StudyPracticeProgress } from './studyPracticeProgress';
 import { studyPracticeGoalText } from './studyPracticeGoal';
 import { fetchStudyChapterExportData, renderStudyChapterPgn, renderStudyPgn, studyPgnFilename } from './studyPgn';
@@ -2019,6 +2019,7 @@ export function updateStudyUnderboardChapter(
     study: StudyPageModel,
     model: PyChessModel,
     modeActions?: StudyModeActions,
+    practiceProgress?: StudyPracticeProgress,
 ): void {
     document.querySelectorAll<HTMLElement>('.study-underboard__title').forEach(title => {
         patch(toVNode(title), studyMetadataTitle(study));
@@ -2028,7 +2029,7 @@ export function updateStudyUnderboardChapter(
     if (shareLinks) patch(toVNode(shareLinks), studyShareLinks(study, model));
     const practiceUnderboard = document.querySelector<HTMLElement>('.study-practice-underboard');
     if (study.practice && practiceUnderboard) {
-        patch(toVNode(practiceUnderboard), practiceStudyUnderboard(study));
+        patch(toVNode(practiceUnderboard), practiceStudyUnderboard(study, practiceProgress));
     } else {
         syncStudyPinnedDescriptionUi(study, modeActions);
     }
@@ -2048,7 +2049,12 @@ function studyTagsTable(study: StudyPageModel, playback = false): VNode {
     );
 }
 
-function practiceStudyUnderboard(study: StudyPageModel): VNode {
+function practiceStudyUnderboard(
+    study: StudyPageModel,
+    practiceProgress?: StudyPracticeProgress,
+    practiceState?: StudyPracticeState,
+    onNextChapter?: () => void,
+): VNode {
     const description = study.chapter.description;
     const hasDescription = Boolean(description && description !== EMPTY_PINNED_CHAPTER_COMMENT);
 
@@ -2063,6 +2069,37 @@ function practiceStudyUnderboard(study: StudyPageModel): VNode {
                   ]
                 : [],
         );
+    }
+
+    const succeeded = practiceState?.kind === 'ended' && practiceState.goalDecision === 'success';
+    if (succeeded) {
+        const contents = [
+            h('strong.study-practice-underboard__success-title', _('Success!')),
+            h(
+                'span.study-practice-underboard__success-action',
+                onNextChapter ? _('Go to next exercise') : _('Back to practice menu'),
+            ),
+        ];
+        if (practiceProgress?.autoNext) {
+            return h('div.study-practice-underboard', [
+                h('div.study-practice-underboard__feedback.success', [
+                    h('strong.study-practice-underboard__success-title', _('Success!')),
+                ]),
+            ]);
+        }
+        return h('div.study-practice-underboard', [
+            onNextChapter
+                ? h(
+                      'button.study-practice-underboard__feedback.success.action',
+                      { attrs: { type: 'button' }, on: { click: onNextChapter } },
+                      contents,
+                  )
+                : h(
+                      'a.study-practice-underboard__feedback.success.action',
+                      { attrs: { href: study.practice?.indexUrl ?? '/practice' } },
+                      contents,
+                  ),
+        ]);
     }
 
     const goal = study.practice?.goal;
@@ -2081,11 +2118,43 @@ function practiceStudyUnderboard(study: StudyPageModel): VNode {
                 h('div.study-practice-underboard__comment', renderLinkifiedText(description)),
             ])
           : undefined;
-    return h('div.study-practice-underboard', feedback ? [feedback] : []);
+    const autoNext = practiceProgress
+        ? h('div.study-practice-underboard__auto-next', [
+              h('label.switch', [
+                  h('input#practice-auto-next', {
+                      props: { type: 'checkbox', checked: practiceProgress.autoNext },
+                      attrs: { 'aria-label': _('Load next exercise immediately') },
+                      on: {
+                          change: event => {
+                              practiceProgress.autoNext = (event.currentTarget as HTMLInputElement).checked;
+                          },
+                      },
+                  }),
+                  h('span.sw-slider'),
+              ]),
+              h('label', { attrs: { for: 'practice-auto-next' } }, _('Load next exercise immediately')),
+          ])
+        : undefined;
+    return h('div.study-practice-underboard', [feedback, autoNext].filter(Boolean) as VNode[]);
 }
 
-function studyUnderboard(study: StudyPageModel, model: PyChessModel, modeActions: StudyModeActions): VNode {
-    if (study.practice) return practiceStudyUnderboard(study);
+function updatePracticeStudyUnderboardState(
+    study: StudyPageModel,
+    practiceProgress: StudyPracticeProgress | undefined,
+    practiceState: StudyPracticeState,
+    onNextChapter?: () => void,
+): void {
+    const current = document.querySelector<HTMLElement>('.study-practice-underboard');
+    if (current) patch(toVNode(current), practiceStudyUnderboard(study, practiceProgress, practiceState, onNextChapter));
+}
+
+function studyUnderboard(
+    study: StudyPageModel,
+    model: PyChessModel,
+    modeActions: StudyModeActions,
+    practiceProgress?: StudyPracticeProgress,
+): VNode {
+    if (study.practice) return practiceStudyUnderboard(study, practiceProgress);
 
     const defaultTab: StudyTab = 'tags';
     const policy = effectiveStudySessionPolicy(study);
@@ -2662,7 +2731,7 @@ function runStudyGround(
                     if (syncButton) syncButton.hidden = !(model.username && members[model.username]);
                     updateMovelist(analysisCtrl, true, false);
                     sideVNode = patch(sideVNode, studySide(study, model, modeActions, practiceProgress));
-                    updateStudyUnderboardChapter(study, model, modeActions);
+                    updateStudyUnderboardChapter(study, model, modeActions, practiceProgress);
                     updateGamebookEditor();
                     syncStudyPlaybackUi(study, modeActions);
                 },
@@ -2706,6 +2775,13 @@ function runStudyGround(
                     ? {
                           autoNext: () => practiceProgress.autoNext,
                           hasNextChapter: Boolean(nextChapter),
+                          onStateChange: state =>
+                              updatePracticeStudyUnderboardState(
+                                  study,
+                                  practiceProgress,
+                                  state,
+                                  nextChapter ? () => void navigation?.go(nextChapter.id, 'push') : undefined,
+                              ),
                           onComplete: (moves: number) => {
                               const changed = practiceProgress.complete(study.chapter.id, moves);
                               if (!changed) return;
@@ -2901,7 +2977,7 @@ function runStudyGround(
                 fen: study.chapter.initialFen,
                 ply: 0,
             };
-            updateStudyUnderboardChapter(study, model, modeActions);
+            updateStudyUnderboardChapter(study, model, modeActions, practiceProgress);
             loadCataloguedVariantsFromJson(JSON.stringify(data.cataloguedVariants));
             ffish.loadVariantConfig(variantConfigIni(variantsIni, model.variant));
             document.body.dataset.variant = model.variant;
@@ -2941,7 +3017,7 @@ function runStudyGround(
             // Re-apply chapter-dependent underboard content after the replacement
             // controller has mounted. This keeps pinned comments in sync across
             // chapter A -> B -> A navigation in both Study and Practice views.
-            updateStudyUnderboardChapter(study, model, modeActions);
+            updateStudyUnderboardChapter(study, model, modeActions, practiceProgress);
             restoreSessionPosition();
             notifyChessgroundResize();
             if (window.fsf) {
@@ -3145,7 +3221,7 @@ export function studyView(model: PyChessModel): VNode[] {
     const side = studySide(study, model, modeActions, practiceProgress);
     const page = renderAnalysisPage(model, {
         side,
-        underboard: studyUnderboard(study, model, modeActions),
+        underboard: studyUnderboard(study, model, modeActions, practiceProgress),
         mountBoard: vnode => runStudyGround(vnode, model, study, side, modeActions, practiceProgress),
         ongoing: false,
         toolsAfterMoves: studyAnalysisTools(study),

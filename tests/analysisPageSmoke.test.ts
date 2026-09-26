@@ -849,6 +849,7 @@ describe('analysis page smoke coverage', () => {
             ],
         };
 
+        localStorage.removeItem('practice_autoNext');
         const root = renderNodes(studyView(makeModel({ gameId: '', status: 0, study })));
 
         expect(root.querySelector('.practice-study-side__title h1')?.textContent).toBe('7th-Rank Rook Pawn');
@@ -870,6 +871,11 @@ describe('analysis page smoke coverage', () => {
         );
         expect(root.querySelector('.study-practice-underboard__goal')?.textContent).toBe('Checkmate the opponent.');
         expect(root.querySelector('.study-practice-underboard__comment')?.textContent).toBe('Chapter lesson text');
+        const autoNext = root.querySelector<HTMLInputElement>('#practice-auto-next')!;
+        expect(autoNext.checked).toBe(true);
+        autoNext.checked = false;
+        autoNext.dispatchEvent(new Event('change', { bubbles: true }));
+        expect(localStorage.getItem('practice_autoNext')).toBe('false');
         study.chapter.description = 'Restored after chapter navigation';
         updateStudyUnderboardChapter(study, makeModel({ gameId: '', status: 0, study }));
         expect(root.querySelector('.study-practice-underboard__comment')?.textContent).toBe(
