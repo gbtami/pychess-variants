@@ -168,9 +168,22 @@ def find_practice_study(
     return None
 
 
-# Keep the initial registry intentionally empty. P1 establishes the curation contract
-# and validator; real DEV Study IDs can be added once the Practice index/player exists.
-PRACTICE_SECTIONS: tuple[PracticeSection, ...] = ()
+# Initial real DEV curriculum content. The local Study below was imported from
+# arex's Lichess Practice study ``pt20yRkT`` (Queen vs 7th-Rank Pawn). The
+# section name and short description mirror lila's PracticeSections registry.
+PRACTICE_SECTIONS: tuple[PracticeSection, ...] = (
+    PracticeSection(
+        id="pawn-endgames",
+        name="Pawn Endgames",
+        studies=(
+            PracticeStudyRef(
+                study_id="cEFpp4ht",
+                variant="chess",
+                description="Versus a Queen",
+            ),
+        ),
+    ),
+)
 
 
 def _issue(code: PracticeValidationCode, message: str) -> PracticeValidationIssue:
