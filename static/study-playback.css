@@ -401,7 +401,7 @@ button.study-gamebook-play__feedback.act:focus-visible {
 .study-practice__title {
     min-height: 30px;
     padding: 0 7px;
-    background: color-mix(in srgb, var(--bg-color2) 72%, var(--bg-color0));
+    background: color-mix(in srgb, var(--good) 40%, var(--bg-color0));
     font-size: .9rem;
     line-height: 30px;
 }
