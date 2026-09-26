@@ -126,6 +126,8 @@
 
 .study-gamebook-play__feedback.play {
     justify-content: flex-start;
+    background: var(--bg-color0);
+    box-shadow: var(--base-shadow);
     font-size: .8em;
     text-align: left;
 }

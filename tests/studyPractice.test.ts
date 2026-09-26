@@ -149,7 +149,7 @@ function makeHarness(
         fullfen: fen,
         engineVariant: overrides.engineVariant ?? 'chess',
         chess960: false,
-        variant: { twoBoards: overrides.twoBoards ?? false, kingRoles: ['k-piece'] },
+        variant: { twoBoards: overrides.twoBoards ?? false, kingRoles: ['k-piece'], pieceFamily: 'standard' },
         ffish: { Board: FakeBoard },
         localEngine: overrides.localEngine ?? true,
         localAnalysis: overrides.localAnalysis ?? false,
@@ -308,7 +308,7 @@ describe('StudyPracticeSession', () => {
 
         expect(panel.querySelector('.study-practice__title')?.textContent).toBe('Practice with computer');
         expect(panel.querySelector('.study-practice__feedback')).not.toBeNull();
-        expect(panel.querySelector('.study-practice__mark piece.k-piece.white')).not.toBeNull();
+        expect(panel.querySelector('.study-practice__mark.standard piece.k-piece.white')).not.toBeNull();
         expect(panel.querySelector('.study-practice__instruction strong')?.textContent).toBe('Your turn');
         expect(
             [...panel.querySelectorAll<HTMLButtonElement>('.study-practice__action')].map(button => button.textContent),
@@ -379,7 +379,7 @@ describe('StudyPracticeSession', () => {
             fullfen: fen,
             engineVariant: 'chess',
             chess960: false,
-            variant: { twoBoards: false, kingRoles: ['k-piece'] },
+            variant: { twoBoards: false, kingRoles: ['k-piece'], pieceFamily: 'standard' },
             ffish: { Board: FakeBoard },
             localEngine: true,
             localAnalysis: false,

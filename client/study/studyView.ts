@@ -2383,6 +2383,22 @@ function studyContextMenu(ctrl: AnalysisController, path: string): VNode[] {
     ];
 }
 
+function syncPracticeLearnerBoardHeight(board: HTMLElement, study: StudyPageModel): void {
+    if (!study.practice) return;
+    const app = board.closest<HTMLElement>('.study-app');
+    if (!app) return;
+
+    const update = () => {
+        const height = board.getBoundingClientRect().height;
+        if (height > 0) app.style.setProperty('--study-practice-board-height', `${height}px`);
+    };
+    update();
+    if (typeof ResizeObserver !== 'undefined') {
+        const observer = new ResizeObserver(update);
+        observer.observe(board);
+    }
+}
+
 function runStudyGround(
     vnode: VNode,
     model: PyChessModel,
@@ -2476,6 +2492,7 @@ function runStudyGround(
           );
     const mount = (el: HTMLElement, snapshotVerified = false) => {
         policy = effectiveStudySessionPolicy(study);
+        syncPracticeLearnerBoardHeight(el, study);
         let gamebookPlayback: StudyGamebookPlayback | undefined;
         const installGamebookPlayback = (analysisCtrl: AnalysisController): void => {
             if (gamebookPlayback || !isGamebookPlayback(policy) || !analysisCtrl.analysisTree) return;

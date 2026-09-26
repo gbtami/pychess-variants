@@ -1497,6 +1497,15 @@ button.study-gamebook-edit__legend { cursor: pointer; }
     min-width: 0;
     overflow: hidden;
 }
+@media (min-width: 800px) {
+    .study-app > .sidebar-first:has(.practice-study-side) {
+        height: var(--study-practice-board-height, auto);
+        max-height: var(--study-practice-board-height, none);
+    }
+    .study-app .practice-study-side {
+        height: 100%;
+    }
+}
 .study-app .practice-study-side {
     display: flex;
     width: 100%;

@@ -81,6 +81,7 @@ function makeCtrl(tree = lessonTree()) {
         autoShapes: [],
         variant: {
             kingRoles: ['k-piece'],
+            pieceFamily: 'standard',
             colors: { first: 'white', second: 'black' },
         },
         chessground: {
@@ -163,6 +164,7 @@ describe('Study interactive lesson playback adapter', () => {
         );
         expect(panel.querySelector('.study-gamebook-play__title')?.textContent).toBe('Your turn');
         expect(panel.querySelector('.study-gamebook-play__message')?.textContent).toContain('white');
+        expect(panel.querySelector('.study-gamebook-play__mark')?.classList.contains('standard')).toBe(true);
         expect(document.querySelector('.study-gamebook-play-buttons')?.textContent).toContain('View the solution');
 
         playback.destroy();

@@ -1067,7 +1067,7 @@ export class StudyPracticeSession {
         const player = document.createElement('div');
         player.className = 'study-practice__player';
         const mark = document.createElement('div');
-        mark.className = 'study-practice__mark';
+        mark.className = `study-practice__mark ${this.ctrl.variant.pieceFamily}`;
         const instruction = document.createElement('div');
         instruction.className = 'study-practice__instruction';
         const heading = document.createElement('strong');

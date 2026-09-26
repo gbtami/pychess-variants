@@ -323,7 +323,7 @@ export class StudyGamebookPlayback {
 
     private turnPiece(): HTMLElement {
         const mark = document.createElement('div');
-        mark.className = 'study-gamebook-play__mark';
+        mark.className = `study-gamebook-play__mark ${this.ctrl.variant.pieceFamily}`;
         const piece = document.createElement('piece');
         piece.classList.add(this.ctrl.variant.kingRoles[0] ?? 'k-piece', this.ctrl.turnColor);
         piece.setAttribute('aria-hidden', 'true');
