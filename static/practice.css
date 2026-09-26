@@ -1,15 +1,14 @@
 @import 'study.css';
 
-/* Layout and progress treatment are adapted from lila's Learn -> Practice index.
-   PyChess keeps its own Study cards and variant selector instead of importing
-   chess-only study artwork or a fixed single-variant curriculum. */
+/* Learn -> Practice index. The index deliberately follows lila's compact Practice
+   composition while keeping PyChess's variant selector and theme variables. */
 #main-wrap.practice-index-wrap {
     --main-max-width: 1180px;
 }
 
-/* `#main-wrap` reserves the named `main` grid area in site.css. Keep the
-   validation-error preview on that track instead of letting CSS Grid auto-place
-   it into the narrow outer-margin column. */
+/* `#main-wrap` owns a named `main` track in site.css. Practice pages must claim it
+   explicitly; otherwise inherited/implicit grid areas can push content into the wrong
+   column. */
 #main-wrap.practice-preview-wrap {
     --main-max-width: 900px;
 }
@@ -57,8 +56,8 @@
 .practice-index-page {
     grid-area: main;
     display: grid;
-    grid-template-columns: 14rem minmax(0, 1fr);
-    gap: .9rem;
+    grid-template-columns: 15rem minmax(0, 1fr);
+    gap: 2rem;
     width: 100%;
     max-width: 1180px;
     margin: 1.25rem auto 3rem;
@@ -70,43 +69,73 @@
     min-width: 0;
 }
 
+.practice-index {
+    /* Do not inherit Study index's `grid-area: content`; this grid has no such named
+       area and an implicit placement creates the large blank gap seen before P11. */
+    grid-area: auto;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    background: transparent;
+    box-shadow: none;
+}
+
 .practice-index__side {
-    display: grid;
-    gap: 1.15rem;
-    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-self: start;
+    box-sizing: border-box;
+    padding: 1rem 1.2rem 1.15rem;
+    border: 1px solid color-mix(in srgb, var(--font-color) 15%, transparent);
     border-radius: 3px;
     background: var(--bg-color0);
     box-shadow: var(--base-shadow);
+    text-align: center;
 }
 
 .practice-index__header {
     display: flex;
+    flex-direction: column;
+    gap: .7rem;
     align-items: center;
-    gap: .8rem;
 }
 
-.practice-index__icon {
-    width: 3.6rem;
-    height: 3.6rem;
-    opacity: .78;
+.practice-index__decoration {
+    display: block;
+    width: 10rem;
+    max-width: 100%;
+    aspect-ratio: 1;
+    object-fit: contain;
+    opacity: .58;
+    filter: brightness(.38);
 }
 
-.practice-index__header h1 {
+[data-theme='dark'] .practice-index__decoration,
+[data-theme='dark'] .practice-study-card__art {
+    filter: none;
+}
+
+.practice-index__title h1 {
     margin: 0;
-    font-size: 1.8rem;
+    font-size: 2.65rem;
     font-weight: normal;
-    line-height: 1.05;
+    line-height: 1;
 }
 
-.practice-index__header p {
-    margin: .2rem 0 0;
-    color: color-mix(in srgb, var(--font-color) 65%, transparent);
-    line-height: 1.2;
+.practice-index__title p {
+    margin: .3rem 0 0;
+    color: color-mix(in srgb, var(--font-color) 70%, transparent);
+    font-size: 1.05rem;
+    line-height: 1.15;
 }
 
 .practice-variant-picker {
     display: grid;
     gap: .45rem;
+    padding-top: .15rem;
+    text-align: left;
 }
 
 .practice-variant-picker label {
@@ -121,19 +150,18 @@
 
 .practice-variant-picker__help,
 .practice-variant-picker__empty,
-.practice-index__signin-hint,
-.practice-index__progress-copy {
+.practice-index__signin-hint {
     margin: 0;
-    color: color-mix(in srgb, var(--font-color) 65%, transparent);
-    font-size: .86rem;
+    color: color-mix(in srgb, var(--font-color) 64%, transparent);
+    font-size: .84rem;
     line-height: 1.35;
 }
 
 .practice-index__progress {
     display: grid;
     gap: .45rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border-color);
+    padding-top: .85rem;
+    border-top: 1px solid color-mix(in srgb, var(--font-color) 15%, transparent);
 }
 
 .practice-index__progress-head {
@@ -141,257 +169,267 @@
     align-items: baseline;
     justify-content: space-between;
     gap: .75rem;
+    text-align: left;
 }
 
 .practice-index__progress-head span {
+    color: color-mix(in srgb, var(--font-color) 72%, transparent);
     font-variant-numeric: tabular-nums;
-    opacity: .75;
 }
 
 .practice-index__progress form {
-    margin-top: .15rem;
+    margin: .15rem 0 0;
 }
 
 .practice-index__progress .button {
     width: 100%;
-    padding-inline: .3rem;
+    padding: .25rem .3rem;
+    background: transparent;
+    color: color-mix(in srgb, var(--font-color) 62%, transparent);
+    font-size: .86rem;
+}
+
+.practice-index__progress .button:hover,
+.practice-index__progress .button:focus-visible {
+    color: var(--font-color);
 }
 
 .practice-progress-bar {
     width: 100%;
-    height: .7rem;
+    height: 1.7rem;
     overflow: hidden;
     border: 0;
-    border-radius: 999px;
-    background: color-mix(in srgb, var(--font-color) 12%, var(--bg-color0));
+    border-radius: 0;
+    background: color-mix(in srgb, var(--link-color-blue) 16%, var(--bg-color0));
     appearance: none;
 }
 
 .practice-progress-bar::-webkit-progress-bar {
-    border-radius: 999px;
-    background: color-mix(in srgb, var(--font-color) 12%, var(--bg-color0));
+    background: color-mix(in srgb, var(--link-color-blue) 16%, var(--bg-color0));
 }
 
 .practice-progress-bar::-webkit-progress-value {
-    border-radius: 999px;
     background: var(--link-color-blue);
 }
 
 .practice-progress-bar::-moz-progress-bar {
-    border-radius: 999px;
     background: var(--link-color-blue);
 }
 
-.practice-index__progress[data-practice-progress-state='done'] .practice-progress-bar::-webkit-progress-value,
-.practice-study-card--done .practice-progress-bar::-webkit-progress-value {
+.practice-index__progress[data-practice-progress-state='done'] .practice-progress-bar::-webkit-progress-value {
     background: var(--good);
 }
 
-.practice-index__progress[data-practice-progress-state='done'] .practice-progress-bar::-moz-progress-bar,
-.practice-study-card--done .practice-progress-bar::-moz-progress-bar {
+.practice-index__progress[data-practice-progress-state='done'] .practice-progress-bar::-moz-progress-bar {
     background: var(--good);
 }
 
-.practice-app {
-    padding-top: 1.5rem;
+.practice-index__signin-hint {
+    padding-top: .8rem;
+    border-top: 1px solid color-mix(in srgb, var(--font-color) 15%, transparent);
 }
 
-.practice-index__intro {
-    margin-bottom: 1.7rem;
-}
-
-.practice-index__intro h2 {
-    margin: 0;
-    font-size: 2rem;
-    font-weight: normal;
-}
-
-.practice-index__intro p {
-    margin: .35rem 0 0;
-    color: color-mix(in srgb, var(--font-color) 68%, transparent);
-    font-size: 1.05rem;
+.practice-section + .practice-section {
+    margin-top: 2.8rem;
 }
 
 .practice-section > h2 {
-    margin: 2rem 0 .8rem;
-    color: color-mix(in srgb, var(--font-color) 62%, transparent);
-    font-size: 1.15rem;
-    font-weight: bold;
-    letter-spacing: .08em;
+    margin: .2rem 0 1.25rem;
+    color: color-mix(in srgb, var(--font-color) 48%, transparent);
+    font-size: 1.85rem;
+    font-weight: normal;
+    letter-spacing: .35em;
+    line-height: 1.2;
+    text-align: center;
     text-transform: uppercase;
 }
 
 .practice-studies {
-    grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr));
-    gap: 1rem;
-    border-top: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .85rem 1rem;
 }
 
 .practice-study-card {
-    min-height: 10rem;
-    padding: 1rem 1rem .9rem;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    box-shadow: 0 2px 5px rgb(0 0 0 / .06);
-    transition: transform 150ms ease, background 150ms ease, border-color 150ms ease;
+    position: relative;
+    display: flex;
+    min-width: 0;
+    min-height: 5.8rem;
+    align-items: center;
+    box-sizing: border-box;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, #9a72bd 48%, var(--border-color));
+    border-radius: 2px;
+    padding: .6rem 3.2rem .6rem .7rem;
+    color: var(--font-color);
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, #c9a5eb 42%, var(--bg-color0)),
+        color-mix(in srgb, #c9a5eb 28%, var(--bg-color0))
+    );
+    box-shadow: 0 3px 5px rgb(0 0 0 / .07);
+    text-decoration: none;
+    transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
 }
 
 .practice-study-card:hover,
-.practice-study-card:focus-within {
-    transform: translateY(-2px);
+.practice-study-card:focus-visible {
+    transform: scale(1.02);
+    box-shadow: 0 5px 12px rgb(0 0 0 / .12);
+    outline: none;
+}
+
+.practice-study-card:focus-visible {
+    box-shadow: 0 0 0 2px var(--link-color-blue), 0 5px 12px rgb(0 0 0 / .12);
 }
 
 .practice-study-card--ongoing {
-    border-color: color-mix(in srgb, var(--link-color-blue) 55%, var(--border-color));
+    border-color: color-mix(in srgb, var(--link-color-blue) 62%, var(--border-color));
     background: linear-gradient(
         180deg,
-        color-mix(in srgb, var(--link-color-blue) 10%, var(--bg-color0)),
-        var(--bg-color0) 8rem
+        color-mix(in srgb, var(--link-color-blue) 31%, var(--bg-color0)),
+        color-mix(in srgb, var(--link-color-blue) 20%, var(--bg-color0))
     );
 }
 
 .practice-study-card--done {
-    border-color: color-mix(in srgb, var(--good) 55%, var(--border-color));
+    border-color: color-mix(in srgb, var(--good) 65%, var(--border-color));
     background: linear-gradient(
         180deg,
-        color-mix(in srgb, var(--good) 9%, var(--bg-color0)),
-        var(--bg-color0) 8rem
+        color-mix(in srgb, var(--good) 31%, var(--bg-color0)),
+        color-mix(in srgb, var(--good) 19%, var(--bg-color0))
     );
 }
 
 .practice-study-card--invalid {
-    outline: 1px solid color-mix(in srgb, var(--bad) 65%, transparent);
-    outline-offset: -1px;
+    align-items: flex-start;
+    border-color: color-mix(in srgb, var(--bad) 62%, var(--border-color));
+    background: color-mix(in srgb, var(--bad) 8%, var(--bg-color0));
 }
 
-.practice-study-card__ribbon {
-    position: absolute;
-    z-index: 2;
-    top: 0;
-    pointer-events: none;
-    right: 0;
-    min-width: 3.7rem;
-    padding: .28rem .55rem;
-    border-radius: 0 3px 0 4px;
-    background: color-mix(in srgb, var(--font-color) 12%, var(--bg-color0));
-    color: color-mix(in srgb, var(--font-color) 75%, transparent);
-    font-size: .78rem;
-    font-variant-numeric: tabular-nums;
-    text-align: center;
+.practice-study-card__art {
+    flex: 0 0 auto;
+    width: 4.3rem;
+    height: 4.3rem;
+    margin-right: 1rem;
+    object-fit: contain;
+    opacity: .56;
+    filter: brightness(.42);
 }
 
-.practice-study-card__ribbon--ongoing {
-    background: color-mix(in srgb, var(--link-color-blue) 20%, var(--bg-color0));
-    color: var(--link-color-blue);
-}
-
-.practice-study-card__ribbon--done {
-    background: color-mix(in srgb, var(--good) 20%, var(--bg-color0));
-    color: var(--good);
-}
-
-.practice-study-card__icon {
-    width: 3.4rem;
-    height: 3.4rem;
-}
-
-.practice-study-card__progress-text {
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.practice-study-card__body {
-    display: grid;
-    gap: .75rem;
-    margin-top: .75rem;
-}
-
-.practice-study-card__description {
-    margin: 0;
-    color: color-mix(in srgb, var(--font-color) 78%, transparent);
-    font-size: .96rem;
-    line-height: 1.35;
-    overflow-wrap: anywhere;
-}
-
-.practice-study-card__chapters,
-.practice-study-card__issues {
-    display: grid;
-    gap: .38rem;
-    min-width: 0;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-.practice-study-card__chapter {
+.practice-study-card__text {
     display: flex;
     min-width: 0;
-    align-items: flex-start;
-    gap: .45rem;
+    flex-direction: column;
+    justify-content: center;
+    gap: .2rem;
 }
 
-.practice-study-card__chapter-status {
-    flex: 0 0 1.15rem;
-    color: color-mix(in srgb, var(--font-color) 45%, transparent);
-    font-size: 1.05rem;
-    line-height: 1.25rem;
-    text-align: center;
-}
-
-.practice-study-card__chapter--done .practice-study-card__chapter-status {
-    color: var(--good);
-    font-weight: bold;
-}
-
-.practice-study-card__chapter-copy {
-    display: grid;
-    min-width: 0;
-    gap: .05rem;
-}
-
-.practice-study-card__chapter-name {
+.practice-study-card__name {
+    display: block;
     overflow: hidden;
-    color: var(--font-color);
+    color: color-mix(in srgb, var(--font-color) 87%, transparent);
+    font-size: 1.42rem;
+    font-weight: normal;
+    line-height: 1.08;
     text-overflow: ellipsis;
     white-space: nowrap;
     unicode-bidi: plaintext;
 }
 
-.practice-study-card__chapter-detail {
-    color: color-mix(in srgb, var(--font-color) 58%, transparent);
-    font-size: .82rem;
-    line-height: 1.25;
-    white-space: normal;
-    overflow-wrap: anywhere;
-}
-
-.practice-study-card__goal strong {
-    color: color-mix(in srgb, var(--font-color) 75%, transparent);
-    font-weight: normal;
+.practice-study-card__description {
+    display: block;
+    overflow: hidden;
+    color: color-mix(in srgb, var(--font-color) 72%, transparent);
+    font-size: .98rem;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    unicode-bidi: plaintext;
 }
 
 .practice-study-card__issues {
+    margin: .35rem 0 0;
+    padding-left: 1rem;
     color: var(--bad);
+    font-size: .82rem;
+    line-height: 1.25;
 }
 
-.practice-progress-bar--card {
-    height: .32rem;
-    margin-top: .1rem;
+.practice-study-card__ribbon-wrap {
+    position: absolute;
+    z-index: 2;
+    top: -.25rem;
+    right: -.2rem;
+    width: 5.6rem;
+    height: 5.6rem;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.practice-study-card__ribbon {
+    position: absolute;
+    top: 1rem;
+    right: -1.8rem;
+    width: 7.4rem;
+    padding: .38rem 0;
+    transform: rotate(45deg);
+    background: #dec7f1;
+    box-shadow: 0 1px 3px rgb(0 0 0 / .24);
+    color: #555;
+    font-size: .76rem;
+    font-weight: bold;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    text-shadow: rgb(255 255 255 / .55) 0 1px 0;
+}
+
+.practice-study-card__ribbon--ongoing {
+    background: #bddffa;
+}
+
+.practice-study-card__ribbon--done {
+    background: #c5e791;
+}
+
+.practice-visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
 }
 
 .practice-empty {
-    margin-top: 1.5rem;
+    margin-top: 1rem;
+    border-radius: 3px;
+    background: var(--bg-color0);
+    box-shadow: var(--base-shadow);
 }
 
 @media (prefers-reduced-motion: reduce) {
     .practice-study-card {
-        transition: background 150ms ease, border-color 150ms ease;
+        transition: none;
     }
 
     .practice-study-card:hover,
-    .practice-study-card:focus-within {
+    .practice-study-card:focus-visible {
         transform: none;
+    }
+}
+
+@media (max-width: 999px) {
+    .practice-index-page {
+        grid-template-columns: 14rem minmax(0, 1fr);
+        gap: 1.25rem;
+    }
+
+    .practice-studies {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -404,17 +442,31 @@
     .practice-index-page {
         display: block;
         margin-top: .75rem;
+        padding: 0 .75rem;
+        box-sizing: border-box;
     }
 
     .practice-index__side {
-        grid-template-columns: minmax(0, 1fr) minmax(11rem, 1fr);
-        align-items: start;
-        border-radius: 3px 3px 0 0;
-        box-shadow: none;
+        display: grid;
+        grid-template-columns: minmax(12rem, 1fr) minmax(11rem, 1fr);
+        gap: .8rem 1.2rem;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        text-align: left;
     }
 
     .practice-index__header {
-        grid-column: 1 / -1;
+        flex-direction: row;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .practice-index__decoration {
+        width: 6.3rem;
+    }
+
+    .practice-index__title h1 {
+        font-size: 2.15rem;
     }
 
     .practice-index__progress,
@@ -423,63 +475,63 @@
         border-top: 0;
     }
 
-    .practice-index {
-        border-radius: 0 0 3px 3px;
-    }
-
-    .practice-app {
-        padding-top: 1.25rem;
-    }
-
-    .practice-studies {
-        grid-template-columns: 1fr;
+    .practice-section > h2 {
+        font-size: 1.45rem;
+        letter-spacing: .25em;
     }
 }
 
-@media (max-width: 520px) {
+@media (max-width: 540px) {
+    .practice-index-page {
+        padding: 0 .5rem;
+    }
+
     .practice-index__side {
         grid-template-columns: 1fr;
-        gap: .9rem;
+        text-align: left;
     }
 
     .practice-index__header {
-        grid-column: auto;
+        justify-content: flex-start;
     }
 
-    .practice-index__icon {
-        width: 3rem;
-        height: 3rem;
-    }
-
-    .practice-index__header h1 {
-        font-size: 1.55rem;
-    }
-
-    .practice-index__intro h2 {
-        font-size: 1.6rem;
+    .practice-index__decoration {
+        width: min(5.5rem, 24vw);
     }
 
     .practice-section > h2 {
-        letter-spacing: .05em;
+        margin-bottom: .85rem;
+        font-size: 1.25rem;
+        letter-spacing: .16em;
+    }
+
+    .practice-studies {
+        gap: .65rem;
     }
 
     .practice-study-card {
-        padding: .85rem .8rem .8rem;
+        min-height: 4.8rem;
+        padding: .4rem 2.8rem .4rem .4rem;
     }
 
-    .practice-study-card__ribbon {
-        position: static;
-        float: right;
-        margin: -.85rem -.8rem .45rem .65rem;
-        border-radius: 0 3px 0 4px;
-    }
-
-    .practice-study-card__icon {
-        width: 2.8rem;
-        height: 2.8rem;
+    .practice-study-card__art {
+        width: 3.5rem;
+        height: 3.5rem;
+        margin-right: .65rem;
     }
 
     .practice-study-card__name {
-        font-size: 1.3em;
+        font-size: 1.15rem;
+    }
+
+    .practice-study-card__description {
+        font-size: .88rem;
+    }
+
+    .practice-study-card__ribbon-wrap {
+        top: -.4rem;
+        right: -.45rem;
+        transform: scale(.82);
+        transform-origin: top right;
     }
 }

@@ -39,6 +39,8 @@ class PracticeStudyRef:
     variant: str
     description: str = ""
     chess960: bool = False
+    title: str = ""
+    icon: str = "help"
 
 
 @dataclass(frozen=True, slots=True)
@@ -180,6 +182,8 @@ PRACTICE_SECTIONS: tuple[PracticeSection, ...] = (
                 study_id="cEFpp4ht",
                 variant="chess",
                 description="Versus a Queen",
+                title="7th-Rank Rook Pawn",
+                icon="stone-tower",
             ),
         ),
     ),

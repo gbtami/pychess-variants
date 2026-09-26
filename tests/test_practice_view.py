@@ -197,7 +197,7 @@ async def test_practice_index_redirects_to_menu_variant_and_filters_curriculum(
     assert "Practice • PyChess" in html
     assert "Pawn endgames" in html
     assert "Pawn Endgames" in html
-    assert "Opposition" in html
+    assert "Opposition" not in html
     assert "Master the essential pawn endings." in html
     assert 'href="/practice/chess/prac0001"' in html
     assert "Shogi basics" not in html
@@ -211,7 +211,7 @@ async def test_practice_index_redirects_to_menu_variant_and_filters_curriculum(
     shogi_html = await shogi_response.text()
     assert "Shogi basics" in shogi_html
     assert "Shogi Fundamentals" in shogi_html
-    assert "Entering king" in shogi_html
+    assert "Entering king" not in shogi_html
     assert "Pawn endgames" not in shogi_html
     assert "Pawn Endgames" not in shogi_html
     assert '<option value="shogi" selected>' in shogi_html
@@ -643,10 +643,10 @@ async def test_practice_index_shows_persistent_progress_and_reset_for_signed_in_
     assert 'max="2"' in html
     assert 'aria-label="1 of 2 chapters complete"' in html
     assert 'data-practice-progress-state="ongoing"' in html
-    assert "practice-study-card__chapter--done" in html
-    assert "Opposition" in html
-    assert "Goal:" in html
-    assert "Checkmate the opponent" in html
+    assert "practice-study-card__ribbon--ongoing" in html
+    assert "1 / 2" in html
+    assert "Master the essential pawn endings." in html
+    assert "Opposition" not in html
     assert 'action="/practice/chess/reset"' in html
     assert "Reset progress" in html
 
