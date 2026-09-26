@@ -481,43 +481,31 @@ describe('Study interactive lesson playback adapter', () => {
         playback.destroy();
     });
 
-    test('Practice auto-next can advance after success and can be disabled from the lesson controls', () => {
+    test('Practice Interactive Lesson waits on success until the learner chooses the next chapter', () => {
         const root = node('root', '', 0, undefined, 'white', 'Introduction.');
         const tree: AnalysisTree = { root, byPath: new Map([['', root]]), nextId: 1 };
         const ctrl = makeCtrl(tree);
-        let autoNext = true;
-        const setAutoNext = jest.fn((value: boolean) => {
-            autoNext = value;
-        });
+        const onComplete = jest.fn();
         const nextChapter = jest.fn();
         const playback = new StudyGamebookPlayback(ctrl, {
-            chapterId: 'chapter-auto-next',
+            chapterId: 'chapter-waits-for-next',
             orientation: 'white',
             preview: false,
             canAnalyse: false,
             hasNextChapter: true,
             onNextChapter: nextChapter,
-            practice: {
-                autoNext: () => autoNext,
-                setAutoNext,
-                onComplete: jest.fn(),
-            },
+            practice: { onComplete },
         });
 
-        const toggle = document.querySelector<HTMLInputElement>('.study-gamebook-play-auto-next input')!;
-        expect(toggle.checked).toBe(true);
-        toggle.checked = false;
-        toggle.dispatchEvent(new Event('change', { bubbles: true }));
-        expect(setAutoNext).toHaveBeenCalledWith(false);
-        jest.advanceTimersByTime(1000);
-        expect(nextChapter).not.toHaveBeenCalled();
+        expect(onComplete).toHaveBeenCalledWith('chapter-waits-for-next');
+        expect(document.querySelector('.study-gamebook-play__success')?.textContent).toContain('Success!');
+        expect(document.querySelector('.study-gamebook-play-auto-next')).toBeNull();
 
-        toggle.checked = true;
-        toggle.dispatchEvent(new Event('change', { bubbles: true }));
-        expect(setAutoNext).toHaveBeenLastCalledWith(true);
-        jest.advanceTimersByTime(999);
+        jest.advanceTimersByTime(10_000);
         expect(nextChapter).not.toHaveBeenCalled();
-        jest.advanceTimersByTime(1);
+        expect(document.querySelector('.study-gamebook-play__success')?.textContent).toContain('Success!');
+
+        document.querySelector<HTMLButtonElement>('.study-gamebook-play__end-action.next')?.click();
         expect(nextChapter).toHaveBeenCalledTimes(1);
 
         playback.destroy();

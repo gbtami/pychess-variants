@@ -2497,10 +2497,6 @@ function runStudyGround(
                 ...(study.practice && practiceProgress
                     ? {
                           practice: {
-                              autoNext: () => practiceProgress.autoNext,
-                              setAutoNext: value => {
-                                  practiceProgress.autoNext = value;
-                              },
                               onComplete: chapterId => {
                                   if (!practiceProgress.complete(chapterId)) return;
                                   sideVNode = patch(

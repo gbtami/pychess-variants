@@ -15,8 +15,6 @@ import { setLinkifiedText } from '../richTextEnhance';
 import { StudyGamebookPlayController, type StudyGamebookPlayState } from './studyGamebookPlay';
 
 export interface StudyGamebookPracticeCompletionOptions {
-    autoNext(): boolean;
-    setAutoNext(value: boolean): void;
     onComplete(chapterId: string): void;
 }
 
@@ -59,7 +57,6 @@ export class StudyGamebookPlayback {
     private destroyed = false;
     private scriptReloadPending = false;
     private playbackState?: StudyGamebookPlayState;
-    private autoNextTimer?: number;
 
     constructor(
         private readonly ctrl: AnalysisController,
@@ -163,7 +160,6 @@ export class StudyGamebookPlayback {
         if (this.destroyed || this.scriptReloadPending) return;
         this.scriptReloadPending = true;
         this.controller.destroy();
-        this.clearAutoNext();
         this.clearSolutionShapes();
         this.syncBoardInput();
         this.status.replaceChildren();
@@ -202,7 +198,6 @@ export class StudyGamebookPlayback {
         if (this.destroyed) return;
         this.destroyed = true;
         this.controller.destroy();
-        this.clearAutoNext();
         document.removeEventListener('keydown', this.onKeyDown, true);
         this.clearSolutionShapes();
         if (this.playButtons) {
@@ -230,25 +225,7 @@ export class StudyGamebookPlayback {
         this.renderPlayButtons(state);
         this.syncBoardInput();
         this.syncSolutionShapes(state);
-        if (completed && this.options.practice) {
-            this.options.practice.onComplete(state.chapterId);
-            this.scheduleAutoNext();
-        } else if (state.kind !== 'complete') this.clearAutoNext();
-    }
-
-    private clearAutoNext(): void {
-        if (this.autoNextTimer !== undefined) window.clearTimeout(this.autoNextTimer);
-        this.autoNextTimer = undefined;
-    }
-
-    private scheduleAutoNext(): void {
-        this.clearAutoNext();
-        if (!this.options.practice?.autoNext() || !this.options.hasNextChapter || !this.options.onNextChapter) return;
-        this.autoNextTimer = window.setTimeout(() => {
-            this.autoNextTimer = undefined;
-            if (this.destroyed || this.playbackState?.kind !== 'complete') return;
-            this.controller.nextChapter();
-        }, 1000);
+        if (completed && this.options.practice) this.options.practice.onComplete(state.chapterId);
     }
 
     private syncBoardInput(): void {
@@ -410,10 +387,7 @@ export class StudyGamebookPlayback {
             if (this.options.hasNextChapter) {
                 const nextChapter = this.actionButton(
                     _('Next chapter'),
-                    () => {
-                        this.clearAutoNext();
-                        this.controller.nextChapter();
-                    },
+                    () => this.controller.nextChapter(),
                     'study-gamebook-play__end-action next',
                 );
                 nextChapter.prepend(this.actionIcon('play'));
@@ -483,23 +457,6 @@ export class StudyGamebookPlayback {
         this.status.append(floor);
     }
 
-    private autoNextToggle(): HTMLLabelElement | undefined {
-        if (!this.options.practice) return undefined;
-        const label = document.createElement('label');
-        label.className = 'study-gamebook-play-auto-next';
-        const input = document.createElement('input');
-        input.type = 'checkbox';
-        input.checked = this.options.practice.autoNext();
-        input.addEventListener('change', () => {
-            this.options.practice?.setAutoNext(input.checked);
-            if (this.playbackState?.kind === 'complete') this.scheduleAutoNext();
-        });
-        const text = document.createElement('span');
-        text.textContent = _('Load next exercise immediately');
-        label.append(input, text);
-        return label;
-    }
-
     private renderPlayButtons(state?: StudyGamebookPlayState): void {
         if (!this.playButtons) return;
         this.playButtons.replaceChildren();
@@ -533,8 +490,6 @@ export class StudyGamebookPlayback {
             preview.prepend(document.createTextNode('◉ '));
             this.playButtons.append(preview);
         }
-        const autoNext = this.autoNextToggle();
-        if (autoNext) this.playButtons.prepend(autoNext);
     }
 
     private readonly onKeyDown = (event: KeyboardEvent): void => {
