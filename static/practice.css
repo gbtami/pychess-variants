@@ -96,10 +96,18 @@
 }
 
 .practice-index__header {
+    /* site.css styles every <header> as the fixed-height top navigation bar.
+       This is an in-page header, so keep it in normal document flow. */
     display: flex;
     flex-direction: column;
     gap: .7rem;
     align-items: center;
+    justify-content: flex-start;
+    position: static;
+    height: auto;
+    max-width: none;
+    margin: 0;
+    z-index: auto;
 }
 
 .practice-index__decoration {
@@ -119,6 +127,7 @@
 
 .practice-index__title h1 {
     margin: 0;
+    padding: 0;
     font-size: 2.65rem;
     font-weight: normal;
     line-height: 1;
@@ -126,6 +135,7 @@
 
 .practice-index__title p {
     margin: .3rem 0 0;
+    padding: 0;
     color: color-mix(in srgb, var(--font-color) 70%, transparent);
     font-size: 1.05rem;
     line-height: 1.15;
@@ -152,6 +162,7 @@
 .practice-variant-picker__empty,
 .practice-index__signin-hint {
     margin: 0;
+    padding: 0;
     color: color-mix(in srgb, var(--font-color) 64%, transparent);
     font-size: .84rem;
     line-height: 1.35;
