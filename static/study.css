@@ -1625,7 +1625,7 @@ button.study-gamebook-edit__legend { cursor: pointer; }
     flex: 0 0 auto;
     align-items: center;
     padding: .55rem .55rem .55rem 0;
-    background: var(--bg-color1);
+    background: var(--bg-color0);
 }
 .study-app .practice-study-side__back {
     flex: 0 0 2.5rem;
