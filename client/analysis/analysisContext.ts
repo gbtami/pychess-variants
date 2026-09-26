@@ -32,6 +32,7 @@ export function analysisContext(model: PyChessModel): AnalysisContext {
     const puzzle = model.puzzle !== '';
     const study = model.study != null;
     const studyComputerAllowed = model.study?.features?.computer ?? true;
+    const practiceLearner = model.study?.practice != null;
     const analysisBoard = model.gameId === '' && !puzzle;
     const ongoing = model.status <= -1;
 
@@ -63,7 +64,10 @@ export function analysisContext(model: PyChessModel): AnalysisContext {
             engineTools: !embed && !ongoing,
             analysisTabs: !puzzle && !ongoing && !embed,
             usesRoundSocket: !puzzle && !ongoing && model.gameId !== '',
-            positionMetadata: !puzzle && !ongoing,
+            // Learn -> Practice deliberately omits the normal analysis FEN/PGN panel.
+            // Keep ordinary Study metadata available while preventing the shared
+            // AnalysisController from writing into DOM nodes that Practice does not render.
+            positionMetadata: !puzzle && !ongoing && !practiceLearner,
             evalCharts: !puzzle && !ongoing,
             positionEvaluation: !ongoing,
             serverAnalysisRequest: !analysisBoard && !embed,

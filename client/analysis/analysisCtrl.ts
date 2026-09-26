@@ -884,7 +884,9 @@ export class AnalysisController extends GameController {
     }
 
     private renderFENAndPGN(pgn: string) {
-        let container = document.getElementById('copyfen') as HTMLElement;
+        if (!this.analysisContext.capabilities.positionMetadata) return;
+
+        let container = document.getElementById('copyfen') as HTMLElement | null;
         if (container !== null) {
             const buttons = [
                 h('a.i-pgn', { on: { click: () => downloadPgnText('pychess-variants_' + this.gameId) } }, [
@@ -922,11 +924,11 @@ export class AnalysisController extends GameController {
             patch(container, h('div.pgnbuttons', buttons));
         }
 
-        const e = document.getElementById('fullfen') as HTMLInputElement;
-        e.value = this.fullfen;
+        const e = document.getElementById('fullfen') as HTMLInputElement | null;
+        if (e !== null) e.value = this.fullfen;
 
-        container = document.getElementById('pgntext') as HTMLElement;
-        this.vpgn = patch(container, h('div#pgntext', pgn));
+        container = document.getElementById('pgntext');
+        if (container !== null) this.vpgn = patch(container, h('div#pgntext', pgn));
     }
 
     private async deleteGame() {

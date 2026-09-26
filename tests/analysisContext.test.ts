@@ -122,6 +122,22 @@ describe('analysis context', () => {
         expect(context.capabilities.usesRoundSocket).toBe(false);
         expect(context.capabilities.serverAnalysisRequest).toBe(false);
         expect(context.capabilities.engineTools).toBe(true);
+        expect(context.capabilities.positionMetadata).toBe(true);
+    });
+
+    test('Practice learner omits the FEN/PGN metadata panel', () => {
+        const context = analysisContext(
+            model({
+                gameId: '',
+                study: {
+                    practice: {},
+                } as PyChessModel['study'],
+            }),
+        );
+
+        expect(context.mode).toBe('study');
+        expect(context.capabilities.engineTools).toBe(true);
+        expect(context.capabilities.positionMetadata).toBe(false);
     });
 
     test('study computer permission can disable local engine analysis', () => {
