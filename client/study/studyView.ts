@@ -2026,7 +2026,12 @@ export function updateStudyUnderboardChapter(
 
     const shareLinks = document.querySelector<HTMLElement>('.study-share__links');
     if (shareLinks) patch(toVNode(shareLinks), studyShareLinks(study, model));
-    syncStudyPinnedDescriptionUi(study, modeActions);
+    const practiceUnderboard = document.querySelector<HTMLElement>('.study-practice-underboard');
+    if (study.practice && practiceUnderboard) {
+        patch(toVNode(practiceUnderboard), practiceStudyUnderboard(study));
+    } else {
+        syncStudyPinnedDescriptionUi(study, modeActions);
+    }
     updateStudyGamebookStatus(study, modeActions);
     updateStudyServerEvalContent(study, modeActions);
     const preview = document.querySelector<HTMLButtonElement>('.study-gamebook-preview-toggle');
@@ -2933,6 +2938,10 @@ function runStudyGround(
             sideVNode = patch(sideVNode, studySide(study, model, modeActions, practiceProgress));
             syncStudyPlaybackUi(study, modeActions);
             mount(app.querySelector<HTMLElement>('#mainboard > .cg-wrap')!, true);
+            // Re-apply chapter-dependent underboard content after the replacement
+            // controller has mounted. This keeps pinned comments in sync across
+            // chapter A -> B -> A navigation in both Study and Practice views.
+            updateStudyUnderboardChapter(study, model, modeActions);
             restoreSessionPosition();
             notifyChessgroundResize();
             if (window.fsf) {

@@ -163,6 +163,9 @@ describe('Study interactive lesson playback adapter', () => {
             '/static/images/study/octopus.svg',
         );
         expect(panel.querySelector('.study-gamebook-play__title')?.textContent).toBe('Your turn');
+        expect(panel.querySelector('.study-gamebook-play__mark')?.classList.contains('piece-style-standard-standard')).toBe(
+            true,
+        );
         expect(panel.querySelector('.study-gamebook-play__message')?.textContent).toContain('white');
         expect(panel.querySelector('.study-gamebook-play__mark')?.classList.contains('standard')).toBe(true);
         expect(document.querySelector('.study-gamebook-play-buttons')?.textContent).toContain('View the solution');

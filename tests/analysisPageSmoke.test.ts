@@ -868,6 +868,11 @@ describe('analysis page smoke coverage', () => {
             '/practice/chess/PrAc0001',
         );
         expect(root.querySelector('.study-practice-underboard__comment')?.textContent).toBe('Chapter lesson text');
+        study.chapter.description = 'Restored after chapter navigation';
+        updateStudyUnderboardChapter(study, makeModel({ gameId: '', status: 0, study }));
+        expect(root.querySelector('.study-practice-underboard__comment')?.textContent).toBe(
+            'Restored after chapter navigation',
+        );
         expect(root.querySelector('.study-tags')).toBeNull();
         expect(root.querySelector('.study-tool-tabs')).toBeNull();
     });

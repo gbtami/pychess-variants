@@ -14,6 +14,7 @@ import {
     type AnalysisPracticeSearchOwner,
     type AnalysisPracticeUnavailableReason,
 } from '../analysis/analysisPracticeEngine';
+import { boardSettings } from '../boardSettings';
 import { uci2cg } from '../chess';
 import { _ } from '../i18n';
 import type { PracticeGoal } from '../types';
@@ -1103,6 +1104,7 @@ export class StudyPracticeSession {
             piece.classList.add(this.ctrl.variant.kingRoles[0] ?? 'k-piece', this.ctrl.turnColor);
             piece.setAttribute('aria-hidden', 'true');
             mark.append(piece);
+            boardSettings.updateScopedPieceStyle(this.ctrl.variant, mark, this.ctrl.steps?.[0]?.fen ?? this.ctrl.fullfen);
         };
         const addOffMark = () => {
             mark.classList.add('off');

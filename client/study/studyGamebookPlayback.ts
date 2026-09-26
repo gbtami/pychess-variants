@@ -9,6 +9,7 @@ import type {
     AnalysisPositionChange,
 } from '../analysis/analysisExtension';
 import type { AnalysisTreeNode } from '../analysis/analysisTree';
+import { boardSettings } from '../boardSettings';
 import { uci2cg } from '../chess';
 import { _ } from '../i18n';
 import { setLinkifiedText } from '../richTextEnhance';
@@ -328,6 +329,7 @@ export class StudyGamebookPlayback {
         piece.classList.add(this.ctrl.variant.kingRoles[0] ?? 'k-piece', this.ctrl.turnColor);
         piece.setAttribute('aria-hidden', 'true');
         mark.append(piece);
+        boardSettings.updateScopedPieceStyle(this.ctrl.variant, mark, this.ctrl.steps?.[0]?.fen ?? this.ctrl.fullfen);
         return mark;
     }
 

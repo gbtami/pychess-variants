@@ -9,6 +9,7 @@ import { lmBeforeEp, uci2LastMove, UCIMove, uci2cg } from './chess';
 import { updateMovelist } from './movelist';
 import { variants } from './variants';
 import { RatedSettings, AutoNextSettings } from './puzzleSettings';
+import { boardSettings } from './boardSettings';
 import { updatePoint } from './info';
 
 export class PuzzleController extends AnalysisController {
@@ -352,6 +353,9 @@ export class PuzzleController extends AnalysisController {
                 ]),
             ]),
         );
+        const player =
+            this.playerEl instanceof HTMLElement ? this.playerEl : (this.playerEl.elm as HTMLElement | undefined);
+        if (player) boardSettings.updateScopedPieceStyle(this.variant, player, this.steps[0]?.fen ?? this.fullfen);
     }
 
     notTheMove(san: string) {
