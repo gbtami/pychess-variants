@@ -245,7 +245,10 @@ export class StudyPracticeSession {
     onPositionChanged(change: AnalysisPositionChange): void {
         if (this.destroyed) return;
         if (change.origin !== 'played-move' && change.origin !== 'automated-reply') {
-            if (this.stateValue.kind === 'paused') this.render();
+            if (change.origin === 'user-navigation' && this.stateValue.kind === 'paused') {
+                if (this.ctrl.turnColor === this.options.learnerColor) this.resumeFromPath(change.path);
+                else this.render();
+            } else if (this.stateValue.kind === 'paused') this.render();
             return;
         }
 
@@ -423,6 +426,44 @@ export class StudyPracticeSession {
         return true;
     }
 
+    private resumeFromPath(path: string): boolean {
+        if (this.destroyed || this.stateValue.kind !== 'paused' || this.ctrl.turnColor !== this.options.learnerColor)
+            return false;
+        const targetIndex = this.paths.indexOf(path);
+        if (targetIndex < 0) return false;
+
+        // Lichess practice resumes immediately when the user jumps back to a
+        // position where it is their turn. Rewind the private rules board and
+        // logical attempt history to the selected position so a different move
+        // can start a fresh branch instead of requiring a page reload.
+        this.engine.beginSession();
+        this.searchPurposes.clear();
+        this.evaluationSearches.clear();
+        this.goalEvaluationAttempts.clear();
+        while (this.history.length > targetIndex) {
+            try {
+                this.historyBoard.pop();
+            } catch (error) {
+                this.setUnavailable('engine-error', error instanceof Error ? error.message : String(error));
+                return false;
+            }
+            this.history.pop();
+            this.paths.pop();
+        }
+
+        this.livePath = path;
+        this.pendingGrade = undefined;
+        this.pendingGoalFeedback = undefined;
+        if (this.autoNextTimer !== undefined) window.clearTimeout(this.autoNextTimer);
+        this.autoNextTimer = undefined;
+        this.lastFeedback = undefined;
+        this.lastRetry = undefined;
+        this.hintLevel = 0;
+        this.clearHintShapes();
+        this.enterHumanTurn();
+        return true;
+    }
+
     browse(delta: -1 | 1): boolean {
         if (this.destroyed || this.stateValue.kind !== 'paused') return false;
         const current = this.paths.indexOf(this.ctrl.analysisPath ?? '');
@@ -433,7 +474,7 @@ export class StudyPracticeSession {
         const path = this.paths[next];
         if (path === undefined || path === (this.ctrl.analysisPath ?? '')) return false;
         this.ctrl.activateTreePath(path, true, 'user-navigation');
-        this.setState({ ...this.stateValue, browseIndex: next });
+        if (this.stateValue.kind === 'paused') this.setState({ ...this.stateValue, browseIndex: next });
         return true;
     }
 

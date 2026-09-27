@@ -172,12 +172,22 @@ function makeHarness(
         }),
         isPracticeEngineIdle: () => overrides.practiceEngineIdle ?? true,
         isLocalAnalysisBlockedByAntiCheat: () => false,
-        activateTreePath(path: string, _redraw: boolean, _origin: AnalysisNavigationOrigin) {
+        activateTreePath(path: string, _redraw: boolean, origin: AnalysisNavigationOrigin) {
             const position = positions.get(path);
             if (!position) return false;
+            const previousPath = this.analysisPath;
             this.analysisPath = path;
             this.turnColor = position.turn;
             this.fullfen = position.fen;
+            if (session)
+                session.onPositionChanged({
+                    origin,
+                    path,
+                    previousPath,
+                    ply: tree.byPath.get(path)?.ply ?? 0,
+                    fen: position.fen,
+                    node: tree.byPath.get(path),
+                });
             return true;
         },
         applyAnalysisMove(move: string, origin: 'played-move' | 'automated-reply') {
@@ -450,7 +460,7 @@ describe('StudyPracticeSession', () => {
         session.destroy();
     });
 
-    test('pause cancels engine work, permits history browsing, and resume returns to the live path', () => {
+    test('pause permits history browsing and resumes automatically on an earlier learner turn', () => {
         scenario = { initialTurn: 'white' };
         const { session, ctrl, humanMove, finishEvaluation } = makeHarness('white');
         finishEvaluation('e2e4');
@@ -462,11 +472,12 @@ describe('StudyPracticeSession', () => {
         expect(session.state.kind).toBe('paused');
         expect(session.browse(-1)).toBe(true);
         expect(ctrl.analysisPath).toBe('m1');
+        expect(session.state.kind).toBe('paused');
         expect(session.browse(-1)).toBe(true);
         expect(ctrl.analysisPath).toBe('');
-        expect(session.resume()).toBe(true);
-        expect(ctrl.analysisPath).toBe('m2');
         expect(session.state.kind).toBe('human-turn');
+        expect(session.attemptHistory).toEqual([]);
+        expect(humanMove('d2d4')).toBe(true);
         session.destroy();
     });
 
@@ -488,6 +499,27 @@ describe('StudyPracticeSession', () => {
         expect(session.resume()).toBe(true);
         expect(ctrl.analysisPath).toBe('m2');
         expect(session.state.kind).toBe('human-turn');
+        session.destroy();
+    });
+
+    test('fast-back to a learner position rewinds the live attempt and accepts a different move', () => {
+        scenario = { initialTurn: 'white' };
+        const { session, ctrl, humanMove, finishEvaluation } = makeHarness('white');
+        finishEvaluation('e2e4');
+        expect(humanMove('e2e4')).toBe(true);
+        session.onEngineLine('bestmove e7e5');
+        session.onEngineLine('readyok');
+        expect(session.state.kind).toBe('human-turn');
+        expect(session.attemptHistory.map(entry => entry.move)).toEqual(['e2e4', 'e7e5']);
+
+        expect(session.canActivatePath('', 'user-navigation')).toBe(true);
+        ctrl.activateTreePath('', true, 'user-navigation');
+
+        expect(ctrl.analysisPath).toBe('');
+        expect(session.state.kind).toBe('human-turn');
+        expect(session.attemptHistory).toEqual([]);
+        expect(humanMove('d2d4')).toBe(true);
+        expect(session.attemptHistory.map(entry => entry.move)).toEqual(['d2d4']);
         session.destroy();
     });
 
