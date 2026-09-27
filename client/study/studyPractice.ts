@@ -11,12 +11,14 @@ import type {
 import {
     AnalysisPracticeEngine,
     type AnalysisPracticeEngineEvent,
+    type AnalysisPracticeInfo,
     type AnalysisPracticeSearchOwner,
     type AnalysisPracticeUnavailableReason,
 } from '../analysis/analysisPracticeEngine';
 import { boardSettings } from '../boardSettings';
 import { uci2cg } from '../chess';
 import { _ } from '../i18n';
+import type { Ceval } from '../messages';
 import { sound } from '../sound';
 import type { PracticeGoal } from '../types';
 import {
@@ -111,7 +113,11 @@ type SearchPurpose =
           moves: readonly string[];
           turnColor: 'white' | 'black';
       }>
-    | Readonly<{ kind: 'reply' }>;
+    | Readonly<{
+          kind: 'reply';
+          moves: readonly string[];
+          turnColor: 'white' | 'black';
+      }>;
 
 interface PendingGrade {
     playedMove: string;
@@ -887,16 +893,31 @@ export class StudyPracticeSession {
         this.hintLevel = 0;
         this.clearHintShapes();
         this.setState({ kind: 'engine-thinking' });
+        const moves = this.history.map(entry => entry.move);
+        const turnColor = this.ctrl.turnColor;
         this.launchSearch(
-            { kind: 'reply' },
+            { kind: 'reply', moves, turnColor },
             {
                 initialFen: this.options.initialFen,
-                moves: this.history.map(entry => entry.move),
+                moves,
                 budget: { type: 'nodes', value: PRACTICE_SEARCH_NODES },
                 multiPv: 1,
                 options: this.searchOptions(),
             },
         );
+    }
+
+    private showCurrentPositionEvaluation(purpose: SearchPurpose, info: AnalysisPracticeInfo): void {
+        if (this.stateValue.kind === 'paused' || !info.score || info.depth === undefined) return;
+        if (this.positionKey(purpose.moves) !== this.positionKey(this.history.map(entry => entry.move))) return;
+
+        const ceval: Ceval = {
+            d: info.depth,
+            multipv: info.multiPv,
+            s: { ...info.score },
+            ...(info.pv.length > 0 ? { p: info.pv.join(' ') } : {}),
+        };
+        this.ctrl.drawPracticeEval(ceval, purpose.turnColor);
     }
 
     private onEngineEvent(event: AnalysisPracticeEngineEvent): void {
@@ -905,6 +926,7 @@ export class StudyPracticeSession {
         const purpose = this.searchPurposes.get(key) ?? this.launchingSearchPurpose;
         if (!purpose) return;
         if (event.type !== 'info') this.searchPurposes.delete(key);
+        else this.showCurrentPositionEvaluation(purpose, event.info);
 
         if (event.type === 'unavailable') {
             if (event.reason === 'destroyed') return;

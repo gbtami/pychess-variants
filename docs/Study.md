@@ -127,9 +127,12 @@ rules board for legality, repetition-sensitive outcomes and variant results, whi
 attempt moves remain local and absent from Study persistence/shared navigation.
 
 The playback layout follows lichess practice rather than replacing the whole analysis
-panel: the engine header, local attempt move tree, move-navigation controls, and normal
-Study under-board tools remain visible, while the ordinary multi-PV output is hidden and
-a compact **Practice with computer** status/feedback box sits below the move tree.
+panel: the engine header, evaluation gauge, local attempt move tree, move-navigation
+controls, and normal Study under-board tools remain visible, while the ordinary multi-PV
+output is hidden and a compact **Practice with computer** status/feedback box sits below
+the move tree. The local-engine switch is hidden during playback because computer
+practice owns the browser engine for the session; its bounded current-position search
+feeds the engine-header score and gauge without exposing the best-move PV/arrow.
 
 The page reuses the existing Fairy-Stockfish browser worker rather than starting a
 second worker. Learner-position feedback/hints use bounded 400,000-node searches and

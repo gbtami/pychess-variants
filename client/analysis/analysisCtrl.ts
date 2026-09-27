@@ -1244,6 +1244,34 @@ export class AnalysisController extends GameController {
         this.chessground.setAutoShapes(shapes);
     }
 
+    private drawEvalScoreAndGauge = (ceval: Ceval | undefined, scoreStr: string | undefined, turnColor: cg.Color) => {
+        const gaugeEl = document.getElementById('gauge') as HTMLElement | null;
+        if (gaugeEl) {
+            const fillEl = gaugeEl.querySelector('div.fill') as HTMLElement | null;
+            if (fillEl && ceval !== undefined) {
+                const score = ceval.s;
+                if (score !== undefined) {
+                    const ev = povChances(turnColor, score);
+                    fillEl.style.height = String(100 - (ev + 1) * 50) + '%';
+                } else {
+                    fillEl.style.height = '50%';
+                }
+            }
+        }
+
+        this.vscore = patch(this.vscore, h('score#score', ceval === undefined ? '' : scoreStr));
+    };
+
+    /**
+     * Study computer-practice owns the shared browser engine with bounded searches.
+     * Surface its current-position score in the normal engine header and gauge
+     * without rendering the PV/arrow, which would reveal the practice answer.
+     */
+    drawPracticeEval = (ceval: Ceval, turnColor: cg.Color) => {
+        const scoreStr = this.buildScoreStr(turnColor === 'black' ? 'b' : 'w', ceval);
+        this.drawEvalScoreAndGauge(ceval, scoreStr, turnColor);
+    };
+
     // Updates PV, score, gauge and the best move arrow
     drawEval = (ceval: Ceval | undefined, scoreStr: string | undefined, turnColor: cg.Color) => {
         const pvlineIdx = ceval && ceval.multipv ? ceval.multipv - 1 : 0;
@@ -1296,23 +1324,9 @@ export class AnalysisController extends GameController {
 
         // Render gauge and main score value for first PV line only
         if (pvlineIdx === 0) {
-            const gaugeEl = document.getElementById('gauge') as HTMLElement;
-            if (gaugeEl) {
-                const fillEl = gaugeEl.querySelector('div.fill') as HTMLElement | undefined;
-                if (fillEl && ceval !== undefined) {
-                    const score = ceval['s'];
-                    const color = turnColor;
-                    if (score !== undefined) {
-                        const ev = povChances(color, score);
-                        fillEl.style.height = String(100 - (ev + 1) * 50) + '%';
-                    } else {
-                        fillEl.style.height = '50%';
-                    }
-                }
-            }
+            this.drawEvalScoreAndGauge(ceval, scoreStr, turnColor);
 
             if (ceval?.d !== undefined) {
-                this.vscore = patch(this.vscore, h('score#score', scoreStr));
                 const info = [h('span', _('Depth') + ' ' + String(ceval.d) + '/' + this.maxDepth)];
                 if (ceval.k) {
                     if (ceval.d === this.maxDepth && this.maxDepth !== 99) {
@@ -1329,7 +1343,6 @@ export class AnalysisController extends GameController {
                 this.vinfo = patch(this.vinfo, h('info#info', ''));
                 this.vinfo = patch(this.vinfo, h('info#info', info));
             } else {
-                this.vscore = patch(this.vscore, h('score#score', ''));
                 this.vinfo = patch(this.vinfo, h('info#info', _('in local browser')));
             }
         }

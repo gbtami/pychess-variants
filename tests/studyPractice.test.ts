@@ -166,6 +166,7 @@ function makeHarness(
             setAutoShapes: jest.fn(),
         },
         fsfPostMessage: (command: string) => commands.push(command),
+        drawPracticeEval: jest.fn(),
         suspendLocalAnalysisForExtension: jest.fn(function (this: { localAnalysis: boolean }) {
             this.localAnalysis = false;
         }),
@@ -339,6 +340,29 @@ describe('StudyPracticeSession', () => {
         expect(panel.textContent).not.toContain('Goal:');
         expect(panel.textContent).not.toContain('Win the game in 3 moves.');
 
+        session.destroy();
+    });
+
+    test('surfaces the current practice search in the engine score and gauge without exposing a PV', () => {
+        const { session, ctrl } = makeHarness('white');
+
+        session.onEngineLine('info depth 16 multipv 1 score cp 125 nodes 400000 time 1000 pv e2e4 e7e5');
+
+        expect(ctrl.drawPracticeEval).toHaveBeenCalledWith(
+            { d: 16, multipv: 1, s: { cp: 125 }, p: 'e2e4 e7e5' },
+            'white',
+        );
+        session.destroy();
+    });
+
+    test('does not show a stale parent evaluation after the learner has already moved', () => {
+        const { session, ctrl, humanMove } = makeHarness('white');
+
+        expect(humanMove('d2d4')).toBe(true);
+        expect(session.state.kind).toBe('evaluating-move');
+        session.onEngineLine('info depth 16 multipv 1 score cp 80 nodes 400000 time 1000 pv e2e4');
+
+        expect(ctrl.drawPracticeEval).not.toHaveBeenCalled();
         session.destroy();
     });
 

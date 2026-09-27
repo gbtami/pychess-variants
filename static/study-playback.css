@@ -385,6 +385,13 @@ button.study-gamebook-play__feedback.act:focus-visible {
     display: none !important;
 }
 
+/* Computer practice owns the browser engine while active. Match lila's forced
+   ceval presentation: there is no on/off switch, but the engine header and
+   evaluation gauge remain visible and are updated by the bounded practice search. */
+.study-app.study-practice-playback .engine-toggle {
+    display: none;
+}
+
 .study-practice {
     flex: 0 0 auto;
     min-width: 0;
