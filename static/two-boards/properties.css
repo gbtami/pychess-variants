@@ -435,11 +435,33 @@
             --bug-coord-room: calc(10 * var(--bug-tall-allow-b) - 10 * var(--bug-tall-sq-b));
         }
 }
-@media (aspect-ratio <= 9/16) {
-        .bug-round-tools-bar {
-            --bug-controls-labels: 0;
-        }
+/* PORTRAIT'S `--bug-controls-labels: 0` USED TO BE HERE AND HAD NO EFFECT. It is one class
+   against `components/tabs.css`'s one class, and this file loads first, so the default of 1 won
+   on source order every time. Moved to `tabs.css`, immediately after the default it has to beat
+   and beside the paragraph explaining why portrait never labels the pair. See that note for how
+   it stayed hidden for so long. */
+/* A STACK'S WIDTH IN SQUARES — the same number `squareUnit.ts`'s `stackSquares()` returns, and
+   declared here so CSS and TS cannot drift apart about it.
+   ------------------------------------------------------------------------------------
+   A stack is its board and, on the analysis page, the gauge beside it: eight files plus the
+   gauge's 0.31, measured not chosen (see `GAUGE_SQUARES`). The round page draws no gauge, so
+   there a stack is exactly its eight.
+
+   THIS EXISTS BECAUSE THE NUMBER WAS WRITTEN IN FOUR PLACES. `stackSquares()` in TypeScript,
+   `8.31` inline in the landscape tracks, and a bare `8` in the portrait tracks — which is how
+   portrait came to size its square for a stack narrower than the one it had to draw, and hid the
+   gauge to make that true. One name, so a consumer that forgets it is a consumer that reads a
+   number nobody maintains.
+
+   No default on a shared selector on purpose: the two pages declare their own, so there is no
+   same-specificity pair whose order decides the answer. */
+.round-app.bug {
+    --bug-stack-squares: 8;
 }
+.analysis-app.bug {
+    --bug-stack-squares: 8.31;
+}
+
 /* THE PLAYER'S OWN BOARD SQUARE, as a value CSS can use. --cg-width-a and -b are
    board IDENTITY, and which of them is the viewer's own depends on the switch —
    the same role-versus-identity problem the pockets had. markRoles() already puts

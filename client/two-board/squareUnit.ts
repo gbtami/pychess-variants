@@ -822,10 +822,27 @@ export function publishSquareUnit(): void {
     // orientation check: they are inert wherever the portrait rules do not apply,
     // and a check would have to be kept in step with the media query by hand.
     const dpr = window.devicePixelRatio;
-    style.setProperty(
-        PORTRAIT_MAIN_PROPERTY,
-        `${onLayoutGrid(quantize(availableWidth(), FILES, dpr) / FILES)}px`,
-    );
+    // THE WIDTH IS A STACK'S, NOT A BOARD'S — `stackUnitFor`, the same helper the two landscape
+    // modes use, so the gauge is counted here as it is counted everywhere else.
+    //
+    // This line read `quantize(availableWidth(), FILES, dpr) / FILES` — which is `squareUnit()`
+    // written longhand with a bare EIGHT. Every other width-derived square on this page goes
+    // through `stackSquares()` and comes out 8.31 on the analysis page; five call sites do it and
+    // this one did not. The stylesheet then hid the gauge to keep the arithmetic true, and the
+    // board letter went with it because it lives in the gauge's column.
+    //
+    // Nothing was wrong with the helper: it is well named, its 0.31 is measured, and its reason is
+    // written down. It was simply not called here, and a `display: none` absorbed the difference
+    // for long enough that the suppression grew its own justification. See
+    // `components-own-their-dimensions` for what that argues about where such knowledge should
+    // live.
+    //
+    // The partner's line below stays as it is, and the asymmetry is the sizing rule working rather
+    // than an oversight: that square comes from HEIGHT, and a gauge costs WIDTH. So the partner
+    // board does not shrink for its gauge — its stack simply grows wider and the tools column
+    // yields the 6.4px. A width-limited stack spends board; a height-limited one has width to
+    // spend.
+    style.setProperty(PORTRAIT_MAIN_PROPERTY, `${stackUnitFor(availableWidth(), dpr)}px`);
     style.setProperty(
         PORTRAIT_PARTNER_PROPERTY,
         `${onLayoutGrid(quantize(availableHeight() * PARTNER_HEIGHT_FRACTION, FILES, dpr) / FILES)}px`,
