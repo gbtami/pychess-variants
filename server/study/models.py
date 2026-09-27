@@ -31,7 +31,11 @@ _MEMBER_ROLES = frozenset(("read", "write"))
 _SOURCE_KINDS = frozenset(("scratch", "game", "study", "import"))
 _ORIENTATIONS = frozenset(("white", "black"))
 STUDY_CHAPTER_MODES: tuple[StudyChapterMode, ...] = ("normal", "practice", "conceal", "gamebook")
-STUDY_DEFAULT_ENABLED_CHAPTER_MODES: tuple[StudyChapterMode, ...] = ("normal", "gamebook")
+STUDY_DEFAULT_ENABLED_CHAPTER_MODES: tuple[StudyChapterMode, ...] = (
+    "normal",
+    "practice",
+    "gamebook",
+)
 _CHAPTER_MODES = frozenset(STUDY_CHAPTER_MODES)
 
 

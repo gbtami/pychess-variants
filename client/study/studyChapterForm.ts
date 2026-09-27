@@ -23,7 +23,7 @@ type StudyChapterModeOption = {
 };
 
 const STUDY_CHAPTER_MODE_ORDER: readonly StudyChapterMode[] = ['normal', 'practice', 'conceal', 'gamebook'];
-const STUDY_DEFAULT_ENABLED_MODES: readonly StudyChapterMode[] = ['normal', 'gamebook'];
+const STUDY_DEFAULT_ENABLED_MODES: readonly StudyChapterMode[] = ['normal', 'practice', 'gamebook'];
 
 type StudyChapterSource = 'setup' | 'pgn';
 

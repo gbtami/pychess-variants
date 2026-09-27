@@ -55,7 +55,7 @@ test('chapter creation exposes learner orientation and the staged default analys
     );
     const mode = document.querySelector<HTMLSelectElement>('select[name="mode"]')!;
     expect(mode.value).toBe('normal');
-    expect([...mode.options].map(option => option.value)).toEqual(['normal', 'gamebook']);
+    expect([...mode.options].map(option => option.value)).toEqual(['normal', 'practice', 'gamebook']);
     expect(document.querySelector('.study-chapter-mode .study-dialog__help')?.textContent).toContain(
         'full move tree',
     );
@@ -77,10 +77,10 @@ test('deployment mode gate hides disabled entry modes but keeps an existing disa
 });
 
 test('enabled mode bootstrap is tolerant of an older server while enforcing normal as the escape hatch', () => {
-    expect(studyEnabledModesFromJson(null)).toEqual(['normal', 'gamebook']);
+    expect(studyEnabledModesFromJson(null)).toEqual(['normal', 'practice', 'gamebook']);
     expect(studyEnabledModesFromJson('["gamebook","conceal"]')).toEqual(['normal', 'conceal', 'gamebook']);
     expect(studyEnabledModesFromJson('["training"]')).toEqual(['normal']);
-    expect(studyEnabledModesFromJson('not-json')).toEqual(['normal', 'gamebook']);
+    expect(studyEnabledModesFromJson('not-json')).toEqual(['normal', 'practice', 'gamebook']);
 });
 
 test('computer practice is exposed with its completed-mode help text', () => {

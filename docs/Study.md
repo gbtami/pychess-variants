@@ -434,9 +434,11 @@ wall-clock search limit by default.
 `normal,practice,conceal,gamebook`. DEV always enables all four modes so authors can
 exercise the complete Study/Practice workflow, including imports whose source metadata
 resolves to Practice with computer or Hide next moves. Production defaults to
-`normal,gamebook` so Normal analysis and Interactive lesson can remain the staged public
-rollout, and an explicit production value always keeps `normal` as an escape hatch. The
-switch gates **new entry** into a mode: existing chapters in a disabled mode remain
+`normal,practice,gamebook`, exposing Normal analysis, Practice with computer, and
+Interactive lesson while **Hide next moves** remains staged behind the deployment gate.
+An explicit production value always keeps `normal` as an escape hatch; deployments that
+set the variable explicitly must include `practice` to expose that mode. The switch gates
+**new entry** into a mode: existing chapters in a disabled mode remain
 readable/playable and preserving edits remain schema-aware, while new chapters, imports,
 copies/clones and mode transitions cannot introduce disabled mode data. For rollback,
 keep this schema-preserving server deployed and narrow the production variable (for
