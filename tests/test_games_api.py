@@ -294,6 +294,16 @@ class GamesApiCategoryFilterTestCase(AioHTTPTestCase):
                 payload = await response.json()
                 self.assertIn("db1", [item["_id"] for item in payload["games"]])
 
+    async def test_advanced_search_move_limit_includes_legacy_games_without_ply_field(self):
+        self.set_session_user(self.user.username)
+
+        response = await self.client.get(
+            f"/api/games/search?player1={self.user.username}&maxMoves=3"
+        )
+        self.assertEqual(response.status, 200)
+        payload = await response.json()
+        self.assertIn("db1", [item["_id"] for item in payload["games"]])
+
     async def test_advanced_search_resolves_player_names_case_insensitively(self):
         self.set_session_user(self.user.username)
         app_state = get_app_state(self.app)

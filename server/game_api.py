@@ -1083,11 +1083,26 @@ async def search_games(request: web.Request) -> web.StreamResponse:
         return json_response({"error": "Invalid move count."}, status=400)
     if min_moves is not None or max_moves is not None:
         ply_range: dict[str, int] = {}
+        legacy_ply_checks: list[dict[str, object]] = []
         if min_moves is not None:
             ply_range["$gte"] = min_moves
+            legacy_ply_checks.append({"$gte": [{"$size": {"$ifNull": ["$m", []]}}, min_moves]})
         if max_moves is not None:
             ply_range["$lte"] = max_moves
-        conditions.append({"p": ply_range})
+            legacy_ply_checks.append({"$lte": [{"$size": {"$ifNull": ["$m", []]}}, max_moves]})
+        conditions.append(
+            {
+                "$or": [
+                    {"p": ply_range},
+                    {
+                        "$and": [
+                            {"p": {"$exists": False}},
+                            {"$expr": {"$and": legacy_ply_checks}},
+                        ]
+                    },
+                ]
+            }
+        )
     if query.get("analysed") == "1":
         conditions.append({"a.0": {"$exists": True}})
 
