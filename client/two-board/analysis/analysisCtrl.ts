@@ -18,6 +18,7 @@ import { GameInfoView } from '../common/gameInfo';
 import { MovelistView } from '../common/movelist';
 import { isOutsidePartnerStack, markBoardRoles } from '../common/boardRoles';
 import { trackToolsPlacement } from '../common/toolsPlacement';
+import { createWebsocket } from '../../socket/webSocketUtils';
 
 export default class AnalysisControllerBughouse extends TwoBoardController {
     pgn: string;
@@ -34,6 +35,15 @@ export default class AnalysisControllerBughouse extends TwoBoardController {
     pgnView: PgnView;
     clockView: AnalysisClockView;
     seatView: AnalysisSeatView;
+
+    /* WHO IS ONLINE, ANSWERED ONCE PER SEAT WHEN THIS PAGE CONNECTS.
+       ------------------------------------------------------------------------------------
+       Empty until the server speaks, so every dot starts grey and turns green -- never the other
+       way round, which would be a page claiming presence it has not been told about.
+
+       These are the people connected to THIS GAME's socket, which is the round page's reading of
+       presence and the one that arrives for free. See `connectGameSocket`. */
+    private readonly onlineUsers = new Set<string>();
 
     constructor(
         el1: HTMLElement,
@@ -149,6 +159,55 @@ export default class AnalysisControllerBughouse extends TwoBoardController {
         // on the orientation set a few lines above.
         renderSeatNames(this);
         this.syncBoardHitAreas();
+        this.connectGameSocket();
+    }
+
+    /** Whether this username is currently connected to this game's socket. */
+    isOnline(username: string): boolean {
+        return this.onlineUsers.has(username);
+    }
+
+    /* THE GAME'S SOCKET, WHICH THIS PAGE HAD NONE OF.
+       ------------------------------------------------------------------------------------
+       Opened for its own sake as much as for the dot: every page wants a socket now that
+       notifications and direct messages are pushed, and the analysis page was the one left out.
+       The presence icon is what it pays for first.
+
+       NOTHING IS ASKED. `init_ws` on the server answers before being spoken to: it sends an
+       `is_user_present` result for every other non-bot player, then broadcasts `user_present` for
+       whoever just connected. Leaving broadcasts `user_disconnected`. So the four dots are correct
+       on connect AND stay live while the page is open, without a subscription or a single request.
+
+       WHAT THE DOT MEANS HERE IS "IS IN THIS GAME", not "is online somewhere". Connecting registers
+       this page in `game_sockets`, so a player who also has this game open reads as present --
+       including the reader's own seat, whose `user_present` arrives in the same broadcast. It is
+       the narrower reading of the two and the one that costs nothing; `app-wide-online-presence`
+       is where the wider one belongs.
+
+       An analysis board opened from the Tools menu has no game, so there is no socket to open. */
+    private connectGameSocket(): void {
+        const gameId = this.model['gameId'];
+        if (gameId === '') return;
+
+        createWebsocket(
+            'wsr/' + gameId,
+            () => {},
+            () => {},
+            () => {},
+            (e: MessageEvent) => {
+                /* THE HEARTBEAT IS NOT JSON. `newWebsocket` pings with the literal '/n' and the
+                   server pongs the same, so parsing every frame throws on the pong -- and a pong
+                   that never registers is a pong that never arrived: pingTimeout 2500 plus
+                   pongTimeout 9000 means the socket tore itself down and reconnected every 11.5
+                   seconds. Every other handler on the site opens with this line. */
+                if (e.data === '/n') return;
+                const msg = JSON.parse(e.data);
+                if (msg.type === 'user_present') this.onlineUsers.add(msg.username);
+                else if (msg.type === 'user_disconnected') this.onlineUsers.delete(msg.username);
+                else return;
+                renderSeatNames(this);
+            },
+        );
     }
 
     // A flip changes which player is at the top of a board, so the names and the clocks

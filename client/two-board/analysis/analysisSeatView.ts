@@ -64,8 +64,23 @@ export class AnalysisSeatView {
 }
 
 export function renderSeatNames(ctrl: AnalysisController): void {
-    renderSeatNamesCC(ctrl.seatView, ctrl.seats, ctrl.boardA, 'a', ctrl.model['level']);
-    renderSeatNamesCC(ctrl.seatView, ctrl.seats, ctrl.boardB, 'b', ctrl.model['level']);
+    /* WHO IS IN THIS GAME, FROM THE CONTROLLER — which learns it from the game's own socket,
+       unasked (see `connectGameSocket`). The round page's reading of presence: connected to THIS
+       game, not online somewhere on the site. A player with this game open reads green, including
+       the reader themselves; anyone else reads grey.
+
+       KEYED BY USERNAME, because that is what the messages name and what a seat already carries.
+       Unknown until the server speaks, so a dot starts grey and turns green — and it stays live,
+       since joins and leaves are broadcast to everyone on the game. */
+    const online = (username: string): boolean => ctrl.isOnline(username);
+
+    /* WHETHER THERE IS A GAME AT ALL. The analysis board reached from the Tools menu is the same
+       page with no game behind it, so there are no seats to describe — see the gate below, which
+       is why nothing is drawn rather than drawn empty. */
+    const hasPlayers = ctrl.model['gameId'] !== '';
+
+    renderSeatNamesCC(ctrl.seatView, ctrl.seats, ctrl.boardA, 'a', ctrl.model['level'], online, hasPlayers);
+    renderSeatNamesCC(ctrl.seatView, ctrl.seats, ctrl.boardB, 'b', ctrl.model['level'], online, hasPlayers);
 }
 
 function renderSeatNamesCC(
@@ -74,18 +89,34 @@ function renderSeatNamesCC(
     board: GameControllerBughouse,
     boardName: BugBoardName,
     level: number,
+    online: (username: string) => boolean,
+    hasPlayers: boolean,
 ): void {
     // Same derivation the clocks use: `flipped()` is the board's own state, so the
     // two stay in step without either knowing about the other.
     const whitePov = !board.flipped();
-    const at = (position: 0 | 1) => {
-        const color = (position === 0) === whitePov ? 'black' : 'white';
-        return seats.byBoardAndColor(boardName, color);
-    };
+    const colorAt = (position: 0 | 1): 'white' | 'black' =>
+        (position === 0) === whitePov ? 'black' : 'white';
 
     for (const position of [0, 1] as const) {
         const slot = slotOf(position, boardName);
-        const seat = at(position);
+
+        /* NO GAME, SO NO BAR AT ALL — not an empty one, and not a bar told to hide its parts.
+           The analysis board opened from the Tools menu has no players, so there is nobody for a
+           username, a rating or a presence dot to be about. The strip renders as the bare element
+           the page embedded and nothing goes inside it.
+
+           THE GATE BELONGS HERE, BEFORE THE CALL. Leaving it to `player()` meant handing a shared
+           component -- four callers on the round page alone -- an argument that exists for this
+           page's edge case, and it only LOOKED right for the username: that came out empty because
+           the string was empty, not because anything decided not to draw it. */
+        if (!hasPlayers) {
+            view.render(slot, h(SLOT_SELECTOR[slot]));
+            continue;
+        }
+
+        const color = colorAt(position);
+        const seat = seats.byBoardAndColor(boardName, color);
         view.render(
             slot,
             playerBar(
@@ -94,14 +125,9 @@ function renderSeatNamesCC(
                 seat.player.username,
                 seat.player.rating,
                 level,
-                // ALWAYS OFFLINE, and it is not a placeholder for something unwritten.
-                // This page has no websocket at all — `RoundControllerBughouseSocket`
-                // belongs to the round controller — so there is no presence to report
-                // and nothing that could ever update the dot. It renders in the
-                // offline state, which is the true statement about a finished game
-                // nobody is connected to.
-                false,
+                online(seat.player.username),
                 SLOT_SELECTOR[slot],
+                false,
             ),
         );
     }
