@@ -3,9 +3,13 @@
 
 /* Adapted from lila ui/analyse/css/study: chapter list, tool tabs, and
    underboard panels. Use PyChess theme tokens and variant board geometry. */
-/* The Study index mirrors lila's page-menu + study-index structure. Keep the
-   site's full desktop main width so the three-column study grid has the same
-   breathing room as lila instead of shrinking this page below the global cap. */
+/* The Study index mirrors lila's page-menu + study-index structure. Study
+   shares analysis.css with the workspace, which sets the global main track to
+   auto; restore lila's 1300px desktop cap for list pages so the card grid can
+   actually use the available horizontal space. */
+#main-wrap.study-index-wrap {
+    --main-max-width: 1300px;
+}
 .study-index-page {
     grid-area: main;
     width: 100%;
