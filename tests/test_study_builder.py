@@ -42,6 +42,37 @@ class StudyChapterBuilderTestCase(unittest.IsolatedAsyncioTestCase):
         with self.assertRaisesRegex(StudyChapterBuildError, "Invalid FEN"):
             await self.builder.blank_or_fen(variant="chess", fen="not a fen")
 
+    async def test_seirawan_import_accepts_engine_generated_gating_rights_after_castling(
+        self,
+    ) -> None:
+        # This is the position before 19.Bf4/H in Kingwalker2-ubdip from the
+        # first PyChess S-Chess tournament. Fairy-Stockfish generated this FEN
+        # after White castled; the remaining A/C/D flags are piece-virginity
+        # rights, not castling rights. The non-960 validator historically
+        # rejected them merely because the king is no longer on e1.
+        fen = "rh3rk1/pp4pp/2n3q1/2pp1pP1/8/2PP1N2/PP3P2/R1BQ1RK1[H] w ACD - 1 19"
+        draft = await self.builder.from_import(
+            variant="seirawan",
+            initial_fen=fen,
+            tree_payload={
+                "nodes": [
+                    {
+                        "id": "GateMove01",
+                        "parentId": None,
+                        "order": 0,
+                        "move": "c1f4h",
+                        "fen": "client-fen-is-not-trusted",
+                        "turnColor": "black",
+                        "check": False,
+                    }
+                ]
+            },
+            mode="gamebook",
+        )
+
+        self.assertEqual(draft.initial_fen, fen)
+        self.assertEqual(draft.root.children_of(None)[0].san, "Bf4/H")
+
     async def test_randomized_community_game_position_can_be_imported_with_snapshot(self) -> None:
         name = "studysideways960"
         ini = f"[{name}:pawnsideways]\nchess960 = true"
