@@ -57,7 +57,7 @@
            column beside the partner's; here it is a row beneath, so it spans instead. Every
            other name is the same, which is the point of stating it here rather than inside a
            box of its own. */
-        grid-template-columns: calc(var(--bug-portrait-partner-sq) * 8) minmax(0, 1fr);
+        grid-template-columns: calc(var(--bug-portrait-partner-sq) * var(--bug-stack-squares)) minmax(0, 1fr);
         grid-template-rows: minmax(0, 1fr) auto auto auto min-content;
         grid-template-areas: 'stack    zoneTools1'
                              'stack    zoneTools2'
@@ -69,7 +69,7 @@
            remainder is spent OUTSIDE it — on the app rather than on any box within it, so
            every child starts at the same x and the leftover falls in the page margins where
            nobody reads it as a gap. The round page's rule, verbatim. */
-        width: calc(var(--bug-portrait-sq) * 8);
+        width: calc(var(--bug-portrait-sq) * var(--bug-stack-squares));
         margin-inline: auto;
         row-gap: 0;
     }
@@ -88,16 +88,25 @@
        grid item — it would measure the full column and the space beside a small board would
        never exist. The round page states this globally; restated because the analysis rules
        above set an area on the same element. */
-    /* NO EVAL GAUGE IN PORTRAIT, which is what makes the width above exact. The stack is
-       otherwise board PLUS gauge — 8.31 squares against an app of 8 — and the overflow has
-       nowhere to go once the body stops scrolling. The gauge is also the part that survives
-       being dropped: the partner's was 6.2px wide at this size, unreadable as a bar, and the
-       engine's evaluation is a number in the Moves tab regardless. The round page has no
-       gauge at all, so this is also what "follow the round page" means here. */
-    .analysis-app.bug .bug-own-stack,
-    .analysis-app.bug .bug-partner-stack {
-        grid-template-columns: calc(var(--bug-stack-sq) * 8);
-    }
+    /* THE GAUGE IS DRAWN IN PORTRAIT TOO, and this is where it used to be refused.
+       ------------------------------------------------------------------------------------
+       A one-column template stood here, with a note that the stack would otherwise be "8.31
+       squares against an app of 8" and overflow. That was true of the arithmetic as it was: the
+       portrait square was computed by dividing the width by EIGHT while the stack it had to fit
+       was 8.31 wide. The fix is in `squareUnit.ts` — that line now calls `stackUnitFor()`, the
+       helper the landscape modes have always used — so the square is the stack's and the board
+       plus its gauge come to exactly the width available.
+
+       With no template stated the stack's second track is implicit and content-sized, which is
+       what landscape has always relied on: the gauge is placed at `grid-column: 2` and the track
+       appears under it. Declaring one column is what made that placement overflow, and took the
+       board letter with it.
+
+       A STACK LOOKS THE SAME IN EVERY MODE — Nikolay, 2026-09-26. Board, strips, gauge and
+       letter, wherever it is drawn; what changes between modes is the SIZE of those parts, not
+       which of them exist. The partner's 6.4px bar is the price of that and is accepted as such:
+       the old note was right that it is unreadable as a bar, and a stack shaped differently on a
+       phone is the worse outcome. */
 }
 
 @media (aspect-ratio <= 9/16) {

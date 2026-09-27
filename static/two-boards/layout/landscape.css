@@ -287,7 +287,8 @@
        track — the same trap the boards themselves hit — so the track has to be stated as a length.
        8.31 is the stack's own width in squares: eight files and the gauge's 0.31. */
     .analysis-app.bug:is(.tools-below, .tools-lastresort) {
-        grid-template-columns: calc(var(--bug-tall-sq-a) * 8.31) calc(var(--bug-tall-sq-b) * 8.31) 0;
+        grid-template-columns: calc(var(--bug-tall-sq-a) * var(--bug-stack-squares))
+                               calc(var(--bug-tall-sq-b) * var(--bug-stack-squares)) 0;
     }
 
     /* THE TOOLS' HOMES PLACE THEIR PARTS INDIVIDUALLY TOO, and the two regions are used at once.

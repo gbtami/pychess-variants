@@ -98,3 +98,37 @@
 #messages {
   width: 100%;
 }
+
+/* PORTRAIT SPENDS THE INPUT'S TRIM ON MESSAGES INSTEAD.
+   ------------------------------------------------------------------------------------
+   `site.css` draws the entry as a field: `padding: 5px 20px 4px 4px` and a 1px rule along its
+   top, which is right on a page that has a column to itself. In portrait the whole chat is
+   about 50px, and those 9px of vertical padding plus the rule are 20% of it — spent on trim
+   rather than on the partner's words, which are the reason the panel exists.
+
+   THE OTHER MODES KEEP IT DELIBERATELY. They have the room, and the field reads better with it;
+   this is a trade only the smallest viewport has to make, so it is stated for that viewport
+   alone rather than by changing what the entry is everywhere.
+
+   Measured on a 375x667 phone, live: the entry goes 25px to 15.3px and the message area 25.3px
+   to roughly 40px — the difference between one clipped line and two readable ones.
+
+   THE PLACEHOLDER IS WHAT SAYS "TYPE HERE" once the rule is gone — "Please be nice in the chat!"
+   is always drawn, so the field is not silent. What it loses is the boundary: the entry and the
+   buttons under it now share an edge.
+
+   THE FOCUS RING IS KEPT, and it costs nothing to keep: an `outline` is painted outside the box
+   and takes no layout, so removing it would save zero pixels and lose the only signal that the
+   field is active (WCAG 2.4.7). The tap target does shrink, though — see the note in
+   `presets.css`.
+
+   Specificity, because this file has been bitten once today: `site.css`'s selector is the bare
+   id `#chat-entry` (1,0,0) and this is (1,2,0), so it wins on specificity rather than on load
+   order. */
+@media (aspect-ratio <= 9/16) {
+    .round-app.bug #chat-entry {
+        padding-top: 0;
+        padding-bottom: 0;
+        border-top-width: 0;
+    }
+}

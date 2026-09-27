@@ -127,21 +127,13 @@
         .analysis-app.bug .bug-partner-stack {
             align-self: start;
         }
-        /* AND NO BOARD LETTER, for the same reason and by the same arithmetic. The letter lives in
-           the gauge's column; portrait declares a ONE-column stack, so leaving it placed at
-           `grid-column: 2` creates an implicit second track and the stack stops being exactly its
-           eight squares — measured as an "A" at x=388 in a 386px viewport, i.e. off the screen,
-           dragging the pinned layout wider than the mode allows.
-
-           Portrait therefore has no answer to "which board is this" yet. It cannot reuse the
-           landscape one: there is no gauge column to sit under, and the strip rows are full — the
-           own stack's bottom strip is 5 squares of pocket plus a player bar that runs to the right
-           edge, with nothing spare. Anything that fits has to overlap the board or the strip, which
-           is a decision about portrait rather than a detail of this label. */
-        .analysis-app.bug .bug-own-stack > .board-label,
-        .analysis-app.bug .bug-partner-stack > .board-label {
-            display: none;
-        }
+        /* THE BOARD LETTER IS DRAWN IN PORTRAIT TOO, since 2026-09-26. It was hidden here for the
+           same reason the gauge was: the letter lives in the gauge's column, portrait declared a
+           ONE-column stack, and leaving it at `grid-column: 2` created an implicit track that put
+           an "A" at x=388 in a 386px viewport. The portrait square is computed from
+           `stackUnitFor()` now, so the stack is 8.31 squares wide and has the column its letter
+           and its gauge sit in. "Portrait has no answer to which board is this" is no longer
+           true — it has the landscape one. */
 }
 /* A STACK IS A TWO-COLUMN GRID HERE: pocket / board / pocket down the first column, and
    the gauge parked in the SECOND column on the board's row.

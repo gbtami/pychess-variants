@@ -163,6 +163,12 @@
 .bug-round-tools-bar > #game-controls,
 .bug-round-tools-bar > .btn-controls {
     flex: 0 0 auto;
+    /* AND THEY TAKE THE ROW'S HEIGHT RATHER THAN SETTING IT. The bar centres its items, so
+       without this the controls would be their content's height and the buttons would sit
+       smaller than the tabs once `site.css`'s flat 40px is off them. Stretching makes the
+       TABLIST the one part that decides how tall the row is — it is the part with text in it —
+       and the controls fill what it decides. See the `height: auto` note on the button. */
+    align-self: stretch;
 }
 /* Each button is two thirds of a board square rather than the width of its glyph,
    which left draw at 20px and resign at 29px. These are targets a player reaches
@@ -188,6 +194,26 @@
        answer, which is the shape that had this page flickering. */
     flex: 0 0 auto;
     min-width: 0;
+    /* AND THE HEIGHT IS THE ROW'S, NOT A NUMBER. `site.css` gives `.btn-controls button` a flat
+       `height: 40px` — an absolute value from the single-board page, where the controls have a row
+       to themselves. Inherited here it made the pair the tallest thing in the bar, so the bar's
+       auto-sized grid row became 40 and every tab beside them sat 8-12px short of the row they
+       share. Measured 2026-09-26, bar height with the controls against without them: 39.99/31.92
+       in tall landscape, 40/32.53 in the wider tall landscape, 40/31.85 in short landscape, and
+       **40/27.69 in portrait** — 12.31px, 31% of the bar, on the one viewport with no height to
+       spare. Nothing asked for 40: an emptied button still measured it, because the value is
+       stated rather than derived.
+
+       `auto` hands the decision back to the row. With `align-self: stretch` on the container above,
+       the buttons then fill whatever the TABLIST makes the bar, which is the rule Nikolay asked
+       for — the controls follow the tabs they sit beside instead of following nothing.
+
+       THE TAP TARGET NOW DEPENDS ON THE TAB HEIGHT, so it is worth knowing where that floor is: a
+       tab is a 14px font plus 5.6px of padding either side, which is 25.2px at its smallest and
+       comes out 27.69 in portrait — above WCAG 2.5.8's 24px, but not by much. The layout matrix
+       checks tap targets against 24px on every row, so a change that took a tab under it would be
+       caught there rather than here. */
+    height: auto;
     /* A `button` does not inherit the page's font — the UA gives it its own, which came out
        13.33px Arial against the tabs' 14px system stack sitting right beside it. The label has
        to read as one of the row's words, not as a control's caption, so the font comes from
@@ -222,6 +248,14 @@
     display: inline-block;
     width: calc(var(--bug-own-sq) * 2 / 3);
     text-align: center;
+    /* NO LEADING, because the glyph's line box would become the row's new floor. `normal`
+       leading on an icon font is about 39% — measured in portrait, a 21.83px glyph in a 30px
+       box, 8.18px of it empty. With the button's flat height gone that box is what the button
+       would be sized by, and 30px is still taller than the 27.69px tab beside it, so removing
+       the 40 alone would have moved the problem rather than fixed it. At `1` the glyph's box is
+       the glyph, the button takes the row's height from the stretch above, and the icon centres
+       inside it. There is no text in here to lead — the label is its own element. */
+    line-height: 1;
 }
 /* WHETHER LABELS ARE ON OFFER AT ALL, published for toolsPlacement.ts to read rather than
    worked out a second time there.
@@ -237,6 +271,28 @@
    cannot disagree with the stylesheet about which of them is in force. */
 .bug-round-tools-bar {
     --bug-controls-labels: 1;
+}
+/* AND PORTRAIT'S 0 HAS TO SIT HERE, AFTER THE 1 — IT NEVER TOOK EFFECT WHERE IT WAS.
+   ------------------------------------------------------------------------------------
+   The opt-out the paragraph above describes was declared in `properties.css`, on
+   `.bug-round-tools-bar` inside the portrait query. Same selector, same specificity, one class
+   each — so SOURCE ORDER decided it, and `properties.css` loads first (`base.html` line 21)
+   while this file loads after every layout file. The `1` won, and the portrait rule had never
+   done anything since it was written.
+
+   IT WENT UNNOTICED BECAUSE NOTHING COULD REACH IT. `labelControls()` only labels the pair when
+   the row has width for the words, and in portrait the bar sat in a 240px strip where it never
+   did — so the wrong flag and the right outcome coincided. Freeing 12.31px of bar height on
+   2026-09-26 let the bar DROP to the full 373px, the fit test then found room, and the words
+   appeared on a phone. The flag was wrong all along; the drop only made it visible.
+
+   So it is stated once, here, immediately after the default it has to beat, in the file that
+   already carries the reasoning. `properties.css`'s copy is deleted rather than left as a rule
+   that looks authoritative and does nothing. */
+@media (aspect-ratio <= 9/16) {
+    .bug-round-tools-bar {
+        --bug-controls-labels: 0;
+    }
 }
 /* THE LABEL, PRESENT BUT UNMEASURED-WIDTH until there is room for both.
    ------------------------------------------------------------------------------------

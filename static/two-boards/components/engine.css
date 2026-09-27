@@ -34,12 +34,11 @@
     .analysis-app.bug #gaugePartner {
         display: block;
     }
-@media (aspect-ratio <= 9/16) {
-        .analysis-app.bug #gauge,
-        .analysis-app.bug #gaugePartner {
-            display: none;
-        }
-}
+/* PORTRAIT HID BOTH GAUGES HERE UNTIL 2026-09-26, and the rule is gone rather than moved. It
+   existed because the portrait square was computed for a stack of eight while the stack it had to
+   draw was 8.31 wide, so a drawn gauge overflowed. That arithmetic is fixed — the portrait square
+   comes from `stackUnitFor()` now, as every other width-derived square already did — and a stack
+   looks the same in every mode. */
 .analysis-app.bug .bug-own-stack > #gauge,
 .analysis-app.bug .bug-own-stack > #gaugePartner,
 .analysis-app.bug .bug-partner-stack > #gauge,

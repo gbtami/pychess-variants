@@ -12,15 +12,6 @@
    `--bug-preset-btn`, its floor and its ceiling are declared in `properties.css` and published
    from `toolsPlacement.ts`; this file only spends them. */
 
-@media (aspect-ratio <= 9/16) {
-        /* PORTRAIT KEEPS THE PAGE'S GROUND. The panel colour above is for the landscape modes,
-           where the parts move between three places and want to read as one object wherever they
-           land. Portrait has one arrangement and is not being changed. */
-        .round-app.bug .chatpresets-panel,
-        .round-app.bug .bug-presets-group {
-            background-color: transparent;
-        }
-}
 @media (aspect-ratio > 9/16) and (height < 600px) {
         /* A button is 60% of its share of the parts column — the size the presets drew at
            before the fixed track, reproduced: 0.6 of a fifth of 382.3 is 45.9, which is what
@@ -331,7 +322,18 @@
    is `display: contents` everywhere else, and an element with no box paints nothing, so this
    declaration is simply inert until zone B gives it one. There it is what covers the gap
    between the two panels sharing a row — the join that the pitch needs and that would
-   otherwise show the page through the middle of the panel. */
+   otherwise show the page through the middle of the panel.
+
+   IN EVERY ORIENTATION, AND PORTRAIT ONCE OPTED OUT. A rule at the top of this file set both
+   containers back to `transparent` in portrait — added with this one, on the standing rule that
+   portrait was not to change, and justified by "portrait has one arrangement". That stopped being
+   true: portrait states three drop templates of its own and moves its parts through the same
+   cascade the landscape modes use, so it has the very "wherever the parts end up" this rule is
+   about. The opt-out went with the reason for it.
+
+   It beat this rule on SPECIFICITY, not on order — `.round-app.bug .chatpresets-panel` is three
+   classes against one, and it sat 300 lines ABOVE the rule it overrode. Worth knowing if a
+   portrait-only surface is ever wanted again: source order will not give it. */
 .chatpresets-panel,
 .bug-presets-group {
     background-color: var(--bg-color0);
@@ -550,4 +552,33 @@ bugchat img{
    The second part never showed this: nothing shares its area, so its row collapsed with it. */
 .round-app.bug.game-over .chatpresets-panel {
     align-self: start;
+}
+
+/* PORTRAIT DROPS THE GAP BETWEEN THE ENTRY AND THE FIRST ROW OF BUTTONS.
+   ------------------------------------------------------------------------------------
+   `.chatpresets`'s `padding-top: var(--bug-preset-row-gap)` is there so that four stacked rows
+   read as four evenly spaced rows rather than as two pairs — the gap between two rows of one
+   part and the gap between two parts are the same 5px, and the padding is what supplies the
+   second. That reasoning is sound and this rule does not touch it.
+
+   WHAT IT TOUCHES IS THE FIRST PANEL ONLY, where the thing above is not another part but the
+   chat entry. There the padding is not separating two rows of buttons; it is a margin under the
+   chat, and in portrait the chat is the part that needs the pixels. The SECOND panel keeps its
+   padding, so rows 1-2, 2-3 and 3-4 all stay 5px apart and the block still reads as four evenly
+   spaced rows. Only the entry and row 1 come together.
+
+   Worth 5px on a 375x667 phone, where the chat's message area is about 25px. With the entry's
+   own trim removed next door in `chat.css` the pair are worth about 15px together — from one
+   clipped line of a partner's message to two readable ones.
+
+   THE COST, STATED: the entry becomes roughly 15.3px tall, which is under WCAG 2.5.8's 24px for
+   a pointer target, and the buttons now sit directly against it so the spacing exception does
+   not rescue it either. That is a deliberate trade on the smallest phone and nowhere else — the
+   layout matrix checks tap targets on every row and will report it, so the number stays visible
+   rather than being forgotten. If it has to be bought back, a `min-height` on the entry is the
+   one line that does it, at the price of most of this. */
+@media (aspect-ratio <= 9/16) {
+    .round-app.bug .chatpresets-panel-1 .chatpresets {
+        padding-top: 0;
+    }
 }
