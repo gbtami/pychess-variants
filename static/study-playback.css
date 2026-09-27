@@ -524,6 +524,33 @@ button.study-gamebook-play__feedback.act:focus-visible {
     opacity: .78;
 }
 
+.study-practice__next-chapter {
+    display: flex;
+    width: 100%;
+    min-height: 30px;
+    align-items: center;
+    gap: .35em;
+    padding: 0 .65rem;
+    border: 0;
+    background: color-mix(in srgb, var(--link-color-blue) 80%, var(--bg-color0));
+    color: #fff;
+    font: inherit;
+    line-height: 30px;
+    text-align: left;
+    cursor: pointer;
+    transition: background 150ms ease;
+}
+
+.study-practice__next-chapter:hover,
+.study-practice__next-chapter:focus-visible {
+    background: var(--link-color-blue);
+}
+
+.study-practice__next-chapter > [class^='icon-'],
+.study-practice__next-chapter > [class*=' icon-'] {
+    font-size: .9em;
+}
+
 .study-practice__verdict {
     display: flex;
     flex: 0 0 auto;

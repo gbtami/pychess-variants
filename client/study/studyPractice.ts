@@ -79,6 +79,7 @@ export interface StudyPracticeOptions {
     hasNextChapter?: boolean;
     onComplete?(moves: number): void;
     onNextChapter?(): void;
+    showNextChapterOnEnd?: boolean;
     onStateChange?(state: StudyPracticeState): void;
 }
 
@@ -1213,7 +1214,17 @@ export class StudyPracticeSession {
         feedback.append(player);
         this.status.append(title, feedback);
 
-        if (state.kind === 'evaluating-move') {
+        if (state.kind === 'ended' && this.options.showNextChapterOnEnd && this.options.onNextChapter) {
+            const nextChapter = document.createElement('button');
+            nextChapter.type = 'button';
+            nextChapter.className = 'study-practice__next-chapter';
+            const play = document.createElement('i');
+            play.className = 'icon-play';
+            play.setAttribute('aria-hidden', 'true');
+            nextChapter.append(play, document.createTextNode(_('Next chapter')));
+            nextChapter.addEventListener('click', () => this.options.onNextChapter?.());
+            this.status.append(nextChapter);
+        } else if (state.kind === 'evaluating-move') {
             const comment = document.createElement('div');
             comment.className = 'study-practice__comment waiting';
             const wait = document.createElement('span');

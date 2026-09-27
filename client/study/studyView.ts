@@ -2817,7 +2817,12 @@ function runStudyGround(
                           },
                       }
                     : {}),
-                ...(nextChapter ? { onNextChapter: () => void navigation?.go(nextChapter.id, 'push') } : {}),
+                ...(nextChapter
+                    ? {
+                          onNextChapter: () => void navigation?.go(nextChapter.id, 'push'),
+                          showNextChapterOnEnd: !study.practice,
+                      }
+                    : {}),
                 ...(study.canWrite ? { onAnalyse: () => void modeActions.enterPracticeAnalysis() } : {}),
             });
             extension.setPracticeSession(practiceSession);

@@ -123,6 +123,7 @@ type HarnessOverrides = Partial<{
     hasNextChapter: boolean;
     onComplete: (moves: number) => void;
     onNextChapter: () => void;
+    showNextChapterOnEnd: boolean;
     onStateChange: (state: import('../client/study/studyPractice').StudyPracticeState) => void;
 }>;
 
@@ -219,6 +220,9 @@ function makeHarness(
         ...(overrides.hasNextChapter !== undefined ? { hasNextChapter: overrides.hasNextChapter } : {}),
         ...(overrides.onComplete ? { onComplete: overrides.onComplete } : {}),
         ...(overrides.onNextChapter ? { onNextChapter: overrides.onNextChapter } : {}),
+        ...(overrides.showNextChapterOnEnd !== undefined
+            ? { showNextChapterOnEnd: overrides.showNextChapterOnEnd }
+            : {}),
         ...(overrides.onStateChange ? { onStateChange: overrides.onStateChange } : {}),
     });
 
@@ -514,6 +518,27 @@ describe('StudyPracticeSession', () => {
         expect(session.state).toMatchObject({ kind: 'ended', goalDecision: 'success', result: '1-0' });
         expect(onComplete).toHaveBeenCalledWith(1);
         expect(document.querySelector('.study-practice')?.textContent).toContain('Success!');
+        session.destroy();
+    });
+
+    test('terminal ordinary Study practice replaces move feedback with the blue next-chapter action', () => {
+        scenario = { initialTurn: 'white', terminalAfter: 1, result: '1-0', checkmate: true };
+        const nextChapter = jest.fn();
+        const { session, humanMove, finishEvaluation } = makeHarness('white', undefined, {
+            onNextChapter: nextChapter,
+            showNextChapterOnEnd: true,
+        });
+
+        finishEvaluation('e2e4');
+        expect(humanMove('e2e4')).toBe(true);
+        expect(session.state).toMatchObject({ kind: 'ended', result: '1-0' });
+        expect(document.querySelector('.study-practice__comment')).toBeNull();
+        const action = document.querySelector<HTMLButtonElement>('.study-practice__next-chapter');
+        expect(action?.textContent).toBe('Next chapter');
+        expect(document.querySelector('.study-practice')?.textContent).not.toContain('Good move');
+
+        action?.click();
+        expect(nextChapter).toHaveBeenCalledTimes(1);
         session.destroy();
     });
 
