@@ -21,3 +21,22 @@ export function hydrateHeaderPanel(panel: HTMLElement, view: VNode): HTMLElement
     removeFormattingWhitespace(panel);
     return patch(toVNode(panel), view).elm as HTMLElement;
 }
+
+/**
+ * Open or close a header panel's button, keeping the class and the announcement together.
+ *
+ * `shown` was already the "is open" marker, set at seven sites across four files -- and one of them,
+ * `gameCategoryIntro`, opened the settings panel without going through `settingsView` at all. An
+ * `aria-expanded` added beside each `classList` call would have gone stale there the first time
+ * anybody touched it. One function means the attribute cannot drift from the class.
+ *
+ * The buttons themselves are rendered once and never re-patched -- `redraw()` in each view patches
+ * only the inner panel and updates the button's `aria-label` imperatively for exactly that reason --
+ * so writing the attribute here is not undone by a later render.
+ */
+export function setHeaderPanelExpanded(buttonId: string, open: boolean): void {
+    const button = document.getElementById(buttonId);
+    if (button === null) return;
+    button.classList.toggle('shown', open);
+    button.setAttribute('aria-expanded', String(open));
+}

@@ -5,6 +5,7 @@ import { patch } from './document';
 import { timeago } from './datetime';
 import { sound } from './sound';
 import { subscribeHeaderRealtime } from './headerRealtime';
+import { setHeaderPanelExpanded } from './headerPanel';
 
 interface Message {
     type: string;
@@ -317,7 +318,7 @@ export function notifyView() {
         } else {
             document.querySelectorAll('#notify-app .notification.new').forEach(el => el.classList.remove('new'));
         }
-        (document.getElementById('btn-notify') as HTMLElement).classList.add('shown');
+        setHeaderPanelExpanded('btn-notify', true);
         (document.getElementById('notify-app') as HTMLElement).style.display = 'flex';
     }
 
@@ -330,7 +331,7 @@ export function notifyView() {
     }
 
     return h('div#notify-panel', [
-        h('button#btn-notify', { on: { click: toggleNotify }, attrs: { 'aria-label': `Notifications: ${unread}` } }, [
+        h('button#btn-notify', { on: { click: toggleNotify }, attrs: { 'aria-label': `Notifications: ${unread}`, 'aria-expanded': 'false', 'aria-controls': 'notify-app' } }, [
             h('div.icon.icon-bell-o.data-count', { attrs: { 'data-count': 0 } }),
         ]),
         h('div#notify-app'),
@@ -338,6 +339,6 @@ export function notifyView() {
 }
 
 export function hideNotify() {
-    (document.getElementById('btn-notify') as HTMLElement).classList.remove('shown');
+    setHeaderPanelExpanded('btn-notify', false);
     (document.getElementById('notify-app') as HTMLElement).style.display = 'none';
 }

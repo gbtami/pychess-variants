@@ -30,7 +30,17 @@ export function renderAnalysisPage(model: PyChessModel, parts: AnalysisPageParts
     const isOngoingGame = parts.ongoing;
 
     return [
-        h('div.analysis-app', [
+        /* THE PAGE'S MAIN LANDMARK IS THIS ELEMENT, not a wrapper around it. `#main-wrap` is a grid
+           whose only named area is `main`, and `.analysis-app` is the item that claims it
+           (`analysis.css:10`) -- so wrapping this in a `<main>` would put an unplaced element
+           between the grid and its item and drop the board out of its area. Changing the TAG keeps
+           the class, the grid placement and the DOM depth exactly as they were.
+
+           Before this, the analysis, editor and puzzle pages exposed only `banner` and
+           `complementary`: a screen reader's landmark jump landed in the sidebar and the board
+           belonged to no region at all. The round pages have had `main` all along
+           (`main.ts:212`). */
+        h('main.analysis-app', [
             h('aside.sidebar-first', parts.side),
             h(`selection#mainboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, [
                 parts.boardTop ?? h('div#anal-clock-top'),

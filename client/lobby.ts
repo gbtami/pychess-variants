@@ -2192,10 +2192,25 @@ export function lobbyView(model: PyChessModel): VNode[] {
     }
 
     return [
-        h('aside.sidebar-first', [h('div#streams'), h('div#spotlights'), timelinePanel(timelineEntries, anonUser)]),
+        /* NAMED, BECAUSE THE LOBBY HAS TWO OF THESE. `<aside>` carries the `complementary` landmark
+           implicitly, and an unnamed one is announced as just "complementary" -- so a landmark list
+           on this page read "complementary, complementary" and neither could be told from the
+           other. The name is also spoken every time a reader passes it, which is the argument for
+           keeping it short.
+
+           IT COVERS THREE THINGS, not only the one that happens to be populated: streams,
+           tournament spotlights and the timeline. Naming it for the tournaments would go stale the
+           moment a stream is live. */
+        h('aside.sidebar-first', { attrs: { 'aria-label': _("What's up") } }, [
+            h('div#streams'),
+            h('div#spotlights'),
+            timelinePanel(timelineEntries, anonUser),
+        ]),
         h('div.seeks', containers),
         h('div#variants-catalog'),
-        h('aside.sidebar-second', [
+        // The buttons that start a game, plus the online counters. "New game" is what the region is
+        // FOR; the counters are incidental to it.
+        h('aside.sidebar-second', { attrs: { 'aria-label': _('New game') } }, [
             h('div.seekbuttons'),
             h('div.lobby-count', [
                 h('a', { attrs: { href: '/players' } }, [h('counter#u_cnt')]),
