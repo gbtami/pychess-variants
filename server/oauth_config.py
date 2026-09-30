@@ -1,10 +1,10 @@
 import os
-from typing import TypedDict
+from typing import NotRequired, TypedDict
 
 
 class OAuthProviderConfig(TypedDict):
     client_id: str
-    client_secret: str
+    client_secret: NotRequired[str]
     oauth_authorize_url: str
     oauth_token_url: str
     scope: str
@@ -14,7 +14,6 @@ class OAuthProviderConfig(TypedDict):
 oauth_config: dict[str, OAuthProviderConfig] = {
     "lichess": {
         "client_id": os.getenv("LICHESS_CLIENT_ID", "pychess"),
-        "client_secret": os.getenv("CLIENT_SECRET", "secret"),
         "oauth_authorize_url": "https://lichess.org/oauth",
         "oauth_token_url": "https://lichess.org/api/token",
         "scope": "",
