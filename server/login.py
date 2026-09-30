@@ -87,7 +87,7 @@ async def oauth(request: web.Request) -> web.StreamResponse:
     config = oauth_config.get(provider, oauth_config["lichess"])
 
     client_id = config["client_id"]
-    client_secret = config["client_secret"]
+    client_secret = config.get("client_secret")
 
     oauth_authorize_url = config["oauth_authorize_url"]
     oauth_token_url = config["oauth_token_url"]
@@ -152,9 +152,10 @@ async def oauth(request: web.Request) -> web.StreamResponse:
             "code": code,
             "code_verifier": flow["code_verifier"],
             "client_id": client_id,
-            "client_secret": client_secret,
             "redirect_uri": redirect_uri,
         }
+        if client_secret is not None:
+            data["client_secret"] = client_secret
 
         # print(oauth_token_url)
         # print(data)

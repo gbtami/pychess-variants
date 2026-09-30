@@ -106,3 +106,17 @@ class LoginRouteTestCase(AioHTTPTestCase):
                 for request in FakeClientSession.requests
             )
         )
+
+    async def test_lichess_token_request_omits_client_secret(self):
+        response = await self.client.get("/oauth/lichess", allow_redirects=False)
+        state = parse_qs(urlparse(response.headers["Location"]).query)["state"][0]
+        query = urlencode({"state": state, "code": "lichess-code"})
+
+        with patch("login.aiohttp.ClientSession", FakeClientSession):
+            callback_response = await self.client.get(
+                f"/oauth/lichess?{query}", allow_redirects=False
+            )
+
+        self.assertEqual(callback_response.headers.get("Location"), "/login/lichess")
+        self.assertEqual(len(FakeClientSession.requests), 1)
+        self.assertNotIn("client_secret", FakeClientSession.requests[0])
