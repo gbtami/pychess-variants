@@ -205,6 +205,8 @@ export class AnalysisController extends GameController {
         this.fsfDebug = localStorage.fsfDebug === undefined ? false : localStorage.fsfDebug === 'true';
         this.inlineNotation = localStorage.inlineNotation === 'true';
         this.disclosureMode = localStorage.disclosureMode === 'true';
+        // This flag is browser/WASM-only. Do not use it to gate fishnet play or
+        // server-side analysis; those engines can support a different variant set.
         this.variantSupportedByFSF = false;
         this.uciOk = false;
         this.nnueOk = false;
@@ -850,13 +852,9 @@ export class AnalysisController extends GameController {
                 void alertDialog({ text: _('You need an account to do that.') });
                 return;
             }
-            //            if (!this.variantSupportedByFSF) {
-            // We can't use FSF WASM detection here because users may use unsupported hardware
-            // but server side analysis will work for them at the same time!
-            if (this.variant.name === 'alice') {
-                void alertDialog({ text: _('This variant is not supported by Fairy-Stockfish.') });
-                return;
-            }
+            // Server-side analysis is a fishnet capability and is deliberately
+            // independent from the browser/WASM engine below. The server decides
+            // whether an active worker can analyze this particular variant.
             this.doSend({ type: 'analysis', username: this.username, gameId: this.gameId });
             const loaderEl = document.getElementById('loader') as HTMLElement;
             loaderEl.style.display = 'block';
