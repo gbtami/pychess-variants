@@ -34,6 +34,7 @@ log = logging.getLogger(__name__)
 
 USERNAME_LOWER_FIELD = "username_lower"
 REOPEN_TOKEN_TTL_MINUTES = 20
+MAX_PENDING_OAUTH_FLOWS = 3
 
 if TYPE_CHECKING:
     from user import User
@@ -45,6 +46,11 @@ class OAuthUserData(TypedDict, total=False):
     title: str
     closed: str
     tosViolation: str
+
+
+class OAuthFlowData(TypedDict):
+    provider: str
+    code_verifier: str
 
 
 def normalized_username(username: str) -> str:
@@ -91,16 +97,23 @@ async def oauth(request: web.Request) -> web.StreamResponse:
     code = request.rel_url.query.get("code")
 
     if code is None:
+        state = secrets.token_urlsafe(32)
         code_verifier = secrets.token_urlsafe(64)
-        session["oauth_code_verifier"] = code_verifier
         code_challenge = get_code_challenge(code_verifier)
+
+        oauth_flows: dict[str, OAuthFlowData] = dict(session.get("oauth_flows", {}))
+        oauth_flows[state] = {
+            "provider": provider,
+            "code_verifier": code_verifier,
+        }
+        session["oauth_flows"] = dict(list(oauth_flows.items())[-MAX_PENDING_OAUTH_FLOWS:])
 
         authorize_url = (
             oauth_authorize_url
             + "?"
             + urlencode(
                 {
-                    "state": client_secret,
+                    "state": state,
                     "client_id": client_id,
                     "response_type": "code",
                     "redirect_uri": redirect_uri,
@@ -112,19 +125,32 @@ async def oauth(request: web.Request) -> web.StreamResponse:
         )
         return web.HTTPFound(authorize_url)
     else:
-        state = request.rel_url.query.get("state")
-        if state != client_secret:
-            log.error("OAuth state value mismatch for provider '%s'", provider)
-            return web.HTTPFound("/")
+        returned_state = request.rel_url.query.get("state")
+        oauth_flows: dict[str, OAuthFlowData] = dict(session.get("oauth_flows", {}))
+        matching_state = next(
+            (
+                saved_state
+                for saved_state in oauth_flows
+                if returned_state is not None
+                and secrets.compare_digest(returned_state, saved_state)
+            ),
+            None,
+        )
+        flow = oauth_flows.pop(matching_state, None) if matching_state is not None else None
 
-        if "oauth_code_verifier" not in session:
-            log.error("No oauth_code_verifier in session")
+        if oauth_flows:
+            session["oauth_flows"] = oauth_flows
+        else:
+            session.pop("oauth_flows", None)
+
+        if flow is None or flow["provider"] != provider:
+            log.error("OAuth state value mismatch for provider '%s'", provider)
             return web.HTTPFound("/")
 
         data: dict[str, str] = {
             "grant_type": "authorization_code",
             "code": code,
-            "code_verifier": session["oauth_code_verifier"],
+            "code_verifier": flow["code_verifier"],
             "client_id": client_id,
             "client_secret": client_secret,
             "redirect_uri": redirect_uri,
