@@ -60,6 +60,8 @@ OPTIONAL_FISHNET_VARIANTS = frozenset(("alice",))
 
 def fishnet_variant_requires_capability(variant: str) -> bool:
     return variant.lower() in OPTIONAL_FISHNET_VARIANTS
+
+
 ENGINE_CRASH_REASON = "engine_crash"
 ENGINE_TIMEOUT_REASON = "engine_timeout"
 STALE_WORK_TIMEOUT_REASON = "work_timeout"
@@ -861,7 +863,9 @@ async def get_work(
                     work_id,
                     work.get("variant"),
                 )
-                await _drop_terminal_work_failure(app_state, work_id, work, VARIANT_AI_DISABLED_REASON)
+                await _drop_terminal_work_failure(
+                    app_state, work_id, work, VARIANT_AI_DISABLED_REASON
+                )
                 continue
 
             # Track the latest assignment time so timeout-based re-acquire does not
