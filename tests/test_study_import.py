@@ -163,10 +163,7 @@ class StudyImportTestCase(unittest.IsolatedAsyncioTestCase):
         # Alice FEN uses ``|`` inside the placement field to mark pieces that
         # currently occupy the mirror board. pyffish-alice is authoritative for
         # this syntax; generic first-class FEN character checks must not reject it.
-        initial_fen = (
-            "rnb1kbnr/ppp1pppp/3|p4/8/2|B1|P3/8/PPP|q1PPP/RNBQK1NR "
-            "w KQkq - 0 3"
-        )
+        initial_fen = "rnb1kbnr/ppp1pppp/3|p4/8/2|B1|P3/8/PPP|q1PPP/RNBQK1NR w KQkq - 0 3"
         chapter = {
             "name": "Alice mate",
             "variant": "alice",
@@ -181,9 +178,7 @@ class StudyImportTestCase(unittest.IsolatedAsyncioTestCase):
         response = await self._request({"chapters": [chapter]})
         self.assertEqual(response.status, 200)
 
-        doc = await self.db.study_chapter.find_one(
-            {"studyId": self.study.id, "name": "Alice mate"}
-        )
+        doc = await self.db.study_chapter.find_one({"studyId": self.study.id, "name": "Alice mate"})
         assert doc is not None
         self.assertEqual(doc["initialFen"], initial_fen)
         node = next(value for key, value in doc["root"].items() if key != "_")
