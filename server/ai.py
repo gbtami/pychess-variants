@@ -99,7 +99,7 @@ async def BOT_task(bot: User, app_state: PychessGlobalAppState) -> None:
                         continue
                     async with game.move_lock:
                         await play_move(app_state, bot, game, random.choice(legal_moves))
-                elif has_available_fishnet_worker(app_state):
+                elif has_available_fishnet_worker(app_state, variant=game.variant):
                     if not catalogued_variant_allows_fishnet(app_state, game.variant):
                         log.warning(
                             "Aborting bot game %s because Fairy-Stockfish AI is temporarily disabled for variant %s",
@@ -194,8 +194,8 @@ async def BOT_task(bot: User, app_state: PychessGlobalAppState) -> None:
         if TYPE_CHECKING:
             assert isinstance(game, Game)
 
-        if not random_mover and not has_available_fishnet_worker(app_state):
-            log.error("ERROR: No recent fairyfishnet worker alive!")
+        if not random_mover and not has_available_fishnet_worker(app_state, variant=game.variant):
+            log.error("ERROR: No recent fairyfishnet worker capable of %s!", game.variant)
             # TODO: send msg to player
             await game.abort_by_server()
             continue

@@ -284,8 +284,13 @@ class GameEndResponse(TypedDict):
 TournamentPoint = tuple[int | str, int] | Literal["-"]
 
 
+class FishnetCapabilities(TypedDict):
+    variants: list[str]
+
+
 class FishnetKey(TypedDict):
     apikey: str
+    capabilities: NotRequired[FishnetCapabilities]
 
 
 class FishnetAcquireFishnet(FishnetKey):

@@ -241,9 +241,6 @@ async def request_study_server_analysis(
         has_available_fishnet_worker,
     )
 
-    if not has_available_fishnet_worker(app_state):
-        return StudyAnalysisRequestResult("fishnet_unavailable", current)
-
     try:
         with study_variant_context(app_state, chapter.variant, chapter.variant_ini) as options:
             board = FairyBoard(
@@ -271,6 +268,9 @@ async def request_study_server_analysis(
             exc_info=True,
         )
         return StudyAnalysisRequestResult("variant_unavailable", current)
+
+    if not has_available_fishnet_worker(app_state, variant=work_variant):
+        return StudyAnalysisRequestResult("fishnet_unavailable", current)
 
     if not catalogued_variant_allows_fishnet(app_state, work_variant):
         return StudyAnalysisRequestResult("variant_unavailable", current)

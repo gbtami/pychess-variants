@@ -13,6 +13,7 @@ from auto_pair import (
     find_matching_user_for_seek,
 )
 from const import STARTED, SYSTEM_USER
+from fishnet import has_available_fishnet_worker
 from header_challenges import (
     broadcast_challenge_state,
     challenge_participants,
@@ -86,7 +87,7 @@ from ws_structs import LOBBY_TYPED_DECODERS
 
 log = logging.getLogger(__name__)
 
-UNSUPPORTED_FSF_AI_VARIANTS = ("alice", "fogofwar", "jieqi")
+UNSUPPORTED_FSF_AI_VARIANTS = ("fogofwar", "jieqi")
 BOT_LOBBY_ACTION_MESSAGE = "BOT accounts cannot create or join lobby games."
 BOT_UNSUPPORTED_VARIANT_MESSAGE = "This BOT does not support the selected variant."
 CATALOGUED_CASUAL_ONLY_MESSAGE = (
@@ -308,6 +309,10 @@ async def handle_create_ai_challenge(
         or data["rm"]
         or (engine is None)
         or (not engine.online)
+        or (
+            profileid == "Fairy-Stockfish"
+            and not has_available_fishnet_worker(app_state, variant=variant)
+        )
     )
 
     if force_random_mover:

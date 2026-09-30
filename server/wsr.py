@@ -32,6 +32,7 @@ from draw import draw, reject_draw
 from fairy import BLACK, WHITE, FairyBoard
 from fishnet import (
     drop_stale_analysis_work,
+    fishnet_variant_requires_capability,
     has_available_fishnet_worker,
     has_pending_analysis_work_for_game,
 )
@@ -684,8 +685,11 @@ async def handle_analysis(
         )
         return
 
-    # If there is any active fishnet client, use it.
-    has_fishnet_worker = has_available_fishnet_worker(app_state)
+    # Prefer fishnet when a worker explicitly supports this variant. Optional
+    # engine capabilities (currently Alice) must not fall through to the legacy
+    # BOT websocket merely because other fishnet workers are online.
+    has_any_fishnet_worker = has_available_fishnet_worker(app_state)
+    has_fishnet_worker = has_available_fishnet_worker(app_state, variant=game.variant)
 
     if has_fishnet_worker and catalogued_variant_allows_fishnet(app_state, game.variant):
         work_id = "".join(random.choice(string.ascii_letters + string.digits) for x in range(6))
@@ -719,10 +723,11 @@ async def handle_analysis(
             game.id,
             game.variant,
         )
-    elif has_fishnet_worker:
+    elif has_any_fishnet_worker or fishnet_variant_requires_capability(game.variant):
         log.warning(
-            "Skipping analysis request for %s because fishnet workers have been idle for too long",
+            "Skipping analysis request for %s because no active fishnet worker supports variant %s",
             game.id,
+            game.variant,
         )
     else:
         engine = app_state.users["Fairy-Stockfish"]

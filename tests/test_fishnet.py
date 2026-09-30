@@ -1019,3 +1019,168 @@ class FishnetVariantsEndpointTestCase(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(response.status, 200)
         self.assertEqual(json.loads(response.text), cached)
+
+
+class FishnetCapabilityTestCase(unittest.IsolatedAsyncioTestCase):
+    @staticmethod
+    def _move_work(work_id: str, variant: str):
+        return {
+            "work": {"type": "move", "id": work_id, "level": 1},
+            "game_id": "g1",
+            "position": "startpos",
+            "variant": variant,
+            "chess960": False,
+            "moves": "",
+            "nnue": True,
+            "time": 100.0,
+        }
+
+    @staticmethod
+    def _app_state(works):
+        queue = asyncio.PriorityQueue()
+        for work_id in works:
+            queue.put_nowait((fishnet.MOVE, work_id))
+        return SimpleNamespace(
+            fishnet_monitor=defaultdict(list, {"worker1": []}),
+            fishnet_queue=queue,
+            fishnet_works=works,
+            workers={"k"},
+            fishnet_worker_last_seen={"k": 100.0},
+            fishnet_worker_capability_last_seen={},
+            users={"Fairy-Stockfish": SimpleNamespace(online=True)},
+            catalogued_variants={},
+        )
+
+    async def test_worker_without_alice_capability_skips_alice_queue_item(self):
+        works = {
+            "a-alice": self._move_work("a-alice", "alice"),
+            "z-chess": self._move_work("z-chess", "chess"),
+        }
+        app_state = self._app_state(works)
+        payload = {"fishnet": {"apikey": "k"}}
+
+        with patch.dict(fishnet.FISHNET_KEYS, {"k": "worker1"}, clear=True):
+            response = await fishnet.get_work(app_state, payload)
+
+        self.assertEqual(response.status, 202)
+        self.assertEqual(json.loads(response.text)["work"]["id"], "z-chess")
+        self.assertEqual(app_state.fishnet_queue.qsize(), 1)
+        self.assertEqual(app_state.fishnet_queue.get_nowait()[1], "a-alice")
+
+    async def test_alice_capable_worker_receives_alice_job(self):
+        works = {"a-alice": self._move_work("a-alice", "alice")}
+        app_state = self._app_state(works)
+        payload = {
+            "fishnet": {
+                "apikey": "k",
+                "capabilities": {"variants": ["alice"]},
+            }
+        }
+
+        with patch.dict(fishnet.FISHNET_KEYS, {"k": "worker1"}, clear=True):
+            response = await fishnet.get_work(app_state, payload)
+
+        self.assertEqual(response.status, 202)
+        self.assertEqual(json.loads(response.text)["work"]["id"], "a-alice")
+
+    def test_variant_specific_availability_uses_capability_heartbeat(self):
+        now = 1000.0
+        app_state = SimpleNamespace(
+            workers={"k"},
+            fishnet_worker_last_seen={"k": now},
+            fishnet_worker_capability_last_seen={
+                ("k", "alice"): now - fishnet.FISHNET_ACTIVITY_TIMEOUT - 1.0
+            },
+            fishnet_monitor=defaultdict(list),
+            users={"Fairy-Stockfish": SimpleNamespace(online=True)},
+        )
+
+        self.assertTrue(fishnet.has_available_fishnet_worker(app_state, variant="chess", now=now))
+        self.assertFalse(fishnet.has_available_fishnet_worker(app_state, variant="alice", now=now))
+
+        fishnet._record_fishnet_capabilities(
+            app_state,
+            {
+                "fishnet": {
+                    "apikey": "k",
+                    "capabilities": {"variants": ["alice"]},
+                }
+            },
+            now=now,
+        )
+        self.assertTrue(fishnet.has_available_fishnet_worker(app_state, variant="alice", now=now))
+
+    async def test_alice_analysis_without_capable_worker_does_not_use_legacy_bot(self):
+        now = fishnet.monotonic()
+        game = SimpleNamespace(
+            id="g-alice",
+            steps=[],
+            board=SimpleNamespace(initial_fen="startpos", move_stack=[], nnue=True),
+            variant="alice",
+            chess960=False,
+        )
+        engine = SimpleNamespace(online=True, game_queues={}, event_queue=asyncio.Queue())
+        app_state = SimpleNamespace(
+            games={"g-alice": game},
+            users={"Fairy-Stockfish": engine},
+            workers={"k"},
+            fishnet_worker_last_seen={"k": now},
+            fishnet_worker_capability_last_seen={},
+            fishnet_monitor=defaultdict(list),
+            fishnet_works={},
+            fishnet_queue=asyncio.PriorityQueue(),
+            catalogued_variants={},
+        )
+        ws_send_json = AsyncMock()
+
+        with patch("wsr.ws_send_json", new=ws_send_json):
+            await wsr.handle_analysis(
+                app_state,
+                SimpleNamespace(),
+                {"gameId": "g-alice", "username": "u"},
+                game,
+            )
+
+        self.assertEqual(app_state.fishnet_works, {})
+        self.assertEqual(engine.event_queue.qsize(), 0)
+        self.assertEqual(
+            ws_send_json.await_args.args[1]["message"],
+            "Analysis unavailable right now.",
+        )
+
+    async def test_alice_analysis_without_any_fishnet_worker_does_not_use_legacy_bot(self):
+        game = SimpleNamespace(
+            id="g-alice",
+            steps=[],
+            board=SimpleNamespace(initial_fen="startpos", move_stack=[], nnue=True),
+            variant="alice",
+            chess960=False,
+        )
+        engine = SimpleNamespace(online=True, game_queues={}, event_queue=asyncio.Queue())
+        app_state = SimpleNamespace(
+            games={"g-alice": game},
+            users={"Fairy-Stockfish": engine},
+            workers=set(),
+            fishnet_worker_last_seen={},
+            fishnet_worker_capability_last_seen={},
+            fishnet_monitor=defaultdict(list),
+            fishnet_works={},
+            fishnet_queue=asyncio.PriorityQueue(),
+            catalogued_variants={},
+        )
+        ws_send_json = AsyncMock()
+
+        with patch("wsr.ws_send_json", new=ws_send_json):
+            await wsr.handle_analysis(
+                app_state,
+                SimpleNamespace(),
+                {"gameId": "g-alice", "username": "u"},
+                game,
+            )
+
+        self.assertEqual(app_state.fishnet_works, {})
+        self.assertEqual(engine.event_queue.qsize(), 0)
+        self.assertEqual(
+            ws_send_json.await_args.args[1]["message"],
+            "Analysis unavailable right now.",
+        )

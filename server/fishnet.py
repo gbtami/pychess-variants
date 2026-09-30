@@ -52,6 +52,14 @@ _FISHNET_VERSION_RE = re.compile(r"\d+")
 MOVE_WORK_TIME_OUT = 5.0
 ANALYSIS_WORK_TIME_OUT = 15 * 60.0
 FISHNET_ACTIVITY_TIMEOUT = 10 * 60.0
+# Variants in this set require an explicitly advertised optional worker engine.
+# Older fairyfishnet versions advertise no capabilities and therefore remain
+# eligible for every ordinary Fairy-Stockfish variant, but never for Alice.
+OPTIONAL_FISHNET_VARIANTS = frozenset(("alice",))
+
+
+def fishnet_variant_requires_capability(variant: str) -> bool:
+    return variant.lower() in OPTIONAL_FISHNET_VARIANTS
 ENGINE_CRASH_REASON = "engine_crash"
 ENGINE_TIMEOUT_REASON = "engine_timeout"
 STALE_WORK_TIMEOUT_REASON = "work_timeout"
@@ -498,6 +506,56 @@ def _fishnet_worker_is_recent(app_state: PychessGlobalAppState, key: str, now: f
     return now - app_state.fishnet_worker_last_seen.get(key, 0.0) <= FISHNET_ACTIVITY_TIMEOUT
 
 
+def _fishnet_capability_variants(
+    data: FishnetKeyPayload | FishnetAcquirePayload | FishnetAnalysisPayload | FishnetMovePayload,
+) -> frozenset[str]:
+    capabilities = data["fishnet"].get("capabilities")
+    if not isinstance(capabilities, dict):
+        return frozenset()
+    variants = capabilities.get("variants")
+    if not isinstance(variants, list):
+        return frozenset()
+    return frozenset(str(variant).lower() for variant in variants if isinstance(variant, str))
+
+
+def _worker_request_supports_work(
+    data: FishnetKeyPayload | FishnetAcquirePayload | FishnetAnalysisPayload | FishnetMovePayload,
+    work: FishnetWork,
+) -> bool:
+    variant = str(work.get("variant") or "").lower()
+    return variant not in OPTIONAL_FISHNET_VARIANTS or variant in _fishnet_capability_variants(data)
+
+
+def _fishnet_capability_last_seen(app_state: PychessGlobalAppState) -> dict[tuple[str, str], float]:
+    last_seen = getattr(app_state, "fishnet_worker_capability_last_seen", None)
+    if last_seen is None:
+        last_seen = {}
+        app_state.fishnet_worker_capability_last_seen = last_seen
+    return last_seen
+
+
+def _record_fishnet_capabilities(
+    app_state: PychessGlobalAppState,
+    data: FishnetKeyPayload | FishnetAcquirePayload | FishnetAnalysisPayload | FishnetMovePayload,
+    *,
+    now: float | None = None,
+) -> None:
+    if now is None:
+        now = monotonic()
+    key = data["fishnet"]["apikey"]
+    last_seen = _fishnet_capability_last_seen(app_state)
+    for variant in _fishnet_capability_variants(data):
+        if variant in OPTIONAL_FISHNET_VARIANTS:
+            last_seen[(key, variant)] = now
+
+
+def _prune_stale_fishnet_capabilities(app_state: PychessGlobalAppState, *, now: float) -> None:
+    last_seen = _fishnet_capability_last_seen(app_state)
+    for capability, seen_at in tuple(last_seen.items()):
+        if now - seen_at > FISHNET_ACTIVITY_TIMEOUT:
+            last_seen.pop(capability, None)
+
+
 def prune_stale_fishnet_workers(
     app_state: PychessGlobalAppState, *, now: float | None = None
 ) -> int:
@@ -509,6 +567,8 @@ def prune_stale_fishnet_workers(
         for key in tuple(app_state.workers)
         if not _fishnet_worker_is_recent(app_state, key, now)
     ]
+    _prune_stale_fishnet_capabilities(app_state, now=now)
+
     monitor = getattr(app_state, "fishnet_monitor", None)
     for key in stale_keys:
         app_state.workers.discard(key)
@@ -535,10 +595,28 @@ def has_recent_fishnet_activity(
 
 
 def has_available_fishnet_worker(
-    app_state: PychessGlobalAppState, *, now: float | None = None
+    app_state: PychessGlobalAppState,
+    *,
+    variant: str | None = None,
+    now: float | None = None,
 ) -> bool:
+    if now is None:
+        now = monotonic()
     prune_stale_fishnet_workers(app_state, now=now)
-    return len(app_state.workers) > 0
+    if not app_state.workers:
+        return False
+
+    normalized_variant = (variant or "").lower()
+    if normalized_variant not in OPTIONAL_FISHNET_VARIANTS:
+        return True
+
+    capability_last_seen = _fishnet_capability_last_seen(app_state)
+    return any(
+        key in app_state.workers
+        and now - capability_last_seen.get((key, normalized_variant), 0.0)
+        <= FISHNET_ACTIVITY_TIMEOUT
+        for key in app_state.workers
+    )
 
 
 def has_pending_analysis_work_for_game(app_state: PychessGlobalAppState, game_id: str) -> bool:
@@ -748,96 +826,109 @@ async def get_work(
     worker = FISHNET_KEYS[key]
 
     fishnet_work_queue = app_state.fishnet_queue
+    deferred_work: list[tuple[int, str]] = []
+
+    def restore_deferred_work() -> None:
+        for priority, work_id in deferred_work:
+            if work_id in app_state.fishnet_works:
+                fishnet_work_queue.put_nowait((priority, work_id))
+        deferred_work.clear()
 
     # priority can be "move" or "analysis"
-    while True:
-        try:
-            (priority, work_id) = fishnet_work_queue.get_nowait()
+    try:
+        while True:
             try:
-                fishnet_work_queue.task_done()
-            except ValueError:
-                log.error(
-                    "task_done() called more times than there were items placed in the queue in fishnet.py get_work()"
-                )
-        except asyncio.QueueEmpty:
-            break
+                (priority, work_id) = fishnet_work_queue.get_nowait()
+                try:
+                    fishnet_work_queue.task_done()
+                except ValueError:
+                    log.error(
+                        "task_done() called more times than there were items placed in the queue in fishnet.py get_work()"
+                    )
+            except asyncio.QueueEmpty:
+                break
 
-        work = app_state.fishnet_works.get(work_id)
-        if work is None:
-            log.debug("Skipping stale fishnet queue item %s", work_id)
-            continue
-        if not _work_variant_allows_fishnet(app_state, work):
-            log.warning(
-                "Dropping fishnet work %s because AI is temporarily disabled for variant %s",
-                work_id,
-                work.get("variant"),
-            )
-            await _drop_terminal_work_failure(app_state, work_id, work, VARIANT_AI_DISABLED_REASON)
-            continue
-
-        # Track the latest assignment time so timeout-based re-acquire does not
-        # immediately recycle the same work while another worker is processing it.
-        work["time"] = monotonic()
-
-        # Trust the work payload type over queue metadata. This also recovers from
-        # legacy enqueue mistakes where priority did not match work type.
-        priority = _work_priority(work)
-        if priority == ANALYSIS:
-            fm[worker].append(
-                "%s %s %s %s of %s moves"
-                % (
-                    datetime.now(UTC),
+            work = app_state.fishnet_works.get(work_id)
+            if work is None:
+                log.debug("Skipping stale fishnet queue item %s", work_id)
+                continue
+            if not _worker_request_supports_work(data, work):
+                deferred_work.append((priority, work_id))
+                continue
+            if not _work_variant_allows_fishnet(app_state, work):
+                log.warning(
+                    "Dropping fishnet work %s because AI is temporarily disabled for variant %s",
                     work_id,
-                    "request",
-                    "analysis",
-                    len(work["moves"].split()),
+                    work.get("variant"),
                 )
-            )
+                await _drop_terminal_work_failure(app_state, work_id, work, VARIANT_AI_DISABLED_REASON)
+                continue
 
-            if work.get("study_id"):
-                from study.analysis import study_analysis_work_is_current
+            # Track the latest assignment time so timeout-based re-acquire does not
+            # immediately recycle the same work while another worker is processing it.
+            work["time"] = monotonic()
 
-                if not await study_analysis_work_is_current(app_state, work):
-                    app_state.fishnet_works.pop(work_id, None)
-                    continue
+            # Trust the work payload type over queue metadata. This also recovers from
+            # legacy enqueue mistakes where priority did not match work type.
+            priority = _work_priority(work)
+            if priority == ANALYSIS:
+                fm[worker].append(
+                    "%s %s %s %s of %s moves"
+                    % (
+                        datetime.now(UTC),
+                        work_id,
+                        "request",
+                        "analysis",
+                        len(work["moves"].split()),
+                    )
+                )
+
+                if work.get("study_id"):
+                    from study.analysis import study_analysis_work_is_current
+
+                    if not await study_analysis_work_is_current(app_state, work):
+                        app_state.fishnet_works.pop(work_id, None)
+                        continue
+                else:
+                    # Game analysis starts from a clean in-memory analysis array. Study
+                    # analysis is persisted separately and can resume after partial reports.
+                    game_id = work.get("game_id")
+                    if not game_id:
+                        app_state.fishnet_works.pop(work_id, None)
+                        continue
+                    game = await load_game(app_state, game_id)
+                    if game is None:
+                        app_state.fishnet_works.pop(work_id, None)
+                        continue
+
+                    for step in game.steps:
+                        if "analysis" in step:
+                            del step["analysis"]
+
+                    if "username" in work:
+                        response = {
+                            "type": "roundchat",
+                            "user": "",
+                            "room": "spectator",
+                            "message": "Work for fishnet sent...",
+                        }
+                        await app_state.users[work["username"]].send_game_message(game_id, response)
             else:
-                # Game analysis starts from a clean in-memory analysis array. Study
-                # analysis is persisted separately and can resume after partial reports.
-                game_id = work.get("game_id")
-                if not game_id:
-                    app_state.fishnet_works.pop(work_id, None)
-                    continue
-                game = await load_game(app_state, game_id)
-                if game is None:
-                    app_state.fishnet_works.pop(work_id, None)
-                    continue
-
-                for step in game.steps:
-                    if "analysis" in step:
-                        del step["analysis"]
-
-                if "username" in work:
-                    response = {
-                        "type": "roundchat",
-                        "user": "",
-                        "room": "spectator",
-                        "message": "Work for fishnet sent...",
-                    }
-                    await app_state.users[work["username"]].send_game_message(game_id, response)
-        else:
-            fm[worker].append(
-                "%s %s %s %s for level %s"
-                % (
-                    datetime.now(UTC),
-                    work_id,
-                    "request",
-                    "move",
-                    work["work"]["level"],
+                fm[worker].append(
+                    "%s %s %s %s for level %s"
+                    % (
+                        datetime.now(UTC),
+                        work_id,
+                        "request",
+                        "move",
+                        work["work"]["level"],
+                    )
                 )
-            )
 
-        _attach_variants_hash(app_state, work)
-        return json_response(work, status=202)
+            _attach_variants_hash(app_state, work)
+            return json_response(work, status=202)
+    finally:
+        restore_deferred_work()
 
     # There was no new work in the queue. Ok
     # Now let see are there any long time pending work in app[fishnet_works_key]
@@ -850,6 +941,8 @@ async def get_work(
             if not await study_analysis_work_is_current(app_state, work_item):
                 app_state.fishnet_works.pop(work_id, None)
                 continue
+        if not _worker_request_supports_work(data, work_item):
+            continue
         if not _work_variant_allows_fishnet(app_state, work_item):
             log.warning(
                 "Dropping stale fishnet work %s because AI is temporarily disabled for variant %s",
@@ -923,7 +1016,9 @@ async def fishnet_acquire(request: web.Request) -> web.Response:
         )
 
     worker = FISHNET_KEYS[key]
-    app_state.fishnet_worker_last_seen[key] = monotonic()
+    now = monotonic()
+    app_state.fishnet_worker_last_seen[key] = now
+    _record_fishnet_capabilities(app_state, data, now=now)
     app_state.fishnet_versions[worker] = "%s %s" % (version, en)
 
     if key not in app_state.workers:
@@ -950,7 +1045,9 @@ async def fishnet_analysis(request: web.Request) -> web.Response:
     if key not in FISHNET_KEYS:
         return web.Response(status=404)
     worker = FISHNET_KEYS[key]
-    app_state.fishnet_worker_last_seen[key] = monotonic()
+    now = monotonic()
+    app_state.fishnet_worker_last_seen[key] = now
+    _record_fishnet_capabilities(app_state, data, now=now)
 
     if work_id not in app_state.fishnet_works:
         response = await get_work(app_state, data)
@@ -1062,7 +1159,9 @@ async def fishnet_move(request: web.Request) -> web.Response:
     if key not in FISHNET_KEYS:
         return web.Response(status=404)
     worker = FISHNET_KEYS[key]
-    app_state.fishnet_worker_last_seen[key] = monotonic()
+    now = monotonic()
+    app_state.fishnet_worker_last_seen[key] = now
+    _record_fishnet_capabilities(app_state, data, now=now)
 
     app_state.fishnet_monitor[worker].append("%s %s %s" % (datetime.now(UTC), work_id, "move"))
 
@@ -1170,6 +1269,10 @@ async def fishnet_abort(request: web.Request) -> web.Response:
     except KeyError:
         log.debug("Worker %s was already removed", worker)
     app_state.fishnet_worker_last_seen.pop(key, None)
+    capability_last_seen = _fishnet_capability_last_seen(app_state)
+    for capability in tuple(capability_last_seen):
+        if capability[0] == key:
+            capability_last_seen.pop(capability, None)
     no_workers = len(app_state.workers) == 0
 
     work = app_state.fishnet_works.get(work_id)

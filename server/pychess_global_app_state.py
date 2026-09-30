@@ -294,6 +294,9 @@ class PychessGlobalAppState:
             # fishnet active workers
             self.workers = set()
             self.fishnet_worker_last_seen: dict[str, float] = {}
+            # Optional engine capabilities are timestamped independently because
+            # multiple worker processes may share the same fishnet API key.
+            self.fishnet_worker_capability_last_seen: dict[tuple[str, str], float] = {}
             # fishnet works
             self.fishnet_works = {}
             # Per-work custom variants.ini payloads by sha256. Built-in engine
