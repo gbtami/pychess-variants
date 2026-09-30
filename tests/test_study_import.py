@@ -158,6 +158,38 @@ class StudyImportTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertIn("Imported chapter 2", result["error"])
         self.assertEqual(await self.db.study_chapter.count_documents({"studyId": self.study.id}), 1)
 
+    async def test_imports_alice_chapter_with_mirror_board_fen(self) -> None:
+        # Position after 1.e4 d6 2.Bc4 Qxd2, immediately before 3.Bb5#.
+        # Alice FEN uses ``|`` inside the placement field to mark pieces that
+        # currently occupy the mirror board. pyffish-alice is authoritative for
+        # this syntax; generic first-class FEN character checks must not reject it.
+        initial_fen = (
+            "rnb1kbnr/ppp1pppp/3|p4/8/2|B1|P3/8/PPP|q1PPP/RNBQK1NR "
+            "w KQkq - 0 3"
+        )
+        chapter = {
+            "name": "Alice mate",
+            "variant": "alice",
+            "chess960": False,
+            "initialFen": initial_fen,
+            "orientation": "white",
+            "description": "",
+            "tags": {"Event": "Alice Chess"},
+            "tree": {"nodes": [self._node("NodeAlice1", "c4b5")]},
+        }
+
+        response = await self._request({"chapters": [chapter]})
+        self.assertEqual(response.status, 200)
+
+        doc = await self.db.study_chapter.find_one(
+            {"studyId": self.study.id, "name": "Alice mate"}
+        )
+        assert doc is not None
+        self.assertEqual(doc["initialFen"], initial_fen)
+        node = next(value for key, value in doc["root"].items() if key != "_")
+        self.assertEqual(node["m"], "c4b5")
+        self.assertEqual(node["s"], "Bb5#")
+
     async def test_accepts_embedded_custom_variant_snapshot_without_live_catalog_entry(
         self,
     ) -> None:

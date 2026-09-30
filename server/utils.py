@@ -1545,6 +1545,10 @@ def sanitize_fen(variant, initial_fen, chess960, base=False):
     # Only piece types listed in variant start position can be used later
     if variant == "dobutsu":
         non_piece = "~+0123456789[]hH-"
+    elif variant == "alice":
+        # pyffish-alice uses ``|`` in the placement field to mark pieces that
+        # currently occupy the mirror board.
+        non_piece = "~+0123456789[]-|"
     elif variant == "orda":
         non_piece = "~+0123456789[]qH-"
     elif variant == "duck":
