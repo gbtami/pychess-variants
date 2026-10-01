@@ -1115,7 +1115,9 @@ class FishnetCapabilityTestCase(unittest.IsolatedAsyncioTestCase):
         game = SimpleNamespace(
             id="g-alice",
             steps=[],
-            board=SimpleNamespace(initial_fen="startpos", move_stack=[], nnue=True),
+            board=SimpleNamespace(
+                initial_fen="startpos", move_stack=[], nnue=True, variant="alice"
+            ),
             variant="alice",
             chess960=False,
         )
@@ -1152,7 +1154,9 @@ class FishnetCapabilityTestCase(unittest.IsolatedAsyncioTestCase):
         game = SimpleNamespace(
             id="g-alice",
             steps=[],
-            board=SimpleNamespace(initial_fen="startpos", move_stack=[], nnue=True),
+            board=SimpleNamespace(
+                initial_fen="startpos", move_stack=[], nnue=True, variant="alice"
+            ),
             variant="alice",
             chess960=False,
         )
