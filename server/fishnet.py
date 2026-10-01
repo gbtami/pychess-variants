@@ -615,6 +615,7 @@ def has_available_fishnet_worker(
     capability_last_seen = _fishnet_capability_last_seen(app_state)
     return any(
         key in app_state.workers
+        and (key, normalized_variant) in capability_last_seen
         and now - capability_last_seen.get((key, normalized_variant), 0.0)
         <= FISHNET_ACTIVITY_TIMEOUT
         for key in app_state.workers

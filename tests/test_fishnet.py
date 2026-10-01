@@ -1098,6 +1098,11 @@ class FishnetCapabilityTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(fishnet.has_available_fishnet_worker(app_state, variant="chess", now=now))
         self.assertFalse(fishnet.has_available_fishnet_worker(app_state, variant="alice", now=now))
 
+        app_state.fishnet_worker_capability_last_seen.clear()
+        self.assertFalse(
+            fishnet.has_available_fishnet_worker(app_state, variant="alice", now=100.0)
+        )
+
         fishnet._record_fishnet_capabilities(
             app_state,
             {
