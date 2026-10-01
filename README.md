@@ -17,6 +17,8 @@ For move generation, validation, analysis and engine play it uses:
 - [fairy-stockfish.wasm](https://github.com/fairy-stockfish/fairy-stockfish.wasm)
 - [fairyfishnet](https://github.com/gbtami/fairyfishnet) fork of [fishnet](https://github.com/lichess-org/fishnet)
 
+Server and browser engine support are separate capabilities; see [docs/Engine-Capabilities.md](docs/Engine-Capabilities.md).
+
 On client side it is based on
 [chessgroundx](https://github.com/gbtami/chessgroundx) fork of [chessground](https://github.com/lichess-org/chessground)
 

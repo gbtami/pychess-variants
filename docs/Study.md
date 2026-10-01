@@ -41,7 +41,8 @@ one validated import and opens the final imported chapter.
 - Root and move arrows/circles and NAGs, including a picker for the 24 named lichess
   glyphs. Comments, glyphs, PGN tags, descriptions, and sharing have dedicated tools.
 - Chapter-wide Clear annotations and Clear variations actions.
-- Local engine analysis, subject to the viewer's computer-analysis permission.
+- Local engine analysis, subject to the viewer's computer-analysis permission and
+  support from the browser engine loaded for that variant.
 - Contributor requests for Fishnet analysis of a chapter's preferred mainline, with
   at least five moves, a five-minute repeat guard, one pending Study analysis per
   account, and rolling per-account analysis budgets.
@@ -157,6 +158,10 @@ hint as explanatory text.
 
 Practice requires the viewer's computer-analysis permission, no conflicting active
 eligible live game, and a variant supported by the browser Fairy-Stockfish instance.
+This browser/WASM capability is independent of server Fishnet support: a variant may
+support Play-AI and server analysis through a dedicated worker engine while remaining
+unavailable for local analysis or Practice. Alice Chess is the current example.
+See [Engine-Capabilities.md](Engine-Capabilities.md) for the cross-feature capability model.
 Saved custom rules are passed to the browser engine. Two-board variants are explicitly
 unsupported, and engine/permission/time-out failures show an unavailable state rather
 than falling back to server Fishnet work. A failed engine drain barrier fails closed
