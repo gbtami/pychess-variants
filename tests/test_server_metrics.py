@@ -8,7 +8,7 @@ from aiohttp.test_utils import AioHTTPTestCase
 from fairy.fairy_board import FOG_FEN_CACHE_SIZE
 from mongomock_motor import AsyncMongoMockClient
 from pychess_global_app_state_utils import get_app_state
-from server_metrics import memory_stats
+from server_metrics import _peak_rss_kib, memory_stats, process_memory_stats
 from tournament.tournament import PLAYER_JSON_CACHE_SIZE
 from user import User
 
@@ -40,6 +40,35 @@ class ServerMetricsMemoryStatsTestCase(unittest.TestCase):
             ],
         )
         self.assertNotIn("sensitive-payload", str(queues))
+
+
+class PeakRssUnitTestCase(unittest.TestCase):
+    """``ru_maxrss`` is kibibytes everywhere except macOS, where it is bytes."""
+
+    def test_linux_value_is_already_kibibytes(self):
+        self.assertEqual(_peak_rss_kib(65_536, "linux"), 65_536)
+
+    def test_macos_value_is_bytes(self):
+        self.assertEqual(_peak_rss_kib(65_536 * 1024, "darwin"), 65_536)
+
+    def test_bsd_value_is_already_kibibytes(self):
+        # FreeBSD's getrusage(2) documents kilobytes, like Linux; only macOS
+        # reports bytes. Converting here would under-report RSS 1024x.
+        self.assertEqual(_peak_rss_kib(65_536, "freebsd"), 65_536)
+
+    def test_process_memory_stats_converts_using_the_platform(self):
+        """The call site has to forward sys.platform, not assume one unit."""
+        with patch("server_metrics.resource") as resource_module:
+            resource_module.getrusage.return_value.ru_maxrss = 65_536 * 1024
+
+            with patch("server_metrics.sys.platform", "darwin"):
+                darwin_stats = process_memory_stats()
+            with patch("server_metrics.sys.platform", "linux"):
+                linux_stats = process_memory_stats()
+
+        self.assertEqual(darwin_stats["peak_rss_kib"], 65_536)
+        self.assertEqual(darwin_stats["peak_rss_mib"], 64.0)
+        self.assertEqual(linux_stats["peak_rss_kib"], 65_536 * 1024)
 
 
 class ServerMetricsDiagnosticsTestCase(AioHTTPTestCase):
