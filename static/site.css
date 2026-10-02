@@ -766,7 +766,8 @@ ul.guide li {
   padding: 0 0.7rem;
 }
 .nav-link:link,
-.nav-link:visited {
+.nav-link:visited,
+.topnav button.nav-link {
   color: var(--link-color);
 }
 .drp .nav-link {
@@ -807,14 +808,27 @@ ul.guide li {
   color: var(--font-color);
 }
 
-.topnav a {
+.topnav a,
+.topnav button.nav-link {
   float: left;
   height: var(--site-header-height);
   font-size: 14px;
   white-space: nowrap;
   overflow: visible;
 }
-.topnav section > a {
+/* A BUTTON THAT MUST LOOK LIKE THE LINKS AROUND IT. There is no global button reset in this file;
+   `div button.login-btn` (~4494) is the header's existing precedent, and this mirrors it. */
+.topnav button.nav-section {
+  appearance: none;
+  background: none;
+  border: 0;
+  margin: 0;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.topnav section > .nav-section {
     text-transform: uppercase;
 }
 .topnav span {
@@ -847,7 +861,7 @@ ul.guide li {
     flex: 1 1 max-content;
     min-width: 6ch;
   }
-  .topnav section > a {
+  .topnav section > .nav-section {
     float: none;
     display: block;
     width: 100%;
@@ -865,8 +879,7 @@ ul.guide li {
     white-space: nowrap;
   }
 
-  .topnav section:hover > a,
-  .topnav section:focus-within > a,
+  .topnav section:hover > .nav-section,
   .topnav > a.donate-link:hover,
   .topnav > a.donate-link:focus-visible {
     width: max-content;
@@ -917,7 +930,7 @@ ul.guide li {
   .variant-name {
     display: none;
   }
-  .topnav section > a {
+  .topnav section > .nav-section {
     display: none;
   }
 }
@@ -928,11 +941,11 @@ ul.guide li {
     position: relative;
   }
 
-  .topnav section > a:first-child:hover {
+  .topnav section > .nav-section:first-child:hover {
     color: var(--font-color);
   }
 
-  div.topnav section:hover {
+  .topnav section:hover {
     background-color: var(--drop-down);
   }
 
@@ -985,7 +998,7 @@ ul.guide li {
     box-shadow: inset 2px 0px 0px 0px #3692e7;
   }
 
-  .topnav section:hover > a {
+  .topnav section:hover > .nav-section {
     color: var(--font-color);
   }
 
@@ -993,7 +1006,34 @@ ul.guide li {
     color: white;
   }
 
-  .topnav section:hover .drp {
+  /* HOVER IS NOT THE ONLY WAY IN. `visibility: hidden` takes a subtree out of the tab order AND
+     out of the accessibility tree, so with `:hover` alone every submenu link was unreachable
+     without a mouse. Measured on the lobby before this rule: of the links in this bar only EIGHT
+     could be focused — Home, the six section titles, and Donate — and every submenu link was
+     unreachable, so Tournaments, Simuls, Forum, Teams, Studies, Import game and Advanced search
+     could not be got to at all. WCAG 2.1.1 Keyboard, Level A. After it, all of them can.
+
+     `:focus-within` costs nothing visually — it fires only when something inside is focused, which
+     never happens under a mouse — and it is already the idiom this file uses for the challenge
+     notification (`.notification.challenge:focus-within`, line ~1231).
+
+     IT IS HALF THE FIX, AND THE HALF THAT IS FREE. A screen reader in BROWSE mode focuses nothing,
+     so this rule never fires for it and the submenu stays out of the tree. Being discoverable there
+     needs the section title to announce a collapsed/expanded state, which is a markup change. */
+  /* ARIA IS THE STATE, AND CSS READS IT. `aria-expanded` on the section's button is the single
+     source of truth for whether this menu is open, so what a screen reader is told and what is on
+     screen cannot drift apart. There is deliberately no companion `.open` class to keep in step.
+
+     `:hover` stays as a stateless preview for pointers, which means a hovered menu shows while its
+     button still says `aria-expanded="false"`. Accepted: nothing hovering is running a screen
+     reader, and the LATCHED state -- the only one a keyboard or AT interaction can produce -- is
+     always truthful. `topNav.ts` closes on `mouseleave` so a clicked-open menu never latches for a
+     mouse user.
+
+     `:focus-within` USED TO BE HERE and goes with the button (4e7e6f04d, superseded): focus that
+     opens fights activation that toggles -- Tab would open and Enter would immediately close. */
+  .topnav section:hover .drp,
+  .topnav section > .nav-section[aria-expanded='true'] + .drp {
     visibility: visible;
   }
 }
@@ -3760,7 +3800,15 @@ input:invalid {
   overflow: hidden;
 }
 
-.search-bar.active {
+/* `:focus-within` beside `.active`, because the click is not the only way in. `overflow: hidden`
+   still makes this a SCROLL CONTAINER: tabbing to `#search-input` -- which is focusable but clipped
+   outside the collapsed 50px -- makes the browser scroll it into view, leaving `scrollLeft` at 36-60
+   depending on layout. The icon is then pushed out of the aperture and the input's text sits against
+   `#username`, reading as "SearchTest-Soldie...". Nothing ever resets it -- `collapse()` only removes
+   the class -- so the header stays wrong until a reload. Expanding on focus means the content fits,
+   so there is nothing to scroll and `scrollLeft` stays 0. Mouse behaviour is unchanged. */
+.search-bar.active,
+.search-bar:focus-within {
   width: 250px;
   overflow: inherit;
 }

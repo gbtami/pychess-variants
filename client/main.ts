@@ -57,6 +57,7 @@ import { maybeShowGameCategoryIntro } from './gameCategoryIntro';
 import { initTournamentForm } from './tournamentForm';
 import { initUserMiniWidget } from './userMiniWidget';
 import { initUblogLike } from './ublogLike';
+import { initTopNavDisclosures } from './topNav';
 import { initUblogMarkdown } from './ublogMarkdown';
 import { initUblogEditor } from './ublogEditor';
 import { initPushSubscription } from './push';
@@ -520,6 +521,12 @@ if (el instanceof Element) {
             i18n.setLocale('');
         }
     }
+
+    /* THE HEADER NAV IS WIRED BEFORE THE TRANSLATION FETCH, unlike everything below it. Its labels
+       come from the server-rendered template, so it has no i18n dependency -- and `start()` only
+       runs after an awaited `fetch` of client.json, which would leave the six menus dead for a
+       round trip after first paint, exactly when a screen reader is building its buffer. */
+    initTopNavDisclosures();
 
     void loadTranslations()
         .then(() => {
