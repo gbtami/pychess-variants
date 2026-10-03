@@ -558,6 +558,38 @@ def _prune_stale_fishnet_capabilities(app_state: PychessGlobalAppState, *, now: 
             last_seen.pop(capability, None)
 
 
+def _sync_alice_stockfish_online(
+    app_state: PychessGlobalAppState, *, now: float | None = None
+) -> None:
+    users = getattr(app_state, "users", None)
+    if users is None:
+        return
+    users_data = getattr(users, "data", users)
+    alice_stockfish = users_data.get("Alice-Stockfish")
+    if alice_stockfish is None:
+        return
+    if now is None:
+        now = monotonic()
+    capability_last_seen = _fishnet_capability_last_seen(app_state)
+    alice_stockfish.online = any(
+        key in app_state.workers
+        and _fishnet_worker_is_recent(app_state, key, now)
+        and now - capability_last_seen.get((key, "alice"), 0.0) <= FISHNET_ACTIVITY_TIMEOUT
+        for key in app_state.workers
+    )
+
+
+def _fishnet_bot_player(app_state: PychessGlobalAppState, game: Game):
+    wplayer = getattr(game, "wplayer", None)
+    bplayer = getattr(game, "bplayer", None)
+    bot_players = [player for player in (wplayer, bplayer) if player is not None and player.bot]
+    if len(bot_players) == 1:
+        return bot_players[0]
+    if wplayer is not None and bplayer is not None:
+        return bplayer if game.board.color else wplayer
+    return app_state.users["Fairy-Stockfish"]
+
+
 def prune_stale_fishnet_workers(
     app_state: PychessGlobalAppState, *, now: float | None = None
 ) -> int:
@@ -584,6 +616,7 @@ def prune_stale_fishnet_workers(
         if "Fairy-Stockfish" in users:
             users["Fairy-Stockfish"].online = False
 
+    _sync_alice_stockfish_online(app_state, now=now)
     return len(stale_keys)
 
 
@@ -738,7 +771,7 @@ async def _adjudicate_failing_move_work(
         _stale_reissue_count(work),
     )
 
-    bot_user = app_state.users["Fairy-Stockfish"]
+    bot_user = _fishnet_bot_player(app_state, game)
     async with game.move_lock:
         response = await game.game_ended(bot_user, "resign")
 
@@ -1031,6 +1064,7 @@ async def fishnet_acquire(request: web.Request) -> web.Response:
         app_state.fishnet_monitor[worker].append("%s %s %s" % (datetime.now(UTC), "-", "joined"))
         app_state.fishnet_monitor[worker].append(nnue)
         app_state.users["Fairy-Stockfish"].online = True
+    _sync_alice_stockfish_online(app_state, now=now)
 
     response = await get_work(app_state, data)
     return response
@@ -1053,6 +1087,7 @@ async def fishnet_analysis(request: web.Request) -> web.Response:
     now = monotonic()
     app_state.fishnet_worker_last_seen[key] = now
     _record_fishnet_capabilities(app_state, data, now=now)
+    _sync_alice_stockfish_online(app_state, now=now)
 
     if work_id not in app_state.fishnet_works:
         response = await get_work(app_state, data)
@@ -1167,6 +1202,7 @@ async def fishnet_move(request: web.Request) -> web.Response:
     now = monotonic()
     app_state.fishnet_worker_last_seen[key] = now
     _record_fishnet_capabilities(app_state, data, now=now)
+    _sync_alice_stockfish_online(app_state, now=now)
 
     app_state.fishnet_monitor[worker].append("%s %s %s" % (datetime.now(UTC), work_id, "move"))
 
@@ -1191,7 +1227,7 @@ async def fishnet_move(request: web.Request) -> web.Response:
     if TYPE_CHECKING:
         assert isinstance(game, Game)
 
-    user = app_state.users["Fairy-Stockfish"]
+    user = _fishnet_bot_player(app_state, game)
     reported_fen = data.get("move", {}).get("fen")
 
     # Allow the fishnet move only if the server-side move stack is still the one
@@ -1278,6 +1314,7 @@ async def fishnet_abort(request: web.Request) -> web.Response:
     for capability in tuple(capability_last_seen):
         if capability[0] == key:
             capability_last_seen.pop(capability, None)
+    _sync_alice_stockfish_online(app_state)
     no_workers = len(app_state.workers) == 0
 
     work = app_state.fishnet_works.get(work_id)

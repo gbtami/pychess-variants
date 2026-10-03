@@ -16,9 +16,9 @@ describe('AI display rendering', () => {
         expect(aiDisplayName('Random-Mover', 'alice')).toBe('Random-Mover');
     });
 
-    test('shows levels only for the built-in Fairy-Stockfish opponent', () => {
+    test('shows levels for built-in engine opponents', () => {
         expect(aiLevel('Fairy-Stockfish', 6)).toBe(' level 6');
+        expect(aiLevel('Alice-Stockfish', 6)).toBe(' level 6');
         expect(aiLevel('Random-Mover', 0)).toBe('');
-        expect(aiLevel('Alice-Stockfish', 6)).toBe('');
     });
 });

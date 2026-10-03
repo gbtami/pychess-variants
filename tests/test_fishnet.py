@@ -337,6 +337,65 @@ class FishnetTestCase(unittest.IsolatedAsyncioTestCase):
         play_move.assert_awaited_once()
         self.assertNotIn("work123", app_state.fishnet_works)
 
+    async def test_fishnet_move_uses_alice_stockfish_game_player(self):
+        work = {
+            "work": {"type": "move", "id": "work-alice", "level": 1},
+            "game_id": "g-alice",
+            "position": "startpos",
+            "variant": "alice",
+            "chess960": False,
+            "moves": "",
+            "nnue": True,
+            "time": 100.0,
+        }
+        fairy = SimpleNamespace(online=True)
+        alice = SimpleNamespace(username="Alice-Stockfish", bot=True, online=True)
+        human = SimpleNamespace(username="human", bot=False)
+        app_state = SimpleNamespace(
+            fishnet_monitor=defaultdict(list, {"worker1": []}),
+            fishnet_queue=asyncio.PriorityQueue(),
+            fishnet_works={"work-alice": work},
+            workers={"k"},
+            fishnet_worker_last_seen={"k": 100.0},
+            users={"Fairy-Stockfish": fairy, "Alice-Stockfish": alice},
+            catalogued_variants={},
+        )
+        game = SimpleNamespace(
+            id="g-alice",
+            status=fishnet.STARTED,
+            wplayer=human,
+            bplayer=alice,
+            board=SimpleNamespace(fen="fen", move_stack=[], color=1),
+            move_lock=asyncio.Lock(),
+        )
+        request = cast(web.Request, AsyncMock())
+        request.match_info = {"workId": "work-alice"}
+        request.app = {pychess_global_app_state_key: app_state}
+        request.rel_url = SimpleNamespace(path="/fishnet/move/work-alice")
+        request.remote = "10.1.1.1"
+        request.json = AsyncMock(
+            return_value={
+                "fishnet": {
+                    "apikey": "k",
+                    "capabilities": {"variants": ["alice"]},
+                },
+                "move": {"bestmove": "e7e5", "fen": "fen"},
+            }
+        )
+
+        with (
+            patch.dict(fishnet.FISHNET_KEYS, {"k": "worker1"}, clear=True),
+            patch("fishnet.load_game", AsyncMock(return_value=game)),
+            patch("fishnet.play_move", AsyncMock()) as play_move,
+            patch("fishnet.clear_catalogued_variant_ai_failures", AsyncMock()),
+            patch("fishnet.monotonic", return_value=101.0),
+        ):
+            response = await fishnet.fishnet_move(request)
+
+        self.assertEqual(response.status, 204)
+        play_move.assert_awaited_once_with(app_state, alice, game, "e7e5")
+        self.assertNotIn("work-alice", app_state.fishnet_works)
+
     async def test_fishnet_move_discards_when_server_move_stack_changed(self):
         work = {
             "work": {"type": "move", "id": "work123", "level": 1},
@@ -1082,6 +1141,28 @@ class FishnetCapabilityTestCase(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(response.status, 202)
         self.assertEqual(json.loads(response.text)["work"]["id"], "a-alice")
+
+    def test_alice_stockfish_online_tracks_capable_worker(self):
+        now = 1000.0
+        alice = SimpleNamespace(online=False)
+        app_state = SimpleNamespace(
+            workers={"k"},
+            fishnet_worker_last_seen={"k": now},
+            fishnet_worker_capability_last_seen={("k", "alice"): now},
+            users={
+                "Fairy-Stockfish": SimpleNamespace(online=True),
+                "Alice-Stockfish": alice,
+            },
+        )
+
+        fishnet._sync_alice_stockfish_online(app_state, now=now)
+        self.assertTrue(alice.online)
+
+        app_state.fishnet_worker_capability_last_seen[("k", "alice")] = (
+            now - fishnet.FISHNET_ACTIVITY_TIMEOUT - 1.0
+        )
+        fishnet._sync_alice_stockfish_online(app_state, now=now)
+        self.assertFalse(alice.online)
 
     def test_variant_specific_availability_uses_capability_heartbeat(self):
         now = 1000.0

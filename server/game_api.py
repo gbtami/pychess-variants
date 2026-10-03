@@ -160,8 +160,8 @@ async def variant_counts_aggregation(
 
     if humans:
         match_cond["$and"] = [
-            {"us.0": {"$nin": ["Fairy-Stockfish", "Random-Mover"]}},
-            {"us.1": {"$nin": ["Fairy-Stockfish", "Random-Mover"]}},
+            {"us.0": {"$nin": ["Fairy-Stockfish", "Alice-Stockfish", "Random-Mover"]}},
+            {"us.1": {"$nin": ["Fairy-Stockfish", "Alice-Stockfish", "Random-Mover"]}},
         ]
 
     if len(match_cond) > 0:

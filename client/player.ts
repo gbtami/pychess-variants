@@ -19,7 +19,8 @@ export function player(
     patron = false,
     variant = '',
 ): VNode {
-    const displayName = displayUsername(aiDisplayName(name, variant));
+    const playerName = aiDisplayName(name, variant);
+    const displayName = displayUsername(playerName);
     return h(root, [
         h('div.player-data', [
             h('i-side#' + id + '.icon', {
@@ -33,9 +34,9 @@ export function player(
                 attrs: patron ? { title: _('PyChess Patron') } : {},
             }),
             h('player', [
-                userLink(name, [
+                userLink(playerName, [
                     title !== '' ? h('player-title', title + ' ') : '',
-                    displayName + aiLevel(name, level),
+                    displayName + aiLevel(playerName, level),
                 ]),
                 h('rating', title !== 'BOT' ? rating : ''),
             ]),

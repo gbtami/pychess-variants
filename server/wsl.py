@@ -318,6 +318,15 @@ async def handle_create_ai_challenge(
     if force_random_mover:
         # TODO: message that engine is offline, but Random-Mover BOT will play instead
         engine = app_state.users["Random-Mover"]
+    elif variant == "alice" and profileid == "Fairy-Stockfish":
+        if "Alice-Stockfish" in app_state.users:
+            engine = app_state.users["Alice-Stockfish"]
+        else:
+            log.warning(
+                "Alice-Stockfish BOT account is unavailable; using Random-Mover for Alice AI game"
+            )
+            force_random_mover = True
+            engine = app_state.users["Random-Mover"]
 
     seek_id = await new_id(None if app_state.db is None else app_state.db.seek)
     seek = Seek(

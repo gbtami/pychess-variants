@@ -800,7 +800,7 @@ async def handle_rematch(
             engine = opp_player
 
             if not engine.online:
-                if engine.username in ("Fairy-Stockfish", "Random-Mover"):
+                if engine.username in ("Fairy-Stockfish", "Alice-Stockfish", "Random-Mover"):
                     # Preserve old built-in-AI fallback behavior.
                     engine = app_state.users["Random-Mover"]
                 else:

@@ -1270,6 +1270,7 @@ async def play_move(
                 in (
                     "Random-Mover",
                     "Fairy-Stockfish",
+                    "Alice-Stockfish",
                 )
             ):
                 await send_bot_game_start_unless_streaming(users[opp_name], game)

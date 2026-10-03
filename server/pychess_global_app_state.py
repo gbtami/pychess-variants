@@ -436,6 +436,20 @@ class PychessGlobalAppState:
 
                     await init_catalogued_variants(self)
 
+            with startup.phase("load Alice-Stockfish bot account"):
+                alice_stockfish_doc = await self.db.user.find_one({"_id": "Alice-Stockfish"})
+                if alice_stockfish_doc is not None and alice_stockfish_doc.get("title") == "BOT":
+                    alice_stockfish = await self.users.get("Alice-Stockfish")
+                    self.create_background_task(
+                        BOT_task(alice_stockfish, self),
+                        name="BOT-Alice-Stockfish",
+                    )
+                else:
+                    log.debug(
+                        "Alice-Stockfish BOT account is unavailable; Alice AI games will "
+                        "fall back to Random-Mover"
+                    )
+
             # RR arrangement documents refer to challenge invite ids. Restore persisted
             # seeks first so tournament load can distinguish a live graceful-restart
             # challenge from a genuinely stale crash-left arrangement.
