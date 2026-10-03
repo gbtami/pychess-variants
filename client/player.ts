@@ -1,6 +1,6 @@
 import { h, VNode } from 'snabbdom';
 
-import { aiLevel } from './result';
+import { aiDisplayName, aiLevel } from './result';
 import { _ } from './i18n';
 import { displayUsername, userLink } from './user';
 
@@ -17,8 +17,9 @@ export function player(
     online = false,
     root = 'round-' + id,
     patron = false,
+    variant = '',
 ): VNode {
-    const displayName = displayUsername(name);
+    const displayName = displayUsername(aiDisplayName(name, variant));
     return h(root, [
         h('div.player-data', [
             h('i-side#' + id + '.icon', {

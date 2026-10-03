@@ -294,6 +294,7 @@ export class RoundController extends GameController {
                 false,
                 undefined,
                 this.patrons[0],
+                this.variant.name,
             ),
         );
         this.vplayer1 = patch(
@@ -307,6 +308,7 @@ export class RoundController extends GameController {
                 false,
                 undefined,
                 this.patrons[1],
+                this.variant.name,
             ),
         );
 
@@ -662,6 +664,7 @@ export class RoundController extends GameController {
                 false,
                 undefined,
                 this.patrons[this.flipped() ? 1 : 0],
+                this.variant.name,
             ),
         );
         this.vplayer1 = patch(
@@ -675,6 +678,7 @@ export class RoundController extends GameController {
                 false,
                 undefined,
                 this.patrons[this.flipped() ? 0 : 1],
+                this.variant.name,
             ),
         );
 
